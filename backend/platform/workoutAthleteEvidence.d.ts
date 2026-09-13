@@ -1,6 +1,13 @@
 import type { LibraryReadClient } from './workoutProgrammingLibrarians.js'
 import type { NormalizedCoachWorkoutRequest, ProgrammingEvidenceKind, ProgrammingEvidenceReference } from './workoutProgrammingRequest.js'
 export const PROGRAMMING_ATHLETE_EVIDENCE_VERSION: '1.0.0'
+export interface ProgrammingEvidenceChoice {
+  readonly kind: 'skill_progress' | 'assessment_result' | 'gymnastics_evaluation'; readonly id: string; readonly memberId: string
+  readonly observedAt: string; readonly sourceHash: string; readonly label: string; readonly measurement: string
+  readonly coachObserved: boolean; readonly truncated: boolean
+}
+export function loadWorkoutAthleteEvidenceChoices(client: LibraryReadClient, context: { readonly facilityId: string | number; readonly userId: string | number },
+  options: { readonly memberId: string; readonly kind: ProgrammingEvidenceChoice['kind']; readonly asOfDate: string }): Promise<readonly ProgrammingEvidenceChoice[]>
 export interface ProgrammingAthleteObservation {
   readonly kind: ProgrammingEvidenceKind
   readonly id: string

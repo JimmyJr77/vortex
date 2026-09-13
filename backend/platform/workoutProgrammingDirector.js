@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { randomUUID } from 'node:crypto'
+import { libraryScopeId } from './coachingLibraryContext.js'
 import { normalizeSessionComponentPlan } from './sessionComponentContract.js'
 import { loadWorkoutProgrammingMaterials } from './workoutProgrammingLibrarians.js'
 import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingStaffRuntime.js'
@@ -190,6 +191,7 @@ export async function directWorkoutProgramming({ pool, context, rawRequest, regi
     }
   }
   return immutableProgrammingValue({ schemaVersion: PROGRAMMING_DIRECTOR_VERSION, intentId: randomUUID(),
+    scope: { facilityId: libraryScopeId(context.facilityId, 'facilityId'), userId: libraryScopeId(context.userId, 'userId') },
     request, requestHash: programmingValueHash(request), componentPlan, resources, proposal, athleteAdvice, consultantAdvice, athleteEvidence,
     decisionSource, status: issues.length ? 'NEEDS_COACH_REVIEW' : 'INTENT_READY', issues,
     preparationStatus: 'DEFERRED_UNTIL_DOWNSTREAM_PRESCRIPTION', omittedComponentKeys: request.components.filter((component) => budgets[component.key] === 0).map((component) => component.key),

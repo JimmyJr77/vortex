@@ -1,0 +1,471 @@
+{
+  "id": "proposal:or06:first-flight-teach",
+  "slug": "small-bilateral-vertical-jump-to-stick-first-flight-teaching",
+  "canonicalName": "Small Bilateral Vertical Jump to Stick \u2014 First-Flight Teaching Proposal",
+  "displayName": "Small Bilateral Jump and Hold \u2014 first counted flight instruction",
+  "aliases": [
+    "OR-06 First-Flight Teaching Proposal"
+  ],
+  "cardVersion": 1,
+  "schemaVersion": "1.0.0",
+  "status": "draft",
+  "familyId": "proposal:bilateral-countermovement-jump-instruction",
+  "variantId": "proposal:or06:small-natural-arm-bilateral-jump-hold",
+  "proposalGovernance": {
+    "documentationKey": "FIRST-FLIGHT-TEACH",
+    "schemaPath": "docs/workout-generator/schemas/exercise-card.schema.json",
+    "completeCardSectionReference": "docs/EXERCISE_CARD_SPEC.md:9",
+    "idPolicy": "id, familyId, variantId and profile id are explicit local documentation proposal labels only. They are not canonical, legacy, source or approved record IDs.",
+    "liveCanonicalDefinitionId": null,
+    "liveCanonicalVariantId": null,
+    "liveCanonicalProfileId": null,
+    "legacySourceId": null,
+    "currentApprovalVerified": false,
+    "humanApprovalRequired": true,
+    "approvedBy": null,
+    "reviewedBy": null,
+    "approvedVideoUrl": null,
+    "difficultyCalibrationApproved": false,
+    "publishReady": false,
+    "importReady": false,
+    "identityResolutionNeeded": "Review whether this belongs as a first-flight instructional delivery profile/variant under countermovement-jump or another existing owner. A new independent canonical definition is not presumed.",
+    "scope": "Document proposal only; no schema, migration, database, source card or app edits."
+  },
+  "description": "A first counted low-demand in-place bilateral takeoff and held landing taught after actual grounded control, conduct and environment checks, without demanding a previous successful flight. Uses one small shallow countermovement with small natural arms and a full reset.",
+  "familyKey": "bilateral_countermovement_jump_instruction",
+  "programmingKind": "skill_drill",
+  "contentConfidence": null,
+  "scoringConfidence": null,
+  "mediaConfidence": null,
+  "difficulty": {
+    "technicalComplexity": null,
+    "absoluteLoadDemand": null,
+    "coordinationDemand": null,
+    "supervisionDemand": null,
+    "failureConsequence": null,
+    "impact": null,
+    "workCapacityDemand": null,
+    "baseOverallDifficulty": null
+  },
+  "difficultyReview": {
+    "status": "unscored_pending_independent_task_calibration",
+    "rule": "No source scores are copied from high-output CMJ, squat jump, pogo or forward jump. Null scores are permitted by the existing schema. No athlete skill label or age clearance is inferred."
+  },
+  "movementPatterns": [
+    "bilateral_vertical_jump",
+    "bilateral_floor_landing",
+    "stabilize",
+    "full_reset"
+  ],
+  "bodyRegions": [
+    "foot",
+    "ankle",
+    "lower_leg",
+    "knee",
+    "thigh",
+    "hip",
+    "pelvis",
+    "core",
+    "spine",
+    "shoulder",
+    "arm"
+  ],
+  "movementRequirements": {
+    "primaryJointActions": [
+      "ankle_plantarflexion",
+      "knee_extension",
+      "hip_extension",
+      "ankle_knee_hip_flexion_during_landing"
+    ],
+    "primaryTissues": [
+      "lower_limb_extensors",
+      "plantar_flexors",
+      "trunk_stabilizers"
+    ],
+    "breathingDemand": "comfortable_without_prolonged_holding",
+    "balanceDemand": "bilateral_dynamic_then_held",
+    "readiness": [
+      "Comfortable current bilateral standing and the actual shallow grounded knee/hip lowering, ready-position hold and bilateral rise; actual evidence may come from a prior equivalent or the counted P2 action. Slow held-position control is not recorded as a rapid snap-down pass.",
+      "Comfortable unloaded small arm motion at the intended range and understanding of one shallow dip, small upward action, two-foot landing, hold and stop/reset instruction; coach demonstration may supply instruction, not an uncounted athlete jump.",
+      "Qualified direct observation, individually fitting protected landing/fall/overhead space, inspected level non-slip impact-appropriate surface, footwear, no cross traffic and current total impact/fatigue budget fit.",
+      "No prior successful flight is required. The first actual takeoff and landing are observed within the first listed E1 instructional attempt. Grounded readiness permits instruction only; the athlete may decline, remain grounded or stop without a forced takeoff."
+    ],
+    "requiresPriorSuccessfulFlight": false
+  },
+  "equipment": {
+    "required": [
+      "none"
+    ],
+    "optional": [
+      "nonraised_visible_footprint_markers"
+    ],
+    "externalLoad": "none",
+    "support": "none",
+    "obstacle": "none"
+  },
+  "environment": {
+    "surface": "inspected level, dry, stable, non-slip and appropriate for the actual small landing",
+    "stationCapacity": 1,
+    "plannedPersonalBayM": {
+      "width": 3,
+      "length": 3
+    },
+    "actualBayVerified": false,
+    "clearance": [
+      "vertical flight and small arm swing",
+      "landing and unexpected-drift/fall area",
+      "coach access and protected waiting/entry/exit"
+    ],
+    "traffic": "no person enters the active bay; queues remain outside landing/fall area",
+    "sightlines": [
+      "front for bilateral contacts and alignment",
+      "side for dip/travel and absorption"
+    ],
+    "boundary": "3 \u00d7 3 m is the existing planning bay assumption, not a universal source clearance or verified inventory.",
+    "clearanceRule": "15 personal 3 \u00d7 3 m planning bays, takeoff centered for nominal 1.5 m clear radius plus separate peripheral coach circulation. Verify actual body fit, surface, landing/fall/overhead space and sightlines; reconfigure or omit if inadequate. One first-flight athlete at a time with two qualified coaches; bay count is not simultaneous capacity.",
+    "maxSimultaneousFirstFlightAthletes": 1,
+    "qualifiedCoachesAssumed": 2,
+    "plannedClearRadiusM": 1.5,
+    "additionalPeripheralCoachCirculationRequired": true
+  },
+  "population": {
+    "exerciseCardDoesNotClassifyParticipants": true,
+    "readinessIsWorkoutInput": true,
+    "selectionPrerequisites": [
+      "Comfortable current bilateral standing and the actual shallow grounded knee/hip lowering, ready-position hold and bilateral rise; actual evidence may come from a prior equivalent or the counted P2 action. Slow held-position control is not recorded as a rapid snap-down pass.",
+      "Comfortable unloaded small arm motion at the intended range and understanding of one shallow dip, small upward action, two-foot landing, hold and stop/reset instruction; coach demonstration may supply instruction, not an uncounted athlete jump.",
+      "Qualified direct observation, individually fitting protected landing/fall/overhead space, inspected level non-slip impact-appropriate surface, footwear, no cross traffic and current total impact/fatigue budget fit.",
+      "No prior successful flight is required. The first actual takeoff and landing are observed within the first listed E1 instructional attempt. Grounded readiness permits instruction only; the athlete may decline, remain grounded or stop without a forced takeoff."
+    ],
+    "instructionEntryIsNotCompletion": true,
+    "ageBandsInCurrentLesson": [
+      "9-11",
+      "12-14",
+      "15-18"
+    ],
+    "noAutomaticAgeLoadOrHeightIncrease": true,
+    "firstFlightBranchKeepsUnloadedHinge": true
+  },
+  "anatomy": {
+    "jointActions": [
+      "bilateral_hip_knee_ankle_extension_for_takeoff",
+      "bilateral_hip_knee_ankle_flexion_for_absorption",
+      "trunk_stabilization",
+      "small_shoulder_arm_swing"
+    ],
+    "laterality": "bilateral simultaneous intended takeoff and landing",
+    "claimsBoundary": "Describes the proposed task, not clinical clearance, injury prevention or a promised performance gain."
+  },
+  "whyLayer": {
+    "whatItIs": "One small in-place bilateral jump followed by a held landing and full reset.",
+    "whyItWorks": "Coaching hypothesis: a protected single action makes first takeoff/landing and response to instruction observable without adding approach speed, distance, rebound or loaded strength changes.",
+    "whyItGoesHere": "Addresses the explicit first-flight acquisition gap after OR-02 grounded instruction.",
+    "programmingGuidance": "Place after counted grounded preparation and before fatiguing work, in directly observed individual opportunities with full recovery.",
+    "commonMisuse": "Demanding prior jumping success, treating a grounded squat pass as a jump pass, forcing height, adding rebounds, or calling planned attempts successful results."
+  },
+  "coachingExecution": {
+    "setup": [
+      "Stationary comfortable bilateral stance with feet approximately hip/jump width, small comfortable knee unlock and arms resting beside the trunk; no approach.",
+      "Inspect the actual surface/space and demonstrate the exact action without requiring an extra athlete jump.",
+      "Confirm actual grounded-control evidence and stop/reset understanding."
+    ],
+    "executionSteps": [
+      "One self-selected shallow continuous countermovement and small natural arm swing, then one small vertical bilateral takeoff. No prescribed jump height, distance quota, overhead arm target, static squat pause, repeated preparatory bounce or maximal effort.",
+      "Both feet return to the same personal landing area, with comfortable ankle/knee/hip absorption and organized trunk; stabilize for the declared two-second hold. A recovery step, asymmetry, unintended travel, rebound or loss of control is recorded as a fault rather than credited as a valid stick.",
+      "After the hold, stand and settle; full reset and prescribed recovery precede any next listed opportunity. No immediate second takeoff."
+    ],
+    "coachCues": [
+      "Small dip, small jump.",
+      "Land on two feet in your space.",
+      "Hold, then stand and reset."
+    ],
+    "athleteCues": [
+      "Dip once.",
+      "Small up.",
+      "Two feet, hold."
+    ],
+    "commonFaults": [
+      "multiple dips",
+      "forced arm height",
+      "unintended travel",
+      "uneven contact",
+      "stiff or uncontrolled landing",
+      "extra step",
+      "immediate rebound"
+    ],
+    "stopSigns": [
+      "Stop for pain, symptoms, apprehension/withdrawal, restriction, unsafe surface/traffic, lost balance or inability to understand the instruction.",
+      "End the affected attempt for repeated prep bounces, unintended travel, asymmetrical takeoff/landing, stiff or uncontrolled landing, extra step, rebound, failed hold or materially changed trunk/knee control.",
+      "Do not repeat failed attempts to earn a pass; no extra screening or make-up jump. Select only an independently eligible grounded/slow-position route or defer."
+    ]
+  },
+  "athleteSupport": {
+    "whyItMatters": "This is a chance to learn a small first jump and balanced finish; you do not need to jump high or prove anything by repeating it.",
+    "primaryCue": "Small jump, two feet, hold.",
+    "expectedSensations": [
+      "brief comfortable leg effort",
+      "controlled landing followed by rest"
+    ],
+    "unexpectedSensations": [
+      "pain",
+      "fear or feeling unsafe",
+      "loss of balance",
+      "uncontrolled landing"
+    ],
+    "painGuidance": "Tell the coach and stop the affected action; no forced replacement attempt.",
+    "selfChecks": [
+      "I understood my own start and stop instruction.",
+      "I tried only the listed action.",
+      "I can tell the coach whether it felt comfortable."
+    ],
+    "accessibility": {
+      "range": "self-selected comfortable shallow bend and small arm range",
+      "unavailableFlight": "use only separately eligible grounded/slow-position instruction or defer",
+      "noPhysicalAssistanceAssumed": true
+    },
+    "mediaAlternatives": [
+      "complete written steps and an in-person qualified demonstration; no verified demo media attached"
+    ]
+  },
+  "coachSupport": {
+    "observationChecklist": [
+      "actual grounded lowering/hold/rise before first flight",
+      "surface and personal bay",
+      "one dip and declared arms",
+      "actual two-foot takeoff and landing",
+      "travel, absorption, trunk and hold",
+      "every actual or partial attempt and response",
+      "full reset and recovery"
+    ],
+    "faultCorrections": {
+      "beforeTakeoff": "If prerequisite or conduct is unsuitable, end the opportunity before flight; explain or use a separately eligible nonflight task later.",
+      "afterFault": "Record actual exposure, stop the affected attempt and use remaining time for recovery/instruction; no make-up jump."
+    },
+    "demonstrationPlan": "Qualified coach demonstrates the exact small action and stop/reset rule. Athlete first takeoff is inside its scheduled E1 opportunity.",
+    "groupManagement": "One active first-flight athlete per directly observed station; qualified sightlines and waiting-area control must be verified. Do not make the bay count imply simultaneous coaching capacity.",
+    "modificationDecisionTree": [
+      "If grounded-control/conduct/space gates fit, offer first counted flight instruction without claiming prior jump competence.",
+      "If only a grounded/slow-position action fits, record that task and zero flight.",
+      "If no eligible physical task fits, defer."
+    ],
+    "doNotUseWhen": [
+      "unsafe or unverified space/supervision",
+      "unavailable grounded participation or misunderstood stop rule",
+      "symptoms, restriction, apprehension or declined flight",
+      "purpose is maximal output, rebound, obstacle clearance, approach jumping, formal testing or loaded jumping"
+    ]
+  },
+  "supportOperations": {
+    "issueCategories": [
+      "identity_or_arm_policy",
+      "readiness_or_conduct",
+      "surface_or_traffic",
+      "dose_or_recovery",
+      "symptom_or_fault",
+      "substitution_or_competency_record"
+    ],
+    "supportEscalation": "Stop unsafe movement immediately; unresolved source/approval and operational issues prevent release of the proposed card.",
+    "retentionPolicy": "Preserve planned and actual task, attempts, takeoffs, contacts, assistance/cue needs, first fault, symptoms and next decision; no invented result.",
+    "changeImpactPolicy": "Changes to start, arms, flight direction, assistance, surface, target, intent, dose or cue require renewed mapping, readiness, exposure and time checks."
+  },
+  "loadProfile": {
+    "externalLoadMethod": "bodyweight",
+    "landingEventsPerActualJump": 1,
+    "landingFootContactsPerActualJump": 2,
+    "gripDemand": null,
+    "spinalLoading": null,
+    "eccentricStress": null,
+    "assessmentStatus": "qualitative_proposal_not_calibrated"
+  },
+  "fatigueProfile": {
+    "primaryExposure": [
+      "actual takeoffs and landings",
+      "foot/calf and knee/hip demand",
+      "trunk and attention demand"
+    ],
+    "tracking": [
+      "all attempted actions",
+      "actual flight versus grounded work",
+      "faults and response",
+      "other gym, sport and tumbling exposure"
+    ],
+    "recoveryHours": null,
+    "automaticDailySuitability": false
+  },
+  "pairingLogic": {
+    "pairsWellAfter": [
+      "actual controlled grounded position rehearsal"
+    ],
+    "pairsWellBefore": [
+      "retained familiar unloaded hinge and individually eligible full-body roles"
+    ],
+    "avoidBefore": [
+      "fatiguing lower-body work"
+    ],
+    "doNotUseWhen": [
+      "first-flight and new hinge loading would be progressed together"
+    ],
+    "restUse": "quiet rest, brief explanation or observation; no hidden conditioning circuit"
+  },
+  "media": {
+    "candidates": [],
+    "verificationPerformed": false,
+    "reviewStatus": "missing_exact_proposal_media",
+    "fabricatedMedia": false,
+    "internalNotes": [
+      "Related source videos are not claimed to show the proposed first-flight lesson. Human exact-match media review remains open."
+    ]
+  },
+  "deliveryProfiles": [
+    {
+      "id": "proposal:or06:first-flight-instruction",
+      "phaseKey": "movement_intelligence",
+      "role": "conditional",
+      "phaseSuitability": 70,
+      "phaseSuitabilityStatus": "author_proposed_fit_judgment_only_not_reviewed_score_or_participant_probability",
+      "purpose": "Teach and observe a first counted small bilateral flight/landing without prior successful flight, while retaining unloaded strength demand.",
+      "qualityGate": "For a valid flight result, one shallow dip and small natural arm swing produce a bilateral in-place takeoff, controlled bilateral landing and two-second hold before reset. Entry to instruction is separately gated; success is observed, never presumed.",
+      "stopRules": [
+        "Stop for pain, symptoms, apprehension/withdrawal, restriction, unsafe surface/traffic, lost balance or inability to understand the instruction.",
+        "End the affected attempt for repeated prep bounces, unintended travel, asymmetrical takeoff/landing, stiff or uncontrolled landing, extra step, rebound, failed hold or materially changed trunk/knee control.",
+        "Do not repeat failed attempts to earn a pass; no extra screening or make-up jump. Select only an independently eligible grounded/slow-position route or defer."
+      ],
+      "dosage": {
+        "status": "author_proposed_not_source_default_or_approved_prescription",
+        "firstFlight": "Only E1 contains the first actual flight; all ages D has 2 standard or 1 compressed single-attempt sets; L remains a separately prescribed grounded task.",
+        "ageBands": [
+          "9-11",
+          "12-14",
+          "15-18"
+        ],
+        "attemptEnvelopeSeconds": 8,
+        "segments": [
+          {
+            "name": "shallow_countermovement_takeoff_and_landing",
+            "seconds": 2
+          },
+          {
+            "name": "held_bilateral_finish",
+            "seconds": 2
+          },
+          {
+            "name": "stand_and_reset",
+            "seconds": 4
+          }
+        ],
+        "envelopeRule": "The two-second action phase is a planning upper allowance, not a forced jump cadence; extra teaching time delays or omits an opportunity, never rushes the athlete.",
+        "minimumRecoverySeconds": 60,
+        "heightOrDistanceQuota": null,
+        "concurrentHingeLoadIncrease": false,
+        "instructionIsNotCompetencyPass": true,
+        "plannedRoundSpacingSeconds": "360 standard; compressed has one opportunity, so between-round spacing is not applicable",
+        "stationPolicy": "15 personal 3 \u00d7 3 m planning bays, takeoff centered for nominal 1.5 m clear radius plus separate peripheral coach circulation. Verify actual body fit, surface, landing/fall/overhead space and sightlines; reconfigure or omit if inadequate. One first-flight athlete at a time with two qualified coaches; bay count is not simultaneous capacity.",
+        "effort": "Bodyweight, easy instructional intent about 2-3/10; no maximal output or height/distance quota."
+      },
+      "timeModel": {
+        "physicalOpportunitySeconds": 8,
+        "includesDemonstration": false,
+        "includesRecovery": false,
+        "globalClockOwnedBy": "OR-06 session author",
+        "delayRule": "More instruction or a slow action consumes slack or removes later work; no rushed attempt."
+      },
+      "doseScaling": {
+        "allThreeAges": "Same small proposed instructional opportunity count; current ability, attention, recent work and restrictions choose the task.",
+        "D": "2 standard or 1 compressed single-attempt set.",
+        "L": "Zero flight; separately prescribed grounded task.",
+        "advance": "Only actual repeatable evidence supports a later reviewed progression; no automatic same-day forward jump or main JUMP pass.",
+        "reduce": "Remove flight or reduce opportunities; no make-up volume."
+      },
+      "measurement": {
+        "record": [
+          "exact task and arm policy",
+          "actual flight and contacts",
+          "landing area and surface",
+          "held finish",
+          "cue or assistance needs",
+          "faults",
+          "recovery",
+          "symptoms",
+          "retained unloaded hinge"
+        ],
+        "noHeightOrDistanceTest": true
+      },
+      "supportPrompts": {
+        "athlete": "You can stop or stay grounded; no height target.",
+        "coach": "Offer instruction only with actual grounded/space gates; count the first takeoff and preserve the different competency result."
+      }
+    }
+  ],
+  "safety": {
+    "riskLevel": null,
+    "impactLevel": null,
+    "ratingStatus": "pending_independent_calibration",
+    "requiresSpotting": false,
+    "coachSupervision": "qualified_direct_observation_required",
+    "readinessChecks": [
+      "Comfortable current bilateral standing and the actual shallow grounded knee/hip lowering, ready-position hold and bilateral rise; actual evidence may come from a prior equivalent or the counted P2 action. Slow held-position control is not recorded as a rapid snap-down pass.",
+      "Comfortable unloaded small arm motion at the intended range and understanding of one shallow dip, small upward action, two-foot landing, hold and stop/reset instruction; coach demonstration may supply instruction, not an uncounted athlete jump.",
+      "Qualified direct observation, individually fitting protected landing/fall/overhead space, inspected level non-slip impact-appropriate surface, footwear, no cross traffic and current total impact/fatigue budget fit.",
+      "No prior successful flight is required. The first actual takeoff and landing are observed within the first listed E1 instructional attempt. Grounded readiness permits instruction only; the athlete may decline, remain grounded or stop without a forced takeoff."
+    ],
+    "stopSigns": [
+      "Stop for pain, symptoms, apprehension/withdrawal, restriction, unsafe surface/traffic, lost balance or inability to understand the instruction.",
+      "End the affected attempt for repeated prep bounces, unintended travel, asymmetrical takeoff/landing, stiff or uncontrolled landing, extra step, rebound, failed hold or materially changed trunk/knee control.",
+      "Do not repeat failed attempts to earn a pass; no extra screening or make-up jump. Select only an independently eligible grounded/slow-position route or defer."
+    ],
+    "commonSubstitutions": [
+      "separately eligible OR-02 slow-position task",
+      "separately eligible grounded Snap-Down to Stick",
+      "independently comfortable quiet bilateral standing or defer"
+    ],
+    "approvedSubstituteVerified": false,
+    "releaseBoundary": "Local source-backed alternatives exist, but no current approved substitute was verified. This unresolved requirement prevents finalized operational release; do not call a seed or proposal approved."
+  },
+  "sourceReferences": [
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+      "lines": "19-46",
+      "kind": "active_authored_amendment"
+    },
+    {
+      "path": "backend/migrations/443_coaching_vertical_jump_foundations_completion.sql",
+      "lines": "80-90;172-176;198-202;241-256;317-330",
+      "kind": "related_counternovement_mechanics_and_conflicting_prior_flight_gates"
+    },
+    {
+      "path": "backend/migrations/602_coaching_low_hurdle_and_jump_readiness_cleanup.sql",
+      "lines": "32-44",
+      "kind": "partial_squat_readiness_cleanup_only"
+    },
+    {
+      "path": "backend/migrations/727_coaching_squat_jump_snap_down_identity_boundary.sql",
+      "lines": "26-35",
+      "kind": "grounded_vs_flight_identity_boundary"
+    }
+  ],
+  "testPacket": {
+    "status": "quarantined",
+    "humanReviewRequired": true,
+    "checks": {
+      "schema": "local_existing_schema_structure_types_and_required_fields_validated_not_publish_approval",
+      "identity": "proposed_needs_owner_variant_profile_review",
+      "readiness": "explicit_non_circular_instruction_gate_pending_review",
+      "difficulty": "unscored",
+      "media": "missing_exact_match",
+      "relationships": "pending",
+      "calibration": "pending",
+      "publication": "not_approved"
+    },
+    "blockingIssues": [
+      "Current canonical owner/variant/profile and approval unresolved.",
+      "Independent difficulty and media review incomplete.",
+      "Operational teaching/station clock, actual clearance and coaching sightlines remain to be verified; minimum first-flight recovery is explicitly 60 s.",
+      "Current approved substitute not verified."
+    ]
+  },
+  "sessionPreparationContext": {
+    "relatedGroundedTask": "P2 is one counted slow grounded position action: 3 s lower, 2 s hold, 1 s stand, 2 s reset. It has zero planned flight and may establish its own actual grounded-control evidence.",
+    "isThisCardFlightDose": false,
+    "groundedControlEntryMayBeObservedHere": true
+  }
+}

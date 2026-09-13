@@ -633,6 +633,7 @@ export function listCanonicalSwapCandidates(rawIntent, library, prescription) {
 }
 
 export function applyCanonicalWorkoutSwap(output, library, request, options = {}) {
+  if (output?.sessionModel === 'vortex_components_v1') throw new CanonicalGenerationError('Component-session swaps require whole-session programming revalidation', 'session_workflow_required')
   if (!output || typeof output !== 'object') throw new TypeError('A canonical workout output is required.')
   const intent = normalizeWorkoutIntent(output.intent ?? {})
   const phaseKey = String(request.phaseKey || '')

@@ -115,6 +115,7 @@ import { registerProgrammingRoutes } from './coachProgrammingRoutes.js'
 import { registerGameRoutes } from './coachGameRoutes.js'
 import { registerFlipFitScheduleRoutes } from './flipFitScheduleRoutes.js'
 import { registerFlipFitCardRoutes } from './flipFitCardRoutes.js'
+import { registerWorkoutProgrammingRoutes } from './coachWorkoutProgrammingRoutes.js'
 import { GYMNASTICS_EVALUATION_DEFINITION, buildGymnasticsFocusReport } from './gymnasticsEvaluationDefinition.js'
 import {
   CanonicalGenerationError,
@@ -375,6 +376,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   })
 
   registerProgrammingRoutes(app, pool, { can, canMutateRow, ok, bad })
+  registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad })
   registerGameRoutes(app, pool, { can, canMutateRow, ok, bad })
   registerFlipFitScheduleRoutes(app, pool, { can, ok, bad })
   registerFlipFitCardRoutes(app, pool, { can, ok, bad })
@@ -2468,6 +2470,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       )
       if (saved.rows.length === 0) return bad(res, 'Generated workout not found.', 404)
       const output = saved.rows[0].output_json ?? {}
+      if (output.sessionModel === 'vortex_components_v1') return bad(res, 'This session requires the component programming revision workflow.', 409, { code: 'session_workflow_required' })
       const library = await loadPublishedCanonicalLibrary(pool, facilityId)
       const candidates = listCanonicalSwapCandidates(output.intent ?? {}, library, {
         variantId,

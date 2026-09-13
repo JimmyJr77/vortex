@@ -9,6 +9,9 @@ export class ProgrammingPrescriptionError extends Error {
   constructor(code: string, message: string, details?: Readonly<Record<string, unknown>>)
 }
 export interface CanonicalSchedulingProfile {
+  readonly purpose?: string
+  readonly coachInstructions?: string | null
+  readonly athleteInstructions?: string | null
   readonly id: string
   readonly phaseKey: DeliveryPhaseKey
   readonly dosage: Readonly<Record<string, unknown>>
@@ -31,6 +34,9 @@ export interface CanonicalActivityOverhead {
   readonly cleanupSeconds: number
 }
 export interface CanonicalSchedulingCard {
+  readonly displayName?: string
+  readonly canonicalName?: string
+  readonly media?: { readonly approvedVideoUrl?: string | null }
   readonly id: string
   readonly variantId: string
   readonly cardVersion?: number
@@ -51,6 +57,7 @@ export interface CanonicalSchedulingCard {
   readonly compositionProfile?: Readonly<Record<string, unknown>>
 }
 export interface CanonicalSchedulingMethod {
+  readonly name?: string
   readonly id: string
   readonly programming_type?: string
   readonly best_session_phase: DeliveryPhaseKey

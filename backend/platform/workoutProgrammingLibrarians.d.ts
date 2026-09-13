@@ -116,3 +116,7 @@ export interface WorkoutProgrammingMaterials {
 export function loadWorkoutProgrammingMaterials(pool: LibraryReadPool,
   context: { readonly facilityId: number | string; readonly userId: number | string },
   raw: readonly ProgrammingResourceSearch[], options?: { readonly athleteRequest?: NormalizedCoachWorkoutRequest | null }): Promise<WorkoutProgrammingMaterials>
+/** Internal entry point. Caller owns the repeatable-read transaction. */
+export function loadWorkoutProgrammingMaterialsInSnapshot(client: LibraryReadClient,
+  context: { readonly facilityId: number | string; readonly userId: number | string },
+  raw: readonly ProgrammingResourceSearch[], options?: { readonly athleteRequest?: NormalizedCoachWorkoutRequest | null }): Promise<WorkoutProgrammingMaterials>

@@ -204,7 +204,14 @@ def main():
     assert ff['requires_qualified_supervision'] is True
     assert ff['automatic_forward_jump_or_main_entry_pass'] is False
     assert ff['concurrent_hinge_load_increase'] is False
-    assert amended['OR-06']['state']=='required_for_next_individual_authoring_not_yet_prescribed'
+    # This is a Week 1 carryover-contract check, not a gate against later authoring.
+    # OR06's own daily review must establish any subsequent prescription PASS.
+    assert amended['OR-06']['state'] in {
+        'required_for_next_individual_authoring_not_yet_prescribed',
+        'individually_prescribed_review_pending',
+        'implemented_and_individually_reviewed',
+    }
+    assert amended['OR-06']['retained_known_nonflight_may_accompany_independently_eligible_hinge_instruction'] is True
     if errors:raise AssertionError(errors)
     summary,paths,digest,holds=enumerate_attendance(ledgers)
     probes=[]

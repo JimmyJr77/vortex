@@ -11,6 +11,7 @@ import { focusMatchesCard, requiredEquipment } from './canonicalExerciseSelectio
 import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingStaffRuntime.js'
 import { deriveProgrammingPreparationDemand, preparationCapabilityContract, VORTEX_PREPARATION_CAPABILITY_CONTEXT } from './workoutPreparation.js'
 import { filterProgrammingCandidateEligibility } from './workoutProgrammingEligibility.js'
+import { libraryScopeId } from './coachingLibraryContext.js'
 
 export const PROGRAMMING_BUILDER_VERSION = '1.0.0'
 const reserveSchema = Joi.object({ purpose: Joi.string().valid('recovery', 'coaching', 'readiness_check').required(), rationale: Joi.string().max(1000).required() })
@@ -261,6 +262,7 @@ function validateRevision(request, sessionIntent, revision) {
 /** Read-only composition. Final Critic, fresh source validation and approval remain separate gates. */
 export async function buildWorkoutProgrammingDraft({ pool, context, sessionIntent, registry,
   builderCapabilityId = 'vortex/session-builder', prepareCapabilityId = 'vortex/prepare-access', runOptions = {}, staffRun = null, revision = null }) {
+  if (sessionIntent.scope?.facilityId !== libraryScopeId(context.facilityId, 'facilityId')) throw new ProgrammingStaffError('foreign_session_intent', 'Session intent belongs to a different facility')
   const { assumptions: _assumptions, ...coachInput } = sessionIntent.request ?? {}
   const request = normalizeCoachWorkoutRequest(coachInput)
   if (programmingValueHash(request) !== sessionIntent.requestHash || programmingValueHash(request) !== programmingValueHash(sessionIntent.request)) throw new ProgrammingStaffError('stale_request', 'Session intent does not match immutable coach truth')

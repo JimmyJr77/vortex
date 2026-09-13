@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Loader2, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import type { TaxonomyV2Catalog } from '../../coach/taxonomy'
+import { CANONICAL_EQUIPMENT_OPTIONS as EQUIPMENT_OPTIONS } from '../../coach/canonicalEquipmentOptions'
+import { WorkoutProgrammingPanel } from './WorkoutProgrammingPanel'
 
 interface CanonicalPrescription {
   exerciseId: string
@@ -160,33 +162,6 @@ const FOCUS_SCOPES = [
   ...PHASES,
 ] as const
 
-/**
- * These are the controlled equipment keys exposed to coaches. “Bodyweight” is
- * retained as the request alias for `none` so legacy availability matching and
- * the user-facing language remain compatible.
- */
-const EQUIPMENT_OPTIONS = [
-  ['bodyweight', 'Bodyweight (none)'],
-  ['kettlebell', 'Kettlebell'],
-  ['medicine_ball', 'Medicine ball'],
-  ['wall_ball', 'Wall ball'],
-  ['slam_ball', 'Slam ball'],
-  ['jump_rope', 'Jump rope'],
-  ['barbell', 'Barbell'],
-  ['dumbbell', 'Dumbbell'],
-  ['battle_rope', 'Rope — battle'],
-  ['climbing_rope', 'Rope — climbing'],
-  ['resistance_band', 'Bands — resistance'],
-  ['mini_band', 'Bands — mini'],
-  ['cones', 'Cones'],
-  ['mini_hurdles', 'Mini-hurdles'],
-  ['trap_bar', 'Trap bar'],
-  ['sandbag', 'Sandbags'],
-  ['agility_ladder', 'Agility ladder'],
-  ['timing_gates', 'Timing gates'],
-  ['force_plate', 'Force plate'],
-] as const
-
 interface WorkoutFocusDraft {
   id: string
   facet: string
@@ -230,6 +205,20 @@ function rolloutMessage(reason: CanonicalRolloutStatus['coachGeneration']['reaso
 }
 
 export function CanonicalWorkoutGeneratorPanel() {
+  const [tool, setTool] = useState<'session' | 'legacy'>('session')
+  return <section className="space-y-3" aria-label="Canonical workout programming">
+    <nav aria-label="Programming tools" className="flex flex-wrap gap-2">
+      <button type="button" aria-pressed={tool === 'session'} onClick={() => setTool('session')}
+        className={`rounded-lg px-3 py-2 text-sm font-semibold ${tool === 'session' ? 'bg-gray-900 text-white' : 'border border-gray-300 bg-white text-gray-700'}`}>AI session programming</button>
+      <button type="button" aria-pressed={tool === 'legacy'} onClick={() => setTool('legacy')}
+        className={`rounded-lg px-3 py-2 text-sm font-semibold ${tool === 'legacy' ? 'bg-gray-900 text-white' : 'border border-gray-300 bg-white text-gray-700'}`}>Existing canonical generator</button>
+    </nav>
+    <div hidden={tool !== 'session'}><WorkoutProgrammingPanel /></div>
+    <div hidden={tool !== 'legacy'}><LegacyCanonicalWorkoutGeneratorPanel /></div>
+  </section>
+}
+
+function LegacyCanonicalWorkoutGeneratorPanel() {
   const [expanded, setExpanded] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

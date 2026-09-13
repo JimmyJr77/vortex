@@ -26,6 +26,7 @@ export interface MethodologyConsultantAdvice {
     readonly rationale: string; readonly sourceReferenceIds: readonly string[] }[]
 }
 export interface WorkoutProgrammingSessionIntent {
+  readonly scope: { readonly facilityId: string; readonly userId: string }
   readonly schemaVersion: '1.0.0'
   readonly intentId: string
   readonly request: NormalizedCoachWorkoutRequest

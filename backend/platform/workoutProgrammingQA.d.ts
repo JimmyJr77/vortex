@@ -1,7 +1,7 @@
 import type { WorkoutProgrammingDraft, ProgrammingBuilderProposal } from './workoutProgrammingBuilder.js'
 import type { WorkoutProgrammingSessionIntent } from './workoutProgrammingDirector.js'
 import type { ProgrammingStaffRegistry, ProgrammingStaffRunOptions, ProgrammingStaffRun, ProgrammingStaffTrace } from './programmingStaffRuntime.js'
-import type { LibraryReadPool } from './workoutProgrammingLibrarians.js'
+import type { LibraryReadPool, LibraryReadClient } from './workoutProgrammingLibrarians.js'
 import type { SessionComponentKey } from './sessionComponentContract.js'
 import type { ProgrammingMethodRuleResult } from './programmingMethodRules.js'
 import type { ProgrammingAthleteEvidence } from './workoutAthleteEvidence.js'
@@ -32,6 +32,7 @@ export interface ProgrammingDraftValidation {
   readonly findings: readonly ProgrammingQAFinding[]
   readonly reconstructed: {
     readonly qaVersion: '1.0.0'; readonly draftId: string; readonly intentId: string
+    readonly scope: WorkoutProgrammingSessionIntent['scope']
     readonly request: WorkoutProgrammingDraft['request']; readonly componentPlan: WorkoutProgrammingDraft['componentPlan']
     readonly release: WorkoutProgrammingDraft['libraryRelease'] | null
     readonly director: WorkoutProgrammingSessionIntent['proposal']
@@ -67,7 +68,8 @@ export interface ProgrammingDraftReviewContext {
   /** Server-owned state, not client-supplied authorization. */
   readonly sessionIntent: WorkoutProgrammingSessionIntent; readonly draft: WorkoutProgrammingDraft
 }
-export function validateWorkoutProgrammingDraft(args: ProgrammingDraftReviewContext & { readonly signal?: AbortSignal }): Promise<ProgrammingDraftValidation>
+export function validateWorkoutProgrammingDraft(args: ProgrammingDraftReviewContext & { readonly signal?: AbortSignal;
+  readonly snapshotClient?: LibraryReadClient | null }): Promise<ProgrammingDraftValidation>
 export function programmingCriticContract(validation: ProgrammingDraftValidation): { readonly outputSchema: object; readonly parseOutput: (raw: unknown) => ProgrammingCriticResult }
 export function reviewWorkoutProgrammingDraft(args: ProgrammingDraftReviewContext & { readonly registry: ProgrammingStaffRegistry;
   readonly criticCapabilityId?: string; readonly runOptions?: ProgrammingStaffRunOptions; readonly staffRun?: ProgrammingStaffRun | null }): Promise<WorkoutProgrammingQA>

@@ -32,7 +32,7 @@
         "operational_release_verified": false,
         "separate_tumbling_prescription_complete": false
       },
-      "sha256": "ae45323520aa7b0c8cb07f733cec27ffc24ab48c9bf074d8a375ebb1ff7281fc"
+      "sha256": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30"
     },
     {
       "id": "OR-02",
@@ -81,6 +81,38 @@
         "separate_tumbling_prescription_complete": false
       },
       "sha256": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22"
+    },
+    {
+      "id": "OR-05",
+      "product": "instructional",
+      "path": "instructional_on_ramp/week_01/or_05.json",
+      "review": "instructional_on_ramp/week_01/or_05_review.md",
+      "checks": "instructional_on_ramp/week_01/or_05_check_results.json",
+      "anchor_ledger": "instructional_on_ramp/week_01/or_05_anchor_ledger.json",
+      "workload_ledger": "instructional_on_ramp/week_01/or_05_workload_ledger.json",
+      "release_status": {
+        "athletic_prescription_complete": true,
+        "programming_review_pass": true,
+        "operational_release_verified": false,
+        "separate_tumbling_prescription_complete": false
+      },
+      "sha256": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d"
+    },
+    {
+      "id": "OR-06",
+      "product": "instructional",
+      "path": "instructional_on_ramp/week_02/or_06.json",
+      "review": "instructional_on_ramp/week_02/or_06_review.md",
+      "checks": "instructional_on_ramp/week_02/or_06_check_results.json",
+      "anchor_ledger": "instructional_on_ramp/week_02/or_06_anchor_ledger.json",
+      "workload_ledger": "instructional_on_ramp/week_02/or_06_workload_ledger.json",
+      "release_status": {
+        "athletic_prescription_complete": true,
+        "programming_review_pass": true,
+        "operational_release_verified": false,
+        "separate_tumbling_prescription_complete": false
+      },
+      "sha256": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1"
     }
   ],
   "ledger_files": [
@@ -100,7 +132,7 @@
       "kind": "workload",
       "path": "detailed_workload_ledger.json",
       "count": 132,
-      "sha256": "19edad99cc297a8e411ecc6e92bbcae740a673a6d5f5cfe0d8fb88d169d8a85e"
+      "sha256": "c7fff47f2ba94c5a15243c704e9dd0a2cea4cc12e435fa44ab8cc6ef3c810471"
     },
     {
       "kind": "workload",
@@ -131,12 +163,52 @@
       "path": "instructional_on_ramp/week_01/or_04_workload_ledger.json",
       "count": 480,
       "sha256": "178855f016fd860fad50ddf835b1a2237fb8c7288b22ab968c4eadcd158ac194"
+    },
+    {
+      "kind": "anchor",
+      "path": "instructional_on_ramp/week_01/or_05_anchor_ledger.json",
+      "count": 8,
+      "sha256": "c16465068417e9ef1d2195563939a3308717072b85b22f7cf51cd52dc9448be6"
+    },
+    {
+      "kind": "workload",
+      "path": "instructional_on_ramp/week_01/or_05_workload_ledger.json",
+      "count": 1152,
+      "sha256": "37d050bad90a024935b5830c43d5d0c465ed78ddd3450319b2484acd62b3c1e7"
+    },
+    {
+      "kind": "anchor",
+      "path": "instructional_on_ramp/week_02/or_06_anchor_ledger.json",
+      "count": 8,
+      "sha256": "2c5a3e60ca17fffcaac5e809c888584ab2450a391f1d7484ed4d692e702fd464"
+    },
+    {
+      "kind": "workload",
+      "path": "instructional_on_ramp/week_02/or_06_workload_ledger.json",
+      "count": 6480,
+      "sha256": "7b217fa2c12c52d91165f940618ef0998888294b540dfc04032ba9c7c719e10b"
     }
   ],
   "counts": {
     "main": 1,
-    "instructional": 4,
-    "anchor_rows": 41,
-    "workload_scenarios": 1356
-  }
+    "instructional": 6,
+    "anchor_rows": 57,
+    "workload_scenarios": 8988
+  },
+  "weekly_reviews": [
+    {
+      "product": "instructional",
+      "week": 1,
+      "status": "PASS_written_scope",
+      "review": "instructional_on_ramp/week_01/WEEK_01_REVIEW.md",
+      "checks": "instructional_on_ramp/week_01/week_01_check_results.json",
+      "attendance_workload_ledger": "instructional_on_ramp/week_01/week_01_attendance_workload_ledger.json",
+      "attendance_patterns": 31,
+      "mixed_booking_mode_history_paths": 18744,
+      "summary_rows": 186,
+      "weekly_derived_OR01_walking_choices": 72,
+      "counts_separate_from_daily_ledgers": true
+    }
+  ],
+  "active_outline_amendments": "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json"
 }

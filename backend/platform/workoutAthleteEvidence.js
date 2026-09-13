@@ -70,7 +70,7 @@ const sources = {
   },
 }
 
-function querySource(kind, automatic) {
+function querySource(kind, automatic, limit = sources[kind].historyLimit) {
   const source = sources[kind]
   const observedAt = source.dateOnly ? `${source.date}::text` : utcTimestamp(source.date)
   const date = source.dateOnly ? source.date : `(${source.date} AT TIME ZONE 'UTC')::date`
@@ -89,7 +89,26 @@ function querySource(kind, automatic) {
         AND ${automatic ? timeWindow : `EXISTS (SELECT 1 FROM jsonb_to_recordset($3::jsonb) AS ref(id bigint, "memberId" bigint)
           WHERE ref.id = r.id AND ref."memberId" = r.member_id)`}
     ) SELECT id, member_id, observed_at, data, source_count FROM observations
-      ${automatic ? `WHERE position <= ${source.historyLimit}` : ''} ORDER BY member_id::bigint, observed_at DESC, id::bigint`
+      ${automatic ? `WHERE position <= ${limit}` : ''} ORDER BY member_id::bigint, observed_at DESC, id::bigint`
+}
+
+/** Coach choice discovery shares the runtime reader's ownership and source projections. It grants no readiness clearance. */
+export async function loadWorkoutAthleteEvidenceChoices(client, context, { memberId, kind, asOfDate }) {
+  if (!['skill_progress', 'assessment_result', 'gymnastics_evaluation'].includes(kind)) throw new TypeError('Choose a supported coach-observation source')
+  const facilityId = libraryScopeId(context.facilityId, 'facilityId')
+  const id = libraryScopeId(memberId, 'memberId')
+  if (!calendarDate(asOfDate)) throw new TypeError('Evidence choices require a valid session date')
+  const result = await client.query(querySource(kind, true, 25), [[id], facilityId, '[]', asOfDate])
+  return immutableProgrammingValue(result.rows.map((row) => {
+    if (String(row.member_id) !== id) throw new TypeError('Evidence reader returned an unscoped member')
+    const raw = { kind, id: libraryScopeId(row.id, 'evidence ID'), memberId: id, observedAt: String(row.observed_at),
+      dateOnly: Boolean(sources[kind].dateOnly), data: row.data ?? {} }
+    return { kind, id: raw.id, memberId: id, observedAt: raw.observedAt, sourceHash: programmingValueHash(raw),
+      label: String(raw.data.name ?? raw.data.exerciseName ?? raw.data.skillLabel ?? 'Gymnastics evaluation'),
+      measurement: kind === 'skill_progress' ? `${raw.data.score ?? 'Unknown'} / ${raw.data.maxScore ?? 'unknown'}`
+        : kind === 'assessment_result' ? `${raw.data.value ?? raw.data.textValue ?? 'Unknown'} ${raw.data.unit ?? ''}`.trim() : 'Published component observations',
+      coachObserved: Boolean(raw.data.coachUserId), truncated: Number(row.source_count) > 25 }
+  }))
 }
 
 function compactData(value, state) {

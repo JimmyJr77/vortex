@@ -348,13 +348,14 @@ export async function loadReleasedCanonicalLibrary(pool, facilityId) {
   }
 }
 
-export async function persistCanonicalWorkout(pool, facilityId, userId, release, output) {
+export async function persistCanonicalWorkout(pool, facilityId, userId, release, output, { snapshotId } = {}) {
+  if (snapshotId !== undefined && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(snapshotId)) throw new TypeError('A canonical snapshot ID must be a UUID')
   const result = await pool.query(
     `INSERT INTO coaching.generated_workout_v1 (
-       facility_id, library_release_id, schema_version, generator_version,
+       ${snapshotId === undefined ? '' : 'id, '}facility_id, library_release_id, schema_version, generator_version,
        rule_version, model_version, mode, random_seed, intent_json,
        output_json, validation_json, created_by
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12)
+     ) VALUES (${snapshotId === undefined ? '' : '$13,'}$1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10::jsonb,$11::jsonb,$12)
      RETURNING id`,
     [
       facilityId,
@@ -369,6 +370,7 @@ export async function persistCanonicalWorkout(pool, facilityId, userId, release,
       JSON.stringify(output),
       JSON.stringify(output.validation),
       userId,
+      ...(snapshotId === undefined ? [] : [snapshotId]),
     ],
   )
   return result.rows[0].id

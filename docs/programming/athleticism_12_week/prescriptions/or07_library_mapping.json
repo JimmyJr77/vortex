@@ -1,0 +1,851 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "OR07 local source mapping for a retained straight stop followed by a new paused announced walking exit; supported strength retains actual OR03 identity and recent dose.",
+  "checkedOn": "2026-09-13",
+  "planningStatus": "reviewable_proposal_pending_individual_session_review_and_release",
+  "recordIdsAre": "Mapping keys and proposal: labels are local documentation identities only. Related source keys/UUIDs are reproduced only where inspected and do not establish current canonical IDs or approval.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "appSourceEdits": false,
+    "approvalsCreated": false,
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "searchCoverage": {
+    "roots": [
+      "scripts/data/canonical-research/contracts",
+      "scripts/data/canonical-research/generated",
+      "scripts/data/canonical-research/batches",
+      "backend/migrations",
+      "scripts/data/cone-drill-exercise-cards-all-50.json",
+      "current OR03 mapping/daily and OR07 outline/review"
+    ],
+    "synonyms": [
+      "stop pause exit",
+      "stop then planned step redirect",
+      "walking turn",
+      "step turn",
+      "opening step",
+      "Walk-to-Stick",
+      "Step-In to Stick",
+      "45-Degree Cut-and-Stick",
+      "45-Degree Cut to Stick",
+      "45-Degree Cut and Reaccelerate",
+      "Decel-to-Reaccelerate Gate"
+    ],
+    "result": "No inspected completed exact stop-before-announced-ordinary-walking-exit contract. Generic legacy cone prose, cut-then-hold and immediate-cut-and-go records do not resolve the whole-sequence teaching identity."
+  },
+  "records": [
+    {
+      "mappingKey": "PAUSED-EXIT-TEACH",
+      "name": "Straight Stop, Pause and Announced Walking Exit — Teaching Proposal",
+      "sourceSlug": null,
+      "relatedSourceSlugs": [
+        "jog-to-stick-linear-deceleration"
+      ],
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_composite_exact_owner_variant_profile_and_approval_unresolved",
+      "proposalRecord": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or07_paused_exit_teaching_candidate.json",
+        "documentationId": "proposal:or07:paused-exit-teach"
+      },
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json",
+          "lines": "672-725",
+          "kind": "preserved_OR07_objective_and_independent_main_entry_gate"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/planning/OR07_STIMULUS_AND_SOURCE_REVIEW.md",
+          "lines": "1-32",
+          "kind": "bounded_local_source_review"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "21-26;53-76;192-201;235-242;325-341;409-457",
+          "kind": "related_source155_terminal_linear_stop_only"
+        },
+        {
+          "path": "scripts/data/canonical-research/generated/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "410-418",
+          "kind": "walk_to_stick_is_proposed_new_variant_not_completed_profile"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/step-in-to-stick.v1.json",
+          "lines": "9-24;64-68;255-267;291-319;369-375;382-426",
+          "kind": "source223_distinct_single_step_terminal_stick"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/45-degree-cut-and-reaccelerate.v1.json",
+          "lines": "7-15;24-32",
+          "kind": "source283_distinct_immediate_cut_and_exit_with_prior_cut_prerequisites"
+        },
+        {
+          "path": "scripts/data/canonical-research/generated/45-degree-cut-and-stick.v1.json",
+          "lines": "6-11;115-129;139-144",
+          "kind": "cut_then_terminal_hold_not_stop_before_walking_exit"
+        },
+        {
+          "path": "backend/migrations/391_coaching_score_74_identity_boundaries.sql",
+          "lines": "440-445",
+          "kind": "later_cut_then_terminal_balance_identity_boundary"
+        },
+        {
+          "path": "backend/migrations/352_coaching_static_control_family_completion.sql",
+          "lines": "478-500;746-755;859-860;1387-1390",
+          "kind": "retained_supported_static_stance_and_separate_support_change_gates"
+        },
+        {
+          "path": "backend/migrations/370_coaching_split_squat_family_completion.sql",
+          "lines": "248-271;498;551-568",
+          "kind": "dynamic_stationary_split_squat_is_a_separate_action"
+        },
+        {
+          "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+          "lines": "305-315",
+          "kind": "complete_proposal_human_review_and_approved_substitute_release_gate"
+        }
+      ],
+      "exactProposedMechanics": {
+        "start": "Use the actual qualified OR-03 or direct-equivalent straight walking or gentle-jog stop context at its retained geometry and intent. Stand at the start with arms relaxed; the coach announces LEFT or RIGHT before release. No support is used during this locomotor sequence.",
+        "approachAndBrake": "Walking context: 2 m approach, marked brake zone 2.5-3 m, bilateral stop zone 3-4 m. Gentle-jog context: 5 m approach, marked brake zone 6-8 m, bilateral stop zone 8-10 m. Begin braking before the marked brake zone using several comfortable controlled contacts; no single hard plant or fixed braking-foot/contact quota. Keep the original straight overrun protected to 15 m.",
+        "pause": "Achieve an actual quiet balanced bilateral stop and hold for a full 2 seconds before any opening or turning step. If the stop or pause is not controlled, end the redirect part of that opportunity and record only the actual stopping exposure.",
+        "openingAndExit": "Unload the exit-side foot and place a small opening step toward the announced approximately 45-degree exit. Lift and replant the other foot so feet and body turn together through small ordinary steps, then continue ordinary walking for the declared 2 m exit route including the opening steps. No twisting or pivoting on a planted foot, crossover, sidestep cut, jump, sprint or immediate plant-and-accelerate action.",
+        "arms": "Relaxed natural arm motion during approach, turning, walking and clearance; no fixed arm position, speed contest, forceful arm drive or carried implement.",
+        "finish": "At the end of the 2 m exit route, settle into comfortable quiet bilateral standing and hold for 2 seconds. This is a separate terminal finish after the earlier 2-second pre-exit pause.",
+        "clearanceAndReturn": "After the final hold, walk ordinarily outward to the matching outside one-way return. The allowance is at most 3.1 m of lateral clearing, verified from the actual pause position and exit endpoint. Return outside the active fan by the declared route, up to 35 m ordinary walking in a 40-second planning allowance plus 5 seconds to rejoin the rear holding bank. A slower participant delays the release or loses later opportunities; the clock is not a required walking pace.",
+        "invalidAdditions": [
+          "late or unpredictable direction cue",
+          "fixed-foot pivot",
+          "crossover or cut plant",
+          "support assistance during travel",
+          "single-leg terminal hold",
+          "hard reaching stop",
+          "approach speed increase",
+          "instant reacceleration",
+          "extra practice or make-up attempt",
+          "unverified shortcut through the fan"
+        ],
+        "countRule": "Record all attempted opportunities, actual approach context, stop/pause, opening and walking steps, exit direction and final finish separately, including failed or partial actions. No planned flight or jump landing occurs. Actual braking and walking contacts are unknown until observed and remain null; zero planned jumping does not mean zero foot-contact or braking exposure."
+      },
+      "entryRequirements": [
+        "Current comfortable ordinary walking, bilateral standing, small step-based turning and understood start/stop/route instructions at the actual setting; verify components from actual prior/direct evidence or a named counted opportunity, never from age, attendance, a split hold or a nominal equipment model.",
+        "Actual control of the corresponding straight stop at the retained approach and geometry before adding an exit. Counted P2 walking-stop evidence may establish the walking component. It establishes neither easy-jog ability nor a jogging-stop pass. A new jogging-stop acquisition does not accompany a new exit.",
+        "Gentle-jog context additionally requires actual comfortable easy jogging and controlled gentle-jog stopping at this retained demand. The parent source155 permits first jog-stop instruction when its own entry gates fit, but this composite intentionally retains an already controlled stop while introducing the exit.",
+        "Comfortable small opening steps and turn components plus a full balanced 2-second stop allow the first complete exit to be taught in a counted E1 opportunity. Prior success at the whole stop-pause-exit sequence is not required to enter instruction; actual exit quality is observed before any later main-entry qualification.",
+        "The chosen side, straight lane, exit fan, finishing and outward clearing area, separate return and rear re-entry must all be understood, physically verified and directly observed by qualified coaches; current symptoms/restrictions, recovery and total braking/lower-body exposure must fit."
+      ],
+      "rootProposedContextNotSourceDefault": {
+        "status": "root_authored_instructional_override_not_source_default_or_approved_prescription",
+        "ageModeRows": [
+          {
+            "ageBand": "9-11",
+            "mode": "standard_D",
+            "opportunityCeiling": 3,
+            "sets": 3,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite",
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 2,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "standard_L",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_D",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_L",
+            "opportunityCeiling": 1,
+            "sets": 1,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 0
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_D",
+            "opportunityCeiling": 3,
+            "sets": 3,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite",
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 2,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_L",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_D",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_L",
+            "opportunityCeiling": 1,
+            "sets": 1,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 0
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_D",
+            "opportunityCeiling": 3,
+            "sets": 3,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite",
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 2,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_L",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_D",
+            "opportunityCeiling": 2,
+            "sets": 2,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first",
+              "opposite"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 1
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_L",
+            "opportunityCeiling": 1,
+            "sets": 1,
+            "repetitionsPerSet": 1,
+            "relativeDirectionOrder": [
+              "first"
+            ],
+            "relativeDirectionCounts": {
+              "first": 1,
+              "opposite": 0
+            },
+            "pauseSeconds": 2,
+            "exitM": 2,
+            "terminalHoldSeconds": 2,
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "effort": "Retained comfortable walking or independently qualified gentle-jog approach; easy ordinary walking exit, no speed contest. L uses the lower-demand independently eligible walking context; no new speed is introduced."
+          }
+        ],
+        "directionRule": "First side is recorded as LEFT or RIGHT before the first release; the opposite is the other side. The planned order is first/opposite/first for 3 opportunities, first/opposite for 2, and first only for 1. Counts are intentionally unequal when 3 or 1 opportunities remain; log actual observed side and do not invent a same-day bilateral pass.",
+        "smallerCaps": {
+          "allowedCaps": [
+            1,
+            2
+          ],
+          "formula": "min(age/mode ceiling, actual smaller cap)",
+          "rule": "Remove later scheduled opportunities only; retain the resulting direction prefix. No make-up attempt, unobserved-side debt, forced opposite-side pass or extra volume."
+        },
+        "walkingEnvelopeSeconds": {
+          "approach": 2,
+          "braking": 3,
+          "balancedPause": 2,
+          "openingStepsAnd2mExit": 4,
+          "terminalQuietFinish": 2,
+          "ordinaryOutwardClearance": 7
+        },
+        "gentleJogEnvelopeSeconds": {
+          "approach": 3,
+          "braking": 3,
+          "balancedPause": 2,
+          "openingStepsAnd2mExit": 4,
+          "terminalQuietFinish": 2,
+          "ordinaryOutwardClearance": 6
+        },
+        "returnEnvelopeSeconds": 45,
+        "minimumRecoverySecondsAfterFullWorkAndReturn": 60,
+        "standardRoundStartsMinutes": [
+          20,
+          27,
+          34
+        ],
+        "compressedRoundStartsMinutes": [
+          15,
+          22
+        ],
+        "athleteReleaseOffsetsSeconds": [
+          0,
+          25,
+          50,
+          75,
+          100,
+          125,
+          150,
+          175,
+          200,
+          225,
+          250,
+          275,
+          300,
+          325,
+          350
+        ],
+        "oneSharedFan": true,
+        "nominalBetweenRoundStartSpacingSeconds": 420,
+        "nominalRecoveryAfter20sWorkAnd45sReturnSeconds": 355,
+        "singleOpportunityRule": "No between-repeat interval exists with one opportunity. Preserve the minimum 60 seconds after its complete work and return before a later role would add further physical demand; parent session author verifies the actual transition.",
+        "clockRule": "Envelopes are planning allowances rather than forced cadence. Coaches delay/omit when safety, instruction, a longer actual route or participant walking speed needs more time. No additional physical demonstrations by athletes are hidden outside counted opportunities."
+      },
+      "geometry": {
+        "status": "planning_model_not_verified_inventory_or_universal_clearance",
+        "sharedFan": {
+          "lengthM": 15,
+          "widthM": 6,
+          "centreLineX": 0,
+          "lateralBoundsM": [
+            -3,
+            3
+          ],
+          "athletesActive": 1,
+          "adjacentStraightLanesClosed": 2
+        },
+        "walking": {
+          "approachDistanceM": 2,
+          "brakeZoneM": [
+            2.5,
+            3
+          ],
+          "stopZoneM": [
+            3,
+            4
+          ]
+        },
+        "gentleJog": {
+          "approachDistanceM": 5,
+          "brakeZoneM": [
+            6,
+            8
+          ],
+          "stopZoneM": [
+            8,
+            10
+          ]
+        },
+        "straightOverrunProtectedToM": 15,
+        "exit": {
+          "announcedBeforeRelease": true,
+          "angleDegrees": 45,
+          "distanceM": 2,
+          "approxLateralDisplacementM": 1.4142135624,
+          "approxForwardDisplacementM": 1.4142135624,
+          "distanceIncludesOpeningSteps": true
+        },
+        "outwardClearance": {
+          "maximumLateralTravelM": 3.1,
+          "actualPauseAndExitPositionsMustBeChecked": true,
+          "calculation": "For ideal45-degree projection, maximum outward path to matching return centre is4 + 0.5 - sqrt(2) = approximately3.086 m within the3.1 m allowance, when actual pause x stays within plus/minus0.5 m. Verify actual opening-step geometry, body/fall clearance and path; route arithmetic is not a safe-width guarantee or forced placement quota."
+        },
+        "outsideReturns": {
+          "count": 2,
+          "widthMEach": 1,
+          "centreXM": [
+            -4,
+            4
+          ],
+          "oneWay": true,
+          "maximumRouteM": 35,
+          "walkingAllowanceSeconds": 40,
+          "rejoinAllowanceSeconds": 5,
+          "separateRearHoldingBanks": true,
+          "feedBehindStart": true
+        },
+        "qualifiedCoachesAssumed": 2,
+        "coachingSightlines": "Approach/braking, balanced stop, opening steps, final finish, outward clearing and separated return must remain observable with actual coach placement.",
+        "verificationRule": "Verify actual body width, comfortable stride/turn, fall space, surface, fan/return separation, rear feeding paths, finish markers and coach access. Two closed adjacent lanes are not active travel lanes. No next release before the active fan and outward clearance path are clear. Other athletes may remain on the segregated one-way outside return only when actual spacing, no-overtaking conduct and observation fit; a blocked return delays release. No universal safety claim follows from these planning dimensions.",
+        "pauseLateralPositionBoundM": 0.5,
+        "pauseBoundRule": "The draft bounds actual pause position within plus/minus0.5 m to make the declared outward route arithmetic possible. This is a route-fit gate, not a foot-placement performance quota; stop/reconfigure/defer instead of forcing position when actual body/path fit fails.",
+        "preparationToMainTransition": {
+          "preparationStraightLanes": 3,
+          "preparationDedicatedReturns": 3,
+          "mainClosedDuringP2": true,
+          "waitForAllP2ReturnsBeforeChange": true,
+          "closeAllPreparationReturnsBeforeMain": true,
+          "mainDedicatedReturns": 2,
+          "changeoverInOpeningMainSetupSeconds": 300,
+          "spacesNeedNotShareFootprint": true,
+          "noMergedReturnTransition": true
+        },
+        "mainMarkersPrepositioned": true,
+        "coachOneObservationPad": {
+          "centreXM": -6,
+          "centreYM": 7,
+          "widthM": 2,
+          "lengthM": 3,
+          "outsideFanAndReturnStrip": true,
+          "additionalVerifiedAccessRequired": true,
+          "gapBesideReturnIsNotCoachBay": true,
+          "bothExitFinishesActuallyVisibleRequired": true
+        },
+        "holdingBanks": {
+          "leftXM": [
+            -3.5,
+            -0.5
+          ],
+          "rightXM": [
+            0.5,
+            3.5
+          ],
+          "longitudinalYM": [
+            -9.5,
+            -2
+          ],
+          "eachMustFitFullGroupIfAllReturnSameSide": true,
+          "rearEntryYApproxM": -10,
+          "centralOnDeckYApproxM": -1,
+          "noRearArrivalCrossesOtherBankOrFrontFeed": true
+        },
+        "behindStartStaging": {
+          "maximumPathM": 8,
+          "allowanceSeconds": 10,
+          "firstStandardWindow": "19:50-20:00",
+          "firstCompressedWindow": "14:50-15:00",
+          "duringPriorSlotOrOpeningSetup": true,
+          "doesNotEnterFanOrReturn": true,
+          "trafficCoachRequired": true
+        },
+        "coachTwoTrafficScope": "Observe up to two returning athletes and one staging athlete plus banks; actual simultaneous spacing, visibility and conduct must fit. Pause releases if both coach roles cannot be supervised."
+      },
+      "preparationContext": {
+        "P1": "Retain the actual independently eligible OR03 supported mid-range or higher split-stance setup and recent quality hold dose; no support removal, depth increase or conversion to dynamic repetitions. P1 defaults3s/lead plus separate2s bilateral finish; apply an actual smaller1/2/3s ceiling to both lead holds. If high entry is not yet known, P1 is independently comfortable quiet standing and S1 contains the first counted high-stance instruction, without an extra trial. Its orientation finish does not grant a locomotor exit pass.",
+        "P2": "Only the retained OR-03 walking-stop task, with one counted 10-second active opportunity plus 15-second return; no announced exit or first turn is hidden here. It may establish walking-stop evidence only. Independently eligible quiet-standing/other named alternatives preserve their own identity; their competency cannot be credited as locomotor stopping.",
+        "firstCompleteExit": "First physical complete stop-pause-announced-exit instruction occurs in counted E1. Coach demonstration supplies explanation without an extra athlete trial.",
+        "targetBudgetSeconds": 180,
+        "outlineReconciliation": "Root must transparently reconcile the preserved P2 exit-purpose wording with this retained-stop-only detailed preparation. The amendment is session authority, not an approval or competence result.",
+        "P2PhaseBoundary": "Three preparation lanes retain their three independent outside returns while the main fan is closed. All P2 returners clear before those returns close and the opening300s main setup transfers/reconfigures into two main returns; no live three-to-two merge.",
+        "firstHighStanceContext": "Existing SPLIT-STANCE-HIGH-TEACH remains an unapproved teaching identity. The explicit learn_high session route does not require a previous controlled high entry/exit: comfortable standing, directly coached stable support/stance setup and small-range instruction precede the first counted S1 entry. Actual entry/exit must be controlled before a valid hold result is credited; unsuitable action ends the counted set. No mid-range or dynamic qualification follows. This does not relax source212 mid-range gates."
+      },
+      "sourceDoseNotSessionPrescription": null,
+      "stopRules": [
+        "Stop the affected action for symptoms, pain, apprehension or participant request, balance loss, unsafe surface/traffic, misunderstood communication or any restriction conflict.",
+        "With uncontrolled straight stop or failed 2-second balance, do not add the exit. Record actual travel and contacts; use the remainder for safe clearance and instruction without an extra attempt.",
+        "End the new exit for fixed-foot pivot, crossover, rushed cut/acceleration, wrong or late-announced direction, unsafe foot placement, collapse, uncontrolled final finish or inability to preserve the protected route.",
+        "Stop/reconfigure an unsafe fan, exit or return. Extra instruction, a slower action or a delayed return consumes available slack or removes later work; do not rush or add catch-up opportunities."
+      ],
+      "remainingGates": [
+        "Independent exact identity/owner/variant/profile and human approval review; no current approved whole-sequence substitute verified.",
+        "Final session and both clocks must match this authored context, including preparation reconciliation and minimum rest before later roles.",
+        "Actual facility geometry, surface, cohort readiness, qualified observation and recent workload/tumbling inputs remain unverified; inability to use an affected task does not establish alternative eligibility."
+      ]
+    }
+  ],
+  "relatedSourcesNotWholeSequenceAlternatives": [
+    {
+      "sourceSlug": "jog-to-stick-linear-deceleration",
+      "legacySourceId": 155,
+      "localCandidateVariantKey": "submaximal-linear-multistep-deceleration-to-bilateral-stick",
+      "localCandidateProfileKeys": [
+        "movement-intelligence",
+        "output"
+      ],
+      "sourceAuthoredVariantUuid": "15500000-0000-4000-8000-000000000001",
+      "sourceDefaults": "MI 2-3 sets x 2-3 valid stops,60-90s rest; legacy2x3,75s rest and2-second stick. Conditional Output is distinct. These are not the OR07 composite dose.",
+      "identityBoundary": "Terminal bilateral straight stop; no turn/cut/reacceleration. A walking start is separately proposed in the research rather than silently included in this exact jog variant.",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "currentApprovalVerified": false,
+      "scope": "related_or_distinct_local_source_only_not_selectable_OR07_whole_sequence"
+    },
+    {
+      "sourceSlug": "deceleration-step-down-stop-step-stick",
+      "legacySourceId": 223,
+      "localCandidateVariantKey": "low_speed_single_step_horizontal_deceleration_to_terminal_stick",
+      "localCandidateProfileKeys": [
+        "movement-intelligence"
+      ],
+      "sourceAuthoredVariantUuid": "22300000-0000-4000-8000-000000000001",
+      "sourceDefaults": "MI2-3x3-5 valid stops per declared side/direction,30-60s rest; walking-to-submaximal single step.",
+      "identityBoundary": "One braking step and terminal split/athletic hold; cut/reacceleration prohibited. Programming/safety also require controlled one-step stopping, so this is not a clean first complete paused-exit acquisition profile.",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "currentApprovalVerified": false,
+      "scope": "related_or_distinct_local_source_only_not_selectable_OR07_whole_sequence"
+    },
+    {
+      "sourceSlug": "45-degree-cut-and-reaccelerate",
+      "legacySourceId": 283,
+      "localCandidateVariantKey": "planned-45-degree-sidestep-cut-immediate-exit",
+      "localCandidateProfileKeys": [
+        "movement-intelligence-planned-45-degree-cut-exit",
+        "output-planned-45-degree-cut-reaccelerate"
+      ],
+      "sourceAuthoredVariantUuid": "283eafbc-e7e4-4c7e-bf13-1c2fc5002831",
+      "sourceDefaults": "MI2-3x2 per direction,45-75s rest; Output2-4x1-3 per direction,45-90s between reps and120-180s between sets. Legacy4x2,90s rest.",
+      "identityBoundary": "Immediate sidestep cut and acceleration without hesitation; prior exact cut-and-stick both directions required. Neither profile supplies a stopped pause then ordinary walking exit.",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "currentApprovalVerified": false,
+      "scope": "related_or_distinct_local_source_only_not_selectable_OR07_whole_sequence"
+    },
+    {
+      "sourceSlug": "45-degree-cut-and-stick",
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKeys": [],
+      "sourceAuthoredVariantUuid": null,
+      "sourceDefaults": "Local research proposals and generic legacy doses are not a completed exact OR07 prescription.",
+      "identityBoundary": "Redirect then terminal hold; exact historical cut-plant versus first-exit held contact remains unresolved in research. Migration391 confirms the terminal-balance outcome after redirect, not a prior full linear stop.",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "currentApprovalVerified": false,
+      "scope": "related_or_distinct_local_source_only_not_selectable_OR07_whole_sequence"
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "DECEL-LINEAR",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "DECEL-LINEAR"
+      },
+      "boundary": "Retained actual qualified gentle-jog terminal stop component or stop-only alternative; exact source155 UUID/profile does not identify the new complete exit sequence."
+    },
+    {
+      "mappingKey": "WALK-STOP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "WALK-STOP"
+      },
+      "boundary": "Existing authored walking-stop teaching record with null exact IDs; preserve actual walking geometry. P2 walking evidence never supplies a jogging-stop pass."
+    },
+    {
+      "mappingKey": "SPLIT-ISO-SUP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "SPLIT-ISO-SUP"
+      },
+      "boundary": "Retain actual source212 supported mid-range depth, hand/support setup and recent quality hold dose; safe entry/exit and breathing are required. P1/S1 use min(reference hold, actual smaller1/2/3-second cap); source mid-range entry/exit gates stay intact."
+    },
+    {
+      "mappingKey": "SPLIT-STANCE-HIGH-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "SPLIT-STANCE-HIGH-TEACH"
+      },
+      "boundary": "Independent shallow teaching identity when actual high supported stance fits; no mid-range, dynamic squat, unsupported turning or locomotor exit pass. The explicit learn_high route puts quiet standing in P1 and the first directly coached high entry in counted S1; it does not demand an earlier successful high entry/exit but must observe actual control before crediting the hold. Failed entry ends the set."
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "BILATERAL-STAND-TEACH"
+      },
+      "boundary": "Independently comfortable stationary quiet standing only; no step, braking, squat or redirect qualification."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SQUAT-BW"
+      },
+      "boundary": "Retain familiar controlled bodyweight squat/preparation purpose; not a rapid braking/turning or split-stance pass."
+    },
+    {
+      "mappingKey": "HINGE-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HINGE-BW"
+      },
+      "boundary": "Retain exact unloaded arm-crossed hinge mechanics, actual range and recent completed dose. OR07 deliberately unloads if the actual recent OR06 hinge used DBs; use one set,4s cadence,5s setup/exit,60s rest and explicit1/2/3 repetition caps. Unknown history has counted2-rep instruction, no extra screen."
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH"
+      },
+      "boundary": "Retain the actual stable support height and comfortable push variant/dose."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW"
+      },
+      "boundary": "Retain opposite hand AND knee bench support, actual single dumbbell handling and recent dose; no unsupported row inference."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HEEL-TAP"
+      },
+      "boundary": "Retain qualified tabletop heel-tap and fixed-arm side-count contract; Strength placement remains explicitly contextual."
+    },
+    {
+      "mappingKey": "BREATH-9090-ALT",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT"
+      },
+      "boundary": "Use only the exact inspected feet-supported 90/90 breathing alternative with its declared reach sequence/support; do not silently invent a generic brace card."
+    }
+  ],
+  "continuity": {
+    "priorEvidence": "OR03 or actual direct-equivalent stop/stance; OR06 or actual recent exposure informs fatigue and hinge/grip response. Attendance is not competence.",
+    "newVariable": "Announced step-based direction after a full stop; retain actual approach, strength support, depth and recent dose.",
+    "mainEntry": "Count instruction separately from competency: main paused-redirect entry needs actual independently controlled stop AND exit on the observed side/context. No direct reactive, immediate-cut, support-removal or sharper/faster-plant pass.",
+    "unknownOrReduced": "Retain an independently eligible stop-only or named stationary task; no unobserved-side debt, failed-attempt replacement, catching up or automatic return to an older larger dose."
+  },
+  "globalGates": [
+    "The complete proposal is required under spec9 and is not an approved or import-ready exercise.",
+    "Source profiles, methods and doses are candidate content; all current approval/approved-substitute gates remain open.",
+    "Parent owns the final daily ages/D-L prescriptions, paired strength clock, facility fit and separate tumbling handoff."
+  ],
+  "verification": {
+    "jsonParsed": true,
+    "proposalSchema": "docs/workout-generator/schemas/exercise-card.schema.json",
+    "schemaValidation": "Local recursive validation of the checked schema vocabulary: required/type/ref/enum/const/pattern/ranges/array uniqueness/items. No network or package installation.",
+    "schemaNodeChecks": 68,
+    "uniqueMappingKeys": 1,
+    "sourcePathLineReferencesChecked": 11,
+    "reusedKeysResolved": 11,
+    "markdownLinksChecked": 22,
+    "ageModeRowsChecked": 12,
+    "smallerCapCombinationsChecked": 24,
+    "doseAndRecoveryArithmeticChecked": true,
+    "sessionComparison": {
+      "scope": "Bounded source/mechanics/readiness/dose-context comparison to saved OR07; not a whole-session numeric or written PASS.",
+      "file": "docs/programming/athleticism_12_week/instructional_on_ramp/week_02/or_07.json",
+      "eligibleApproachAgeModeRowsChecked": 18,
+      "directionOrdersChecked": 36,
+      "mainCountCapCombinationsChecked": 36,
+      "hipCapCombinationsChecked": 36,
+      "stanceRoleCapCombinationsChecked": 216,
+      "coreMechanicsAndNullableIdentityMatch": true,
+      "findingsSentToAuthor": [],
+      "geometryAddendum": "Added actual draft pause lateral bound, coach pad, three-prep/two-main transition, separate banks and counted behind-start staging; all remain unverified operational models.",
+      "resolvedSourcePlacement": "Current saved P2 note names only its counted terminal stop and logistical side gate; geometry.walk separately identifies terminal_stop_E1_exit and composite_E1_exit. No remaining core source-placement mismatch observed."
+    },
+    "newDatabaseQueries": false
+  },
+  "retainedStrengthContext": {
+    "hip": "One arms-crossed unloaded hinge set in every mode. If actual OR06 used two dumbbells, this is an intentional unloaded variant decision, not a claim that the same loaded variation is retained. No loaded trial, DB pickup or new strength load occurs today.",
+    "hipReferenceRepetitions": {
+      "9-11": {
+        "D": 3,
+        "L": 2
+      },
+      "12-14": {
+        "D": 4,
+        "L": 3
+      },
+      "15-18": {
+        "D": 4,
+        "L": 3
+      }
+    },
+    "hipTempo": "3s hips back/1s stand",
+    "hipSetupExitSeconds": 5,
+    "hipMinimumRecoverySeconds": 60,
+    "hipTechnicalReserveAtLeast": 5,
+    "hipCaps": [
+      1,
+      2,
+      3
+    ],
+    "hipCapRule": "min(reference count, actual smaller selected cap); unknown compatible history explicitly teaches one set of2 for every age, or smaller eligible count. No return to older larger volume.",
+    "stance": "Retain midrange or high support/depth or use the explicitly taught first-high route, with P1 quiet standing when entry is unknown. No dynamic split squat or unsupported progression.",
+    "stanceReference": {
+      "P1HoldSecondsPerLead": 3,
+      "P1SeparateBilateralHoldSeconds": 2,
+      "S1HoldSecondsPerLeadD": 5,
+      "S1HoldSecondsPerLeadL": 3,
+      "S1CombinedBothSideSets": 1,
+      "S1SideChangeSeconds": 10,
+      "S1SetupEntryFinalExitSeconds": 15,
+      "minimumRecoverySeconds": 60
+    },
+    "stanceCaps": [
+      1,
+      2,
+      3
+    ],
+    "stanceCapRule": "Apply min(reference hold, actual smaller selected cap) separately to P1 and S1. P1 nominal duration19+2h seconds; S1 nominal duration25+2h seconds. P1 bilateral finish remains2s. Do not erase side-specific history or grant equal ability simply because the reference plans both sides."
+  }
+}

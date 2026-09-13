@@ -1,0 +1,334 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T04:55:50.766735+00:00",
+  "session": "OR-06",
+  "scenario_count": 6480,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages"
+      ]
+    },
+    {
+      "case": "missing set purpose",
+      "rejected": true,
+      "sample_findings": [
+        "E1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "simultaneous main releases",
+      "rejected": true,
+      "sample_findings": [
+        "one main athlete and complete individual pitch"
+      ]
+    },
+    {
+      "case": "insufficient coach gap",
+      "rejected": true,
+      "sample_findings": [
+        "one main athlete and complete individual pitch"
+      ]
+    },
+    {
+      "case": "missing first-flight route",
+      "rejected": true,
+      "sample_findings": [
+        "all five landing routes"
+      ]
+    },
+    {
+      "case": "circular prior-flight instruction gate",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight: independent actual grounded/flight gates"
+      ]
+    },
+    {
+      "case": "automatic main jump entry",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight: counted first takeoff is not automatic main entry"
+      ]
+    },
+    {
+      "case": "prep contains first flight",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight/12-14/compressed_D/P2: conditional bilateral contact units"
+      ]
+    },
+    {
+      "case": "compressed first-flight extra attempt",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight/12-14/compressed_D/E1: exact opportunity count including cap"
+      ]
+    },
+    {
+      "case": "L first flight allowed",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight: age-independent mode availability"
+      ]
+    },
+    {
+      "case": "first-flight cap adds work",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight/cap2/12-14/compressed_D: exact opportunity count including cap"
+      ]
+    },
+    {
+      "case": "bilateral contacts called one foot",
+      "rejected": true,
+      "sample_findings": [
+        "jump_reference/12-14/compressed_D/E1: conditional bilateral contact units"
+      ]
+    },
+    {
+      "case": "missing full reset",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight/12-14/compressed_D/E1: segment/repetition/active sums",
+        "first_flight/12-14/compressed_D/E1: complete declared action/hold/reset"
+      ]
+    },
+    {
+      "case": "missing source identity",
+      "rejected": true,
+      "sample_findings": [
+        "first_flight: exact source boundary"
+      ]
+    },
+    {
+      "case": "loaded hip permits first flight",
+      "rejected": true,
+      "sample_findings": [
+        "db_first_setup: first-flight/load and actual hinge boundary"
+      ]
+    },
+    {
+      "case": "prior low dose auto increase",
+      "rejected": true,
+      "sample_findings": [
+        "policy prior_low_dose_auto_increases_in_D"
+      ]
+    },
+    {
+      "case": "old two-set dose restored",
+      "rejected": true,
+      "sample_findings": [
+        "policy older_two_set_history_restored"
+      ]
+    },
+    {
+      "case": "loaded basic hinge gate absent",
+      "rejected": true,
+      "sample_findings": [
+        "policy first_DB_requires_actual_basic_hinge_before_loaded_rep"
+      ]
+    },
+    {
+      "case": "new loaded and new primary together",
+      "rejected": true,
+      "sample_findings": [
+        "policy new_DB_and_new_primary_movement_together"
+      ]
+    },
+    {
+      "case": "extra handling screen",
+      "rejected": true,
+      "sample_findings": [
+        "policy extra_handling_or_screening_trials"
+      ]
+    },
+    {
+      "case": "first DB compressed repetition inflation",
+      "rejected": true,
+      "sample_findings": [
+        "db_first_setup/12-14/compressed_D: exact one-set reps/tempo",
+        "first-DB cap preserves reference mechanics/full handling/3/12-14/compressed_D"
+      ]
+    },
+    {
+      "case": "first DB capped handling borrowed from familiar variant",
+      "rejected": true,
+      "sample_findings": [
+        "first-DB cap preserves reference mechanics/full handling/1/12-14/compressed_D"
+      ]
+    },
+    {
+      "case": "first DB improperly requires previous two-DB competence",
+      "rejected": true,
+      "sample_findings": [
+        "db_first_setup: first handling versus retained competence"
+      ]
+    },
+    {
+      "case": "first DB cap adds repetition",
+      "rejected": true,
+      "sample_findings": [
+        "first-DB cap preserves reference mechanics/full handling/1/12-14/compressed_D"
+      ]
+    },
+    {
+      "case": "pickup handling omitted",
+      "rejected": true,
+      "sample_findings": [
+        "db_first_setup: complete pickup/top observation/set-down/reset",
+        "first-DB cap preserves reference mechanics/full handling/1/12-14/compressed_D"
+      ]
+    },
+    {
+      "case": "three novice DB athletes per two coaches",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/compressed_D/jump_reference/capdefault/bw_reference/hipcapdefault/default_P1/heel/bench/S1: complete group coverage and teaching",
+        "9-11/compressed_D/jump_reference/capdefault/bw_reference/hipcapdefault/default_P1/heel/bench: one coach per paired hip athlete"
+      ]
+    },
+    {
+      "case": "only one pair of DBs for two stations",
+      "rejected": true,
+      "sample_findings": [
+        "four DBs at two conditional elevated stations"
+      ]
+    },
+    {
+      "case": "one support side omitted",
+      "rejected": true,
+      "sample_findings": [
+        "S4/12-14/compressed_D: both-side rep count"
+      ]
+    },
+    {
+      "case": "extra hip set",
+      "rejected": true,
+      "sample_findings": [
+        "bw_reference/12-14/compressed_D: exact one-set reps/tempo"
+      ]
+    },
+    {
+      "case": "smaller P1 incompatible rest",
+      "rejected": true,
+      "sample_findings": [
+        "single smaller P1 and inapplicable inter-set rest/12-14/compressed_D"
+      ]
+    },
+    {
+      "case": "false actual space verification",
+      "rejected": true,
+      "sample_findings": [
+        "actual space remains unverified"
+      ]
+    },
+    {
+      "case": "all first-flight readiness unknown",
+      "rejected": true
+    },
+    {
+      "case": "first flight plus loaded hip despite all evidence",
+      "rejected": true
+    },
+    {
+      "case": "actual prior smaller reps cannot authorize reference",
+      "rejected": true
+    },
+    {
+      "case": "new DB missing actual_controlled_basic_hinge_before_load",
+      "rejected": true
+    },
+    {
+      "case": "new DB missing actual_retained_known_primary_task",
+      "rejected": true
+    },
+    {
+      "case": "new DB missing actual_pickup_grip_top_stand_before_loaded_rep",
+      "rejected": true
+    },
+    {
+      "case": "new DB missing actual_suitable_pair_and_elevated_supports",
+      "rejected": true
+    },
+    {
+      "case": "L DB despite actual evidence",
+      "rejected": true
+    },
+    {
+      "case": "L flight despite actual evidence",
+      "rejected": true
+    },
+    {
+      "case": "source DB identity drift",
+      "rejected": true,
+      "sample_findings": [
+        "exact two-DB local candidate identity"
+      ]
+    },
+    {
+      "case": "fabricated source ID",
+      "rejected": true,
+      "sample_findings": [
+        "FIRST-FLIGHT-TEACH: no fabricated approval/IDs"
+      ]
+    },
+    {
+      "case": "hip to knee recovery violated",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/compressed_D/jump_reference/capdefault/bw_reference/hipcapdefault/default_P1/heel/bench: same-athlete S1→S2 recovery",
+        "9-11/compressed_D/jump_reference/capdefault/bw_reference/hipcapdefault/default_P1/heel/ring: same-athlete S1→S2 recovery"
+      ]
+    }
+  ],
+  "synthetic_positive_evidence_check": true,
+  "synthetic_positive_retained_nonflight_first_DB_low_cap_check": true,
+  "sha256": {
+    "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
+    "instructional_on_ramp/week_02/or_06.md": "d4ece85f55266c7c569de08a5bac61d12966ead39da2cb4d8d8294b517fe0fbe",
+    "prescriptions/author_or_06.py": "993ded7142c674f414eaca99d109dfdc7429e00e1d80467e1714b32a2bf85bff",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "3d923a90da8c4d1f954cb5885b69af26c6b362a6a78944335c752c77840eb469",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "prescriptions/proposals/or06_first_flight_teaching_candidate.json": "fb3a2074184095172d05b07f3c2372d3e7e1f847485afac260d3e77256267023",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/OR06_LIBRARY_MAPPING.md": "cfaf976628d29c9b9f1716b3282fbdc4613e0337e50a5a66a09a65b0e133b701"
+  },
+  "scope": "All three ages/four modes; five landing routes with default/one/two opportunity caps; six hip routes subject to independent permissions, with default/one/two/three first-DB repetition caps; two P1 doses and brace/pull switches. Complete no-flight base, target/main clocks, paired DB handling, all-side strength counts and same-athlete role recovery.",
+  "limits": [
+    "Conditional named combinations include duplicate physical doses under different caps; the count is not a joint group prescription or athlete census",
+    "No scenario asserts actual readiness; recent rep count and known primary task remain external evidence",
+    "Flight opportunities are not successful flights or observed contacts",
+    "Geometry, loads, supports, supervision and actual pace remain conditional",
+    "Local proposal/source pointers confer no canonical approval",
+    "Separate tumbling dose is unresolved"
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 6480,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "c921dd1090b3186c2bf1ca57d9d3dacdc956708bf502854c4ef27cc8476357cd",
+    "resolved_scenarios_canonical_sha256": "c921dd1090b3186c2bf1ca57d9d3dacdc956708bf502854c4ef27cc8476357cd",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 10799282,
+    "unpooled_scenarios_canonical_bytes": 87101245,
+    "pooled_value_count": 3998,
+    "common_field_count": 24,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+  }
+}

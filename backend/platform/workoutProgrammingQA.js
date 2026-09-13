@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { randomUUID } from 'node:crypto'
 import { normalizeCoachWorkoutRequest, programmingValueHash, immutableProgrammingValue, parseProgrammingContract, programmingComponentPlan } from './workoutProgrammingRequest.js'
 import { programmingResourceRequests, validateProgrammingDirectorProposal } from './workoutProgrammingDirector.js'
-import { loadWorkoutProgrammingMaterials } from './workoutProgrammingLibrarians.js'
+import { loadWorkoutProgrammingMaterials, loadWorkoutProgrammingMaterialsInSnapshot } from './workoutProgrammingLibrarians.js'
 import { programmingCandidateMaterials, builderCapabilityContract, scheduleProgrammingDraft, validateProgrammingCoverage } from './workoutProgrammingBuilder.js'
 import { deriveProgrammingPreparationDemand, preparationCapabilityContract, VORTEX_PREPARATION_CAPABILITY_CONTEXT } from './workoutPreparation.js'
 import { resolveCanonicalProgrammingDose } from './canonicalProgrammingDose.js'
@@ -11,6 +11,7 @@ import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingS
 import { SESSION_COMPONENT_ORDER } from './sessionComponentContract.js'
 import { evaluateProgrammingMethodRules } from './programmingMethodRules.js'
 import { evaluateCanonicalProgrammingRules } from './canonicalProgrammingRules.js'
+import { libraryScopeId } from './coachingLibraryContext.js'
 
 export const PROGRAMMING_QA_VERSION = '1.0.0'
 export const PROGRAMMING_QA_AREAS = Object.freeze(['impact_volume', 'development_readiness', 'redundancy', 'sequencing', 'cumulative_fatigue',
@@ -61,7 +62,8 @@ function sourceQualityFindings(activity) {
 }
 
 /** Internal service: sessionIntent must be loaded from server-owned state, never accepted as client authorization. */
-export async function validateWorkoutProgrammingDraft({ pool, context, sessionIntent, draft: rawDraft, signal }) {
+export async function validateWorkoutProgrammingDraft({ pool, context, sessionIntent, draft: rawDraft, signal, snapshotClient = null }) {
+  if (sessionIntent.scope?.facilityId !== libraryScopeId(context.facilityId, 'facilityId')) throw new ProgrammingStaffError('foreign_session_intent', 'Session intent belongs to a different facility')
   const canceled = () => { if (signal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming validation was canceled') }
   canceled()
   const draft = parseProgrammingContract(shape, rawDraft, 'Programming draft')
@@ -80,7 +82,9 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
     return { ...search, pinnedExercises: [...search.pinnedExercises, ...selected.map(ref)],
       pinnedProgrammingMethodIds: [...new Set([...search.pinnedProgrammingMethodIds, ...selected.map((entry) => entry.method.id)])] }
   })
-  const materials = await loadWorkoutProgrammingMaterials(pool, context, searches, { athleteRequest: request })
+  const materials = snapshotClient
+    ? await loadWorkoutProgrammingMaterialsInSnapshot(snapshotClient, context, searches, { athleteRequest: request })
+    : await loadWorkoutProgrammingMaterials(pool, context, searches, { athleteRequest: request })
   canceled()
   const release = materials.resources[0]?.libraryRelease
   const findings = []
@@ -161,7 +165,7 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
   for (const issue of [...(sessionIntent.issues ?? []), ...draft.issues]) findings.push(executionFinding(issue, 'An earlier staff or deterministic finding is still unresolved.', activities, 'director'))
   if (draft.status !== 'READY_FOR_CRITIC' || draft.builderSource !== 'session_builder') findings.push(finding('incomplete_staff_draft', 'A complete staff composition is required before Critic review.', 'director'))
   canceled()
-  const target = { qaVersion: PROGRAMMING_QA_VERSION, draftId: draft.draftId, intentId: sessionIntent.intentId, request, componentPlan, release,
+  const target = { qaVersion: PROGRAMMING_QA_VERSION, draftId: draft.draftId, intentId: sessionIntent.intentId, scope: sessionIntent.scope, request, componentPlan, release,
     director: sessionIntent.proposal, athleteAdvice: sessionIntent.athleteAdvice, consultantAdvice: sessionIntent.consultantAdvice,
     activities, builderProposal, preparationProposal, demand, schedule, load, coverage, methodRules, exerciseRules, athleteEvidence }
   return immutableProgrammingValue({ schemaVersion: PROGRAMMING_QA_VERSION, draftId: draft.draftId,

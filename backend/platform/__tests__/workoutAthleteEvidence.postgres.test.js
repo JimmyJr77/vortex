@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import pg from 'pg'
 import { withCoachingLibrarySnapshot } from '../coachingLibraryContext.js'
-import { loadWorkoutAthleteEvidence } from '../workoutAthleteEvidence.js'
+import { loadWorkoutAthleteEvidence, loadWorkoutAthleteEvidenceChoices } from '../workoutAthleteEvidence.js'
 import { rosterRequest } from './workoutAthleteEvidenceFixtures.js'
 import { SCOPE } from './workoutProgrammingLibrarianFixtures.js'
 
@@ -92,6 +92,18 @@ test('actual PostgreSQL athlete observations are scoped, read-only, versioned an
       assert.equal((await load(invalid)).findings.filter((entry) => entry.code === 'unavailable_athlete_evidence').length, 9)
       const foreignRoster = rosterRequest({ athletes: [{ ...base.athletes[0], memberIds: ['101', '999'] }] })
       assert.ok((await load(foreignRoster)).findings.some((entry) => entry.code === 'unavailable_cohort_member'))
+    })
+    await t.test('coach evidence discovery uses the same facility, source-owner and publication boundaries', async () => {
+      const evidence = await load()
+      for (const [kind, expectedId] of [['skill_progress', '71'], ['assessment_result', '61'], ['gymnastics_evaluation', '401']]) {
+        const choices = await withCoachingLibrarySnapshot(pool, SCOPE, (client, scope) => loadWorkoutAthleteEvidenceChoices(client, scope,
+          { memberId: '101', kind, asOfDate: evidence.referenceDate }))
+        assert.deepEqual(choices.map((entry) => entry.id), [expectedId])
+        assert.equal(choices[0].sourceHash, evidence.observations.find((entry) => entry.kind === kind && entry.id === expectedId).sourceHash)
+        const foreign = await withCoachingLibrarySnapshot(pool, SCOPE, (client, scope) => loadWorkoutAthleteEvidenceChoices(client, scope,
+          { memberId: '999', kind, asOfDate: evidence.referenceDate }))
+        assert.deepEqual(foreign, [])
+      }
     })
     await t.test('changed and future observations plus truncated history remain reviewable evidence', async () => {
       const original = await load()

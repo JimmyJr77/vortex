@@ -1,0 +1,572 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "OR-06 first-flight acquisition and retained-landing/hinge local source audit; session author owns final doses and clocks",
+  "checkedOn": "2026-09-13",
+  "planningStatus": "reviewable_proposal_and_local_candidates_pending_release",
+  "recordIdsAre": "Mapping keys and explicit proposal: labels are documentation identities only; source keys are reproduced only when locally verified. All live IDs/approval remain unset.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "appSourceEdits": false,
+    "approvalsCreated": false,
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "searchCoverage": {
+    "roots": [
+      "scripts/data/canonical-research/contracts",
+      "scripts/data/canonical-research/generated",
+      "scripts/data/canonical-research/batches",
+      "backend/migrations",
+      "relevant authored jump/hinge card scripts"
+    ],
+    "synonyms": [
+      "first flight",
+      "basic two-foot vertical jump",
+      "small bilateral jump",
+      "squat jump",
+      "paused squat jump to stick",
+      "countermovement vertical jump",
+      "countermovement jump to stick",
+      "low jump-to-stick",
+      "bilateral ankle hop",
+      "low/fast pogo",
+      "snap-down",
+      "drop squat",
+      "bodyweight hinge good morning",
+      "dumbbell RDL"
+    ],
+    "finding": "Completed local squat/CMJ contracts and MI profiles found; no internally consistent exact first-flight profile verified. 602 cleanup is partial. Source48 pogo remains repeated-contact and prior-hop qualified. Prior-qualified forward220 remains distinct."
+  },
+  "records": [
+    {
+      "mappingKey": "FIRST-FLIGHT-TEACH",
+      "name": "Small Bilateral Vertical Jump to Stick \u2014 First-Flight Teaching Proposal",
+      "sourceSlug": null,
+      "relatedSourceSlug": "countermovement-jump",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_instructional_proposal_exact_owner_profile_and_approval_unresolved",
+      "proposalRecord": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or06_first_flight_teaching_candidate.json",
+        "documentationId": "proposal:or06:first-flight-teach"
+      },
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+          "lines": "19-46",
+          "kind": "active_authored_amendment"
+        },
+        {
+          "path": "backend/migrations/443_coaching_vertical_jump_foundations_completion.sql",
+          "lines": "80-90;172-176;198-202;241-256;317-330",
+          "kind": "related_counternovement_mechanics_and_conflicting_prior_flight_gates"
+        },
+        {
+          "path": "backend/migrations/602_coaching_low_hurdle_and_jump_readiness_cleanup.sql",
+          "lines": "32-44",
+          "kind": "partial_squat_readiness_cleanup_only"
+        },
+        {
+          "path": "backend/migrations/727_coaching_squat_jump_snap_down_identity_boundary.sql",
+          "lines": "26-35",
+          "kind": "grounded_vs_flight_identity_boundary"
+        }
+      ],
+      "exactProposedMechanics": {
+        "start": "Stationary comfortable bilateral stance with feet approximately hip/jump width, small comfortable knee unlock and arms resting beside the trunk; no approach.",
+        "action": "One self-selected shallow continuous countermovement and small natural arm swing, then one small vertical bilateral takeoff. No prescribed jump height, distance quota, overhead arm target, static squat pause, repeated preparatory bounce or maximal effort.",
+        "landing": "Both feet return to the same personal landing area, with comfortable ankle/knee/hip absorption and organized trunk; stabilize for the declared two-second hold. A recovery step, asymmetry, unintended travel, rebound or loss of control is recorded as a fault rather than credited as a valid stick.",
+        "reset": "After the hold, stand and settle; full reset and prescribed recovery precede any next listed opportunity. No immediate second takeoff.",
+        "arms": "Small natural swing beginning beside the trunk; comfortable range, no mandatory overhead reach. This is explicit lesson context, not the fixed hands-on-hips squat-jump baseline.",
+        "assistance": "No hand-held lift, support, band, platform, external load or manual jump assistance is prescribed. If such assistance becomes necessary, stop and separately define/review the different task.",
+        "countRule": "Record attempted opportunities, actual takeoffs/flight events, bilateral landing events and individual landing-foot contacts separately, including faults. One completed bilateral jump gives one flight event, one bilateral landing event and two landing-foot contacts. A grounded attempt contributes zero flight events; incidental steps are recorded separately."
+      },
+      "entryRequirements": [
+        "Comfortable current bilateral standing and the actual shallow grounded knee/hip lowering, ready-position hold and bilateral rise; actual evidence may come from a prior equivalent or the counted P2 action. Slow held-position control is not recorded as a rapid snap-down pass.",
+        "Comfortable unloaded small arm motion at the intended range and understanding of one shallow dip, small upward action, two-foot landing, hold and stop/reset instruction; coach demonstration may supply instruction, not an uncounted athlete jump.",
+        "Qualified direct observation, individually fitting protected landing/fall/overhead space, inspected level non-slip impact-appropriate surface, footwear, no cross traffic and current total impact/fatigue budget fit.",
+        "No prior successful flight is required. The first actual takeoff and landing are observed within the first listed E1 instructional attempt. Grounded readiness permits instruction only; the athlete may decline, remain grounded or stop without a forced takeoff."
+      ],
+      "rootProposedContextNotSourceDefault": {
+        "status": "author_proposed_not_source_default_or_approved_prescription",
+        "preparation": "P2 is one counted slow grounded position action: 3 s lower, 2 s hold, 1 s stand, 2 s reset. It has zero planned flight and may establish its own actual grounded-control evidence.",
+        "firstFlight": "Only E1 contains the first actual flight; all ages D has 2 standard or 1 compressed single-attempt sets; L remains a separately prescribed grounded task.",
+        "ageBands": [
+          "9-11",
+          "12-14",
+          "15-18"
+        ],
+        "attemptEnvelopeSeconds": 8,
+        "segments": [
+          {
+            "name": "shallow_countermovement_takeoff_and_landing",
+            "seconds": 2
+          },
+          {
+            "name": "held_bilateral_finish",
+            "seconds": 2
+          },
+          {
+            "name": "stand_and_reset",
+            "seconds": 4
+          }
+        ],
+        "envelopeRule": "The two-second action phase is a planning upper allowance, not a forced jump cadence; extra teaching time delays or omits an opportunity, never rushes the athlete.",
+        "minimumRecoverySeconds": 60,
+        "heightOrDistanceQuota": null,
+        "concurrentHingeLoadIncrease": false,
+        "instructionIsNotCompetencyPass": true,
+        "plannedRoundSpacingSeconds": "360 standard; compressed has one opportunity, so between-round spacing is not applicable",
+        "stationPolicy": "15 personal 3 \u00d7 3 m planning bays, takeoff centered for nominal 1.5 m clear radius plus separate peripheral coach circulation. Verify actual body fit, surface, landing/fall/overhead space and sightlines; reconfigure or omit if inadequate. One first-flight athlete at a time with two qualified coaches; bay count is not simultaneous capacity."
+      },
+      "sourceDoseNotSessionPrescription": null,
+      "stopRules": [
+        "Stop for pain, symptoms, apprehension/withdrawal, restriction, unsafe surface/traffic, lost balance or inability to understand the instruction.",
+        "End the affected attempt for repeated prep bounces, unintended travel, asymmetrical takeoff/landing, stiff or uncontrolled landing, extra step, rebound, failed hold or materially changed trunk/knee control.",
+        "Do not repeat failed attempts to earn a pass; no extra screening or make-up jump. Select only an independently eligible grounded/slow-position route or defer."
+      ],
+      "remainingGates": [
+        "Final integrated dose/clock and actual station/clearance/sightline verification; author selected minimum 60 s first-flight recovery.",
+        "Independent complete-card identity/media/difficulty/relationship/current-approval review.",
+        "Currently approved substitute not verified; use transparent eligible local teaching/grounded alternatives in the reviewable draft or defer operational release."
+      ],
+      "competencyBoundary": "Instruction eligibility is not jump competence. No automatic same-day forward jump, rebound, maximal jump or main JUMP pass; record actual result and retained unloaded hinge separately."
+    },
+    {
+      "mappingKey": "CMJ-BOUNDARY",
+      "name": "Countermovement Jump \u2014 Natural-Arm Bilateral Countermovement Jump",
+      "sourceSlug": "countermovement-jump",
+      "localCandidateVariantKey": "baseline",
+      "localCandidateProfileKeys": [
+        "output-natural-arm",
+        "movement-intelligence-landing"
+      ],
+      "legacySourceId": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "completed_local_review_candidate_not_first_flight_profile",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/443_coaching_vertical_jump_foundations_completion.sql",
+          "lines": "80-90;170-176;198-202;229-256;302-330",
+          "kind": "authored_local_source"
+        },
+        {
+          "path": "backend/migrations/444_coaching_vertical_jump_foundations_audit_hardening.sql",
+          "lines": "81-103",
+          "kind": "authored_local_source"
+        },
+        {
+          "path": "backend/migrations/376_coaching_score_82_variant_identity_consolidations.sql",
+          "lines": "77-84",
+          "kind": "alias_identity_consolidation"
+        }
+      ],
+      "exactMechanics": "Standing bilateral start; one rapid self-selected countermovement with natural arm swing; one bilateral vertical flight; bilateral landing in the takeoff area; declared hold and full reset. No approach, static squat pause, linked rebound or repeated contacts.",
+      "prerequisiteBoundary": "Definition.population and variant.programming require prior bilateral jump-to-stick control, alongside pain-free countermovement and coordinated natural arms. The submaximal profile is not an explicit waiver for first-flight novices.",
+      "sourceDoseNotSessionPrescription": {
+        "movementIntelligence": {
+          "sets": "2-3",
+          "attemptsPerSet": "2-4",
+          "landingHoldSeconds": "2-3",
+          "resetBetweenAttemptsSeconds": "20-40",
+          "restBetweenSetsSeconds": "60-90",
+          "intent": "submaximal_vertical_projection_and_landing_control"
+        },
+        "output": {
+          "sets": "2-5",
+          "attemptsPerSet": "2-5",
+          "landingHoldSeconds": "1-3",
+          "resetBetweenAttemptsSeconds": "15-30",
+          "restBetweenSetsSeconds": "60-180",
+          "intent": "high_vertical_output_natural_arm"
+        }
+      },
+      "alternativesBoundary": "Restricting hands to hips is a new variant in this source; no overhead reach target is mandatory for the root teaching adaptation."
+    },
+    {
+      "mappingKey": "SQUAT-JUMP-BOUNDARY",
+      "name": "Squat Jump \u2014 Paused Hands-on-Hips Bilateral Squat Jump",
+      "sourceSlug": "squat-jump",
+      "localCandidateVariantKey": "baseline",
+      "localCandidateProfileKeys": [
+        "output-static-start",
+        "movement-intelligence-static-start"
+      ],
+      "legacySourceId": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "completed_local_review_candidate_with_partial_readiness_cleanup_conflict",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/443_coaching_vertical_jump_foundations_completion.sql",
+          "lines": "80-85;170-176;198-202;229-256;272-301",
+          "kind": "authored_local_source"
+        },
+        {
+          "path": "backend/migrations/444_coaching_vertical_jump_foundations_audit_hardening.sql",
+          "lines": "81-103",
+          "kind": "authored_local_source"
+        },
+        {
+          "path": "backend/migrations/602_coaching_low_hurdle_and_jump_readiness_cleanup.sql",
+          "lines": "32-44",
+          "kind": "later_partial_readiness_cleanup"
+        },
+        {
+          "path": "backend/migrations/394_coaching_score_73_variant_identity_consolidations.sql",
+          "lines": "186-195",
+          "kind": "stick_alias_consolidation"
+        }
+      ],
+      "exactMechanics": "Bilateral partial squat held motionless 2-3 s with hands fixed on hips; no preparatory re-dip; one vertical bilateral takeoff/landing in start area, declared stick and full reset. Natural arm swing is separately proposed, not this baseline.",
+      "prerequisiteBoundary": "602 replaces only requirements.readiness with contextual surface/sequence/symptom/budget fields. It leaves 443 definition.population and programming prerequisites for bilateral jump-to-stick intact. Do not treat the cleanup as a complete first-flight contract.",
+      "sourceDoseNotSessionPrescription": {
+        "movementIntelligence": {
+          "sets": "2-3",
+          "attemptsPerSet": "2-4",
+          "startHoldSeconds": 3,
+          "landingHoldSeconds": "2-3",
+          "resetBetweenAttemptsSeconds": "20-40",
+          "restBetweenSetsSeconds": "60-90",
+          "intent": "submaximal_strategy_and_landing_control"
+        },
+        "output": {
+          "sets": "2-5",
+          "attemptsPerSet": "2-5",
+          "startHoldSeconds": "2-3",
+          "landingHoldSeconds": "1-3",
+          "resetBetweenAttemptsSeconds": "15-30",
+          "restBetweenSetsSeconds": "60-180",
+          "intent": "high_static_start_vertical_output"
+        }
+      },
+      "selectionConsequence": "Adds deliberate stillness/no-re-dip discrimination and fixed hands; root continuous shallow countermovement is a different task. Static-start work may be useful when independently qualified, but is not silently selected for the first-flight lesson."
+    },
+    {
+      "mappingKey": "POGO-BOUNDARY",
+      "name": "Stationary Bilateral Ankle Pogo",
+      "sourceSlug": "ankle-pogo-in-place",
+      "localCandidateVariantKey": "stationary-bilateral-low-amplitude-ankle-pogo",
+      "localCandidateProfileKeys": [
+        "prepare-stationary-bilateral-ankle-pogo",
+        "output-stationary-bilateral-ankle-pogo"
+      ],
+      "legacySourceId": 48,
+      "sourceAuthoredVariantUuid": "48000000-0000-4000-8000-000000000001",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "completed_local_review_quarantined_repeated_contact_candidate",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/ankle-pogo-in-place.v1.json",
+          "lines": "7-53;106-115;131-153",
+          "kind": "authored_local_source"
+        }
+      ],
+      "exactMechanics": "Repeated low-amplitude simultaneous bilateral vertical hops, quiet ankle-dominant spring-like contacts, soft available knees/hips, stationary finish; no terminal stick between every hop.",
+      "prerequisiteBoundary": "Comfortable controlled bilateral low-amplitude hop/reset already required. Small amplitude does not remove prior-hop readiness or make this an isolated first-flight task.",
+      "sourceDoseNotSessionPrescription": {
+        "prepare": {
+          "sets": "1-3",
+          "contactsPerSet": "8-15",
+          "restSeconds": "30-60"
+        },
+        "output": {
+          "sets": "2-4",
+          "contactsPerSet": "12-20",
+          "restSeconds": "45-90"
+        }
+      },
+      "selectionConsequence": "Repeated rebound/calf contacts and prior-hop requirement do not fit isolated first flight with a held landing. Do not use pogo source scores or contact caps for FIRST-FLIGHT-TEACH."
+    },
+    {
+      "mappingKey": "DB-RDL",
+      "name": "Romanian Deadlift \u2014 Dumbbell Standard Tempo",
+      "sourceSlug": "romanian-deadlift",
+      "localCandidateVariantKey": "dumbbell-standard-tempo",
+      "localCandidateProfileKeys": [
+        "capacity-strength"
+      ],
+      "legacySourceId": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "reused_local_authored_canonical_candidate_with_explicit_OR06_teaching_override",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": "198-245;453-470;535-555;624-680;707-730;772-774",
+          "kind": "authored_local_source"
+        },
+        {
+          "path": "scripts/data/capacity-hinge-cards-11-18.mjs",
+          "lines": "239-310",
+          "kind": "legacy_defaults_not_current_age_gate"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "DB-RDL"
+      },
+      "exactMechanics": "Two independently held dumbbells; bilateral loaded TOP start, approximately hip-width stance, soft knees, organized trunk/pelvis, hips back with both loads close in independent paths through owned range, hip extension to stacked finish and safe reset/set-down. One centered kettlebell and arms-crossed bodyweight hinge are different variants/tasks.",
+      "entryInterpretation": "The current 331 population requires actual controlled unloaded bilateral hinge and ability to control declared implement grip/pickup/set-down, not a prior perfect loaded RDL repetition. For this proposed lesson the first scheduled S1 setup may observe two-implement handling on an independently fitting elevated table/rack before the first loaded hinge. If the handling is unsuitable, end before hinging and return safely; do not add a fit trial. Unloaded hinge range does not prove floor pickup; a one-arm supported row does not prove simultaneous two-DB handling.",
+      "loadSelection": "No source universal kg, percentage-bodyweight rule or age-to-load ladder was verified. Select the actual manageable pair from current grip/handling, controlled range, recent exposure and symptoms; declare each mass, dimensions/grip, pickup height and safe independent paths. A smaller/lighter implement is usable only when actually available and independently fitting.",
+      "sourceDoseNotSessionPrescription": {
+        "capacityStrength": {
+          "sets": "2-5",
+          "repetitions": "3-10",
+          "restSeconds": "90-240",
+          "tempo": "standard_controlled",
+          "intent": "challenging_strength_only_while_every_quality_gate_holds"
+        },
+        "legacy": {
+          "sets": 3,
+          "repetitions": 6,
+          "restSeconds": 90,
+          "tempo": "3-0-1-0",
+          "rpe": "6-8"
+        },
+        "sourceTimeModel": {
+          "repetitionSeconds": 6,
+          "resetSeconds": 6,
+          "setupSeconds": 45
+        },
+        "boundary": "Root one-set very-manageable teaching is an explicit dose/purpose/time override, not the exact source strength default."
+      },
+      "rootProposedContextNotSourceDefault": {
+        "allowedOnlyOn": "retained_known_primary_task_flight_or_nonflight_with_independent_hinge_and_handling_eligibility",
+        "firstFlightBranch": "retain actual HINGE-BW; no loaded hinge increase",
+        "sets": 1,
+        "loweringSeconds": 3,
+        "standingSeconds": 1,
+        "minimumGoodRepetitionsInReserve": 5,
+        "restSeconds": 90,
+        "implementQuantity": 2,
+        "kgPerImplement": null,
+        "pickup": "declared individually fitting elevated table/rack",
+        "firstLoadedHandlingSeconds": 20,
+        "firstLoadedHandlingSegments": [
+          {
+            "name": "paired_pickup_from_fitting_elevated_table_or_rack",
+            "seconds": 7
+          },
+          {
+            "name": "grip_and_loaded_top_stand_observation",
+            "seconds": 3
+          },
+          {
+            "name": "loaded_repetitions",
+            "secondsPerRep": 4,
+            "placedHereBeforeSetdown": true
+          },
+          {
+            "name": "controlled_setdown_to_same_support",
+            "seconds": 6
+          },
+          {
+            "name": "clear_and_reset",
+            "seconds": 4
+          }
+        ],
+        "firstLoadedRepetitionsByBookingAndAge": {
+          "standard": {
+            "9-11": 3,
+            "12-14": 4,
+            "15-18": 4
+          },
+          "compressed": {
+            "9-11": 2,
+            "12-14": 2,
+            "15-18": 2
+          }
+        },
+        "firstLoadedPhysicalSeconds": {
+          "standard": {
+            "9-11": 32,
+            "12-14": 36,
+            "15-18": 36
+          },
+          "compressed": {
+            "9-11": 28,
+            "12-14": 28,
+            "15-18": 28
+          }
+        },
+        "familiarLoadedHandlingSeconds": 10,
+        "familiarRepetitionsByAge": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "firstLoadedStationSlotsSeconds": {
+          "standard": 45,
+          "compressed": 35
+        },
+        "handlingBoundary": "Actual elevated rack/table pickup and set-down only; no floor-handling pass, child carries through active bays or added fit trial. Table/rack height and access are individually fitted.",
+        "unsuitableHandling": "Coach manages safe return/set-down; the counted set ends/is omitted before any unsuitable loaded hinge. No replacement lighter-load, unloaded or screening set/repetition is added.",
+        "standardRepetitionsByAge": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "stationEquipment": {
+          "simultaneousStations": 2,
+          "dumbbellsPerStation": 2,
+          "totalDumbbellsForHinge": 4,
+          "stableElevatedSupports": 2,
+          "supportHeight": "individually comfortable; record actual height/access",
+          "loadPosition": "two dumbbells close in front/sides on the fitting support; independent grip and paths",
+          "laterRowReuse": "Later five known single-DB row stations may reuse these four plus one additional fitting DB, with actual equipment changes inside the station transition. This does not imply ten DBs for five simultaneous paired hinge stations.",
+          "unverifiedInventory": true
+        },
+        "allowedModes": [
+          "standard_D",
+          "compressed_D"
+        ],
+        "LMode": "unloaded hinge only",
+        "retainedNonflightBoundary": "Jumping is not a prerequisite for strength. A retained known grounded task may accompany separately eligible DB instruction, but new primary movement and new loaded hinge are not introduced together.",
+        "firstLoadedRepetitionCaps": {
+          "options": [
+            1,
+            2,
+            3
+          ],
+          "rule": "For every age and allowed D booking use min(the actual first-loaded reference count, selected cap). Compressed reference remains 2. Cap replaces that set count, never adds work.",
+          "preserves": {
+            "firstLoadedHandlingSeconds": 20,
+            "minimumRecoverySeconds": 90,
+            "unloadedHingeBeforeLoadedRep": true,
+            "retainedKnownPrimaryRequired": true
+          },
+          "boundary": "Retain a genuinely smaller actual recent compatible repetition dose without selecting the familiar DB low-hold route. First handling remains 20 s even at one repetition; a smaller cap does not establish familiar two-DB competence. L remains unloaded."
+        }
+      },
+      "stopRules": [
+        "Stop for symptoms, apprehension, grip or implement loss, unsafe pickup/set-down, load drift, progressive knee bend, trunk change, balance loss or grinding.",
+        "No load escalation to reach a group age target; unsuccessful setup consumes its counted instruction and does not earn extra trials."
+      ],
+      "remainingGates": [
+        "Actual two implements, mass and grip fit, stable supports, handling paths and total clock.",
+        "Current canonical owner/profile and release remain unverified.",
+        "Exact rep cadence and purpose must remain labeled as instructional override; no deliberate 4-6 s slow-eccentric profile is selected."
+      ]
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "JUMP-STICK",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or02_library_mapping.json",
+        "mappingKey": "JUMP-STICK"
+      },
+      "boundary": "Only retained actually qualified forward jump; no first-flight inheritance, same prior geometry/arms/hold."
+    },
+    {
+      "mappingKey": "SNAP-STICK",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or02_library_mapping.json",
+        "mappingKey": "SNAP-STICK"
+      },
+      "boundary": "Grounded rapid no-flight descent; own readiness required; no jump or slow-position equivalence."
+    },
+    {
+      "mappingKey": "HINGE-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HINGE-BW"
+      },
+      "boundary": "Arms crossed at chest, soft knees, hips back, owned range; retain actual recent dose and zero external load on first-flight branch."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SQUAT-BW"
+      },
+      "boundary": "Slow P2 position adaptation may hold 2 s; identify the explicit cadence and grounded-only observation."
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH"
+      },
+      "boundary": "Actual stable individually fitting support height; no floor-push pass inferred."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW"
+      },
+      "boundary": "Opposite hand AND knee bench support; independent both-side load/handling record."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HEEL-TAP"
+      },
+      "boundary": "Fixed vertical arms, actual tabletop and controlled bent-leg heel return; Strength-context adaptation remains declared."
+    },
+    {
+      "mappingKey": "BREATH-9090-ALT",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT"
+      },
+      "boundary": "Separate supported breathing/reach task with own support, floor-access and shoulder gates."
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "BILATERAL-STAND-TEACH"
+      },
+      "boundary": "Quiet comfortable standing only; no lowering or flight pass."
+    }
+  ],
+  "continuity": {
+    "establishedJumpBranch": "Retain the actual known primary flight or nonflight task. Qualified forward jumping preserves its OR-02 geometry/arms/hold. Independently eligible DB instruction may accompany a retained known nonflight task; jumping is not a strength gate. Do not combine a new primary movement with new loaded hinge instruction.",
+    "firstFlightBranch": "Teach first small vertical takeoff/landing only after actual grounded/conduct/space gates; retain actual unloaded hinge variant/setup and dose, without concurrent loading.",
+    "noFlightBranch": "Retain separately eligible grounded/slow-position work; no flight/result invented.",
+    "hingeSetHistory": "Root proposes one set: hold actual compatible recent one-set history, explicitly reduce a compatible prior two-set history, do not infer a past two-set dose from age or attendance.",
+    "allAges": "Every age receives its own full session dose; age supplies no competency, kg, impact clearance or progression.",
+    "next": "OR-15/19 preserve actual first-flight, retained forward-jump or nonflight evidence. Emerging first flight never silently becomes forward220."
+  },
+  "globalGates": [
+    "Current canonical approval and exact identity/profile review remain unverified.",
+    "First-flight full-card proposal is schema-shaped documentation, not importable/current approved record.",
+    "Actual athlete outcomes, station geometry, implements, coaching capacity, recent sport/tumbling and separate tumbling prescription remain external inputs.",
+    "An approved substitute was not verified; spec9 remains an operational release gate, not permission to label local candidates approved."
+  ],
+  "verification": {
+    "jsonParsed": true,
+    "uniqueMappingKeys": 5,
+    "sourcePathLineReferencesCheckedIncludingProposal": 18,
+    "reusedKeysResolved": 9,
+    "markdownLinksChecked": 25,
+    "proposalSchema": "docs/workout-generator/schemas/exercise-card.schema.json",
+    "schemaValidation": "Local recursive validation of required fields, types, refs, enums, patterns, item counts, uniqueness and score ranges used by the current schema; no import or publish validation claimed.",
+    "proposalSchemaChecks": 81,
+    "firstFlightPhysicalSeconds": 8,
+    "minimumFirstFlightRecoverySeconds": 60,
+    "currentApprovalVerified": false
+  }
+}

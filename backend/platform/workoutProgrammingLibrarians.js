@@ -113,18 +113,31 @@ export async function searchWorkoutProgrammingResourcesBatch(pool, context, rawR
 
 /** Internal composition material, hydrated within one authenticated snapshot. */
 export async function loadWorkoutProgrammingMaterials(pool, context, rawRequests, { athleteRequest = null } = {}) {
+  const requests = materialSearchRequests(rawRequests)
+  return withCoachingLibrarySnapshot(pool, context, (client, scope) => readProgrammingMaterials(client, scope, requests, athleteRequest))
+}
+
+/** Internal transaction entry point; caller owns the repeatable-read snapshot and its commit. */
+export async function loadWorkoutProgrammingMaterialsInSnapshot(client, context, rawRequests, { athleteRequest = null } = {}) {
+  const scope = { facilityId: libraryScopeId(context.facilityId, 'facilityId'), userId: libraryScopeId(context.userId, 'userId') }
+  return readProgrammingMaterials(client, scope, materialSearchRequests(rawRequests), athleteRequest)
+}
+
+function materialSearchRequests(rawRequests) {
   if (!Array.isArray(rawRequests) || rawRequests.length < 1 || rawRequests.length > 5) throw new TypeError('A staff search batch must contain one to five components')
   const requests = rawRequests.map(searchRequest)
   if (new Set(requests.map((request) => request.componentKey)).size !== requests.length) throw new TypeError('Duplicate components in staff search batch')
-  return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
-    const snapshot = await loadReleasedCanonicalLibrary(client, scope.facilityId)
-    const methods = await loadPublishedProgrammingMethods(client, scope)
-    const athleteEvidence = athleteRequest ? await loadWorkoutAthleteEvidence(client, scope, athleteRequest) : null
-    const results = []
-    for (const request of requests) results.push(await searchScopedResources(client, scope, request, snapshot, methods))
-    return freeze({ resources: results, library: snapshot.library, release: snapshot.release, methods: methods.methods,
-      libraryStatus: snapshot.status, programmingSearchComplete: methods.searchComplete, athleteEvidence })
-  })
+  return requests
+}
+
+async function readProgrammingMaterials(client, scope, requests, athleteRequest) {
+  const snapshot = await loadReleasedCanonicalLibrary(client, scope.facilityId)
+  const methods = await loadPublishedProgrammingMethods(client, scope)
+  const athleteEvidence = athleteRequest ? await loadWorkoutAthleteEvidence(client, scope, athleteRequest) : null
+  const results = []
+  for (const request of requests) results.push(await searchScopedResources(client, scope, request, snapshot, methods))
+  return freeze({ resources: results, library: snapshot.library, release: snapshot.release, methods: methods.methods,
+    libraryStatus: snapshot.status, programmingSearchComplete: methods.searchComplete, athleteEvidence })
 }
 
 async function searchScopedResources(client, scope, request, sharedSnapshot = null, sharedMethods = null) {
