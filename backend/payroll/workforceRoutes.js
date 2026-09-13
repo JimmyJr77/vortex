@@ -1,3 +1,4 @@
+import {i9DifferentDocumentsContext} from './i9DifferentDocumentsBasis.js'
 import {signI9DifferentDocuments} from './i9DifferentDocumentsSigning.js'
 import {listI9DifferentDocumentsCopies,uploadI9DifferentDocumentsCopy,viewI9DifferentDocumentsCopy,recordI9DifferentDocumentsCopyPage} from './i9DifferentDocumentsCopies.js'
 import {previewI9DifferentDocuments,recordI9DifferentDocumentsPage} from './i9DifferentDocumentsReview.js'
@@ -125,6 +126,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copy',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9DifferentDocumentsCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9DifferentDocumentsCopyPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9DifferentDocuments(db,context(req),req.params.taskId,req.body||{}))})
+ app.get('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/context',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9DifferentDocumentsContext(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9DifferentDocuments(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-documents/:taskId/page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9DifferentDocumentsPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/receipt/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9Receipt(db,context(req),req.params.taskId,req.body||{}))})

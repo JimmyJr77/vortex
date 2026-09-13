@@ -33,3 +33,10 @@ export async function prepareI9DifferentDocuments(db,ctx,taskId,body){
  const rendered=await renderI9DifferentDocumentsPreview(current.employeeSource.bytes,{section2:body.section2,reason:body.reason,initials:body.initials,recordedOn:clock.today,originalEmployerSha256:current.row.content_sha256})
  return {current,...rendered,previewSha256:hash(rendered.pdf),recordedOn:clock.today}
 }
+
+export async function i9DifferentDocumentsContext(db,ctx,taskId){
+ const current=await i9DifferentDocumentsBasis(db,ctx,taskId)
+ const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
+ const original=current.originalSection2
+ return {signatureId:current.row.id,sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.retained.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,eVerify:current.retained.context.eVerify},employerDefaults:{firstDayEmployed:original.firstDayEmployed,businessName:original.businessName,businessAddress:original.businessAddress}}
+}

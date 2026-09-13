@@ -17,6 +17,16 @@ test('different-document reviews retain scoped encrypted packets and immutable c
  const doc={title:'Synthetic document',issuingAuthority:'Synthetic issuer',number:'PRIVATE-REPLACEMENT',expiresOn:'2030-09-12'}
  const body={signatureId:signed.signatureId,reason:'Employee selected different acceptable replacement documents.',initials:'RA',section2:{...current.originalSection2,listA:undefined,documentChoice:'LIST_B_C',listB:doc,listC:doc}}
  const path=`/employees/${employee.id}/i9/different-documents/${task}`
+ const initial=await api(path+'/context')
+ assert.equal(String(initial.signatureId),String(signed.signatureId))
+ assert.equal(initial.sourceKind,'SECTION2');assert.equal(initial.rowKey,'A1')
+ assert.equal(initial.employerDefaults.firstDayEmployed,current.originalSection2.firstDayEmployed)
+ assert.deepEqual(Object.keys(initial.employerDefaults).sort(),['businessAddress','businessName','firstDayEmployed'])
+ assert.match(initial.today,/^\d{4}-\d{2}-\d{2}$/)
+ const scoped=await fetch(`${h.url}/api/admin/payroll${path}/context`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}})
+ assert.equal(scoped.status,404)
+ const response=await fetch(`${h.url}/api/admin/payroll${path}/context`,{headers:{Authorization:'Bearer payroll-test-admin'}})
+ assert.equal(response.headers.get('cache-control'),'no-store')
  await h.pool.query(`CREATE FUNCTION reject_different_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_DIFFERENT_PREVIEW_CREATED' THEN RAISE EXCEPTION 'Synthetic audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_different_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_different_audit()`)
  await api(path+'/preview',body,'POST',500)
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_review')).rowCount,0)
