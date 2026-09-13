@@ -42,4 +42,15 @@ test('current qualification history is scoped, immutable and leaves signed hirin
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_qualification WHERE facility_id=1'),/immutable/)
  await assert.rejects(()=>h.pool.query('UPDATE payroll_i9_qualification SET findings=$1 WHERE facility_id=1',[findings]),/immutable/)
  assert.deepEqual((await h.pool.query('SELECT * FROM payroll_i9_hiring_context ORDER BY task_id,onboarding_cycle,revision')).rows,before)
+ let tasks=(await h.pool.query("SELECT * FROM payroll_compliance_task WHERE task_key LIKE 'I9_PARTICIPATION_REVIEW:%' ORDER BY id")).rows
+ assert.equal(tasks.length,1);assert.equal(tasks[0].employee_id,null);assert.equal(tasks[0].task_key,'I9_PARTICIPATION_REVIEW:1');assert.equal(tasks[0].status,'OPEN');assert.equal(tasks[0].severity,'WARNING')
+ const departure={findings:{...findings,eVerifyEnrolled:false,evidence:'Employer participation is no longer currently verified.'},expectedRevision:2,requestKey:randomUUID()}
+ await api('/i9/qualification',departure);await api('/i9/qualification',departure)
+ tasks=(await h.pool.query("SELECT task_key FROM payroll_compliance_task WHERE task_key LIKE 'I9_PARTICIPATION_REVIEW:%' ORDER BY id")).rows
+ assert.deepEqual(tasks,[{task_key:'I9_PARTICIPATION_REVIEW:1'},{task_key:'I9_PARTICIPATION_REVIEW:3'}])
+ await h.pool.query("CREATE FUNCTION reject_qualification_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_QUALIFICATION_RECORDED' THEN RAISE EXCEPTION 'synthetic qualification audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_qualification_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_qualification_audit()")
+ await assert.rejects(()=>api('/i9/qualification',{findings,expectedRevision:3,requestKey:randomUUID()}),/500/)
+ assert.equal((await api('/i9/qualification')).revision,3)
+ assert.equal(Number((await h.pool.query("SELECT count(*) FROM payroll_compliance_task WHERE task_key LIKE 'I9_PARTICIPATION_REVIEW:%'")).rows[0].count),2)
+
 })
