@@ -1,5 +1,7 @@
 # Current payroll operating assumptions
 
+Checkpoint 524 (unresolved E-Verify continuation): The current recorded outcome, next action and admin-supplied review date are visible immediately when the case evidence view opens. Editing case details or replacing the PDF resets review confirmations. Pending-SSN/case-not-created records reject contradictory case references or closed-case claims. The full onboarding/payroll goal remains active.
+
 Checkpoint 523 (evidence-backed E-Verify results): Admins can retain a reviewed case-result PDF and an immutable outcome history from the employee I-9 evidence view. Authorized closure requires explicit verification and retained evidence; unresolved outcomes remain in progress with a next action/date. Generic note-only closure is blocked. E-Verify follow-ups remain visible but no longer automatically block earned payroll. The full goal remains active.
 
 Checkpoint 522 (retained I-9 evidence and follow-up navigation): Hiring admins can reopen signed employer findings, distinguish current from historical certifications, download the signed form and selected copies, and see associated compliance tasks. Employee-specific compliance tasks link back to the correct onboarding workspace. This connects retained evidence to follow-up work; it does not complete receipt/reverification or E-Verify case-resolution workflows.

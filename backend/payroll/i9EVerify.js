@@ -12,6 +12,7 @@ export function eVerifyResultInput(body){
  const normalized={outcome:value.outcome,caseReference:text(value.caseReference,100),observedOn:value.observedOn,caseClosed:value.caseClosed,nextActionOn:value.nextActionOn||'',nextAction:text(value.nextAction),evidenceNote:text(value.evidenceNote),verifiedAgainstOfficialCase:value.verifiedAgainstOfficialCase,employeeAndEmployerMatched:value.employeeAndEmployerMatched,evidenceReviewed:value.evidenceReviewed}
  if(!date(normalized.observedOn)||typeof normalized.caseClosed!=='boolean'||normalized.evidenceNote.length<12||normalized.verifiedAgainstOfficialCase!==true||normalized.employeeAndEmployerMatched!==true||normalized.evidenceReviewed!==true)throw fail('Confirm the official result, matching employee/employer, evidence review and observation date.',400)
  if(normalized.outcome!=='PENDING_SSN'&&!normalized.caseReference)throw fail('Record the official case reference.',400)
+ if(normalized.outcome==='PENDING_SSN'&&(normalized.caseReference||normalized.caseClosed))throw fail('A pending-SSN case-not-created record cannot include a case reference or closed case.',400)
  if(normalized.outcome==='EMPLOYMENT_AUTHORIZED'){
   if(!normalized.caseClosed||normalized.nextActionOn||normalized.nextAction)throw fail('Verify the authorized case is closed; do not combine closure with an unresolved next action.',400)
  }else if(!date(normalized.nextActionOn)||normalized.nextAction.length<12)throw fail('Record the next action and review date for this unresolved follow-up.',400)

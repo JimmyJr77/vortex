@@ -8,6 +8,7 @@ import {eVerifyResultInput} from '../i9EVerify.js'
 const authorized=()=>({outcome:'EMPLOYMENT_AUTHORIZED',caseReference:'SYNTHETIC-CASE-123',observedOn:'2026-09-01',caseClosed:true,evidenceNote:'Official synthetic case result matched and reviewed.',verifiedAgainstOfficialCase:true,employeeAndEmployerMatched:true,evidenceReviewed:true})
 test('authorized closure requires confirmations; unresolved case results require a next action',()=>{
  assert.equal(eVerifyResultInput({result:authorized()}).caseClosed,true)
+ assert.throws(()=>eVerifyResultInput({result:{...authorized(),outcome:'PENDING_SSN',nextActionOn:'2030-01-01',nextAction:'Check the pending SSN evidence and create the case.'}}),/case-not-created/)
  assert.throws(()=>eVerifyResultInput({result:{...authorized(),caseClosed:false}}),/closed/)
  assert.throws(()=>eVerifyResultInput({result:{...authorized(),outcome:'MISMATCH'}}),/next action/)
  assert.throws(()=>eVerifyResultInput({result:{...authorized(),employeeAndEmployerMatched:false}}),/matching/)

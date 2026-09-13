@@ -80,6 +80,22 @@ for(const alternative of [false,true])test(`admin certifies the current I-9 pack
    expect((await h.pool.query('SELECT count(*)::int AS n FROM payroll_i9_everify_event')).rows[0].n).toBe(1)
    await expect(records).toContainText('E-Verify case review · complete')
    await caseForm.screenshot({path:'/tmp/payroll-everify-authorized-ui.png'})
+   await caseForm.getByRole('combobox',{name:'Official case result',exact:true}).selectOption('CASE_IN_CONTINUANCE')
+   await caseForm.getByRole('combobox',{name:'Official case is closed',exact:true}).selectOption('no')
+   await caseForm.getByLabel('Next action review date',{exact:true}).fill('2030-01-01')
+   await caseForm.getByRole('textbox',{name:'Required next action',exact:true}).fill('Check the official case for an updated government result.')
+   for(const name of ['I verified this result against official case or pending-case records.','I confirmed these records match this employee and employer.','I reviewed the attached evidence and confirmed it supports this result.'])await caseForm.getByRole('checkbox',{name,exact:true}).check()
+   await caseForm.getByRole('textbox',{name:'Case evidence review note',exact:true}).fill('Corrected synthetic record shows a current case in continuance.')
+   for(const name of ['I verified this result against official case or pending-case records.','I confirmed these records match this employee and employer.','I reviewed the attached evidence and confirmed it supports this result.']){await expect(caseForm.getByRole('checkbox',{name,exact:true})).not.toBeChecked();await caseForm.getByRole('checkbox',{name,exact:true}).check()}
+   await caseForm.getByRole('button',{name:'Retain E-Verify result evidence',exact:true}).click()
+   await expect(caseForm.getByRole('status')).toContainText('This follow-up remains in progress')
+   const latest=caseForm.getByRole('region',{name:'Latest E-Verify follow-up',exact:true});await expect(latest).toContainText('Case in continuance');await expect(latest).toContainText('Check the official case for an updated government result.')
+   expect((await h.pool.query('SELECT count(*)::int AS n FROM payroll_i9_everify_event')).rows[0].n).toBe(2)
+   await expect(records).toContainText('E-Verify case review · in progress')
+   await page.reload();await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click();await records.locator('summary').filter({hasText:'Current certification'}).click()
+   await expect(latest).toContainText('Review by 2030-01-01');await expect(latest).toContainText('Check the official case for an updated government result.')
+   await latest.screenshot({path:'/tmp/payroll-everify-pending-reopened.png'})
+
    await page.getByRole('button',{name:'Compliance',exact:true}).click();await page.locator('article').filter({has:page.getByRole('heading',{name:'E-Verify case review',exact:true})}).getByRole('button',{name:/Open employee onboarding/}).click();await expect(page.locator('summary').filter({hasText:'Employer I-9 review'})).toBeVisible()}
   const storage=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));expect(storage).not.toContain('Reviewer Alice');expect(storage).not.toContain('Authenticated hiring')
   expect(errors).toEqual([])
