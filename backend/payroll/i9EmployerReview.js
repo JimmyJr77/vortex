@@ -1,3 +1,4 @@
+import {qualificationAllowsAlternative} from './i9Qualification.js'
 import {createHash} from 'node:crypto'
 import {i9EmployerBasis,readI9EmployerDraft} from './i9EmployerDraft.js'
 import {preparerRoster} from './i9Preparers.js'
@@ -50,7 +51,7 @@ export async function previewI9Employer(db,ctx,taskId,body){
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_EMPLOYER_PREVIEW_CREATED','i9_employer_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,taskId,onboardingCycle:body.onboardingCycle,submissionId:current.submissionId,draftRevision:current.draft.revision,previewSha256,preparerDocumentIds:supplements.map(s=>s.documentId)}])
  const context=(await db.query('SELECT hire_date::text AS "hireDate",(clock_timestamp() AT TIME ZONE s.timezone)::date::text AS today FROM payroll_employee e JOIN payroll_settings s ON s.facility_id=e.facility_id WHERE e.id=$1 AND e.facility_id=$2',[ctx.employee,ctx.facility])).rows[0]
  const hiring=(await db.query('SELECT e_verify AS "eVerify",offer_accepted_on::text AS "offerAcceptedOn" FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 ORDER BY revision DESC LIMIT 1',[current.employeeTask.id,body.onboardingCycle])).rows[0]
- return {attestation:I9_EMPLOYER_ATTESTATION,examinationContext:{...context,...hiring,examinationMethod:answers.examinationMethod,documentChoice:answers.documentChoice,representativeNameAndTitle:answers.representativeNameAndTitle},reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:retained.pdfBase64,pageCount:4,supplements}
+ return {attestation:I9_EMPLOYER_ATTESTATION,examinationContext:{...context,...hiring,qualification:current.qualification,eVerify:qualificationAllowsAlternative(current.qualification,hiring.eVerify),examinationMethod:answers.examinationMethod,documentChoice:answers.documentChoice,representativeNameAndTitle:answers.representativeNameAndTitle},reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:retained.pdfBase64,pageCount:4,supplements}
 }
 export async function currentI9EmployerReview(db,ctx,taskId,body){
  const current=await basis(db,ctx,taskId,body.onboardingCycle)

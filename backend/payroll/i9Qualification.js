@@ -29,3 +29,5 @@ export async function saveI9Qualification(db,ctx,body){
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_QUALIFICATION_RECORDED','payroll_settings',$3,$4)",[ctx.facility,ctx.admin,String(ctx.facility),{revision,observedOn:findings.observedOn}])
  return {recordedRevision:revision,...await readI9Qualification(db,ctx)}
 }
+
+export const qualificationAllowsAlternative=(qualification,fallback)=>qualification?['eVerifyEnrolled','goodStanding','allSitesEnrolled','trainingComplete','consistentProcedure'].every(key=>qualification.findings[key]===true):fallback===true

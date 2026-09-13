@@ -1,3 +1,4 @@
+import {readI9Qualification} from './i9Qualification.js'
 import {createHash} from 'node:crypto'
 import {encryptDocument,decryptDocument} from './onboarding.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
@@ -24,8 +25,9 @@ export async function i9EmployerBasis(db,ctx,taskId,cycle){
  if(Number(cycle)!==task.onboarding_cycle||employeeTask.onboarding_cycle!==task.onboarding_cycle)throw fail('The onboarding cycle changed. Reload the employer step.')
  const submission=(await db.query('SELECT s.id FROM payroll_i9_submission s WHERE s.task_id=$1 AND s.onboarding_cycle=$2 AND s.id::text=$3',[employeeTask.id,employeeTask.onboarding_cycle,employeeTask.response?.i9SubmissionId||null])).rows[0]
  const hiring=(await db.query('SELECT revision FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 ORDER BY revision DESC LIMIT 1',[employeeTask.id,employeeTask.onboarding_cycle])).rows[0]
- const basisHash=hash({taskId:String(task.id),cycle:task.onboarding_cycle,employerStatus:task.status,employerResponse:task.response,employeeStatus:employeeTask.status,employeeResponse:employeeTask.response,submissionId:submission?.id||null,hiringRevision:hiring?.revision||0})
- return {task,employeeTask,submissionId:submission?.id||null,basisHash}
+ const qualification=(await readI9Qualification(db,ctx)).current
+ const basisHash=hash({qualification,taskId:String(task.id),cycle:task.onboarding_cycle,employerStatus:task.status,employerResponse:task.response,employeeStatus:employeeTask.status,employeeResponse:employeeTask.response,submissionId:submission?.id||null,hiringRevision:hiring?.revision||0})
+ return {task,employeeTask,qualification,submissionId:submission?.id||null,basisHash}
 }
 export async function readI9EmployerDraft(db,ctx,taskId,cycle){
  const basis=await i9EmployerBasis(db,ctx,taskId,cycle)

@@ -1,3 +1,4 @@
+import {qualificationAllowsAlternative} from './i9Qualification.js'
 import {createHash} from 'node:crypto'
 import {i9EmployerBasis} from './i9EmployerDraft.js'
 import {currentI9EmployerReview} from './i9EmployerReview.js'
@@ -26,8 +27,8 @@ export async function signI9Employer(db,ctx,taskId,body){
  const hiring=(await db.query('SELECT offer_accepted_on::text AS offer_accepted_on,e_verify FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 ORDER BY revision DESC LIMIT 1',[current.employeeTask.id,body.onboardingCycle])).rows[0]
  const employeeReview=(await db.query('SELECT * FROM payroll_i9_review WHERE id=$1',[current.submission.review_id])).rows[0]
  const employeeAnswers=JSON.parse(decryptDocument(employeeReview.encrypted_review,`i9-review:${ctx.facility}:${ctx.employee}:${current.employeeTask.id}:${body.onboardingCycle}:${employeeReview.employee_session_id}`).toString()).answers
- const context={today:clock.today,offerAcceptedOn:hiring.offer_accepted_on,eVerify:hiring.e_verify,hireDate:employee.hire_date,attestationKind:employeeAnswers.attestation.kind,authorizationExpiresOn:employeeAnswers.attestation.authorizationExpiresOn||null}
- const timing=validateI9Examination(examination,retained.answers,context),entries=i9DocumentEntries(retained.answers),copies=[]
+ const context={qualification:current.qualification,alternativeQualified:qualificationAllowsAlternative(current.qualification,hiring.e_verify),today:clock.today,offerAcceptedOn:hiring.offer_accepted_on,eVerify:hiring.e_verify,hireDate:employee.hire_date,attestationKind:employeeAnswers.attestation.kind,authorizationExpiresOn:employeeAnswers.attestation.authorizationExpiresOn||null}
+ const timing=validateI9Examination(examination,retained.answers,{...context,eVerify:context.alternativeQualified}),entries=i9DocumentEntries(retained.answers),copies=[]
  for(const decision of examination.documents){
   const entry=entries.find(e=>e.key===decision.rowKey)
   for(const copyId of decision.copyIds){

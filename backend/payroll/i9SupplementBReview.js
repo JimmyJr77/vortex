@@ -1,4 +1,4 @@
-import {readI9Qualification} from './i9Qualification.js'
+import {readI9Qualification,qualificationAllowsAlternative} from './i9Qualification.js'
 import {createHash} from 'node:crypto'
 import {encryptDocument,decryptDocument} from './onboarding.js'
 import {i9SupplementBInput} from './i9SupplementB.js'
@@ -50,7 +50,7 @@ export async function i9DocumentFollowupBasis(db,ctx,taskId,kind){
   previousReceiptAmendments.push({signatureId:prior.id,documentId:prior.document_id,documentKey:`different-supplement:${prior.id}`,sha256:prior.content_sha256,pdfBase64:pdf.toString('base64'),pageCount:evidence.pageCount})
  }
  const qualification=(await readI9Qualification(db,ctx)).current
- const examinationContext={qualification,eVerify:qualification?['eVerifyEnrolled','goodStanding','allSitesEnrolled','trainingComplete','consistentProcedure'].every(key=>qualification.findings[key]===true):retained.context.eVerify}
+ const examinationContext={qualification,eVerify:qualificationAllowsAlternative(qualification,retained.context.eVerify)}
  const basisHash=hash(JSON.stringify({qualification,signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on,previousSupplements:previousSupplements.map(p=>[p.signatureId,p.sha256]),previousReceiptAmendments:previousReceiptAmendments.map(p=>[p.documentKey,p.signatureId,p.sha256])}))
  return {row,bytes,retained,basisHash,examinationContext,previousSupplements,previousReceiptAmendments,followupExaminedOn}
 }
