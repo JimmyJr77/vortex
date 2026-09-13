@@ -25,7 +25,7 @@ export default function OnboardingWorkspace({ employeeId, employmentStatus, onCh
  const load = useCallback(async () => { setData(await workforceApi.packet(employeeId)) }, [employeeId])
  useEffect(() => { let live = true; workforceApi.packet(employeeId).then(next => { if (live) setData(next) }).catch(e => { if (live) setError(e.message) }); return () => { live = false } }, [employeeId,refresh])
  const act = async (work: () => Promise<unknown>, message: string) => { setBusy(true); setError(''); setNotice(''); try { await work(); await load(); await onChanged(); setNotice(message) } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save changes') } finally { setBusy(false) } }
- return <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+ return <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:p-5">
   <div><h2 className="text-xl font-black text-slate-950">{employeeId ? 'Hiring checklist & review' : 'Complete your onboarding'}</h2><p className="mt-1 text-sm text-slate-600">Each submission is saved and reviewed by your hiring admin. Save progress on unfinished steps and return later. Only submitted steps are ready for admin review.</p></div>
   <button type="button" disabled={busy} className="text-left text-sm font-bold underline disabled:opacity-50" onClick={()=>void act(()=>Promise.resolve(), 'Checklist refreshed.')}>Refresh checklist</button>
   {error ? <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</p> : null}
@@ -57,7 +57,7 @@ function TaskStep({ taskId, task, packet, employeeId, busy, act, employmentStatu
  const [activated,setActivated]=useState(task.status==='CHANGES_REQUESTED')
  const nativeCertificate=!!(task.response?.w4SubmissionId||task.response?.mw507SubmissionId||task.response?.i9SubmissionId)
  const canSubmit = !employeeId && task.owner === 'EMPLOYEE' && ['OPEN','SUBMITTED','CHANGES_REQUESTED'].includes(task.status)
- return <details onToggle={e=>{if(e.currentTarget.open)setActivated(true)}} id={taskId} className="rounded-xl border border-slate-200 p-4" open={task.status === 'CHANGES_REQUESTED' || (task.task_key === 'PROFILE' && !done)}>
+ return <details onToggle={e=>{if(e.currentTarget.open)setActivated(true)}} id={taskId} className="min-w-0 rounded-xl border border-slate-200 py-2 sm:p-4" open={task.status === 'CHANGES_REQUESTED' || (task.task_key === 'PROFILE' && !done)}>
   <summary className="cursor-pointer text-sm font-bold text-slate-900"><span>{task.title}</span><span className={`ml-3 inline-block rounded-full px-2 py-1 text-xs ${done ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}`}>{stalePay||staleShift||acknowledgmentIssue?'REVIEW REQUIRED':deductionPending?'SIGNATURE REQUIRED':task.status.replaceAll('_', ' ')}</span><span className="ml-2 text-xs font-normal text-slate-500">{task.owner === 'ADMIN' ? 'Hiring admin' : 'Employee'} · due {String(task.due_date || '').slice(0, 10)}</span></summary>
   <p className="mt-3 text-sm leading-6 text-slate-600">{task.instructions}</p>
   {acknowledgmentIssue ? <p className="mt-3 rounded-lg bg-amber-50 p-3 text-sm text-amber-950">{acknowledgmentIssue.message}. {task.status==='COMPLETE'?(employeeId?'Request changes below to collect a fresh acknowledgment.':'Ask your hiring admin to reopen this step so you can review and acknowledge the revised terms.'):'Review the revised terms below before submitting again.'}</p>:null}

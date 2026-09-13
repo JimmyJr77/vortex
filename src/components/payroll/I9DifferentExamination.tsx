@@ -24,7 +24,7 @@ export default function I9DifferentExamination({employeeId,taskId,preview,initia
   catch(e){setError(e instanceof Error?e.message:'Unable to confirm signing. Retry unchanged to recover the saved result.')}
   finally{setBusy(false);onBusy(false)}
  }
- return <section aria-label="Replacement examination and signing" className="min-w-0 space-y-3 rounded border p-3"><h4 className="font-bold">Examine and certify replacement documents</h4>{error?<p role="alert">{error}</p>:null}
+ return <section aria-label="Replacement examination and signing" className="min-w-0 space-y-3 rounded border p-2 sm:p-3"><h4 className="font-bold">Examine and certify replacement documents</h4>{error?<p role="alert">{error}</p>:null}
  <fieldset disabled={busy} className="min-w-0 space-y-3">
  {text('examinedOn','Actual replacement examination date','date')}{text('identity','Replacement examiner identity and authority')}{choose('physical','Originals examined in the employee’s physical presence')}{choose('short','Employment lasts fewer than three business days')}
  <fieldset><legend>Employer business days</legend>{['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].map((day,index)=><label className="mr-3 inline-flex gap-1" key={day}><input type="checkbox" checked={days.includes(index)} onChange={e=>{reset();setDays(value=>e.target.checked?[...value,index]:value.filter(n=>n!==index))}}/>{day}</label>)}</fieldset>

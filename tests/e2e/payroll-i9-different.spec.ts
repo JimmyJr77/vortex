@@ -58,8 +58,13 @@ for(const authorizedWorker of [false,true])test(`admin signs different replaceme
   expect((await h.pool.query('SELECT * FROM payroll_i9_different_copy_page')).rowCount).toBe(4)
 
   await page.screenshot({path:'/tmp/payroll-different-workspace-desktop.png',fullPage:true})
-  await page.setViewportSize({width:390,height:844})
-  expect(await work.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true)
+  for(const width of [320,390]){
+   await page.setViewportSize({width,height:844})
+   expect(await work.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true)
+   const examination=work.getByRole('region',{name:'Replacement examination and signing',exact:true})
+   expect(await examination.evaluate(el=>el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(width-110)
+   expect(await examination.getByLabel('Replacement examiner electronic signature',{exact:true}).evaluate(el=>el.getBoundingClientRect().width)).toBeGreaterThanOrEqual(width-130)
+  }
   await work.getByRole('heading',{name:'Different replacement documents',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/payroll-different-workspace-mobile.png'})
   const exam=work.getByRole('region',{name:'Replacement examination and signing',exact:true})
   await exam.getByLabel('Replacement examiner identity and authority',{exact:true}).fill('Authenticated examiner personally examined the replacement originals.')

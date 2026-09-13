@@ -44,7 +44,7 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUp
  }
  const docFields=(label:string,doc:I9EmployerDocument,set:(value:I9EmployerDocument)=>void)=><fieldset className="min-w-0 space-y-2 rounded border p-3"><legend className="font-semibold">{label}</legend>{([['title','Document title'],['issuingAuthority','Issuing authority'],['number','Document number'],['expiresOn','Expiration (if any)']] as const).map(([key,title])=><label className="block" key={key}>{label} — {title}<input className={input} type={key==='expiresOn'?'date':'text'} value={doc[key]} maxLength={key==='title'?150:key==='issuingAuthority'?200:100} onChange={e=>change(()=>set({...doc,[key]:e.target.value}))}/></label>)}</fieldset>
  if(!open)return <button type="button" className="rounded border p-2" onClick={()=>setOpen(true)}>Prepare different replacement documents</button>
- return <section aria-label="Different-document replacement workspace" className="min-w-0 space-y-3 rounded border p-3">
+ return <section aria-label="Different-document replacement workspace" className="min-w-0 space-y-3 rounded border p-2 sm:p-3">
   <h4 className="font-bold">Different replacement documents</h4>
   <p>Record the acceptable documents the employee chose. The new certification stays with the original signed I-9.</p>
   <button type="button" className="underline" disabled={loading||busy||signing} onClick={()=>setReload(n=>n+1)}>Reload saved replacement (replaces unsaved entries)</button><button type="button" className="ml-3 underline" disabled={loading||busy||signing||!saved} onClick={()=>void save()}>Save replacement draft</button>{draftNotice&&!loading&&!busy?<p role="status">{draftNotice}</p>:null}
