@@ -5,7 +5,7 @@ import {syntheticI9CopyPdf} from '../../backend/payroll/testing/employerI9Review
 import { test, expect } from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 
-for(const assisted of [false,true])test(`fresh invited hire completes native certificates, activation, payroll and returning access: ${assisted?'preparer-assisted':'unassisted'}`, async ({ browser }) => {
+for(const preparers of [0,1,2])test(`fresh invited hire completes native certificates, activation, payroll and returning access: ${preparers===2?'multiple-preparers':preparers===1?'preparer-assisted':'unassisted'}`, async ({ browser }) => {
  test.setTimeout(360000)
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated local payroll database')
  const priorKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='b'.repeat(64)
@@ -83,7 +83,7 @@ for(const assisted of [false,true])test(`fresh invited hire completes native cer
   await step.locator('summary').first().click()
   if(title==='Federal Form W-4'){await nativeW4(employee);continue}
   if(title==='State withholding certificate'){await nativeMW507(employee);continue}
-  if(title==='Form I-9 employee section'){await nativeI9(employee,assisted);continue}
+  if(title==='Form I-9 employee section'){await nativeI9(employee,preparers>0);continue}
   if (title==='Payment election') await step.getByLabel('Payment method').selectOption('CHECK')
   else if (title.includes('acknowledgment')) { await step.getByLabel('Your full name').fill('Morgan Browser');await step.getByRole('checkbox').check() }
   else await step.getByLabel('Availability & first-day questions').fill('Weekday mornings; ready for orientation.')
@@ -127,8 +127,8 @@ for(const assisted of [false,true])test(`fresh invited hire completes native cer
   }
   const step=admin.locator('details').filter({has:admin.locator('summary',{hasText:title})})
   await step.locator('summary').first().click()
-  if(title==='Form I-9 employee section'&&assisted)await nativeJourneyPreparer(admin,h.url)
-  if(title==='Employer I-9 review'){await nativeEmployerI9(admin,await syntheticI9CopyPdf(),assisted?1:0);continue}
+  if(title==='Form I-9 employee section'&&preparers>0)await nativeJourneyPreparer(admin,h.url,preparers)
+  if(title==='Employer I-9 review'){await nativeEmployerI9(admin,await syntheticI9CopyPdf(),preparers);continue}
   if(title==='Pay, classification & benefits review'){
    await step.getByLabel('Benefits disposition',{exact:true}).selectOption('ENROLLED')
    await step.getByLabel('Benefits effective or eligibility date',{exact:true}).fill('2026-09-01')
@@ -350,7 +350,7 @@ for(const assisted of [false,true])test(`fresh invited hire completes native cer
  const mw507=(await h.pool.query('SELECT id FROM payroll_mw507_submission WHERE employee_id=$1',[hire.id])).rows
  expect(w4).toHaveLength(1);expect(mw507).toHaveLength(1)
  expect((await h.pool.query('SELECT id FROM payroll_i9_submission WHERE employee_id=$1',[hire.id])).rowCount).toBe(1)
- expect((await h.pool.query('SELECT s.id FROM payroll_i9_preparer_signature s JOIN payroll_i9_preparer_request r ON r.id=s.request_id WHERE r.employee_id=$1',[hire.id])).rowCount).toBe(assisted?1:0)
+ expect((await h.pool.query('SELECT s.id FROM payroll_i9_preparer_signature s JOIN payroll_i9_preparer_request r ON r.id=s.request_id WHERE r.employee_id=$1',[hire.id])).rowCount).toBe(preparers)
  expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(1)
  const applied=(await h.pool.query('SELECT elections FROM payroll_tax_election WHERE employee_id=$1',[hire.id])).rows[0].elections
  expect(applied.w4Source.submissionId).toBe(w4[0].id);expect(applied.mw507Source.submissionId).toBe(mw507[0].id)
