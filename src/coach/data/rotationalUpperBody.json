@@ -1,0 +1,2819 @@
+[
+  {
+    "n": 1,
+    "title": "Build a balanced release",
+    "effort": "Accelerate a ball through a controlled body turn into a balanced projection.",
+    "minutes": [
+      80,
+      90
+    ],
+    "releases": 40,
+    "fastActions": 0,
+    "strengthReps": 88,
+    "equipment": [
+      "Medicine ball",
+      "Slam ball",
+      "Bands",
+      "Dumbbells",
+      "Landmine"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Med Ball Rotational Scoop Toss — paused standing start; floor-target adaptation",
+        "sourceName": "Med Ball Rotational Scoop Toss — paused standing start; floor-target adaptation",
+        "dose": "2 × 3 per direction; 12 releases",
+        "prescription": "2 × 3 per direction",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Primary anchor: generate rotational projection from a settled load.",
+        "instruction": "Stand side-on, feet at a comfortable athletic width; hold the ball near the rear hip and pause 2 seconds. Pivot the rear foot, turn the hips/trunk, and sweep both hands through the target. No preparatory bounce or step. Finish balanced for 2 seconds. Reduce ball mass or turn range if the arms lead or the athlete spins out.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Half-Kneeling Rotational Med Ball Throw",
+        "sourceName": "Half-Kneeling Rotational Med Ball Throw — floor-target adaptation",
+        "dose": "1 × 3 per direction; 6 releases",
+        "prescription": "1 × 3 per direction",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Express trunk-to-hand acceleration with leg propulsion reduced.",
+        "instruction": "Target-side foot forward, opposite knee comfortably supported on the floor; ball begins beside the rear hip. Use a small comfortable thoracic turn and fast two-hand release; do not force the pelvis to remain rigid while twisting farther. Keep the front foot planted and pelvis quiet. Shorten the turn if the knee shifts or back arches; use a seated bench rotational throw instead of this slot if kneeling contact is intolerable.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Med Ball Countermovement Rotational Throw",
+        "sourceName": "Med Ball Countermovement Rotational Throw — floor-target adaptation",
+        "dose": "1 × 3 per direction; 6 releases",
+        "prescription": "1 × 3 per direction",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Change a brief preload immediately into the same projection.",
+        "instruction": "Standing side-on, make one small, smooth wind-back and reverse promptly into the throw; no pause, repeated rocking or extra step. This differs from E1's settled start. Keep the wind-back small enough that the trunk stays controlled. Reduce its amplitude if the athlete overtwists or delays the reversal.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Med Ball Shot-Put Throw — rotational, floor-target adaptation",
+        "sourceName": "Med Ball Shot-Put Throw — rotational, floor-target adaptation",
+        "dose": "1 × 3 per throwing arm; 6 releases",
+        "prescription": "1 × 3 per throwing arm",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Finish the turn with a unilateral pushing release.",
+        "instruction": "Stagger the feet with the nonthrowing foot forward. Support the light ball at the rear shoulder with the other hand, turn through the rear foot/hip, then drive the throwing hand forward; the support hand guides and releases. Do not wind the arm behind the shoulder or turn it into an overhead baseball throw. Use a smaller/lighter grippable ball if wrist position or speed is lost.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Med Ball Step-Behind Rotational Throw",
+        "sourceName": "Med Ball Step-Behind Rotational Throw — floor-target adaptation",
+        "dose": "1 × 2 per direction; 4 releases",
+        "prescription": "1 × 2 per direction",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Transfer a short weight shift into upper-body rotation without continued travel.",
+        "instruction": "From side-on, make one small step behind, replant the lead foot and deliver a scoop release. Keep total approach travel within 1 m, both feet grounded at release and the finish inside the start bay. No running, hop or jump. Use a simple step-in rotational throw instead of the crossover version if foot placement is unreliable; retain 1 × 2 per direction and record the replacement.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Med Ball Overhead to Side Slam",
+        "sourceName": "Med Ball Overhead to Side Slam — non-rebounding slam-ball execution",
+        "dose": "1 × 3 to each side; 6 slams",
+        "prescription": "1 × 3 to each side",
+        "rest": "90 s between sides / sets",
+        "preparation": null,
+        "purpose": "Accelerate the hands diagonally downward through a turn and arrest the body's follow-through.",
+        "instruction": "From a comfortable overhead position, turn through the feet/hips and drive the ball to the floor slightly forward and outside the target-side foot, clear of toes. Stay long through the trunk; do not fold and twist at the low back. Lift/reset deliberately after the ball stops. Use a shoulder-height diagonal side slam instead of the overhead version if overhead range requires rib flare; same dose.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Split-Stance Pallof Press — light band",
+        "sourceName": "Split-Stance Pallof Press — light band",
+        "dose": "1 × 5 per anchor side, 2-second extension hold; 10 reps / 20 seconds held",
+        "prescription": "1 × 5 per anchor side, 2-second extension hold",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain the stacked finish against an external turning pull.",
+        "instruction": "Band at sternum height to the side; mirror the anchor-facing side and lead foot. Press forward without the ribs or pelvis turning toward the anchor, breathe during the hold, return in 2 seconds. Use a shorter reach or lighter band instead if the torso drifts.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Side-lying dumbbell external rotation",
+        "sourceName": "Side-lying dumbbell external rotation — proposed addition",
+        "dose": "1 × 8 per arm; 16 reps",
+        "prescription": "1 × 8 per arm",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Load controlled shoulder external rotation after the throwing exposure and before pressing.",
+        "instruction": "Lie on the opposite side with the working elbow bent 90 degrees and resting at the ribs. Rotate the forearm up through a comfortable range in 2 seconds; lower in 3 seconds. Keep the elbow at the ribs and trunk still. Use less load/range if the shoulder shrugs or the torso rolls. This is intended shoulder control work, not a claim of injury prevention.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "2 × 6 alternating side-to-side traverses; 3 each direction per set, 12 total",
+        "prescription": "2 × 6 alternating side-to-side traverses",
+        "rest": "2–3 min between sets",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Main strength anchor: resist and drive the loaded turning arc used to deliver the ball.",
+        "instruction": "Secure the landmine; hold the sleeve/appropriate grip in both hands, elbows softly bent, and use a modest side-to-side arc. Feet and hips turn with the load; keep ribs over pelvis. One one-way traverse is one rep; the return is the next rep, not an uncounted return. Use about 2 seconds per traverse and settle briefly at each end. Rest 2–3 minutes between working sets. Reduce load/arc for a trunk lean, knee twist or uncontrolled endpoint.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "2 × 6 per arm; 24 reps",
+        "prescription": "2 × 6 per arm",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 4 easy reps / side",
+        "purpose": "Strengthen the link from body turn to unilateral pressing force.",
+        "instruction": "Start in a modest staggered stance, sleeve near the rear shoulder; pivot the rear foot and turn into a controlled forward/up press. No dip-drive, jump or release. Return in 3 seconds; keep the shoulder away from the ear. Rest 90 seconds between sides; 2 minutes between rounds. Reduce load if the elbow/wrist collapses or the lower back supplies the finish.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row — proposed band variant of Rotational Cable Row",
+        "dose": "1 × 8 per arm; 16 reps",
+        "prescription": "1 × 8 per arm",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the pulling side of the turn and control the return into the next preload.",
+        "instruction": "Band anchored in front at lower-chest height, opposite foot forward; reach without rounding, then turn feet/hips/trunk modestly as the elbow draws toward the same-side lower ribs. Return in 3 seconds under band tension. This is a single rotational row, not a row-plus-twist combination. Rest 90 seconds between sides. Reduce tension if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing split-stance band execution",
+        "dose": "1 × 6 per diagonal; 12 reps",
+        "prescription": "1 × 6 per diagonal",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the high-to-low diagonal that finishes E6 and controls the downward release path.",
+        "instruction": "High band anchor to one side; opposite foot forward, both hands travel from above that shoulder toward the opposite front pocket. Allow the feet/hips to turn while keeping the trunk long. Drive in 1–2 seconds; return in 3 seconds. Rest 90 seconds between sides. Reduce resistance/range if the athlete crunches sideways or the band recoils.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing split-stance band execution",
+        "dose": "1 × 6 per diagonal; 12 reps",
+        "prescription": "1 × 6 per diagonal",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the low-to-high hand path from the loaded rear hip toward the forward release position.",
+        "instruction": "Low band anchor to the rear side; move both hands from that hip across to opposite upper-chest height, allowing a small foot/hip turn. Do not lift above the range that retains rib position. Drive in 1–2 seconds and return in 3 seconds. Rest 90 seconds between sides. Reduce range/tension if leaning back replaces rotation.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press — proposed unilateral variant",
+        "dose": "1 × 6 per arm; 12 reps",
+        "prescription": "1 × 6 per arm",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load terminal horizontal pressing force for E4 after rotation has brought the arm forward.",
+        "instruction": "Lie supine, feet comfortably planted, one dumbbell above the chest; lower in 3 seconds until the upper arm gently meets the floor, pause briefly and press. Keep ribs/pelvis level; no bridge or torso roll. Rest 90 seconds between sides. This isolates the release-side press more than P2's integrated upward arc; one working set limits overlap. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "During E1's twelve scheduled attempts, record each side's valid attempts: controlled rear-foot pivot and hip initiation, hands following the turn, release into the declared target zone, and a balanced two-second finish without an extra recovery step. Record the specific fault on unsuccessful attempts; they still count as exposure. This is a coaching observation, not a measurement of force or an established pass-rate test. Do not add attempts for assessment.",
+    "preparation": "P1: 1 × 4 alternating traverses with a lighter load. P2: 1 × 4 per arm lighter. P3–P6: 1 × 3 per side lighter at that exercise's working tempo. Allow 30–45 seconds to change sides during these easy sets, then 60–90 seconds before the first working set. If another preparation set is necessary for P1 or P2, repeat its stated easy dose, log it and allow extra time. Preparation sets must not become challenging work. These are load checks for the listed lifts, not a replacement preparation sequence.",
+    "explosiveNotes": "Exactly 6 exercises. Use light, grippable balls that permit a visibly fast release with controlled posture. Select by demonstrated execution, not an age-based kilogram prescription. Each attempt is one release followed by a full reset; no rebound catches, repeated slams or return throws. The first scheduled attempt may establish an appropriate ball and range; it is included in the dose.\n\nThrowing setup applies to E1–E5: Use the floor-target adaptation described below: a low forward release into a cone-marked floor target, initially about 2–3 m downrange, using an impact-compatible ball with verified low rebound. This is rotational projection practice, not maximum-distance testing. Mirror the stance while keeping every release down the same cleared lane. A throwing wall is unconfirmed. Do not reinterpret a listed ball as proof that a safe throwing surface or suitable rebound behavior exists.\n\nRecovery for every row: Allow 10–15 seconds between releases for retrieval/reset, longer if needed; rest 90 seconds after each side's set before the next side/set/exercise. A round means complete one side, rest, complete the other side. For E1, rest again before the second round. Retrieval and transition can occur within rest; count elapsed time once. Stand clear until the ball stops and the coach releases the area."
+  },
+  {
+    "n": 2,
+    "title": "Turn into a pushing release",
+    "effort": "Turn a stable base into a fast pushing release, then control the arm finish.",
+    "minutes": [
+      80,
+      90
+    ],
+    "releases": 12,
+    "fastActions": 30,
+    "strengthReps": 94,
+    "equipment": [
+      "Bands",
+      "Medicine ball",
+      "Battle rope",
+      "Landmine",
+      "Dumbbells"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Light-band rotational cross",
+        "sourceName": "Light-band rotational cross [Proposed addition/variant]",
+        "dose": "2 × 3 per side/direction; 12 reps/actions",
+        "prescription": "2 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: transmit the turn into a fast forward punch.",
+        "instruction": "From a modest staggered stance, anchor behind the rear shoulder; turn the rear foot/hip then drive the hand forward at shoulder height. Stop short of locked elbow and return under control; never release the band. Reduce tension or reach if the wrist folds or arm leads the turn. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Rotational shadow hook",
+        "sourceName": "Rotational shadow hook [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Coordinate a short transverse hand arc with the trunk turn.",
+        "instruction": "With no implement or target, keep elbow bent near 90 degrees and fist between chest and shoulder height; pivot and swing the forearm as a compact unit, stopping near the midline. Reset fully. Shorten the arc if the fist outruns the trunk or shoulder rolls forward. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Two-hand band backhand speed sweep",
+        "sourceName": "Two-hand band backhand speed sweep [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Accelerate the transverse pulling/sweeping path while controlling its endpoint.",
+        "instruction": "Anchor at chest height on the starting side. Both hands begin near that side of the chest; pivot and sweep across toward the opposite side with softly bent elbows, stopping within a comfortable arc. Return slowly. Reduce tension/arc for side bending or a jerky return. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Half-Kneeling Medicine Ball Shot-Put Throw",
+        "sourceName": "Half-Kneeling Medicine Ball Shot-Put Throw — floor target",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Express release-side pressing with leg drive reduced.",
+        "instruction": "Target-side foot forward, rear knee comfortably grounded. Support the ball beside the rear shoulder; use a small comfortable trunk turn then push it toward the low forward target with the rear hand. Guide hand releases first. Use a lighter grippable ball or smaller turn if the knee shifts or back arches. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Standing rotational two-hand chest push throw",
+        "sourceName": "Standing rotational two-hand chest push throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Deliver the turn through simultaneous horizontal arm extension.",
+        "instruction": "Hold a light ball near the rear side of the chest with both hands. Turn the feet/hips and press both hands through the verified low forward target; do not scoop from the hip. Reduce ball mass if the athlete bends sideways or lets one hand take over. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Two-hand transverse battle-rope whip",
+        "sourceName": "Two-hand transverse battle-rope whip [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Apply a brief rotational impulse against rope inertia, then brake.",
+        "instruction": "Facing the rope anchor in an athletic stance, hold one rope end in each hand; shift both hands from beside one hip across to the other with a small foot/hip turn. One directed sweep is one rep; settle the rope and walk hands back slowly before the next. Use the stated band-sweep replacement if rope mass or anchor fit prevents a fast controlled impulse. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Scapular Push-Up",
+        "sourceName": "Scapular Push-Up",
+        "dose": "1 × 8 total; 8 reps/actions",
+        "prescription": "1 × 8 total",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the shoulder blade that must transmit punching force.",
+        "instruction": "Use hands on a secured bench if needed. Keep elbows straight but soft; allow a small controlled chest sink between shoulders, then push the support away without rounding the low back. Use 2 seconds each way. Use a higher stable hand support instead if trunk position fails.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Side Plank — short-lever light hold",
+        "sourceName": "Side Plank — short-lever light hold",
+        "dose": "1 × 1 holds of 15 s per side/direction; 2 holds",
+        "prescription": "1 × 1 holds of 15 s per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Resist sideways trunk drift during the hand finish.",
+        "instruction": "Support on forearm and bent knees; elbow under shoulder, hips stacked. Lift hips and breathe while holding 15 seconds; stop before shaking changes alignment. Shorten hold or reduce hip lift if the shoulder shrugs or pelvis rolls.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the turn-to-forward/up press link.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load terminal horizontal pressing after the turn.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the pulling side that organizes the opposing shoulder.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Retain loaded turning strength without a second high-volume trunk task.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Control the diagonal finish when the arm begins to drift upward.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the path from rear hip toward the pressing platform.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      }
+    ],
+    "quality": "For E1 record whether the rear-foot pivot/hip turn precedes the hand, the wrist stays straight, the elbow remains softly extended and the athlete returns to the same stance without a recovery step on each scheduled attempt. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. E1 receives two sets; other drills receive one small set per side. No target is struck and no partner contact is permitted. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 3,
+    "title": "Reverse the preload",
+    "effort": "Reverse a compact preload into rotational hand speed without a second wind-up.",
+    "minutes": [
+      75,
+      85
+    ],
+    "releases": 24,
+    "fastActions": 18,
+    "strengthReps": 76,
+    "equipment": [
+      "Medicine ball",
+      "Bands",
+      "Battle rope",
+      "Landmine",
+      "Dumbbells",
+      "Bench"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Med Ball Countermovement Rotational Throw",
+        "sourceName": "Med Ball Countermovement Rotational Throw — floor target",
+        "dose": "2 × 3 per side/direction; 12 reps/actions",
+        "prescription": "2 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: turn one compact preload immediately into release.",
+        "instruction": "Stand side-on with a light ball near the rear hip; make one small wind-back then reverse into a two-hand scoop release. Feet may pivot; no entry step or repeated rocking. Hold the finish for 2 seconds. Reduce wind-back range if the athlete pauses, overtwists or loses direction. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Countermovement rotational shot-put throw",
+        "sourceName": "Countermovement rotational shot-put throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Apply prompt reversal to a unilateral pressing release.",
+        "instruction": "Ball supported beside the rear shoulder; allow one small backward body turn, then pivot forward and push toward the low target with the rear hand. Keep the elbow below shoulder height and guide hand relaxed. Reduce the preload or ball mass if the wrist collapses or the arm winds behind the torso. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Rotational band row speed drive",
+        "sourceName": "Rotational band row speed drive [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Accelerate the pulling side of the turn without jerking the shoulder.",
+        "instruction": "Light band anchored ahead at lower-chest height. From a controlled reach, pivot/turn and draw the elbow toward lower ribs quickly; stop cleanly and return in 3 seconds. One pull-return is one rep. Reduce tension/reach if the shoulder hikes or the trunk yanks backward. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Two-hand diagonal battle-rope chop pulse",
+        "sourceName": "Two-hand diagonal battle-rope chop pulse [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Reverse an elevated preload into a brief downward rotational impulse.",
+        "instruction": "With a light manageable rope pair, start hands near one shoulder; pivot and drive both ends diagonally toward the opposite hip. Settle the rope completely and reset deliberately before another pulse. Use the stated diagonal band-pull replacement if rope weight or clearance prevents clean speed. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Two-hand medicine-ball backhand throw",
+        "sourceName": "Two-hand medicine-ball backhand throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Express outward transverse force without relying on elbow extension.",
+        "instruction": "Begin hands across the front of the body near the opposite lower ribs, elbows softly bent. Turn toward the cleared lane and sweep both hands outward at waist-to-chest height into the low target. Reset without receiving a rebound. Shorten the sweep if the ball drags the shoulder behind the torso. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Rotational shadow uppercut",
+        "sourceName": "Rotational shadow uppercut [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Link a compact turn to an upward bent-arm hand path.",
+        "instruction": "No target or implement. With elbow bent, move the fist from lower-rib height toward chin height as the rear foot/hip turns; stop before the shoulder shrugs. No deep squat or overhead punch. Shorten the upward path if the low back extends or the arm separates from the turn. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Bear Position Shoulder Tap",
+        "sourceName": "Bear Position Shoulder Tap",
+        "dose": "1 × 4 per side/direction; 8 reps/actions",
+        "prescription": "1 × 4 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain trunk position while support briefly shifts to one arm.",
+        "instruction": "Hands below shoulders, knees just clear of the floor. Slowly lift one hand to touch the opposite shoulder, replace it, then alternate; pelvis stays level. Take about 3 seconds each rep. Use knees on the floor instead if the pelvis sways; keep the same slow tap dose.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Band-Resisted Dead Bug Pullover",
+        "sourceName": "Band-Resisted Dead Bug Pullover",
+        "dose": "1 × 6 total; 6 reps/actions",
+        "prescription": "1 × 6 total",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Keep ribs controlled while the arms lengthen into the next preload.",
+        "instruction": "Lie supine with knees bent and feet supported; light band anchored securely beyond the head. Move both hands from above the face toward the ribs, then return slowly without arching. This is one arm-pullover task; do not add alternating leg extensions. Reduce overhead reach/tension if the ribs lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "2 × 6 alternating total; 12 reps/actions",
+        "prescription": "2 × 6 alternating total",
+        "rest": "2–3 min between sets",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Strengthen the turning arc that must reverse under control.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "One-Arm Dumbbell Row — supported",
+        "sourceName": "One-Arm Dumbbell Row — supported",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load scapular pulling force while the trunk supplies a stable platform.",
+        "instruction": "Support the free hand on a stable bench, feet staggered. Row the dumbbell toward the same-side hip without turning the torso; lower in 3 seconds. Use less load if the shoulder hikes or the trunk rotates.",
+        "equipment": [
+          "Dumbbells",
+          "Bench"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Preserve force through the unilateral release-side press.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the downward diagonal and its controlled return.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the opposite diagonal that establishes the preload.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing strength with limited added volume.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 note whether one small wind-back flows directly into the release, without a pause, second rock, added step or exaggerated lumbar turn. Count balanced two-second finishes on each side within scheduled attempts. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. The reversal anchor receives 2 × 3 per side; other tasks are 1 × 3 per side. Maintain a small preload; do not chase a larger range. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 4,
+    "title": "Step, plant & project",
+    "effort": "Deliver rotational force through the hand after a short deliberate step, without losing the release line.",
+    "minutes": [
+      80,
+      90
+    ],
+    "releases": 24,
+    "fastActions": 18,
+    "strengthReps": 82,
+    "equipment": [
+      "Medicine ball",
+      "Bands",
+      "Landmine",
+      "Dumbbells"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Step-in rotational medicine-ball shot-put",
+        "sourceName": "Step-in rotational medicine-ball shot-put [Proposed addition/variant]",
+        "dose": "2 × 3 per side/direction; 12 reps/actions",
+        "prescription": "2 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: turn a deliberate plant into a directed pushing release.",
+        "instruction": "Start staggered with ball at the rear shoulder; take one small lead-foot step toward the low forward target, settle that foot, pivot the rear hip and press the ball with the rear hand. Hold the finish. Use the standing rotational shot-put instead at the same dose if a step causes falling or knee twist. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Light-band rotational uppercut",
+        "sourceName": "Light-band rotational uppercut [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Apply the turn to an upward hand path against retained resistance.",
+        "instruction": "Band secured low behind the working side, hand near the hip. With bent elbow, pivot the rear foot and drive the fist toward upper-chest height; stop below shoulder shrug and return slowly. Reduce tension/height if the trunk arches or band pulls the wrist out of line. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "One-Arm Landmine Arc Press — light fast arc",
+        "sourceName": "One-Arm Landmine Arc Press — light fast arc",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Control the release-side shoulder through a rapid guided transverse arc.",
+        "instruction": "Start sleeve in one hand in front of the same-side upper chest, elbow softly bent. Sweep a short arc toward the opposite upper chest with a small body turn, maintaining safe bar clearance; return deliberately. No release or overhead circle. Use the stated unloaded transverse sweep replacement if the bar is too heavy for speed/control. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Lead-hand rotational medicine-ball push throw",
+        "sourceName": "Lead-hand rotational medicine-ball push throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "the target without a large rear-arm wind-up",
+        "preparation": null,
+        "purpose": "Express force through the arm nearest the target without a large rear-arm wind-up.",
+        "instruction": "Use a very light ball held at the lead-side chest with the other hand assisting its support. Make a small turn toward the lane and extend the lead arm into the low target; the supporting hand releases. Keep both feet planted/pivoting. Use a smaller grippable ball or shorten the turn if the lead shoulder rolls forward. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Two-hand rotational overhead medicine-ball throw",
+        "sourceName": "Two-hand rotational overhead medicine-ball throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Transfer the turn through a comfortable elevated arm position.",
+        "instruction": "Hold a light ball above the forehead, not behind the neck. Turn feet/hips toward the lane and throw forward/down through the cleared target while keeping ribs stacked. One release, full reset. Use the stated rotational chest-push replacement if overhead position requires arching. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Rotational shadow hook",
+        "sourceName": "Rotational shadow hook [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Rehearse a compact connected hand arc without additional implement stress.",
+        "instruction": "No target or implement. Pivot the rear foot and sweep the bent forearm at chest height as one compact unit with the trunk; stop near midline, then reset. Shorten the arc if the hand leads the body or shoulder rolls forward. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Band Anti-Rotation Walkout",
+        "sourceName": "Band Anti-Rotation Walkout",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Keep the torso stable while the base changes under a sideways pull.",
+        "instruction": "Light band at sternum height from the side; hold hands near the chest. Take one short step away, pause 2 seconds without turning, then return. One out-and-back is one rep; mirror sides. Use a smaller step or less tension if the hips shift or breath is held.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Supine single-arm dumbbell serratus reach",
+        "sourceName": "Supine single-arm dumbbell serratus reach [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the shoulder blade near the end of a forward press.",
+        "instruction": "Lie supine with one light dumbbell above the shoulder and elbow softly straight. Reach the hand slightly upward by moving the shoulder blade, then lower the blade in 2 seconds; keep torso flat. Reduce load/reach if the elbow bends or trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load plant-to-turn-to-press force transfer.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Maintain the turning arc without added entry fatigue.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Organize the pulling shoulder during the hand finish.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load terminal horizontal force with the trunk supported.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the downward component of elevated-arm delivery.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen positioning from the rear hip toward the release platform.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      }
+    ],
+    "quality": "For E1 record a planted lead foot before release, a rear-foot pivot rather than knee twisting, a straight wrist and a balanced two-second finish inside the start bay. Record each scheduled attempt by side. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. E1 has the largest allocation. An approach is one deliberate step within 1 m, not a run-up. No jump release or rebound catching. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 5,
+    "title": "Arrive from the side",
+    "effort": "Convert a small lateral arrival into an upper-body rotational impulse and a controlled finish.",
+    "minutes": [
+      75,
+      85
+    ],
+    "releases": 16,
+    "fastActions": 16,
+    "strengthReps": 76,
+    "equipment": [
+      "Medicine ball",
+      "Bands",
+      "Battle rope",
+      "Slam ball",
+      "Dumbbells",
+      "Landmine"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Med Ball Shuffle-to-Rotation Throw — short floor-target version",
+        "sourceName": "Med Ball Shuffle-to-Rotation Throw — short floor-target version",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: accept lateral arrival and send the turn through the hands.",
+        "instruction": "Start side-on; take one short uncrossed shuffle toward the target direction, plant the lead foot and make a two-hand rotational scoop release. Stay grounded and finish within the marked bay. Use a single side-step into the throw instead if uncrossed shuffle placement is unreliable; same dose. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Drop-step rotational medicine-ball scoop throw",
+        "sourceName": "Drop-step rotational medicine-ball scoop throw [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Reload the rear hip before delivering the turn.",
+        "instruction": "From side-on, move the lead foot slightly away/back to open the stance and settle toward the rear hip; re-establish pressure, pivot and sweep the ball through the low target. Keep the whole action inside 1 m. Reduce the step to a small stance opening if the knee twists or balance is lost. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Step-plant rotational band cross",
+        "sourceName": "Step-plant rotational band cross [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Connect a plant to a retained forward hand impulse.",
+        "instruction": "With a light band secured behind the rear shoulder, take one small lead-foot step, plant, pivot and punch forward without locking the elbow. Return the hand and step back deliberately. Use the stationary band cross instead at this dose if the plant or band line becomes unsafe. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Lateral-step transverse battle-rope pulse",
+        "sourceName": "Lateral-step transverse battle-rope pulse [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Transfer a small lateral arrival into a retained inertial sweep.",
+        "instruction": "With rope settled, step laterally a short distance, plant and sweep both rope ends toward the opposite hip using a small body turn. Settle completely before returning to the start. Use the stationary transverse whip instead if entry clearance or placement is inadequate. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Step-Behind Rotational Slam Ball Slam",
+        "sourceName": "Step-Behind Rotational Slam Ball Slam",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Direct entry momentum into a downward diagonal hand finish.",
+        "instruction": "Use one small step-behind and lead-foot replant, then turn and slam a light non-rebounding ball slightly forward/outside the lead foot. No overhead windmill or jump; wait until the ball settles. Use the stationary side slam instead at the same dose if crossing placement is unreliable. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "sourceName": "Close-held medicine-ball rotational snap-to-stop [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Brake the trunk-and-hands impulse without a release or catch.",
+        "instruction": "Hold a very light ball close to the sternum. Make a short fast foot/hip/trunk turn, then stop the ball and body together within a comfortable arc for 2 seconds. Reset slowly; do not whip the ball at long arm length. Use an unloaded palms-together turn instead if ball inertia prevents a clean stop. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Side Plank Row — short-lever light band",
+        "sourceName": "Side Plank Row — short-lever light band",
+        "dose": "1 × 5 per side/direction; 10 reps/actions",
+        "prescription": "1 × 5 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain lateral trunk support while the pulling arm moves.",
+        "instruction": "From a bent-knee side plank on the forearm, pull a very light band toward the upper-side ribs without rotating the pelvis; return in 3 seconds. Anchor is in front and outside the face line. Use hips lightly supported on the floor instead if holding them up makes the row strenuous.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Side-lying dumbbell external rotation",
+        "sourceName": "Side-lying dumbbell external rotation [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Revisit controlled shoulder rotation after entry-driven releases.",
+        "instruction": "Lie on the nonworking side with elbow at the ribs and bent 90 degrees. Rotate the forearm upward in 2 seconds and lower in 3, keeping the trunk still. Use less load/range if the elbow leaves the ribs or the torso rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "2 × 6 alternating total; 12 reps/actions",
+        "prescription": "2 × 6 alternating total",
+        "rest": "2–3 min between sets",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Load the turning arc and endpoint braking after arrival.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Keep force linked from the plant through the release-side arm.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the pulling side as the upper body redirects.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the downward hand path used after a planted entry.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the rising preload from the rear hip.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing force without more entry volume.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "During E1, record whether the feet remain uncrossed in the shuffle, the lead foot accepts the arrival before the hands sweep, and the athlete remains inside the start bay after release. Score the two-second balanced finish on both sides. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. Movement is deliberately small, with total travel no more than 1 m. The upper-body rotational impulse is the task; this is not a sprint or agility conditioning session. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 6,
+    "title": "Consolidate & reduce volume",
+    "effort": "Keep the turning impulse compact and repeatable while reducing accumulated release and strength volume.",
+    "minutes": [
+      70,
+      80
+    ],
+    "releases": 8,
+    "fastActions": 20,
+    "strengthReps": 70,
+    "equipment": [
+      "Battle rope",
+      "Medicine ball",
+      "Bands",
+      "Dumbbells",
+      "Landmine",
+      "Bench"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Two-hand rotational battle-rope lift pulse",
+        "sourceName": "Two-hand rotational battle-rope lift pulse [Proposed addition/variant]",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: create a compact upward rotational impulse and stop it cleanly.",
+        "instruction": "Start settled rope ends beside one hip. Pivot feet/hips and drive both hands across toward opposite upper-chest height, producing one brief pulse. Keep elbows soft and ribs down, then settle the rope before resetting. Use the stated low-band speed-lift replacement if rope mass or clearance prevents clean acceleration. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Two-hand medicine-ball backhand throw",
+        "sourceName": "Two-hand medicine-ball backhand throw [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Review an outward released hand path at low volume.",
+        "instruction": "Ball begins across the lower ribs, elbows softly bent. Turn toward the lane and sweep both hands outward toward the low floor target, then hold the body finish for 2 seconds. Shorten the arc or lighten the ball if the shoulder is dragged backward. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Half-Kneeling Medicine Ball Shot-Put Throw",
+        "sourceName": "Half-Kneeling Medicine Ball Shot-Put Throw — floor target",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Review unilateral pressing without an entry step.",
+        "instruction": "Target-side foot forward and rear knee comfortably down. Support the ball near the rear shoulder, make a small turn and push to the low target with the rear hand; remain stacked. Use the standing version instead if kneeling contact is intolerable. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Unloaded rotational diagonal hand drive",
+        "sourceName": "Unloaded rotational diagonal hand drive [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Link a short body turn to a downward single-arm finish.",
+        "instruction": "No target or implement. Start the open hand near the opposite upper-chest line; pivot and drive it diagonally toward the same-side front pocket with a softly bent elbow. Stop clear of the thigh and reset slowly. Shorten the path if the shoulder drops or the trunk bends sideways. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "sourceName": "Close-held medicine-ball rotational snap-to-stop [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Review active braking of body and implement together.",
+        "instruction": "Hold a very light ball at the sternum. Make a short fast pivot/turn and stop the ball and body together for 2 seconds; reset without a release. Use an unloaded palms-together turn instead if inertia overwhelms the endpoint. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Rotational band row speed drive",
+        "sourceName": "Rotational band row speed drive [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Review a fast pulling contribution with controlled return.",
+        "instruction": "Light band ahead at lower-chest height. From a small reach, pivot and draw the elbow toward lower ribs quickly, then return in 3 seconds without shrugging. Reduce tension/reach if the trunk yanks or shoulder hikes. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Light-band shoulder internal rotation at side",
+        "sourceName": "Light-band shoulder internal rotation at side [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the inward shoulder-rotation component of hand acceleration.",
+        "instruction": "Stand with the working elbow at the ribs, bent 90 degrees, and a light band anchored to the working side. Turn the forearm across the abdomen in 2 seconds and return in 3; keep the elbow and trunk still. Reduce tension/range if the elbow drifts or shoulder rolls forward.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Supported light-dumbbell forearm rotation",
+        "sourceName": "Supported light-dumbbell forearm rotation [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the forearm orientation needed for a stable ball/punch wrist.",
+        "instruction": "Seated with forearm supported on the thigh and elbow bent, hold a very light dumbbell securely with the wrist straight. Rotate slowly from a comfortable palm-up to palm-down orientation and back; one complete out-and-back is one rep. Use less load or a smaller rotation if the wrist bends or grip strains.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Retain controlled turning strength with one set.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Retain the turn-to-arm press link.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "One-Arm Dumbbell Row — supported",
+        "sourceName": "One-Arm Dumbbell Row — supported",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain pulling strength with the trunk supported after fast rows.",
+        "instruction": "Free hand on a stable bench, feet staggered. Row toward the same-side hip with a quiet torso and lower in 3 seconds. Use less load if the shoulder hikes or trunk turns.",
+        "equipment": [
+          "Dumbbells",
+          "Bench"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Retain strength along the downward hand path.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the rising rotational path without more explosive pulses.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal hand-force capacity with the trunk supported.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record a visible single rope impulse without a second swing, stacked ribs at the hand endpoint, and a controlled return before the next rep. Score each direction within the eight scheduled pulses; rope behavior is not a force measurement. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. All support tasks use just 1 × 2 per side; E1 uses 2 × 2. Make each pulse deliberate and fast, then stop fully. Four familiar tasks recur openly to reduce teaching demand while reviewing control. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 7,
+    "title": "Receive, organize & return",
+    "effort": "Receive a predictable external ball delivery and turn it into a controlled rotational return.",
+    "minutes": [
+      70,
+      85
+    ],
+    "releases": 20,
+    "fastActions": 8,
+    "strengthReps": 70,
+    "equipment": [
+      "Medicine ball",
+      "Slam ball",
+      "Bands",
+      "Dumbbells",
+      "Bench",
+      "Landmine"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Externally supplied rotational scoop return",
+        "sourceName": "Externally supplied rotational scoop return [Proposed addition/variant]",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: organize a supplied ball into a balanced rotational release.",
+        "instruction": "Coach hands a light ball into both hands near the rear hip. After the coach lets go, establish grip and turn feet/hips/trunk into a low forward scoop release. Under the optional gentle-feed condition, cushion the ball near the same hip before turning. Use a self-held paused scoop instead if the athlete reaches, fumbles or loses posture; keep the same dose. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Externally supplied rotational shot-put return",
+        "sourceName": "Externally supplied rotational shot-put return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Transfer reception at the chest into unilateral pressing.",
+        "instruction": "Receive a handoff in both hands near the rear chest. Once supported securely, guide with the front hand, pivot and push with the rear hand toward the low target. A verified gentle feed replaces the handoff only under the stated gate. Use the self-held standing shot-put instead if grip or wrist alignment fails. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Externally supplied diagonal side-slam return",
+        "sourceName": "Externally supplied diagonal side-slam return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Redirect supplied load into a downward rotational finish.",
+        "instruction": "Receive the handoff at lower-chest height in both hands. Turn and drive the light non-rebounding ball down slightly forward/outside the lead foot; no overhead lift or second throw. Use a self-held shoulder-height side slam instead if reception causes a lunge. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Externally supplied two-hand backhand return",
+        "sourceName": "Externally supplied two-hand backhand return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Accept the implement across the body and release along an outward arc.",
+        "instruction": "Receive a handoff in both hands near the opposite lower ribs. Once the feeder releases, turn toward the lane and sweep the ball outward into the low target; keep the hands in front of the body. Use the self-held backhand throw instead if the shoulder is pulled behind the torso. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "sourceName": "Close-held medicine-ball rotational snap-to-stop [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Check body-and-ball endpoint control without another incoming ball.",
+        "instruction": "Hold the light ball close to the sternum, make a compact fast pivot/turn, and hold the endpoint for 2 seconds. Reset slowly. Use an unloaded turn instead if the load cannot be stopped cleanly. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Two-hand band backhand speed sweep",
+        "sourceName": "Two-hand band backhand speed sweep [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Apply a predictable resisted sweep after the externally supplied tasks.",
+        "instruction": "Band anchored at chest height to the start side. Sweep both hands across a small transverse arc as feet/hips turn, stopping cleanly and returning slowly. Reduce tension/arc if the body leans or the band recoils. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Tall-Kneeling Anti-Rotation Pulldown — light band",
+        "sourceName": "Tall-Kneeling Anti-Rotation Pulldown — light band",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Hold rib/pelvis alignment while an offset arm force acts after reception.",
+        "instruction": "Kneel tall comfortably with light band anchored high and slightly to one side. With both hands, pull toward the upper chest without turning the trunk; return in 3 seconds. Mirror anchor sides. Use standing split stance instead if knee contact is intolerable; reduce tension if the ribs flare.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Prone light-dumbbell horizontal arm raise",
+        "sourceName": "Prone light-dumbbell horizontal arm raise [Proposed addition/variant]",
+        "dose": "1 × 8 total; 8 reps/actions",
+        "prescription": "1 × 8 total",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the posterior shoulder during the return from a released arm path.",
+        "instruction": "Lie chest-supported on a stable bench with light dumbbells hanging. Raise both arms outward only to a comfortable line below shoulder height, elbows soft; lower in 3 seconds without lifting the chest. Use less load/range if the neck tightens or trunk extends.",
+        "equipment": [
+          "Dumbbells",
+          "Bench"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Maintain controlled turning strength as input timing changes.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Load the pulling contribution that organizes a received ball.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support unilateral return force after a secure reception.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the received-to-downward release path.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support moving the received implement from hip toward the release line.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing capacity without raising total working volume.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record hands meeting the ball near the rear hip without a trunk lunge, a controlled transition into the turn, release into the same target and a balanced finish. Log whether the ball was handed over or softly fed; compare only the same input condition. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. For E1–E4 the baseline is a coach handing the ball into the stated start position, fully letting go before the athlete turns. The athlete establishes grip and then accelerates. Only with directly demonstrated comfortable reception may a gentle predictable underhand feed replace the handoff at the same dose. One reception-to-return is one exercise rep, containing one reception and one release; no separate catching sets. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 8,
+    "title": "Find the diagonal",
+    "effort": "Send rotational force along a diagonal without substituting side bending or back extension.",
+    "minutes": [
+      75,
+      85
+    ],
+    "releases": 20,
+    "fastActions": 14,
+    "strengthReps": 82,
+    "equipment": [
+      "Slam ball",
+      "Battle rope",
+      "Medicine ball",
+      "Bands",
+      "Landmine",
+      "Dumbbells"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Tall-kneeling diagonal medicine-ball side slam",
+        "sourceName": "Tall-kneeling diagonal medicine-ball side slam [Proposed addition/variant]",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: express a downward diagonal with leg propulsion constrained.",
+        "instruction": "Kneel tall with knees comfortably apart. Start a light ball above the forehead, make a small comfortable thoracic turn and drive it to the floor slightly forward/outside one knee; do not twist farther by fixing the pelvis rigidly. Reset fully. Use the standing side-slam replacement if kneeling contact is intolerable; shorten overhead reach if ribs flare. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Single-arm rotational battle-rope uppercut pulse",
+        "sourceName": "Single-arm rotational battle-rope uppercut pulse [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Express the upward diagonal through one arm.",
+        "instruction": "Hold one manageable rope end near the working hip. Pivot and drive the bent arm toward opposite upper-chest height in one compact pulse; stop and settle completely before reset. Keep the other end clear. Use the unloaded uppercut replacement if rope load prevents a quick clean pulse. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Single-arm rotational underhand medicine-ball scoop",
+        "sourceName": "Single-arm rotational underhand medicine-ball scoop [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Transmit the turn through a low one-arm swinging release.",
+        "instruction": "With a securely grippable light ball beside the rear hip, turn the feet/hips and sweep that hand underhand across the front toward the low target. Keep elbow softly bent, ball in front of the torso and release path clear. Use a two-hand scoop instead if one-hand grip is insecure; do not use a heavier ball. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Two-hand descending backhand medicine-ball throw",
+        "sourceName": "Two-hand descending backhand medicine-ball throw [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Deliver outward rotation into a descending diagonal.",
+        "instruction": "Start the light ball across the upper chest near the opposite shoulder, not behind the head. Turn and sweep both hands outward/down toward the low forward target, keeping the trunk long. Lower the start or shorten the arc if the shoulder is pulled back or the body side-bends. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Two-hand diagonal battle-rope chop pulse",
+        "sourceName": "Two-hand diagonal battle-rope chop pulse [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Revisit a predictable downward inertial path after the releases.",
+        "instruction": "Hands begin near one shoulder; pivot and drive both rope ends toward the opposite hip, then stop the rope fully. Reset deliberately. Use a light diagonal band speed pull instead if rope setup is unsuitable. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Rotational shadow uppercut",
+        "sourceName": "Rotational shadow uppercut [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Keep the upward counterpart coordinated without extra implement load.",
+        "instruction": "No target. From lower-rib hand position and bent elbow, pivot and drive the fist toward upper-chest/chin height; stop below shrugging and reset. Shorten the hand path if the trunk extends. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Half-Kneeling Anti-Rotation Press / Lift Hold — light band",
+        "sourceName": "Half-Kneeling Anti-Rotation Press / Lift Hold — light band",
+        "dose": "1 × 1 holds of 10 s per side/direction; 2 holds",
+        "prescription": "1 × 1 holds of 10 s per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Hold the ribs/pelvis under an offset elevated arm load.",
+        "instruction": "In comfortable half kneeling with a light side band, hold both hands slightly forward at upper-chest height for 10 seconds; breathe and keep pelvis quiet. Mirror lead leg/anchor side. Use standing split stance instead if knee contact is unsuitable; shorten reach for trunk drift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Bilateral light-band shoulder external rotation",
+        "sourceName": "Bilateral light-band shoulder external rotation [Proposed addition/variant]",
+        "dose": "1 × 8 total; 8 reps/actions",
+        "prescription": "1 × 8 total",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain controlled outward shoulder rotation after diagonal releases.",
+        "instruction": "Elbows bent 90 degrees and held gently at the ribs, hold a light band between hands. Open the hands outward in 2 seconds and return in 3 without shrugging, extending the wrists or moving the trunk. Use less tension/range if elbow or rib position changes.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Main diagonal strength: drive and control the downward cross-body path.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the opposing upward diagonal used to establish the preload.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Maintain turning strength without substituting side bending.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the pulling shoulder along an outward release.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Preserve transfer from torso rotation into the release-side arm.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing force with low additional trunk demand.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record a small comfortable turn, hands driving to the declared forward-side floor zone, ribs remaining over the pelvis and the kneeling base staying quiet. Count attempts that finish without folding sideways; do not measure force from ball sound. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. Use a non-rebounding compatible ball for the kneeling slam and comfortable overhead range; the turn stays small. There is no entry step, incoming ball or repeated slam cycle. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 9,
+    "title": "Connect entry to hand path",
+    "effort": "Match a deliberate entry to the chosen rotational hand path while retaining a stable release base.",
+    "minutes": [
+      75,
+      85
+    ],
+    "releases": 20,
+    "fastActions": 8,
+    "strengthReps": 76,
+    "equipment": [
+      "Medicine ball",
+      "Slam ball",
+      "Bands",
+      "Dumbbells",
+      "Landmine"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Lateral-step two-hand medicine-ball backhand throw",
+        "sourceName": "Lateral-step two-hand medicine-ball backhand throw [Proposed addition/variant]",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: connect lateral arrival to an outward upper-body release.",
+        "instruction": "Start the ball across the lower ribs; take one short uncrossed lateral step toward the lane, plant, turn and sweep both hands outward into the low target. Hold the finish. Use the stationary backhand throw instead at this dose if arrival causes drift or the shoulder trails behind the trunk. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Drop-step rotational medicine-ball shot-put",
+        "sourceName": "Drop-step rotational medicine-ball shot-put [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Use a rear-hip reload to drive a directed pressing release.",
+        "instruction": "Ball at rear shoulder. Open the lead foot slightly away/back, settle pressure into the rear hip, then pivot and push toward the low target with the rear hand. Do not cross feet or lean away. Use the standing shot-put instead if the reload disrupts wrist or base control. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Forward-step diagonal medicine-ball side slam",
+        "sourceName": "Forward-step diagonal medicine-ball side slam [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "forward entry and deliver force downward through the turn",
+        "preparation": null,
+        "purpose": "Arrest forward entry and deliver force downward through the turn.",
+        "instruction": "With ball at upper-chest height, take one small lead-foot step, plant and turn into a diagonal slam slightly forward/outside that foot. No overhead circle or jump. Use the stationary shoulder-height side slam instead if the foot cannot plant before the hands drive. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Short crossover-to-band backhand speed sweep",
+        "sourceName": "Short crossover-to-band backhand speed sweep [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Brake the entry while accelerating and stopping a retained transverse load.",
+        "instruction": "With a light side-anchored band, take a small step behind and replant the lead foot. After a secure plant, turn and sweep both hands across the chest-height arc, then return slowly and reset feet. Use the stationary sweep instead if feet or band line cross unsafely. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Half-Kneeling Rotational Med Ball Throw",
+        "sourceName": "Half-Kneeling Rotational Med Ball Throw — floor target",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Keep an upper-body projection reference without entry momentum.",
+        "instruction": "Target-side foot forward, opposite knee comfortably down; light ball beside rear hip. Turn through a modest comfortable arc and release with both hands toward the low target, keeping the front foot planted. Use a seated bench throw instead if kneeling is intolerable; record the changed task. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Light-band rotational uppercut",
+        "sourceName": "Light-band rotational uppercut [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Retain a compact upward hand path without another traveling action.",
+        "instruction": "Low band anchor behind the working side; pivot and drive the bent arm from hip toward upper chest, then stop and return slowly. Reduce tension/height if the shoulder shrugs or back arches. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Split-Stance Anti-Rotation Row — light band",
+        "sourceName": "Split-Stance Anti-Rotation Row — light band",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the trunk against a moving arm force while the planted base stays fixed.",
+        "instruction": "Band ahead and slightly to the working side. In split stance, row lightly toward lower ribs without rotating the trunk or shifting feet; return in 3 seconds and breathe. Reduce tension/reach if the pelvis turns or balance becomes the limiting task.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Supported light-dumbbell wrist extension",
+        "sourceName": "Supported light-dumbbell wrist extension [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain wrist extension control at the hand-force interface.",
+        "instruction": "Forearm supported on thigh, palm down and hand just beyond the knee. Lift the light dumbbell through a small comfortable wrist-extension range, then lower in 3 seconds; forearm remains still. Use less load/range if grip tightness, wrist discomfort or elbow movement appears.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "2 × 6 alternating total; 12 reps/actions",
+        "prescription": "2 × 6 alternating total",
+        "rest": "2–3 min between sets",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Load the controlled turn that follows a plant.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Connect reload and trunk force to unilateral hand extension.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the pulling side of outward release.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support downward force after a forward plant.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain the rising preload into the release line.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing capacity without more entry work.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record a short planted lateral step, hands staying in front of the torso, no continued lateral drift during the outward release, and a controlled finish inside the bay. Note the actual entry distance and side. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. Every moving rep begins from a reset and uses at most 1 m total travel; most should be shorter. No running, jumping, reactive chase or partner feed. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 10,
+    "title": "Fast hands, stable base",
+    "effort": "Express fast rotational hand force from a stable base with a short, controlled arm path.",
+    "minutes": [
+      75,
+      85
+    ],
+    "releases": 20,
+    "fastActions": 12,
+    "strengthReps": 82,
+    "equipment": [
+      "Medicine ball",
+      "Battle rope",
+      "Bands",
+      "Landmine",
+      "Dumbbells"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Single-arm rotational medicine-ball hook throw",
+        "sourceName": "Single-arm rotational medicine-ball hook throw [Proposed addition/variant]",
+        "dose": "2 × 3 per side/direction; 12 reps/actions",
+        "prescription": "2 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: couple a bent-arm transverse release to the trunk turn.",
+        "instruction": "Hold a securely grippable light ball at the rear side of the chest, elbow bent near 90 degrees. Pivot and turn while sweeping the bent forearm through a short forward/transverse arc into the low target. Avoid a long backswing or forceful elbow lock. Use the two-hand backhand throw instead if one-hand grip or shoulder position is insecure. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Single-arm transverse battle-rope pulse",
+        "sourceName": "Single-arm transverse battle-rope pulse [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Produce and brake a unilateral horizontal rotational impulse.",
+        "instruction": "Hold one manageable rope end beside the working hip; pivot and sweep the hand across a short waist-to-chest-height arc, then settle the rope. Keep the unused end away from feet. Use an unloaded one-arm transverse sweep instead if rope mass or clearance is unsuitable. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "sourceName": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Retain a settled-start whole-chain release reference.",
+        "instruction": "Stand side-on with both hands holding the ball near the rear hip for 2 seconds. Pivot, turn and sweep toward the low target; no entry or countermovement. Hold the finish for 2 seconds. Reduce ball mass/turn range if arms lead or balance is lost. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Single-arm diagonal battle-rope downstroke",
+        "sourceName": "Single-arm diagonal battle-rope downstroke [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Control a unilateral downward rotational impulse.",
+        "instruction": "With one manageable rope end near upper-chest height, pivot and drive the working hand toward the opposite front pocket. Keep a soft elbow, long trunk and short path; settle completely before resetting. Use an unloaded diagonal hand drive instead if rope load prevents clean control. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Standing rotational two-hand chest push throw",
+        "sourceName": "Standing rotational two-hand chest push throw [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Preserve a simultaneous pushing-release reference after the one-arm tasks.",
+        "instruction": "Ball near the rear side of the chest in both hands. Turn the feet/hips and extend both arms through the low target; do not scoop from the hip. Use less ball mass if one arm dominates or the athlete side-bends. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Unloaded two-hand rotational backhand sweep",
+        "sourceName": "Unloaded two-hand rotational backhand sweep [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Rehearse connected outward hand travel without extra ball or rope load.",
+        "instruction": "Palms close together across the lower ribs, elbows soft. Pivot and sweep both hands outward in front of the body, stop within the comfortable arc, then reset slowly. Shorten the arc if shoulders trail behind the torso. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Light-band straight-arm shoulder extension",
+        "sourceName": "Light-band straight-arm shoulder extension [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Control the shoulder as the arm returns toward the hip after release.",
+        "instruction": "Band anchored ahead near shoulder height. With elbow softly straight, pull the hand down/back to beside the hip without extending the spine; return in 3 seconds. Keep the motion small and shoulder low. Use less tension/range if the elbow bends or back arches.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Side Plank Reach-Through Control — short lever",
+        "sourceName": "Side Plank Reach-Through Control — short lever",
+        "dose": "1 × 4 per side/direction; 8 reps/actions",
+        "prescription": "1 × 4 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Maintain shoulder support while allowing a small controlled trunk turn.",
+        "instruction": "From forearm and bent-knee support, hips comfortably raised, move the top hand a short distance under the chest with a small thoracic turn; return to stacked shoulders in 3 seconds. Do not force end-range spinal rotation. Keep hips lightly supported instead if the shoulder shrugs or the turn becomes strenuous.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Main strength: keep body turn connected to the release-side arm.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Maintain force and control through a compact turning arc.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Strengthen the opposing pulling contribution to the hand path.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the single-arm downward path through loaded diagonal control.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain the rising preload into the arm platform.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Retain terminal pressing strength without extra unfamiliar lifts.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record elbow angle staying approximately constant through the compact arc, the hand remaining in front of the trunk, a directed release and a balanced finish. Record actual ball/grip suitability and any substitution; do not infer speed from the size of the wind-up. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. E1 uses 2 × 3 per side; all five supports use 1 × 2. No overspeed claim, heavier-ball prescription or high-speed entry. A fast action remains controlled within the athlete’s comfortable range. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 11,
+    "title": "Receive into an entry",
+    "effort": "Organize an externally supplied ball into a deliberate entry or constrained-base release without rushing the turn.",
+    "minutes": [
+      70,
+      85
+    ],
+    "releases": 20,
+    "fastActions": 8,
+    "strengthReps": 70,
+    "equipment": [
+      "Medicine ball",
+      "Bands",
+      "Battle rope",
+      "Dumbbells",
+      "Landmine"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Handoff-to-step rotational medicine-ball scoop return",
+        "sourceName": "Handoff-to-step rotational medicine-ball scoop return [Proposed addition/variant]",
+        "dose": "2 × 2 per side/direction; 8 reps/actions",
+        "prescription": "2 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary: establish grip, plant a deliberate step, then project through rotation.",
+        "instruction": "Receive the coach’s handoff near the rear hip while stationary. After the coach fully releases and steps clear, take one small lead-foot step, plant, pivot and scoop toward the low target; hold the finish. Use the self-held step-in scoop instead if handoff timing or feeder clearance is unreliable. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Half-kneeling handoff-to-shot-put return",
+        "sourceName": "Half-kneeling handoff-to-shot-put return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Express a supplied-ball press with leg propulsion constrained.",
+        "instruction": "Kneel comfortably with target-side foot forward. Receive the handoff near the rear chest, establish support with both hands, then turn modestly and press with the rear hand after the feeder releases. Use a self-held kneeling shot-put instead if supply disrupts posture; stand instead if knee contact is unsuitable. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Handoff-to-single-arm rotational underhand return",
+        "sourceName": "Handoff-to-single-arm rotational underhand return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Transfer a supplied implement into a low unilateral release path.",
+        "instruction": "Coach hands the light grippable ball into supported hands at the rear hip. Once secure and the coach is clear, release the guide hand, turn and sweep the working hand underhand toward the low target. Use a two-hand scoop instead if one-hand grip or shoulder control is unsuitable. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Light-band rotational cross",
+        "sourceName": "Light-band rotational cross [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Retain a predictable turn-to-hand resisted reference.",
+        "instruction": "Band behind rear shoulder; pivot the rear foot/hip and drive the hand forward, stopping short of elbow lock. Return slowly before another rep. Reduce tension/reach if wrist or rib position changes. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Two-hand transverse battle-rope whip",
+        "sourceName": "Two-hand transverse battle-rope whip [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Retain a brief inertial sweep without additional reception.",
+        "instruction": "From a settled athletic stance, sweep both rope ends from one hip across to the other with a small foot/hip turn. Settle fully and reset slowly before repeating. Use a light two-hand band transverse sweep instead if rope setup or minimum load is unsuitable. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Battle rope"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Step-in rotational medicine-ball shot-put",
+        "sourceName": "Step-in rotational medicine-ball shot-put [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Retain a self-held entry-to-hand reference beside externally supplied tasks.",
+        "instruction": "Ball at rear shoulder; take one small lead-foot step, plant, pivot and push with the rear hand toward the low target. Hold the finish inside the bay. Use the stationary shot-put instead if the step causes falling or knee twist. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Bear Position Shoulder Tap",
+        "sourceName": "Bear Position Shoulder Tap",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Consolidate trunk position when one upper-limb support is briefly removed.",
+        "instruction": "Hands below shoulders, knees just clear of floor. Slowly tap the opposite shoulder and replace the hand, alternating sides without pelvis sway. Keep knees down instead if unsupported taps are strenuous.",
+        "equipment": [
+          "Bodyweight"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Supine single-arm dumbbell serratus reach",
+        "sourceName": "Supine single-arm dumbbell serratus reach [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Consolidate end-range scapular control without another new shoulder task.",
+        "instruction": "Lie supine, light dumbbell above shoulder and elbow soft/straight. Reach slightly upward with the shoulder blade, then lower it in 2 seconds without rolling the trunk. Use less load/reach if elbow or trunk position changes.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "1 × 6 alternating total; 6 reps/actions",
+        "prescription": "1 × 6 alternating total",
+        "rest": "90 s to next exercise",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Consolidate a controlled turning arc before the final review.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain the turn-to-arm connection at a smaller working dose.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "Standing rotational band row",
+        "sourceName": "Standing rotational band row [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain pulling contribution after supplied-ball tasks.",
+        "instruction": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long. Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain the downward diagonal with a controlled return.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain the rising preload path without extra receptions.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing strength with supported trunk position.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 record secure grip after the feeder fully lets go, a deliberate planted step before the turn, and a balanced release finish. Record input timing and actual step size; do not score a faster handoff as better performance. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Minimum preparation is 34 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. E1–E3 receive a controlled handoff only; no airborne feed or surprise signal. E1 gets 2 × 2 per side and all supports 1 × 2. The feeder lets go before any step or turn. One supplied-ball return remains one integrated exercise rep. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  },
+  {
+    "n": 12,
+    "title": "Revisit & compare",
+    "effort": "Revisit controlled rotational projection under matched conditions and apply it to one supplied-ball entry task.",
+    "minutes": [
+      85,
+      95
+    ],
+    "releases": 28,
+    "fastActions": 10,
+    "strengthReps": 88,
+    "equipment": [
+      "Medicine ball",
+      "Slam ball",
+      "Bands",
+      "Dumbbells",
+      "Landmine",
+      "Bench"
+    ],
+    "exercises": [
+      {
+        "id": "E1",
+        "phase": "E",
+        "name": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "sourceName": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "dose": "2 × 3 per side/direction; 12 reps/actions",
+        "prescription": "2 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Primary reference: project from a settled load into a balanced finish.",
+        "instruction": "Stand side-on with the same appropriate light ball near the rear hip; pause 2 seconds. Pivot the rear foot, turn hips/trunk and sweep both hands into the declared target without a step or countermovement. Hold the finish for 2 seconds. Reduce ball mass/turn range or stop for loss of control; log the changed condition rather than claiming a matched result. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E2",
+        "phase": "E",
+        "name": "Handoff-to-lateral-step medicine-ball backhand return",
+        "sourceName": "Handoff-to-lateral-step medicine-ball backhand return [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Integrate supplied load, deliberate arrival and an outward release.",
+        "instruction": "Receive the ball across the lower ribs while stationary. After the feeder fully lets go and is clear, take one small lateral step, plant and turn into a two-hand outward backhand release toward the low target. Finish inside the bay. Use the self-held lateral-step backhand instead if supply timing or feeder clearance is unreliable. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E3",
+        "phase": "E",
+        "name": "Med Ball Shot-Put Throw — rotational floor-target version",
+        "sourceName": "Med Ball Shot-Put Throw — rotational floor-target version",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Revisit the unilateral pushing release under controlled standing conditions.",
+        "instruction": "Ball supported beside the rear shoulder, opposite foot forward. Pivot the rear foot/hip and drive the rear hand through the target; guide hand releases and no arm winds behind the shoulder. Use a lighter grippable ball if wrist alignment or release speed fails. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Medicine ball"
+        ]
+      },
+      {
+        "id": "E4",
+        "phase": "E",
+        "name": "Med Ball Overhead to Side Slam",
+        "sourceName": "Med Ball Overhead to Side Slam — non-rebounding execution",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "90 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Revisit the downward rotational finish with a controlled body endpoint.",
+        "instruction": "From a comfortable forehead/overhead position, turn feet/hips and drive the ball down slightly forward/outside the target-side foot. Keep trunk long and wait for the ball to settle before resetting. Use a shoulder-height side slam instead if overhead range causes rib flare, recording a changed condition. Rest 90 s between side bouts/sets.",
+        "equipment": [
+          "Slam ball"
+        ]
+      },
+      {
+        "id": "E5",
+        "phase": "E",
+        "name": "Light-band rotational cross",
+        "sourceName": "Light-band rotational cross [Proposed addition/variant]",
+        "dose": "1 × 3 per side/direction; 6 reps/actions",
+        "prescription": "1 × 3 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Revisit the turn-to-hand link with retained resistance and endpoint control.",
+        "instruction": "Light band secured behind the rear shoulder; pivot/turn then punch forward without elbow lock. Return slowly and reset fully. Reduce tension/reach if wrist, rib or endpoint control changes. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "E6",
+        "phase": "E",
+        "name": "Rotational band row speed drive",
+        "sourceName": "Rotational band row speed drive [Proposed addition/variant]",
+        "dose": "1 × 2 per side/direction; 4 reps/actions",
+        "prescription": "1 × 2 per side/direction",
+        "rest": "60 s between side bouts/sets",
+        "preparation": null,
+        "purpose": "Keep the pulling-side acceleration represented with little final added volume.",
+        "instruction": "Light band ahead at lower-chest height. From a small reach, pivot and draw the elbow toward the ribs quickly, then return in 3 seconds with a quiet shoulder. Reduce tension/range if the shoulder hikes or trunk yanks. Rest 60 s between side bouts/sets.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S1",
+        "phase": "S",
+        "name": "Split-Stance Pallof Press — light band",
+        "sourceName": "Split-Stance Pallof Press — light band",
+        "dose": "1 × 5 holds of 2 s per side/direction; 10 holds",
+        "prescription": "1 × 5 holds of 2 s per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Revisit controlled trunk position at the hand endpoint.",
+        "instruction": "Band anchored at sternum height to the side; press forward and hold 2 seconds without turning ribs/pelvis, then return in 2 seconds. Mirror anchor side/lead foot and breathe. Use a shorter reach or lighter band if the trunk drifts.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "S2",
+        "phase": "S",
+        "name": "Side-lying dumbbell external rotation",
+        "sourceName": "Side-lying dumbbell external rotation [Proposed addition/variant]",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "30–45 s between sides",
+        "preparation": null,
+        "purpose": "Revisit shoulder rotational control before the loaded references.",
+        "instruction": "Lie on the nonworking side, working elbow at ribs and bent 90 degrees. Raise the forearm through comfortable external rotation in 2 seconds; lower in 3, keeping torso still. Use less load/range if the shoulder shrugs or trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      },
+      {
+        "id": "P1",
+        "phase": "P",
+        "name": "Landmine Rotation",
+        "sourceName": "Landmine Rotation",
+        "dose": "2 × 6 alternating total; 12 reps/actions",
+        "prescription": "2 × 6 alternating total",
+        "rest": "2–3 min between sets",
+        "preparation": "1 × 4 easy traverses",
+        "purpose": "Original loaded reference: controlled turning arc and endpoints.",
+        "instruction": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint. Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P2",
+        "phase": "P",
+        "name": "Landmine Rotational Press",
+        "sourceName": "Landmine Rotational Press",
+        "dose": "2 × 6 per side/direction; 24 reps/actions",
+        "prescription": "2 × 6 per side/direction",
+        "rest": "90 s between sides · 2 min between rounds",
+        "preparation": "1 × 4 easy reps / side",
+        "purpose": "Original loaded reference: body turn connected to the arm press.",
+        "instruction": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level. Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+        "equipment": [
+          "Landmine"
+        ]
+      },
+      {
+        "id": "P3",
+        "phase": "P",
+        "name": "One-Arm Dumbbell Row — supported",
+        "sourceName": "One-Arm Dumbbell Row — supported",
+        "dose": "1 × 8 per side/direction; 16 reps/actions",
+        "prescription": "1 × 8 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Support the pulling shoulder while avoiding a duplicate speed-row prescription.",
+        "instruction": "Free hand on a stable bench, feet staggered. Row toward the same-side hip while the torso stays quiet, then lower in 3 seconds. Use less load if shrugging or torso rotation appears.",
+        "equipment": [
+          "Dumbbells",
+          "Bench"
+        ]
+      },
+      {
+        "id": "P4",
+        "phase": "P",
+        "name": "Band Chop",
+        "sourceName": "Cable / Band Chop — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain downward diagonal strength at a support dose.",
+        "instruction": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3. Reduce range/tension if sideways crunching or band recoil replaces control.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P5",
+        "phase": "P",
+        "name": "Band Lift",
+        "sourceName": "Cable / Band Lift — standing band execution",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain upward diagonal strength and controlled preload.",
+        "instruction": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare. Reduce range/tension if leaning back supplies the lift.",
+        "equipment": [
+          "Bands"
+        ]
+      },
+      {
+        "id": "P6",
+        "phase": "P",
+        "name": "Single-arm Dumbbell Floor Press",
+        "sourceName": "Single-arm Dumbbell Floor Press [Proposed addition/variant]",
+        "dose": "1 × 6 per side/direction; 12 reps/actions",
+        "prescription": "1 × 6 per side/direction",
+        "rest": "90 s between sides",
+        "preparation": "1 × 3 easy reps / side",
+        "purpose": "Maintain terminal pressing force without another heavy compound test.",
+        "instruction": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll. Use less load if the elbow lands hard or the trunk rolls.",
+        "equipment": [
+          "Dumbbells"
+        ]
+      }
+    ],
+    "quality": "For E1 use the Class 1 observation rule: rear-foot pivot/hip initiation, hands following the turn, release into the declared target and a balanced two-second finish without another recovery step. Compare only actual records with the same ball, stance, pause, target, side order, rest and scoring. If earlier actual records are absent, label this the first observed reference; no improvement claim. Observe during the scheduled anchor attempts, count all attempted work, and do not add testing reps. A different drill is not a comparable performance test or evidence of improvement.",
+    "preparation": "Before each listed primary lift, perform one easy set of 3 per side using lighter resistance; for alternating Landmine Rotation use 4 traverses total instead. These are the same six exercises, not additional slots. Allow 30–45 s to change sides and 60–90 s before working. Class 12 exception: for Landmine Rotational Press use 1 × 4 easy reps per arm instead of 3, matching Class 1; other listed preparation rules stand. Minimum preparation is 36 easy reps in 11 bouts, separate from working work. If another preparation set is needed, repeat that lift's easy dose, log it and add the time. No max tests or forced reps. Secure band anchors and landmine; if the minimum bar is unsuitable, use the same-dose standing two-hand band rotation or one-arm rotational band press instead of the relevant landmine lift, recording the proposed replacement.",
+    "explosiveNotes": "Exactly six exercises. E1 exactly repeats Class 1’s 2 × 3 per side, including 90-second between-side/set recovery. E2 is only 1 × 2 per side; the other reference/support doses are modest. No extra test attempts, catch circuits or maximum-load tests. Use light implements and fast coordinated intent; a retained-load drill ends under control rather than being released. Both sides receive the written dose."
+  }
+]

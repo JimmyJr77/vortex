@@ -32,14 +32,12 @@ export function normalizeNavLayout<T extends string>(
   tabOrder?: readonly T[],
 ): PortalNavLayoutItem[] {
   const fallbackOrder = tabOrder?.length ? [...tabOrder] : [...validKeys]
-  if (!Array.isArray(raw) || raw.length === 0) {
-    return fallbackOrder.map((key) => ({ type: 'tab' as const, key }))
-  }
+  const entries = Array.isArray(raw) && raw.length > 0 ? raw : fallbackOrder
 
   const seen = new Set<T>()
   const result: PortalNavLayoutItem[] = []
 
-  for (const entry of raw) {
+  for (const entry of entries) {
     if (entry && typeof entry === 'object' && entry.type === 'section') {
       const label = String(entry.label ?? '').trim().slice(0, 60)
       if (!label) continue
@@ -76,6 +74,15 @@ export function normalizeNavLayout<T extends string>(
   if (athleteDevelopmentIndex >= 0 && evaluationIndex >= 0) {
     const [evaluation] = result.splice(evaluationIndex, 1)
     result.splice(athleteDevelopmentIndex + (evaluationIndex < athleteDevelopmentIndex ? 0 : 1), 0, evaluation)
+  }
+
+  // Older saved layouts do not know this tab. Keep it in Library's section,
+  // including when talking to a backend that still returns the old tab order.
+  if (validKeys.some((key) => key === 'athleticism-accelerator')) {
+    const existingIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'athleticism-accelerator')
+    if (existingIndex >= 0) result.splice(existingIndex, 1)
+    const libraryIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'library')
+    result.splice(libraryIndex >= 0 ? libraryIndex + 1 : result.length, 0, { type: 'tab', key: 'athleticism-accelerator' })
   }
 
   return result
@@ -141,6 +148,7 @@ export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; loc
   { key: 'sessions', label: 'Today' },
   { key: 'needs', label: 'Needs Engine' },
   { key: 'library', label: 'Library' },
+  { key: 'athleticism-accelerator', label: 'Athleticism Accelerator' },
   { key: 'framework', label: 'Philosophy' },
   { key: 'workout', label: 'Workouts' },
   { key: 'programs', label: 'Programs' },
@@ -183,6 +191,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   sessions: { title: "Today's Sessions", description: 'Run a class: attendance and group logging.' },
   needs: { title: 'Needs Engine', description: 'Describe a need, get a time-packed session.' },
   library: { title: 'Exercise Library', description: 'Search and tag the movement library.' },
+  'athleticism-accelerator': { title: 'Athleticism Accelerator', description: 'View 12-week athletic plans, daily equipment, and coaching cues.' },
   framework: { title: 'Training Philosophy', description: 'Explore the Athleticism Accelerator taxonomy — phases, tenets, methodologies, order slots, session models, and validation rules.' },
   workout: { title: 'Workout Builder', description: 'Build sessions with a live time clock.' },
   programs: { title: 'Training Programs', description: 'Sequence weeks of training.' },

@@ -1,0 +1,302 @@
+{
+  "n": 8,
+  "effort": "Send rotational force along a diagonal without substituting side bending or back extension.",
+  "brief": "E1 is a tall-kneeling diagonal side slam, constraining lower-body drive so trunk-to-hand delivery stays visible. Supporting jobs are unilateral upward impulse, a low one-arm release, an outward descending backhand, a familiar downward rope pulse and low-load upward hand rehearsal. Strength puts extra investment into the loaded chop; the opposite lift, turn, press and pull retain supporting roles.",
+  "marker": "For E1 record a small comfortable turn, hands driving to the declared forward-side floor zone, ribs remaining over the pelvis and the kneeling base staying quiet. Count attempts that finish without folding sideways; do not measure force from ball sound.",
+  "review": "Class 7 prescribed 20 releases plus eight other fast actions and 70 primary reps, with controlled handoffs by default. No reception results exist. This class removes incoming ball work and keeps twenty releases, changing their plane and unilateral demand rather than claiming recovered tolerance.",
+  "explosive_note": "Use a non-rebounding compatible ball for the kneeling slam and comfortable overhead range; the turn stays small. There is no entry step, incoming ball or repeated slam cycle.",
+  "setup": "Tall kneeling requires comfortable floor contact and stable knee spacing. If unavailable, use the standing overhead-to-side slam instead at the same dose, recorded as recurrence. Single-arm scoop release requires a light ball the athlete can securely hold in one hand; use a two-hand scoop instead if grip size is unsuitable. Rope uppercuts require an approved anchor and a manageable single rope end; the unused end lies clear, not across the feet. Use an unloaded rotational uppercut instead if rope minimum load is excessive.",
+  "progression": "Compared with Class 7, only the primary band chop changes from one to two sets per side; all other lifts hold one, totaling 82 primary reps. This prioritizes the diagonal strength task while incoming-ball work is removed. No load increase is prescribed as earned. New unilateral/diagonal tasks use small ranges and one support set. The additional chop round remains subject to actual clean first-set execution and readiness; stop/reduce if technique or reserve fails. Advance range or resistance only from observed stacked diagonal work and acceptable recovery.",
+  "audit": "Rejected bigger overhead circles and heavier balls as ways to intensify the diagonal. The constrained-base downward anchor, one-arm upward rope impulse, unilateral low scoop and descending backhand each change a relevant force path or contribution. Two familiar low-volume supports recur openly, avoiding six unfamiliar shoulder paths at once. The kneeling and one-hand grip alternatives protect delivery feasibility without adding slots. Light anti-rotation/shoulder work stays brief before the additional chop round.",
+  "next": "Class 9 should integrate a deliberate entry with the established release directions, keeping actual entry and diagonal control as prerequisites and avoiding an automatic faster approach.",
+  "map_note": "Diagonal force transfer with four new task constraints and two stated low-volume recurrences.",
+  "E": [
+    {
+      "key": "kneel_diagonal_slam",
+      "name": "Tall-kneeling diagonal medicine-ball side slam",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "slam",
+      "job": "Primary: express a downward diagonal with leg propulsion constrained.",
+      "execution": "Kneel tall with knees comfortably apart. Start a light ball above the forehead, make a small comfortable thoracic turn and drive it to the floor slightly forward/outside one knee; do not twist farther by fixing the pelvis rigidly. Reset fully.",
+      "regress": "Use the standing side-slam replacement if kneeling contact is intolerable; shorten overhead reach if ribs flare.",
+      "novelty": "New constraint relative to Class 1 standing side slam: reduced leg drive in the downward force path, distinct from the earlier kneeling forward scoop.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "rope_uppercut",
+      "name": "Single-arm rotational battle-rope uppercut pulse",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Express the upward diagonal through one arm.",
+      "execution": "Hold one manageable rope end near the working hip. Pivot and drive the bent arm toward opposite upper-chest height in one compact pulse; stop and settle completely before reset. Keep the other end clear.",
+      "regress": "Use the unloaded uppercut replacement if rope load prevents a quick clean pulse.",
+      "novelty": "New unilateral rising impulse relative to Class 6 two-hand rope lift; independent arm contribution and asymmetric inertial control are the distinction.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "onearm_scoop",
+      "name": "Single-arm rotational underhand medicine-ball scoop",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Transmit the turn through a low one-arm swinging release.",
+      "execution": "With a securely grippable light ball beside the rear hip, turn the feet/hips and sweep that hand underhand across the front toward the low target. Keep elbow softly bent, ball in front of the torso and release path clear.",
+      "regress": "Use a two-hand scoop instead if one-hand grip is insecure; do not use a heavier ball.",
+      "novelty": "New one-arm low sweeping release; previous one-arm throws began at the chest/shoulder with elbow extension.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "diagonal_backhand",
+      "name": "Two-hand descending backhand medicine-ball throw",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Deliver outward rotation into a descending diagonal.",
+      "execution": "Start the light ball across the upper chest near the opposite shoulder, not behind the head. Turn and sweep both hands outward/down toward the low forward target, keeping the trunk long.",
+      "regress": "Lower the start or shorten the arc if the shoulder is pulled back or the body side-bends.",
+      "novelty": "New descending shoulder-to-opposite-side release path versus Class 3 waist-height transverse backhand; not a target-surface change.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "rope_diagonal",
+      "name": "Two-hand diagonal battle-rope chop pulse",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Revisit a predictable downward inertial path after the releases.",
+      "execution": "Hands begin near one shoulder; pivot and drive both rope ends toward the opposite hip, then stop the rope fully. Reset deliberately.",
+      "regress": "Use a light diagonal band speed pull instead if rope setup is unsuitable.",
+      "novelty": "Declared recurrence of Class 3 E4. Chosen to reinforce the day’s downward path without a fifth new release task.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "shadow_uppercut",
+      "name": "Rotational shadow uppercut",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Keep the upward counterpart coordinated without extra implement load.",
+      "execution": "No target. From lower-rib hand position and bent elbow, pivot and drive the fist toward upper-chest/chin height; stop below shrugging and reset.",
+      "regress": "Shorten the hand path if the trunk extends.",
+      "novelty": "Declared recurrence of Class 3 E6 as low-load upward-path rehearsal; reduced dose is not novelty.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "S": [
+    {
+      "key": "diagonal_iso",
+      "name": "Half-Kneeling Anti-Rotation Press / Lift Hold — light band",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "light",
+      "job": "Hold the ribs/pelvis under an offset elevated arm load.",
+      "execution": "In comfortable half kneeling with a light side band, hold both hands slightly forward at upper-chest height for 10 seconds; breathe and keep pelvis quiet. Mirror lead leg/anchor side.",
+      "regress": "Use standing split stance instead if knee contact is unsuitable; shorten reach for trunk drift.",
+      "novelty": "Related anti-rotation strengthening recurrence, now addressing an elevated diagonal hand position; no cosmetic stance uniqueness claim.",
+      "identity": {
+        "name": "Half-Kneeling Anti-Rotation Press / Lift Hold",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "half-kneeling-anti-rotation-press-lift-hold"
+      },
+      "rest": 60,
+      "seconds": 10,
+      "catches": 0
+    },
+    {
+      "key": "bilateral_external",
+      "name": "Bilateral light-band shoulder external rotation",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "kind": "light",
+      "job": "Maintain controlled outward shoulder rotation after diagonal releases.",
+      "execution": "Elbows bent 90 degrees and held gently at the ribs, hold a light band between hands. Open the hands outward in 2 seconds and return in 3 without shrugging, extending the wrists or moving the trunk.",
+      "regress": "Use less tension/range if elbow or rib position changes.",
+      "novelty": "Declared shoulder-rotation strengthening recurrence of Class 1/5’s job; the band/bilateral setup is not counted as a new force skill.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "P": [
+    {
+      "key": "strength_chop",
+      "name": "Cable / Band Chop — standing band execution",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Main diagonal strength: drive and control the downward cross-body path.",
+      "execution": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3.",
+      "regress": "Reduce range/tension if sideways crunching or band recoil replaces control.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Chop",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-chop"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_lift",
+      "name": "Cable / Band Lift — standing band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Support the opposing upward diagonal used to establish the preload.",
+      "execution": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare.",
+      "regress": "Reduce range/tension if leaning back supplies the lift.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Lift",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-lift"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_rotation",
+      "name": "Landmine Rotation",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "strength",
+      "job": "Maintain turning strength without substituting side bending.",
+      "execution": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint.",
+      "regress": "Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotation",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotation"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_row",
+      "name": "Standing rotational band row",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Support the pulling shoulder along an outward release.",
+      "execution": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long.",
+      "regress": "Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_press",
+      "name": "Landmine Rotational Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Preserve transfer from torso rotation into the release-side arm.",
+      "execution": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level.",
+      "regress": "Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotational Press",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotational-press"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_floor",
+      "name": "Single-arm Dumbbell Floor Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Maintain terminal pressing force with low additional trunk demand.",
+      "execution": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll.",
+      "regress": "Use less load if the elbow lands hard or the trunk rolls.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "workload": {
+    "E": {
+      "reps": 34,
+      "bouts": 14,
+      "hold_seconds": 0
+    },
+    "S": {
+      "reps": 10,
+      "bouts": 3,
+      "hold_seconds": 20
+    },
+    "P": {
+      "reps": 82,
+      "bouts": 13,
+      "hold_seconds": 0
+    },
+    "ball_releases": 20,
+    "throws": 12,
+    "slams": 8,
+    "retained_or_unloaded_fast_actions": 14,
+    "received_balls": 0,
+    "primary_preparation_reps": 34,
+    "primary_preparation_bouts": 11,
+    "human_jump_landings": 0,
+    "sprint_metres": 0
+  },
+  "observed": null,
+  "reviewed_before_finalization": {
+    "curriculum.md": "67e80aacec1dced852b8a9f0098f847c225ec65989b306a654f549a52044f3e4",
+    "progression_ledger.md": "58e7742a928f918587e53f91a599853f3db832a7b8e175d35380108ad6d60a95",
+    "athlete_feedback.md": "21a5fa2a7716a571cc1ddb16cb926c2af567504ff7c3165d4f0745019dbf9507",
+    "supporting/drill_usage.md": "b05012fcfc46b35e0741ba9de6749efa9fc61fbe48d38b0a6a093a70a02f20a6",
+    "classes/class_07.md": "20ede3fda0ac9b5957acc8081108b92bf08e0700549dbea6953ac5a40fd7227b",
+    "progress.json": "4c46b45b499866704bf9f46725be01781dc0a0a2587ec4d3b9eb04fc775fb036"
+  },
+  "estimated_minutes_excluding_access_prepare_1_and_added_queues": [
+    75,
+    85
+  ]
+}

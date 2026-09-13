@@ -1,0 +1,211 @@
+{
+  "n": 1,
+  "status": "Audit transcription of existing finalized Class 1, not a new or changed workout",
+  "effort": "Accelerate a ball through a controlled body turn into a balanced projection.",
+  "observed": null,
+  "E": [
+    {
+      "key": "paused_scoop",
+      "name": "Med Ball Rotational Scoop Toss — paused standing start; floor-target adaptation",
+      "sets": 2,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Primary anchor: generate rotational projection from a settled load.** Stand side-on, feet at a comfortable athletic width; hold the ball near the rear hip and pause 2 seconds. Pivot the rear foot, turn the hips/trunk, and sweep both hands through the target. No preparatory bounce or step. Finish balanced for 2 seconds. Reduce ball mass or turn range if the arms lead or the athlete spins out.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "kneeling_scoop",
+      "name": "Half-Kneeling Rotational Med Ball Throw — floor-target adaptation",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Express trunk-to-hand acceleration with leg propulsion reduced.** Target-side foot forward, opposite knee comfortably supported on the floor; ball begins beside the rear hip. Use a small comfortable thoracic turn and fast two-hand release; do not force the pelvis to remain rigid while twisting farther. Keep the front foot planted and pelvis quiet. Shorten the turn if the knee shifts or back arches; use a seated bench rotational throw instead of this slot if kneeling contact is intolerable.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "counter_scoop",
+      "name": "Med Ball Countermovement Rotational Throw — floor-target adaptation",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Change a brief preload immediately into the same projection.** Standing side-on, make one small, smooth wind-back and reverse promptly into the throw; no pause, repeated rocking or extra step. This differs from E1's settled start. Keep the wind-back small enough that the trunk stays controlled. Reduce its amplitude if the athlete overtwists or delays the reversal.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "standing_shot",
+      "name": "Med Ball Shot-Put Throw — rotational, floor-target adaptation",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Finish the turn with a unilateral pushing release.** Stagger the feet with the nonthrowing foot forward. Support the light ball at the rear shoulder with the other hand, turn through the rear foot/hip, then drive the throwing hand forward; the support hand guides and releases. Do not wind the arm behind the shoulder or turn it into an overhead baseball throw. Use a smaller/lighter grippable ball if wrist position or speed is lost.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "stepbehind_throw",
+      "name": "Med Ball Step-Behind Rotational Throw — floor-target adaptation",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Transfer a short weight shift into upper-body rotation without continued travel.** From side-on, make one small step behind, replant the lead foot and deliver a scoop release. Keep total approach travel within 1 m, both feet grounded at release and the finish inside the start bay. No running, hop or jump. Use a simple step-in rotational throw instead of the crossover version if foot placement is unreliable; retain 1 × 2 per direction and record the replacement.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "side_slam",
+      "name": "Med Ball Overhead to Side Slam — non-rebounding slam-ball execution",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "slam",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Accelerate the hands diagonally downward through a turn and arrest the body's follow-through.** From a comfortable overhead position, turn through the feet/hips and drive the ball to the floor slightly forward and outside the target-side foot, clear of toes. Stay long through the trunk; do not fold and twist at the low back. Lift/reset deliberately after the ball stops. Use a shoulder-height diagonal side slam instead of the overhead version if overhead range requires rib flare; same dose.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    }
+  ],
+  "S": [
+    {
+      "key": "pallof",
+      "name": "Split-Stance Pallof Press — light band",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "light",
+      "seconds": 2,
+      "catches": 0,
+      "job_execution": "**Maintain the stacked finish against an external turning pull.** Band at sternum height to the side; mirror the anchor-facing side and lead foot. Press forward without the ribs or pelvis turning toward the anchor, breathe during the hold, return in 2 seconds. Use a shorter reach or lighter band instead if the torso drifts.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "external_rotation",
+      "name": "Side-lying dumbbell external rotation — proposed addition",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "kind": "light",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Load controlled shoulder external rotation after the throwing exposure and before pressing.** Lie on the opposite side with the working elbow bent 90 degrees and resting at the ribs. Rotate the forearm up through a comfortable range in 2 seconds; lower in 3 seconds. Keep the elbow at the ribs and trunk still. Use less load/range if the shoulder shrugs or the torso rolls. This is intended shoulder control work, not a claim of injury prevention.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    }
+  ],
+  "P": [
+    {
+      "key": "strength_rotation",
+      "name": "Landmine Rotation",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Main strength anchor: resist and drive the loaded turning arc used to deliver the ball.** Secure the landmine; hold the sleeve/appropriate grip in both hands, elbows softly bent, and use a modest side-to-side arc. Feet and hips turn with the load; keep ribs over pelvis. One one-way traverse is one rep; the return is the next rep, not an uncounted return. Use about 2 seconds per traverse and settle briefly at each end. Rest **2–3 minutes between working sets**. Reduce load/arc for a trunk lean, knee twist or uncontrolled endpoint.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "strength_press",
+      "name": "Landmine Rotational Press",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Strengthen the link from body turn to unilateral pressing force.** Start in a modest staggered stance, sleeve near the rear shoulder; pivot the rear foot and turn into a controlled forward/up press. No dip-drive, jump or release. Return in 3 seconds; keep the shoulder away from the ear. Rest **90 seconds between sides; 2 minutes between rounds**. Reduce load if the elbow/wrist collapses or the lower back supplies the finish.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "strength_row",
+      "name": "Standing rotational band row — proposed band variant of Rotational Cable Row",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Load the pulling side of the turn and control the return into the next preload.** Band anchored in front at lower-chest height, opposite foot forward; reach without rounding, then turn feet/hips/trunk modestly as the elbow draws toward the same-side lower ribs. Return in 3 seconds under band tension. This is a single rotational row, not a row-plus-twist combination. Rest **90 seconds between sides**. Reduce tension if the shoulder hikes or the athlete yanks from the low back.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "strength_chop",
+      "name": "Cable / Band Chop — standing split-stance band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Strengthen the high-to-low diagonal that finishes E6 and controls the downward release path.** High band anchor to one side; opposite foot forward, both hands travel from above that shoulder toward the opposite front pocket. Allow the feet/hips to turn while keeping the trunk long. Drive in 1–2 seconds; return in 3 seconds. Rest **90 seconds between sides**. Reduce resistance/range if the athlete crunches sideways or the band recoils.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "strength_lift",
+      "name": "Cable / Band Lift — standing split-stance band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Strengthen the low-to-high hand path from the loaded rear hip toward the forward release position.** Low band anchor to the rear side; move both hands from that hip across to opposite upper-chest height, allowing a small foot/hip turn. Do not lift above the range that retains rib position. Drive in 1–2 seconds and return in 3 seconds. Rest **90 seconds between sides**. Reduce range/tension if leaning back replaces rotation.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    },
+    {
+      "key": "strength_floor",
+      "name": "Single-arm Dumbbell Floor Press — proposed unilateral variant",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "seconds": 0,
+      "catches": 0,
+      "job_execution": "**Load terminal horizontal pressing force for E4 after rotation has brought the arm forward.** Lie supine, feet comfortably planted, one dumbbell above the chest; lower in 3 seconds until the upper arm gently meets the floor, pause briefly and press. Keep ribs/pelvis level; no bridge or torso roll. Rest **90 seconds between sides**. This isolates the release-side press more than P2's integrated upward arc; one working set limits overlap. Use less load if the elbow lands hard or the trunk rolls.",
+      "novelty": "Initial curriculum prescription; nearest task/family distinctions recorded in the Class 1 audit."
+    }
+  ],
+  "workload": {
+    "E": {
+      "reps": 40,
+      "bouts": 14,
+      "hold_seconds": 0
+    },
+    "S": {
+      "reps": 26,
+      "bouts": 4,
+      "hold_seconds": 20
+    },
+    "P": {
+      "reps": 88,
+      "bouts": 14,
+      "hold_seconds": 0
+    },
+    "ball_releases": 40,
+    "throws": 34,
+    "slams": 6,
+    "retained_or_unloaded_fast_actions": 0,
+    "received_balls": 0,
+    "primary_preparation_reps": 36,
+    "primary_preparation_bouts": 11,
+    "human_jump_landings": 0,
+    "sprint_metres": 0
+  },
+  "source_class_sha256_before_final_handoff_edit": "3ee60bcc4c3b9723f529e59647f1a614be9962ca04e18928d91a676b3a341040",
+  "estimated_minutes_excluding_access_prepare_1_and_added_queues": [
+    80,
+    90
+  ]
+}

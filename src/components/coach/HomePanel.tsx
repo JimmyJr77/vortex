@@ -31,6 +31,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   sessions: CalendarDays,
   needs: Sparkles,
   library: BookOpen,
+  'athleticism-accelerator': Sparkles,
   framework: ScrollText,
   workout: Dumbbell,
   programs: CalendarRange,

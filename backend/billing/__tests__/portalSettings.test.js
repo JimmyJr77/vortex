@@ -73,7 +73,9 @@ test('normalizePortalConfig preserves custom coach order for all portal tabs', (
     'preferences',
   ]
   const config = normalizePortalConfig({ coach: { tabOrder: customOrder } })
-  assert.deepEqual(config.coach.tabOrder.slice(0, customOrder.length), customOrder)
+  const expectedOrder = [...customOrder]
+  expectedOrder.splice(expectedOrder.indexOf('library') + 1, 0, 'athleticism-accelerator')
+  assert.deepEqual(config.coach.tabOrder.slice(0, expectedOrder.length), expectedOrder)
   assert.ok(config.coach.tabOrder.includes('programs'))
   assert.ok(config.coach.tabOrder.includes('insights'))
 })
@@ -97,4 +99,22 @@ test('normalizePortalConfig preserves nav layout section breaks and tab order', 
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'workout', 'gymnastics-evaluations'])
   const athleteDevelopmentIndex = config.coach.navLayout.findIndex((item) => item.type === 'section' && item.id === 'athlete-dev')
   assert.equal(config.coach.navLayout[athleteDevelopmentIndex + 1].key, 'gymnastics-evaluations')
+})
+
+test('Accelerator follows Library within a saved Session Design section, without duplicates', () => {
+  const config = normalizePortalConfig({ coach: {
+    hiddenTabs: ['athleticism-accelerator'],
+    navLayout: [
+      { type: 'tab', key: 'home' },
+      { type: 'section', id: 'session-design', label: 'Session Design' },
+      { type: 'tab', key: 'library' },
+      { type: 'section', id: 'athlete-dev', label: 'Athlete Development' },
+      { type: 'tab', key: 'skills' },
+    ],
+  } })
+  const index = config.coach.navLayout.findIndex((item) => item.key === 'library')
+  assert.deepEqual(config.coach.navLayout[index + 1], { type: 'tab', key: 'athleticism-accelerator' })
+  assert.equal(config.coach.navLayout[index + 2].label, 'Athlete Development')
+  assert.deepEqual(config.coach.hiddenTabs, ['athleticism-accelerator'])
+  assert.deepEqual(normalizePortalConfig(config), config)
 })

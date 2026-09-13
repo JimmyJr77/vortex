@@ -1,0 +1,308 @@
+{
+  "n": 7,
+  "effort": "Receive a predictable external ball delivery and turn it into a controlled rotational return.",
+  "brief": "E1 is an externally supplied rotational scoop return. The performance problem is accepting the implement without reaching or losing posture, then accelerating it through the turn. E2–E4 apply that input to pushing, downward and backhand paths. Retained-ball stopping and a band sweep support the endpoint without further receptions. Strength holds the lower consolidation volume so a new receiving demand is not paired with heavier lifting.",
+  "marker": "For E1 record hands meeting the ball near the rear hip without a trunk lunge, a controlled transition into the turn, release into the same target and a balanced finish. Log whether the ball was handed over or softly fed; compare only the same input condition.",
+  "review": "Class 6 prescribed eight releases, twenty other fast actions and 70 primary reps. No catching competence or completed work has been reported. Therefore the baseline uses a controlled hand-to-hand ball supply; a gentle airborne feed is an optional readiness-dependent replacement, not presumed earned.",
+  "explosive_note": "For E1–E4 the baseline is a coach handing the ball into the stated start position, fully letting go before the athlete turns. The athlete establishes grip and then accelerates. Only with directly demonstrated comfortable reception may a gentle predictable underhand feed replace the handoff at the same dose. One reception-to-return is one exercise rep, containing one reception and one release; no separate catching sets.",
+  "setup": "A qualified feeder must stand beside/behind the athlete outside the release corridor and never become the throw target. The feeder supplies one light ball after the lane is clear, releases hands before the athlete turns, and waits for the outgoing ball to settle. If handoff/feeder positioning cannot be arranged, use the equivalent self-held return instead at the same dose and record it as a regression/recurrence. No blind, hard, overhead incoming or rebound feeds. Baseline: 20 handoffs, zero airborne catches; if all four receiving rows use verified gentle feeds instead: 20 airborne catches, not 20 additional reps. Extend setup/retrieval time for the actual feeder flow.",
+  "progression": "All six primary lifts remain one working set each, retaining Class 6’s 70-rep total; the rotational band row returns because no speed row is prescribed here. There is no load increase. The external-input tasks total 20 receptions and 20 releases; the other eight fast actions have no reception. Incoming momentum is new loading if a feed is selected, so the baseline handoff is mandatory without demonstrated catching readiness. Advance only the input condition after clean repeated receiving/turning at the actual session; do not simultaneously increase ball mass, feed speed or reps. Hold the handoff or self-start version when uncertain.",
+  "audit": "Rejected wall-rebound work because neither a suitable wall nor rebound skill is established. Changed the initial catch-return concept to controlled handoffs by default, keeping gentle feeds as replacements. The four return paths are integrated receive-to-release tasks, not catch drills plus hidden throws. Ball supply and return are counted separately in the workload. The two familiar nonreceiving tasks recur to keep reception volume modest. Primary and light work remain low-volume while the coach establishes actual input tolerance.",
+  "next": "Class 8 should refine diagonal rotational force production using the actual release-path findings, without adding faster or unpredictable incoming balls by default.",
+  "map_note": "External delivery-to-return coordination; handoff baseline, gentle feed only with demonstrated readiness.",
+  "E": [
+    {
+      "key": "supplied_scoop",
+      "name": "Externally supplied rotational scoop return",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Primary: organize a supplied ball into a balanced rotational release.",
+      "execution": "Coach hands a light ball into both hands near the rear hip. After the coach lets go, establish grip and turn feet/hips/trunk into a low forward scoop release. Under the optional gentle-feed condition, cushion the ball near the same hip before turning.",
+      "regress": "Use a self-held paused scoop instead if the athlete reaches, fumbles or loses posture; keep the same dose.",
+      "novelty": "New external-input task versus Class 1 self-initiated scoop; input control is meaningful. The baseline handoff is not mislabeled as an elastic catch-and-throw.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 1
+    },
+    {
+      "key": "supplied_shot",
+      "name": "Externally supplied rotational shot-put return",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Transfer reception at the chest into unilateral pressing.",
+      "execution": "Receive a handoff in both hands near the rear chest. Once supported securely, guide with the front hand, pivot and push with the rear hand toward the low target. A verified gentle feed replaces the handoff only under the stated gate.",
+      "regress": "Use the self-held standing shot-put instead if grip or wrist alignment fails.",
+      "novelty": "New external delivery before the pushing release; distinct from self-held static and step-in shot-puts.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 1
+    },
+    {
+      "key": "supplied_slam",
+      "name": "Externally supplied diagonal side-slam return",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "slam",
+      "job": "Redirect supplied load into a downward rotational finish.",
+      "execution": "Receive the handoff at lower-chest height in both hands. Turn and drive the light non-rebounding ball down slightly forward/outside the lead foot; no overhead lift or second throw.",
+      "regress": "Use a self-held shoulder-height side slam instead if reception causes a lunge.",
+      "novelty": "New supplied-load-to-downward-release problem, not a slam-plus-throw combination.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 1
+    },
+    {
+      "key": "supplied_backhand",
+      "name": "Externally supplied two-hand backhand return",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Accept the implement across the body and release along an outward arc.",
+      "execution": "Receive a handoff in both hands near the opposite lower ribs. Once the feeder releases, turn toward the lane and sweep the ball outward into the low target; keep the hands in front of the body.",
+      "regress": "Use the self-held backhand throw instead if the shoulder is pulled behind the torso.",
+      "novelty": "New external delivery into a backhand return rather than the prior self-held outward sweep.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 1
+    },
+    {
+      "key": "ball_snap_stop",
+      "name": "Close-held medicine-ball rotational snap-to-stop",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Check body-and-ball endpoint control without another incoming ball.",
+      "execution": "Hold the light ball close to the sternum, make a compact fast pivot/turn, and hold the endpoint for 2 seconds. Reset slowly.",
+      "regress": "Use an unloaded turn instead if the load cannot be stopped cleanly.",
+      "novelty": "Declared recurrence of Class 5 E6/6 E5, specifically limiting reception exposure while retaining active braking practice.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "band_backhand",
+      "name": "Two-hand band backhand speed sweep",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Apply a predictable resisted sweep after the externally supplied tasks.",
+      "execution": "Band anchored at chest height to the start side. Sweep both hands across a small transverse arc as feet/hips turn, stopping cleanly and returning slowly.",
+      "regress": "Reduce tension/arc if the body leans or the band recoils.",
+      "novelty": "Declared recurrence of Class 2 E3. Predictable retained resistance replaces another new catch-return variation and contains reception volume.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "S": [
+    {
+      "key": "kneeling_pulldown",
+      "name": "Tall-Kneeling Anti-Rotation Pulldown — light band",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "light",
+      "job": "Hold rib/pelvis alignment while an offset arm force acts after reception.",
+      "execution": "Kneel tall comfortably with light band anchored high and slightly to one side. With both hands, pull toward the upper chest without turning the trunk; return in 3 seconds. Mirror anchor sides.",
+      "regress": "Use standing split stance instead if knee contact is intolerable; reduce tension if the ribs flare.",
+      "novelty": "New high-offset pulling control task, distinct from prior horizontal Pallof and supported rows.",
+      "identity": {
+        "name": "Tall-Kneeling Anti-Rotation Pulldown",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "tall-kneeling-anti-rotation-pulldown"
+      },
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "prone_raise",
+      "name": "Prone light-dumbbell horizontal arm raise",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "kind": "light",
+      "job": "Control the posterior shoulder during the return from a released arm path.",
+      "execution": "Lie chest-supported on a stable bench with light dumbbells hanging. Raise both arms outward only to a comfortable line below shoulder height, elbows soft; lower in 3 seconds without lifting the chest.",
+      "regress": "Use less load/range if the neck tightens or trunk extends.",
+      "novelty": "New light posterior-shoulder horizontal opening, distinct from the forearm and side-lying rotation tasks.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "P": [
+    {
+      "key": "strength_rotation",
+      "name": "Landmine Rotation",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "strength",
+      "job": "Maintain controlled turning strength as input timing changes.",
+      "execution": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint.",
+      "regress": "Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotation",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotation"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_row",
+      "name": "Standing rotational band row",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Load the pulling contribution that organizes a received ball.",
+      "execution": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long.",
+      "regress": "Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_press",
+      "name": "Landmine Rotational Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Support unilateral return force after a secure reception.",
+      "execution": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level.",
+      "regress": "Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotational Press",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotational-press"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_chop",
+      "name": "Cable / Band Chop — standing band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Support the received-to-downward release path.",
+      "execution": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3.",
+      "regress": "Reduce range/tension if sideways crunching or band recoil replaces control.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Chop",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-chop"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_lift",
+      "name": "Cable / Band Lift — standing band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Support moving the received implement from hip toward the release line.",
+      "execution": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare.",
+      "regress": "Reduce range/tension if leaning back supplies the lift.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Lift",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-lift"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_floor",
+      "name": "Single-arm Dumbbell Floor Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Maintain terminal pressing capacity without raising total working volume.",
+      "execution": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll.",
+      "regress": "Use less load if the elbow lands hard or the trunk rolls.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "reception_conditions": {
+    "baseline_handoffs": 20,
+    "baseline_airborne_catches": 0,
+    "all_gentle_feeds_if_demonstrated_ready": 20,
+    "incoming_momentum_not_equated_to_self_start": true
+  },
+  "workload": {
+    "E": {
+      "reps": 28,
+      "bouts": 14,
+      "hold_seconds": 0
+    },
+    "S": {
+      "reps": 20,
+      "bouts": 3,
+      "hold_seconds": 0
+    },
+    "P": {
+      "reps": 70,
+      "bouts": 11,
+      "hold_seconds": 0
+    },
+    "ball_releases": 20,
+    "throws": 16,
+    "slams": 4,
+    "retained_or_unloaded_fast_actions": 8,
+    "received_balls": 20,
+    "primary_preparation_reps": 34,
+    "primary_preparation_bouts": 11,
+    "human_jump_landings": 0,
+    "sprint_metres": 0
+  },
+  "observed": null,
+  "reviewed_before_finalization": {
+    "curriculum.md": "bd18c63032faf62f222b2beec930375389d03d0fa973d03426a4bdd31de9fc63",
+    "progression_ledger.md": "530b611a96463fe3ccab3b105c554cbe2b43301e8ed66b6618edb18edd652231",
+    "athlete_feedback.md": "21a5fa2a7716a571cc1ddb16cb926c2af567504ff7c3165d4f0745019dbf9507",
+    "supporting/drill_usage.md": "f71b9ba58b705cd1d9921831d189edbc46c59127bfa949374381985dcb98b109",
+    "classes/class_06.md": "bf29a0a2dd417264f3d1c18b58b0cbf5335a46fa88c5fa6bb3dd35c5aba1e865",
+    "progress.json": "7f1bb48636efbad9d1b90da05aaaca60c85e0c2e2db101045d8c6d69d4e05e89"
+  },
+  "estimated_minutes_excluding_access_prepare_1_and_added_queues": [
+    70,
+    85
+  ]
+}

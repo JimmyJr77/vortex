@@ -20,6 +20,7 @@ export const COACH_PORTAL_TAB_KEYS = [
   'sessions',
   'needs',
   'library',
+  'athleticism-accelerator',
   'framework',
   'workout',
   'programs',
@@ -61,6 +62,7 @@ export const COACH_PORTAL_TAB_LABELS = {
   sessions: 'Today',
   needs: 'Needs Engine',
   library: 'Library',
+  'athleticism-accelerator': 'Athleticism Accelerator',
   framework: 'Philosophy',
   workout: 'Workouts',
   programs: 'Programs',
@@ -108,14 +110,12 @@ function normalizeTabOrder(portal, tabOrder) {
 function normalizeNavLayout(portal, navLayout, tabOrder) {
   const valid = portal === 'member' ? MEMBER_PORTAL_TAB_KEYS : COACH_PORTAL_TAB_KEYS
   const fallbackOrder = normalizeTabOrder(portal, tabOrder)
-  if (!Array.isArray(navLayout) || navLayout.length === 0) {
-    return fallbackOrder.map((key) => ({ type: 'tab', key }))
-  }
+  const entries = Array.isArray(navLayout) && navLayout.length > 0 ? navLayout : fallbackOrder
 
   const seen = new Set()
   const result = []
 
-  for (const entry of navLayout) {
+  for (const entry of entries) {
     if (entry && typeof entry === 'object' && entry.type === 'section') {
       const label = String(entry.label ?? '').trim().slice(0, 60)
       if (!label) continue
@@ -154,6 +154,10 @@ function normalizeNavLayout(portal, navLayout, tabOrder) {
       const [evaluation] = result.splice(evaluationIndex, 1)
       result.splice(sectionIndex + (evaluationIndex < sectionIndex ? 0 : 1), 0, evaluation)
     }
+    const acceleratorIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'athleticism-accelerator')
+    const [accelerator] = result.splice(acceleratorIndex, 1)
+    const libraryIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'library')
+    result.splice(libraryIndex + 1, 0, accelerator)
   }
 
   return result

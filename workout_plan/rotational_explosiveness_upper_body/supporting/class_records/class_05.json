@@ -1,0 +1,310 @@
+{
+  "n": 5,
+  "effort": "Convert a small lateral arrival into an upper-body rotational impulse and a controlled finish.",
+  "brief": "E1 is a short shuffle-to-rotation throw. The limiting task is stopping unwanted travel while sending force through the hands. Other jobs are unloading/reloading the rear hip, a planted retained punch, a moving-entry rope impulse, a downward moving-entry release and active braking of a retained ball. The strength block loads the turn and its return, while light shoulder/trunk work supports the finish.",
+  "marker": "During E1, record whether the feet remain uncrossed in the shuffle, the lead foot accepts the arrival before the hands sweep, and the athlete remains inside the start bay after release. Score the two-second balanced finish on both sides.",
+  "review": "Class 4 used 24 releases and 18 other fast actions, with 82 primary reps. The short-entry theme warrants smaller explosive sets here: only two reps per side for the moving ball/rope tasks. Actual entry competence and recovery remain unknown.",
+  "explosive_note": "Movement is deliberately small, with total travel no more than 1 m. The upper-body rotational impulse is the task; this is not a sprint or agility conditioning session.",
+  "setup": "Mark the entire entry and final stance within a 1 m start bay before clearing the ball corridor. Rope entry work requires the same approved anchor and sweep clearance as earlier rope tasks, plus room to step without tripping on the rope; use a stationary transverse rope whip instead if entry clearance is insufficient, same dose and a declared regression. The retained-ball turn uses a light ball held close, never a heavy long-lever stop.",
+  "progression": "Landmine Rotation changes from Class 4 one set to two to prioritize the turning/braking arc; rotational press decreases from two to one. Other primary lifts keep one set per side, giving 76 working reps. Moving-entry ball and rope work is reduced to two reps per side, while simple retained actions use three. None of this demonstrates tolerance. Before increasing entry speed, actual reports must show repeated planted releases and controlled finishes in the marked bay, with no shoulder/trunk recovery issue. Keep range and loads unchanged when such feedback is absent.",
+  "audit": "Compared another step-behind scoop with a short uncrossed shuffle and a rear-hip drop step: selected the latter two because lateral arrival and unloading/reloading create distinct entry problems. The step-behind slam changes the force path to downward release rather than repeating that scoop. Kept all traveling efforts at two reps per side and refused running/hopping variants. A retained close-ball snap-to-stop supplies braking without rebound-catching demands. Shared trunk work limits primary investment to one extra turning set, not six equally large lifts.",
+  "next": "Class 6 should consolidate hand-path and finish control with lower total exposure and distinct low-complexity tasks; use any actual feedback from the entry classes first.",
+  "map_note": "Short-entry force transfer with reduced moving-task repetitions; no extra runway or jumping.",
+  "E": [
+    {
+      "key": "shuffle_throw",
+      "name": "Med Ball Shuffle-to-Rotation Throw — short floor-target version",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Primary: accept lateral arrival and send the turn through the hands.",
+      "execution": "Start side-on; take one short uncrossed shuffle toward the target direction, plant the lead foot and make a two-hand rotational scoop release. Stay grounded and finish within the marked bay.",
+      "regress": "Use a single side-step into the throw instead if uncrossed shuffle placement is unreliable; same dose.",
+      "novelty": "New from Class 1 crossover entry: uncrossed lateral arrival and plant before projection.",
+      "identity": {
+        "name": "Med Ball Shuffle-to-Rotation Throw",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "med-ball-shuffle-to-rotation-throw"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "dropstep_scoop",
+      "name": "Drop-step rotational medicine-ball scoop throw",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "job": "Reload the rear hip before delivering the turn.",
+      "execution": "From side-on, move the lead foot slightly away/back to open the stance and settle toward the rear hip; re-establish pressure, pivot and sweep the ball through the low target. Keep the whole action inside 1 m.",
+      "regress": "Reduce the step to a small stance opening if the knee twists or balance is lost.",
+      "novelty": "New entry problem: step away to load before projection rather than stepping/shuffling toward the target; not merely another approach distance.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "step_band_cross",
+      "name": "Step-plant rotational band cross",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Connect a plant to a retained forward hand impulse.",
+      "execution": "With a light band secured behind the rear shoulder, take one small lead-foot step, plant, pivot and punch forward without locking the elbow. Return the hand and step back deliberately.",
+      "regress": "Use the stationary band cross instead at this dose if the plant or band line becomes unsafe.",
+      "novelty": "New from Class 2 stationary band cross: the moving base must stop before the resisted hand finishes; lower approach demand than a run-up.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "step_rope",
+      "name": "Lateral-step transverse battle-rope pulse",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Transfer a small lateral arrival into a retained inertial sweep.",
+      "execution": "With rope settled, step laterally a short distance, plant and sweep both rope ends toward the opposite hip using a small body turn. Settle completely before returning to the start.",
+      "regress": "Use the stationary transverse whip instead if entry clearance or placement is inadequate.",
+      "novelty": "New moving-base rope task; unlike Class 2 stationary whip, arrival must be arrested while rope momentum begins.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "stepbehind_slam",
+      "name": "Step-Behind Rotational Slam Ball Slam",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "slam",
+      "job": "Direct entry momentum into a downward diagonal hand finish.",
+      "execution": "Use one small step-behind and lead-foot replant, then turn and slam a light non-rebounding ball slightly forward/outside the lead foot. No overhead windmill or jump; wait until the ball settles.",
+      "regress": "Use the stationary side slam instead at the same dose if crossing placement is unreliable.",
+      "novelty": "New moving-entry downward release; Class 1 step-behind projected forward and its side slam had no entry.",
+      "identity": {
+        "name": "Step-Behind Rotational Slam Ball Slam",
+        "source": "scripts/data/medicine-balls-slam-balls-all-cards.json",
+        "slug": "step-behind-rotational-slam-ball-slam"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "ball_snap_stop",
+      "name": "Close-held medicine-ball rotational snap-to-stop",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "fast",
+      "job": "Brake the trunk-and-hands impulse without a release or catch.",
+      "execution": "Hold a very light ball close to the sternum. Make a short fast foot/hip/trunk turn, then stop the ball and body together within a comfortable arc for 2 seconds. Reset slowly; do not whip the ball at long arm length.",
+      "regress": "Use an unloaded palms-together turn instead if ball inertia prevents a clean stop.",
+      "novelty": "New retained-ball braking task; released throws do not require the athlete to stop the implement after acceleration.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "S": [
+    {
+      "key": "sideplank_row",
+      "name": "Side Plank Row — short-lever light band",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "light",
+      "job": "Maintain lateral trunk support while the pulling arm moves.",
+      "execution": "From a bent-knee side plank on the forearm, pull a very light band toward the upper-side ribs without rotating the pelvis; return in 3 seconds. Anchor is in front and outside the face line.",
+      "regress": "Use hips lightly supported on the floor instead if holding them up makes the row strenuous.",
+      "novelty": "New dynamic pulling demand during lateral support; distinct from Class 2 static side plank.",
+      "identity": {
+        "name": "Side Plank Row",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "side-plank-row"
+      },
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "external_rotation",
+      "name": "Side-lying dumbbell external rotation",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "light",
+      "job": "Revisit controlled shoulder rotation after entry-driven releases.",
+      "execution": "Lie on the nonworking side with elbow at the ribs and bent 90 degrees. Rotate the forearm upward in 2 seconds and lower in 3, keeping the trunk still.",
+      "regress": "Use less load/range if the elbow leaves the ribs or the torso rolls.",
+      "novelty": "Declared light-strength recurrence of Class 1 S2, reduced from eight to six reps per side to check control after added entry demands; no novelty claim.",
+      "identity": null,
+      "rest": 60,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "P": [
+    {
+      "key": "strength_rotation",
+      "name": "Landmine Rotation",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "kind": "strength",
+      "job": "Load the turning arc and endpoint braking after arrival.",
+      "execution": "Use both hands and softly bent elbows. Turn feet/hips with a modest side-to-side arc; keep ribs over pelvis. One one-way traverse is one rep and the reverse is the next rep; six alternating traverses contain three per direction. Take about 2 seconds per traverse and settle briefly at the endpoint.",
+      "regress": "Reduce arc/load if the knee twists, trunk leans or endpoint runs away.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotation",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotation"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_press",
+      "name": "Landmine Rotational Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Keep force linked from the plant through the release-side arm.",
+      "execution": "Rear hand holds the sleeve at the rear shoulder in a modest staggered stance. Pivot the rear foot and turn into a forward/up press without a dip-drive or release. Return in 3 seconds, wrist stacked and ribs level.",
+      "regress": "Use less load for rib flare or elbow/wrist collapse; if minimum bar load is unsuitable, use a rotational band press instead at this dose.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Landmine Rotational Press",
+        "source": "scripts/data/rotational-power-exercise-library-all-50.json",
+        "slug": "landmine-rotational-press"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_row",
+      "name": "Standing rotational band row",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Strengthen the pulling side as the upper body redirects.",
+      "execution": "Band fixed in front at lower-chest height, opposite foot forward. Turn feet/hips/trunk modestly while drawing the elbow toward the same-side lower ribs; return in 3 seconds. Keep the shoulder down and trunk long.",
+      "regress": "Reduce band tension/turn range if the shoulder hikes or the athlete yanks from the low back.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_chop",
+      "name": "Cable / Band Chop — standing band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Load the downward hand path used after a planted entry.",
+      "execution": "Secure a high band anchor to the side; opposite foot forward. Both hands travel from above that shoulder toward the opposite front pocket, with a small foot/hip turn. Drive in 1–2 seconds and return in 3.",
+      "regress": "Reduce range/tension if sideways crunching or band recoil replaces control.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Chop",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-chop"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_lift",
+      "name": "Cable / Band Lift — standing band execution",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Strengthen the rising preload from the rear hip.",
+      "execution": "Secure a low band anchor to the rear side. Move both hands from the rear hip across to opposite upper-chest height, allowing feet/hips to turn. Drive in 1–2 seconds and return in 3; stop below rib flare.",
+      "regress": "Reduce range/tension if leaning back supplies the lift.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": {
+        "name": "Cable / Band Lift",
+        "source": "scripts/data/core-body-control-all-cards.json",
+        "slug": "cable-band-lift"
+      },
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    },
+    {
+      "key": "strength_floor",
+      "name": "Single-arm Dumbbell Floor Press",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "kind": "strength",
+      "job": "Maintain terminal pressing force without more entry volume.",
+      "execution": "Lie supine with feet comfortably planted and one dumbbell over the chest. Lower in 3 seconds until the upper arm gently meets the floor, briefly pause and press. Keep ribs/pelvis level; no bridge or roll.",
+      "regress": "Use less load if the elbow lands hard or the trunk rolls.",
+      "novelty": "Permitted recurring strength lift; see this class's progression decision.",
+      "identity": null,
+      "rest": 90,
+      "seconds": 0,
+      "catches": 0
+    }
+  ],
+  "workload": {
+    "E": {
+      "reps": 32,
+      "bouts": 14,
+      "hold_seconds": 0
+    },
+    "S": {
+      "reps": 22,
+      "bouts": 4,
+      "hold_seconds": 0
+    },
+    "P": {
+      "reps": 76,
+      "bouts": 12,
+      "hold_seconds": 0
+    },
+    "ball_releases": 16,
+    "throws": 12,
+    "slams": 4,
+    "retained_or_unloaded_fast_actions": 16,
+    "received_balls": 0,
+    "primary_preparation_reps": 34,
+    "primary_preparation_bouts": 11,
+    "human_jump_landings": 0,
+    "sprint_metres": 0
+  },
+  "observed": null,
+  "reviewed_before_finalization": {
+    "curriculum.md": "006a7d849bf8874467cf5cf403efb74485fec79496f32443b020e07a169027bb",
+    "progression_ledger.md": "17d2237c1dd1998c014af59d2769f1a1d274b78e9bf8f891e882220b9855b029",
+    "athlete_feedback.md": "21a5fa2a7716a571cc1ddb16cb926c2af567504ff7c3165d4f0745019dbf9507",
+    "supporting/drill_usage.md": "dee4d3e15b57c7212c33676b8c5bd80e9a7b74c0a949227d38270d2c20925a61",
+    "classes/class_04.md": "1f7320b32fada08ab9a17204ea12116117d03f4636362f7e0671dccadb8100ca",
+    "progress.json": "ee8811cc69b446c5142a6ebae325b6d0c9f441235a6390898231640109df7a7f"
+  },
+  "estimated_minutes_excluding_access_prepare_1_and_added_queues": [
+    75,
+    85
+  ]
+}

@@ -17,6 +17,7 @@ import { firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, ty
 const LiveSessionPanel = lazyWithRetry(() => import('./LiveSessionPanel'))
 const RosterPanel = lazyWithRetry(() => import('./RosterPanel'))
 const LibraryPanel = lazyWithRetry(() => import('./LibraryPanel'))
+const AthleticismAcceleratorPanel = lazyWithRetry(() => import('./AthleticismAcceleratorPanel'))
 const WorkoutBuilder = lazyWithRetry(() => import('./WorkoutBuilder'))
 const NeedsEnginePanel = lazyWithRetry(() => import('./NeedsEnginePanel'))
 const ProgramBuilder = lazyWithRetry(() => import('./ProgramBuilder'))
@@ -37,6 +38,7 @@ export type CoachTab =
   | 'sessions'
   | 'roster'
   | 'library'
+  | 'athleticism-accelerator'
   | 'workout'
   | 'needs'
   | 'programs'
@@ -73,6 +75,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'sessions', label: 'Today', icon: CalendarDays },
   { tab: 'needs', label: 'Needs Engine', icon: Sparkles },
   { tab: 'library', label: 'Library', icon: BookOpen },
+  { tab: 'athleticism-accelerator', label: 'Athleticism Accelerator', icon: Sparkles },
   { tab: 'framework', label: 'Philosophy', icon: ScrollText },
   { tab: 'workout', label: 'Workouts', icon: Dumbbell },
   { tab: 'programs', label: 'Programs', icon: CalendarRange },
@@ -179,6 +182,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <RosterPanel />
       case 'library':
         return <LibraryPanel />
+      case 'athleticism-accelerator':
+        return <AthleticismAcceleratorPanel />
       case 'workout':
         return <WorkoutBuilder defaultType="workout" />
       case 'needs':
@@ -289,7 +294,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
                   }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                 >
-                  <Icon className="w-4 h-4" /> {item.label}
+                  <Icon className="w-4 h-4 shrink-0" /> <span className="text-left">{item.label}</span>
                 </button>
               )
             })}
