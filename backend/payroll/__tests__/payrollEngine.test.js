@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  buildPayrollPreview,
   allocateWeeklyOvertime,
   workweekStartFor,
   buildEmployeePreview,
@@ -113,4 +114,10 @@ test('payroll retains exact FICA wage bases across caps without reversing rounde
  assert.equal(result.additionalMedicareTaxCents,0)
  assert.equal(result.ficaWageBasis.grossWagesCents,101)
  assert.equal(calculate(0,20000000).ficaWageBasis.medicareTaxableCents,0)
+})
+
+test('E-Verify follow-up stays visible without automatically blocking earned payroll',()=>{
+ const preview=buildPayrollPreview({settings:{timezone:'America/New_York'},employees:[],entries:[],complianceTasks:[{taskKey:'I9_EVERIFY_CASE:1',title:'E-Verify case review',status:'IN_PROGRESS',severity:'CRITICAL'},{taskKey:'ein',title:'Employer identity',status:'OPEN',severity:'CRITICAL'}]})
+ assert.equal(preview.warnings.find(w=>w.code==='COMPLIANCE_I9_EVERIFY_CASE:1').blocking,false)
+ assert.equal(preview.warnings.find(w=>w.code==='COMPLIANCE_ein').blocking,true)
 })

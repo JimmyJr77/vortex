@@ -5815,3 +5815,24 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_examination_draft ON payroll_i9_examination_draft;
 CREATE TRIGGER payroll_guard_i9_examination_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_examination_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_examination_draft();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_everify_event (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id),signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id),revision integer NOT NULL CHECK(revision>0),actor_user_id BIGINT NOT NULL,
+ outcome text NOT NULL CHECK(outcome IN ('PENDING_SSN','NEEDS_MORE_TIME','MISMATCH','CASE_IN_CONTINUANCE','REVIEW_UPDATE','CLOSE_AND_RESUBMIT','FINAL_NONCONFIRMATION','EMPLOYMENT_AUTHORIZED','OTHER_PENDING')),document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),encrypted_evidence bytea NOT NULL CHECK(octet_length(encrypted_evidence)>28),request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),UNIQUE(compliance_task_id,revision),UNIQUE(compliance_task_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_everify_event() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'E-Verify result history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NEW.revision<>COALESCE((SELECT MAX(revision) FROM payroll_i9_everify_event WHERE compliance_task_id=NEW.compliance_task_id),0)+1 THEN RAISE EXCEPTION 'E-Verify result revision must advance once.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_compliance_task t JOIN payroll_i9_employer_signature s ON s.id=NEW.signature_id JOIN payroll_private_document d ON d.id=NEW.document_id WHERE t.id=NEW.compliance_task_id AND t.facility_id=NEW.facility_id AND t.employee_id=NEW.employee_id AND t.task_key='I9_EVERIFY_CASE:'||s.id::text AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id AND d.facility_id=s.facility_id AND d.employee_id=s.employee_id AND d.task_id=s.task_id AND d.onboarding_cycle=s.onboarding_cycle AND d.mime_type='application/pdf') THEN RAISE EXCEPTION 'E-Verify result and evidence must match the signed employee follow-up.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_everify_event ON payroll_i9_everify_event;
+CREATE TRIGGER payroll_guard_i9_everify_event BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_everify_event FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_everify_event();
+CREATE OR REPLACE FUNCTION payroll_guard_i9_everify_completion() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.task_key LIKE 'I9_EVERIFY_CASE:%' AND (NEW.status='NOT_APPLICABLE' OR (NEW.status='COMPLETE' AND COALESCE((SELECT outcome FROM payroll_i9_everify_event WHERE compliance_task_id=NEW.id ORDER BY revision DESC LIMIT 1),'')<>'EMPLOYMENT_AUTHORIZED')) THEN RAISE EXCEPTION 'E-Verify completion requires the latest retained authorized case result.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_everify_completion ON payroll_compliance_task;
+CREATE TRIGGER payroll_guard_i9_everify_completion BEFORE INSERT OR UPDATE ON payroll_compliance_task FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_everify_completion();

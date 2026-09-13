@@ -10,9 +10,10 @@ for(const alternative of [false,true])test(`admin certifies the current I-9 pack
   const {employee}=await employerI9ReviewFixture(h,{alternative}),pdf=await syntheticI9CopyPdf()
   await page.setViewportSize({width:390,height:950})
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  let lose=true
+  let lose=true,loseCase=true
   await page.route('**/api/admin/payroll/**',async route=>{
    const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})
+   if(loseCase&&u.pathname.includes('/i9/everify/')&&route.request().method()==='POST'){expect(response.status()).toBe(200);loseCase=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost E-Verify result response.'})});return}
    if(lose&&u.pathname.endsWith('/i9/employer-sign')&&route.request().method()==='POST'){expect(response.status()).toBe(200);lose=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic lost signing response. Retry unchanged.'})});return}
    await route.fulfill({response})
   })
@@ -62,7 +63,24 @@ for(const alternative of [false,true])test(`admin certifies the current I-9 pack
   await expect(records).toContainText('Authenticated hiring administrator personally performed examination.')
   const downloadPromise=page.waitForEvent('download');await records.getByRole('button',{name:'Download signed employer I-9',exact:true}).click();const download=await downloadPromise;expect(download.suggestedFilename()).toBe('Form-I9-employer-signed.pdf')
   await download.saveAs(`/tmp/payroll-employer-record-${alternative?'alternative':'physical'}.pdf`)
-  if(alternative){await expect(records).toContainText('E-Verify case review · open');await page.getByRole('button',{name:'Compliance',exact:true}).click();await page.locator('article').filter({has:page.getByRole('heading',{name:'E-Verify case review',exact:true})}).getByRole('button',{name:/Open employee onboarding/}).click();await expect(page.locator('summary').filter({hasText:'Employer I-9 review'})).toBeVisible()}
+  if(alternative){await expect(records).toContainText('E-Verify case review · open');
+   const caseForm=records.getByRole('region',{name:'E-Verify result evidence',exact:true})
+   await caseForm.getByRole('combobox',{name:'Official case result',exact:true}).selectOption('EMPLOYMENT_AUTHORIZED')
+   await caseForm.getByLabel('Official case reference',{exact:true}).fill('SYNTHETIC-CASE-UI')
+   await caseForm.getByLabel('Date this result was observed',{exact:true}).fill('2026-09-01')
+   await caseForm.getByRole('combobox',{name:'Official case is closed',exact:true}).selectOption('yes')
+   await caseForm.getByRole('textbox',{name:'Case evidence review note',exact:true}).fill('Official synthetic result and matching employee records verified.')
+   await caseForm.getByLabel('Reviewed case evidence PDF (up to 5 MB)',{exact:true}).setInputFiles({name:'SYNTHETIC-CASE.pdf',mimeType:'application/pdf',buffer:pdf})
+   for(const name of ['I verified this result against official case or pending-case records.','I confirmed these records match this employee and employer.','I reviewed the attached evidence and confirmed it supports this result.'])await caseForm.getByRole('checkbox',{name,exact:true}).check()
+   await caseForm.getByRole('button',{name:'Retain E-Verify result evidence',exact:true}).click()
+   await expect(caseForm.getByRole('alert')).toContainText('Synthetic lost E-Verify result response')
+   await caseForm.getByRole('button',{name:'Retain E-Verify result evidence',exact:true}).click()
+   await expect(caseForm.getByRole('status')).toContainText('Authorized closure evidence retained')
+   await expect(caseForm.locator('summary')).toContainText('Recorded result 1: Employment Authorized')
+   expect((await h.pool.query('SELECT count(*)::int AS n FROM payroll_i9_everify_event')).rows[0].n).toBe(1)
+   await expect(records).toContainText('E-Verify case review · complete')
+   await caseForm.screenshot({path:'/tmp/payroll-everify-authorized-ui.png'})
+   await page.getByRole('button',{name:'Compliance',exact:true}).click();await page.locator('article').filter({has:page.getByRole('heading',{name:'E-Verify case review',exact:true})}).getByRole('button',{name:/Open employee onboarding/}).click();await expect(page.locator('summary').filter({hasText:'Employer I-9 review'})).toBeVisible()}
   const storage=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));expect(storage).not.toContain('Reviewer Alice');expect(storage).not.toContain('Authenticated hiring')
   expect(errors).toEqual([])
  }finally{try{await page.goto('about:blank');await page.unrouteAll({behavior:'wait'})}finally{try{await h.close()}finally{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}}}
