@@ -40,7 +40,9 @@ export async function renderI9ReceiptReplacementPreview(sourceBytes,raw){
   if(widgets.length!==1||widgets[0].dict.get(PDFName.of('P'))?.toString()!==pdf.getPage(0).ref.toString())throw fail('Review the source receipt field binding.')
   const rect=widgets[0].getRectangle(),size=Math.min(9,9*(rect.width-4)/font.widthOfTextAtSize(value,9))
   if(size<6||widgets[0].getAppearanceCharacteristics()?.getRotation())throw fail('The source receipt entry needs a legible correction layout.')
-  widgets[0].dict.delete(PDFName.of('DA'));field.setFontSize(size);field.enableReadOnly()
+  // Some official fields merge the widget and field dictionary. Removing the
+  // widget appearance then also removes the field appearance; restore it first.
+  widgets[0].dict.delete(PDFName.of('DA'));field.acroField.setDefaultAppearance(`0 g /${font.name} ${size} Tf`);field.setFontSize(size);field.enableReadOnly()
   field.updateAppearances(font,(f,w,face)=>{
    const border=w.getBorderStyle()?.getWidth()||0,r=w.getRectangle(),padding=border+1
    const {line}=layoutSinglelineText(value,{alignment:f.getAlignment(),fontSize:size,font:face,bounds:{x:padding,y:padding,width:r.width-padding*2,height:r.height-padding*2}})
@@ -62,7 +64,13 @@ export async function renderI9ReceiptReplacementPreview(sourceBytes,raw){
   supported(value);const lines=[]
   for(const paragraph of value.replaceAll('\r\n','\n').split('\n')){
    let line=''
-   for(const char of paragraph){if(line&&font.widthOfTextAtSize(line+char,size)>width){lines.push(line);line=char}else line+=char}
+   for(const char of paragraph){
+    if(line&&font.widthOfTextAtSize(line+char,size)>width){
+     const boundary=line.lastIndexOf(' ')
+     if(boundary>0){lines.push(line.slice(0,boundary));line=line.slice(boundary+1)+char}
+     else{lines.push(line);line=char}
+    }else line+=char
+   }
    lines.push(line)
   }
   return lines
