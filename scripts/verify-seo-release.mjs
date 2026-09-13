@@ -644,6 +644,8 @@ for (const source of ['/assets/(.*)', '/fonts/(.*)']) {
 }
 
 const spaOnlyPaths = [
+  '/employee/payroll',
+  '/employee/payroll/preparer',
   '/copy',
   '/store',
   '/signup/family',
@@ -662,12 +664,12 @@ for (const path of spaOnlyPaths) {
     `vercel.json: client-only route ${path} is missing its explicit SPA rewrite`,
   )
 }
-assert(
-  rewrites
-    .filter((rewrite) => rewrite.destination === '/index.html')
-    .every((rewrite) => spaOnlyPaths.includes(rewrite.source)),
-  'vercel.json: catch-all SPA rewrite would turn unknown URLs into soft 404s',
-)
+for (const rewrite of rewrites.filter((rewrite) => rewrite.destination === '/index.html')) {
+  assert(
+    spaOnlyPaths.includes(rewrite.source),
+    `vercel.json: unexpected SPA rewrite ${rewrite.source}; only explicit client-only routes are allowed to prevent soft 404s`,
+  )
+}
 
 if (failures.length) {
   console.error(`SEO release verification failed (${failures.length}):`)
