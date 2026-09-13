@@ -6265,3 +6265,30 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_different_supplement_copy_page ON payroll_i9_different_supplement_copy_page;
 CREATE TRIGGER payroll_guard_i9_different_supplement_copy_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_supplement_copy_page FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_supplement_copy_page();
+
+-- Transactional replacement Supplement B signatures.
+CREATE TABLE IF NOT EXISTS payroll_i9_different_supplement_signature (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),compliance_task_id BIGINT NOT NULL UNIQUE REFERENCES payroll_compliance_task(id),signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id),review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_different_supplement_review(id),document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),actor_user_id BIGINT NOT NULL,request_key UUID NOT NULL,request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),encrypted_evidence BYTEA NOT NULL CHECK(octet_length(encrypted_evidence)>28),selected_copy_ids BIGINT[] NOT NULL CHECK(cardinality(selected_copy_ids)>0),signed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_supplement_signature() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE selected_id BIGINT; expected_pages INTEGER;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Signed different-document evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_different_supplement_review r JOIN payroll_i9_employer_signature s ON s.id=r.signature_id JOIN payroll_private_document d ON d.id=NEW.document_id JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.compliance_task_id=NEW.compliance_task_id AND r.signature_id=NEW.signature_id AND r.actor_user_id=NEW.actor_user_id AND r.expires_at>clock_timestamp() AND r.id=(SELECT MAX(id) FROM payroll_i9_different_supplement_review WHERE compliance_task_id=r.compliance_task_id) AND c.status IN ('OPEN','IN_PROGRESS') AND d.facility_id=r.facility_id AND d.employee_id=r.employee_id AND d.task_id=s.task_id AND d.onboarding_cycle=s.onboarding_cycle AND d.mime_type='application/pdf') THEN RAISE EXCEPTION 'Sign the current scoped replacement review.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_i9_different_supplement_review r CROSS JOIN LATERAL jsonb_each_text(r.page_counts) p WHERE r.id=NEW.review_id AND (SELECT COUNT(*) FROM payroll_i9_different_supplement_page_visit v WHERE v.review_id=r.id AND v.document_key=p.key)<>p.value::integer) THEN RAISE EXCEPTION 'Review every replacement packet page.' USING ERRCODE='23514'; END IF;
+ IF cardinality(NEW.selected_copy_ids)<>(SELECT COUNT(DISTINCT id) FROM unnest(NEW.selected_copy_ids) id) THEN RAISE EXCEPTION 'Select each replacement copy once.' USING ERRCODE='23514'; END IF;
+ FOREACH selected_id IN ARRAY NEW.selected_copy_ids LOOP
+  SELECT c.page_count INTO expected_pages FROM payroll_i9_different_supplement_copy c JOIN payroll_i9_different_supplement_review r ON r.id=NEW.review_id AND r.document_fingerprints->>c.row_key=c.document_fingerprint WHERE c.id=selected_id AND c.signature_id=NEW.signature_id AND c.compliance_task_id=NEW.compliance_task_id;
+  IF expected_pages IS NULL OR (SELECT COUNT(*) FROM payroll_i9_different_supplement_copy_page WHERE review_id=NEW.review_id AND copy_id=selected_id)<>expected_pages THEN RAISE EXCEPTION 'Review every selected replacement copy page.' USING ERRCODE='23514'; END IF;
+ END LOOP;
+ IF EXISTS(SELECT 1 FROM payroll_i9_different_supplement_review r CROSS JOIN LATERAL jsonb_object_keys(r.document_fingerprints) k WHERE r.id=NEW.review_id AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_supplement_copy c WHERE c.id=ANY(NEW.selected_copy_ids) AND c.row_key=k)) THEN RAISE EXCEPTION 'Retain copies for every replacement document row.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_supplement_signature ON payroll_i9_different_supplement_signature;
+CREATE TRIGGER payroll_guard_i9_different_supplement_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_supplement_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_supplement_signature();
+
+CREATE OR REPLACE FUNCTION payroll_guard_i9_document_completion() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.task_key LIKE 'I9_DOCUMENT_FOLLOWUP:%' AND (NEW.status='NOT_APPLICABLE' OR (NEW.status='COMPLETE' AND NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_supplement_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_different_resolution r JOIN payroll_i9_different_signature s ON s.id=r.different_signature_id WHERE r.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id))) THEN RAISE EXCEPTION 'I-9 document follow-up completion requires retained signed evidence.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
