@@ -2,8 +2,8 @@ import {randomUUID} from 'node:crypto'
 import {signedI9Fixture} from './signedI9Fixture.js'
 import {PDFDocument} from 'pdf-lib'
 export async function syntheticI9CopyPdf(){const pdf=await PDFDocument.create();pdf.addPage().drawText('SYNTHETIC ID FRONT');pdf.addPage().drawText('SYNTHETIC ID BACK');return Buffer.from(await pdf.save())}
-export async function employerI9ReviewFixture(h,{alternative=false,authorizedWorker=false,draftOverrides={}}={}){
- const {api,employee,task:employeeTask,signed}=await signedI9Fixture(h,{assisted:false,eVerify:alternative,authorizedWorker})
+export async function employerI9ReviewFixture(h,{alternative=false,eVerify=alternative,authorizedWorker=false,draftOverrides={}}={}){
+ const {api,employee,task:employeeTask,signed}=await signedI9Fixture(h,{assisted:false,eVerify,authorizedWorker})
  await api(`/employees/${employee.id}/onboarding/${employeeTask.id}/review`,{onboardingCycle:1,status:'COMPLETE',note:'Reviewed current employee-signed Section 1; no preparer assistance reported.'})
  const task=(await api(`/employees/${employee.id}/onboarding`)).tasks.find(t=>t.task_key==='I9_REVIEW'),base=`/employees/${employee.id}/onboarding/${task.id}/i9`
  const initial=await api(base+'/employer-draft?onboardingCycle=1'),draft={documentChoice:'LIST_A',listA:[{title:authorizedWorker?'Employment Authorization Document':'U.S. Passport',issuingAuthority:authorizedWorker?'USCIS':'U.S. Department of State',number:'SYNTHETIC-DOCUMENT',expiresOn:'2030-01-01'}],examinationMethod:alternative?'ALTERNATIVE':'PHYSICAL',firstDayEmployed:'2026-09-01',representativeNameAndTitle:'Reviewer Alice, Hiring Admin',businessName:'Synthetic Employer',businessAddress:'20 Example Road, Bowie, MD 20715',...draftOverrides}

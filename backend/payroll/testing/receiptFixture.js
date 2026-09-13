@@ -1,8 +1,8 @@
 import {randomUUID} from 'node:crypto'
 import {employerI9ReviewFixture,syntheticI9CopyPdf} from './employerI9ReviewFixture.js'
 import {I9_EMPLOYER_ATTESTATION} from '../i9Examination.js'
-export async function receiptFixture(h,{authorizedWorker=false}={}){
- const {api,employee,task,base,reviewBody}=await employerI9ReviewFixture(h,{authorizedWorker,draftOverrides:{listA:[{title:authorizedWorker?'Employment Authorization Document receipt':'U.S. Passport receipt',issuingAuthority:authorizedWorker?'USCIS':'U.S. Department of State',number:'receipt SYNTHETIC',expiresOn:'2026-11-30'}],additionalInformation:'RA 09/01/2026: Synthetic lost document replacement receipt.'}})
+export async function receiptFixture(h,{authorizedWorker=false,eVerify=false}={}){
+ const {api,employee,task,base,reviewBody}=await employerI9ReviewFixture(h,{authorizedWorker,eVerify,draftOverrides:{listA:[{title:authorizedWorker?'Employment Authorization Document receipt':'U.S. Passport receipt',issuingAuthority:authorizedWorker?'USCIS':'U.S. Department of State',number:'receipt SYNTHETIC',expiresOn:'2026-11-30'}],additionalInformation:'RA 09/01/2026: Synthetic lost document replacement receipt.'}})
  const copy=await api(base+'/employer-copies',{...reviewBody,rowKey:'A1',requestKey:randomUUID(),filename:'synthetic.pdf',contentBase64:(await syntheticI9CopyPdf()).toString('base64')})
  for(let page=1;page<=4;page++)await api(base+'/employer-page',{...reviewBody,documentKey:'main',page,displayed:true})
  for(let page=1;page<=2;page++)await api(base+'/employer-copy-page',{...reviewBody,copyId:copy.id,page,displayed:true})
