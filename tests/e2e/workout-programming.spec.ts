@@ -29,6 +29,14 @@ async function generate(page: Page, button = 'Generate & review session') {
   return (await completed.json()).data
 }
 
+async function interpret(page: Page) {
+  const response = page.waitForResponse((response) => response.url().endsWith(`${endpoint}/interpret`) && response.request().method() === 'POST')
+  await page.getByRole('button', { name: 'Preview instruction changes', exact: true }).click()
+  const completed = await response
+  expect(completed.status()).toBe(200)
+  return (await completed.json()).data
+}
+
 test('canonical choices, granular controls, generation, saved history and fresh evidence remain coherent', async ({ page, request }) => {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
@@ -269,4 +277,118 @@ test('mobile revision controls retain locks when changed logistics require revie
   expect(revised.workout.validation.findings.some((finding: { code: string }) => finding.code === 'locked_block_timing_conflict')).toBe(true)
   expect(revised.workout.workflow.draft.activities.find((entry: { activityId: string }) => entry.activityId === activity.activityId).dose).toEqual(activity.dose)
   expect((await (await request.get(`${endpoint}/${original.persistedWorkoutId}`)).json()).data.workout).toEqual(original.workout)
+})
+
+test('a natural-language preview changes no controls or saved rows until applied and then runs whole-session generation', async ({ page, request }) => {
+  await configureGroup(page)
+  await page.getByRole('spinbutton', { name: 'Athletic minutes', exact: true }).fill('90')
+  const original = await generate(page)
+  await session(page).getByRole('button', { name: 'Modify this session' }).click()
+  const instruction = 'Use ages 9–11, 12 athletes, 2 lanes and 60 athletic minutes with no tumbling.'
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill(instruction)
+  await request.post('/__preview/interpretation', { data: { operations: [
+    { kind: 'age_range', cohortKey: original.workout.intent.athletes[0].key, ageMin: 9, ageMax: 11 },
+    { kind: 'group_size', cohortKey: original.workout.intent.athletes[0].key, athleteCount: 12 },
+    { kind: 'logistics', field: 'laneCount', value: 2 }, { kind: 'session_time', athleticMinutes: 60, tumblingMinutes: 0 },
+  ] } })
+  const proposal = await interpret(page)
+  expect(proposal.status).toBe('READY_FOR_REVIEW')
+  const preview = page.getByRole('region', { name: 'Instruction preview' })
+  await expect(preview.getByText('Athlete group 1: Youngest age', { exact: true })).toBeVisible()
+  await expect(page.getByRole('spinbutton', { name: 'Youngest age', exact: true })).toHaveValue('12')
+  await expect(page.getByRole('spinbutton', { name: 'Athletic minutes', exact: true })).toHaveValue('90')
+  await expect(page.getByRole('button', { name: 'Review & save revision' })).toBeDisabled()
+  expect((await (await request.get('/__preview/state')).json()).savedCount).toBe(1)
+  await preview.getByRole('heading').scrollIntoViewIfNeeded()
+  await page.screenshot({ path: '/private/tmp/vortex-programming-desktop-instruction-preview.png' })
+  await preview.getByRole('button', { name: 'Apply proposed controls' }).click()
+  await expect(preview).toHaveCount(0)
+  for (const [label, value] of [['Youngest age', '9'], ['Oldest age', '11'], ['Athletes', '12'], ['Lanes', '2'], ['Athletic minutes', '60'], ['Total booked minutes', '60']]) {
+    await expect(page.getByRole('spinbutton', { name: label, exact: true })).toHaveValue(value)
+  }
+  await expect(page.getByRole('checkbox', { name: 'Bodyweight', exact: true })).toBeChecked()
+  expect((await (await request.get('/__preview/state')).json()).savedCount).toBe(1)
+  const revised = await generate(page, 'Review & save revision')
+  expect(revised.workout.workflow.sessionIntent.modification.sourceContentHash).toBe(original.workout.contentHash)
+  expect(revised.workout.intent.athletes[0]).toMatchObject({ ageMin: 9, ageMax: 11, athleteCount: 12 })
+  expect(revised.workout.intent.logistics).toMatchObject({ athleticMinutes: 60, laneCount: 2 })
+  expect(revised.workout.intent.instruction).toBe(instruction)
+  await expect(session(page).getByRole('heading', { name: 'Session checks passed' })).toBeVisible()
+  expect(revised.workout.workflow.qa.critic.status).toBe('PASS')
+  expect(revised.workout.workflow.draft.preparationProposal.downstreamHash).toBe(revised.workout.workflow.draft.preparationDemand.downstreamHash)
+  const state = await (await request.get('/__preview/state')).json()
+  expect(state.savedCount).toBe(2)
+  expect(state.interpretationCount).toBe(1)
+  expect((await (await request.get(`${endpoint}/${original.persistedWorkoutId}`)).json()).data.workout).toEqual(original.workout)
+})
+
+test('mobile clarification, stale previews and choosing current controls cannot overwrite the coach form', async ({ page, request }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await configureGroup(page)
+  await generate(page)
+  await session(page).getByRole('button', { name: 'Modify this session' }).click()
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill('We only have 60 minutes.')
+  await request.post('/__preview/interpretation', { data: { questions: ['Does the 60-minute booking include tumbling?'],
+    operations: [{ kind: 'logistics', field: 'laneCount', value: 2 }] } })
+  expect((await interpret(page)).status).toBe('NEEDS_COACH_INPUT')
+  const preview = page.getByRole('region', { name: 'Instruction preview' })
+  await expect(preview).toContainText('Does the 60-minute booking include tumbling?')
+  await expect(preview.getByRole('button', { name: 'Apply proposed controls' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Review & save revision' })).toBeDisabled()
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill('Use 60 athletic minutes, no tumbling, and 2 lanes.')
+  await request.post('/__preview/interpretation', { data: { operations: [{ kind: 'session_time', athleticMinutes: 60, tumblingMinutes: 0 }, { kind: 'logistics', field: 'laneCount', value: 2 }] } })
+  expect((await interpret(page)).status).toBe('READY_FOR_REVIEW')
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(390)
+  await preview.getByRole('heading').scrollIntoViewIfNeeded()
+  await page.screenshot({ path: '/private/tmp/vortex-programming-mobile-instruction-preview.png' })
+  await page.getByRole('spinbutton', { name: 'Coaches', exact: true }).fill('3')
+  await expect(preview.getByRole('status')).toContainText('changed after this preview')
+  await expect(preview.getByRole('button', { name: 'Apply proposed controls' })).toBeDisabled()
+  await preview.getByRole('button', { name: 'Use current controls instead' }).click()
+  await expect(preview).toHaveCount(0)
+  await expect(page.getByRole('spinbutton', { name: 'Coaches', exact: true })).toHaveValue('3')
+  await expect(page.getByRole('spinbutton', { name: 'Lanes', exact: true })).toHaveValue('3')
+  await expect(page.getByRole('button', { name: 'Review & save revision' })).toBeEnabled()
+  expect((await (await request.get('/__preview/state')).json()).savedCount).toBe(1)
+})
+
+test('instruction previews explain canonical swaps, respect locks and cancel without applying or saving', async ({ page, request }) => {
+  await configureGroup(page)
+  const original = await generate(page)
+  const [first, second] = original.workout.workflow.draft.activities.filter((entry: { componentKey: string }) => entry.componentKey === 'strength')
+  await session(page).getByRole('button', { name: 'Modify this session' }).click()
+  const revision = page.getByRole('region', { name: 'Revision controls' })
+  await revision.locator('summary').filter({ hasText: /^Strength ·/ }).click()
+  await revision.locator('summary').filter({ hasText: first.card.displayName }).click()
+  const block = revision.getByRole('group', { name: `Revise ${first.card.displayName}`, exact: true })
+  await block.getByRole('checkbox', { name: 'Lock dose', exact: true }).check()
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill('Reduce the first strength exercise to 2 sets.')
+  await request.post('/__preview/interpretation', { data: { operations: [{ kind: 'block_dose', blockId: first.activityId, field: 'sets', value: 2 }] } })
+  expect((await interpret(page)).status).toBe('NEEDS_COACH_INPUT')
+  const preview = page.getByRole('region', { name: 'Instruction preview' })
+  await expect(preview).toContainText('dose change contradicts its block lock')
+  await expect(block.getByRole('checkbox', { name: 'Lock dose', exact: true })).toBeChecked()
+  await preview.getByRole('button', { name: 'Use current controls instead' }).click()
+  await block.getByRole('checkbox', { name: 'Lock dose', exact: true }).uncheck()
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill('Swap the first two strength exercises and use method 9 for the first.')
+  await request.post('/__preview/interpretation', { data: { operations: [
+    { kind: 'replace_exercise', blockId: first.activityId, deliveryProfileId: second.profile.id },
+    { kind: 'replace_exercise', blockId: second.activityId, deliveryProfileId: first.profile.id },
+    { kind: 'block_method', blockId: first.activityId, programmingMethodId: '9' },
+  ] } })
+  expect((await interpret(page)).status).toBe('READY_FOR_REVIEW')
+  await expect(preview).toContainText(second.card.displayName)
+  await expect(preview).toContainText('strength reviewed method 9')
+  expect(await preview.innerText()).not.toMatch(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/)
+  await preview.getByRole('button', { name: 'Apply proposed controls' }).click()
+  await page.getByRole('textbox', { name: 'Coaching intent', exact: true }).fill('Review the current controls.')
+  await request.post('/__preview/interpretation', { data: { delayMs: 2000 } })
+  await page.getByRole('button', { name: 'Preview instruction changes' }).click()
+  await expect.poll(async () => (await (await request.get('/__preview/state')).json()).interpretationsInFlight).toBe(1)
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(page.getByRole('alert')).toContainText('Instruction preview canceled. Your current controls were kept.')
+  await expect.poll(async () => (await (await request.get('/__preview/state')).json()).interpretationsInFlight).toBe(0)
+  await expect(preview).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Review & save revision' })).toBeEnabled()
+  expect((await (await request.get('/__preview/state')).json()).savedCount).toBe(1)
 })

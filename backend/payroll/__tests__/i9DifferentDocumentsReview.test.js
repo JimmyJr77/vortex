@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import {encryptDocument,decryptDocument} from '../onboarding.js'
 import {createHarness} from '../testing/harness.js'
 import {receiptFixture} from '../testing/receiptFixture.js'
+import {readI9DifferentDraft} from '../i9DifferentDraft.js'
 import {i9DifferentDocumentsBasis} from '../i9DifferentDocumentsBasis.js'
 import {currentI9DifferentDocumentsReview} from '../i9DifferentDocumentsReview.js'
 test('different-document reviews retain scoped encrypted packets and immutable current page visits',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
@@ -17,6 +18,20 @@ test('different-document reviews retain scoped encrypted packets and immutable c
  const doc={title:'Synthetic document',issuingAuthority:'Synthetic issuer',number:'PRIVATE-REPLACEMENT',expiresOn:'2030-09-12'}
  const body={signatureId:signed.signatureId,reason:'Employee selected different acceptable replacement documents.',initials:'RA',section2:{...current.originalSection2,listA:undefined,documentChoice:'LIST_B_C',listB:doc,listC:doc}}
  const path=`/employees/${employee.id}/i9/different-documents/${task}`
+ const empty=await api(path+'/draft')
+ assert.equal(empty.revision,0);assert.equal(empty.draft,null)
+ const save={basisHash:empty.basisHash,expectedRevision:0,requestKey:randomUUID(),draft:{form:{choice:'LIST_B_C',reason:'Unfinished private replacement reason.',listB:{title:'Partly entered document'}},facts:{fields:{identity:'Unfinished examiner evidence'},days:[1,2],decisions:{C:{acceptance:'STANDARD'}}}}}
+ const saved=await api(path+'/draft',save)
+ assert.equal(saved.revision,1)
+ assert.deepEqual(await api(path+'/draft',save),saved)
+ assert.deepEqual((await api(path+'/draft')).draft,saved.draft)
+ assert.equal((await readI9DifferentDraft(h.pool,{...ctx,admin:100},task)).draft,null)
+ await api(path+'/draft',{...save,requestKey:randomUUID()},'POST',409)
+ await api(path+'/draft',{...save,expectedRevision:1,requestKey:randomUUID(),draft:{...save.draft,signature:'Reviewer Alice'}},'POST',400)
+ await api(path+'/draft',{...save,expectedRevision:1,requestKey:randomUUID(),draft:{...save.draft,facts:{...save.draft.facts,checks:{attestationRead:true}}}},'POST',400)
+ const encrypted=(await h.pool.query('SELECT encrypted_draft FROM payroll_i9_different_draft')).rows[0].encrypted_draft
+ assert.equal(encrypted.includes(Buffer.from('Unfinished')),false)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_draft'),/cannot be deleted/)
  const initial=await api(path+'/context')
  assert.equal(String(initial.signatureId),String(signed.signatureId))
  assert.equal(initial.sourceKind,'SECTION2');assert.equal(initial.rowKey,'A1')

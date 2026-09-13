@@ -1,9 +1,10 @@
 import {useEffect,useRef,useState} from 'react'
-import {workforceApi,type I9DifferentPreview} from '../../utils/workforceApi'
+import {workforceApi,type I9DifferentPreview,type I9DifferentDraftFacts} from '../../utils/workforceApi'
 const style='mt-1 block w-full min-w-0 rounded border p-2'
 const finalKeys=['attestationRead','signingAsExaminer','reviewedAllPages','representativeIdentityConfirmed']
-export default function I9DifferentExamination({employeeId,taskId,preview,initials,method,selected,rowKeys,onSigned,onBusy}:{employeeId:number;taskId:string|number;preview:I9DifferentPreview;initials:string;method:string;selected:Record<string,string[]>;rowKeys:string[];onSigned:()=>void;onBusy:(busy:boolean)=>void}){
- const [fields,setFields]=useState<Record<string,string>>({examinedOn:preview.recordedOn}),[checks,setChecks]=useState<Record<string,boolean>>({}),[days,setDays]=useState<number[]>([]),[decisions,setDecisions]=useState<Record<string,Record<string,string>>>({}),[signature,setSignature]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('')
+export default function I9DifferentExamination({employeeId,taskId,preview,initials,method,selected,rowKeys,onSigned,onBusy,initialDraft,onDraft}:{employeeId:number;taskId:string|number;preview:I9DifferentPreview;initials:string;method:string;selected:Record<string,string[]>;rowKeys:string[];onSigned:()=>void;onBusy:(busy:boolean)=>void;initialDraft:I9DifferentDraftFacts;onDraft:(draft:I9DifferentDraftFacts)=>void}){
+ const [fields,setFields]=useState<Record<string,string>>({examinedOn:preview.recordedOn,...initialDraft.fields}),[checks,setChecks]=useState<Record<string,boolean>>({}),[days,setDays]=useState<number[]>(initialDraft.days),[decisions,setDecisions]=useState<Record<string,Record<string,string>>>(initialDraft.decisions),[signature,setSignature]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState('')
+ useEffect(()=>{onDraft({fields,days,decisions})},[fields,days,decisions,onDraft])
  const pending=useRef<{payload:string;key:string}|null>(null)
  const selectionKey=JSON.stringify(selected)
  useEffect(()=>{setChecks({});setSignature('')},[selectionKey])

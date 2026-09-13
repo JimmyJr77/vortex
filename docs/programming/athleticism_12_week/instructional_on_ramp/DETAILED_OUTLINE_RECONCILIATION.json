@@ -228,6 +228,77 @@
       "detailed_evidence": "instructional_on_ramp/week_02/or_09.json"
     },
     {
+      "id": "OR-10",
+      "state": "individually_authored_pending_review",
+      "affected_fields": [
+        "preparation.targeted_drill_purposes",
+        "progression_decision",
+        "prerequisites",
+        "provisional_anchors_methods",
+        "delivery_geometry"
+      ],
+      "reason": "The short P2 walk is not a whole purposeful start/runoff rehearsal. First knee loading needs directly observed handling and a longer instruction allocation than a familiar five-athlete station. Actual more recent lower running intent and unloaded/smaller strength records must govern.",
+      "current_decision": "Retain full instructional base including knee/hip checks, P1 one3s personal-bay start hold with2s settle, P2 one declared10m/15m ordinary walking orientation or independently suitable stationary task. Place the whole already-qualified running rehearsal in counted E0 within total main opportunities; E1 uses only the remaining scheduled prefix. Retain actual technical20m6075%D/5060%L or explicit5060%low-intent carryover in D, actual easy15mD, or independently eligible walking/standing. Make one justified knee resistance decision with recent count/range/stance/3-1-1 retained; do not simultaneously increase running.",
+      "knee_contract": {
+        "contexts": [
+          "bodyweight",
+          "goblet_first",
+          "goblet_retained",
+          "goblet_load_step",
+          "goblet_reintroduce"
+        ],
+        "first_loading_requires_prior_whole_goblet": false,
+        "first_loading_requires_actual_repeatable_bodyweight_and_current_suitability": true,
+        "counted_exact_grip_pickup_chest_support_before_loaded_reps": true,
+        "new_or_changed_handling_s": 20,
+        "familiar_handling_s": 10,
+        "actual_recent_count_caps": [
+          1,
+          2,
+          3
+        ],
+        "older_load_restored_automatically": false,
+        "newer_unload_reintroduction_is_explicit_progression": true,
+        "failed_pickup_consumes_set": true,
+        "make_up_sets": 0,
+        "age_based_kg": false,
+        "loaded_modes": [
+          "standard_D",
+          "compressed_D"
+        ]
+      },
+      "delivery_contract": {
+        "athletes": 15,
+        "coaches": 2,
+        "main_lanes": 3,
+        "knee_stations": 2,
+        "knee_pair_turns": 8,
+        "one_coach_per_active_knee_athlete": true,
+        "standard_strength_role_minutes": [
+          10,
+          5,
+          4,
+          6,
+          5
+        ],
+        "compressed_strength_role_minutes": [
+          7,
+          3,
+          2,
+          4,
+          4
+        ],
+        "knee_maximum_action_s": 40,
+        "compressed_pair_pitch_s": 45,
+        "incoming_pair_staging_s": 5,
+        "reference_fixed_DB_and_cradle_fit_each_assigned_station_user": true,
+        "arbitrary_load_swaps_proven_in_reference_clock": false,
+        "actual_facilities_verified": false
+      },
+      "next_evidence_rule": "After individual source/programming/numeric review, audit full written Week2 OR06–10 including mixed attendance, actual smaller counts/intent, first-vs-retained handling, deliberate unload/reintroduction and OR11–15 carryover. OR14 changes prompting/group-flow responsibility while retaining actual demand; OR18 compares actual conditions without graduation loading.",
+      "detailed_evidence": "instructional_on_ramp/week_02/or_10.json"
+    },
+    {
       "id": "OR-15",
       "state": "required_for_future_individual_authoring_not_yet_prescribed",
       "affected_fields": [
@@ -257,7 +328,7 @@
     "OR-10": "Retain actual start/runoff and independently map/teach front-held load pickup/set-down before a goblet progression; bodyweight squat alone is not implement-handling evidence."
   },
   "not_completed": [
-    "OR-10 through OR-20 detailed workouts",
+    "OR-10 independent daily review and full Week 2 audit; OR-11 through OR-20 detailed workouts",
     "actual athlete outcomes",
     "current canonical or facility approvals",
     "precise separate tumbling content"

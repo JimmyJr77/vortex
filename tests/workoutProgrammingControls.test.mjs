@@ -10,7 +10,8 @@ import { modificationFixtures } from '../backend/platform/__tests__/workoutProgr
 const { outputText } = ts.transpileModule(readFileSync(new URL('../src/coach/workoutProgramming.ts', import.meta.url), 'utf8'), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 })
-const { newProgrammingRequest, programmingRequestForSubmit, requestFromSaved, revisionRequestFromSaved, activeProgrammingComponents } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
+const { newProgrammingRequest, programmingRequestForSubmit, requestFromSaved, revisionRequestFromSaved, activeProgrammingComponents,
+  programmingControlsFingerprint, requestFromInterpretation } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 
 test('default coach controls submit a valid athletic session and retain inactive Body Control preferences', () => {
   const request = newProgrammingRequest()
@@ -81,4 +82,30 @@ test('omitted revision components leave the regeneration scope but never silentl
   const withBodyLock = programmingRequestForSubmit(request)
   assert.equal(withBodyLock.components.find((entry) => entry.key === 'body_control').lockedBlocks.length, 1)
   assert.throws(() => normalizeCoachWorkoutRequest(withBodyLock), /Body Control must be explicitly included/)
+})
+
+test('applying a reviewed interpretation preserves source identity, block locks, evidence and inactive UI controls', async () => {
+  const { saved } = await modificationFixtures()
+  const current = revisionRequestFromSaved(saved)
+  const block = saved.workout.workflow.draft.activities.find((entry) => entry.componentKey === 'strength')
+  current.components.find((entry) => entry.key === 'strength').lockedBlocks = [{ blockId: block.activityId, fields: ['method', 'dose'] }]
+  current.components.find((entry) => entry.key === 'body_control').priorities = [{ facet: 'tenet', value: 'body_control', strength: 'preferred', weight: 80 }]
+  const baseline = programmingControlsFingerprint(current)
+  const proposed = normalizeCoachWorkoutRequest({ ...programmingRequestForSubmit(current), athletes: current.athletes.map((entry) => ({ ...entry, ageMin: 9, ageMax: 11 })) })
+  const result = { status: 'READY_FOR_REVIEW', proposedRequest: proposed, instruction: current.instruction, proposalHash: 'synthetic-ui-proposal',
+    sourceWorkoutId: saved.persistedWorkoutId, sourceRevision: saved.workout.revision }
+  const applied = requestFromInterpretation(result, current, baseline)
+  assert.equal(programmingControlsFingerprint(current), baseline)
+  assert.equal(applied.requestId, current.requestId)
+  assert.equal(applied.revision, current.revision)
+  assert.deepEqual(applied.modification, proposed.modification)
+  assert.deepEqual(applied.equipment.available, ['bodyweight', 'dumbbell'])
+  assert.deepEqual(applied.components.find((entry) => entry.key === 'body_control').priorities, current.components.find((entry) => entry.key === 'body_control').priorities)
+  assert.deepEqual(normalizeCoachWorkoutRequest(programmingRequestForSubmit(applied)), proposed)
+  for (const patch of [{ status: 'NEEDS_COACH_INPUT' }, { proposedRequest: null }, { sourceWorkoutId: 'other' },
+    { sourceRevision: 'old' }, { instruction: 'Other instruction' }, { proposedRequest: { ...proposed, revision: 'other' } }]) {
+    assert.throws(() => requestFromInterpretation({ ...result, ...patch }, current, baseline), /does not match/)
+  }
+  current.logistics.laneCount++
+  assert.throws(() => requestFromInterpretation(result, current, baseline), /controls changed/)
 })

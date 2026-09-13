@@ -30,7 +30,7 @@ async function activeTaxonomy(pool, context) {
 }
 
 /** Review all actual control changes, including derived clocks and normalized equipment, rather than trusting a model's change list. */
-function controlChanges(before, after) {
+function controlChanges(before, after, modification) {
   const changes = []
   const labels = { ageMin: 'Youngest age', ageMax: 'Oldest age', athleteCount: 'Athletes', trainingExperience: 'Training experience',
     athleticMinutes: 'Athletic minutes', tumblingMinutes: 'Tumbling minutes', totalBookedMinutes: 'Total booked minutes',
@@ -41,7 +41,8 @@ function controlChanges(before, after) {
     const collectionKey = ['athletes', 'components'].includes(path.at(-1)) ? 'key' : path.at(-1) === 'blockEdits' ? 'blockId' : null
     if (collectionKey && Array.isArray(left) && Array.isArray(right)) {
       for (const key of unique([...left, ...right].map((entry) => entry[collectionKey]))) {
-        const name = path.at(-1) === 'athletes' ? `Athlete group ${before.athletes.findIndex((entry) => entry.key === key) + 1}` : SESSION_COMPONENT_LABELS[key] ?? 'Block prescription'
+        const name = path.at(-1) === 'athletes' ? `Athlete group ${before.athletes.findIndex((entry) => entry.key === key) + 1}`
+          : SESSION_COMPONENT_LABELS[key] ?? modification.blocks.find((entry) => entry.blockId === key)?.name ?? 'Block prescription'
         walk(left.find((entry) => entry[collectionKey] === key), right.find((entry) => entry[collectionKey] === key), [...path, key], name)
       }
     } else if (left && right && typeof left === 'object' && typeof right === 'object' && !Array.isArray(left) && !Array.isArray(right)) {
@@ -207,7 +208,7 @@ export function applyProgrammingInterpretation(request, modification, choices, i
   changed.modification.regenerateComponentKeys = changed.modification.regenerateComponentKeys?.filter(scheduled) ?? null
   if (changed.modification.regenerateComponentKeys?.length === 0) changed.modification.regenerateComponentKeys = null
   const proposedRequest = normalizeCoachWorkoutRequest(changed)
-  return immutableProgrammingValue({ proposedRequest, changes: controlChanges(request, proposedRequest) })
+  return immutableProgrammingValue({ proposedRequest, changes: controlChanges(request, proposedRequest, modification) })
 }
 
 /** One bounded Director call proposes controls. This service cannot generate, persist, approve or publish a workout. */
@@ -273,6 +274,17 @@ export async function interpretWorkoutProgrammingRevision({ pool, context, rawIn
     ...(!currentChoices.searchComplete ? [{ code: 'incomplete_programming_search', detail: 'Canonical search is incomplete; this proposal does not establish an exercise gap.' }] : []),
     ...currentChoices.components.filter((entry) => !entry.exercises.some((exercise) => exercise.eligibility === 'ELIGIBLE')).map((entry) => ({
       code: 'candidate_eligibility_review_required', detail: `${SESSION_COMPONENT_LABELS[entry.key]} needs eligible canonical choices under the proposed controls.` }))]
+  const strings = new Set()
+  const collect = (value) => { if (typeof value === 'string') strings.add(value); else if (value && typeof value === 'object') Object.values(value).forEach(collect) }
+  collect(applied.changes)
+  const reviewReferences = {
+    exercises: [...new Map([...choices.components, ...currentChoices.components].flatMap((entry) => entry.exercises)
+      .filter((entry) => strings.has(entry.ref.deliveryProfileId) || strings.has(entry.ref.exerciseCardId))
+      .map(({ ref, name, purpose }) => [JSON.stringify(ref), { ref, name, purpose }])).values()],
+    methods: [...new Map([...choices.components, ...currentChoices.components].flatMap((entry) => entry.methods)
+      .filter((entry) => strings.has(entry.id)).map(({ id, name }) => [id, { id, name }])).values()],
+  }
   return output({ status: 'READY_FOR_REVIEW', summary: interpretation.summary, questions: [], issues, operations: interpretation.operations, ...applied,
+    reviewReferences,
     proposalHash: programmingValueHash({ baseRequestHash, sourceContentHash: base.sourceContentHash, sourceTaxonomyHash: base.sourceTaxonomyHash, proposedRequest: applied.proposedRequest }) })
 }

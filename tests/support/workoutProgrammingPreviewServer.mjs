@@ -7,6 +7,7 @@ import { storageFixtures, storageSourcePool, memoryStorageDatabase } from '../..
 import { TAXONOMY_V2_FACETS } from '../../backend/platform/taxonomyV2.js'
 import { evidenceFixtures } from '../../backend/platform/__tests__/workoutAthleteEvidenceFixtures.js'
 import { modificationFixtureRegistry } from '../../backend/platform/__tests__/workoutProgrammingModificationFixtures.js'
+import { scriptedInterpretationRegistry, syntheticInterpretationTaxonomy, withSyntheticInterpretationTaxonomy } from '../../backend/platform/__tests__/workoutProgrammingInterpretationFixtures.js'
 
 // Loopback-only preview. This process never opens a production DB or configures a paid model.
 const express = createRequire(new URL('../../backend/package.json', import.meta.url))('express')
@@ -14,9 +15,10 @@ const port = Number(process.env.PROGRAMMING_PREVIEW_PORT ?? 5183)
 const origin = `http://127.0.0.1:${port}`
 process.env.VITE_API_URL = origin
 const fixtures = await storageFixtures()
-const registry = modificationFixtureRegistry(fixtures.registry)
+const interpretation = { operations: [], questions: [], delayMs: 0, calls: [], inFlight: 0 }
+const registry = scriptedInterpretationRegistry(modificationFixtureRegistry(fixtures.registry), interpretation)
 const database = memoryStorageDatabase()
-const storagePool = storageSourcePool(database, fixtures)
+const storagePool = withSyntheticInterpretationTaxonomy(storageSourcePool(database, fixtures), syntheticInterpretationTaxonomy())
 const athleteSource = evidenceFixtures(Array.from({ length: 15 }, (_, index) => String(101 + index)))
 athleteSource['skill_progress:explicit'][0].data.coachUserId = '7'
 athleteSource['skill_progress:history'] = athleteSource['skill_progress:explicit']
@@ -58,15 +60,23 @@ registerWorkoutProgrammingRoutes(app, pool, {
     } finally { inFlight-- }
   },
 })
-app.get('/__preview/state', (_req, res) => res.json({ savedCount: database.rows.size, lastRequest, inFlight }))
+app.get('/__preview/state', (_req, res) => res.json({ savedCount: database.rows.size, lastRequest, inFlight,
+  interpretationCount: interpretation.calls.length, interpretationsInFlight: interpretation.inFlight, lastInterpretationRequest: interpretation.calls.at(-1)?.request ?? null }))
 app.post('/__preview/reset', (_req, res) => {
-  if (inFlight) return res.status(409).json({ message: 'Wait for the current synthetic request to finish.' })
+  if (inFlight || interpretation.inFlight) return res.status(409).json({ message: 'Wait for the current synthetic request to finish.' })
   database.rows.clear(); lastRequest = null; delayMs = 0
+  interpretation.operations = []; interpretation.questions = []; interpretation.delayMs = 0; interpretation.calls = []
   fixtures.options.cards[3].deliveryProfiles[0].coachInstructions = originalSourceInstructions
   res.json({ reset: true })
 })
 app.post('/__preview/change-source', (_req, res) => { fixtures.options.cards[3].deliveryProfiles[0].coachInstructions = 'Synthetic source changed after the saved review.'; res.json({ changed: true }) })
 app.post('/__preview/delay', (req, res) => { delayMs = Math.min(3000, Math.max(0, Number(req.body.milliseconds) || 0)); res.json({ delayMs }) })
+app.post('/__preview/interpretation', (req, res) => {
+  if (interpretation.inFlight) return res.status(409).json({ message: 'Wait for the synthetic interpretation to finish.' })
+  interpretation.operations = req.body.operations ?? []; interpretation.questions = req.body.questions ?? []
+  interpretation.delayMs = Math.min(3000, Math.max(0, Number(req.body.delayMs) || 0))
+  res.json({ configured: true })
+})
 const server = createHttpServer(app)
 const vite = await createServer({ server: { middlewareMode: true, host: '127.0.0.1', hmr: { server, host: '127.0.0.1' } }, appType: 'mpa' })
 app.use(vite.middlewares)

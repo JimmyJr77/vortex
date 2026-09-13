@@ -3,13 +3,14 @@ import { Loader2, Sparkles } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import type { TaxonomyV2Catalog } from '../../coach/taxonomy'
 import { CANONICAL_EQUIPMENT_OPTIONS } from '../../coach/canonicalEquipmentOptions'
-import { activeProgrammingComponents, COMPONENT_KEYS, COMPONENT_LABELS, newProgrammingRequest, programmingError, programmingRequestForSubmit, requestFromSaved, revisionRequestFromSaved,
+import { activeProgrammingComponents, COMPONENT_KEYS, COMPONENT_LABELS, newProgrammingRequest, programmingControlsFingerprint, programmingError, programmingRequestForSubmit, requestFromSaved, requestFromInterpretation, revisionRequestFromSaved,
   type CoachWorkoutRequest, type ProgrammingComponentControls, type ProgrammingWorkoutListItem, type ProgrammingWorkoutCursor,
-  type ProgrammingRevalidation, type SavedProgrammingWorkout, type WorkoutProgrammingChoices } from '../../coach/workoutProgramming'
+  type ProgrammingInterpretationResult, type ProgrammingRevalidation, type SavedProgrammingWorkout, type WorkoutProgrammingChoices } from '../../coach/workoutProgramming'
 import { actionClass, controlClass, BooleanField, EquipmentControls, Field, LibraryChoiceControls, MultiChoice, NumberField, PriorityControls } from './ProgrammingControls'
 import { ProgrammingAthletes, type ProgrammingRosterMember } from './ProgrammingAthletes'
 import { ProgrammingSessionView } from './ProgrammingSessionView'
 import { ProgrammingRevisionControls } from './ProgrammingRevisionControls'
+import { ProgrammingInterpretationPreview } from './ProgrammingInterpretationPreview'
 
 interface RolloutStatus { coachGeneration: { enabled: boolean }; aiIntent: { enabled: boolean } }
 interface SavedPage { items: ProgrammingWorkoutListItem[]; nextCursor: ProgrammingWorkoutCursor | null }
@@ -27,6 +28,8 @@ export function WorkoutProgrammingPanel() {
   const [savedPage, setSavedPage] = useState<SavedPage>({ items: [], nextCursor: null })
   const [saved, setSaved] = useState<SavedProgrammingWorkout | null>(null)
   const [revisionSource, setRevisionSource] = useState<SavedProgrammingWorkout | null>(null)
+  const [interpretation, setInterpretation] = useState<{ result: ProgrammingInterpretationResult; baseline: CoachWorkoutRequest; fingerprint: string } | null>(null)
+  const [appliedPreview, setAppliedPreview] = useState<string | null>(null)
   const [revalidation, setRevalidation] = useState<ProgrammingRevalidation | null>(null)
   const [choices, setChoices] = useState<WorkoutProgrammingChoices | null>(null)
   const [operation, setOperation] = useState<string | null>(null)
@@ -90,18 +93,36 @@ export function WorkoutProgrammingPanel() {
   }
   const generate = (event: FormEvent) => {
     event.preventDefault()
+    if (request.mode === 'modify_existing' && interpretation) { setError('Apply the proposed changes or choose the current controls before saving.'); return }
     if (invalidRevisionScope) { setError('Select at least one scheduled component to regenerate.'); return }
     const submitted = { ...programmingRequestForSubmit(request), requestId: crypto.randomUUID(), revision: crypto.randomUUID() }
     void run('Building and reviewing your session', async (signal) => {
       const result = await coachFetch<SavedProgrammingWorkout>('/api/coach/workout-programming', { method: 'POST', signal, body: JSON.stringify(submitted) })
       if (signal.aborted) return
       setSaved(result); setRevalidation(null)
-      if (submitted.mode === 'modify_existing') { setRevisionSource(null); setRequest(requestFromSaved(result)); setChoices(null) }
+      if (submitted.mode === 'modify_existing') { setRevisionSource(null); setRequest(requestFromSaved(result)); setChoices(null); setInterpretation(null); setAppliedPreview(null) }
       const item: ProgrammingWorkoutListItem = { persistedWorkoutId: result.persistedWorkoutId, createdAt: result.createdAt, createdBy: result.createdBy,
         status: result.workout.status, revision: result.workout.revision, objective: result.workout.intent.objective, logistics: result.workout.intent.logistics,
         summary: result.workout.explanation.session, requiresRevalidation: true }
       setSavedPage((page) => ({ ...page, items: [item, ...page.items.filter((entry) => entry.persistedWorkoutId !== item.persistedWorkoutId)] }))
     })
+  }
+  const interpretInstruction = () => {
+    if (!formRef.current?.reportValidity() || !revisionSource || invalidRevisionScope) return
+    const baseline = structuredClone(request)
+    setInterpretation(null); setAppliedPreview(null)
+    void run('Interpreting your revision instruction', async (signal) => {
+      const result = await coachFetch<ProgrammingInterpretationResult>('/api/coach/workout-programming/interpret', { method: 'POST', signal,
+        body: JSON.stringify({ request: programmingRequestForSubmit(baseline), instruction: baseline.instruction }) })
+      if (!signal.aborted) setInterpretation({ result, baseline, fingerprint: programmingControlsFingerprint(baseline) })
+    })
+  }
+  const applyInterpretation = () => {
+    if (!interpretation) return
+    try {
+      const controls = requestFromInterpretation(interpretation.result, request, interpretation.fingerprint)
+      setRequest(controls); setChoices(null); setInterpretation(null); setError(null); setAppliedPreview(programmingControlsFingerprint(controls))
+    } catch (error) { setError(programmingError(error)) }
   }
   const openSaved = (id: string) => void run('Opening saved session', async (signal) => {
     const result = await coachFetch<SavedProgrammingWorkout>(`/api/coach/workout-programming/${encodeURIComponent(id)}`, { signal })
@@ -139,7 +160,7 @@ export function WorkoutProgrammingPanel() {
     <form ref={formRef} onSubmit={generate} className="space-y-4">
       <fieldset disabled={busy || initializing} className="min-w-0 space-y-5">
         {revisionSource && request.mode === 'modify_existing' && <ProgrammingRevisionControls source={revisionSource} request={request} choices={choices}
-          onChange={setRequest} onFindChoices={findChoices} onCancel={() => { setRequest(requestFromSaved(revisionSource)); setRevisionSource(null); setChoices(null); setError(null) }} />}
+          onChange={setRequest} onFindChoices={findChoices} onCancel={() => { setRequest(requestFromSaved(revisionSource)); setRevisionSource(null); setChoices(null); setError(null); setInterpretation(null); setAppliedPreview(null) }} />}
         {invalidRevisionScope && <p className="text-sm text-amber-800">Select at least one scheduled component to regenerate.</p>}
         <div className="grid gap-3 md:grid-cols-2">
           <Field label="Programming control"><select className={controlClass} value={request.mode} disabled={request.mode === 'modify_existing'} onChange={(event) => update({ mode: event.target.value as CoachWorkoutRequest['mode'] })}>
@@ -153,7 +174,14 @@ export function WorkoutProgrammingPanel() {
         </div>
         <Field label="Coaching intent"><textarea className={controlClass} rows={3} maxLength={4000} required={request.mode === 'modify_existing'} value={request.instruction} onChange={(event) => update({ instruction: event.target.value })}
           placeholder="What should these athletes develop today? Include coaching preferences and relevant context." /></Field>
-        {request.mode === 'modify_existing' && <p className="text-sm text-gray-600">Describe your coaching adjustments here. Use the athlete, time and equipment controls below to set those changes explicitly.</p>}
+        {request.mode === 'modify_existing' && <div className="space-y-3">
+          <p className="text-sm text-gray-600">Describe changes to athletes, time, equipment or coaching emphasis, then preview the proposed controls. You can also edit the controls directly.</p>
+          <button type="button" className={actionClass} disabled={!rollout?.aiIntent.enabled || !rollout.coachGeneration.enabled || invalidRevisionScope || (request.instruction?.trim().length ?? 0) < 3}
+            onClick={interpretInstruction}>Preview instruction changes</button>
+          {interpretation && revisionSource && <ProgrammingInterpretationPreview result={interpretation.result} baseline={interpretation.baseline} source={revisionSource} taxonomy={taxonomy}
+            stale={programmingControlsFingerprint(request) !== interpretation.fingerprint} onApply={applyInterpretation} onDismiss={() => { setInterpretation(null); setError(null) }} />}
+          {appliedPreview === programmingControlsFingerprint(request) && <p role="status" className="text-sm text-emerald-800">Proposed controls applied. Review the updated form, then save your revision.</p>}
+        </div>}
         {request.mode === 'coach_directed' && <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">Choose preferred or locked exercises and methods for every scheduled component. AI stays within those choices; all sessions still undergo complete validation.</p>}
         {request.athletes.map((cohort, index) => <ProgrammingAthletes key={cohort.key} cohort={cohort} index={index} members={members}
           sessionDate={request.logistics.sessionDate} unavailableMemberIds={request.athletes.filter((entry) => entry.key !== cohort.key).flatMap((entry) => entry.memberIds ?? [])}
@@ -208,14 +236,15 @@ export function WorkoutProgrammingPanel() {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button type="button" className={actionClass} disabled={!rollout?.coachGeneration.enabled} onClick={findChoices}>Find canonical choices</button>
-          <button type="submit" className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50" disabled={!rollout?.coachGeneration.enabled || !rollout.aiIntent.enabled || !taxonomy || invalidRevisionScope}><Sparkles className="h-4 w-4" />{request.mode === 'modify_existing' ? 'Review & save revision' : 'Generate & review session'}</button>
+          <button type="submit" className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50" disabled={!rollout?.coachGeneration.enabled || !rollout.aiIntent.enabled || !taxonomy || invalidRevisionScope || request.mode === 'modify_existing' && !!interpretation}><Sparkles className="h-4 w-4" />{request.mode === 'modify_existing' ? 'Review & save revision' : 'Generate & review session'}</button>
         </div>
         {choices && <p role="status" className="text-sm text-gray-600">{choices.components.reduce((sum, component) => sum + component.exercises.length, 0)} canonical profile choices loaded. {choices.findings.length ? 'Review the roster and evidence findings before generation.' : 'Open each component to set preferences and locks.'}{!choices.release && ' No published release is available.'}{!choices.searchComplete && ' The programming library search is incomplete.'}</p>}
         {!!choices?.findings.length && <ul className="list-disc space-y-1 pl-5 text-sm text-amber-800">{choices.findings.map((finding, index) => <li key={`${finding.code}:${index}`}>{finding.detail}</li>)}</ul>}
       </fieldset>
     </form>
     {operation && <div role="status" aria-live="polite" className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 text-sm"><Loader2 className="h-4 w-4 animate-spin" />{operation}…
-      <button type="button" className="ml-auto underline" onClick={() => { active.current?.abort(); setError('Cancellation requested. Refresh saved sessions before retrying generation.') }}>Cancel</button></div>}
+      <button type="button" className="ml-auto underline" onClick={() => { active.current?.abort(); setError(operation === 'Interpreting your revision instruction'
+        ? 'Instruction preview canceled. Your current controls were kept.' : 'Cancellation requested. Refresh saved sessions before retrying generation.') }}>Cancel</button></div>}
     <details className="rounded-lg border border-gray-200 p-3"><summary className="cursor-pointer font-semibold text-gray-800">Saved programming sessions · {savedPage.items.length}</summary>
       <div className="mt-3 space-y-2"><button type="button" className={actionClass} disabled={busy || !rollout?.coachGeneration.enabled} onClick={() => refreshSaved()}>Refresh saved sessions</button>
         {savedPage.items.map((item) => <button key={item.persistedWorkoutId} type="button" disabled={busy} onClick={() => openSaved(item.persistedWorkoutId)} className="block w-full rounded-lg border border-gray-200 p-3 text-left hover:bg-gray-50 disabled:opacity-50">
@@ -226,9 +255,9 @@ export function WorkoutProgrammingPanel() {
       </div>
     </details>
     {saved && <ProgrammingSessionView saved={saved} revalidation={revalidation} checking={busy} members={members} onRevalidate={checkSaved} onOpenSource={openSaved} onModify={() => {
-      setRequest(revisionRequestFromSaved(saved)); setRevisionSource(saved); setChoices(null); setError(null); formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setRequest(revisionRequestFromSaved(saved)); setRevisionSource(saved); setChoices(null); setError(null); setInterpretation(null); setAppliedPreview(null); formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }} onReuse={() => {
-      setRequest(requestFromSaved(saved)); setRevisionSource(null); setChoices(null); setError(null); formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      setRequest(requestFromSaved(saved)); setRevisionSource(null); setChoices(null); setError(null); setInterpretation(null); setAppliedPreview(null); formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }} />}
   </div>
 }

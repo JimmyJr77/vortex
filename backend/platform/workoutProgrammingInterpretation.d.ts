@@ -33,6 +33,8 @@ export interface ProgrammingInterpretationResult {
   readonly status: 'READY_FOR_REVIEW' | 'NEEDS_COACH_INPUT'; readonly summary: string; readonly questions: readonly string[]
   readonly proposedRequest: NormalizedCoachWorkoutRequest | null; readonly changes: readonly ProgrammingControlChange[]
   readonly operations?: readonly ProgrammingInterpretationOperation[]; readonly proposalHash?: string
+  readonly reviewReferences?: { readonly exercises: readonly Pick<WorkoutProgrammingChoices['components'][number]['exercises'][number], 'ref' | 'name' | 'purpose'>[];
+    readonly methods: readonly Pick<WorkoutProgrammingChoices['components'][number]['methods'][number], 'id' | 'name'>[] }
   readonly issues: readonly { readonly code: string; readonly detail: string }[]
   readonly trace: ProgrammingStaffTrace; readonly workoutGenerated: false; readonly libraryApprovalGranted: false
 }

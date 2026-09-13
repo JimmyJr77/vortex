@@ -10,23 +10,12 @@ import { modificationFixtures as sourceFixtures, modificationRequest } from './w
 import { SCOPE, uuid } from './workoutProgrammingLibrarianFixtures.js'
 import { createProgrammingStaffModelInvoker } from '../programmingStaffModel.js'
 import { MockLanguageModelV3 } from 'ai/test'
-import { TAXONOMY_V2_FACETS } from '../taxonomyV2.js'
+import { syntheticInterpretationTaxonomy, withSyntheticInterpretationTaxonomy } from './workoutProgrammingInterpretationFixtures.js'
 
 async function modificationFixtures() {
   const state = await sourceFixtures()
-  const source = state.pool
-  // Synthetic catalog rows pass through the production scoped snapshot and existing SQL catalog reader.
-  const taxonomy = Object.entries(TAXONOMY_V2_FACETS).flatMap(([facet_type, terms]) => terms.map((term, index) => ({
-    id: index + 1, facet_type, key: term.key, name: term.name, domain: term.domain, allowed_scopes: term.scopes, status: 'active', sort_order: index, metadata_json: {},
-  })))
-  return { ...state, taxonomy, pool: { async connect() {
-    const client = await source.connect()
-    return { async query(sql, values) {
-      if (sql.includes('FROM coaching.taxonomy_term_v2\n')) return { rows: structuredClone(taxonomy) }
-      if (sql.includes('FROM coaching.taxonomy_alias_v2 alias')) return { rows: [] }
-      return client.query(sql, values)
-    }, release: (error) => client.release(error) }
-  } } }
+  const taxonomy = syntheticInterpretationTaxonomy()
+  return { ...state, taxonomy, pool: withSyntheticInterpretationTaxonomy(state.pool, taxonomy) }
 }
 
 const instruction = 'Use ages 9–11, 15 athletes, 3 lanes and 60 athletic minutes. Focus explosiveness on acceleration and make capacity competitive.'
@@ -167,6 +156,9 @@ test('canonical swaps and dose proposals become a real reviewed child only throu
   const result = await run(state, director(edits), { rawInput: { request: modificationRequest(state.saved), instruction: text } })
   assert.equal(result.status, 'READY_FOR_REVIEW', JSON.stringify(result.issues))
   assert.equal(state.database.rows.size, 1)
+  assert.deepEqual(new Set(result.reviewReferences.exercises.map((entry) => entry.ref.deliveryProfileId)), new Set([first.profile.id, second.profile.id]))
+  assert.equal(result.reviewReferences.methods.find((entry) => entry.id === '9').name, 'strength reviewed method 9')
+  assert.ok(result.changes.some((entry) => entry.label === first.card.displayName))
   const { assumptions, ...rawRequest } = result.proposedRequest
   const saved = await generateAndPersistWorkoutProgramming({ pool: state.pool, context: SCOPE, registry: state.registry, rawRequest })
   assert.equal(saved.workout.status, 'QA_PASSED', JSON.stringify(saved.workout.validation.findings.map((entry) => entry.code)))

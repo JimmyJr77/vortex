@@ -1,4 +1,5 @@
-import type { CoachWorkoutRequest, ProgrammingPriorityFacet } from '../../backend/platform/workoutProgrammingRequest.js'
+import type { CoachWorkoutRequest, NormalizedCoachWorkoutRequest, ProgrammingPriorityFacet } from '../../backend/platform/workoutProgrammingRequest.js'
+import type { ProgrammingInterpretationResult } from '../../backend/platform/workoutProgrammingInterpretation.js'
 import type { SessionComponentKey } from '../../backend/platform/sessionComponentContract.js'
 import type { SavedProgrammingWorkout, revalidateWorkoutProgrammingRun } from '../../backend/platform/workoutProgrammingRepository.js'
 
@@ -7,6 +8,7 @@ export type { WorkoutProgrammingChoices } from '../../backend/platform/workoutPr
 export type { ProgrammingEvidenceChoice } from '../../backend/platform/workoutAthleteEvidence.js'
 export type { SavedProgrammingWorkout, ProgrammingWorkoutListItem, ProgrammingWorkoutCursor } from '../../backend/platform/workoutProgrammingRepository.js'
 export type { SessionComponentKey } from '../../backend/platform/sessionComponentContract.js'
+export type { ProgrammingInterpretationResult } from '../../backend/platform/workoutProgrammingInterpretation.js'
 export type ProgrammingRevalidation = NonNullable<Awaited<ReturnType<typeof revalidateWorkoutProgrammingRun>>>
 export type ProgrammingBlockEdit = NonNullable<NonNullable<CoachWorkoutRequest['modification']>['blockEdits']>[number]
 export const COMPONENT_LABELS = {
@@ -30,18 +32,36 @@ export function newProgrammingRequest(): CoachWorkoutRequest {
     priorities: [], components: COMPONENT_KEYS.map((key) => ({ key, selection: 'auto', budgetSeconds: null, priorities: [] })),
   }
 }
-export function requestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRequest {
-  const { assumptions: _assumptions, ...request } = saved.workout.intent
-  void _assumptions // A new request must recompute server-owned conclusions from current sources.
+function editableProgrammingRequest(normalized: NormalizedCoachWorkoutRequest, inactive: CoachWorkoutRequest['components'] = []): CoachWorkoutRequest {
+  const { assumptions: _assumptions, ...request } = structuredClone(normalized)
+  void _assumptions // Every submission recomputes server-owned conclusions from current sources.
   const equipmentKeys = (keys: readonly string[] | undefined) => keys?.map((key) => key === 'none' ? 'bodyweight' : key)
-  return { ...structuredClone(request), requestId: crypto.randomUUID(), revision: crypto.randomUUID(),
-    mode: request.mode === 'modify_existing' ? 'guided' : request.mode, modification: null,
+  return { ...request,
     equipment: { ...request.equipment, available: equipmentKeys(request.equipment.available) ?? [],
       preferred: equipmentKeys(request.equipment.preferred), required: equipmentKeys(request.equipment.required), excluded: equipmentKeys(request.equipment.excluded) },
-    components: COMPONENT_KEYS.map((key) => request.components.find((component) => component.key === key)
-      ?? { key, selection: 'auto' as const, budgetSeconds: null, priorities: [], equipment: { allowed: undefined, preferred: [], excluded: [] } }).map((component) => ({ ...component, lockedBlocks: [], equipment: {
-      allowed: equipmentKeys(component.equipment.allowed), preferred: equipmentKeys(component.equipment.preferred), excluded: equipmentKeys(component.equipment.excluded),
+    components: COMPONENT_KEYS.map((key) => request.components.find((component) => component.key === key) ?? structuredClone(inactive.find((component) => component.key === key))
+      ?? { key, selection: 'auto' as const, budgetSeconds: null, priorities: [], equipment: { allowed: undefined, preferred: [], excluded: [] } }).map((component) => ({ ...component, equipment: {
+      allowed: equipmentKeys(component.equipment?.allowed), preferred: equipmentKeys(component.equipment?.preferred), excluded: equipmentKeys(component.equipment?.excluded),
     } })) }
+}
+export function requestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRequest {
+  const request = editableProgrammingRequest(saved.workout.intent)
+  return { ...request, requestId: crypto.randomUUID(), revision: crypto.randomUUID(), mode: request.mode === 'modify_existing' ? 'guided' : request.mode,
+    modification: null, components: request.components?.map((component) => ({ ...component, lockedBlocks: [] })) }
+}
+/** UI freshness only. Server request/source hashes and full generation validation remain authoritative. */
+export const programmingControlsFingerprint = (request: CoachWorkoutRequest) => JSON.stringify(request)
+export function requestFromInterpretation(result: ProgrammingInterpretationResult, current: CoachWorkoutRequest, baseline: string): CoachWorkoutRequest {
+  const proposed = result.proposedRequest
+  if (programmingControlsFingerprint(current) !== baseline) throw new Error('The controls changed after this preview. Preview the instruction again.')
+  if (result.status !== 'READY_FOR_REVIEW' || !proposed || !result.proposalHash || current.mode !== 'modify_existing'
+    || proposed.mode !== 'modify_existing' || result.instruction !== current.instruction?.trim()
+    || proposed.requestId !== current.requestId || proposed.revision !== current.revision
+    || result.sourceWorkoutId !== current.modification?.workoutId || result.sourceRevision !== current.modification.expectedRevision
+    || proposed.modification?.workoutId !== result.sourceWorkoutId || proposed.modification.expectedRevision !== result.sourceRevision) {
+    throw new Error('This preview does not match the current saved-session revision. Preview the instruction again.')
+  }
+  return editableProgrammingRequest(proposed, current.components)
 }
 export function programmingRequestForSubmit(request: CoachWorkoutRequest): CoachWorkoutRequest {
   const active = activeProgrammingComponents(request)
