@@ -55,6 +55,14 @@ for(const alternative of [false,true])test(`admin certifies the current I-9 pack
   await expect(exam).toHaveCount(0)
   await page.reload();await page.getByRole('button',{name:'People & onboarding',exact:true}).click()
   const summary=page.locator('summary').filter({hasText:'Employer I-9 review'});await expect(summary).toContainText('COMPLETE')
+  await summary.click()
+  const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true})
+  await records.locator('summary').filter({hasText:'Current certification'}).click()
+  await expect(records).toContainText('Signed by Reviewer Alice')
+  await expect(records).toContainText('Authenticated hiring administrator personally performed examination.')
+  const downloadPromise=page.waitForEvent('download');await records.getByRole('button',{name:'Download signed employer I-9',exact:true}).click();const download=await downloadPromise;expect(download.suggestedFilename()).toBe('Form-I9-employer-signed.pdf')
+  await download.saveAs(`/tmp/payroll-employer-record-${alternative?'alternative':'physical'}.pdf`)
+  if(alternative){await expect(records).toContainText('E-Verify case review · open');await page.getByRole('button',{name:'Compliance',exact:true}).click();await page.locator('article').filter({has:page.getByRole('heading',{name:'E-Verify case review',exact:true})}).getByRole('button',{name:/Open employee onboarding/}).click();await expect(page.locator('summary').filter({hasText:'Employer I-9 review'})).toBeVisible()}
   const storage=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));expect(storage).not.toContain('Reviewer Alice');expect(storage).not.toContain('Authenticated hiring')
   expect(errors).toEqual([])
  }finally{try{await page.goto('about:blank');await page.unrouteAll({behavior:'wait'})}finally{try{await h.close()}finally{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}}}

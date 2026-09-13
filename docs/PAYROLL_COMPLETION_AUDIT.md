@@ -1,5 +1,7 @@
 # Payroll completion audit
 
+Checkpoint 522 (retained I-9 evidence and follow-up navigation): Hiring admins can reopen signed employer findings, distinguish current from historical certifications, download the signed form and selected copies, and see associated compliance tasks. Employee-specific compliance tasks link back to the correct onboarding workspace. This connects retained evidence to follow-up work; it does not complete receipt/reverification or E-Verify case-resolution workflows.
+
 Checkpoint 521 (secure examiner save/resume): Admins can save unfinished I-9 examination findings and resume them after preparing a fresh review of unchanged evidence. Drafts are encrypted and private to the authoring admin, protect against stale saves, and invalidate when the employee/employer basis changes. Signatures and certification confirmations are excluded from saved drafts and must be entered again. The full onboarding/payroll goal remains active.
 
 Checkpoint 520 (admin employer I-9 examination and signing): The admin payroll page now collects examination findings, selected document copies, business-calendar/deadline evidence, document acceptance and follow-up decisions, alternative-procedure attestations, and the examiner’s own signature. Physical and alternative signing browser journeys passed, including lost-response recovery, one retained signature, completion after reload and an OPEN E-Verify case-review task for the participating employer. The full onboarding/payroll goal remains active.

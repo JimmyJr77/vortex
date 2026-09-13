@@ -37,4 +37,10 @@ test('employer certification requires reviewed evidence, rolls back audit failur
  assert.equal((await api(`/employees/${employee.id}/onboarding`)).tasks.find(t=>t.id===task.id).status,'COMPLETE')
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_employer_signature'),/immutable/)
  assert.equal((await h.pool.query("SELECT * FROM payroll_audit_log WHERE action='I9_EMPLOYER_SIGNED'")).rowCount,1)
+ const records=await api(`/employees/${employee.id}/i9/employer-records`);assert.equal(records.records.length,1);assert.equal(records.records[0].current,true);assert.equal(records.records[0].signature,'Reviewer Alice');assert.equal(records.records[0].copies[0].filename.endsWith('.pdf'),true)
+ const foreign=await fetch(`${h.url}/api/admin/payroll/employees/${employee.id}/i9/employer-records`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(foreign.status,404)
+ const viewed=(await h.pool.query("SELECT after_data FROM payroll_audit_log WHERE action='I9_EMPLOYER_RECORDS_VIEWED'")).rows;assert.equal(viewed.length,1);assert.equal(JSON.stringify(viewed).includes('Reviewer Alice'),false)
+ await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{onboardingCycle:1,status:'CHANGES_REQUESTED',note:'Reopen employer review for corrected examination.'})
+ assert.equal((await api(`/employees/${employee.id}/i9/employer-records`)).records[0].current,false)
+
 })

@@ -1,3 +1,4 @@
+import {i9EmployerRecords} from './i9EmployerRecords.js'
 import {readI9ExaminationDraft,saveI9ExaminationDraft} from './i9ExaminationDraft.js'
 import {signI9Employer} from './i9EmployerSigning.js'
 import {listI9EmployerCopies,uploadI9EmployerCopy,viewI9EmployerCopy,recordI9CopyPage} from './i9EmployerCopies.js'
@@ -104,6 +105,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.get('/api/admin/payroll/employees/:id/i9/employer-records',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9EmployerRecords(db,context(req)))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9ExaminationDraft(db,context(req),req.params.taskId,req.query))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9ExaminationDraft(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9Employer(db,context(req),req.params.taskId,req.body||{}))})

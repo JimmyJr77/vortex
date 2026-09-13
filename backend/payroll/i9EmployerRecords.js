@@ -1,0 +1,15 @@
+import {decryptDocument} from './onboarding.js'
+const fail=(message,status=409)=>Object.assign(new Error(message),{status})
+export async function i9EmployerRecords(db,ctx){
+ if(!(await db.query('SELECT id FROM payroll_employee WHERE facility_id=$1 AND id=$2',[ctx.facility,ctx.employee])).rowCount)throw fail('Employee not found.',404)
+ const signatures=(await db.query(`SELECT s.*,d.filename,d.content_sha256,t.status AS task_status,t.onboarding_cycle AS current_cycle,t.response AS employer_response,e.status AS employee_status,e.response AS employee_response FROM payroll_i9_employer_signature s JOIN payroll_private_document d ON d.id=s.document_id AND d.facility_id=s.facility_id AND d.employee_id=s.employee_id JOIN payroll_onboarding_task t ON t.id=s.task_id JOIN payroll_onboarding_task e ON e.employee_id=s.employee_id AND e.facility_id=s.facility_id AND e.task_key='I9' WHERE s.facility_id=$1 AND s.employee_id=$2 ORDER BY s.id DESC`,[ctx.facility,ctx.employee])).rows
+ const tasks=(await db.query("SELECT id,task_key,status,due_date::text AS due_on,description,source_url,completion_note FROM payroll_compliance_task WHERE facility_id=$1 AND employee_id=$2 AND (task_key LIKE 'I9_DOCUMENT_FOLLOWUP:%' OR task_key LIKE 'I9_EVERIFY_CASE:%') ORDER BY due_date,id",[ctx.facility,ctx.employee])).rows
+ const files=(await db.query('SELECT id,filename FROM payroll_private_document WHERE facility_id=$1 AND employee_id=$2',[ctx.facility,ctx.employee])).rows
+ const records=signatures.map(row=>{
+  const retained=JSON.parse(decryptDocument(row.encrypted_signature,`i9-employer-signature:${ctx.facility}:${ctx.employee}:${row.task_id}:${row.onboarding_cycle}:${row.actor_user_id}`).toString())
+  if(retained.documentSha256!==row.content_sha256||String(retained.reviewId)!==String(row.review_id)||String(retained.submissionId)!==String(row.submission_id))throw fail('The retained employer evidence does not match its signature record.')
+  return {signatureId:row.id,onboardingCycle:row.onboarding_cycle,signedAt:row.signed_at,current:row.employee_status==='COMPLETE'&&row.task_status==='COMPLETE'&&row.current_cycle===row.onboarding_cycle&&String(row.employer_response?.i9EmployerSignatureId)===String(row.id)&&String(row.employee_response?.i9SubmissionId)===String(row.submission_id),signature:retained.signature,attestation:retained.attestation,examination:retained.examination,timing:retained.timing,context:retained.context,document:{id:row.document_id,filename:row.filename},copies:retained.copies.map(copy=>({...copy,filename:files.find(file=>String(file.id)===String(copy.documentId))?.filename||'I9-retained-copy'})),followups:tasks.filter(task=>task.task_key===`I9_EVERIFY_CASE:${row.id}`||task.task_key.startsWith(`I9_DOCUMENT_FOLLOWUP:${row.id}:`))}
+ })
+ await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_EMPLOYER_RECORDS_VIEWED','payroll_employee',$3,$4)",[ctx.facility,ctx.admin,String(ctx.employee),{signatureIds:signatures.map(s=>s.id)}])
+ return {records}
+}

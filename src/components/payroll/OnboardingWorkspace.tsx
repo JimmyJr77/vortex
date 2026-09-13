@@ -1,3 +1,4 @@
+import I9EmployerRecords from './I9EmployerRecords'
 import I9EmployerDraft from './I9EmployerDraft'
 import I9PreparerRoster from './I9PreparerRoster'
 import I9HiringContext from './I9HiringContext'
@@ -72,6 +73,7 @@ function TaskStep({ taskId, task, packet, employeeId, busy, act, employmentStatu
   {canSubmit&&task.task_key==='W4'?<EmployeeW4 key={`${task.id}-${task.onboarding_cycle}`} taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed W-4 was submitted for hiring-admin review.')}/>:null}
   {employeeId&&activated&&task.task_key==='I9'&&task.response?.i9PreparerRequired?<I9PreparerRoster employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle} onReview={setPreparerReview}/>:null}
   {employeeId&&activated&&task.task_key==='I9'?<I9HiringContext key={`${task.id}-${task.onboarding_cycle}`} employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle}/>:null}
+  {employeeId&&activated&&task.task_key==='I9_REVIEW'?<I9EmployerRecords key={`records-${task.id}-${task.status}`} employeeId={employeeId}/>:null}
   {employeeId&&activated&&task.task_key==='I9_REVIEW'&&task.status!=='COMPLETE'?<I9EmployerDraft key={`${task.id}-${task.onboarding_cycle}`} employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle} editable={['OPEN','SUBMITTED','CHANGES_REQUESTED'].includes(task.status)} onSigned={()=>act(()=>Promise.resolve(),'Employer I-9 signed and completed.')}/>:null}
   {canSubmit&&activated&&task.task_key==='I9'&&(!task.response?.i9SubmissionId||i9Amend)?<EmployeeI9Draft taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={async()=>{await act(()=>Promise.resolve(),'Your signed I-9 Section 1 was submitted for hiring-admin review.');setI9Amend(false)}}/>:null}
   {canSubmit&&activated&&task.task_key==='STATE_WITHHOLDING'&&packet.marylandCertificateAvailable?<EmployeeMW507 taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed MW507 was submitted for hiring-admin review.')}/>:null}
