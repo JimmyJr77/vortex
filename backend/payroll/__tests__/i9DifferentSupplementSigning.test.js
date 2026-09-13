@@ -1,3 +1,5 @@
+import {i9SupplementBBasis} from '../i9SupplementBReview.js'
+import {i9EmployerRecords} from '../i9EmployerRecords.js'
 import {PDFDocument} from 'pdf-lib'
 import {decryptDocument} from '../onboarding.js'
 import {signI9DifferentSupplement} from '../i9DifferentSupplementSigning.js'
@@ -47,18 +49,28 @@ test('Supplement B replacement signing is atomic and recovers completed retries'
  assert.equal(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_signature')).rows[0].count),0)
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[receiptTaskId])).rows[0].status,'OPEN')
  await h.pool.query('DROP TRIGGER reject_replacement_sign_audit ON payroll_audit_log')
- const signedReplacement=await transact(request)
+ const signedReplacement=await api(path+'/sign',request)
  assert.equal(signedReplacement.status,'COMPLETE')
  const saved=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[signedReplacement.documentId])).rows[0]
  const signedPdf=await PDFDocument.load(decryptDocument(saved.encrypted_content,`1:${employee.id}:${saved.task_id}`))
  assert.equal(signedPdf.getPageCount(),2)
  assert.equal(signedPdf.getForm().getTextField('Signature of Emp Rep 0').getText(),'Reviewer Alice')
  assert.equal(signedPdf.getForm().getTextField('Todays Date 0').getText(),`${today.slice(5,7)}/${today.slice(8,10)}/${today.slice(0,4)}`)
- assert.deepEqual(await transact({...request,requestKey:request.requestKey.toUpperCase()}),signedReplacement)
+ assert.deepEqual(await api(path+'/sign',{...request,requestKey:request.requestKey.toUpperCase()}),signedReplacement)
  await assert.rejects(()=>transact({...request,signature:'Changed Reviewer'}),/different replacement evidence/)
  const next=(await h.pool.query("SELECT f.kind,f.due_on::text,c.status FROM payroll_i9_signature_followup f JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.row_key=$1",[`DIFFERENT_SUPPLEMENT:${signedReplacement.signatureId}`])).rows
  assert.deepEqual(next,[{kind:'REVERIFICATION',due_on:'2031-01-01',status:'OPEN'}])
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[receiptTaskId])).rows[0].status,'COMPLETE')
  assert.deepEqual((await h.pool.query('SELECT id,content_sha256,encrypted_content FROM payroll_private_document WHERE id=ANY($1::bigint[]) ORDER BY id',[before.map(d=>d.id)])).rows,before)
+ const nextTask=(await h.pool.query('SELECT compliance_task_id FROM payroll_i9_signature_followup WHERE row_key=$1',[`DIFFERENT_SUPPLEMENT:${signedReplacement.signatureId}`])).rows[0].compliance_task_id
+ const basis=await i9SupplementBBasis(h.pool,ctx,nextTask)
+ assert.equal(basis.followupExaminedOn,today)
+ assert.equal(basis.previousReceiptAmendments.find(p=>p.documentKey===`different-supplement:${signedReplacement.signatureId}`).pageCount,2)
+ const history=await i9EmployerRecords(h.pool,ctx)
+ assert.equal(history.records[0].differentSupplements[0].document.id,signedReplacement.documentId)
+ const followPreview=await api(`/employees/${employee.id}/i9/supplement/${nextTask}/preview`,{signatureId:signed.signatureId,answers:body.supplement})
+ const retainedPart=followPreview.previousReceiptAmendments.find(p=>p.documentKey===`different-supplement:${signedReplacement.signatureId}`)
+ assert.equal(retainedPart.pageCount,2)
+ for(let n=1;n<=2;n++)await api(`/employees/${employee.id}/i9/supplement/${nextTask}/page`,{reviewId:followPreview.reviewId,previewSha256:followPreview.previewSha256,documentKey:retainedPart.documentKey,page:n,displayed:true})
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_supplement_signature WHERE id=$1',[signedReplacement.signatureId]),/immutable/)
 })
