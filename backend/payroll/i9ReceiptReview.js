@@ -5,6 +5,7 @@ import {i9ReceiptReplacementInput,renderI9ReceiptReplacementPreview} from './i9R
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const hash=value=>createHash('sha256').update(value).digest('hex')
 const aad=(ctx,row)=>`i9-receipt-review:${ctx.facility}:${ctx.employee}:${row.compliance_task_id}:${row.actor_user_id}`
+export const I9_RECEIPT_ATTESTATION='I certify that I examined the actual replacement document for the identified receipt, that it reasonably appears genuine and relates to this employee, and that this amendment and the retained examination findings accurately record my review.'
 export async function i9ReceiptBasis(db,ctx,taskId){
  const current=await i9DocumentFollowupBasis(db,ctx,taskId,'RECEIPT_REPLACEMENT')
  let bytes=current.bytes,documentId=current.row.document_id,sourceKind='SECTION2',rowKey=current.row.followup_row_key,examination
@@ -29,7 +30,7 @@ export async function previewI9Receipt(db,ctx,taskId,body){
  const retained={answers,pdfBase64:rendered.pdf.toString('base64'),source:{documentId:source.documentId,sha256:source.sha256,pdfBase64:source.bytes.toString('base64'),pageCount:source.pageCount},pageCount:rendered.pageCount}
  const row=(await db.query(`INSERT INTO payroll_i9_receipt_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,document_fingerprint,encrypted_review,page_count,source_page_count) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,previewSha256,hash(JSON.stringify(answers.replacement)),encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,{compliance_task_id:taskId,actor_user_id:ctx.admin})),rendered.pageCount,source.pageCount])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_RECEIPT_PREVIEW_CREATED','i9_receipt_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,complianceTaskId:taskId,signatureId:current.row.id,previewSha256}])
- return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,...retained}
+ return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,attestation:I9_RECEIPT_ATTESTATION,...retained}
 }
 export async function currentI9ReceiptReview(db,ctx,taskId,body){
  const current=await i9ReceiptBasis(db,ctx,taskId)

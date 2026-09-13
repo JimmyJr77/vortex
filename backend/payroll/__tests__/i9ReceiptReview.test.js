@@ -1,3 +1,5 @@
+import {decryptDocument} from '../onboarding.js'
+import {writeFile} from 'node:fs/promises'
 import {reverificationFixture} from '../testing/reverificationFixture.js'
 import {currentI9ReceiptReview} from '../i9ReceiptReview.js'
 import test from 'node:test'
@@ -85,6 +87,32 @@ test('native receipt review retains encrypted source and scopes immutable page e
  await api(path+'/page',{...page,reviewId:expired.id,previewSha256:next.previewSha256},'POST',409)
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[followup.compliance_task_id])).rows[0].status,'OPEN')
  await api(`/compliance/${followup.compliance_task_id}`,{status:'COMPLETE',completionNote:'Viewing a replacement is not a signed examination.'},'PATCH',409)
+ const today=(await h.pool.query("SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=1")).rows[0].today
+ const signing=await api(path+'/preview',{...body,answers:{...answers,amendedOn:today}}),signPage={reviewId:signing.reviewId,previewSha256:signing.previewSha256}
+ const examination={examinedOn:today,identityEvidence:'Authenticated named examiner reviewed the original passport.',actualReplacementConfirmed:true,receiptMatchEvidence:'The actual passport matches the retained replacement receipt.',documentsGenuineAndRelated:true,copiesComplete:true,copyIds:[retained.id],examinationMethod:'PHYSICAL',physicalPresence:true,acceptance:'STANDARD',acceptanceSource:'https://www.uscis.gov/i-9-central',acceptanceEvidence:'Original unexpired passport replaces the retained receipt.',validUntil:'2036-01-01',authorizationIndefinite:true,authorizationThrough:'',documentRequiresReverification:false,followUpKind:'NONE',followUpOn:'',noFurtherFollowupConfirmed:true}
+ const signBody={...signPage,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:signing.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination}
+ await api(path+'/sign',signBody,'POST',409)
+ for(const [key,count] of [['source',4],['amendment',signing.pageCount]])for(let n=1;n<=count;n++)await api(path+'/page',{...signPage,documentKey:key,page:n,displayed:true})
+ await api(path+'/sign',signBody,'POST',409)
+ for(let n=1;n<=2;n++)await api(path+'/copy-page',{...signPage,copyId:retained.id,page:n,displayed:true})
+ await api(path+'/sign',{...signBody,signature:'Other examiner'},'POST',400)
+ await h.pool.query(`CREATE FUNCTION reject_receipt_sign_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_RECEIPT_SIGNED' THEN RAISE EXCEPTION 'Synthetic signing audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_receipt_sign_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_receipt_sign_audit()`)
+ const docsBefore=(await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n
+ await api(path+'/sign',signBody,'POST',500)
+ assert.equal((await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n,docsBefore)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_receipt_signature')).rowCount,0)
+ await h.pool.query('DROP TRIGGER reject_receipt_sign_audit ON payroll_audit_log')
+ const [complete,repeated]=await Promise.all([api(path+'/sign',signBody),api(path+'/sign',signBody)]);assert.deepEqual(complete,repeated)
+ assert.equal(complete.status,'COMPLETE');assert.equal(complete.nextFollowup,null)
+ assert.deepEqual(await api(path+'/sign',{...signBody,requestKey:signBody.requestKey.toUpperCase()}),complete)
+ await api(path+'/sign',{...signBody,signature:'Other examiner'},'POST',409)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_receipt_signature'),/immutable/)
+ const document=(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[complete.documentId])).rows[0]
+ const signedBytes=decryptDocument(document.encrypted_content,`1:${employee.id}:${task.id}`)
+ assert.equal((await PDFDocument.load(signedBytes)).getForm().getTextField('vortex.i9.receipt.signature').getText(),'Reviewer Alice')
+ await writeFile('/tmp/payroll-i9-receipt-signed-integrated.pdf',signedBytes)
+ const records=await api(`/employees/${employee.id}/i9/employer-records`)
+ assert.equal(records.records[0].receiptAmendments[0].signatureId,complete.signatureId)
  await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{onboardingCycle:1,status:'CHANGES_REQUESTED',note:'Reopen source for a corrected examination.'})
  await api(path+'/preview',body,'POST',409)
  await api(path+'/page',{...page,reviewId:next.reviewId,previewSha256:next.previewSha256},'POST',409)
@@ -121,4 +149,26 @@ test('receipt review resolves the signed supplement that created the follow-up',
  assert.equal(form.getTextField('Signature of Emp Rep 0').getText(),'Reviewer Alice')
  await api(receiptPath+'/preview',{signatureId:signed.signatureId,answers:{...replacement,sourceKind:'SECTION2',rowKey:'A1'}},'POST',400)
  await api(receiptPath+'/page',{reviewId:retained.reviewId,previewSha256:retained.previewSha256,documentKey:'source',page:2,displayed:true},'POST',400)
+ for(const [key,count] of [['source',1],['amendment',retained.pageCount]])for(let n=1;n<=count;n++)await api(receiptPath+'/page',{...receiptReview,documentKey:key,page:n,displayed:true})
+ const receiptExam={examinedOn:today,identityEvidence:'Authenticated named examiner reviewed the actual replacement.',actualReplacementConfirmed:true,receiptMatchEvidence:'Replacement EAD matches the receipt in the signed supplement.',documentsGenuineAndRelated:true,copiesComplete:true,copyIds:[receiptCopy.id],examinationMethod:'PHYSICAL',physicalPresence:true,acceptance:'STANDARD',acceptanceSource:'https://www.uscis.gov/i-9-central',acceptanceEvidence:'The actual original EAD replaces the reviewed receipt.',validUntil:'2032-01-01',authorizationIndefinite:false,authorizationThrough:'2032-01-01',documentRequiresReverification:true,followUpKind:'REVERIFICATION',followUpOn:'2032-01-01',noFurtherFollowupConfirmed:false}
+ const receiptSigned=await api(receiptPath+'/sign',{...receiptReview,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:retained.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:receiptExam})
+ assert.equal(receiptSigned.nextFollowup.kind,'REVERIFICATION')
+ const nextPath=`/employees/${employee.id}/i9/supplement/${receiptSigned.nextFollowup.id}`
+ const next=await api(nextPath+'/preview',{signatureId:signed.signatureId,answers:{...answers,document:{...answers.document,title:'Employment Authorization Document',number:'SYNTHETIC-ACTUAL',expiresOn:'2032-01-01'}}})
+ assert.equal(next.previousReceiptAmendments.length,1)
+ const prior=next.previousReceiptAmendments[0]
+ assert.equal(prior.documentKey,`receipt:${receiptSigned.signatureId}`)
+ assert.equal(prior.pageCount,2)
+ const nextPage={reviewId:next.reviewId,previewSha256:next.previewSha256,displayed:true}
+ const nextCopy=await api(nextPath+'/copies',{...nextPage,requestKey:randomUUID(),filename:'next.pdf',contentBase64:pdf.toString('base64')})
+ for(let n=1;n<=4;n++)await api(nextPath+'/page',{...nextPage,documentKey:'source',page:n})
+ await api(nextPath+'/page',{...nextPage,documentKey:'supplement',page:1})
+ for(const previous of next.previousSupplements)await api(nextPath+'/page',{...nextPage,documentKey:previous.documentKey,page:1})
+ for(let n=1;n<=2;n++)await api(nextPath+'/copy-page',{...nextPage,copyId:nextCopy.id,page:n})
+ const nextBody={...nextPage,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:next.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:{...examination,copyIds:[nextCopy.id],acceptance:'STANDARD',formNotation:'',validUntil:'2032-01-01',followUpKind:'REVERIFICATION',followUpOn:'2032-01-01'}}
+ await api(nextPath+'/sign',nextBody,'POST',409)
+ for(let n=1;n<=prior.pageCount;n++)await api(nextPath+'/page',{reviewId:next.reviewId,previewSha256:next.previewSha256,documentKey:prior.documentKey,page:n,displayed:true})
+ await api(nextPath+'/page',{reviewId:next.reviewId,previewSha256:next.previewSha256,documentKey:prior.documentKey,page:3,displayed:true},'POST',400)
+
+ assert.equal((await api(nextPath+'/sign',nextBody)).status,'COMPLETE')
 })

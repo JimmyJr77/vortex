@@ -6003,3 +6003,50 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_copy_page ON payroll_i9_receipt_copy_page;
 CREATE TRIGGER payroll_guard_i9_receipt_copy_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_copy_page FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_copy_page();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_signature (
+ id BIGSERIAL PRIMARY KEY, facility_id BIGINT NOT NULL, employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL UNIQUE REFERENCES payroll_compliance_task(id), signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id), review_id BIGINT NOT NULL UNIQUE REFERENCES payroll_i9_receipt_review(id), document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),
+ actor_user_id BIGINT NOT NULL, request_key UUID NOT NULL, request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'), encrypted_evidence BYTEA NOT NULL CHECK(octet_length(encrypted_evidence)>28),
+ selected_copy_ids BIGINT[] NOT NULL CHECK(cardinality(selected_copy_ids)>0), followup_kind TEXT NOT NULL CHECK(followup_kind IN ('NONE','REVERIFICATION','OTHER')), followup_on DATE,
+ signed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), UNIQUE(facility_id,employee_id,request_key), CHECK((followup_kind='NONE')=(followup_on IS NULL))
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_signature() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE selected_copy_id BIGINT; expected_pages INTEGER;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Signed receipt amendment evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_review r JOIN payroll_i9_employer_signature s ON s.id=r.signature_id JOIN payroll_private_document d ON d.id=NEW.document_id WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.compliance_task_id=NEW.compliance_task_id AND r.signature_id=NEW.signature_id AND r.actor_user_id=NEW.actor_user_id AND d.facility_id=r.facility_id AND d.employee_id=r.employee_id AND d.task_id=s.task_id AND d.onboarding_cycle=s.onboarding_cycle AND d.mime_type='application/pdf') THEN RAISE EXCEPTION 'receipt amendment signature must match its reviewed employee evidence.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_i9_receipt_review r WHERE r.id=NEW.review_id AND ((SELECT COUNT(*) FROM payroll_i9_receipt_page_visit WHERE review_id=r.id AND document_key='source')<>r.source_page_count OR (SELECT COUNT(*) FROM payroll_i9_receipt_page_visit WHERE review_id=r.id AND document_key='amendment')<>r.page_count)) THEN RAISE EXCEPTION 'Review all source and amendment pages before signing.' USING ERRCODE='23514'; END IF;
+ IF cardinality(NEW.selected_copy_ids)<>(SELECT COUNT(DISTINCT id) FROM unnest(NEW.selected_copy_ids) id) THEN RAISE EXCEPTION 'Retain each selected replacement copy once.' USING ERRCODE='23514'; END IF;
+ FOREACH selected_copy_id IN ARRAY NEW.selected_copy_ids LOOP
+  SELECT c.page_count INTO expected_pages FROM payroll_i9_receipt_copy c JOIN payroll_i9_receipt_review r ON r.id=NEW.review_id AND r.document_fingerprint=c.document_fingerprint WHERE c.id=selected_copy_id AND c.signature_id=NEW.signature_id AND c.compliance_task_id=NEW.compliance_task_id;
+  IF expected_pages IS NULL OR (SELECT COUNT(*) FROM payroll_i9_receipt_copy_page p WHERE p.review_id=NEW.review_id AND p.copy_id=selected_copy_id)<>expected_pages THEN RAISE EXCEPTION 'Review every selected replacement-copy page before signing.' USING ERRCODE='23514'; END IF;
+ END LOOP;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_signature ON payroll_i9_receipt_signature;
+CREATE TRIGGER payroll_guard_i9_receipt_signature BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_signature FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_signature();
+
+CREATE OR REPLACE FUNCTION payroll_guard_i9_document_completion() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.task_key LIKE 'I9_DOCUMENT_FOLLOWUP:%' AND (NEW.status='NOT_APPLICABLE' OR (NEW.status='COMPLETE' AND NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id) AND NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_signature s WHERE s.compliance_task_id=NEW.id AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id))) THEN RAISE EXCEPTION 'I-9 document follow-up completion requires retained signed evidence.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+
+ALTER TABLE payroll_i9_supplement_page_visit DROP CONSTRAINT IF EXISTS payroll_i9_supplement_page_range;
+ALTER TABLE payroll_i9_supplement_page_visit ADD CONSTRAINT payroll_i9_supplement_page_range CHECK((document_key='source' AND page_number BETWEEN 1 AND 4) OR ((document_key='supplement' OR document_key ~ '^prior:[1-9][0-9]*$') AND page_number=1) OR (document_key ~ '^receipt:[1-9][0-9]*$' AND page_number BETWEEN 1 AND 100));
+CREATE OR REPLACE FUNCTION payroll_guard_i9_supplement_signature() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE selected_copy_id BIGINT; expected_pages INTEGER;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Signed Supplement B evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_review r JOIN payroll_i9_employer_signature s ON s.id=r.signature_id JOIN payroll_private_document d ON d.id=NEW.document_id WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.compliance_task_id=NEW.compliance_task_id AND r.signature_id=NEW.signature_id AND r.actor_user_id=NEW.actor_user_id AND d.facility_id=r.facility_id AND d.employee_id=r.employee_id AND d.task_id=s.task_id AND d.onboarding_cycle=s.onboarding_cycle AND d.mime_type='application/pdf') THEN RAISE EXCEPTION 'Supplement B signature must match its reviewed employee evidence.' USING ERRCODE='23514'; END IF;
+ IF (SELECT COUNT(*) FROM payroll_i9_supplement_page_visit WHERE review_id=NEW.review_id AND document_key='source')<>4 OR NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_page_visit WHERE review_id=NEW.review_id AND document_key='supplement' AND page_number=1) THEN RAISE EXCEPTION 'Review all source and supplement pages before signing.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_i9_supplement_signature previous WHERE previous.signature_id=NEW.signature_id AND NOT EXISTS(SELECT 1 FROM payroll_i9_supplement_page_visit v WHERE v.review_id=NEW.review_id AND v.document_key='prior:'||previous.id::text AND v.page_number=1)) THEN RAISE EXCEPTION 'Review every prior supplement before signing.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_i9_receipt_signature previous JOIN payroll_i9_receipt_review r ON r.id=previous.review_id WHERE previous.signature_id=NEW.signature_id AND (SELECT COUNT(*) FROM payroll_i9_supplement_page_visit v WHERE v.review_id=NEW.review_id AND v.document_key='receipt:'||previous.id::text)<>r.page_count) THEN RAISE EXCEPTION 'Review every retained receipt amendment page before signing.' USING ERRCODE='23514'; END IF;
+ IF cardinality(NEW.selected_copy_ids)<>(SELECT COUNT(DISTINCT id) FROM unnest(NEW.selected_copy_ids) id) THEN RAISE EXCEPTION 'Retain each selected replacement copy once.' USING ERRCODE='23514'; END IF;
+ FOREACH selected_copy_id IN ARRAY NEW.selected_copy_ids LOOP
+  SELECT c.page_count INTO expected_pages FROM payroll_i9_supplement_copy c JOIN payroll_i9_supplement_review r ON r.id=NEW.review_id AND r.document_fingerprint=c.document_fingerprint WHERE c.id=selected_copy_id AND c.signature_id=NEW.signature_id AND c.compliance_task_id=NEW.compliance_task_id;
+  IF expected_pages IS NULL OR (SELECT COUNT(*) FROM payroll_i9_supplement_copy_page p WHERE p.review_id=NEW.review_id AND p.copy_id=selected_copy_id)<>expected_pages THEN RAISE EXCEPTION 'Review every selected replacement-copy page before signing.' USING ERRCODE='23514'; END IF;
+ END LOOP;
+ RETURN NEW;
+END $$;
