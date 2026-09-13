@@ -1,24 +1,28 @@
 import {test,expect} from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {completedReceiptFixture} from '../../backend/payroll/testing/completedReceiptFixture.js'
 import {receiptFixture} from '../../backend/payroll/testing/receiptFixture.js'
 const scenarios=[
  {name:'citizen',authorizedWorker:false,rows:['B','C'],alternative:false},
  {name:'finite authorization',authorizedWorker:true,rows:['B','C'],alternative:false},
  {name:'List A extension',authorizedWorker:true,rows:['A1'],alternative:false},
  {name:'List B extension',authorizedWorker:false,rows:['B','C'],alternative:false},
+ {name:'one receipt already replaced',authorizedWorker:false,rows:['A1'],alternative:false},
  {name:'two original receipts',authorizedWorker:false,rows:['A1'],alternative:false},
  {name:'List A citizen',authorizedWorker:false,rows:['A1'],alternative:false},
  {name:'List A multiple alternative',authorizedWorker:true,rows:['A1','A2','A3'],alternative:true},
 ]
 for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin signs different replacement documents (${name})`,async({page})=>{
- const listA=rows[0]==='A1',authorizationRow=listA?'A1':'C',exception=name.includes('extension'),exceptionRow=rows[0],multipleReceipts=name==='two original receipts'
+ const listA=rows[0]==='A1',authorizationRow=listA?'A1':'C',exception=name.includes('extension'),exceptionRow=rows[0],multipleReceipts=['two original receipts','one receipt already replaced'].includes(name),partial=name==='one receipt already replaced'
  let notation=''
  const alternativeChecks=['Employer is currently in E-Verify good standing','All relevant hiring sites are enrolled','Required examiner training is complete','The procedure is applied consistently without discrimination','I examined copies before live video','The same originals were presented during live video']
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000);page.setDefaultTimeout(15000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='96'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  try{
-  const {pdf}=await receiptFixture(h,{authorizedWorker,eVerify:alternative,multipleReceipts})
+  const fixture=await receiptFixture(h,{authorizedWorker,eVerify:alternative,multipleReceipts}),{pdf}=fixture
+  const prior=partial?await completedReceiptFixture(h,fixture):null
+  const packetParts:Array<[string,number]>=[['Review new replacement certification',2],['Review original employer I-9',4],['Review original employee I-9',4],...(prior?[[`Review retained amendment receipt:${prior.signatureId}`,prior.pageCount] as [string,number]]:[])]
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
   let failContext=true,loseUpload=true,loseSign=true,loseDraft=true
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());if(failContext&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/context')){failContext=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic context outage.'})});return}const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0});if(loseDraft&&route.request().method()==='POST'&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/draft')){expect(response.status()).toBe(200);loseDraft=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic draft response lost.'})});return}if(loseUpload&&route.request().method()==='POST'&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/copies')){expect(response.status()).toBe(200);loseUpload=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic upload response lost.'})});return}if(loseSign&&response.status()===200&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/sign')){expect(response.status()).toBe(200);loseSign=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic signing response lost.'})});return}await route.fulfill({response})})
@@ -30,7 +34,8 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   await expect(work.getByRole('alert')).toContainText('Synthetic context outage.')
   await work.getByRole('button',{name:'Reload saved replacement (replaces unsaved entries)',exact:true}).click()
   await expect(work.getByLabel('Employer business name',{exact:true})).not.toHaveValue('')
-  if(multipleReceipts)await expect(work).toContainText('C (due 2026-11-15); B (due 2026-11-30)')
+  if(partial)await expect(work.getByText('This complete replacement certification resolves these original receipt rows when signed: C (due 2026-11-15).',{exact:true})).toBeVisible()
+  if(multipleReceipts&&!partial)await expect(work).toContainText('C (due 2026-11-15); B (due 2026-11-30)')
   await expect(work.getByLabel('Replacement examiner name and title',{exact:true})).toHaveValue('')
   await work.getByLabel('Replacement document combination',{exact:true}).selectOption(listA?'LIST_A':'LIST_B_C')
   if(listA)for(let n=1;n<rows.length;n++)await work.getByRole('button',{name:'Add List A document',exact:true}).click()
@@ -55,14 +60,14 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   await work.getByRole('button',{name:'Reload saved replacement (replaces unsaved entries)',exact:true}).click()
   await expect(work.getByLabel('Reason for different replacement documents',{exact:true})).toHaveValue('Employee selected different acceptable documents after the original receipt.')
   await work.getByRole('button',{name:'Prepare replacement certification',exact:true}).click()
-  for(const [title,count] of [['Review new replacement certification',2],['Review original employer I-9',4],['Review original employee I-9',4]] as const){
+  for(const [title,count] of packetParts){
    const viewer=work.getByRole('region',{name:`Official ${title} page review`,exact:true})
    for(let n=1;n<=count;n++){
     await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click()
     await expect(viewer.getByRole('status')).toContainText(`Page ${n} of ${count} displayed and review visit saved.`,{timeout:30000})
    }
   }
-  expect((await h.pool.query('SELECT * FROM payroll_i9_different_page_visit')).rowCount).toBe(10)
+  expect((await h.pool.query('SELECT * FROM payroll_i9_different_page_visit')).rowCount).toBe(10+(prior?.pageCount||0))
   for(const row of rows){
    const copies=work.getByRole('region',{name:`Replacement document ${row} copies`,exact:true})
    await copies.getByLabel('Replacement document copy (PDF, PNG or JPEG, up to 5 MB)',{exact:true}).setInputFiles({name:'synthetic.pdf',mimeType:'application/pdf',buffer:pdf})
@@ -127,7 +132,7 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   await work.getByRole('button',{name:'Reload saved replacement (replaces unsaved entries)',exact:true}).click()
   await expect(work.getByRole('status')).toContainText('Draft restored.')
   await work.getByRole('button',{name:'Prepare replacement certification',exact:true}).click()
-  for(const [title,count] of [['Review new replacement certification',2],['Review original employer I-9',4],['Review original employee I-9',4]] as const){
+  for(const [title,count] of packetParts){
    const viewer=work.getByRole('region',{name:`Official ${title} page review`,exact:true})
    for(let n=1;n<=count;n++){await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(viewer.getByRole('status')).toContainText(`Page ${n} of ${count} displayed and review visit saved.`,{timeout:30000})}
   }
@@ -182,8 +187,13 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   await (await download).saveAs('/tmp/payroll-different-ui-signed.pdf')
   expect((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount).toBe(1)
   const resolutions=(await h.pool.query('SELECT r.row_key,c.status FROM payroll_i9_different_resolution r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id ORDER BY r.row_key')).rows
-  expect(resolutions).toEqual(multipleReceipts?[{row_key:'B',status:'COMPLETE'},{row_key:'C',status:'COMPLETE'}]:[{row_key:'A1',status:'COMPLETE'}])
+  expect(resolutions).toEqual(partial?[{row_key:'C',status:'COMPLETE'}]:multipleReceipts?[{row_key:'B',status:'COMPLETE'},{row_key:'C',status:'COMPLETE'}]:[{row_key:'A1',status:'COMPLETE'}])
   if(multipleReceipts)await expect(history).toContainText('Resolved original receipt rows: C (task')
+  if(prior){
+   expect((await h.pool.query('SELECT * FROM payroll_compliance_task WHERE id=$1',[prior.taskId])).rows[0]).toEqual(prior.taskSnapshot)
+   expect((await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[prior.documentId])).rows[0]).toEqual(prior.documentSnapshot)
+   await expect(records.locator('summary').filter({hasText:'Signed receipt amendment'})).toHaveCount(1)
+  }
   const followups=(await h.pool.query("SELECT kind,due_on::text FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT:%'")).rows
   expect(followups).toEqual(authorizedWorker?[{kind:'REVERIFICATION',due_on:'2030-01-01'}]:[])
   await expect(records.getByRole('button',{name:'Prepare different replacement documents',exact:true})).toHaveCount(0)

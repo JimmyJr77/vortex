@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {PDFDocument} from 'pdf-lib'
 import {createHarness} from '../testing/harness.js'
+import {completedReceiptFixture} from '../testing/completedReceiptFixture.js'
 import {receiptFixture} from '../testing/receiptFixture.js'
 import {signI9DifferentDocuments} from '../i9DifferentDocumentsSigning.js'
 import {i9DifferentDocumentsBasis} from '../i9DifferentDocumentsBasis.js'
@@ -11,11 +12,12 @@ import {i9SupplementBBasis} from '../i9SupplementBReview.js'
 import {i9EmployerRecords} from '../i9EmployerRecords.js'
 import {I9_EMPLOYER_ATTESTATION} from '../i9Examination.js'
 import {decryptDocument} from '../onboarding.js'
-for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multipleReceipts:false},{authorizedWorker:true,multipleReceipts:false},{authorizedWorker:false,multipleReceipts:true}])test(`replacement signing retains evidence and resolves receipt (${multipleReceipts?'multiple receipts':authorizedWorker?'finite authorization':'citizen'})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const {authorizedWorker,multipleReceipts,partial=false} of [{authorizedWorker:false,multipleReceipts:false},{authorizedWorker:true,multipleReceipts:false},{authorizedWorker:false,multipleReceipts:true},{authorizedWorker:false,multipleReceipts:true,partial:true}])test(`replacement signing retains evidence and resolves receipt (${partial?'partially resolved receipts':multipleReceipts?'multiple receipts':authorizedWorker?'finite authorization':'citizen'})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='94'.repeat(32);t.after(()=>{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
  const h=await createHarness();t.after(()=>h.close())
  const {api,employee,signed,pdf}=await receiptFixture(h,{authorizedWorker,multipleReceipts}),ctx={facility:1,employee:employee.id,admin:99}
- const task=(await h.pool.query('SELECT compliance_task_id FROM payroll_i9_signature_followup WHERE signature_id=$1',[signed.signatureId])).rows[0].compliance_task_id
+ const prior=partial?await completedReceiptFixture(h,{api,employee,signed,pdf}):null
+ const task=(await h.pool.query("SELECT f.compliance_task_id FROM payroll_i9_signature_followup f JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.signature_id=$1 AND c.status='OPEN' ORDER BY c.id",[signed.signatureId])).rows[0].compliance_task_id
  const current=await i9DifferentDocumentsBasis(h.pool,ctx,task)
  const path=`/employees/${employee.id}/i9/different-documents/${task}`
  const doc={title:'Synthetic document',issuingAuthority:'Synthetic issuer',number:'SYNTHETIC',expiresOn:'2030-01-01'}
@@ -28,9 +30,15 @@ for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multip
  const facts={differentDocumentsConfirmed:true,authorizationIndefinite:!authorizedWorker,authorizationThrough:authorizedWorker?'2030-01-01':'',authorizationEvidence:'Verified current authorization from the examined replacement evidence.',examination:{examinedOn:review.recordedOn,examinerInitials:'RA',identityEvidence:'Authenticated hiring administrator performed the actual examination.',businessDays:[1,2,3,4,5],closedDates:[],calendarConfirmed:true,shortEmployment:false,employeeChoseDocuments:true,section1Reviewed:true,documentsGenuineAndRelated:true,physicalPresence:true,documents}}
  const body={...key,requestKey:randomUUID(),signature:'Reviewer Alice',attestation:I9_EMPLOYER_ATTESTATION,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:facts}
  await api(path+'/sign',body,'POST',409)
- for(const part of review.packet)for(let page=1;page<=part.pageCount;page++)await api(path+'/page',{...key,documentKey:part.documentKey,page,displayed:true})
+ for(const part of review.packet.filter(p=>!partial||!p.documentKey.startsWith('receipt:')))for(let page=1;page<=part.pageCount;page++)await api(path+'/page',{...key,documentKey:part.documentKey,page,displayed:true})
  await api(path+'/sign',body,'POST',409)
  for(const d of documents)for(let page=1;page<=2;page++)await api(path+'/copy-page',{...key,rowKey:d.rowKey,copyId:d.copyIds[0],page,displayed:true})
+ if(prior){
+  await api(path+'/sign',body,'POST',409)
+  const historical=review.packet.find(p=>p.documentKey===`receipt:${prior.signatureId}`)
+  assert.equal(historical.documentId,prior.documentId)
+  for(let page=1;page<=historical.pageCount;page++)await api(path+'/page',{...key,documentKey:historical.documentKey,page,displayed:true})
+ }
  await api(path+'/sign',{...body,signature:'Other Reviewer'},'POST',400)
  // A later employment range must not let an old certification establish its hiring context.
  const changed=await h.pool.connect()
@@ -42,7 +50,7 @@ for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multip
   await assert.rejects(()=>signI9DifferentDocuments(changed,ctx,task,body),e=>e.status===409&&/current hiring information/.test(e.message))
   assert.equal((await changed.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
  }finally{await changed.query('ROLLBACK');changed.release()}
- if(multipleReceipts){
+ if(multipleReceipts&&!partial){
   const sibling=current.receiptTasks.find(t=>String(t.taskId)!==String(task))
   await h.pool.query("UPDATE payroll_compliance_task SET status='IN_PROGRESS' WHERE id=$1",[sibling.taskId])
   await api(path+'/sign',body,'POST',409)
@@ -64,9 +72,9 @@ for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multip
  await api(path+'/sign',{...body,signature:'Changed'},'POST',409)
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount,1)
  const resolutions=(await h.pool.query('SELECT r.*,c.status FROM payroll_i9_different_resolution r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.different_signature_id=$1 ORDER BY r.row_key',[result.signatureId])).rows
- assert.equal(resolutions.length,multipleReceipts?2:1)
+ assert.equal(resolutions.length,multipleReceipts&&!partial?2:1)
  assert.ok(resolutions.every(r=>r.status==='COMPLETE'))
- assert.deepEqual(resolutions.map(r=>r.row_key),multipleReceipts?['B','C']:['A1'])
+ assert.deepEqual(resolutions.map(r=>r.row_key),partial?['C']:multipleReceipts?['B','C']:['A1'])
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_resolution'),/immutable/)
  if(multipleReceipts){
   assert.equal(review.receiptTasks[0].dueOn,'2026-11-15')
@@ -88,9 +96,16 @@ for(const {authorizedWorker,multipleReceipts} of [{authorizedWorker:false,multip
  const currentEvidence=JSON.parse(decryptDocument(signatureRow.encrypted_evidence,`i9-different-signature:1:${employee.id}:${task}:99`).toString())
  assert.equal(currentEvidence.context.hireDate,'2026-09-01')
  assert.equal(currentEvidence.timing.dueOn,multipleReceipts?'2026-11-15':'2026-11-30')
- assert.equal(currentEvidence.resolvedReceiptTasks.length,multipleReceipts?2:1)
+ assert.equal(currentEvidence.resolvedReceiptTasks.length,multipleReceipts&&!partial?2:1)
  assert.equal(currentEvidence.context.revision,current.currentHiringContext.revision)
  assert.equal(currentEvidence.context.signedHiringRevision,current.currentHiringContext.signedHiringRevision)
+ if(prior){
+  assert.deepEqual((await h.pool.query('SELECT * FROM payroll_compliance_task WHERE id=$1',[prior.taskId])).rows[0],prior.taskSnapshot)
+  assert.deepEqual((await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[prior.documentId])).rows[0],prior.documentSnapshot)
+  assert.equal(history.records[0].receiptAmendments[0].signatureId,prior.signatureId)
+  assert.deepEqual(await api(prior.path+'/sign',prior.body),{signatureId:prior.signatureId,documentId:prior.documentId,signedAt:prior.signedAt,status:prior.status,nextFollowup:prior.nextFollowup})
+  assert.ok(currentEvidence.reviewedSources.some(p=>p.documentKey===`receipt:${prior.signatureId}`&&String(p.documentId)===String(prior.documentId)))
+ }
  const followups=(await h.pool.query("SELECT * FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT:%'")).rows
  assert.equal(followups.length,authorizedWorker?1:0)
  if(authorizedWorker){
