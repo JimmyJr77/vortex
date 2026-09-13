@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto'
 import {reverificationFixture} from './reverificationFixture.js'
-export async function supplementReceiptFixture(h){
- const fixture=await reverificationFixture(h),{api,employee,signed,pdf}=fixture
+export async function supplementReceiptFixture(h,{eVerify=false}={}){
+ const fixture=await reverificationFixture(h,{eVerify}),{api,employee,signed,pdf}=fixture
  const followup=(await h.pool.query('SELECT * FROM payroll_i9_signature_followup WHERE signature_id=$1',[signed.signatureId])).rows[0]
  const path=`/employees/${employee.id}/i9/supplement/${followup.compliance_task_id}`
  const today=(await h.pool.query("SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=1")).rows[0].today
