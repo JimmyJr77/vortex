@@ -1,3 +1,4 @@
+import I9QualificationSettings from './I9QualificationSettings'
 import BenefitPlanCatalog from './BenefitPlanCatalog'
 import { useState } from 'react'
 import type { PayrollDashboard } from '../../utils/payrollApi'
@@ -12,5 +13,5 @@ export default function PayrollSettings({ settings, onChanged }: { settings: Pay
  {([['einStatus','Federal EIN',['MISSING','OWNER_CONFIRMED','VERIFIED']],['mdCrnStatus','Maryland withholding account',['MISSING','APPLIED','ACTIVE']],['mdUiStatus','Maryland unemployment account',['MISSING','APPLIED','ACTIVE']],['workersCompStatus','Workers’ compensation',['MISSING','QUOTING','ACTIVE']]] as const).map(([key,label,choices])=><label key={key} className="text-sm font-bold">{label}<select value={form[key]} onChange={e=>set(key,e.target.value)} className={workforceInput}>{choices.map(value=><option key={value}>{value}</option>)}</select></label>)}
  {([['handbookText','Handbook & leave policy'],['benefitsText','Benefits eligibility & enrollment instructions'],['firstDayInstructions','First-day instructions & supervisor contact']] as const).map(([key,label])=><label key={key} className="text-sm font-bold sm:col-span-2">{label}<textarea rows={key==='handbookText'?8:4} value={form[key]||''} onChange={e=>set(key,e.target.value)} className={workforceInput}/></label>)}
  <label className="text-sm font-bold">Sick and safe leave pay policy<select value={form.sickLeavePay} onChange={e=>set('sickLeavePay',e.target.value)} className={workforceInput}><option value="UNPAID">Unpaid sick and safe leave</option><option value="PAID">Paid sick and safe leave</option></select></label><p className="text-xs text-slate-500">Choose the policy applicable to your workforce. Paid leave includes an allocation of hours by date and is excluded from overtime hours worked.</p>
- <button disabled={busy} className={workforceButton}>Save employer setup</button></form><BenefitPlanCatalog catalog={settings?.onboardingPolicy?.benefitCatalog||''} onChanged={onChanged}/></section>
+ <button disabled={busy} className={workforceButton}>Save employer setup</button></form><I9QualificationSettings/><BenefitPlanCatalog catalog={settings?.onboardingPolicy?.benefitCatalog||''} onChanged={onChanged}/></section>
 }
