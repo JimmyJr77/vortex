@@ -3,6 +3,7 @@ import { ScrollText, ChevronDown, Loader2, Search, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
 import { useTaxonomy } from './useTaxonomy'
 import PhilosophyAssistant from './PhilosophyAssistant'
+import VortexPhilosophyGuide from './VortexPhilosophyGuide'
 import type { EducationContent } from '../../coach/types'
 import { SESSION_PHASE_ORDER } from '../../coach/taxonomy'
 import { prepareAccessSubroleSequence } from '../../coach/taxonomy'
@@ -447,10 +448,20 @@ export default function FrameworkPanel() {
           Training Philosophy
         </h2>
         <p className="text-sm text-gray-500 mt-1 max-w-2xl">
-          How phases, tenets, methodologies, physiology, order slots, session models, and validation rules work together in the Athleticism Accelerator.
+          Eight tenets. Four development components. A practical coaching standard for every Vortex athlete.
         </p>
       </header>
 
+      <VortexPhilosophyGuide />
+
+      <details className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <summary className="cursor-pointer font-semibold text-gray-800">Exercise library taxonomy reference</summary>
+        <p className="my-4 text-sm text-gray-600">
+          The guide above is the current programming philosophy. The reference below includes existing library tags,
+          saved education and older session templates. Their seven-phase ordering describes the existing software;
+          it does not require seven separate coaching blocks. Saved workouts and generator rules are not changed by this guide.
+        </p>
+        <div className="space-y-6">
       <div className="relative">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         <input
@@ -881,6 +892,8 @@ export default function FrameworkPanel() {
         </div>
         </HighlightQueryContext.Provider>
       )}
+        </div>
+      </details>
     </div>
   )
 }

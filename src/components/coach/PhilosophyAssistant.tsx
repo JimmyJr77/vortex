@@ -9,7 +9,7 @@ interface ChatMessage {
 const SUGGESTED_PROMPTS = [
   'Where does contrast training belong in a session?',
   'What is the difference between a tenet and a methodology?',
-  'When should I use a 90-minute tumbling-first model?',
+  'How do I fit 60 minutes of athletic work plus 30 minutes of Body Control?',
 ]
 
 export default function PhilosophyAssistant() {

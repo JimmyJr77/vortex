@@ -39,8 +39,8 @@ export const VORTEX_SESSION_PROGRESSION = [
   },
   {
     stage: 'Performance Work',
-    goal: 'Express skill, speed, power, strength, or conditioning at session intent.',
-    examples: 'Movement Intelligence, Output (sprinting, jumping, tumbling), Capacity, Resilience, Sustained Capacity — then Restore.',
+    goal: 'Express explosive movement, build full-body strength, then practice appropriate body control.',
+    examples: 'Explosiveness → Strength → Body Control / Tumbling. Movement intelligence and resilience are embedded; conditioning is optional and must preserve readiness for tumbling.',
   },
 ] as const
 
@@ -54,7 +54,7 @@ export const ORIGINAL_RAMP_PHASES = [
   {
     letter: 'A',
     name: 'Activate',
-    goal: 'Wake up muscles that need to contribute — commonly inhibited stabilizers.',
+    goal: 'Rehearse muscle actions and support positions needed for the upcoming work.',
     examples: 'Glute bridge, mini-band lateral walks, dead bug, bird dog, scapular push-up, plank variations, single-leg balance.',
   },
   {
@@ -72,13 +72,13 @@ export const ORIGINAL_RAMP_PHASES = [
 ] as const
 
 /** Short intro shown above the Prepare & Access subrole list in Philosophy. */
-export const RAMP_PHILOSOPHY_INTRO = `RAMP is a widely accepted warm-up framework developed by Ian Jeffreys and used across collegiate athletics, professional sports, military performance, and elite strength & conditioning. The original acronym is Raise → Activate → Mobilize → Potentiate — note that Activate comes before Mobilize in Jeffreys' model.`
+export const RAMP_PHILOSOPHY_INTRO = `RAMP describes Raise → Activate → Mobilize → Potentiate. Vortex retains a familiar preparation sequence that helps athletes access useful positions, coordinate movement and progressively rehearse the upcoming task without fatigue. Activate and Mobilize can overlap within a drill.`
 
 /** Why Vortex reorders Mobilize before Activate. */
-export const VORTEX_ORDER_RATIONALE = `Vortex deliberately runs Mobilize before Activate. For athletic development, tumbling, and Ninja-style movement, usable joint range through the ankles, hips, spine, shoulders, and wrists should be accessible before we ask stabilizers to fire in integrated positions. Activate still belongs before high-intent work — it simply follows mobility access in our sequence.`
+export const VORTEX_ORDER_RATIONALE = `Vortex uses Mobilize before Activate as a consistent coaching sequence: explore comfortable range, rehearse support and force positions, then integrate movement. This is an organizational choice, not a claim that muscles cannot activate before mobility work. Multiple preparation purposes can be met in one drill.`
 
 /** Expanded variants coaches may see elsewhere. */
-export const RAMP_VARIANTS_NOTE = `Many coaches expand RAMP because Activate and Mobilize often happen together. You may see Raise → Mobilize → Activate → Integrate → Potentiate, or Raise → Release → Activate → Mobilize → Potentiate. Integrate means: take newly activated muscles and improved mobility and teach the body to coordinate them — crawls, balance reaches, skip progressions, sprint patterning. Vortex includes Integrate explicitly and adds Potentiate Bridge — a low-stress ramp from warm-up into Skill and Output without the abrupt jump to maximal effort.`
+export const RAMP_VARIANTS_NOTE = `Vortex uses Raise → Mobilize → Activate → Integrate → Potentiate Bridge. Integrate adds purposeful crawling, skipping and movement coordination. The bridge consists of a position rehearsal and a progressive version of today's explosive task. These are preparation purposes within the allotted 10 or 15 minutes, not five extra timed blocks.`
 
 /** Who benefits most from Potentiate Bridge. */
 export const POTENTIATE_BRIDGE_AUDIENCE =

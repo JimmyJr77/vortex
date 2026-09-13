@@ -251,6 +251,10 @@ Set the following environment variable in Vercel (or `.env.local` for local deve
   - Optional poster image
   - Configurable video attributes
 
+## Training philosophy
+
+The [Vortex Training Philosophy](docs/VORTEX_TRAINING_PHILOSOPHY.md) defines the eight tenets, four development components, session clocks, progression and coaching guidance. The coach guide and public summary use `src/coach/vortexTrainingPhilosophy.ts`; run `node scripts/export-training-philosophy.mjs` after editing that source to refresh the document.
+
 ## 🤝 Contributing
 
 1. Fork the repository
