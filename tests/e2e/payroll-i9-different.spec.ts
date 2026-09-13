@@ -2,18 +2,21 @@ import {test,expect} from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {receiptFixture} from '../../backend/payroll/testing/receiptFixture.js'
 test('admin prepares and reviews different replacement documents',async({page})=>{
- test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(180000)
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000);page.setDefaultTimeout(15000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='96'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  try{
   await receiptFixture(h)
   await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
+  let failContext=true
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());if(failContext&&u.pathname.includes('/different-documents/')&&u.pathname.endsWith('/context')){failContext=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic context outage.'})});return}await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
   await page.setViewportSize({width:1100,height:950})
   await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click()
   const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true});await records.locator('summary').filter({hasText:'Current certification'}).click()
   await records.getByRole('button',{name:'Prepare different replacement documents',exact:true}).click()
   const work=page.getByRole('region',{name:'Different-document replacement workspace',exact:true})
+  await expect(work.getByRole('alert')).toContainText('Synthetic context outage.')
+  await work.getByRole('button',{name:'Reload replacement context',exact:true}).click()
   await expect(work.getByLabel('Employer business name',{exact:true})).not.toHaveValue('')
   await expect(work.getByLabel('Replacement examiner name and title',{exact:true})).toHaveValue('')
   await work.getByLabel('Replacement document combination',{exact:true}).selectOption('LIST_B_C')
@@ -34,11 +37,11 @@ test('admin prepares and reviews different replacement documents',async({page})=
   await page.screenshot({path:'/tmp/payroll-different-workspace-desktop.png',fullPage:true})
   await page.setViewportSize({width:390,height:844})
   expect(await work.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true)
-  await work.screenshot({path:'/tmp/payroll-different-workspace-mobile.png'})
+  await work.getByRole('heading',{name:'Different replacement documents',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/payroll-different-workspace-mobile.png'})
   await work.getByLabel('List B document — Document number',{exact:true}).fill('CHANGED')
   await expect(work.getByRole('region',{name:'Official Review new replacement certification page review',exact:true})).toHaveCount(0)
   expect(errors).toEqual([])
  }finally{
-  await page.unrouteAll({behavior:'wait'});await page.close();await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old
+  await page.unrouteAll({behavior:'wait'}).catch(()=>{});await page.close().catch(()=>{});await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old
  }
 })

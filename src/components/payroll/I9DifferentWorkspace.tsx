@@ -4,6 +4,7 @@ import I9DifferentReviewPages from './I9DifferentReviewPages'
 const blank=():I9EmployerDocument=>({title:'',issuingAuthority:'',number:'',expiresOn:''})
 const input='mt-1 block w-full min-w-0 rounded border p-2'
 export default function I9DifferentWorkspace({employeeId,taskId,signatureId}:{employeeId:number;taskId:string|number;signatureId:string|number}){
+ const [reload,setReload]=useState(0)
  const [open,setOpen]=useState(false),[context,setContext]=useState<I9DifferentContext|null>(null),[loading,setLoading]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[preview,setPreview]=useState<I9DifferentPreview|null>(null)
  const [choice,setChoice]=useState(''),[method,setMethod]=useState(''),[listA,setListA]=useState<I9EmployerDocument[]>([blank()]),[listB,setListB]=useState(blank),[listC,setListC]=useState(blank)
  const [businessName,setBusinessName]=useState(''),[businessAddress,setBusinessAddress]=useState(''),[representative,setRepresentative]=useState(''),[reason,setReason]=useState(''),[initials,setInitials]=useState(''),[notes,setNotes]=useState('')
@@ -12,7 +13,7 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId}:{em
   let live=true;setLoading(true);setError('');setContext(null);setPreview(null)
   void workforceApi.differentContext(employeeId,taskId).then(value=>{if(!live)return;if(String(value.signatureId)!==String(signatureId))throw new Error('Reload the current employer certification.');setContext(value);setBusinessName(value.employerDefaults.businessName);setBusinessAddress(value.employerDefaults.businessAddress)}).catch(e=>{if(live)setError(e instanceof Error?e.message:'Unable to load the receipt context.')}).finally(()=>{if(live)setLoading(false)})
   return()=>{live=false}
- },[open,employeeId,taskId,signatureId])
+ },[open,employeeId,taskId,signatureId,reload])
  const change=(action:()=>void)=>{setPreview(null);setError('');action()}
  const prepare=async()=>{
   if(!context)return
@@ -26,13 +27,14 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId}:{em
  return <section aria-label="Different-document replacement workspace" className="min-w-0 space-y-3 rounded border p-3">
   <h4 className="font-bold">Different replacement documents</h4>
   <p>Record the acceptable documents the employee chose. The new certification stays with the original signed I-9.</p>
+  <button type="button" className="underline" disabled={loading||busy} onClick={()=>setReload(n=>n+1)}>Reload replacement context</button>
   {loading?<p role="status">Loading retained receipt context…</p>:null}{error?<p role="alert">{error}</p>:null}
   {context?.sourceKind==='SUPPLEMENT_B'?<p>This receipt was recorded during reverification and requires its Supplement B replacement process.</p>:context?<>
    <p>Receipt row {context.rowKey}; due {context.dueOn}. Original first day employed: {context.employerDefaults.firstDayEmployed}.</p>
    <fieldset disabled={busy||loading} className="min-w-0 space-y-3">
-    <label className="block">Replacement document combination<select className={input} value={choice} onChange={e=>change(()=>setChoice(e.target.value))}><option value="">Choose documents presented</option><option value="LIST_A">List A</option><option value="LIST_B_C">List B and List C</option></select></label>
+    <label className="block">Replacement document combination<select aria-label="Replacement document combination" className={input} value={choice} onChange={e=>change(()=>setChoice(e.target.value))}><option value="">Choose documents presented</option><option value="LIST_A">List A</option><option value="LIST_B_C">List B and List C</option></select></label>
     {choice==='LIST_A'?<>{listA.map((doc,index)=><div key={index}>{docFields(`List A document ${index+1}`,doc,value=>setListA(rows=>rows.map((row,n)=>n===index?value:row)))}</div>)}<button type="button" className="underline" disabled={listA.length===3} onClick={()=>change(()=>setListA(rows=>[...rows,blank()]))}>Add List A document</button>{listA.length>1?<button type="button" className="ml-3 underline" onClick={()=>change(()=>setListA(rows=>rows.slice(0,-1)))}>Remove last List A document</button>:null}</>:choice==='LIST_B_C'?<div className="grid min-w-0 gap-3 md:grid-cols-2">{docFields('List B document',listB,setListB)}{docFields('List C document',listC,setListC)}</div>:null}
-    <label className="block">Replacement examination method<select className={input} value={method} onChange={e=>change(()=>setMethod(e.target.value))}><option value="">Choose examination method</option><option value="PHYSICAL">Physical examination</option><option value="ALTERNATIVE">Authorized alternative procedure</option></select></label>
+    <label className="block">Replacement examination method<select aria-label="Replacement examination method" className={input} value={method} onChange={e=>change(()=>setMethod(e.target.value))}><option value="">Choose examination method</option><option value="PHYSICAL">Physical examination</option><option value="ALTERNATIVE">Authorized alternative procedure</option></select></label>
     <label className="block">Replacement examiner name and title<input className={input} value={representative} maxLength={200} onChange={e=>change(()=>setRepresentative(e.target.value))}/></label>
     <label className="block">Employer business name<input className={input} value={businessName} maxLength={200} onChange={e=>change(()=>setBusinessName(e.target.value))}/></label>
     <label className="block">Employer business address<input className={input} value={businessAddress} maxLength={200} onChange={e=>change(()=>setBusinessAddress(e.target.value))}/></label>
