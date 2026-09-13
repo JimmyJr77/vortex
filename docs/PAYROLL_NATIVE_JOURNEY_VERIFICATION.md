@@ -1,6 +1,6 @@
 # Native onboarding-to-payroll verification gap
 
-The full goal is not complete. This audit distinguishes implemented native form workflows from evidence that one fresh hire can complete them together and proceed through payroll. Source review baseline: commit `3e48fa02`; payroll code is held unchanged during the full serial backend run logged at `/tmp/payroll-full-after-everify.log`.
+The full goal is not complete. This audit distinguishes implemented native form workflows from evidence that one fresh hire can complete them together and proceed through payroll. The full serial backend run at baseline `3e48fa02` finished with **903 passes, zero failures and zero skips** in 1,991.1 seconds, logged at `/tmp/payroll-full-after-everify.log`. All 771 recorded payroll source hashes matched at completion. This result predates the transport fix described below.
 
 ## What the existing tests prove
 
@@ -12,9 +12,15 @@ The focused W-4, MW507 and employee I-9 browser tests start from `monthlyBenefit
 
 ## Required integrated journey
 
+### Latest execution
+
+The representative native journey passed in 3.2 minutes (`/tmp/payroll-native-complete-journey-navigation.log`): fresh invitation, native draft resume and signatures, employer examination, activation, returning access, eight hours/$200 gross/$184.70 net, one automatic synthetic QuickBooks journal with matching retained request and balanced amounts, reporting checks, statement download, leave approval and native election-source linkage. The production build passed (`/tmp/payroll-native-journey-build.log`). The finalization transport correction required both the route argument and the exported finalization function option; the initial one-line correction was insufficient.
+
+Visual review of the passing run found retirement panels accumulating outside Pay setup & leave. Four sibling panels in `AdminPayroll.tsx` shared an employee-only React key. Each now has a distinct component-specific key. The journey now asserts retirement source/eligibility panels are absent in Reports & QuickBooks. The corrected journey passed in 2.7 minutes (`/tmp/payroll-native-complete-journey-panels.log`) and the production build passed (`/tmp/payroll-native-journey-panels-build.log`). The final report screenshot has no accumulated retirement panels. The downloaded one-page statement was rendered and visually checked: eight hours at $25, $200 gross, $12.40 Social Security, $2.90 Medicare and $184.70 net, with no clipping. A passing representative case does not close the other requirements below.
+
 | Boundary | Evidence required before claiming completion | Existing evidence and remaining gap |
 | --- | --- | --- |
-| Fresh hire and access | Create the employee through admin UI; issue/redeem a test invitation; establish a returning employee session without injecting a pre-created session. | Broad legacy journey covers access. Combine it with the native forms. Real invitation delivery remains a separate rollout check. |
+| Fresh hire and access | Create the employee through admin UI; issue/redeem a test invitation; establish a returning employee session without injecting a pre-created session. | Final native journey covers fresh invitation and returning password access with native forms. Real invitation delivery remains a separate rollout check. |
 | Hiring context and personal details | Employee completes profile; admin records offer/participation context; stored hire/context dates and revisions match the current person. | Separate profile/context checks exist. Preserve these through the integrated native flow. |
 | Native W-4 | Employee saves/resumes, reads every required page, signs; admin reviews/applies the exact signed election; retained PDF/hash and effective election agree. | `payroll-w4-signing.spec.ts` covers ordinary/exempt focused cases. Integrate at least the ordinary case before first payroll; retain other branches as separate required cases. |
 | Native Maryland certificate | Employee completes the applicable MW507 case, reviews/signs; admin application produces the intended effective state/local election. | `payroll-mw507-signing.spec.ts` covers several signer cases. Unsupported certificate application must remain explicitly unresolved, not substituted by a provider receipt. |
@@ -24,13 +30,23 @@ The focused W-4, MW507 and employee I-9 browser tests start from `monthlyBenefit
 | E-Verify where applicable | Retain actual case evidence, keep interim cases actionable, resolve authorized closure with evidence, preserve history and avoid automatic earned-pay withholding. | Focused browser/backend coverage exists for authorized closure and unresolved correction. Government submission, notices/referrals and other dispositions remain unfinished. |
 | Remaining hiring readiness | Payment destination/election, benefits, wage/handbook acknowledgments, new-hire reporting, training and first-shift reviews all reference the current terms and evidence. | Legacy journey and focused features provide partial coverage. Revalidate readiness after native forms; no direct database completion or hidden test-only override. |
 | Scheduling and time | Admin schedules; employee sees/acknowledges applicable terms, records work; admin approves correct paid minutes and any leave treatment. | Existing schedule/time tests remain relevant. Connect the first approved work to this hire and current pay election. |
-| First payroll and statement | Build/review/authorize payroll from the native elections and approved work; verify calculations independently, payment evidence/closeout and employee statement download. | Legacy integrated payroll and focused settlement/tax checks exist. No fresh all-native hire-to-statement proof yet. |
+| First payroll and statement | Build/review/authorize payroll from the native elections and approved work; verify calculations independently, payment evidence/closeout and employee statement download. | Final native journey verifies the representative hire through payroll and statement download. Other pay arrangements and actual payment-provider acceptance remain separate requirements. |
 | QuickBooks and reporting | Verify the corresponding supported journal/export and retained reconciliation evidence with exact payroll amounts. | Focused synthetic accounting coverage is separate. Live provider acceptance remains unverified. |
 | Return and correction | Reload/re-sign where required; changed evidence reopens readiness; prior signatures/results remain historical; repeated requests do not duplicate side effects. | Focused tests cover many retries/amendments. Verify the integrated person's lifecycle too. |
 
 ## Execution rules and limits
 
-- Finish the currently running backend suite before starting another database/browser suite. Preserve its process handle and report its actual terminal result, including skips and failures.
+### Integrated test and execution history
+
+`tests/e2e/payroll-native-complete-journey.spec.ts` and its UI-only helpers in `tests/support/nativePayrollJourney.ts` now prepare the fresh invitation flow through native W-4, MW507, employee I-9 and employer I-9 signatures. Each native draft is saved, deliberately changed without saving, then reloaded to assert the retained value. Returning to pay setup asserts the signed Maryland exemption remains locked rather than overwriting it with the legacy fixture election. End-of-flow database reads check that the native submissions and applied election source IDs belong to this same employee.
+
+The initial browser runs failed at automatic QuickBooks sync. The fix now passes the configured transport from the route through the exported finalization function to the sync call. A later test-selector ambiguity was resolved by selecting Compliance within Payroll sections. The final passing log is `/tmp/payroll-native-complete-journey-panels.log`; earlier failed logs remain diagnostic history.
+
+The prepared journey also uses `tests/support/nativeJourneyQuickbooks.ts` to replace only the external Intuit authorization/provider boundary. The application creates and consumes its actual OAuth state, retains the encrypted connection, loads synthetic accounts, saves mappings through the UI and enables automatic synchronization. After payroll finalization the test expects exactly one provider journal, the matching retained request/payload, the correct payroll date and run reference, $200 wages, $184.70 clearing and balanced debits/credits; the admin then opens the retained journal. No connection or journal rows are inserted as test setup. These assertions passed in the final journey; synthetic provider acceptance does not establish live acceptance.
+
+Representative-case assumptions: Maryland resident, ordinary federal/state withholding, unassisted U.S. citizen Section 1, physical employer document examination, hiring site not participating in E-Verify, hourly pay, paper-check election, synthetic employer-paid benefits and isolated provider evidence. These assumptions define one required case; they do not cover other workers, assisted signing, government/provider acceptance, or all payment and benefit arrangements.
+
+- Run database/browser suites serially. The full baseline backend suite finished before this native browser journey; retain its exact source baseline and terminal result.
 - Use the isolated database and provider doubles. Do not send real invitations, government submissions, payments or journals as test setup.
 - Keep native-generated PDFs and current signatures in the integrated flow; do not use generic completion to make native readiness pass.
 - Treat each unsupported arrangement or unresolved provider/lifecycle path as unfinished. A passing representative Maryland hire does not prove every new-hire branch or production readiness.

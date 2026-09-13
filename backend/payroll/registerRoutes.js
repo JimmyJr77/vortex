@@ -1404,7 +1404,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
 
   app.post(['/api/admin/payroll/runs/:id/finalize','/api/admin/payroll/runs/:id/payment-closeout'], async (req, res) => {
     try{
-      const data=await finalizePayrollRun(pool,{facilityId:req.canonicalAccess.facilityId,actorId:req.adminId,runId:req.params.id,body:req.body},{now,closeout:req.path.endsWith('/payment-closeout')})
+      const data=await finalizePayrollRun(pool,{facilityId:req.canonicalAccess.facilityId,actorId:req.adminId,runId:req.params.id,body:req.body},{now,quickbooksFetcher,closeout:req.path.endsWith('/payment-closeout')})
       res.json({success:true,data})
     }catch(error){
       if(error.status&&error.data)return res.status(error.status).json({success:false,message:error.message,data:error.data})
@@ -1664,7 +1664,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   })
 }
 
-export async function finalizePayrollRun(pool,{facilityId,actorId,runId,body},{now=()=>new Date(),closeout=false,automaticBatchId=null}={}){
+export async function finalizePayrollRun(pool,{facilityId,actorId,runId,body},{now=()=>new Date(),quickbooksFetcher=fetch,closeout=false,automaticBatchId=null}={}){
  const req={canonicalAccess:{facilityId},adminId:actorId,params:{id:runId},body}
  const finalizationError=(message,status)=>Object.assign(new Error(message),{status})
     const confirmation = clean(closeout?req.body?.reference:req.body?.paymentConfirmationReference, 500)
@@ -1734,7 +1734,7 @@ export async function finalizePayrollRun(pool,{facilityId,actorId,runId,body},{n
       let quickbooksSync = null
       try {
         const connection = await pool.query('SELECT auto_sync,realm_id,environment FROM payroll_quickbooks_connection WHERE facility_id=$1', [req.canonicalAccess.facilityId])
-        if (connection.rows[0]?.auto_sync) quickbooksSync = await syncQuickbooksRun(pool, req.canonicalAccess.facilityId, run.id, {automatic:true,expectedDestination:connection.rows[0]})
+        if (connection.rows[0]?.auto_sync) quickbooksSync = await syncQuickbooksRun(pool, req.canonicalAccess.facilityId, run.id, {automatic:true,expectedDestination:connection.rows[0],fetcher:quickbooksFetcher})
       } catch { quickbooksSync = { status: 'FAILED', message: 'Payroll is finalized. QuickBooks sync needs attention in Reports & QuickBooks.' } }
       return { ...updated.rows[0], quickbooksSync }
     } catch (error) {

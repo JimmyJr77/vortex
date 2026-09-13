@@ -345,10 +345,10 @@ export default function AdminPayroll() {
       {view === 'settings' ? <PaymentConnection /> : null}
       {view === 'settings' ? <CheckConfiguration /> : null}
       {view === 'settings' ? <><EmployerTaxSettings /><FilingIdentityForm /><HealthReporting /></> : null}
-      {view === 'compensation' && selectedEmployeeId ? <AdminRetirementElections key={selectedEmployeeId} employeeId={selectedEmployeeId}/> : null}
-      {view === 'compensation' && selectedEmployeeId ? <RetirementAnnualSources key={selectedEmployeeId} employeeId={selectedEmployeeId}/> : null}
-      {view === 'compensation' && selectedEmployeeId ? <RetirementEligibility key={selectedEmployeeId} employeeId={selectedEmployeeId}/> : null}
-      {view === 'compensation' && selectedEmployeeId ? <LeaveFractionRecovery key={selectedEmployeeId} employeeId={selectedEmployeeId} onChanged={load}/> : null}
+      {view === 'compensation' && selectedEmployeeId ? <AdminRetirementElections key={`retirement-elections-${selectedEmployeeId}`} employeeId={selectedEmployeeId}/> : null}
+      {view === 'compensation' && selectedEmployeeId ? <RetirementAnnualSources key={`retirement-sources-${selectedEmployeeId}`} employeeId={selectedEmployeeId}/> : null}
+      {view === 'compensation' && selectedEmployeeId ? <RetirementEligibility key={`retirement-eligibility-${selectedEmployeeId}`} employeeId={selectedEmployeeId}/> : null}
+      {view === 'compensation' && selectedEmployeeId ? <LeaveFractionRecovery key={`leave-fraction-${selectedEmployeeId}`} employeeId={selectedEmployeeId} onChanged={load}/> : null}
       {view === 'compensation' ? <LeaveYearOpening onChanged={load}/> : null}
       {view === 'settings' && data ? <PayScheduleTransition onChanged={load} /> : null}
       {view === 'settings' && data ? <PayScheduleSetup anchorStart={data.settings?.payPeriodAnchorStart} paymentLagDays={data.settings?.payPeriodPaymentLagDays} currentFrequency={data.settings?.payFrequency||'SEMIMONTHLY'} onChanged={load} /> : null}
