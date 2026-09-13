@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {randomUUID} from 'node:crypto'
 import {checkRetirementReplacementReceipt} from './retirementReplacementReceiptIntake.js'
 export async function checkRetirementReplacementReceipts(pool,facility=null,{reader,now=new Date(),receiptNow=()=>new Date()}={}){
@@ -21,6 +22,6 @@ export async function checkRetirementReplacementReceipts(pool,facility=null,{rea
 export function startRetirementReplacementReceiptScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_REPLACEMENT_RECEIPT_CHECKS_ENABLED==='false')return null
  let running=false
- const timer=setInterval(async()=>{if(running)return;running=true;try{const r=await checkRetirementReplacementReceipts(pool);if(r.failed)console.error('[payroll] Replacement receipt checks require review.')}catch{console.error('[payroll] Replacement receipt checks could not complete.')}finally{running=false}},300000)
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementReplacementReceiptScheduler', async()=>{if(running)return;running=true;try{const r=await checkRetirementReplacementReceipts(pool);if(r.failed)console.error('[payroll] Replacement receipt checks require review.')}catch{console.error('[payroll] Replacement receipt checks could not complete.')}finally{running=false}}),300000)
  timer.unref?.();return timer
 }

@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {postRetirementReturn} from './retirementReturnPosting.js'
 export async function runRetirementReturnSweep(pool,{facility=null,fetcher=fetch,paymentFetcher=fetch,now=new Date()}={}){
  const lock=await pool.connect();let locked=false
@@ -26,5 +27,5 @@ export async function runRetirementReturnSweep(pool,{facility=null,fetcher=fetch
 }
 export function startRetirementReturnScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_RETURN_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runRetirementReturnSweep(pool).catch(()=>console.error('[payroll] Retirement return posting requires review.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementReturnScheduler', ()=>{if(running)return;running=true;return runRetirementReturnSweep(pool).catch(()=>console.error('[payroll] Retirement return posting requires review.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

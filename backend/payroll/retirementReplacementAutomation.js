@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchRetirementReplacementAllocation} from './retirementReplacementAllocation.js'
 import {replacementAllocationCandidates} from './retirementReplacementAutomationState.js'
 export async function runRetirementReplacementAllocationSweep(pool,{facility=null,fetcher=fetch,paymentFetcher=fetch,reader,transfer,now=new Date(),dispatchNow=()=>new Date()}={}){
@@ -29,5 +30,5 @@ export async function runRetirementReplacementAllocationSweep(pool,{facility=nul
 }
 export function startRetirementReplacementAllocationScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runRetirementReplacementAllocationSweep(pool).catch(()=>console.error('[payroll] Replacement allocation automation requires review.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementReplacementAllocationScheduler', ()=>{if(running)return;running=true;return runRetirementReplacementAllocationSweep(pool).catch(()=>console.error('[payroll] Replacement allocation automation requires review.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

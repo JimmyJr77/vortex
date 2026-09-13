@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {quickbooksRequest} from './quickbooks.js'
 import {resolveCarrierPremiumJournal} from './carrierPremiumDispatch.js'
 const due=`COALESCE(o.created_at,c.created_at)<= $2::timestamptz-CASE WHEN o.result->>'status'='SYNCED' THEN interval '24 hours' ELSE interval '5 minutes' END`
@@ -30,5 +31,5 @@ export function startCarrierPremiumRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_PREMIUM_RECOVERY_ENABLED==='false')return null
  let running=false
  const sweep=async()=>{if(running)return;running=true;try{await recoverCarrierPremiums(pool)}catch{console.error('[payroll] Carrier premium recovery requires review.')}finally{running=false}}
- const timer=setInterval(()=>void sweep(),5*60*1000);timer.unref?.();return timer
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierPremiumRecoveryScheduler', ()=>sweep()),5*60*1000);timer.unref?.();return timer
 }

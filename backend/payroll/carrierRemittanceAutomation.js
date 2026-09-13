@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {carrierDeliveryState} from './carrierRemittanceDeliveryState.js'
 import {sendEmail,isEmailConfigured} from '../email/sendEmail.js'
 import {processCarrierRemittance} from './carrierRemittanceDispatch.js'
@@ -22,5 +23,5 @@ export async function runCarrierRemittanceSweep(pool,{facility=null,now=new Date
 }
 export function startCarrierRemittanceScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_REMITTANCE_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runCarrierRemittanceSweep(pool).catch(()=>console.error('[payroll] Carrier remittance processing requires recovery.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierRemittanceScheduler', ()=>{if(running)return;running=true;return runCarrierRemittanceSweep(pool).catch(()=>console.error('[payroll] Carrier remittance processing requires recovery.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

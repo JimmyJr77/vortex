@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {randomUUID} from 'node:crypto'
 import {dispatchCarrierPayment} from './carrierPaymentDispatch.js'
 import {previousBankBusinessDay} from './bankCalendar.js'
@@ -59,5 +60,5 @@ export function startCarrierPaymentSubmissionScheduler(pool,dependencies){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_PAYMENT_SUBMISSION_ENABLED==='false')return null
  let running=false
  const sweep=async()=>{if(running)return;running=true;try{await runCarrierPaymentSubmissionSweep(pool,dependencies)}catch{console.error('[payroll] Scheduled carrier submission requires review.')}finally{running=false}}
- const timer=setInterval(()=>void sweep(),60000);timer.unref?.();return timer
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierPaymentSubmissionScheduler', ()=>sweep()),60000);timer.unref?.();return timer
 }

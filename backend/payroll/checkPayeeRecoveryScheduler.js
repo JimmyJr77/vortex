@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {advanceCheckPayee} from './checkPayee.js'
 export async function runCheckPayeeRecoverySweep(pool,{fetcher=fetch,limit=25,now=()=>new Date()}={}){
  if(!Number.isInteger(limit)||limit<1||limit>100)throw new Error('Choose a check-recipient recovery limit from 1 to 100.')
@@ -25,5 +26,5 @@ export async function runCheckPayeeRecoverySweep(pool,{fetcher=fetch,limit=25,no
 export function startCheckPayeeRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CHECK_PAYEE_RECOVERY_ENABLED==='false')return null
  const execute=()=>runCheckPayeeRecoverySweep(pool).catch(error=>console.error('[payroll] check recipient recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startCheckPayeeRecoveryScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startCheckPayeeRecoveryScheduler', execute),5*60000);timer.unref?.();return timer
 }

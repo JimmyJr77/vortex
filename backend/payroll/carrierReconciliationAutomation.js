@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {createHash} from 'node:crypto'
 import {carrierApplicationState} from './carrierApplication.js'
 
@@ -54,5 +55,5 @@ export async function runCarrierReconciliationSweep(pool,{facility=null,now=new 
 }
 export function startCarrierReconciliationScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_RECONCILIATION_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runCarrierReconciliationSweep(pool).catch(()=>console.error('[payroll] Carrier reconciliation assessment requires review.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierReconciliationScheduler', ()=>{if(running)return;running=true;return runCarrierReconciliationSweep(pool).catch(()=>console.error('[payroll] Carrier reconciliation assessment requires review.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

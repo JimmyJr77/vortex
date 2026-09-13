@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchRetirementRemittance} from './retirementRemittanceDispatch.js'
 export async function recoverRetirementRemittances(pool,facility=null,{fetcher=fetch,now=new Date()}={}){
  const timestamp=new Date(now).toISOString()
@@ -11,5 +12,5 @@ export async function recoverRetirementRemittances(pool,facility=null,{fetcher=f
 export function startRetirementRemittanceRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_REMITTANCE_RECOVERY_ENABLED==='false')return null
  let running=false
- const timer=setInterval(async()=>{if(running)return;running=true;try{const r=await recoverRetirementRemittances(pool);if(r.failed)console.error('[payroll] Retirement bank recovery requires review.')}catch{console.error('[payroll] Retirement bank recovery could not complete.')}finally{running=false}},300000);timer.unref?.();return timer
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementRemittanceRecoveryScheduler', async()=>{if(running)return;running=true;try{const r=await recoverRetirementRemittances(pool);if(r.failed)console.error('[payroll] Retirement bank recovery requires review.')}catch{console.error('[payroll] Retirement bank recovery could not complete.')}finally{running=false}}),300000);timer.unref?.();return timer
 }

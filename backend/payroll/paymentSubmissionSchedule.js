@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 export function registerPaymentSubmissionScheduleRoutes(app,pool,{now=()=>new Date()}={}){
  for(const cancel of [false,true])app.post(`/api/admin/payroll/runs/:id/payment-authorization/:batchId/instructions/:instructionId/schedule${cancel?'/cancel':''}`,async(req,res)=>{
@@ -61,7 +62,7 @@ export async function runPaymentSubmissionSweep(pool,{dispatch,fetcher,loadRunPr
 export function startPaymentSubmissionScheduler(pool,dependencies){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_PAYMENT_SUBMISSION_ENABLED==='false')return null
  const execute=()=>runPaymentSubmissionSweep(pool,{fetcher:fetch,...dependencies}).catch(error=>console.error('[payroll] payment submission sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.()
- const timer=setInterval(execute,60000);timer.unref?.()
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startPaymentSubmissionScheduler', execute),60000);first.unref?.()
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startPaymentSubmissionScheduler', execute),60000);timer.unref?.()
  return timer
 }

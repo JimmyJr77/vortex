@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {postCarrierSettlement} from './carrierSettlementPosting.js'
 export async function runCarrierSettlementSweep(pool,{facility=null,fetcher=fetch,paymentFetcher=fetch,now=new Date()}={}){
  const lock=await pool.connect();let locked=false
@@ -26,5 +27,5 @@ export async function runCarrierSettlementSweep(pool,{facility=null,fetcher=fetc
 }
 export function startCarrierSettlementScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_SETTLEMENT_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runCarrierSettlementSweep(pool).catch(()=>console.error('[payroll] Carrier settlement posting requires review.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierSettlementScheduler', ()=>{if(running)return;running=true;return runCarrierSettlementSweep(pool).catch(()=>console.error('[payroll] Carrier settlement posting requires review.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

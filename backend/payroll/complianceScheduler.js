@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {reconcileComplianceDueAlerts} from './complianceDueAlerts.js'
 import {recordPayrollAutomation} from './automationHistory.js'
 import { runWorkforceAutomation } from './workforceAutomation.js'
@@ -27,9 +28,9 @@ export async function runPayrollComplianceSweep(pool,{workforceRunner=runWorkfor
 export function startPayrollComplianceScheduler(pool) {
   if (process.env.NODE_ENV === 'test' || process.env.PAYROLL_COMPLIANCE_SCHEDULER_ENABLED === 'false') return null
   const execute = () => runPayrollComplianceSweep(pool).catch((error) => console.error('[payroll] compliance sweep failed:', error))
-  const first = setTimeout(execute, 60_000)
+  const first = setTimeout(() => enqueuePayrollTask(pool, 'startPayrollComplianceScheduler', execute), 60_000)
   first.unref?.()
-  const timer = setInterval(execute, DAY_MS)
+  const timer = setInterval(() => enqueuePayrollTask(pool, 'startPayrollComplianceScheduler', execute), DAY_MS)
   timer.unref?.()
   return timer
 }

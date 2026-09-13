@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {recoverBankEnrollment} from './bankEnrollmentHistory.js'
 export async function runBankEnrollmentRecoverySweep(pool,{fetcher=fetch,limit=25,now=()=>new Date()}={}){
  if(!Number.isInteger(limit)||limit<1||limit>100)throw new Error('Choose an enrollment recovery limit from 1 to 100.')
@@ -40,7 +41,7 @@ export async function runBankEnrollmentRecoverySweep(pool,{fetcher=fetch,limit=2
 export function startBankEnrollmentRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_BANK_ENROLLMENT_RECOVERY_ENABLED==='false')return null
  const execute=()=>runBankEnrollmentRecoverySweep(pool).catch(error=>console.error('[payroll] bank enrollment recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.()
- const timer=setInterval(execute,5*60000);timer.unref?.()
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startBankEnrollmentRecoveryScheduler', execute),60000);first.unref?.()
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startBankEnrollmentRecoveryScheduler', execute),5*60000);timer.unref?.()
  return timer
 }

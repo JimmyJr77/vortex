@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchCarrierPayment} from './carrierPaymentDispatch.js'
 export async function recoverCarrierPayments(pool,facility=null,{fetcher=fetch,now=new Date()}={}){
  const timestamp=new Date(now).toISOString()
@@ -14,5 +15,5 @@ export function startCarrierPaymentRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_PAYMENT_RECOVERY_ENABLED==='false')return null
  let running=false
  const sweep=async()=>{if(running)return;running=true;try{await recoverCarrierPayments(pool)}catch{console.error('[payroll] Carrier payment recovery requires review.')}finally{running=false}}
- const timer=setInterval(()=>void sweep(),5*60*1000);timer.unref?.();return timer
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierPaymentRecoveryScheduler', ()=>sweep()),5*60*1000);timer.unref?.();return timer
 }

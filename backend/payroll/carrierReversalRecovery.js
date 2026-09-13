@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {quickbooksRequest} from './quickbooks.js'
 import {resolveCarrierReversalJournal} from './carrierReversalDispatch.js'
 const due=`COALESCE(o.created_at,c.created_at)<= $2::timestamptz-CASE WHEN o.result->>'status'='SYNCED' THEN interval '24 hours' ELSE interval '5 minutes' END`
@@ -30,5 +31,5 @@ export function startCarrierReversalRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_REVERSAL_RECOVERY_ENABLED==='false')return null
  let running=false
  const sweep=async()=>{if(running)return;running=true;try{await recoverCarrierReversals(pool)}catch{console.error('[payroll] Carrier reversal recovery requires review.')}finally{running=false}}
- const timer=setInterval(()=>void sweep(),5*60*1000);timer.unref?.();return timer
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierReversalRecoveryScheduler', ()=>sweep()),5*60*1000);timer.unref?.();return timer
 }

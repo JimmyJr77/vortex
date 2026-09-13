@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchRetirementAllocation} from './retirementAllocationDelivery.js'
 export async function recoverRetirementAllocations(pool,facility=null,{transfer,now=new Date()}={}){
  const timestamp=new Date(now).toISOString()
@@ -18,6 +19,6 @@ export async function recoverRetirementAllocations(pool,facility=null,{transfer,
 export function startRetirementAllocationRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_ALLOCATION_RECOVERY_ENABLED==='false')return null
  let running=false
- const timer=setInterval(async()=>{if(running)return;running=true;try{const result=await recoverRetirementAllocations(pool);if(result.failed)console.error('[payroll] Allocation recovery requires review.')}catch{console.error('[payroll] Allocation recovery could not complete.')}finally{running=false}},300000)
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementAllocationRecoveryScheduler', async()=>{if(running)return;running=true;try{const result=await recoverRetirementAllocations(pool);if(result.failed)console.error('[payroll] Allocation recovery requires review.')}catch{console.error('[payroll] Allocation recovery could not complete.')}finally{running=false}}),300000)
  timer.unref?.();return timer
 }

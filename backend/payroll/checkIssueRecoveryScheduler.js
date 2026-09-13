@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {cancelPayrollCheck} from './checkCancellation.js'
 import {stopPayrollCheck} from './checkStop.js'
 import {processCheckDocument} from './checkDocument.js'
@@ -53,5 +54,5 @@ export async function runCheckIssueRecoverySweep(pool,{fetcher=fetch,limit=25,no
 export function startCheckIssueRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CHECK_ISSUE_RECOVERY_ENABLED==='false')return null
  const execute=()=>runCheckIssueRecoverySweep(pool).catch(error=>console.error('[payroll] check recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startCheckIssueRecoveryScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startCheckIssueRecoveryScheduler', execute),5*60000);timer.unref?.();return timer
 }

@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {postSettlementJournal} from './settlementPosting.js'
 
 export async function runSettlementRecoverySweep(pool,{fetcher=fetch,limit=25,now=()=>new Date()}={}){
@@ -37,7 +38,7 @@ export async function runSettlementRecoverySweep(pool,{fetcher=fetch,limit=25,no
 export function startSettlementRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_SETTLEMENT_RECOVERY_ENABLED==='false')return null
  const execute=()=>runSettlementRecoverySweep(pool).catch(error=>console.error('[payroll] settlement recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.()
- const timer=setInterval(execute,5*60000);timer.unref?.()
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startSettlementRecoveryScheduler', execute),60000);first.unref?.()
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startSettlementRecoveryScheduler', execute),5*60000);timer.unref?.()
  return timer
 }

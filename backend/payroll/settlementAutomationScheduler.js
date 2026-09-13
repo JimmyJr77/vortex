@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {settlementAutomationState} from './settlementAutomation.js'
 import {postSettlementJournal,settlementPostingPlan} from './settlementPosting.js'
 export async function runSettlementAutomationSweep(pool,{fetcher=fetch,limit=25,now=()=>new Date()}={}){
@@ -31,5 +32,5 @@ export async function runSettlementAutomationSweep(pool,{fetcher=fetch,limit=25,
 export function startSettlementAutomationScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_SETTLEMENT_AUTOMATION_ENABLED==='false')return null
  const execute=()=>runSettlementAutomationSweep(pool).catch(error=>console.error('[payroll] settlement automation failed:',error))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startSettlementAutomationScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startSettlementAutomationScheduler', execute),5*60000);timer.unref?.();return timer
 }

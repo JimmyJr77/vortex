@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {processCheckReplacementDocument} from './checkReplacementDocument.js'
 import {dispatchCheckReplacement} from './checkReplacementDispatch.js'
 
@@ -38,5 +39,5 @@ export async function runCheckReplacementRecoverySweep(pool,{fetcher=fetch,limit
 export function startCheckReplacementRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CHECK_REPLACEMENT_RECOVERY_ENABLED==='false')return null
  const execute=()=>runCheckReplacementRecoverySweep(pool).catch(error=>console.error('[payroll] replacement recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startCheckReplacementRecoveryScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startCheckReplacementRecoveryScheduler', execute),5*60000);timer.unref?.();return timer
 }

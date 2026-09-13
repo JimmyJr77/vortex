@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {refreshRetirementTimingAlerts} from './retirementTimingAlerts.js'
 import {verifyRetirementDestination,retirementDestinationStatus} from './retirementDestination.js'
 // Bounded read-only provider checks. Each destination is rechecked under the
@@ -24,5 +25,5 @@ export function startRetirementDestinationScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_DESTINATION_CHECKS_ENABLED==='false')return null
  let running=false
  const sweep=async()=>{if(running)return;running=true;try{await checkRetirementDestinations(pool);await refreshRetirementTimingAlerts(pool)}catch{console.error('[payroll] Retirement destination checks could not complete.')}finally{running=false}}
- const initial=setTimeout(()=>void sweep(),60000);initial.unref?.();const timer=setInterval(()=>void sweep(),5*60000);timer.unref?.();return timer
+ const initial=setTimeout(() => enqueuePayrollTask(pool, 'startRetirementDestinationScheduler', ()=>sweep()),60000);initial.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementDestinationScheduler', ()=>sweep()),5*60000);timer.unref?.();return timer
 }

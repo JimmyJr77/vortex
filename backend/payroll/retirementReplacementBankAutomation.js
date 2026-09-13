@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchRetirementReplacementBank} from './retirementReplacementBank.js'
 import {replacementBankCandidates} from './retirementReplacementBankAutomationState.js'
 export async function runRetirementReplacementBankSweep(pool,{facility=null,fetcher=fetch,paymentFetcher=fetch,reader,transfer,now=new Date(),dispatchNow=()=>new Date()}={}){
@@ -29,5 +30,5 @@ export async function runRetirementReplacementBankSweep(pool,{facility=null,fetc
 }
 export function startRetirementReplacementBankScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_REPLACEMENT_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runRetirementReplacementBankSweep(pool).catch(()=>console.error('[payroll] Replacement bank automation requires review.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementReplacementBankScheduler', ()=>{if(running)return;running=true;return runRetirementReplacementBankSweep(pool).catch(()=>console.error('[payroll] Replacement bank automation requires review.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {createHash,randomUUID} from 'node:crypto'
 import {retirementScheduleTarget,retirementScheduleUuid} from './retirementDispatchScheduleState.js'
 import {dispatchRetirementRemittance} from './retirementRemittanceDispatch.js'
@@ -67,5 +68,5 @@ export async function runRetirementScheduledDispatches(pool,{facility=null,bankF
 }
 export function startRetirementDispatchScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_SCHEDULED_DISPATCH_ENABLED==='false')return null
- let running=false;const timer=setInterval(async()=>{if(running)return;running=true;try{await runRetirementScheduledDispatches(pool)}catch{console.error('[payroll] Scheduled retirement dispatch requires review.')}finally{running=false}},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementDispatchScheduler', async()=>{if(running)return;running=true;try{await runRetirementScheduledDispatches(pool)}catch{console.error('[payroll] Scheduled retirement dispatch requires review.')}finally{running=false}}),60000);timer.unref?.();return timer
 }

@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {dispatchPayrollInstruction} from './paymentDispatch.js'
 import {runAutomaticCloseouts} from './automaticCloseout.js'
 import {loadRunPreview,payrollFingerprint,finalizePayrollRun} from './registerRoutes.js'
@@ -41,7 +42,7 @@ export async function runPaymentRecoverySweep(pool,{fetcher=fetch,limit=25,now=(
 export function startPaymentRecoveryScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_PAYMENT_RECOVERY_ENABLED==='false')return null
  const execute=()=>runPaymentRecoverySweep(pool).catch(error=>console.error('[payroll] payment recovery sweep failed:',error))
- const first=setTimeout(execute,60000);first.unref?.()
- const timer=setInterval(execute,5*60000);timer.unref?.()
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startPaymentRecoveryScheduler', execute),60000);first.unref?.()
+ const timer=setInterval(() => enqueuePayrollTask(pool, 'startPaymentRecoveryScheduler', execute),5*60000);timer.unref?.()
  return timer
 }

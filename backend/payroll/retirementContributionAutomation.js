@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {refreshRetirementContribution} from './retirementContributionReconciliation.js'
 export async function runRetirementContributionSweep(pool,{facility=null,now=new Date()}={}){
  const lock=await pool.connect();let locked=false
@@ -32,5 +33,5 @@ export async function runRetirementContributionSweep(pool,{facility=null,now=new
 }
 export function startRetirementContributionScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETIREMENT_RECONCILIATION_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runRetirementContributionSweep(pool).catch(()=>console.error('[payroll] Retirement contribution reconciliation needs recovery.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startRetirementContributionScheduler', ()=>{if(running)return;running=true;return runRetirementContributionSweep(pool).catch(()=>console.error('[payroll] Retirement contribution reconciliation needs recovery.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

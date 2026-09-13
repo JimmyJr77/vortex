@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {createHash} from 'node:crypto'
 import {carrierInvoicePaymentState} from './carrierInvoiceReconciliation.js'
 
@@ -56,5 +57,5 @@ export async function runCarrierInvoiceSweep(pool,{facility=null,now=new Date()}
 }
 export function startCarrierInvoiceScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_CARRIER_INVOICE_RECONCILIATION_ENABLED==='false')return null
- let running=false;const timer=setInterval(()=>{if(running)return;running=true;void runCarrierInvoiceSweep(pool).catch(()=>console.error('[payroll] Carrier invoice assessment requires recovery.')).finally(()=>{running=false})},60000);timer.unref?.();return timer
+ let running=false;const timer=setInterval(() => enqueuePayrollTask(pool, 'startCarrierInvoiceScheduler', ()=>{if(running)return;running=true;return runCarrierInvoiceSweep(pool).catch(()=>console.error('[payroll] Carrier invoice assessment requires recovery.')).finally(()=>{running=false})}),60000);timer.unref?.();return timer
 }

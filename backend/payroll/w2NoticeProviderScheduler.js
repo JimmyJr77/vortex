@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {refreshW2NoticeDispatch} from './w2NoticeDispatch.js'
 export async function runW2ProviderEventSweep(pool,{now=()=>new Date(),limit=25}={}){
  const at=now();if(!(at instanceof Date)||!Number.isFinite(at.getTime())||!Number.isInteger(limit)||limit<1||limit>100)throw new Error('Invalid W-2 provider sweep options.')
@@ -23,5 +24,5 @@ export async function runW2ProviderEventSweep(pool,{now=()=>new Date(),limit=25}
 export function startW2ProviderEventScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_W2_PROVIDER_INTAKE_ENABLED==='false')return null
  const execute=()=>runW2ProviderEventSweep(pool).catch(e=>console.error('[payroll] W-2 provider reconciliation failed:',e))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startW2ProviderEventScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startW2ProviderEventScheduler', execute),5*60000);timer.unref?.();return timer
 }

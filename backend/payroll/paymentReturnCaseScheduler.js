@@ -1,3 +1,4 @@
+import {enqueuePayrollTask} from './schedulerQueue.js'
 import {refreshCheckStopCases} from './checkStopCase.js'
 import {refreshPaymentReturnCases} from './paymentReturnCase.js'
 export async function runPaymentReturnCaseSweep(pool,{limit=25,now=()=>new Date()}={}){
@@ -20,5 +21,5 @@ export async function runPaymentReturnCaseSweep(pool,{limit=25,now=()=>new Date(
 export function startPaymentReturnCaseScheduler(pool){
  if(process.env.NODE_ENV==='test'||process.env.PAYROLL_RETURN_CASE_REVIEW_ENABLED==='false')return null
  const execute=()=>runPaymentReturnCaseSweep(pool).catch(error=>console.error('[payroll] payment case review failed:',error))
- const first=setTimeout(execute,60000);first.unref?.();const timer=setInterval(execute,5*60000);timer.unref?.();return timer
+ const first=setTimeout(() => enqueuePayrollTask(pool, 'startPaymentReturnCaseScheduler', execute),60000);first.unref?.();const timer=setInterval(() => enqueuePayrollTask(pool, 'startPaymentReturnCaseScheduler', execute),5*60000);timer.unref?.();return timer
 }
