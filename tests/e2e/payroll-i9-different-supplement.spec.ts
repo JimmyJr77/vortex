@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto'
 import {test,expect} from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {supplementReceiptFixture} from '../../backend/payroll/testing/supplementReceiptFixture.js'
@@ -7,7 +8,8 @@ for(const scenario of ['List C','List A extension and name change','Alternative 
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='98'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  try{
- const {pdf,today}=await supplementReceiptFixture(h,{eVerify:alternative})
+ const {pdf,today,api}=await supplementReceiptFixture(h,{eVerify:alternative})
+ if(alternative)await api('/i9/qualification',{expectedRevision:0,requestKey:randomUUID(),findings:{siteName:'Synthetic hiring site',observedOn:today,eVerifyEnrolled:true,goodStanding:true,allSitesEnrolled:true,trainingComplete:true,consistentProcedure:true,evidence:'Reviewed current site qualification before replacement signing.'}})
  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
  let loseSign=true,loseDraft=true,loseCopy=true
  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());const response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0});if(response.status()===200&&route.request().method()==='POST'&&u.pathname.includes('/different-supplement/')){const kind=loseDraft&&u.pathname.endsWith('/draft')?'draft':loseCopy&&u.pathname.endsWith('/copies')?'copy':null;if(kind){if(kind==='draft')loseDraft=false;else loseCopy=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:`Synthetic ${kind} response lost.`})});return}}if(loseSign&&response.status()===200&&u.pathname.includes('/different-supplement/')&&u.pathname.endsWith('/sign')){loseSign=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({success:false,message:'Synthetic signing response lost.'})});return}await route.fulfill({response})})
@@ -86,6 +88,7 @@ for(const scenario of ['List C','List A extension and name change','Alternative 
  await expect(work.getByRole('alert')).toContainText('Synthetic signing response lost.')
  await work.getByRole('button',{name:'Sign and retain replacement Supplement B',exact:true}).click()
  await records.locator('summary').filter({hasText:'Signed replacement Supplement B'}).click()
+ if(alternative){await records.locator('summary').filter({hasText:'Qualification retained at signing · revision 1'}).click();await expect(records.getByText('Reviewed current site qualification before replacement signing.',{exact:true})).toBeVisible()}
  const download=page.waitForEvent('download');await records.getByRole('button',{name:'Download signed replacement Supplement B',exact:true}).click();await (await download).saveAs('/tmp/payroll-different-supplement-browser-signed.pdf')
  expect(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_signature')).rows[0].count)).toBe(1)
  const next=(await h.pool.query("SELECT due_on::text FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT_SUPPLEMENT:%'")).rows

@@ -1,3 +1,4 @@
+import {i9EmployerRecords} from '../i9EmployerRecords.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
@@ -35,5 +36,10 @@ test('replacement supplement signing rejects revoked qualification and retains r
  const evidence=JSON.parse(decryptDocument(row.encrypted_evidence,`i9-different-supplement-signature:1:${employee.id}:${receiptTaskId}:99`).toString())
  assert.equal(evidence.context.qualification.revision,3);assert.equal(evidence.context.qualification.findings.trainingComplete,true)
  assert.equal(evidence.facts.examination.alternative.sameOriginalsPresented,true)
+ await api('/i9/qualification',{findings:{...qualification,goodStanding:false,evidence:'Good standing could not be confirmed after this signature.'},expectedRevision:3,requestKey:randomUUID()})
+ const records=await i9EmployerRecords(h.pool,{facility:1,employee:employee.id,admin:99})
+ const snapshot=records.records[0].differentSupplements[0].qualification
+ assert.equal(snapshot.revision,3);assert.equal(snapshot.findings.goodStanding,true)
+ assert.equal((await api('/i9/qualification')).current.findings.goodStanding,false)
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[receiptTaskId])).rows[0].status,'COMPLETE')
 })
