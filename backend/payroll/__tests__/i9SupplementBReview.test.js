@@ -1,0 +1,50 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {randomUUID} from 'node:crypto'
+import {PDFDocument} from 'pdf-lib'
+import {createHarness} from '../testing/harness.js'
+import {employerI9ReviewFixture,syntheticI9CopyPdf} from '../testing/employerI9ReviewFixture.js'
+import {I9_EMPLOYER_ATTESTATION} from '../i9Examination.js'
+const answers={edition:'01/20/25',document:{list:'A',title:'Employment Authorization Document',number:'REPLACEMENT-SYNTHETIC',expiresOn:'2032-01-01'},representativeName:'Reviewer Alice',examinationMethod:'PHYSICAL',additionalInformation:''}
+test('native Supplement B preview retains exact encrypted source, scopes page review and rejects stale/reopened certification',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='94'.repeat(32);t.after(()=>{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
+ const h=await createHarness();t.after(()=>h.close());const {api,employee,task,base,reviewBody}=await employerI9ReviewFixture(h,{authorizedWorker:true})
+ const copy=await api(base+'/employer-copies',{...reviewBody,rowKey:'A1',requestKey:randomUUID(),filename:'synthetic.pdf',contentBase64:(await syntheticI9CopyPdf()).toString('base64')})
+ for(let page=1;page<=4;page++)await api(base+'/employer-page',{...reviewBody,documentKey:'main',page,displayed:true})
+ for(let page=1;page<=2;page++)await api(base+'/employer-copy-page',{...reviewBody,copyId:copy.id,page,displayed:true})
+ const signed=await api(base+'/employer-sign',{...reviewBody,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:I9_EMPLOYER_ATTESTATION,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:{examinedOn:'2026-09-01',examinerInitials:'RA',identityEvidence:'Authenticated hiring admin performed the synthetic examination.',businessDays:[1,2,3,4,5],closedDates:[],calendarConfirmed:true,shortEmployment:false,lateReason:'Historical synthetic fixture certified at the actual current date.',employeeChoseDocuments:true,section1Reviewed:true,documentsGenuineAndRelated:true,physicalPresence:true,documents:[{rowKey:'A1',copyIds:[copy.id],copiesComplete:true,accepted:true,acceptance:'STANDARD',followUpKind:'REVERIFICATION',followUpOn:'2030-01-01',ruleSource:'https://www.uscis.gov/i-9-central',ruleEvidence:'Synthetic employment authorization valid through January 2030.'}]}})
+ const followup=(await h.pool.query('SELECT * FROM payroll_i9_signature_followup WHERE signature_id=$1',[signed.signatureId])).rows[0]
+ const path=`/employees/${employee.id}/i9/supplement/${followup.compliance_task_id}`,body={signatureId:signed.signatureId,answers}
+ await api(path+'/preview',{...body,signatureId:'99999'},'POST',409)
+ await api(path+'/preview',{...body,answers:{...answers,document:{...answers.document,list:'B'}}},'POST',400)
+ await h.pool.query(`CREATE FUNCTION reject_supplement_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_SUPPLEMENT_PREVIEW_CREATED' THEN RAISE EXCEPTION 'Synthetic audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_supplement_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_supplement_audit()`)
+ await api(path+'/preview',body,'POST',500)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_supplement_review')).rowCount,0)
+ await h.pool.query('DROP TRIGGER reject_supplement_audit ON payroll_audit_log')
+ const preview=await api(path+'/preview',body),page={reviewId:preview.reviewId,previewSha256:preview.previewSha256,documentKey:'supplement',page:1,displayed:true}
+ assert.equal(preview.pageCount,1);assert.equal(preview.source.pageCount,4)
+ const form=(await PDFDocument.load(Buffer.from(preview.pdfBase64,'base64'))).getForm()
+ assert.equal(form.getTextField('Document Number 0').getText(),'REPLACEMENT-SYNTHETIC');assert.equal(form.getTextField('Signature of Emp Rep 0').getText()||'','')
+ const source=(await PDFDocument.load(Buffer.from(preview.source.pdfBase64,'base64'))).getForm();assert.equal(source.getTextField('Signature of Employer or AR').getText(),'Reviewer Alice')
+ const row=(await h.pool.query('SELECT * FROM payroll_i9_supplement_review')).rows[0]
+ assert.equal(row.encrypted_review.includes(Buffer.from('REPLACEMENT-SYNTHETIC')),false)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_supplement_review'),/immutable/)
+ await api(path+'/page',{...page,displayed:false},'POST',400)
+ await api(path+'/page',{...page,page:2},'POST',400)
+ await api(path+'/page',{...page,previewSha256:'0'.repeat(64)},'POST',409)
+ await api(path+'/page',page);await api(path+'/page',page)
+ for(let n=1;n<=4;n++)await api(path+'/page',{...page,documentKey:'source',page:n})
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_supplement_page_visit')).rowCount,5)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_supplement_page_visit'),/immutable/)
+ const foreign=await fetch(`${h.url}/api/admin/payroll${path}/page`,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2','Content-Type':'application/json'},body:JSON.stringify(page)});assert.equal(foreign.status,404)
+ const newer=await api(path+'/preview',body)
+ await api(path+'/page',page,'POST',409)
+ await api(path+'/page',{...page,reviewId:newer.reviewId,previewSha256:newer.previewSha256})
+ const state=(await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[followup.compliance_task_id])).rows[0];assert.equal(state.status,'OPEN')
+ const audit=(await h.pool.query("SELECT after_data FROM payroll_audit_log WHERE action='I9_SUPPLEMENT_PREVIEW_CREATED'")).rows;assert.equal(audit.length,2);assert.equal(JSON.stringify(audit).includes('REPLACEMENT-SYNTHETIC'),false)
+ const expired=(await h.pool.query(`INSERT INTO payroll_i9_supplement_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,created_at,expires_at) SELECT facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,clock_timestamp()-interval '2 hours',clock_timestamp()-interval '1 hour' FROM payroll_i9_supplement_review WHERE id=$1 RETURNING id`,[newer.reviewId])).rows[0]
+ await api(path+'/page',{...page,reviewId:expired.id,previewSha256:newer.previewSha256},'POST',409)
+ await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{onboardingCycle:1,status:'CHANGES_REQUESTED',note:'Reopen employer certification for a corrected examination.'})
+ await api(path+'/preview',body,'POST',409)
+ await api(path+'/page',{...page,reviewId:newer.reviewId,previewSha256:newer.previewSha256},'POST',409)
+})

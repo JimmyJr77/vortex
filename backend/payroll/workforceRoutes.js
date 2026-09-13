@@ -1,3 +1,4 @@
+import {previewI9SupplementB,recordI9SupplementBPage} from './i9SupplementBReview.js'
 import {readEVerifyResults,recordEVerifyResult} from './i9EVerify.js'
 import {i9EmployerRecords} from './i9EmployerRecords.js'
 import {readI9ExaminationDraft,saveI9ExaminationDraft} from './i9ExaminationDraft.js'
@@ -108,6 +109,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
  }))
  app.get('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readEVerifyResults(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordEVerifyResult(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9SupplementB(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9SupplementBPage(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/employer-records',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9EmployerRecords(db,context(req)))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9ExaminationDraft(db,context(req),req.params.taskId,req.query))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/examination-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9ExaminationDraft(db,context(req),req.params.taskId,req.body||{}))})

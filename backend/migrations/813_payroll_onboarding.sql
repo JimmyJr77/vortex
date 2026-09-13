@@ -5836,3 +5836,31 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_everify_completion ON payroll_compliance_task;
 CREATE TRIGGER payroll_guard_i9_everify_completion BEFORE INSERT OR UPDATE ON payroll_compliance_task FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_everify_completion();
+
+-- Native reverification reviews retain the exact supplement and source form.
+CREATE TABLE IF NOT EXISTS payroll_i9_supplement_review (
+ id BIGSERIAL PRIMARY KEY, facility_id BIGINT NOT NULL, employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id), signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id), actor_user_id BIGINT NOT NULL,
+ basis_hash TEXT NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'), preview_sha256 TEXT NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'), encrypted_review BYTEA NOT NULL CHECK(octet_length(encrypted_review)>28),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), expires_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()+interval '30 minutes', CHECK(expires_at>created_at)
+);
+CREATE INDEX IF NOT EXISTS payroll_i9_supplement_review_task ON payroll_i9_supplement_review(compliance_task_id,id DESC);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_supplement_review() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 Supplement B review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_signature_followup f JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.signature_id=NEW.signature_id AND f.compliance_task_id=NEW.compliance_task_id AND f.kind='REVERIFICATION' AND s.employee_id=NEW.employee_id AND s.facility_id=NEW.facility_id AND c.employee_id=NEW.employee_id AND c.facility_id=NEW.facility_id) THEN RAISE EXCEPTION 'Supplement B review must match its employee certification and reverification follow-up.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_supplement_review ON payroll_i9_supplement_review;
+CREATE TRIGGER payroll_guard_i9_supplement_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_supplement_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_supplement_review();
+CREATE TABLE IF NOT EXISTS payroll_i9_supplement_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_supplement_review(id), document_key TEXT NOT NULL CHECK(document_key IN ('source','supplement')), page_number INTEGER NOT NULL,
+ viewed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(review_id,document_key,page_number), CHECK(page_number BETWEEN 1 AND CASE WHEN document_key='source' THEN 4 ELSE 1 END)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_supplement_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 Supplement B page review history is immutable.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_supplement_page ON payroll_i9_supplement_page_visit;
+CREATE TRIGGER payroll_guard_i9_supplement_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_supplement_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_supplement_page();
