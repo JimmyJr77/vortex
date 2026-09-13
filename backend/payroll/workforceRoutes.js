@@ -1,3 +1,4 @@
+import {listI9EmployerCopies,uploadI9EmployerCopy,viewI9EmployerCopy,recordI9CopyPage} from './i9EmployerCopies.js'
 import {previewI9Employer,recordI9EmployerPage} from './i9EmployerReview.js'
 import {readI9EmployerDraft,saveI9EmployerDraft} from './i9EmployerDraft.js'
 import {preparerRoster,invitePreparer,cancelPreparer} from './i9Preparers.js'
@@ -101,6 +102,10 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>listI9EmployerCopies(db,context(req),req.params.taskId,req.query))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>uploadI9EmployerCopy(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copy-view',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9EmployerCopy(db,context(req),req.params.taskId,req.body||{}))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9CopyPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9Employer(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9EmployerPage(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9EmployerDraft(db,context(req),req.params.taskId,req.query.onboardingCycle))})

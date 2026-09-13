@@ -4,6 +4,7 @@ import {preparerRoster} from './i9Preparers.js'
 import {encryptDocument,decryptDocument} from './onboarding.js'
 import {renderI9Section2Preview} from './i9Section2Pdf.js'
 import {i9Section2Input} from './i9Section2.js'
+import {i9DocumentEntries} from './i9DocumentEntries.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const hash=value=>createHash('sha256').update(value).digest('hex')
 const aad=(ctx,taskId,cycle)=>`i9-employer-review:${ctx.facility}:${ctx.employee}:${BigInt(taskId)}:${cycle}:${ctx.admin}`
@@ -44,6 +45,7 @@ export async function previewI9Employer(db,ctx,taskId,body){
  const retained={answers,sourceDocumentId:current.submission.document_id,sourceSha256:source.sha256,pdfBase64:pdf.toString('base64'),supplements}
  const row=(await db.query(`INSERT INTO payroll_i9_employer_review(facility_id,employee_id,task_id,onboarding_cycle,submission_id,draft_revision,basis_hash,preparer_fingerprint,preparer_document_ids,actor_user_id,encrypted_review,preview_sha256)
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,body.onboardingCycle,current.submissionId,current.draft.revision,current.draft.basisHash,current.roster.fingerprint,supplements.map(s=>s.documentId),ctx.admin,encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,taskId,body.onboardingCycle)),previewSha256])).rows[0]
+ for(const entry of i9DocumentEntries(answers))await db.query('INSERT INTO payroll_i9_review_document_entry(review_id,row_key,document_fingerprint) VALUES($1,$2,$3)',[row.id,entry.key,entry.fingerprint])
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_EMPLOYER_PREVIEW_CREATED','i9_employer_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,taskId,onboardingCycle:body.onboardingCycle,submissionId:current.submissionId,draftRevision:current.draft.revision,previewSha256,preparerDocumentIds:supplements.map(s=>s.documentId)}])
  return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:retained.pdfBase64,pageCount:4,supplements}
 }

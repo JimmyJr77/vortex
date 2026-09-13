@@ -5718,3 +5718,45 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_employer_page ON payroll_i9_employer_page_visit;
 CREATE TRIGGER payroll_guard_i9_employer_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_page();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_document_copy (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),submission_id BIGINT NOT NULL REFERENCES payroll_i9_submission(id),source_review_id BIGINT NOT NULL REFERENCES payroll_i9_employer_review(id),
+ row_key text NOT NULL CHECK(row_key IN ('A1','A2','A3','B','C')),document_fingerprint text NOT NULL CHECK(document_fingerprint ~ '^[a-f0-9]{64}$'),document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id),page_count integer NOT NULL CHECK(page_count>0),
+ actor_user_id BIGINT NOT NULL,request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),created_at timestamptz NOT NULL DEFAULT clock_timestamp(),UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_document_copy() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 document-copy evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_review_document_entry WHERE review_id=NEW.source_review_id AND row_key=NEW.row_key AND document_fingerprint=NEW.document_fingerprint) THEN RAISE EXCEPTION 'Document copy must match its reviewed document entry.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_review r JOIN payroll_private_document d ON d.id=NEW.document_id JOIN payroll_i9_employer_draft f ON f.task_id=r.task_id AND f.onboarding_cycle=r.onboarding_cycle JOIN payroll_onboarding_task t ON t.id=r.task_id JOIN payroll_i9_submission s ON s.id=r.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id WHERE r.id=NEW.source_review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.task_id=NEW.task_id AND r.onboarding_cycle=NEW.onboarding_cycle AND r.submission_id=NEW.submission_id AND r.actor_user_id=NEW.actor_user_id AND r.expires_at>clock_timestamp() AND r.id=(SELECT MAX(id) FROM payroll_i9_employer_review WHERE task_id=r.task_id AND onboarding_cycle=r.onboarding_cycle) AND f.revision=r.draft_revision AND f.basis_hash=r.basis_hash AND d.facility_id=r.facility_id AND d.employee_id=r.employee_id AND d.task_id=r.task_id AND d.onboarding_cycle=r.onboarding_cycle AND t.onboarding_cycle=r.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND e.onboarding_cycle=s.onboarding_cycle AND e.status='COMPLETE' AND e.response->>'i9SubmissionId'=s.id::text) THEN RAISE EXCEPTION 'Document copies require the current scoped employer review and private file.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_document_copy ON payroll_i9_document_copy;
+CREATE TRIGGER payroll_guard_i9_document_copy BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_document_copy FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_document_copy();
+CREATE TABLE IF NOT EXISTS payroll_i9_copy_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_employer_review(id),copy_id BIGINT NOT NULL REFERENCES payroll_i9_document_copy(id),page_number integer NOT NULL CHECK(page_number>0),
+ displayed_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(review_id,copy_id,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_copy_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 document-copy page evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_document_copy c JOIN payroll_i9_review_document_entry e ON e.review_id=NEW.review_id AND e.row_key=c.row_key AND e.document_fingerprint=c.document_fingerprint WHERE c.id=NEW.copy_id) THEN RAISE EXCEPTION 'Document-copy page must match the current reviewed entry.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_document_copy c JOIN payroll_i9_employer_review r ON r.id=NEW.review_id JOIN payroll_i9_employer_draft d ON d.task_id=r.task_id AND d.onboarding_cycle=r.onboarding_cycle JOIN payroll_onboarding_task t ON t.id=r.task_id JOIN payroll_i9_submission s ON s.id=r.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id WHERE c.id=NEW.copy_id AND c.task_id=r.task_id AND c.onboarding_cycle=r.onboarding_cycle AND c.submission_id=r.submission_id AND NEW.page_number<=c.page_count AND r.expires_at>clock_timestamp() AND r.id=(SELECT MAX(id) FROM payroll_i9_employer_review WHERE task_id=r.task_id AND onboarding_cycle=r.onboarding_cycle) AND d.revision=r.draft_revision AND d.basis_hash=r.basis_hash AND t.onboarding_cycle=r.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND e.onboarding_cycle=s.onboarding_cycle AND e.status='COMPLETE' AND e.response->>'i9SubmissionId'=s.id::text) THEN RAISE EXCEPTION 'Display a page from a current scoped I-9 copy.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_copy_page ON payroll_i9_copy_page_visit;
+CREATE TRIGGER payroll_guard_i9_copy_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_copy_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_copy_page();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_review_document_entry (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_employer_review(id),row_key text NOT NULL CHECK(row_key IN ('A1','A2','A3','B','C')),
+ document_fingerprint text NOT NULL CHECK(document_fingerprint ~ '^[a-f0-9]{64}$'),PRIMARY KEY(review_id,row_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_review_document_entry() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Reviewed I-9 document entries are immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_review WHERE id=NEW.review_id AND expires_at>clock_timestamp()) THEN RAISE EXCEPTION 'Document entries require an unexpired employer review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_review_document_entry ON payroll_i9_review_document_entry;
+CREATE TRIGGER payroll_guard_i9_review_document_entry BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_review_document_entry FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_review_document_entry();

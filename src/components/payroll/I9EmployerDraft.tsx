@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react'
 import {workforceApi,type I9EmployerDocument,type I9EmployerDraft as Draft,type I9EmployerDraftState,type I9EmployerPreview} from '../../utils/workforceApi'
 import W4PdfReview from './W4PdfReview'
+import I9EmployerCopies from './I9EmployerCopies'
 import instructionsUrl from '../../../backend/payroll/forms/uscis-i9-instructions-012025.pdf?url'
 const emptyRow=():I9EmployerDocument=>({title:'',issuingAuthority:'',number:'',expiresOn:''})
 const empty=():Draft=>({documentChoice:null,listA:[],listB:null,listC:null,additionalInformation:'',examinationMethod:null,firstDayEmployed:'',representativeNameAndTitle:'',businessName:'',businessAddress:''})
@@ -54,6 +55,6 @@ export default function I9EmployerDraft({employeeId,taskId,cycle,editable}:{empl
   {state?.savedAt?<p className="text-sm">Saved {state.savedAt} · revision {state.revision}</p>:null}
   <button type="button" disabled={busy||dirty||!state?.draft||!editable} className="rounded border border-slate-400 px-3 py-2 font-bold disabled:opacity-40" onClick={()=>void prepare()}>Prepare employer I-9 preview</button>
   {dirty?<p className="text-sm">Save your changes before preparing the official form.</p>:null}
-  {preview?<div className="space-y-4"><p className="text-sm">The employee signature is retained. Section 2 is unsigned. Review all four pages and each preparer certificate; examination evidence and your employer certification remain required.</p><ReviewDocument key={`${preview.reviewId}-main`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey="main" pdfBase64={preview.pdfBase64} pageCount={4} label="I-9 employer preview"/>{preview.supplements.map((s,index)=><ReviewDocument key={`${preview.reviewId}-${s.documentKey}`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey={s.documentKey} pdfBase64={s.pdfBase64} pageCount={1} label={`I-9 preparer certificate ${index+1}`}/>)}</div>:null}
+  {preview?<div className="space-y-4"><p className="text-sm">The employee signature is retained. Section 2 is unsigned. Review all four pages and each preparer certificate; examination evidence and your employer certification remain required.</p><ReviewDocument key={`${preview.reviewId}-main`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey="main" pdfBase64={preview.pdfBase64} pageCount={4} label="I-9 employer preview"/>{preview.supplements.map((s,index)=><ReviewDocument key={`${preview.reviewId}-${s.documentKey}`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey={s.documentKey} pdfBase64={s.pdfBase64} pageCount={1} label={`I-9 preparer certificate ${index+1}`}/>)}<I9EmployerCopies key={preview.reviewId} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview}/></div>:null}
  </section>
 }

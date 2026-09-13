@@ -44,7 +44,17 @@ export type I9EmployerDocument={title:string;issuingAuthority:string;number:stri
 export type I9EmployerDraft={documentChoice:'LIST_A'|'LIST_B_C'|null;listA:I9EmployerDocument[];listB:I9EmployerDocument|null;listC:I9EmployerDocument|null;additionalInformation:string;examinationMethod:'PHYSICAL'|'ALTERNATIVE'|null;firstDayEmployed:string;representativeNameAndTitle:string;businessName:string;businessAddress:string}
 export type I9EmployerDraftState={revision:number;basisHash:string;submissionId:string|number|null;draft:I9EmployerDraft|null;savedAt:string|null;invalidated:boolean}
 export type I9EmployerPreview={reviewId:string|number;expiresAt:string;previewSha256:string;pdfBase64:string;pageCount:number;supplements:Array<{documentKey:string;documentId:string|number;sha256:string;pdfBase64:string;pageCount:number}>}
+export type I9CopyList={documents:Array<{key:string;label:string;copies:Array<{id:string|number;documentId:string|number;pageCount:number;filename:string;mime:string;createdAt:string}>}>}
+export type I9CopyView={copyId:string|number;contentBase64:string;mime:string;pageCount:number;filename:string}
 export const workforceApi = {
+ i9EmployerCopies:(employeeId:number,taskId:number,body:Record<string,string|number>)=>request<I9CopyList>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copies?${new URLSearchParams(Object.fromEntries(Object.entries(body).map(([key,value])=>[key,String(value)])))}`,true),
+ async uploadI9EmployerCopy(employeeId:number,taskId:number,body:Record<string,unknown>,file:File){
+  if(file.size>5*1024*1024)throw new Error('Choose a file up to 5 MB.')
+  const contentBase64=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('Unable to read file'));reader.readAsDataURL(file)})
+  return request<{id:string|number;documentId:string|number;pageCount:number}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copies`,true,{...body,contentBase64})
+ },
+ viewI9EmployerCopy:(employeeId:number,taskId:number,body:unknown)=>request<I9CopyView>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copy-view`,true,body),
+ recordI9CopyPage:(employeeId:number,taskId:number,body:unknown)=>request<{recorded:boolean}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copy-page`,true,body),
  previewI9Employer:(employeeId:number,taskId:number,body:unknown)=>request<I9EmployerPreview>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-preview`,true,body),
  recordI9EmployerPage:(employeeId:number,taskId:number,body:unknown)=>request<{recorded:boolean}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-page`,true,body),
  i9EmployerDraft:(employeeId:number,taskId:number,cycle:number)=>request<I9EmployerDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft?onboardingCycle=${cycle}`,true),
