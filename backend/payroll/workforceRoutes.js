@@ -1,6 +1,6 @@
 import {signI9Receipt} from './i9ReceiptSigning.js'
 import {listI9ReceiptCopies,uploadI9ReceiptCopy,viewI9ReceiptCopy,recordI9ReceiptCopyPage} from './i9ReceiptCopies.js'
-import {previewI9Receipt,recordI9ReceiptPage} from './i9ReceiptReview.js'
+import {previewI9Receipt,recordI9ReceiptPage,i9ReceiptContext} from './i9ReceiptReview.js'
 import {readI9SupplementBDraft,saveI9SupplementBDraft} from './i9SupplementBDraft.js'
 import {signI9SupplementB} from './i9SupplementBSigning.js'
 import {listI9SupplementBCopies,uploadI9SupplementBCopy,viewI9SupplementBCopy,recordI9SupplementBCopyPage} from './i9SupplementBCopies.js'
@@ -115,6 +115,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
  }))
  app.get('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readEVerifyResults(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/everify/:taskId',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordEVerifyResult(db,context(req),req.params.taskId,req.body||{}))})
+ app.get('/api/admin/payroll/employees/:id/i9/receipt/:taskId/context',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9ReceiptContext(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/receipt/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9Receipt(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/receipt/:taskId/page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9ReceiptPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/preview',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>previewI9SupplementB(db,context(req),req.params.taskId,req.body||{}))})

@@ -50,3 +50,10 @@ test('alternative examination requires current qualification, live video and mat
  assert.throws(()=>check({...f,alternative:{...alternative,sameOriginalsPresented:false}},answers(),c),/Confirm/)
  assert.throws(()=>check({...findings(),alternative},answers(),c),/physical examination/)
 })
+
+test('examiner notes preserve line breaks while rule URLs remain single-line',()=>{
+ const value={...findings(),identityEvidence:'Named examiner verified.\nEmployee was present.'}
+ assert.equal(i9ReceiptExaminationInput(value).identityEvidence,value.identityEvidence)
+ assert.equal(check(value).late,false)
+ assert.throws(()=>check({...findings(),acceptanceSource:'https://www.uscis.gov/\ni-9-central'}),/single-line/)
+})

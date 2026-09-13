@@ -49,3 +49,9 @@ export async function recordI9ReceiptPage(db,ctx,taskId,body){
  await db.query('INSERT INTO payroll_i9_receipt_page_visit(review_id,document_key,page_number) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',[row.id,body.documentKey,body.page])
  return {documentKey:body.documentKey,page:body.page,recorded:true}
 }
+
+export async function i9ReceiptContext(db,ctx,taskId){
+ const current=await i9ReceiptBasis(db,ctx,taskId)
+ const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
+ return {sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,today:clock.today,dueOn:current.row.due_on}
+}

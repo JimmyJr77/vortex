@@ -7,7 +7,7 @@ import {signRetainedPayrollForm} from './i9SignaturePdf.js'
 const fail=message=>Object.assign(new Error(message),{status:400})
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex')
 const object=(v,keys)=>{if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).some(k=>!keys.includes(k)))throw fail('Use the supported receipt-replacement fields.');return v}
-const text=(v,label,max,required=true)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||/[\u0000-\u001f\u007f]/.test(v)||required&&!v.trim())throw fail(`Review ${label}.`);return v.trim().normalize('NFC')}
+const text=(v,label,max,required=true,multiline=false)=>{if(v==null&&!required)return '';if(typeof v!=='string'||v.length>max||(multiline?/[\u0000-\u0009\u000b-\u001f\u007f]/:/[\u0000-\u001f\u007f]/).test(v)||required&&!v.trim())throw fail(`Review ${label}.`);return v.trim().normalize('NFC')}
 const date=v=>{if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v)||!Number.isFinite(Date.parse(v))||new Date(v).toISOString().slice(0,10)!==v)throw fail('Enter a real receipt-replacement date.');return v}
 const usDate=v=>v?`${v.slice(5,7)}/${v.slice(8,10)}/${v.slice(0,4)}`:''
 export const RECEIPT_SIGNATURE_FIELD='vortex.i9.receipt.signature'
@@ -17,7 +17,7 @@ export function i9ReceiptReplacementInput(raw){
  if(!['SECTION2','SUPPLEMENT_B'].includes(b.sourceKind)||b.replacementKind!=='ACTUAL_REPLACEMENT')throw fail('Use this amendment for the actual document replacing the receipt; different documentation requires its new-section workflow.')
  if(b.sourceKind==='SECTION2'&&!['A1','A2','A3','B','C'].includes(b.rowKey)||b.sourceKind==='SUPPLEMENT_B'&&b.rowKey!=='SUPPLEMENT')throw fail('Choose the source receipt document row.')
  const d=object(b.replacement,['title','issuingAuthority','number','expiresOn'])
- return {sourceKind:b.sourceKind,rowKey:b.rowKey,replacementKind:b.replacementKind,replacement:{title:text(d.title,'replacement title',150),issuingAuthority:text(d.issuingAuthority,'issuing authority',200),number:text(d.number,'replacement number',100,false),expiresOn:d.expiresOn==null||d.expiresOn===''?'':date(d.expiresOn)},examinerName:text(b.examinerName,'examiner name',200),initials:text(b.initials,'examiner initials',20),amendedOn:date(b.amendedOn),explanation:text(b.explanation,'receipt-match explanation',2000)}
+ return {sourceKind:b.sourceKind,rowKey:b.rowKey,replacementKind:b.replacementKind,replacement:{title:text(d.title,'replacement title',150),issuingAuthority:text(d.issuingAuthority,'issuing authority',200),number:text(d.number,'replacement number',100,false),expiresOn:d.expiresOn==null||d.expiresOn===''?'':date(d.expiresOn)},examinerName:text(b.examinerName,'examiner name',200),initials:text(b.initials,'examiner initials',20),amendedOn:date(b.amendedOn),explanation:text(b.explanation,'receipt-match explanation',2000,true,true)}
 }
 const rows={A1:[I9_SECTION2_TITLE_FIELD,'Document Number 0 (if any)'],A2:['Document Title 2 If any','Document Number If any_2'],A3:['List A.   Document Title 3.  If any','List A.  Document 3 Number.  If any'],B:['List B Document 1 Title','List B Document Number 1'],C:['List C Document Title 1','List C Document Number 1'],SUPPLEMENT:['Document Title 0','Document Number 0']}
 // Render an amendment for review; the workflow must retain the original bytes,
