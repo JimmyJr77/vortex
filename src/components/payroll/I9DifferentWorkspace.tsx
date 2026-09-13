@@ -1,10 +1,15 @@
 import I9DifferentExamination from './I9DifferentExamination'
 import I9DifferentCopies from './I9DifferentCopies'
 import {useEffect,useRef,useState} from 'react'
-import {workforceApi,type I9DifferentDraftState,type I9DifferentDraftFacts,type I9DifferentContext,type I9DifferentPreview,type I9EmployerDocument} from '../../utils/workforceApi'
+import {workforceApi,type I9DifferentDraftData,type I9DifferentDraftState,type I9DifferentDraftFacts,type I9DifferentContext,type I9DifferentPreview,type I9EmployerDocument} from '../../utils/workforceApi'
 import I9DifferentReviewPages from './I9DifferentReviewPages'
 const blank=():I9EmployerDocument=>({title:'',issuingAuthority:'',number:'',expiresOn:''})
 const input='mt-1 block w-full min-w-0 rounded border p-2'
+const draftShape=(draft:I9DifferentDraftData)=>JSON.stringify({...draft,facts:{...draft.facts,days:[...draft.facts.days].sort()}},(_key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))):value)
+const restoredDraft=(draft:I9DifferentDraftData|null,context:I9DifferentContext):I9DifferentDraftData=>{
+ const form=draft?.form
+ return {form:{choice:form?.choice||'',method:form?.method||'',businessName:form?.businessName??context.employerDefaults.businessName,businessAddress:form?.businessAddress??context.employerDefaults.businessAddress,representative:form?.representative||'',reason:form?.reason||'',initials:form?.initials||'',notes:form?.notes||'',listA:form?.listA?.length?form.listA.map(doc=>({...blank(),...doc})):[blank()],listB:{...blank(),...form?.listB},listC:{...blank(),...form?.listC}},facts:draft?.facts||{fields:{},days:[],decisions:{}}}
+}
 export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUpdated}:{employeeId:number;taskId:string|number;signatureId:string|number;onUpdated:()=>void}){
  const [saved,setSaved]=useState<I9DifferentDraftState|null>(null),[facts,setFacts]=useState<I9DifferentDraftFacts>({fields:{},days:[],decisions:{}}),[draftNotice,setDraftNotice]=useState('')
  const saveRetry=useRef<{payload:string;key:string}|null>(null)
@@ -20,10 +25,12 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUp
   void Promise.all([workforceApi.differentContext(employeeId,taskId),workforceApi.differentDraft(employeeId,taskId)]).then(([value,draft])=>{if(!live)return;if(String(value.signatureId)!==String(signatureId))throw new Error('Reload the current employer certification.');setContext(value);setSaved(draft);const form=draft.draft?.form;setBusinessName(form?.businessName??value.employerDefaults.businessName);setBusinessAddress(form?.businessAddress??value.employerDefaults.businessAddress);setChoice(form?.choice||'');setMethod(form?.method||'');setRepresentative(form?.representative||'');setReason(form?.reason||'');setInitials(form?.initials||'');setNotes(form?.notes||'');setListA(form?.listA?.length?form.listA.map(doc=>({...blank(),...doc})):[blank()]);setListB({...blank(),...form?.listB});setListC({...blank(),...form?.listC});setFacts(draft.draft?.facts||{fields:{},days:[],decisions:{}});setDraftNotice(draft.invalidated?'Saved entries belong to older evidence. Start a new review.':draft.draft?'Draft restored. Signatures, consent and copy selections require fresh review.':'')}).catch(e=>{if(live)setError(e instanceof Error?e.message:'Unable to load the receipt context.')}).finally(()=>{if(live)setLoading(false)})
   return()=>{live=false}
  },[open,employeeId,taskId,signatureId,reload])
+ const entries={form:{choice,method,businessName,businessAddress,representative,reason,initials,notes,listA,listB,listC},facts}
+ const unsaved=!!context&&!!saved&&draftShape(entries)!==draftShape(restoredDraft(saved.draft,context))
  const change=(action:()=>void)=>{setPreview(null);setSelected({});setError('');action()}
  const save=async()=>{
   if(!saved)return
-  const body={basisHash:saved.basisHash,expectedRevision:saved.revision,draft:{form:{choice,method,businessName,businessAddress,representative,reason,initials,notes,listA,listB,listC},facts}},payload=JSON.stringify(body)
+  const body={basisHash:saved.basisHash,expectedRevision:saved.revision,draft:entries},payload=JSON.stringify(body)
   if(saveRetry.current?.payload!==payload)saveRetry.current={payload,key:crypto.randomUUID()}
   setBusy(true);setError('');setDraftNotice('')
   try{const result=await workforceApi.saveDifferentDraft(employeeId,taskId,{...body,requestKey:saveRetry.current.key});setSaved(result);setDraftNotice(`Private draft saved at ${result.savedAt}.`)}catch(e){setError(e instanceof Error?e.message:'Unable to confirm draft saving. Retry unchanged.') }finally{setBusy(false)}
@@ -40,7 +47,8 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUp
  return <section aria-label="Different-document replacement workspace" className="min-w-0 space-y-3 rounded border p-3">
   <h4 className="font-bold">Different replacement documents</h4>
   <p>Record the acceptable documents the employee chose. The new certification stays with the original signed I-9.</p>
-  <button type="button" className="underline" disabled={loading||busy||signing} onClick={()=>setReload(n=>n+1)}>Reload saved replacement</button><button type="button" className="ml-3 underline" disabled={loading||busy||signing||!saved} onClick={()=>void save()}>Save replacement draft</button>{draftNotice&&!loading&&!busy?<p role="status">{draftNotice}</p>:null}
+  <button type="button" className="underline" disabled={loading||busy||signing} onClick={()=>setReload(n=>n+1)}>Reload saved replacement (replaces unsaved entries)</button><button type="button" className="ml-3 underline" disabled={loading||busy||signing||!saved} onClick={()=>void save()}>Save replacement draft</button>{draftNotice&&!loading&&!busy?<p role="status">{draftNotice}</p>:null}
+  {unsaved&&!loading?<p>You have unsaved replacement entries or examination notes.</p>:null}
   {loading?<p role="status">Loading retained receipt context…</p>:null}{error?<p role="alert">{error}</p>:null}
   {context?.sourceKind==='SUPPLEMENT_B'?<p>This receipt was recorded during reverification and requires its Supplement B replacement process.</p>:context?<>
    <p>Receipt row {context.rowKey}; due {context.dueOn}. Original first day employed: {context.employerDefaults.firstDayEmployed}.</p>
@@ -57,7 +65,7 @@ export default function I9DifferentWorkspace({employeeId,taskId,signatureId,onUp
     <button type="button" className="rounded border p-2" disabled={!choice||!method} onClick={()=>void prepare()}>Prepare replacement certification</button>
    </fieldset>
    {busy?<p role="status">Saving or preparing replacement…</p>:null}
-   {preview?<fieldset disabled={signing} className="min-w-0 space-y-3"><p>Review every page. Preparing this packet does not complete the receipt follow-up.</p>{preview.packet.map(part=><I9DifferentReviewPages key={`${preview.reviewId}:${part.documentKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} documentKey={part.documentKey} pdfBase64={part.pdfBase64} pageCount={part.pageCount} title={part.documentKey==='replacement'?'Review new replacement certification':part.documentKey==='source'?'Review original employer I-9':part.documentKey==='employee'?'Review original employee I-9':`Review retained amendment ${part.documentKey}`}/>) }{(choice==='LIST_A'?listA.map((_,index)=>`A${index+1}`):['B','C']).map(rowKey=><I9DifferentCopies key={`${preview.reviewId}:${rowKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} rowKey={rowKey} selected={selected[rowKey]||[]} onSelected={ids=>setSelected(value=>({...value,[rowKey]:ids}))}/>) }<I9DifferentExamination key={preview.reviewId} employeeId={employeeId} taskId={taskId} preview={preview} initials={initials} method={method} selected={selected} rowKeys={choice==='LIST_A'?listA.map((_,index)=>`A${index+1}`):['B','C']} onBusy={setSigning} onSigned={onUpdated} initialDraft={facts} onDraft={setFacts}/></fieldset>:null}
+   {preview?<fieldset disabled={signing||busy} className="min-w-0 space-y-3"><p>Review every page. Preparing this packet does not complete the receipt follow-up.</p>{preview.packet.map(part=><I9DifferentReviewPages key={`${preview.reviewId}:${part.documentKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} documentKey={part.documentKey} pdfBase64={part.pdfBase64} pageCount={part.pageCount} title={part.documentKey==='replacement'?'Review new replacement certification':part.documentKey==='source'?'Review original employer I-9':part.documentKey==='employee'?'Review original employee I-9':`Review retained amendment ${part.documentKey}`}/>) }{(choice==='LIST_A'?listA.map((_,index)=>`A${index+1}`):['B','C']).map(rowKey=><I9DifferentCopies key={`${preview.reviewId}:${rowKey}`} employeeId={employeeId} taskId={taskId} reviewId={preview.reviewId} previewSha256={preview.previewSha256} rowKey={rowKey} selected={selected[rowKey]||[]} onSelected={ids=>setSelected(value=>({...value,[rowKey]:ids}))}/>) }<I9DifferentExamination key={preview.reviewId} employeeId={employeeId} taskId={taskId} preview={preview} initials={initials} method={method} selected={selected} rowKeys={choice==='LIST_A'?listA.map((_,index)=>`A${index+1}`):['B','C']} onBusy={setSigning} onSigned={onUpdated} initialDraft={facts} onDraft={setFacts}/></fieldset>:null}
   </>:null}
  </section>
 }

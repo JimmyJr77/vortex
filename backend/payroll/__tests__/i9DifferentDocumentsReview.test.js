@@ -21,7 +21,10 @@ test('different-document reviews retain scoped encrypted packets and immutable c
  const empty=await api(path+'/draft')
  assert.equal(empty.revision,0);assert.equal(empty.draft,null)
  const save={basisHash:empty.basisHash,expectedRevision:0,requestKey:randomUUID(),draft:{form:{choice:'LIST_B_C',reason:'Unfinished private replacement reason.',listB:{title:'Partly entered document'}},facts:{fields:{identity:'Unfinished examiner evidence'},days:[1,2],decisions:{C:{acceptance:'STANDARD'}}}}}
- const saved=await api(path+'/draft',save)
+ const [saved,recovered]=await Promise.all([api(path+'/draft',save),api(path+'/draft',save)])
+ assert.deepEqual(recovered,saved)
+ assert.deepEqual(await api(path+'/draft',{...save,requestKey:save.requestKey.toUpperCase()}),saved)
+ await api(path+'/draft',{...save,draft:{form:{reason:'Changed request using the same key.'}}},'POST',409)
  assert.equal(saved.revision,1)
  assert.deepEqual(await api(path+'/draft',save),saved)
  assert.deepEqual((await api(path+'/draft')).draft,saved.draft)
@@ -32,6 +35,16 @@ test('different-document reviews retain scoped encrypted packets and immutable c
  const encrypted=(await h.pool.query('SELECT encrypted_draft FROM payroll_i9_different_draft')).rows[0].encrypted_draft
  assert.equal(encrypted.includes(Buffer.from('Unfinished')),false)
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_different_draft'),/cannot be deleted/)
+ const nextSave={...save,expectedRevision:1,requestKey:randomUUID(),draft:{form:{reason:'Second private draft.'},facts:{}}}
+ await h.pool.query(`CREATE FUNCTION reject_different_draft_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_DIFFERENT_DRAFT_SAVED' THEN RAISE EXCEPTION 'Synthetic draft audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_different_draft_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_different_draft_audit()`)
+ await api(path+'/draft',nextSave,'POST',500)
+ assert.deepEqual(await api(path+'/draft'),saved)
+ await h.pool.query('DROP TRIGGER reject_different_draft_audit ON payroll_audit_log')
+ assert.equal((await api(path+'/draft',nextSave)).revision,2)
+ const draftAudit=(await h.pool.query("SELECT after_data FROM payroll_audit_log WHERE action='I9_DIFFERENT_DRAFT_SAVED'")).rows
+ assert.equal(draftAudit.length,2);assert.equal(JSON.stringify(draftAudit).includes('private'),false)
+ const foreignDraft=await fetch(`${h.url}/api/admin/payroll${path}/draft`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}})
+ assert.equal(foreignDraft.status,404)
  const initial=await api(path+'/context')
  assert.equal(String(initial.signatureId),String(signed.signatureId))
  assert.equal(initial.sourceKind,'SECTION2');assert.equal(initial.rowKey,'A1')
@@ -122,4 +135,9 @@ test('different-document reviews retain scoped encrypted packets and immutable c
   await api(path+'/copy',{...key,rowKey:rowKey==='A1'?'A2':'A1',copyId:saved.id},'POST',404)
  }
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[task])).rows[0].status,'OPEN')
+ await h.pool.query("UPDATE payroll_compliance_task SET status='IN_PROGRESS' WHERE id=$1",[task])
+ const invalidated=await api(path+'/draft')
+ assert.equal(invalidated.invalidated,true);assert.equal(invalidated.draft,null);assert.equal(invalidated.savedAt,null);assert.equal(invalidated.revision,2)
+ await api(path+'/draft',{...nextSave,expectedRevision:2,requestKey:randomUUID()},'POST',409)
+ assert.equal((await api(path+'/draft',{...nextSave,basisHash:invalidated.basisHash,expectedRevision:2,requestKey:randomUUID()})).revision,3)
 })
