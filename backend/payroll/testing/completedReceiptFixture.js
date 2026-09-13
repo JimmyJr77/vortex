@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto'
 // Retain an actual replacement through the production API, including every page visit.
-export async function completedReceiptFixture(h,{api,employee,signed,pdf},rowKey='B'){
+export async function preparedReceiptFixture(h,{api,employee,signed,pdf},rowKey='B'){
  const task=(await h.pool.query('SELECT compliance_task_id FROM payroll_i9_signature_followup WHERE signature_id=$1 AND row_key=$2',[signed.signatureId,rowKey])).rows[0].compliance_task_id
  const path=`/employees/${employee.id}/i9/receipt/${task}`,context=await api(path+'/context')
  const review=await api(path+'/preview',{signatureId:signed.signatureId,answers:{sourceKind:'SECTION2',rowKey,replacementKind:'ACTUAL_REPLACEMENT',replacement:{title:'Synthetic actual replacement',issuingAuthority:'Synthetic issuer',number:`ACTUAL-${rowKey}`,expiresOn:'2030-01-01'},examinerName:'Reviewer Alice',initials:'RA',amendedOn:context.today,explanation:'Actual replacement document matches the retained original receipt.'}})
@@ -8,6 +8,10 @@ export async function completedReceiptFixture(h,{api,employee,signed,pdf},rowKey
  for(const [documentKey,count] of [['source',4],['amendment',review.pageCount]])for(let page=1;page<=count;page++)await api(path+'/page',{...key,documentKey,page,displayed:true})
  for(let page=1;page<=2;page++)await api(path+'/copy-page',{...key,copyId:copy.id,page,displayed:true})
  const body={...key,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:review.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:{examinedOn:context.today,identityEvidence:'Authenticated examiner reviewed the actual replacement original.',actualReplacementConfirmed:true,receiptMatchEvidence:'The original replacement matches this retained receipt.',documentsGenuineAndRelated:true,copiesComplete:true,copyIds:[copy.id],examinationMethod:'PHYSICAL',physicalPresence:true,acceptance:'STANDARD',acceptanceSource:'https://www.uscis.gov/i-9-central',acceptanceEvidence:'Synthetic original unexpired document replaces this receipt.',validUntil:'2030-01-01',authorizationIndefinite:true,authorizationThrough:'',documentRequiresReverification:false,followUpKind:'NONE',followUpOn:'',noFurtherFollowupConfirmed:true}}
- const result=await api(path+'/sign',body)
- return {...result,taskId:task,pageCount:review.pageCount,path,body,taskSnapshot:(await h.pool.query('SELECT * FROM payroll_compliance_task WHERE id=$1',[task])).rows[0],documentSnapshot:(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[result.documentId])).rows[0]}
+ return {taskId:task,pageCount:review.pageCount,path,body}
+}
+export async function completedReceiptFixture(h,fixture,rowKey='B'){
+ const prepared=await preparedReceiptFixture(h,fixture,rowKey),{taskId:task,path,body}=prepared
+ const result=await fixture.api(path+'/sign',body)
+ return {...result,...prepared,taskSnapshot:(await h.pool.query('SELECT * FROM payroll_compliance_task WHERE id=$1',[task])).rows[0],documentSnapshot:(await h.pool.query('SELECT * FROM payroll_private_document WHERE id=$1',[result.documentId])).rows[0]}
 }
