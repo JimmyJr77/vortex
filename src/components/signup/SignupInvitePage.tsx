@@ -1,3 +1,4 @@
+import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
@@ -238,7 +239,7 @@ export default function SignupInvitePage() {
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={primaryAdult.firstName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, firstName: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={primaryAdult.lastName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, lastName: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email" value={primaryAdult.email} onChange={(e) => setPrimaryAdult((p) => ({ ...p, email: e.target.value }))} />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={primaryAdult.phone} onChange={(e) => setPrimaryAdult((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))} />
+          <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={primaryAdult.phone} onChange={(e) => setPrimaryAdult((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))} />
           <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street" value={primaryAdult.addressStreet} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressStreet: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City" value={primaryAdult.addressCity} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressCity: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="State" value={primaryAdult.addressState} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressState: e.target.value }))} />

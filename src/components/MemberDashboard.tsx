@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp, ShoppingBag } from 'lucide-react'
@@ -2166,7 +2167,7 @@ export default function MemberDashboard({
                           placeholder="Email"
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
-                        <input
+                        <TextInput
                           type="tel"
                           value={addFamilyMemberData.phone}
                           onChange={(e) =>
@@ -3373,7 +3374,7 @@ export default function MemberDashboard({
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                        <input
+                        <TextInput
                           type="tel"
                           value={field('phone', member.phone)}
                           onChange={(e) => updateEditContact(member.id, 'phone', e.target.value)}

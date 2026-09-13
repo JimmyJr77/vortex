@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -465,7 +466,7 @@ const ContactForm = ({
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
-                <input
+                <TextInput
                   type="tel"
                   name="phone"
                   value={formData.phone}

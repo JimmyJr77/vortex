@@ -22,7 +22,7 @@ export async function createHarness({retirementReceiptReader=async()=>({status:'
  const pool=new pg.Pool({connectionString:databaseUrl,options:`-c search_path=${schema},${databaseNow?'pg_catalog,':''}public`})
  if(databaseNow)await pool.query(`CREATE FUNCTION now() RETURNS timestamptz LANGUAGE sql STABLE AS $$ SELECT '${new Date(databaseNow).toISOString()}'::timestamptz $$`)
  await pool.query(`CREATE TABLE facility(id BIGINT PRIMARY KEY,timezone TEXT); CREATE TABLE permission(id BIGSERIAL PRIMARY KEY,key TEXT UNIQUE,description TEXT); CREATE TABLE role(id BIGSERIAL PRIMARY KEY,key TEXT UNIQUE); CREATE TABLE role_permission(role_id BIGINT,permission_id BIGINT,UNIQUE(role_id,permission_id)); INSERT INTO facility VALUES (1,'America/New_York'),(2,'America/New_York')`)
- for(const file of ['812_payroll_operations.sql','813_payroll_onboarding.sql'])await pool.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+ for(const file of ['812_payroll_operations.sql','813_payroll_onboarding.sql','815_payroll_existing_account_link.sql'])await pool.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
  // Remove historical seed employees in this isolated fixture only.
  await pool.query('TRUNCATE payroll_employee CASCADE')
  await pool.query('TRUNCATE payroll_compliance_task CASCADE')
@@ -34,7 +34,7 @@ export async function createHarness({retirementReceiptReader=async()=>({status:'
   catch{res.status(500).json({success:false})}
  })
  registerW2ProviderIntake(app,pool,providerIntake)
- registerPayrollRoutes(app,pool,{retirementReceiptReader,retirementAllocationTransfer,retirementSftpVerifier,remittanceNow,now:payrollNow,invitationSender,carrierNoticeSender,paymentFetcher,quickbooksFetcher});registerPayrollEmployeeRoutes(app,pool,{paymentFetcher,retirementNow});registerPayrollPreparerRoutes(app,pool);registerQuickbooksCallback(app,pool,{fetcher:quickbooksFetcher})
+ registerPayrollRoutes(app,pool,{retirementReceiptReader,retirementAllocationTransfer,retirementSftpVerifier,remittanceNow,now:payrollNow,invitationSender,carrierNoticeSender,paymentFetcher,quickbooksFetcher});registerPayrollEmployeeRoutes(app,pool,{paymentFetcher,retirementNow,jwtSecret:'synthetic-account-link-test-secret'});registerPayrollPreparerRoutes(app,pool);registerQuickbooksCallback(app,pool,{fetcher:quickbooksFetcher})
  const server=await new Promise(resolve=>{const s=app.listen(Number(process.env.PAYROLL_TEST_PORT)||0,'127.0.0.1',()=>resolve(s))})
  return {pool,url:`http://127.0.0.1:${server.address().port}`,close:async()=>{await new Promise(resolve=>server.close(resolve));await pool.end();await root.query(`DROP SCHEMA ${schema} CASCADE`);await root.end()}}
 }

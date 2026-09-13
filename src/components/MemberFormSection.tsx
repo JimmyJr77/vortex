@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { formatDateForInput, calculateAge, getTodayDateString, formatTimestampDate } from '../utils/dateUtils'
 import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
@@ -257,7 +258,7 @@ export default function MemberFormSection({
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                    <input
+                    <TextInput
                       type="tel"
                       value={member.sections.contactInfo.tempData.phone}
                       onChange={(e) => {

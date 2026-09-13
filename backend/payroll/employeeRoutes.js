@@ -1,3 +1,4 @@
+import {registerPayrollAccountLink} from './accountLink.js'
 import {registerEmployeeMarylandAgreementSigning} from './marylandAgreementSigning.js'
 import {registerEmployeeRetirementContributions} from './employeeRetirementContributions.js'
 import {registerRetirementElectionRoutes} from './retirementElections.js'
@@ -85,7 +86,8 @@ async function employeePortalData(pool, facilityId, employeeId) {
   }
 }
 
-export function registerPayrollEmployeeRoutes(app, pool, {paymentFetcher=fetch,retirementNow=()=>new Date()}={}) {
+export function registerPayrollEmployeeRoutes(app, pool, {paymentFetcher=fetch,retirementNow=()=>new Date(),jwtSecret}={}) {
+  registerPayrollAccountLink(app,pool,{jwtSecret,loadPortal:employeePortalData})
   registerEmployeeMarylandAgreementSigning(app,pool)
   registerPaymentAuthorizationRoutes(app,pool)
   registerBankEnrollmentRoutes(app,pool,{fetcher:paymentFetcher})

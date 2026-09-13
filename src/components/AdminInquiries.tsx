@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, Save, X, ChevronDown, ChevronUp, ArrowUpDown, ArrowUp, ArrowDown, Filter, Flag, Check, Inbox } from 'lucide-react'
@@ -954,7 +955,7 @@ export default function AdminInquiries() {
                                       </div>
                                       <div>
                                         <label className="text-xs text-gray-600 block mb-1 font-semibold">Phone</label>
-                                        <input
+                                        <TextInput
                                           type="tel"
                                           value={editData.phone || ''}
                                           onChange={(e) =>

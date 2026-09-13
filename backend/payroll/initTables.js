@@ -16,6 +16,7 @@ export async function initPayrollTables(pool) {
     await client.query("SELECT pg_advisory_xact_lock(hashtext('vortex-payroll-schema'))")
     await client.query(sql.slice(0, seedStart))
     await client.query(extension)
+    await client.query(await fs.readFile(new URL('../migrations/815_payroll_existing_account_link.sql', import.meta.url), 'utf8'))
     for(const facility of (await client.query('SELECT id FROM facility')).rows)await ensureEmployerSetup(client,facility.id)
     await client.query('COMMIT')
   } catch(error) {

@@ -1,3 +1,4 @@
+import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2, UserPlus } from 'lucide-react'
@@ -806,7 +807,7 @@ export default function WaiversMembershipsPage() {
                 placeholder="Email (optional for children)"
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               />
-              <input
+              <TextInput
                 type="tel"
                 value={addForm.phone}
                 onChange={(e) => setAddForm((prev) => ({ ...prev, phone: e.target.value }))}

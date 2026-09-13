@@ -1,3 +1,4 @@
+import {vaultReady as payrollDocumentStorageReady} from './payroll/onboarding.js'
 import {registerPayrollPreparerRoutes} from './payroll/i9PreparerRoutes.js'
 import {startRetirementReplacementSettlementScheduler} from './payroll/retirementReplacementSettlementAutomation.js'
 import {startRetirementReplacementReceiptScheduler} from './payroll/retirementReplacementReceiptAutomation.js'
@@ -2660,7 +2661,7 @@ registerProgramsAdminRoutes(app, pool)
 registerOpportunityRoutes(app, pool)
 registerW2ProviderIntake(app,pool)
 registerPayrollRoutes(app, pool)
-registerPayrollEmployeeRoutes(app, pool)
+registerPayrollEmployeeRoutes(app, pool, {jwtSecret:JWT_SECRET})
 registerPayrollPreparerRoutes(app,pool)
 registerQuickbooksCallback(app, pool)
 registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
@@ -2792,6 +2793,7 @@ app.get('/api/health', async (req, res) => {
     buildId: API_BUILD_ID,
     releaseCommit: process.env.RENDER_GIT_COMMIT?.slice(0, 12) ?? null,
     timestamp: new Date().toISOString(),
+    payrollDocumentStorageReady: payrollDocumentStorageReady(),
     emailConfigured: isEmailConfigured(),
     emailLayoutVersion: EMAIL_LAYOUT_VERSION,
     dbConnected,

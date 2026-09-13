@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Edit2, Loader2, Save, Shield, UserPlus, X, Archive, Trash2 } from 'lucide-react'
@@ -580,7 +581,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <input
+                    <TextInput
                       type="tel"
                       value={myAccountData.phone}
                       onChange={(e) =>
@@ -703,7 +704,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <input
+                    <TextInput
                       type="tel"
                       value={adminFormData.phone}
                       onChange={(e) =>
@@ -771,7 +772,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
               <input type="text" value={otherAdminData.firstName} onChange={(e) => setOtherAdminData({ ...otherAdminData, firstName: e.target.value })} placeholder="First name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               <input type="text" value={otherAdminData.lastName} onChange={(e) => setOtherAdminData({ ...otherAdminData, lastName: e.target.value })} placeholder="Last name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               <input type="email" value={otherAdminData.email} onChange={(e) => setOtherAdminData({ ...otherAdminData, email: e.target.value })} placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" />
-              <input type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: formatPhoneNumber(e.target.value) })} placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} className="border rounded-lg px-3 py-2 text-sm" />
+              <TextInput type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: formatPhoneNumber(e.target.value) })} placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} className="border rounded-lg px-3 py-2 text-sm" />
               <input type="text" value={otherAdminData.username} onChange={(e) => setOtherAdminData({ ...otherAdminData, username: e.target.value })} placeholder="Username" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               {!isProtectedDefaultMaster(editingOtherAdmin) && (
                 <input type="password" value={otherAdminData.password} onChange={(e) => setOtherAdminData({ ...otherAdminData, password: e.target.value })} placeholder="New password (optional)" className="border rounded-lg px-3 py-2 text-sm" />

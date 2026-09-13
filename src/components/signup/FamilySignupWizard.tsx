@@ -1,3 +1,4 @@
+import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DateOfBirthInput from '../DateOfBirthInput'
 import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'lucide-react'
@@ -676,7 +677,7 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number *" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+      <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number *" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }); setAddressVerified(false) }} />
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.addressState} onChange={(e) => { onChange({ addressState: e.target.value }); setAddressVerified(false) }}>
@@ -795,7 +796,7 @@ export default function FamilySignupWizard({
           <label className="block text-xs font-semibold text-gray-600 mb-1 invisible" aria-hidden="true">
             Date of birth (DOB) *
           </label>
-          <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+          <TextInput className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">Date of birth (DOB) *</label>

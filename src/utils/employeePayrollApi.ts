@@ -66,6 +66,18 @@ export type MarylandSigningHistory={history:Array<{id:string;revision:number;fin
 export type W4Preview={reviewId:string;expiresAt:string;previewSha256:string;pdfBase64:string;perjury:string;pageCount:number}
 
 export const employeePayrollApi = {
+  accountLink: () => request<{linked:boolean;email:string|null}>('/api/payroll/employee/account-link'),
+  async verifyExistingAccount(emailOrUsername:string,password:string) {
+    const response=await fetch(`${getApiUrl()}/api/members/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({emailOrUsername,password})})
+    const body=await response.json().catch(()=>({}))
+    if(!response.ok||!body.success||!body.token)throw new Error(body.message||'Unable to sign in to your Vortex account.')
+    return {accountToken:String(body.token),email:String(body.member?.email||emailOrUsername)}
+  },
+  linkAccount: (accountToken:string) => request<{linked:boolean;email:string}>('/api/payroll/employee/account-link',{method:'POST',body:JSON.stringify({accountToken,confirmed:true})}),
+  async signInWithAccount(accountToken:string,facilityId:number) {
+    const data=await request<{sessionToken:string}>('/api/payroll/employee/account-session',{method:'POST',body:JSON.stringify({accountToken,facilityId})},false)
+    sessionStorage.setItem(SESSION_KEY,data.sessionToken)
+  },
   signI9:(taskId:number,body:unknown)=>request<{submissionId:string;documentId:string;signedAt:string;preparerRequired:boolean}>(`/api/payroll/employee/onboarding/${taskId}/i9/sign`,{method:'POST',body:JSON.stringify(body)}),
   previewI9:(taskId:number,body:unknown)=>request<{reviewId:string;previewSha256:string;pdfBase64:string;pageCount:number;hiringRevision:number;attestation:string}>(`/api/payroll/employee/onboarding/${taskId}/i9/preview`,{method:'POST',body:JSON.stringify(body)}),
   recordI9Page:(taskId:number,body:unknown)=>request(`/api/payroll/employee/onboarding/${taskId}/i9/page`,{method:'POST',body:JSON.stringify(body)}),

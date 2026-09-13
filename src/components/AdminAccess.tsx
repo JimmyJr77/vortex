@@ -1,3 +1,4 @@
+import TextInput from './common/TextInput'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Power, Save, UserPlus, X } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
@@ -496,7 +497,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Phone</label>
-                    <input
+                    <TextInput
                       type="tel"
                       value={profileForm.phone}
                       onChange={(e) =>
@@ -661,7 +662,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
               </label>
               <label className="text-xs font-medium text-gray-700">
                 Phone
-                <input
+                <TextInput
                   type="tel"
                   value={newStaffForm.phone}
                   onChange={(event) => setNewStaffForm((current) => ({ ...current, phone: formatPhoneNumber(event.target.value) }))}

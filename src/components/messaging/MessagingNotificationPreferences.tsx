@@ -1,3 +1,5 @@
+import {cleanPhoneNumber} from '../../utils/phoneUtils'
+import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import type { MessagingRole } from './types'
@@ -70,7 +72,7 @@ export default function MessagingNotificationPreferences({
         body: JSON.stringify({
           allow_critical_email: prefs.allow_critical_email,
           allow_critical_sms: prefs.allow_critical_sms,
-          phone_e164: prefs.phone_e164?.trim() || null,
+          phone_e164: prefs.phone_e164?.trim() ? `+1${cleanPhoneNumber(prefs.phone_e164).replace(/^1(?=\d{10}$)/, '')}` : null,
         }),
       }) as NotificationPrefs
       setPrefs({
@@ -128,7 +130,7 @@ export default function MessagingNotificationPreferences({
         SMS for critical messages
       </label>
       {prefs.allow_critical_sms && (
-        <input
+        <TextInput
           type="tel"
           value={prefs.phone_e164 ?? ''}
           onChange={(e) => setPrefs((p) => ({ ...p, phone_e164: e.target.value }))}

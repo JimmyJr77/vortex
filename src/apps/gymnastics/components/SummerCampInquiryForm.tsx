@@ -1,3 +1,4 @@
+import TextInput from '../../../components/common/TextInput'
 import { motion } from 'framer-motion'
 import { Plus, Send, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -244,7 +245,7 @@ const SummerCampInquiryForm = () => {
             </div>
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-              <input
+              <TextInput
                 type="tel"
                 name="phone"
                 value={formData.phone}
