@@ -96,8 +96,9 @@ function anatomyTerms(card) {
   return values
 }
 
-function compositionTargetMatches(target, card, profile) {
+function compositionTargetMatches(target, card, profile, { exactReferences = false } = {}) {
   if (target.targetType === 'variant') {
+    if (exactReferences) return String(card.variantId) === target.targetKey
     return [card.variantId, card.id, card.slug].filter(Boolean).map(String).includes(target.targetKey)
   }
   if (target.targetType === 'definition') return String(card.id) === target.targetKey
@@ -398,6 +399,7 @@ export {
   focusAppliesToPhase,
   approvedTaxonomyAssignments,
   compositionConflictReasons,
+  compositionTargetMatches,
   focusMatchesCard,
   focusMatchesPrescription,
   resolveAnchorPhaseKeys,

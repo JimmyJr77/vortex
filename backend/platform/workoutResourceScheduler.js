@@ -1,6 +1,6 @@
 import { requiredEquipment, equipmentQuantityPerStation, canonicalSupervisionCapacity } from './canonicalExerciseSelection.js'
 import { ProgrammingPrescriptionError, prescriptionInteger } from './canonicalProgrammingDose.js'
-import { immutableProgrammingValue, programmingValueHash, allocateProgrammingComponentBudgets } from './workoutProgrammingRequest.js'
+import { immutableProgrammingValue, programmingValueHash, programmingComponentPlan } from './workoutProgrammingRequest.js'
 import { normalizeSessionComponentPlan } from './sessionComponentContract.js'
 
 export const RESOURCE_SCHEDULER_VERSION = '1.0.0'
@@ -73,20 +73,29 @@ export function scheduleCanonicalExercise({ activityId, card, profile, method, d
   const restBetweenRoundsSeconds = prescriptionInteger(dose.restBetweenRoundsSeconds, 'restBetweenRoundsSeconds', 0, 3600)
   const beforeWork = timing.setupSeconds + timing.demonstrationSeconds + timing.transitionSeconds
   const waveSpacing = workSeconds + timing.resetSeconds
-  const roundSpacing = Math.max(waveGroups.length * waveSpacing, workSeconds + Math.max(restSeconds, restBetweenRoundsSeconds))
+  const fixedClock = ['fixed_interval', 'minute_clock'].includes(dose.clock?.kind)
+  if (fixedClock && (dose.clock.targetSets !== sets || dose.clock.workSeconds !== workSeconds || dose.clock.restSeconds !== restSeconds
+    || dose.clock.intervalSeconds !== workSeconds + restSeconds || dose.clock.domainSeconds !== sets * dose.clock.intervalSeconds)) error('invalid_fixed_clock', 'Dose does not match its fixed method clock')
+  if (fixedClock && timing.resetSeconds > restSeconds) error('method_clock_resource_conflict', 'Station reset does not fit the prescribed recovery interval')
+  const wavesPerBatch = fixedClock ? Math.min(waveGroups.length, dose.clock.staggerWaves ? Math.floor(dose.clock.intervalSeconds / waveSpacing) : 1) : waveGroups.length
+  const batchCount = Math.ceil(waveGroups.length / wavesPerBatch)
+  const roundSpacing = fixedClock ? dose.clock.intervalSeconds : Math.max(waveGroups.length * waveSpacing, workSeconds + Math.max(restSeconds, restBetweenRoundsSeconds))
   const events = []
   if (sets * waveGroups.length > 5000) error('schedule_complexity_budget', 'This activity exceeds the bounded scheduling event limit')
   for (let set = 0; set < sets; set += 1) for (let wave = 0; wave < waveGroups.length; wave += 1) {
     const athletes = waveGroups[wave]
-    const begin = startSeconds + beforeWork + set * roundSpacing + wave * waveSpacing
+    const batch = Math.floor(wave / wavesPerBatch)
+    const withinBatch = wave % wavesPerBatch
+    const begin = startSeconds + beforeWork + batch * sets * roundSpacing + set * roundSpacing + withinBatch * waveSpacing
     const occupiedStations = Math.ceil(athletes.length / athletesPerStation)
-    events.push({ set: set + 1, wave: wave + 1, startSeconds: begin, endSeconds: begin + workSeconds,
+    events.push({ set: set + 1, wave: wave + 1, batch: batch + 1, startSeconds: begin, endSeconds: begin + workSeconds,
       resourceReleaseSeconds: begin + workSeconds + timing.resetSeconds, athleteKeys: athletes,
       stationAssignments: Array.from({ length: occupiedStations }, (_, station) => ({ station: station + 1,
         lane: needsLanes ? station + 1 : null, athleteKeys: athletes.slice(station * athletesPerStation, (station + 1) * athletesPerStation) })),
       equipmentUse: Object.fromEntries(required.map((key) => [key, occupiedStations * quantitiesPerStation[key]])),
     })
   }
+  events.sort((a, b) => a.startSeconds - b.startSeconds || a.wave - b.wave || a.set - b.set)
   const lastWorkEnd = events.at(-1).endSeconds
   const recoveryCompleteSeconds = lastWorkEnd + Math.max(restSeconds, timing.resetSeconds)
   const endSeconds = recoveryCompleteSeconds + timing.cleanupSeconds
@@ -95,6 +104,7 @@ export function scheduleCanonicalExercise({ activityId, card, profile, method, d
   return immutableProgrammingValue({ schemaVersion: RESOURCE_SCHEDULER_VERSION, activityId, componentKey: component.key,
     startSeconds, endSeconds, elapsedSeconds: endSeconds - startSeconds, recoveryCompleteSeconds,
     participantCount: participants.length, stationCount: stations, athletesPerStation, waveCount: waveGroups.length,
+    clockKind: dose.clock?.kind ?? 'unsupported', clockIntervalSeconds: fixedClock ? roundSpacing : null, batchCount, wavesPerBatch,
     requiredEquipment: required, quantitiesPerStation, requiresLanes: needsLanes, areaPerStation,
     timing, timingAssumptions, needsCoachTimingConfirmation: timingAssumptions.length > 0,
     workSecondsPerAthlete: sets * workSeconds, restSecondsPerAthleteBetweenSets: roundSpacing - workSeconds,
@@ -110,6 +120,9 @@ export function validateWorkoutResourceSchedule(activities, request) {
   const allEvents = []
   const seenIds = new Set()
   for (const { schedule, dose } of activities) {
+    if (['fixed_interval', 'minute_clock'].includes(dose.clock?.kind)
+      && (dose.clock.targetSets !== dose.sets || dose.clock.intervalSeconds !== dose.workSeconds + dose.restSeconds
+        || dose.clock.domainSeconds !== dose.sets * dose.clock.intervalSeconds)) issues.push({ code: 'invalid_fixed_clock', activityId: schedule.activityId })
     if (seenIds.has(schedule.activityId)) issues.push({ code: 'duplicate_activity_id', activityId: schedule.activityId })
     seenIds.add(schedule.activityId)
     if (schedule.doseHash !== programmingValueHash(dose)) issues.push({ code: 'stale_dose_schedule', activityId: schedule.activityId })
@@ -123,10 +136,14 @@ export function validateWorkoutResourceSchedule(activities, request) {
         if (i && events[i].startSeconds - events[i - 1].endSeconds < Math.max(dose.restSeconds, dose.restBetweenRoundsSeconds)) {
           issues.push({ code: 'insufficient_recovery', activityId: schedule.activityId, athleteKey: key })
         }
+        if (i && ['fixed_interval', 'minute_clock'].includes(dose.clock?.kind)
+          && events[i].startSeconds - events[i - 1].startSeconds !== dose.clock.intervalSeconds) issues.push({ code: 'fixed_clock_cadence_mismatch', activityId: schedule.activityId, athleteKey: key })
       }
       if (events.length && events.at(-1).endSeconds + dose.restSeconds > schedule.recoveryCompleteSeconds) issues.push({ code: 'final_recovery_missing', activityId: schedule.activityId, athleteKey: key })
     }
     for (const event of schedule.events) {
+      if (dose.clock?.kind === 'minute_clock' && (event.startSeconds - schedule.startSeconds - schedule.timing.setupSeconds
+        - schedule.timing.demonstrationSeconds - schedule.timing.transitionSeconds) % 60 !== 0) issues.push({ code: 'minute_clock_alignment_mismatch', activityId: schedule.activityId })
       if (event.athleteKeys.some((key) => !expectedAthletes.includes(key)) || new Set(event.athleteKeys).size !== event.athleteKeys.length) issues.push({ code: 'invalid_participant_assignment', activityId: schedule.activityId })
       if (event.startSeconds < schedule.startSeconds || event.endSeconds > schedule.endSeconds || event.resourceReleaseSeconds < event.endSeconds) issues.push({ code: 'invalid_event_interval', activityId: schedule.activityId })
       const assigned = event.stationAssignments.flatMap((station) => station.athleteKeys)
@@ -178,11 +195,7 @@ export function validateWorkoutResourceSchedule(activities, request) {
 
 /** Fixed component windows; complete-group activities run in order inside them. */
 export function scheduleProgrammingSession({ request, componentPlan, components }) {
-  const budgets = allocateProgrammingComponentBudgets(request)
-  const expectedPlan = normalizeSessionComponentPlan({ durationMinutes: request.logistics.totalBookedMinutes,
-    equipment: { available: request.equipment.available, quantities: request.equipment.quantities, excluded: request.equipment.excluded },
-    components: request.components.filter((entry) => budgets[entry.key] > 0).map((entry) => ({ key: entry.key, budgetSeconds: budgets[entry.key], equipment: entry.equipment })),
-  })
+  const expectedPlan = programmingComponentPlan(request)
   if (programmingValueHash(componentPlan) !== programmingValueHash(expectedPlan)) error('component_control_mismatch', 'Schedule does not match immutable coach clocks and equipment')
   if (!Array.isArray(components) || components.length !== componentPlan.components.length
     || components.some((entry, index) => entry.key !== componentPlan.components[index].key)) error('component_order_mismatch', 'Schedule must follow the complete active component plan')
@@ -201,11 +214,16 @@ export function scheduleProgrammingSession({ request, componentPlan, components 
       return schedule
     })
     const reserveSeconds = componentEnd - cursor
+    const reserve = components[index].reserve ?? null
+    if (reserve && (!['recovery', 'coaching', 'readiness_check'].includes(reserve.purpose)
+      || typeof reserve.rationale !== 'string' || !reserve.rationale.trim() || reserve.rationale.length > 1000
+      || Object.keys(reserve).some((key) => !['purpose', 'rationale'].includes(key)))) error('invalid_reserve_purpose', 'Component reserve needs a defined purpose and rationale')
+    const reserveUsage = reserve && reserveSeconds > 0 ? { ...reserve, startSeconds: cursor, endSeconds: componentEnd, seconds: reserveSeconds } : null
     cursor = componentEnd
-    return { key: control.key, startSeconds, endSeconds: componentEnd, reserveSeconds, activities: scheduled }
+    return { key: control.key, startSeconds, endSeconds: componentEnd, reserveSeconds, reserveUsage, activities: scheduled }
   })
   const validation = validateWorkoutResourceSchedule(activities, request)
-  const incomplete = scheduledComponents.filter((component) => !component.activities.length || component.reserveSeconds > 0)
+  const incomplete = scheduledComponents.filter((component) => !component.activities.length || (component.reserveSeconds > 0 && !component.reserveUsage))
   return immutableProgrammingValue({ schemaVersion: RESOURCE_SCHEDULER_VERSION, components: scheduledComponents,
     bookedSeconds: componentPlan.bookedSeconds, sessionReserveSeconds: componentPlan.reserveSeconds,
     resourceValidation: validation, status: validation.status === 'PASS' && !incomplete.length && !componentPlan.reserveSeconds ? 'SCHEDULED' : 'NEEDS_COMPOSITION',

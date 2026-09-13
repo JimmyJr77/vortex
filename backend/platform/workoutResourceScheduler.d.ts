@@ -15,6 +15,10 @@ export interface CanonicalActivitySchedule {
   readonly stationCount: number
   readonly athletesPerStation: number
   readonly waveCount: number
+  readonly clockKind: CanonicalProgrammingDose['clock']['kind']
+  readonly clockIntervalSeconds: number | null
+  readonly batchCount: number
+  readonly wavesPerBatch: number
   readonly requiredEquipment: readonly string[]
   readonly quantitiesPerStation: Readonly<Record<string, number>>
   readonly requiresLanes: boolean
@@ -24,7 +28,7 @@ export interface CanonicalActivitySchedule {
   readonly needsCoachTimingConfirmation: boolean
   readonly workSecondsPerAthlete: number
   readonly restSecondsPerAthleteBetweenSets: number
-  readonly events: readonly { readonly set: number; readonly wave: number; readonly startSeconds: number; readonly endSeconds: number;
+  readonly events: readonly { readonly set: number; readonly wave: number; readonly batch: number; readonly startSeconds: number; readonly endSeconds: number;
     readonly resourceReleaseSeconds: number; readonly athleteKeys: readonly string[]; readonly equipmentUse: Readonly<Record<string, number>>;
     readonly stationAssignments: readonly { readonly station: number; readonly lane: number | null; readonly athleteKeys: readonly string[] }[] }[]
   readonly doseHash: string
@@ -36,16 +40,18 @@ export interface ResourceScheduleValidation {
 export interface ProgrammingSessionSchedule {
   readonly schemaVersion: '1.0.0'
   readonly components: readonly { readonly key: SessionComponentKey; readonly startSeconds: number; readonly endSeconds: number;
-    readonly reserveSeconds: number; readonly activities: readonly CanonicalActivitySchedule[] }[]
+    readonly reserveSeconds: number; readonly reserveUsage: (ProgrammingReserve & { readonly startSeconds: number; readonly endSeconds: number; readonly seconds: number }) | null;
+    readonly activities: readonly CanonicalActivitySchedule[] }[]
   readonly bookedSeconds: number
   readonly sessionReserveSeconds: number
   readonly resourceValidation: ResourceScheduleValidation
   readonly status: 'SCHEDULED' | 'NEEDS_COMPOSITION'
   readonly validatedWorkout: false
 }
+export interface ProgrammingReserve { readonly purpose: 'recovery' | 'coaching' | 'readiness_check'; readonly rationale: string }
 export function scheduleCanonicalExercise(args: CanonicalProgrammingActivity & { readonly request: NormalizedCoachWorkoutRequest;
   readonly component: SessionComponentPlan['components'][number]; readonly startSeconds?: number }): CanonicalActivitySchedule
 /** Checks event integrity and shared resources. Final QA must also rehydrate source cards and methods. */
 export function validateWorkoutResourceSchedule(activities: readonly { readonly schedule: CanonicalActivitySchedule; readonly dose: CanonicalProgrammingDose }[], request: NormalizedCoachWorkoutRequest): ResourceScheduleValidation
 export function scheduleProgrammingSession(args: { readonly request: NormalizedCoachWorkoutRequest; readonly componentPlan: SessionComponentPlan;
-  readonly components: readonly { readonly key: SessionComponentKey; readonly activities: readonly CanonicalProgrammingActivity[] }[] }): ProgrammingSessionSchedule
+  readonly components: readonly { readonly key: SessionComponentKey; readonly activities: readonly CanonicalProgrammingActivity[]; readonly reserve?: ProgrammingReserve | null }[] }): ProgrammingSessionSchedule

@@ -6,10 +6,9 @@
     "main_outline_entries": 60,
     "on_ramp_outline_entries": 20,
     "planned_anchor_rows": 420,
-    "planned_workload_rows": 60,
-    "main_detailed_sessions": 0,
-    "on_ramp_detailed_sessions": 0
+    "planned_workload_rows": 60
   },
+  "detailed_prescription_validation": "Not counted or validated by this Stage 2 checker; see progress.json and prescriptions/EXEMPLAR_CHECK_RESULTS.json.",
   "fixed_weekday_family_counts": {
     "Monday": {
       "ACC": 3,

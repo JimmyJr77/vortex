@@ -1,0 +1,2824 @@
+{
+  "schema_version": 1,
+  "status": "planned_instruction_actual_evidence_unknown",
+  "source_sha256": {
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "instructional_on_ramp/week_01/or_04.md": "e6142d35839122d781be32c236dd903cd0b3047645fda5fad18a4e24f1d577b0",
+    "prescriptions/author_or_04.py": "13a386d2c4f52792a9c4fbe8af37c4ad68f7a71c9140b8376f0920141560d4a0",
+    "prescriptions/check_or_04.py": "8eeb73102c83eeb97eeb0f2461eaaf4da6ac784c418ba43e19db1921fa956528",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863"
+  },
+  "entries": [
+    {
+      "key": "OR-04::P1",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "BASIC-MARCH-TEACH",
+      "conditional_mapping_refs": [
+        "BASIC-MARCH-TEACH",
+        "BILATERAL-STAND-TEACH"
+      ],
+      "source_json_records": {
+        "BASIC-MARCH-TEACH": {
+          "mapping_key": "BASIC-MARCH-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        }
+      },
+      "set_purpose": "One short set makes an upright trunk and relaxed opposite arm/leg rhythm visible before the running lesson. It deliberately repeats the useful basic preparation pattern with one focused observation; it does not add skipping or a technical height challenge.",
+      "prior_current_next": "Actual instructional-base/OR-01 rhythm or equivalent →one counted basic rehearsal →selected corridor lesson →OR-08/12 retain actual preparation level and cue needs.",
+      "advance_hold_regress": "Hold count, comfortable height and no-flight pattern. Record first fault; stop for symptoms or lost balance. A cleaner rhythm is useful without higher effort or an A-Skip upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Basic alternating march in place — explicit stationary teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 2,
+            "effort_load": "Bodyweight, easy2/10. Two seconds per comfortable walking-height step; four alternating steps, two each side, then settle2s. Use relaxed opposite arm/leg timing without a forced thigh-height target.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "One foot remains supported; no flight or forward travel. Each left/right step is one count, not a two-step cycle. This is the same basic pattern used in the instructional preparation; it is not exact traveling A-March or sprint exposure.",
+            "active_s": 10,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 2,
+            "execution_segments": [
+              {
+                "name": "four_alternating_steps",
+                "seconds": 8
+              },
+              {
+                "name": "settle",
+                "seconds": 2
+              }
+            ]
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::P2",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "ACC-STATIC",
+      "conditional_mapping_refs": [
+        "ACC-STATIC",
+        "BASIC-MARCH-TEACH",
+        "BILATERAL-STAND-TEACH",
+        "WALK-CORRIDOR-TEACH"
+      ],
+      "source_json_records": {
+        "BASIC-MARCH-TEACH": {
+          "mapping_key": "BASIC-MARCH-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "ACC-STATIC": {
+          "mapping_key": "ACC-STATIC",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/0"
+        },
+        "WALK-CORRIDOR-TEACH": {
+          "mapping_key": "WALK-CORRIDOR-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        }
+      },
+      "set_purpose": "One short counted rehearsal makes the release, finish marker and gradual runout concrete before the full corridor walk. It is preparation, not an unrecorded full-route test or a maximal acceleration set.",
+      "prior_current_next": "Actual OR-01 route/start observation or direct equivalent →one short rehearsal →E0 counted full or short corridor walk →E1 only with its own running/space readiness.",
+      "advance_hold_regress": "Retain standing start and easy intent. Count the first scheduled attempt, including faults, then wait for E0; no additional practice while queues form.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Standing Static Short Start — low-intent teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate15s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 15,
+            "return_s": 20,
+            "walk_outbound_m": 0,
+            "run_target_m": 5,
+            "runoff_m": 10,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "five_metre_easy_start",
+                "seconds": 3
+              },
+              {
+                "name": "ten_metre_gradual_runout",
+                "seconds": 9
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Short Corridor Walk — ordinary walking orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 18,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate18s; separate outside walking return20s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 18,
+            "return_s": 20,
+            "walk_outbound_m": 15,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "fifteen_metre_walk",
+                "seconds": 15
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::E0",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "WALK-CORRIDOR-TEACH",
+      "conditional_mapping_refs": [
+        "BILATERAL-STAND-TEACH",
+        "WALK-CORRIDOR-TEACH"
+      ],
+      "source_json_records": {
+        "WALK-CORRIDOR-TEACH": {
+          "mapping_key": "WALK-CORRIDOR-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        }
+      },
+      "set_purpose": "This one physical walk teaches where the build, running finish, gradual runoff and outside return belong. It is counted in the lesson and workload before the athlete is asked to run that route.",
+      "prior_current_next": "OR-01 conduct or equivalent and P2 short observation →one counted selected-corridor walk →separately eligible E1 →OR-08/12 retain the actual route and address only the remaining gap.",
+      "advance_hold_regress": "One walk only; no added walk to obtain a pass. Record actual route/marker/return mistakes. A corrected explanation does not retroactively turn an incomplete physical observation into a completed one.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::E1",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "EASY-BUILD-RUN-TEACH",
+      "conditional_mapping_refs": [
+        "ACC-STATIC",
+        "BASIC-MARCH-TEACH",
+        "BILATERAL-STAND-TEACH",
+        "EASY-BUILD-RUN-TEACH",
+        "WALK-CORRIDOR-TEACH"
+      ],
+      "source_json_records": {
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "ACC-STATIC": {
+          "mapping_key": "ACC-STATIC",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/0"
+        },
+        "BASIC-MARCH-TEACH": {
+          "mapping_key": "BASIC-MARCH-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "EASY-BUILD-RUN-TEACH": {
+          "mapping_key": "EASY-BUILD-RUN-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/2"
+        },
+        "WALK-CORRIDOR-TEACH": {
+          "mapping_key": "WALK-CORRIDOR-TEACH",
+          "source_json": "prescriptions/or04_library_mapping.json",
+          "json_pointer": "/records/4"
+        }
+      },
+      "set_purpose": "Each recovered easy-run set observes smooth buildup, comfortable upright rhythm and deliberate use of the finish/runoff. Standard D has two such attempts; compressed D has one. Standard L has one additional walking route observation; compressed L omits E1 after its counted E0 walk. No set seeks greater speed, longer distance or fatigue.",
+      "prior_current_next": "Actual OR-01 participation/short-start evidence plus E0 route observation and independent easy-jog ability →today’s actual easy run or named substitute →OR-08 same route with a separately justified intent decision →OR-12 retained route/output with supervised recovery responsibility.",
+      "advance_hold_regress": "Retain the chosen route, easy ceiling and familiar strength. Faults consume their opportunity and remain in workload; stop for symptoms or unsafe mechanics. OR-08 may consider only a justified gradual intent change after this route is repeatable; OR-12 later changes recognition of rest/return, not automatically speed or volume.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Omitted follow-up — compressed L ends locomotor work after the counted corridor walk",
+            "sets": 0,
+            "repetitions_per_set": 0,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 0,
+            "effort_load": "No physical effort assigned; observation/recovery only.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Zero physical work: compressed L omits E1, and D-only running routes are unavailable in L.",
+            "active_s": 0,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "execution_segments": []
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Omitted follow-up — compressed L ends locomotor work after the counted corridor walk",
+            "sets": 0,
+            "repetitions_per_set": 0,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 0,
+            "effort_load": "No physical effort assigned; observation/recovery only.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Zero physical work: compressed L omits E1, and D-only running routes are unavailable in L.",
+            "active_s": 0,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "execution_segments": []
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Full Corridor Walk — build/finish/runoff/return orientation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 45,
+            "effort_load": "Bodyweight, ordinary conversational walking about2/10. Recognize the assigned markers and exit; no jog, forced technical thigh height, abrupt terminal plant or timed redirect.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate45s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 45,
+            "return_s": 40,
+            "walk_outbound_m": 35,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "running_intent": "none",
+            "execution_segments": [
+              {
+                "name": "ordinary_outbound_walk",
+                "seconds": 35
+              },
+              {
+                "name": "marker_orientation_and_exit",
+                "seconds": 10
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Easy Build and Upright Rhythm Run — explicitly authored teaching adaptation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight; smooth easy intent rising from about2/10 toward3/10, then retain a relaxed comfortable rhythm. No maximal effort, measured speed quota or fly-zone result.",
+            "minimum_rest_s": 90,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Each set is one whole counted attempt including any fault. Active/exit estimate25s; separate outside walking return40s. These are logistics estimates, not forced cadence. No corrective or assessment repetition is added. Exact steps/contacts and return metres remain actual observations.",
+            "active_s": 25,
+            "return_s": 40,
+            "walk_outbound_m": 0,
+            "run_target_m": 20,
+            "runoff_m": 15,
+            "march_steps_per_side": 0,
+            "running_intent": "easy_teaching",
+            "execution_segments": [
+              {
+                "name": "ten_metre_smooth_build",
+                "seconds": 5
+              },
+              {
+                "name": "ten_metre_easy_upright_rhythm",
+                "seconds": 5
+              },
+              {
+                "name": "fifteen_metre_gradual_runoff",
+                "seconds": 12
+              },
+              {
+                "name": "exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Omitted follow-up — compressed L ends locomotor work after the counted corridor walk",
+            "sets": 0,
+            "repetitions_per_set": 0,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 0,
+            "effort_load": "No physical effort assigned; observation/recovery only.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Zero physical work: compressed L omits E1, and D-only running routes are unavailable in L.",
+            "active_s": 0,
+            "return_s": 0,
+            "walk_outbound_m": 0,
+            "run_target_m": 0,
+            "runoff_m": 0,
+            "march_steps_per_side": 0,
+            "execution_segments": []
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::S1",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "SQUAT-BW",
+      "conditional_mapping_refs": [
+        "SQUAT-BW"
+      ],
+      "source_json_records": {
+        "SQUAT-BW": {
+          "mapping_key": "SQUAT-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/11"
+        }
+      },
+      "set_purpose": "One small familiar knee set retains balanced full-body practice while corridor/rhythm instruction receives attention. Actual one-set history stays one; compatible actual two-set history is deliberately reduced to one supporting set today. Neither available time nor day number adds volume.",
+      "prior_current_next": "Actual OR-01/02/03 or direct equivalent knee dose and response →one explicit compatible supporting set today →OR-08/12 retain actual familiar strength while the named running/return variable changes. A lighter or omitted prior exposure is recorded, not overwritten with an assumed standard baseline.",
+      "advance_hold_regress": "Hold the actual eligible variation, range, cadence and load. Current cue dependence, symptoms or fatigue may require a recorded smaller range, lighter listed dose or deferral; no missed work is owed. Running success does not authorize a strength upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::S2",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "HINGE-BW",
+      "conditional_mapping_refs": [
+        "HINGE-BW"
+      ],
+      "source_json_records": {
+        "HINGE-BW": {
+          "mapping_key": "HINGE-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/8"
+        }
+      },
+      "set_purpose": "One small familiar hip set retains balanced full-body practice while corridor/rhythm instruction receives attention. Actual one-set history stays one; compatible actual two-set history is deliberately reduced to one supporting set today. Neither available time nor day number adds volume.",
+      "prior_current_next": "Actual OR-01/02/03 or direct equivalent hip dose and response →one explicit compatible supporting set today →OR-08/12 retain actual familiar strength while the named running/return variable changes. A lighter or omitted prior exposure is recorded, not overwritten with an assumed standard baseline.",
+      "advance_hold_regress": "Hold the actual eligible variation, range, cadence and load. Current cue dependence, symptoms or fatigue may require a recorded smaller range, lighter listed dose or deferral; no missed work is owed. Running success does not authorize a strength upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::S3",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "INCLINE-PUSH",
+      "conditional_mapping_refs": [
+        "INCLINE-PUSH"
+      ],
+      "source_json_records": {
+        "INCLINE-PUSH": {
+          "mapping_key": "INCLINE-PUSH",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "set_purpose": "One small familiar push set retains balanced full-body practice while corridor/rhythm instruction receives attention. Actual one-set history stays one; compatible actual two-set history is deliberately reduced to one supporting set today. Neither available time nor day number adds volume.",
+      "prior_current_next": "Actual OR-01/02/03 or direct equivalent push dose and response →one explicit compatible supporting set today →OR-08/12 retain actual familiar strength while the named running/return variable changes. A lighter or omitted prior exposure is recorded, not overwritten with an assumed standard baseline.",
+      "advance_hold_regress": "Hold the actual eligible variation, range, cadence and load. Current cue dependence, symptoms or fatigue may require a recorded smaller range, lighter listed dose or deferral; no missed work is owed. Running success does not authorize a strength upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::S4",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "SUPPORTED-ROW",
+      "conditional_mapping_refs": [
+        "RING-ROW-ALT",
+        "SUPPORTED-ROW"
+      ],
+      "source_json_records": {
+        "RING-ROW-ALT": {
+          "mapping_key": "RING-ROW-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "SUPPORTED-ROW": {
+          "mapping_key": "SUPPORTED-ROW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/4"
+        }
+      },
+      "set_purpose": "One small familiar pull set retains balanced full-body practice while corridor/rhythm instruction receives attention. Actual one-set history stays one; compatible actual two-set history is deliberately reduced to one supporting set today. Neither available time nor day number adds volume.",
+      "prior_current_next": "Actual OR-01/02/03 or direct equivalent pull dose and response →one explicit compatible supporting set today →OR-08/12 retain actual familiar strength while the named running/return variable changes. A lighter or omitted prior exposure is recorded, not overwritten with an assumed standard baseline.",
+      "advance_hold_regress": "Hold the actual eligible variation, range, cadence and load. Current cue dependence, symptoms or fatigue may require a recorded smaller range, lighter listed dose or deferral; no missed work is owed. Running success does not authorize a strength upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-04::S5",
+      "session": "OR-04",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-04",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-08",
+          "OR-12"
+        ]
+      },
+      "mapping_ref": "HEEL-TAP",
+      "conditional_mapping_refs": [
+        "BREATH-9090-ALT",
+        "HEEL-TAP"
+      ],
+      "source_json_records": {
+        "HEEL-TAP": {
+          "mapping_key": "HEEL-TAP",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/6"
+        },
+        "BREATH-9090-ALT": {
+          "mapping_key": "BREATH-9090-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/12"
+        }
+      },
+      "set_purpose": "One small familiar brace set retains balanced full-body practice while corridor/rhythm instruction receives attention. Actual one-set history stays one; compatible actual two-set history is deliberately reduced to one supporting set today. Neither available time nor day number adds volume.",
+      "prior_current_next": "Actual OR-01/02/03 or direct equivalent brace dose and response →one explicit compatible supporting set today →OR-08/12 retain actual familiar strength while the named running/return variable changes. A lighter or omitted prior exposure is recorded, not overwritten with an assumed standard baseline.",
+      "advance_hold_regress": "Hold the actual eligible variation, range, cadence and load. Current cue dependence, symptoms or fatigue may require a recorded smaller range, lighter listed dose or deferral; no missed work is owed. Running success does not authorize a strength upgrade.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        }
+      },
+      "all_selected_doses_ref": "or_04_workload_ledger.json#/scenarios",
+      "live_canonical_definition_id": null,
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    }
+  ]
+}

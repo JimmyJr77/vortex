@@ -5,6 +5,7 @@ import { demandSignature, phaseCandidates, requiredEquipment, resolveAnchorPhase
 import { loadReleasedCanonicalLibrary } from './canonicalLibraryRepository.js'
 import { loadPublishedProgrammingMethods } from './programmingLibraryRepository.js'
 import { libraryScopeId, withCoachingLibrarySnapshot } from './coachingLibraryContext.js'
+import { loadWorkoutAthleteEvidence } from './workoutAthleteEvidence.js'
 import { scoreProgrammingMethodForBlock } from './programmingValidation.js'
 import { normalizePhaseKey } from './sessionPhaseKeys.js'
 
@@ -111,17 +112,18 @@ export async function searchWorkoutProgrammingResourcesBatch(pool, context, rawR
 }
 
 /** Internal composition material, hydrated within one authenticated snapshot. */
-export async function loadWorkoutProgrammingMaterials(pool, context, rawRequests) {
+export async function loadWorkoutProgrammingMaterials(pool, context, rawRequests, { athleteRequest = null } = {}) {
   if (!Array.isArray(rawRequests) || rawRequests.length < 1 || rawRequests.length > 5) throw new TypeError('A staff search batch must contain one to five components')
   const requests = rawRequests.map(searchRequest)
   if (new Set(requests.map((request) => request.componentKey)).size !== requests.length) throw new TypeError('Duplicate components in staff search batch')
   return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
     const snapshot = await loadReleasedCanonicalLibrary(client, scope.facilityId)
     const methods = await loadPublishedProgrammingMethods(client, scope)
+    const athleteEvidence = athleteRequest ? await loadWorkoutAthleteEvidence(client, scope, athleteRequest) : null
     const results = []
     for (const request of requests) results.push(await searchScopedResources(client, scope, request, snapshot, methods))
     return freeze({ resources: results, library: snapshot.library, release: snapshot.release, methods: methods.methods,
-      libraryStatus: snapshot.status, programmingSearchComplete: methods.searchComplete })
+      libraryStatus: snapshot.status, programmingSearchComplete: methods.searchComplete, athleteEvidence })
   })
 }
 

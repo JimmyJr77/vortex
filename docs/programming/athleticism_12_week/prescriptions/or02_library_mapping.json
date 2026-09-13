@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "Stage 4 OR-02 local source mapping; exact identities and source defaults, not final session prescriptions or operational release",
+  "planningStatus": "reviewable_local_source_grounding_pending_release",
+  "checkedOn": "2026-09-12",
+  "recordIdsAre": "mappingKey values are documentation labels, never database IDs. Source UUIDs are copied only when literally present and are not verified live canonical IDs.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "productionQueried": false,
+    "secretsRead": false,
+    "approvalCreated": false,
+    "liveApprovalVerified": false,
+    "priorAccessAuditReference": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.accessAudit"
+    },
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "identityAuthority": {
+    "currentForwardJumpContract": "scripts/data/canonical-research/contracts/forward-hop-to-stick-low-amplitude.v1.json",
+    "snapDownMechanics": "backend/migrations/354_coaching_reactive_landing_pogo_family_completion.sql",
+    "laterSnapDownCorrections": [
+      "backend/migrations/726_coaching_drop_squat_snap_down_identity_consolidation.sql",
+      "backend/migrations/727_coaching_squat_jump_snap_down_identity_boundary.sql"
+    ],
+    "sourceNumbersAreLegacyProvenance": true
+  },
+  "records": [
+    {
+      "mappingKey": "JUMP-STICK",
+      "name": "Low-Amplitude Forward Jump to Stick",
+      "sourceSlug": "forward-hop-to-stick-low-amplitude",
+      "legacySourceId": 220,
+      "localCandidateVariantKey": "bilateral-low-amplitude-forward-jump-to-terminal-stick",
+      "sourceAuthoredVariantUuid": "22000000-0000-4000-8000-000000000001",
+      "localCandidateProfileKey": "movement-intelligence",
+      "sourceProfilePhase": "movement_intelligence",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review_quarantined",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/forward-hop-to-stick-low-amplitude.v1.json",
+          "lines": "7-24;51-91;115-206",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/forward-hop-to-stick-low-amplitude.v1.json",
+          "lines": "215-247;287-443;446-481",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/728_coaching_low_amplitude_forward_jump_stick_candidate_materialization.sql",
+          "lines": "1-5",
+          "kind": "generated_candidate_payload_with_stale_fields"
+        }
+      ],
+      "exactMechanics": {
+        "start": "Declared bilateral stance on the floor; one low-amplitude horizontal jump from two feet. Declare distance and a visible target appropriate to the actual athlete and protected station.",
+        "arms": "The inspected exact contract does not fix an arm position or swing. The session must declare a repeatable arm rule as an authored contextual choice; do not claim a particular hands-on-hips or free-swing style was mandated by source220.",
+        "takeoff": "One bilateral two-foot takeoff only.",
+        "landing": "One bilateral two-foot landing inside the declared target; absorb through ankles, knees and hips with controlled knee/trunk organization and quiet contact.",
+        "hold": "Terminal athletic stick for the declared duration; source legacy tempo and related research packet use two seconds. No extra step, rebound or second takeoff during the task.",
+        "reset": "After the owned terminal hold, fully reset before another attempt. A walked return belongs outside the held landing and needs its own stated route, duration and recovery accounting.",
+        "exclusions": [
+          "single-leg hop",
+          "obstacle or hurdle",
+          "continuous rebound",
+          "second takeoff",
+          "maximal-distance testing",
+          "travel to recover balance before completing the hold",
+          "conditioning intent"
+        ],
+        "attemptAccounting": "One attempted jump has one intentional flight/landing event and two individual landing-foot contacts when both feet land. Source landingContactsPerRep=2 uses feet, not two jumps. Count actual attempts/contacts, including invalid attempts; valid repetitions are a separate result."
+      },
+      "prerequisites": [
+        "Pain-free low bilateral jump and landing at the assigned demand.",
+        "Previously owned quiet bilateral Drop Squat/Snap-Down terminal position; no automatic qualification from attending OR-01 or performing a slow squat.",
+        "Understands two-foot takeoff/landing, target, hold, stop signal and reset.",
+        "Safe clear station; exact lower-body impact, technical fatigue, supervision and time budgets fit."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "candidateDeliveryProfile": {
+          "sets": "2-3",
+          "repetitions": "2-4 valid jumps",
+          "restSeconds": "45-75",
+          "intensity": "declared low amplitude; no distance chasing",
+          "timeModel": {
+            "setupSeconds": 45,
+            "effortSeconds": 5,
+            "restRangeSeconds": [
+              45,
+              75
+            ]
+          }
+        },
+        "legacyDefaults": {
+          "sets": 2,
+          "repetitions": 3,
+          "defaultWorkSeconds": 8,
+          "defaultRestSeconds": 60,
+          "estimatedSecondsPerSet": 90,
+          "tempo": "bilateral takeoff; low forward travel; quiet bilateral landing; two-second stick; reset"
+        },
+        "boundary": "These distinct source estimates are not one coherent finished lesson clock. Any lower instructional dose, between-attempt recovery placement or added demonstration/rehearsal is an explicit OR-02 prescription decision. Do not repeat invalid attempts until a success quota is met."
+      },
+      "sourceClearance": {
+        "requiredEquipment": [
+          "none"
+        ],
+        "optionalEquipmentInCurrentContract": [
+          "video"
+        ],
+        "surface": "clean, dry, level, stable non-slip floor",
+        "stationCapacity": 1,
+        "space": "marked standing/landing station with clear forward and lateral landing space and protected entry/exit",
+        "numericDistanceOrTargetSizeEstablished": false,
+        "inspection": [
+          "surface",
+          "footwear",
+          "target visibility",
+          "landing clearance",
+          "traffic",
+          "stop signal",
+          "coach sightline to takeoff, landing, knees, trunk, hold and reset"
+        ]
+      },
+      "stopRules": [
+        "Stop for pain, giving way, slip, unsafe station or athlete request.",
+        "Stop for asymmetry, loud/stiff landing, knee/trunk collapse, extra step, missed target, rebound or inability to hold; record invalid attempt and actual exposure.",
+        "If quality cannot be restored at the reduced assigned demand and recovery, omit flight and use a separately specified eligible task; symptoms are not permission to exercise through a fallback."
+      ],
+      "alternativeEligibility": [
+        "SNAP-STICK changes the job to grounded rapid position acquisition and records no jump competence or jump event.",
+        "Reducing jump distance retains this identity only if the bilateral takeoff/landing and held finish remain intact and the exact change is revalidated.",
+        "An in-place vertical jump, unilateral hop, hurdle jump or rebound is not a silent equivalent."
+      ],
+      "mediaStatus": "No approved media was verified. Contract requires human media review; generated migration retains a hurdle media candidate inconsistent with the no-obstacle identity.",
+      "remainingGates": [
+        "Resolve current canonical definition, exact variant/profile and two-person approval without inferring them from this authored UUID or migration.",
+        "Declare and verify arm action, target distance/size, hold, failed-attempt limit, recovery/reset/return, demonstration dose and actual landing zone.",
+        "Confirm task-specific prerequisite; instructional participation does not waive the source jump prerequisite or prove mastery.",
+        "Reconcile stale generated payload fields, media and alternate classifications with the current contract before import/release.",
+        "Review exact media, relationships, independent calibration and publication; source testPacket remains quarantined."
+      ]
+    },
+    {
+      "mappingKey": "SNAP-STICK",
+      "name": "Snap-Down to Stick",
+      "sourceSlug": "snap-down-to-stick",
+      "legacySourceIdsVerifiedInLocalMapping": [
+        139,
+        541,
+        1105,
+        217
+      ],
+      "legacySourceExplanation": "Migration354 archives source139/541/1105 baseline keys; migration726 moves source217 Drop Squat provenance onto the snap-down survivor. These are historical source references, not four selectable approved alternatives.",
+      "localCandidateVariantKey": "bilateral-tall-reach-stick",
+      "sourceAuthoredVariantUuid": null,
+      "localCandidateProfileKeys": [
+        "movement-control",
+        "landing-preparation"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review_with_later_identity_corrections",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/354_coaching_reactive_landing_pogo_family_completion.sql",
+          "lines": "334-412;674-704;751-789;813-859",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/354_coaching_reactive_landing_pogo_family_completion.sql",
+          "lines": "1260-1285;1557-1570;1579-1580;1618;1845-1848;1899-1906",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/726_coaching_drop_squat_snap_down_identity_consolidation.sql",
+          "lines": "1-4;29-35;40-75;94-104",
+          "kind": "later_identity_consolidation"
+        },
+        {
+          "path": "backend/migrations/727_coaching_squat_jump_snap_down_identity_boundary.sql",
+          "lines": "26-35",
+          "kind": "later_identity_boundary"
+        }
+      ],
+      "exactMechanics": {
+        "start": "Stand tall in a declared repeatable bilateral stance on the floor, arms overhead or at an explicitly declared reachable position, with comfortable overhead clearance.",
+        "arms": "Rapidly drive the arms down while lowering the center of mass. Hands-at-chest is locally described as an arm-start/access modifier; if chosen, specify what the hands actually do and retain controlled rapid descent. It is not a newly approved named variant.",
+        "takeoff": "None. Apply migration727's stronger explicit boundary: no preparatory jump, takeoff, flight or rebound. Do not exploit older flight:not_required wording to insert a hop.",
+        "finish": "Rapid but controlled descent into a declared comfortable athletic depth; both feet grounded with whole-foot pressure, knees aligned with feet, trunk organized over pelvis.",
+        "hold": "Own a static two-second finish. Variant range is two to three seconds, both cited delivery profiles target two seconds. No extra step or rebound.",
+        "reset": "Stand tall and breathe before the next repetition; begin only after a full reset. A safe exit follows the owned stick.",
+        "exclusions": [
+          "flight",
+          "rebound",
+          "box or external drop height",
+          "single-leg finish",
+          "moving-entry task",
+          "conditioning density",
+          "external support disguised as the same exact variant"
+        ],
+        "attemptAccounting": "No intentional flight/landing event and source landingContactsPerRep=0; count actual grounded descent/stick attempts separately."
+      },
+      "prerequisites": [
+        "Pain-free bodyweight squat to the declared depth.",
+        "Safe controlled rapid descent and ability to hold the bilateral athletic stance without an extra step.",
+        "Understands stop signal; coach can observe feet, knees, trunk and finish.",
+        "Appropriate dry floor, clearance, supervision and actual task-specific confidence."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "movementControl": {
+          "profileKey": "movement-control",
+          "phase": "movement_intelligence",
+          "role": "primary",
+          "sets": {
+            "minimum": 1,
+            "target": 2,
+            "maximum": 3
+          },
+          "repetitions": {
+            "minimum": 3,
+            "target": 4,
+            "maximum": 5
+          },
+          "stickSeconds": 2,
+          "restSeconds": {
+            "minimum": 30,
+            "target": 45,
+            "maximum": 75
+          },
+          "fullResetBetweenReps": true
+        },
+        "landingPreparation": {
+          "profileKey": "landing-preparation",
+          "phase": "prepare_and_access",
+          "role": "secondary",
+          "sets": 1,
+          "repetitions": {
+            "minimum": 2,
+            "target": 3,
+            "maximum": 4
+          },
+          "stickSeconds": 2,
+          "restSeconds": {
+            "minimum": 20,
+            "target": 30,
+            "maximum": 60
+          },
+          "fullResetBetweenReps": true
+        },
+        "boundary": "Source quality-limited candidate ranges are not mandatory OR-02 volume. A lower teaching dose or slower rehearsal must be labeled and clocked. Neither fast snap-down completion nor slow practice qualifies a jump automatically."
+      },
+      "sourceClearance": {
+        "surface": "flat, dry, stable, non-slip",
+        "clearRadiusMeters": 1.5,
+        "overheadClearanceRequired": true,
+        "oneAthletePerStation": true,
+        "separateFromJumpAndSprintLanes": true,
+        "externalHeight": false,
+        "runOutRequired": false,
+        "requiredEquipment": [],
+        "optionalEquipment": [
+          "line_tape",
+          "mat"
+        ],
+        "profileStationFootprintMeters": {
+          "length": 2,
+          "width": 2
+        },
+        "sourceConflict": "The definition gives a 1.5m clear radius, while its profile gives a 2x2m footprint. Do not silently select the smaller allocation. A centered 3x3m personal bay accommodates the larger nominal radius, but actual athlete reach, adjacent traffic and coach circulation still need verification.",
+        "profileSetupSeconds": 20,
+        "profileTransitionSeconds": 15
+      },
+      "stopRules": [
+        "Stop for symptoms, giving way, dizziness, uncontrolled descent, repeated knee/trunk collapse, unstable/noisy finish, extra step, rebound, breath holding, fear, unsafe floor or athlete request.",
+        "Reduce speed/depth only within comfortable observed control. If rapid descent is unavailable, record slow position rehearsal as an explicit adaptation rather than a successful rapid snap-down.",
+        "Stable hand support changes the task and requires variant review."
+      ],
+      "alternativeEligibility": [
+        "Source217 Drop Squat to Stick is consolidated/archived as a duplicate by migration726; do not select its old profile as a separate approved record.",
+        "A deliberately slow squat-to-hold lesson can be documented as modified position rehearsal. It does not satisfy rapid-descent or flight competence.",
+        "The fallback changes OR-02's jump objective to a partial-purpose grounded task; log jump not observed."
+      ],
+      "mediaStatus": "Migration354 clears approved_video_url and seeds candidate metadata-only media. No current exact playback, accessibility or human approval was verified.",
+      "remainingGates": [
+        "Resolve the current survivor definition, exact arm-start/depth variant, contextual delivery profile and current approval.",
+        "Retain no-flight boundary from migration727 and reconcile older source/migration language and duplicate graph references.",
+        "Declare exact stance, arms, depth, hold, reset, dose and failure/omission rules; verify rapid-descent readiness.",
+        "Resolve 1.5m-radius versus 2x2m-profile clearance before operational delivery.",
+        "Review current media and release state; seed selectable:true is code/authored candidate data, not approval."
+      ]
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "HINGE-BW",
+      "sourceSlug": "bodyweight-hip-hinge-good-morning",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='HINGE-BW')]"
+      },
+      "sourceMechanicsRetained": "Soft knees, hands across chest or behind head as declared; hips move back through owned range, trunk organized, stand/reset. Unloaded, no rapid drop or flight.",
+      "or02Boundary": "This hip-dominant hinge is distinct from the knee/hip/ankle-flexing snap-down landing shape. Wall-touch, supported hinge and loaded RDL are not hidden equivalents."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "sourceSlug": "tempo-bodyweight-squat",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SQUAT-BW')]"
+      },
+      "sourceMechanicsRetained": "No load or mandatory box; three-count lowering, brief bottom pause in owned depth, controlled stand/reset.",
+      "or02Boundary": "The deliberate tempo squat is not the rapid snap-down action and earns no flight qualification."
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "sourceSlug": "incline-push-up",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='INCLINE-PUSH')]"
+      },
+      "or02Boundary": "Retain exact stable support height, body line and contact mechanics from the exemplar; new age/dose choices belong to the session."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "sourceSlug": "one-arm-dumbbell-row",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SUPPORTED-ROW')]"
+      },
+      "or02Boundary": "Exact bench-supported dumbbell variant uses opposite hand AND knee on the bench. Count both sides and individual bench/load fit; a hand-only row is different."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "sourceSlug": "dead-bug-heel-tap",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='HEEL-TAP')]"
+      },
+      "or02Boundary": "Fixed vertical arms, tabletop base, one bent-leg heel-contact-and-return before alternating. Tabletop/return readiness must fit. Only Prepare and Access profile verified; Strength placement remains a declared contextual adaptation. State whether session rep means one side or a paired cycle."
+    }
+  ],
+  "methodReuse": {
+    "reference": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.methods"
+    },
+    "boundary": "Root owns methods and prescriptions. Jump and snap-down candidates require technical practice/fully reset quality attempts with actual recovery, not a conditioning circuit or automatic make-up successes."
+  },
+  "sourceConflicts": [
+    {
+      "key": "JUMP-PAYLOAD-DRIFT",
+      "finding": "Current contract optional equipment is video only and prohibits obstacles. Generated migration728:5 retains low_hurdle/floor_target equipment, a hurdle media candidate and older alternate classifications.",
+      "decision": "Use current exact contract for document identity. This is not proof migration/application state matches it; reconcile payload/media/graph before import or release."
+    },
+    {
+      "key": "SNAP-FLIGHT-WORDING",
+      "finding": "Migration354 says flight not_required in variant data; migration727 explicitly prohibits preparatory jump/takeoff/flight.",
+      "decision": "Grounded no-flight is the OR-02 source boundary."
+    },
+    {
+      "key": "SNAP-DUPLICATE-HISTORY",
+      "finding": "Older research treats Drop Squat as separate; migration726 consolidates source217 into snap-down, archives duplicate variants/profiles and creates no human approval.",
+      "decision": "Retain survivor and provenance; record genuinely slow practice as modified action, not a newly approved separate fallback."
+    },
+    {
+      "key": "SNAP-CLEARANCE",
+      "finding": "Definition1.5m radius and profile2x2m differ.",
+      "decision": "Do not reduce to smaller value silently; verify larger authored clearance and actual layout."
+    }
+  ],
+  "remainingGlobalGates": [
+    "All live canonical IDs/approval remain unverified; this audit neither queries nor infers an empty live library.",
+    "Root must author task-specific age/dose/rest/clock/logistics, including all demonstrations, actual attempts, hold/reset, recovery and conditional fallback.",
+    "Current equipment/space, athlete task-specific history, exact media and separate tumbling eligibility remain inherited operational gates.",
+    "Local method support and migration scripts are capabilities/authored content, not proof current approved source records exist."
+  ],
+  "verification": {
+    "jsonParsed": true,
+    "sourcePathsVerifiedAtWrite": true,
+    "scope": "Only these two new OR-02 mapping artifacts authored; no app/database/source mutations."
+  }
+}

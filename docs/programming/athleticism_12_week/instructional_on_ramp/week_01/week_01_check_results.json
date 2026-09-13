@@ -1,0 +1,124 @@
+{
+  "status": "PASS_WRITTEN_WEEK_NUMERIC_AUDIT",
+  "attendance_patterns": 31,
+  "age_bands": [
+    "9-11",
+    "12-14",
+    "15-18"
+  ],
+  "mixed_booking_mode_history_paths": 18744,
+  "summary_rows": 186,
+  "daily_scenario_counts": {
+    "prescriptions/EXEMPLAR_CHECK_RESULTS.json": 132,
+    "instructional_on_ramp/week_01/or_02_check_results.json": 240,
+    "instructional_on_ramp/week_01/or_03_check_results.json": 504,
+    "instructional_on_ramp/week_01/or_04_check_results.json": 480,
+    "instructional_on_ramp/week_01/or_05_check_results.json": 1152
+  },
+  "weekly_derived_OR01_walking_choices": 72,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing written weekday",
+      "rejected": true,
+      "sample_findings": [
+        "missing or extra Week 1 session"
+      ]
+    },
+    {
+      "case": "unreviewed day counted as complete",
+      "rejected": true,
+      "sample_findings": [
+        "OR5: written daily gate incomplete"
+      ]
+    },
+    {
+      "case": "handoff promoted to complete tumbling",
+      "rejected": true,
+      "sample_findings": [
+        "OR5: unsupported operational/tumbling completion"
+      ]
+    },
+    {
+      "case": "missing mixed-booking choice",
+      "rejected": true,
+      "sample_findings": [
+        "OR5/9-11/compressed_L: missing daily choices"
+      ]
+    },
+    {
+      "case": "missing strength role in workload",
+      "rejected": true,
+      "sample_findings": [
+        "OR4: missing strength role"
+      ]
+    },
+    {
+      "case": "fabricated actual weekly completion",
+      "rejected": true,
+      "sample_findings": [
+        "OR3: fabricated actual completion"
+      ]
+    },
+    {
+      "case": "OR02 two-set hinge from unknown or one-set actual history",
+      "rejected": true,
+      "sample_findings": [
+        "two-set routes excluded; saved one-set hold choices remain"
+      ]
+    }
+  ],
+  "sha256": {
+    "sessions/week_01/day_01.json": "036189d54af2ae05c98b5cc93cbffc400ae0774e07b8312a302b54ade3770308",
+    "instructional_on_ramp/week_01/or_01.json": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30",
+    "sessions/week_01/day_01.md": "854b9cd41a021598d8106d07e4126018e3a39e87f0c634f3eeb8b8f6b8c66595",
+    "instructional_on_ramp/week_01/or_01.md": "ce8ce9b7a8d9aaccc5783060c6aeee3e00d9abf8f760d2c56fd4ebcaf479ec83",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/author_day_01.py": "41b9d01df06e8285440b4ebba947ef06214639a72707b5adf420bfa0e4793ae3",
+    "prescriptions/author_or_01.py": "2f93cb4332d539d83a758e9d1f5881bf7de1862516e1e394bc470683e438076b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/EXEMPLAR_CHECK_RESULTS.json": "35e1111f241c351e318e8075ea40a1ebb07958f3e5056ce92f51ee3a53e3c702",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_02.md": "900c605d6866f11e2ad888e8727335e796c67a704c4f06fd43fd492513ba9347",
+    "prescriptions/author_or_02.py": "3d9e5320778c7abcc7e8ca876ba180f302aa22bd8bcfadf6ed18abe45a7b40bd",
+    "prescriptions/check_or_02.py": "a5fba252cd59df764b350cb61692bf1a8adff030b4e6193d1dcbfd23c86a3b46",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/week_01/or_02_check_results.json": "3f5e55e547aefeea00ae4bdd1b4e872203e55cfcff0fa9ad66c6599892bae349",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "instructional_on_ramp/week_01/or_03.md": "be50f1e6125dac66e1ce7b35f08fbe06d93861c7e5c7a097f8cb47eec595aa47",
+    "prescriptions/author_or_03.py": "450ae208678fe43c6516da688d9d0c43ff671d15a1413d51ca84684840432401",
+    "prescriptions/check_or_03.py": "863d2b75a0e261035d80c721d7bdb7f0da0268a0e7f40627f77e167c16c295f7",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "instructional_on_ramp/week_01/or_03_check_results.json": "065ba17e3b79fa83efaa344a0b87c4c0522e7b05081124f64ac9d31750f43987",
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "instructional_on_ramp/week_01/or_04.md": "e6142d35839122d781be32c236dd903cd0b3047645fda5fad18a4e24f1d577b0",
+    "prescriptions/author_or_04.py": "13a386d2c4f52792a9c4fbe8af37c4ad68f7a71c9140b8376f0920141560d4a0",
+    "prescriptions/check_or_04.py": "8eeb73102c83eeb97eeb0f2461eaaf4da6ac784c418ba43e19db1921fa956528",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "instructional_on_ramp/week_01/or_04_check_results.json": "7c90e1f798d6fc83a1f8ad86055fee70f44b27a782985e8ddd1a8b14013575bb",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "instructional_on_ramp/week_01/or_05.md": "92cd8d534a6cd18dea73d5913ff8929f9c5cf17c89193540ce542d75ed622c60",
+    "prescriptions/author_or_05.py": "2c2ad247a13c963184336fbd2102161c30ec4f2229f9466b62c9d09e0ba68bec",
+    "prescriptions/check_or_05.py": "650808e8f9156b36d9c22033b9afaabdbaab15e34c8eb009d7aa1f5ca0087394",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "instructional_on_ramp/week_01/or_05_check_results.json": "6ca2b608c36597ee620e4cfd9b4cd49c6c3f90b44659129ea7cbfe86e03196c5",
+    "detailed_workload_ledger.json": "c7fff47f2ba94c5a15243c704e9dd0a2cea4cc12e435fa44ab8cc6ef3c810471",
+    "instructional_on_ramp/week_01/or_02_workload_ledger.json": "2b1faedf572d2cc4f63687012584457a9bf41869401d17337bd9c00f5021f3ec",
+    "instructional_on_ramp/week_01/or_03_workload_ledger.json": "f8d14db5f8450d2a77869d89c137cf9a7c9d2c99ee7d859b3b57e76d3d520dc2",
+    "instructional_on_ramp/week_01/or_04_workload_ledger.json": "178855f016fd860fad50ddf835b1a2237fb8c7288b22ab968c4eadcd158ac194",
+    "instructional_on_ramp/week_01/or_05_workload_ledger.json": "37d050bad90a024935b5830c43d5d0c465ed78ddd3450319b2484acd62b3c1e7",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "7d874b80451c0cbd33a07fc3d510c2ba81f4f422a50c3f52d7560addab5fcb2c",
+    "planning/check_on_ramp_week_01.py": "910689384c0465601e1f22bd10671cb580aefc162f5da555e45237834f145846"
+  },
+  "limits": [
+    "No actual attendance/completion/readiness or recovery outcome supplied",
+    "No universal weekly workload ceiling inferred; unlike metres/contacts kept separate",
+    "No automatic domain pass from any attendance subset",
+    "Actual facility/canonical approval and separate tumbling remain unresolved",
+    "Full-action scalar envelopes exclude partial attempts/deferrals, which must be recorded as actuals",
+    "Future OR06\u201320 and main Day2\u201360 are not detailed by this audit"
+  ]
+}

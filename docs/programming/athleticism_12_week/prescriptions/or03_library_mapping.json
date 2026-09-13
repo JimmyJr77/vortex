@@ -1,0 +1,694 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "Stage 4 OR-03 local source mapping for straight stopping and supported side-specific split stance; source defaults are not final session prescriptions",
+  "planningStatus": "reviewable_local_source_grounding_pending_release",
+  "checkedOn": "2026-09-12",
+  "recordIdsAre": "Documentation mappingKey labels are not database IDs. Authored source UUIDs and legacy IDs are provenance only until current records and approvals are verified.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "productionQueried": false,
+    "secretsRead": false,
+    "approvalCreated": false,
+    "priorAuditReference": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.accessAudit"
+    },
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "records": [
+    {
+      "mappingKey": "DECEL-LINEAR",
+      "name": "Submaximal Linear Deceleration to Stick",
+      "prerequisiteInterpretation": "The inspected source does not explicitly require a previously successful jog-stop. Observing a controlled walking stop may establish the walking/bilateral-finish prerequisite before a first gentle jog-stop if pain-free easy-jog ability is independently known or observed and remaining gates fit. Walking practice alone does not establish easy-jog ability or qualify a jog-stop.",
+      "sourceSlug": "jog-to-stick-linear-deceleration",
+      "legacySourceId": 155,
+      "otherLegacyProvenanceIds": [
+        156,
+        224,
+        277,
+        545,
+        783
+      ],
+      "localCandidateVariantKey": "submaximal-linear-multistep-deceleration-to-bilateral-stick",
+      "sourceAuthoredVariantUuid": "15500000-0000-4000-8000-000000000001",
+      "localCandidateProfileKeys": [
+        "movement-intelligence",
+        "output"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review_quarantined",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "7-98;137-220",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "235-267;303-374;385-529;533-568",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/724_coaching_linear_deceleration_stick_candidate_materialization.sql",
+          "lines": "1-5",
+          "kind": "generated_candidate_payload"
+        }
+      ],
+      "exactMechanics": {
+        "approach": "Declared 5-10 metre submaximal linear JOG approach, with declared entry intensity and no reactive release, turn or redirect.",
+        "braking": "Begin braking BEFORE the marked brake zone; use multiple controlled contacts to slow. No fixed universal contact count is specified. Avoid one hard reaching stop.",
+        "finish": "Stop inside the protected finish zone and own a balanced BILATERAL athletic stick. Alternating braking contacts do not make the terminal position a single-leg or prescribed split-stance finish.",
+        "hold": "Declared terminal hold; legacy tempo specifies two seconds. Both feet controlled, quiet balanced stance, no extra turn or reacceleration.",
+        "reset": "Walk back via the declared protected route after the owned finish and fully recover. This reset is not an additional timed shuttle or conditioning repeat.",
+        "arms": "Exact contract does not fix an arm style; any prescribed arm action is session context, not an extracted source rule.",
+        "exclusions": [
+          "walking substituted silently for the exact jog approach",
+          "single hard plant or fixed one-step stop",
+          "single-leg terminal hold",
+          "cut",
+          "turn",
+          "reacceleration",
+          "reactive cue",
+          "maximal sprint",
+          "jump landing",
+          "conditioning shuttle"
+        ],
+        "exposureAccounting": "Source landingContactsPerRep=0 does not mean zero running/braking impacts. Record actual approaches, approach distance/context and braking contacts separately from intentional jump/landing events. Invalid attempts remain actual exposures.",
+        "boundary": "The source names historical sprint/deceleration aliases but the exact candidate restricts the current task to declared submaximal jogging with a bilateral finish."
+      },
+      "prerequisites": [
+        "Pain-free easy jogging AND a controlled walking stop.",
+        "Demonstrated balanced bilateral athletic stance.",
+        "Safe protected lane and shared understood stop signal.",
+        "Actual braking, impact, lower-body, technical-fatigue, supervision and time budgets fit."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "movementIntelligence": {
+          "profileKey": "movement-intelligence",
+          "phase": "movement_intelligence",
+          "role": "primary",
+          "sets": "2-3",
+          "repetitions": "2-3 valid stops",
+          "restSeconds": "60-90",
+          "intensity": "declared 50-65 percent easy jog",
+          "timeModel": {
+            "setupSeconds": 90,
+            "effortSeconds": 10,
+            "walkBackSeconds": 25,
+            "restRangeSeconds": [
+              60,
+              90
+            ]
+          }
+        },
+        "output": {
+          "profileKey": "output",
+          "phase": "output",
+          "role": "conditional",
+          "sets": "1-2",
+          "repetitions": "2 valid stops",
+          "restSeconds": "90-120",
+          "intensity": "declared 60-70 percent only if movement-intelligence profile is already clean",
+          "boundary": "Not an automatic beginner progression or reason to increase OR-03 speed."
+        },
+        "legacyDefaults": {
+          "sets": 2,
+          "repetitions": 3,
+          "workSeconds": 10,
+          "restSeconds": 75,
+          "estimatedSecondsPerSet": 120,
+          "stickSeconds": 2
+        },
+        "contactExposureModel": {
+          "model": "per_set_range",
+          "minimumContactsPerSet": 8,
+          "planningDefaultContactsPerSet": 15,
+          "maximumContactsPerSet": 28,
+          "status": "authored planning estimate; not observed contacts or a universal safety cap"
+        },
+        "boundary": "Source percent intensities are contextual estimates, not measured fractions of an established maximum. Root must specify actual easy intent, bounded attempts, recovery placement and full coaching/return clock. Lower dose or shorter-than-5m approach is a labeled instructional adaptation."
+      },
+      "sourceClearance": {
+        "requiredEquipment": [
+          "cones",
+          "safe_finish_zone",
+          "15_to_30_metre_clear_lane"
+        ],
+        "optionalEquipment": [
+          "timing_gates",
+          "video"
+        ],
+        "laneLengthMeters": "15-30",
+        "approachDistanceMeters": "5-10",
+        "surface": "clear, level, dry, high-traction non-slip lane",
+        "stationCapacity": 1,
+        "requiredZones": [
+          "declared approach",
+          "braking zone",
+          "protected finish zone",
+          "protected runoff",
+          "walking return",
+          "waiting location behind start"
+        ],
+        "traffic": "One athlete per protected lane; next release only after previous athlete clears finish and walk-back route. No cross traffic.",
+        "notNumericallyEstablished": [
+          "lane width",
+          "braking-zone length",
+          "finish-zone dimensions",
+          "runoff allocation",
+          "walking-return length"
+        ],
+        "boundary": "Do not replace the total 15-30m lane requirement with the 5-10m approach distance or fit source155 into a 3m personal bay."
+      },
+      "stopRules": [
+        "Stop for symptoms, giving way, slip, unsafe lane or athlete request.",
+        "Late braking, overrun, hard reaching stop, collapse, imbalance or an added turn ends a valid attempt; record actual exposure.",
+        "Reduce demand only if control returns. If early multistep braking and balanced stick cannot be restored, end this task and revalidate another option."
+      ],
+      "alternativeEligibility": [
+        "WALK-STOP is locally suggested as a new variant but lacks a verified completed exact variant/profile; use only as an explicitly authored walking prerequisite lesson.",
+        "SNAP-STICK provides a no-travel grounded position-acquisition task if its own rapid-descent prerequisites fit. It observes no locomotor braking.",
+        "A slow no-travel bilateral position rehearsal is a separate declared adaptation; successful squat/stance control does not qualify jogging stops."
+      ],
+      "remainingGates": [
+        "Current canonical owner, exact variant/profile and human approval remain unknown; migration/source UUID is not live approval.",
+        "Verify full lane and protection, stance, arm rule, approach, braking/finish/runoff zones, stop cue, hold, reset, actual lower-body exposure and supervision.",
+        "Confirm controlled walking stop and pain-free easy jog before selecting source-exact approach.",
+        "Resolve media, relationship, calibration and publication gates; source testPacket is quarantined."
+      ]
+    },
+    {
+      "mappingKey": "WALK-STOP",
+      "name": "Walk-to-Stick — proposed instructional variant",
+      "sourceSlug": null,
+      "relatedSourceSlug": "jog-to-stick-linear-deceleration",
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "named_local_proposal_without_completed_exact_variant_or_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/generated/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "410-418",
+          "kind": "research_alternate_proposal"
+        },
+        {
+          "path": "backend/migrations/118_coaching_output_decel_cod_cards.sql",
+          "lines": "670;685;836;851",
+          "kind": "legacy_scaling_mentions"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "69-75;190-196;325-341",
+          "kind": "authored_local_content"
+        }
+      ],
+      "sourceEvidence": "The generated research names Walk-to-Stick as new_variant with approachSpeed=walk; legacy scaling mentions fast walk-to-stick and walk/jog to controlled stop. The current exact source155 variant remains a 5-10m jog and gives no walking dose/profile.",
+      "proposedMechanicsForRootToSpecify": "A declared short straight walk, early smooth reduction over several comfortable steps, controlled two-foot finish in a visible zone, declared hold, then an explicit safe reset. No jog, race, cue-response stop, sharp one-step plant, turn or reacceleration is implied.",
+      "sourceDoseNotSessionPrescription": null,
+      "missingDetails": [
+        "exact walking pace/intent",
+        "start and approach length",
+        "slow-down cue location versus finish zone",
+        "target/finish geometry and runoff",
+        "bilateral finish stance",
+        "hold duration",
+        "arm rule",
+        "bounded actual attempts",
+        "rest and protected return",
+        "demonstration/teaching clock",
+        "symptom/quality stop and nontravel branch"
+      ],
+      "eligibilityBoundary": "This can be a transparent proposed OR-03 prerequisite lesson, not a currently approved source155 walking profile. Record walking-stop observations only; do not claim jogging or higher-speed braking competence.",
+      "remainingGates": [
+        "Root must supply complete reviewable walking instructions and dose.",
+        "Resolve/review the exact walking variant and contextual profile before operational release.",
+        "No fabricated source/variant/profile ID and no assumption that a research alternate is an approved library record."
+      ]
+    },
+    {
+      "mappingKey": "SPLIT-BW-SUP",
+      "name": "Split Squat — Supported Bodyweight",
+      "sourceSlug": "split-squat",
+      "legacySourceId": null,
+      "localCandidateVariantKey": "supported-bodyweight-standard",
+      "sourceAuthoredVariantUuid": null,
+      "localCandidateProfileKeys": [
+        "capacity-strength",
+        "resilience-control"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/370_coaching_split_squat_family_completion.sql",
+          "lines": "248-315;498;551-585",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/370_coaching_split_squat_family_completion.sql",
+          "lines": "727-798;838-856;895-920;947-948",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "scripts/data/capacity-squat-cards-1-10.mjs",
+          "lines": "507;516-559;579-584",
+          "kind": "legacy_instructions_and_supported_scaling"
+        }
+      ],
+      "exactMechanics": {
+        "supportBase": "Stationary asymmetrical BILATERAL support: whole lead foot and rear forefoot on the floor; rear heel raised. Lead-leg bias is not a single-leg balance hold.",
+        "stance": "Declare lead side, length and width; preserve the same stationary split stance through each descent and return. No stepping lunge or elevated foot.",
+        "movement": "Lower both knees through owned pain-free range with lead-foot contact and knee path controlled; drive through the lead leg back to the same balanced stance. Keep pelvis/trunk/breath organized.",
+        "support": "Stable hand support. Exact variant seed lists rack; definition allows wall/rack and legacy scaling mentions a hand on wall. No exact numeric hand height, same/opposite lead-side hand, grip, or contact force is fixed.",
+        "sideAndHeightDecision": "Root must declare support structure, selected hand relative to lead leg, comfortable contact height/reach, continuous versus intermittent contact, and how the setup mirrors or changes when lead side switches. Those choices are session annotations requiring fit/review, not extracted source facts.",
+        "cadence": "Exact variant tempo_contract=controlled_standard. Legacy record has 2-0-1-0; current source time model uses a six-second repetition estimate plus four-second reset. Do not conflate estimates or impose an unstated fixed hold.",
+        "finish": "Same split stance, then safe exit and deliberate side change; both lead sides separately counted.",
+        "exclusions": [
+          "rear-foot elevation",
+          "front-foot elevation",
+          "stepping lunge",
+          "long isometric hold substituted as a dynamic rep",
+          "jump",
+          "external perturbation",
+          "manual assistance or heavy unplanned support hidden as balance contact"
+        ],
+        "exposureAccounting": "Zero intentional flight/landing events; record repetitions and support per lead side."
+      },
+      "prerequisites": [
+        "Pain-free stationary split stance.",
+        "Can lower and return without stepping.",
+        "Controlled lead foot/knee, pelvis/trunk and breathing.",
+        "Can follow lead-side, range, tempo, support, finish and stop rules; support and surface secure."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "capacityStrength": {
+          "profileKey": "capacity-strength",
+          "phase": "capacity",
+          "role": "primary",
+          "sets": "2-4",
+          "repetitionsPerSide": "4-10",
+          "restSeconds": "90-180 for bodyweight",
+          "tempo": "controlled_standard",
+          "effort": "two or more quality repetitions remain"
+        },
+        "resilienceControl": {
+          "profileKey": "resilience-control",
+          "phase": "resilience",
+          "role": "secondary",
+          "sets": "2-3",
+          "repetitionsPerSide": "4-8",
+          "restSeconds": "60-150",
+          "tempo": "controlled_standard",
+          "effort": "light to moderate with position priority"
+        },
+        "timeModel": {
+          "repetitionSeconds": 6,
+          "resetSeconds": 4,
+          "sideChangeSeconds": 20,
+          "bodyweightSetupSeconds": 45
+        },
+        "boundary": "Low instructional repetitions/rest are authored session choices; count entry, both sides, support contact, exit and side change. Short holds within a dynamic rep are not the separate sustained isometric profile."
+      },
+      "sourceClearance": {
+        "footprintMeters": {
+          "length": 2.5,
+          "width": 1.5
+        },
+        "surface": "level, dry, stable high traction",
+        "oneActiveAthletePerStation": true,
+        "noCrossTraffic": true,
+        "variantEquipment": [
+          "none",
+          "rack"
+        ],
+        "definitionOptionalSupport": [
+          "wall",
+          "rack"
+        ],
+        "sourceEquipmentBoundary": "If selecting wall under a rack-listed variant, explicitly reconcile the support equipment/profile. No freestanding bench/chair support equivalence was verified.",
+        "supportHeightNumeric": null,
+        "supportHandSide": null
+      },
+      "stopRules": [
+        "Stop for pain, numbness, dizziness, giving way, apprehension, unstable support or lost stationary stance.",
+        "Stop or reduce owned demand for lead-foot/knee control loss, rear-leg drive, pelvis/trunk change or failed breathing; do not complete a quota through faults.",
+        "Record meaningful side differences; equality of planned repetitions does not mean equal actual competence."
+      ],
+      "remainingGates": [
+        "Current canonical owner, exact support variant/profile and human approval.",
+        "Declare hand side/height/contact and reconcile wall versus rack equipment before operational use.",
+        "Verify actual stable supports and coach sightlines for each athlete; equipment catalog names do not establish quantity.",
+        "No current Prepare and Access or dedicated instructional profile verified; early teaching placement/dose is an explicit contextual adaptation."
+      ]
+    },
+    {
+      "mappingKey": "SPLIT-ISO-SUP",
+      "name": "Supported Bodyweight Mid-Range Split Squat Hold",
+      "prerequisiteInterpretation": "No prior fixed-duration hold is explicitly required. Establish comfortable split stance, controlled descent, safe exit from assigned depth and normal breathing before a first brief hold. Appending a bilateral exit/hold is a declared composite beyond source212.",
+      "sourceSlug": "split-squat-isometric-hold",
+      "legacySourceId": 212,
+      "localCandidateVariantKey": "supported-bodyweight-mid-range",
+      "sourceAuthoredVariantUuid": null,
+      "localCandidateProfileKeys": [
+        "resilience-position",
+        "capacity-quality"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/352_coaching_static_control_family_completion.sql",
+          "lines": "478-540;579-581;746-755",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/352_coaching_static_control_family_completion.sql",
+          "lines": "859-860;1387-1390;1457",
+          "kind": "authored_local_content"
+        }
+      ],
+      "exactMechanics": {
+        "entry": "Set declared split stance using stable wall/rack support, then lower under control to a recorded comfortable mid-range depth marker.",
+        "supportBase": "Whole front foot grounded, rear forefoot on floor with rear heel raised; rear knee HOVERS and does not rest. This is asymmetrical bilateral support with front-leg bias.",
+        "hold": "Hold the exact depth with declared upright or slight-incline torso, knee tracking, organized pelvis/ribs and continuous breathing; no repeated lower/stand cycles during the hold.",
+        "support": "Stable wall or rack. Source explicitly requires declared support height; profile requires light stable support without unplanned bodyweight transfer. It does not fix numeric height or which hand relative to lead leg.",
+        "sideAndHeightDecision": "Root must prescribe exact support hand/side/contact height and effort, compatible grip/reach, and controlled entry/exit and side change. Both lead sides have separate quality time.",
+        "exit": "Use support to rise or step out under control before position/breath changes. Do not rest rear knee to prolong the clock.",
+        "exclusions": [
+          "tall stance-only hold presented as exact mid-range variant",
+          "rear-knee kneeling/rest",
+          "dynamic split-squat repetitions",
+          "rear-foot elevation",
+          "perturbation",
+          "jump or landing"
+        ],
+        "exposureAccounting": "Zero intentional flight/landing events; actual clean hold seconds per lead side, entry and exit recorded separately."
+      },
+      "prerequisites": [
+        "Pain-free split stance.",
+        "Controlled split-squat descent and safe exit from assigned depth.",
+        "Normal breathing under submaximal tension.",
+        "Stable support and individually fitting stance/depth; participant can exit without collapse."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "resiliencePosition": {
+          "profileKey": "resilience-position",
+          "phase": "resilience",
+          "role": "primary",
+          "sets": 2,
+          "holdSecondsPerSide": {
+            "minimum": 10,
+            "target": 20,
+            "maximum": 30
+          },
+          "restSeconds": {
+            "minimum": 45,
+            "target": 60,
+            "maximum": 90
+          }
+        },
+        "capacityQuality": {
+          "profileKey": "capacity-quality",
+          "phase": "capacity",
+          "role": "secondary",
+          "sets": {
+            "minimum": 2,
+            "target": 3,
+            "maximum": 4
+          },
+          "holdSecondsPerSide": {
+            "minimum": 15,
+            "target": 25,
+            "maximum": 40
+          },
+          "restSeconds": {
+            "minimum": 60,
+            "target": 75,
+            "maximum": 120
+          },
+          "maximumQualitySecondsPerSide": 120
+        },
+        "boundary": "A brief instructional hold below these ranges is a labeled dose override. Very shallow/tall stance-only rehearsal also changes the stated mid-range variant. Choose actual owned depth rather than forcing depth or pretending the learner completed an exact mid-range hold."
+      },
+      "sourceClearance": {
+        "surface": "level firm non-slip",
+        "supportRequirement": "stable wall or rack with declared contact height",
+        "profileEquipment": [
+          "wall"
+        ],
+        "oneAthletePerStation": true,
+        "clearExitAreaMeters": 1.5,
+        "trafficControlled": true,
+        "supportHeightNumeric": null,
+        "supportHandSide": null,
+        "boundary": "The source's clearExitAreaMeters field does not specify radius/length geometry. Root must lay out a real clear exit and coaching access; do not convert it silently into a universal square footprint."
+      },
+      "stopRules": [
+        "End quality time for pain, pinching, giving way, neurologic/dizziness/pressure symptoms or unsafe exit.",
+        "End before depth drift, knee/foot/pelvic/trunk change, rear-knee rest, breath holding or unplanned support loading.",
+        "A shorter comfortable hold does not justify adding make-up sets automatically."
+      ],
+      "remainingGates": [
+        "Current canonical owner, exact support/depth/profile and human approval.",
+        "Declare support hand/side/height/contact, stance, depth marker, torso, hold, breathing and exit; verify real supports and both-side fit.",
+        "Reconcile wall-profile equipment with rack if that support is selected.",
+        "Instructional/Movement Intelligence placement and lower dose require explicit contextual rationale; neither source profile is an exact dedicated on-ramp teaching profile."
+      ]
+    },
+    {
+      "mappingKey": "SPLIT-STANCE-HIGH-TEACH",
+      "name": "Supported High Split-Stance Hold — instructional adaptation",
+      "sourceSlug": null,
+      "relatedSourceSlug": "split-squat-isometric-hold",
+      "legacySourceId": null,
+      "relatedLegacySourceId": 212,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_instructional_adaptation_not_exact_midrange_source_variant",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/352_coaching_static_control_family_completion.sql",
+          "lines": "478-500;511-539;746-755;859-860",
+          "kind": "related_midrange_candidate_mechanics_not_exact_adaptation_record"
+        }
+      ],
+      "usedBy": [
+        "OR-03 P1 independent higher-stance branch",
+        "OR-03 S1 independent higher-stance branch"
+      ],
+      "sourceRelationship": "Source212 supports related split-stance contacts, stable hand support, declared stance/depth, breathing and controlled exit. This higher shallow teaching action is newly authored documentation, not the source212 supported-bodyweight-mid-range identity or an approved new library card.",
+      "branchSelection": "Use when comfortable supported split standing is available but controlled descent, safe exit or other mid-range entry gates are unknown or unmet. Athletes with established exact mid-range readiness may use their separate mid-range branch. No universal tall-stance reset is required.",
+      "exactProposedMechanics": {
+        "setup": "Use the individually fitting declared stable wall contact. Root's proposed hand rule is the hand on the front-leg side at that athlete's comfortable waist-height contact, free hand at hip; record actual contact height and fit. These are session choices, not source212-fixed instructions.",
+        "feet": "Whole lead foot and rear forefoot remain on the floor in a comfortable declared split stance, rear heel raised. Preserve the same two-foot support through the hold; this is not a single-leg balance hold.",
+        "entry": "From comfortable supported split standing, use only a self-selected small knee bend at a high shallow position. Establish controlled entry and return at THAT actual shallow depth before accepting the hold. Do not force the source212 mid-range depth.",
+        "hold": "Keep the selected shallow height, front-foot contact, comfortable knee/pelvis/trunk organization and normal breathing with light stable hand contact. Rear knee does not rest. Hold only for the explicitly assigned short teaching time.",
+        "exit": "Use the declared support to return under control to supported standing and change lead side as separately taught and timed.",
+        "deferRule": "If comfortable shallow entry, breathing, support or exit cannot be established, defer this high-stance task and record not observed. Do not force the bend, use prolonged support loading, or silently substitute the mid-range hold.",
+        "exclusions": [
+          "claiming source212 mid-range completion",
+          "claiming dynamic split-squat competence",
+          "single-leg unsupported stance",
+          "rear-knee rest",
+          "rear-foot elevation",
+          "perturbation",
+          "jump",
+          "unplanned heavy bodyweight transfer to the hand support"
+        ]
+      },
+      "prerequisites": [
+        "Comfortable supported split standing with the declared stable hand and foot contacts.",
+        "Controlled entry and safe return at the actual selected shallow depth; mid-range descent/exit is not required for this separate adaptation.",
+        "Normal breathing and understanding of the stop/exit instruction.",
+        "Individually fitting stable support, clear exit and coach observation."
+      ],
+      "proposedInstructionalDoseNotSourceDefault": {
+        "sourceDose": null,
+        "rootChoices": "Short 3-second or 5-second holds per lead side as explicitly assigned in P1/S1; root owns final repetitions/sets, rest, side-change, setup/exit and full clock.",
+        "boundary": "These times are authored teaching choices, not source212 profile defaults and not an approved lower-dose mid-range variant."
+      },
+      "p1CompositeBoundary": {
+        "rootProposedAdditionalAction": "After the split-stance exit, enter the separately declared supported bilateral stance and hold for 2 seconds.",
+        "identityStatus": "The added bilateral exit-and-hold is part of a proposed P1 orientation composite; the complete sequence has no verified single canonical exercise ID.",
+        "validation": "Specify and observe the bilateral transition/stance, support contact and controlled exit, and count its time separately.",
+        "competencyResult": "High split-stance and supported bilateral orientation observations only; no mid-range, dynamic split-squat, walking-stop or jogging-stop pass."
+      },
+      "exposureAccounting": "Zero intentional flight/landing events. Record actual high-stance hold seconds and entry/exit quality separately for each lead side; the P1 bilateral hold is a separate action.",
+      "stopRules": [
+        "Stop for symptoms, giving way, unsafe support or participant request.",
+        "End the hold for loss of assigned shallow position, foot/knee/pelvis/trunk control, rear-knee rest, breath holding or unplanned support loading.",
+        "If controlled entry/exit at the chosen shallow depth is unavailable, defer and record not observed rather than adding attempts to earn a pass."
+      ],
+      "competencyBoundary": "Completion establishes only the performed supported high/shallow stance at its actual hand contact, foot geometry, bend and short hold. It does not establish source212 mid-range descent/exit/hold or dynamic split-squat competence.",
+      "remainingGates": [
+        "Root must fully specify and clock the actual P1/S1 branch, side change, support contact, exit and any bilateral composite action.",
+        "Retain explicit documentation-only adaptation status; no exact source UUID/profile or live approval is assigned.",
+        "Verify actual support and shallow-depth readiness; use an independently qualified mid-range branch only when its own gates fit."
+      ]
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "name": "Quiet Bilateral Standing — orientation teaching task",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_orientation_teaching_task_without_exact_canonical_profile",
+      "sourceReferences": [],
+      "provenance": "Explicit OR-03 documentation task requested by the program author. No exact local canonical exercise/profile or source-specific dose was verified or assigned.",
+      "usedBy": [
+        "P1 zero-split orientation when split entry is unknown",
+        "P2/E1 quiet-standing branch when locomotor or squat work is unavailable but quiet standing is independently safe"
+      ],
+      "independentEligibility": "Comfortable quiet bilateral standing at the actual location must be independently known or observed. Inability to perform another task does not establish standing readiness. If standing safety/comfort is unknown or unavailable, defer this task and record not observed.",
+      "exactProposedMechanics": {
+        "setup": "Use an already comfortable stationary two-foot standing position on a clear stable surface. Explain the hold and stop signal while the athlete remains standing.",
+        "action": "Remain quietly upright with arms relaxed and knees unlocked for two seconds. No step, prescribed lowering, squat, split stance, deliberate lean or locomotor approach is part of the task.",
+        "finish": "Release the hold instruction and remain in comfortable standing while receiving the reset cue; no stepping or lowering is required for reset.",
+        "boundary": "The setup/hold/reset envelope is orientation and observation of already comfortable standing. It is not a requirement to transfer from an unsafe position or prove safe standing by attempting another movement."
+      },
+      "proposedInstructionalDoseNotSourceDefault": {
+        "holds": 1,
+        "holdSeconds": 2,
+        "totalSetupHoldResetEnvelopeSeconds": 10,
+        "envelope": "Ten seconds total includes explanation/setup, the two-second quiet hold and reset instruction. Root owns the exact division of the remaining eight seconds; no hidden extra steps, lowering repetitions or repeated holds.",
+        "sourceDose": null,
+        "status": "Authored OR-03 teaching choice, not a canonical profile default."
+      },
+      "exposureAccounting": "Zero intentional flight/landing events; zero locomotor distance, split-stance entries, braking attempts or lowering repetitions. Record one two-second quiet-standing observation only if performed comfortably.",
+      "competencyBoundary": "No braking, walking/jogging stop, split-stance, mid-range hold, squat, lowering or dynamic split-squat pass is earned. Those unavailable or unobserved actions remain explicitly not observed.",
+      "stopRules": [
+        "Stop for symptoms, discomfort, giving way, loss of balance, unsafe surface or participant request.",
+        "If independently comfortable quiet standing is not available, defer and record not observed; do not introduce support, stepping or lowering as an unnamed substitute."
+      ],
+      "remainingGates": [
+        "Retain documentation-only task status and unset exact canonical/profile IDs.",
+        "Verify actual standing comfort, surface, communication and coach observation.",
+        "Root must preserve the single two-second hold within the ten-second setup/hold/reset envelope and record the limited observation."
+      ]
+    }
+  ],
+  "noTravelAlternatives": [
+    {
+      "mappingKey": "SNAP-STICK",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or02_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SNAP-STICK')]"
+      },
+      "preservedTask": "Grounded rapid tall-to-athletic bilateral descent with two-second stick, no flight or rebound, followed by full reset.",
+      "eligibility": "Only when exact previously established rapid-descent/held-position prerequisites fit; no automatic regression through symptoms.",
+      "lostPurpose": "No walking/jogging approach or momentum braking observed; does not qualify source155.",
+      "sourceLimits": "Retain earlier source-clearance, arm-start and current approval gates."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SQUAT-BW')]"
+      },
+      "preservedTask": "Controlled no-travel bilateral tempo squat with source three-count lowering, brief pause and stand/reset.",
+      "eligibility": "Only comfortable owned squat mechanics; if changing it into a static athletic hold, declare the adaptation.",
+      "lostPurpose": "No locomotor stop, rapid snap-down or split-stance competence; record those not observed."
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "HINGE-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='HINGE-BW')]"
+      },
+      "boundary": "Retain unloaded hips-back good-morning mechanics and declared source hand position; split squat/snap-down do not substitute for the hinge."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SQUAT-BW')]"
+      },
+      "boundary": "Retain three-count lower, brief pause and controlled stand; no mandatory box."
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='INCLINE-PUSH')]"
+      },
+      "boundary": "Retain stable individually fitting support height and exact push-up mechanics."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='SUPPORTED-ROW')]"
+      },
+      "boundary": "Opposite hand AND knee support on bench; both-side load/setup accounting. Hand-only row is different."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='HEEL-TAP')]"
+      },
+      "boundary": "Fixed vertical arms and owned tabletop heel-contact return; explicit count unit; Strength placement remains contextual adaptation of Prepare and Access profile."
+    }
+  ],
+  "sourceConflicts": [
+    {
+      "key": "JOG-WALK",
+      "finding": "Current exact variant155 requires5-10m submaximal jog; local research proposes Walk-to-Stick as new_variant but provides no completed exact profile.",
+      "decision": "Walking lesson is transparently authored and pending mapping, with no source155 exact-dose or competence claim."
+    },
+    {
+      "key": "SPRINT-ALIASES",
+      "finding": "Older source names/instructions include sprint and5-yard acceleration language; current exact contract is submaximal jogging and prohibits maximal sprint/cut/reacceleration.",
+      "decision": "Do not infer higher speed, yard distance or redirect from aliases."
+    },
+    {
+      "key": "SUPPORT-ANNOTATIONS",
+      "finding": "Neither split source fixes support-hand side or numerical height; dynamic variant lists rack while definition/legacy mentions wall; static variant allowswall/rack but profileslistwall.",
+      "decision": "Specify actual hand/side/height/contact and reconcile chosen support with exact profile; don't invent a source-fixed support rule."
+    },
+    {
+      "key": "STATIC-DYNAMIC",
+      "finding": "Mid-range held split-squat is distinct from repeated split squats, tall stance-only rehearsal and single-leg balance.",
+      "decision": "Preserve actual contraction, depth and two-foot support; lower teaching time can be reviewed as override without claiming an approved new identity."
+    }
+  ],
+  "remainingGlobalGates": [
+    "No live approved library, equipment quantity, athlete histories or separate tumbling inventory was re-queried. Existing access audit and gates stand.",
+    "Root must provide complete age/context-specific doses, purpose, method, demonstrations, actual attempts, recovery, side changes, teaching and conditional-alternative clock.",
+    "Verify current canonical approval and exact media/review state before release; seed review/selectable fields and migration capabilities are not operational approval.",
+    "Do not place unfamiliar split-stance instruction in a reminder-only preparation clock or hide braking contacts in zero jump-event counts."
+  ],
+  "verification": {
+    "sourcePathsAndReferences": "validated after writing",
+    "noAppCodeOrSourceEdits": true,
+    "noDatabaseCalls": true
+  }
+}

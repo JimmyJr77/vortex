@@ -5,6 +5,7 @@
 import { generateText, jsonSchema, Output } from 'ai'
 import { openai } from '@ai-sdk/openai'
 import { createProgrammingStaffModelInvoker } from './programmingStaffModel.js'
+import { createProgrammingStaffRegistry } from './programmingStaffRuntime.js'
 
 export function isLlmConfigured() {
   return Boolean(process.env.OPENAI_API_KEY || process.env.AI_GATEWAY_API_KEY)
@@ -20,6 +21,17 @@ export function configuredProgrammingStaffInvoker(role, sourceReferences = []) {
   if (!isLlmConfigured()) return null
   const model = resolveModel()
   return createProgrammingStaffModelInvoker({ model, modelVersion: model.modelId, role, sourceReferences })
+}
+
+/** Server-owned default capabilities; consultants are explicitly registered by the application. */
+export function configuredProgrammingStaffRegistry(consultants = []) {
+  const roles = { 'vortex/director': 'director', 'vortex/athlete-development': 'athlete_development',
+    'vortex/session-builder': 'session_builder', 'vortex/prepare-access': 'prepare_access', 'vortex/programming-critic': 'programming_critic' }
+  const capabilities = Object.entries(roles).flatMap(([id, role]) => {
+    const invoke = configuredProgrammingStaffInvoker(role)
+    return invoke ? [{ id, role, version: '1.0.0', invoke }] : []
+  })
+  return createProgrammingStaffRegistry([...capabilities, ...consultants])
 }
 
 /**

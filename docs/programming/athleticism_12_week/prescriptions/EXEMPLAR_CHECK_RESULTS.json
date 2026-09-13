@@ -1,0 +1,63 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T04:09:45.227634+00:00",
+  "scope": "Two authored athletic exemplars, all3ages×4modes, both strength alternatives in every combination, mixed-cohort single heel-tap sets, conditional main six-effort carryover; all4base preparation profiles including omission and readiness-override pointers. Timing remains conditional on declared facilities, staffing, competence and real cadence.",
+  "not_proven": [
+    "Operational facility/release approval",
+    "Actual athlete readiness or completion",
+    "Separate tumbling prescription",
+    "Substantive independent coaching review",
+    "All60main/20instructional detailed sessions"
+  ],
+  "scenario_count": 132,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age prescription",
+      "rejected": true,
+      "sample_findings": [
+        "OR-01/P1: incomplete ages",
+        "OR-01/P1/9-11: incomplete delivery modes"
+      ]
+    },
+    {
+      "case": "row dose overruns novice wave",
+      "rejected": true,
+      "sample_findings": [
+        "OR-01/12-14/standard_D/default: S4 instruction overrun",
+        "OR-01/12-14/standard_D/default: S4 overlapping novice groups"
+      ]
+    },
+    {
+      "case": "novice wave overlap",
+      "rejected": true,
+      "sample_findings": [
+        "OR-01/9-11/standard_D/default: S1 overlapping novice groups",
+        "OR-01/9-11/standard_D/default: S2 overlapping novice groups"
+      ]
+    },
+    {
+      "case": "unknown mapping reference",
+      "rejected": true,
+      "sample_findings": [
+        "OR-01/E1: unresolved local mapping reference"
+      ]
+    },
+    {
+      "case": "unaccounted preparation transition",
+      "rejected": true
+    }
+  ],
+  "sha256": {
+    "sessions/week_01/day_01.json": "036189d54af2ae05c98b5cc93cbffc400ae0774e07b8312a302b54ade3770308",
+    "instructional_on_ramp/week_01/or_01.json": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30",
+    "sessions/week_01/day_01.md": "854b9cd41a021598d8106d07e4126018e3a39e87f0c634f3eeb8b8f6b8c66595",
+    "instructional_on_ramp/week_01/or_01.md": "ce8ce9b7a8d9aaccc5783060c6aeee3e00d9abf8f760d2c56fd4ebcaf479ec83",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/author_day_01.py": "41b9d01df06e8285440b4ebba947ef06214639a72707b5adf420bfa0e4793ae3",
+    "prescriptions/author_or_01.py": "2f93cb4332d539d83a758e9d1f5881bf7de1862516e1e394bc470683e438076b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b"
+  }
+}

@@ -1,0 +1,2781 @@
+{
+  "schema_version": 1,
+  "status": "planned_instruction_actual_evidence_unknown",
+  "source_sha256": {
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "instructional_on_ramp/week_01/or_03.md": "be50f1e6125dac66e1ce7b35f08fbe06d93861c7e5c7a097f8cb47eec595aa47",
+    "prescriptions/author_or_03.py": "450ae208678fe43c6516da688d9d0c43ff671d15a1413d51ca84684840432401",
+    "prescriptions/check_or_03.py": "863d2b75a0e261035d80c721d7bdb7f0da0268a0e7f40627f77e167c16c295f7",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11"
+  },
+  "entries": [
+    {
+      "key": "OR-03::P1",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "SPLIT-ISO-SUP",
+      "conditional_mapping_refs": [
+        "BILATERAL-STAND-TEACH",
+        "SPLIT-ISO-SUP",
+        "SPLIT-STANCE-HIGH-TEACH"
+      ],
+      "source_json_records": {
+        "SPLIT-STANCE-HIGH-TEACH": {
+          "mapping_key": "SPLIT-STANCE-HIGH-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "SPLIT-ISO-SUP": {
+          "mapping_key": "SPLIT-ISO-SUP",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One both-lead composite rehearses the support, foot contacts and comfortable stance used in S1, then contrasts its split base with the bilateral braking finish. The supported finish supplies position awareness, not unassisted stopping clearance.",
+      "prior_current_next": "Actual OR-01/02 standing, squat and conduct evidence or direct equivalents →one supported split/bilateral orientation →S1 same eligible stance →OR-07/11 retain actual support/depth before any later change.",
+      "advance_hold_regress": "Keep the actual support, contact height, stance and depth. There is no deeper second attempt. A cue or setup that takes longer delays release and removes an uncompleted later opportunity; it never speeds the entry/exit.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range plus supported bilateral finish — explicit orientation composite",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 25,
+            "effort_load": "Bodyweight, easy2/10. Each lead holds3s. Use light wall contact with the hand on the front-leg side; free hand at hip. No pushing to an end range.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One composite cycle:5s entry/setup,3s left-lead hold,5s standing side change,3s right-lead hold,2s return to bilateral base,2s supported soft-knee finish,5s exit to the adjacent queue. These25s include both sides and the bilateral finish; do not repeat the cycle for each side.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "bilateral_finish_hold_s": 2,
+            "split_entries_per_lead": 1,
+            "composite": true,
+            "execution_segments": [
+              {
+                "name": "entry_setup",
+                "seconds": 5
+              },
+              {
+                "name": "left_hold",
+                "seconds": 3
+              },
+              {
+                "name": "standing_reorientation_side_change",
+                "seconds": 5
+              },
+              {
+                "name": "right_hold",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_transition",
+                "seconds": 2
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "queue_exit",
+                "seconds": 5
+              }
+            ]
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#stance_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::P2",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "WALK-STOP",
+      "conditional_mapping_refs": [
+        "BILATERAL-STAND-TEACH",
+        "SQUAT-BW",
+        "WALK-STOP"
+      ],
+      "source_json_records": {
+        "SQUAT-BW": {
+          "mapping_key": "SQUAT-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/11"
+        },
+        "WALK-STOP": {
+          "mapping_key": "WALK-STOP",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/1"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One counted walking attempt rehearses advance awareness of the braking space and the same balanced terminal hold before the main lesson. It can observe the walking/bilateral-stop prerequisite; it establishes no jogging ability by itself.",
+      "prior_current_next": "Actual OR-01 conduct and OR-02 bilateral position or equivalents →one walking-stop observation →E1 walking instruction or separately eligible gentle jog →OR-07/11 retain the actual controlled approach/finish before adding any exit.",
+      "advance_hold_regress": "One opportunity, including any fault. No extra pass attempt. Keep the walking geometry and use the protected runoff if unable to stop safely; record actual overrun and defer greater approach demand.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The10s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 10,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "walking_approach",
+                "seconds": 2
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walking_side_exit",
+                "seconds": 3
+              }
+            ]
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#travel_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::E1",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "DECEL-LINEAR",
+      "conditional_mapping_refs": [
+        "BILATERAL-STAND-TEACH",
+        "DECEL-LINEAR",
+        "SQUAT-BW",
+        "WALK-STOP"
+      ],
+      "source_json_records": {
+        "SQUAT-BW": {
+          "mapping_key": "SQUAT-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/11"
+        },
+        "WALK-STOP": {
+          "mapping_key": "WALK-STOP",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/1"
+        },
+        "DECEL-LINEAR": {
+          "mapping_key": "DECEL-LINEAR",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/0"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "Each single-attempt set practices advance braking and a balanced two-foot finish with individual observation and full recovery. Recovered repeats compare the same route, approach and hold. D has3standard or2compressed opportunities; L walking has2standard or1compressed. No set seeks faster entry, a shorter stopping distance or fatigue.",
+      "prior_current_next": "Actual OR-01/02 or equivalent conduct/position plus P2 walking observation and independent jog evidence →today’s actual route, attempts, contacts and faults →OR-07 controlled stop then announced exit →OR-11 separately qualified pause reduction. Missing visits create no debt.",
+      "advance_hold_regress": "Retain the chosen approach, zones and2s hold. Faults consume the planned opportunity and remain in physical workload; end for symptoms/unsafe control. A later uncompleted set may use a separately eligible simpler route after recovery, without replacement reps. OR-07 can add an announced exit only after a retained stop and a separate exit check; OR-11 may reduce a pause only when both are repeatable. No extra speed, angle or late cue follows this session.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Submaximal Linear Deceleration to Stick — submaximal-linear-multistep-deceleration-to-bilateral-stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, gentle easy jog, about3/10 effort. Use a clearly submaximal approach; source50–65% is contextual, not a measured prescription or reason to test maximum speed. Natural relaxed arm action.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is25s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "jog",
+            "approach_distance_m": 5,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 25,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Walk-to-Stick — explicitly authored prerequisite lesson",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Bodyweight, ordinary deliberate walking, about2/10 effort; gradual short braking steps, no jog or abrupt plant.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One approach/stop attempt per set, including invalid attempts. The15s envelope covers approach, gradual braking,2s bilateral hold and exit from the active lane; it is not a forced movement tempo. Separate outside walking return allowance is15s. P2 exits by its designated side gate only after the completed hold; E1 walks straight through the protected clearance. No athletic cut, reacceleration or replacement attempt.",
+            "approach_type": "walk",
+            "approach_distance_m": 2,
+            "active_clearance_envelope_s": 15,
+            "return_envelope_s": 15,
+            "finish_hold_s": 2,
+            "execution_segments": [
+              {
+                "name": "easy_approach",
+                "seconds": 3
+              },
+              {
+                "name": "gradual_braking",
+                "seconds": 3
+              },
+              {
+                "name": "bilateral_hold",
+                "seconds": 2
+              },
+              {
+                "name": "ordinary_walk_out",
+                "seconds": 7
+              }
+            ]
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#travel_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::S1",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "SPLIT-ISO-SUP",
+      "conditional_mapping_refs": [
+        "SPLIT-ISO-SUP",
+        "SPLIT-STANCE-HIGH-TEACH"
+      ],
+      "source_json_records": {
+        "SPLIT-STANCE-HIGH-TEACH": {
+          "mapping_key": "SPLIT-STANCE-HIGH-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "SPLIT-ISO-SUP": {
+          "mapping_key": "SPLIT-ISO-SUP",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One combined both-lead set observes comfortable positional control, breathing and safe exit under a small lead-leg bias. D holds5s per lead; L3s. The long teaching block supplies demonstration, setup and feedback, not extra strength sets.",
+      "prior_current_next": "Actual bilateral squat/standing and P1 selected split setup →one D5s or L3s hold per lead today →OR-07/11 use that actual support/depth/response. OR-02 hinge proficiency does not prove split-squat depth.",
+      "advance_hold_regress": "Keep support, depth and dose; reducing cue dependence is useful progress. Stop the hold when position/breathing changes rather than grind to the time. Record actual seconds each lead, entry and exit. A later change needs repeatable control on both leads and current recovery; asymmetry never causes extra unilateral make-up work.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "standard_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_D": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight, easy2–3/10; one5s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×5s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 35s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 5,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          },
+          "compressed_L": {
+            "variant": "Split-Squat Isometric Hold — supported-bodyweight-mid-range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight, easy2–3/10; one3s hold per lead with normal breathing, well before shaking/strain. Light wall contact, same declared comfortable depth; no external load.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 15,
+            "notes": "One combined both-side set, not two sets. Two counted holds×3s +10s stand/change lead/support hand +15s total initial setup/controlled entry and final exit = 31s. The hold clock begins only in the assigned position; entry and exit are counted actions, not extra dynamic split-squat repetitions.",
+            "hold_s_per_lead": 3,
+            "lead_sides": 2,
+            "split_entries_per_lead": 1,
+            "composite": false
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#stance_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::S2",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "HINGE-BW",
+      "conditional_mapping_refs": [],
+      "source_json_records": {
+        "HINGE-BW": {
+          "mapping_key": "HINGE-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/8"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One small set preserves the hip/knee distinction without competing with the new stance and braking lesson. It retains an actual prior one-set dose; an actual two-set hip exposure is deliberately reduced to one supporting set today.",
+      "prior_current_next": "Actual OR-02 hip D one-set hold or L dose →retain one compatible set here; actual two-set D history →explicit reduction to one support set →next relevant hip exposure starts from actual response, not an assumed two-set baseline.",
+      "advance_hold_regress": "Hold range, arm position and load. Reduce range or stop for lost control; no greater resistance or repetitions are assigned because the session number increased.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::S3",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "INCLINE-PUSH",
+      "conditional_mapping_refs": [],
+      "source_json_records": {
+        "INCLINE-PUSH": {
+          "mapping_key": "INCLINE-PUSH",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One set retains low-fatigue pressing and a steady trunk while preserving shoulder/wrist capacity for the separate tumbling decision.",
+      "prior_current_next": "Actual OR-01/02 or equivalent push at the recorded height →one same small supporting set today →retain for the next relevant upper-body lesson; separate floor-support or tumbling skill gates remain independent.",
+      "advance_hold_regress": "Keep height/range/dose. A change for control must be recorded and fit setup time. Stop for symptoms or unsafe support.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::S4",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "SUPPORTED-ROW",
+      "conditional_mapping_refs": [
+        "RING-ROW-ALT"
+      ],
+      "source_json_records": {
+        "RING-ROW-ALT": {
+          "mapping_key": "RING-ROW-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "SUPPORTED-ROW": {
+          "mapping_key": "SUPPORTED-ROW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/4"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One both-side set retains pulling and deliberate handling without an added unsupported trunk or hinge demand.",
+      "prior_current_next": "Actual OR-01/02 pull/handling or equivalent →one retained both-side set →next upper-body exposure uses actual support/load/response; shoulder and grip work is included in the separate handoff.",
+      "advance_hold_regress": "Retain load/support/cadence. Stop for altered trunk or handling; no increase after a successful stop or split stance.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-03::S5",
+      "session": "OR-03",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-03",
+        "prior": [
+          "OR-01",
+          "OR-02"
+        ],
+        "next": [
+          "OR-07",
+          "OR-11"
+        ]
+      },
+      "mapping_ref": "HEEL-TAP",
+      "conditional_mapping_refs": [
+        "BREATH-9090-ALT"
+      ],
+      "source_json_records": {
+        "BREATH-9090-ALT": {
+          "mapping_key": "BREATH-9090-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/12"
+        },
+        "HEEL-TAP": {
+          "mapping_key": "HEEL-TAP",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/6"
+        }
+      },
+      "live_canonical_definition_id": null,
+      "set_purpose": "One small alternating set retains breathing and trunk control after supported stance work without adding a fatigue finisher.",
+      "prior_current_next": "Actual OR-01/02 brace or direct equivalent →one small selected brace set →next relevant exposure and separate tumbling start from actual supported or moving-limb result, not a generic core pass.",
+      "advance_hold_regress": "Retain target and count; shorten owned range or stop for trunk/breath changes. No extra duration is added while waiting for handoff.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_03.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    }
+  ]
+}

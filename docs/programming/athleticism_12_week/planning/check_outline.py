@@ -143,7 +143,8 @@ def main():
         nums=[d["number"] for d in ds if d["family"]==family]
         gaps[family]=dict(offering_slot_gaps=sorted(set(b-a for a,b in zip(nums,nums[1:]))), count=len(nums))
     report=dict(stage=2, result="PASS_STRUCTURAL" if not errors else "REVISE", errors=errors,
-        counts=dict(main_outline_entries=len(ds), on_ramp_outline_entries=len(instruction["sessions"]), planned_anchor_rows=len(anchors["entries"]), planned_workload_rows=len(workload["entries"]), main_detailed_sessions=0, on_ramp_detailed_sessions=0),
+        counts=dict(main_outline_entries=len(ds), on_ramp_outline_entries=len(instruction["sessions"]), planned_anchor_rows=len(anchors["entries"]), planned_workload_rows=len(workload["entries"])),
+        detailed_prescription_validation="Not counted or validated by this Stage 2 checker; see progress.json and prescriptions/EXEMPLAR_CHECK_RESULTS.json.",
         fixed_weekday_family_counts=counts, all_31_fixed_weekday_subsets=patterns, focus_chain_gaps=gaps, failure_probes=probes,
         evidence_sha256={f:hashlib.sha256((ROOT/f).read_bytes()).hexdigest() for f in FILES},
         limits=["Presence/links/counts/template arithmetic and labeled planning-route coverage only; substantive programming requires independent review.","No final exercise IDs, age prescriptions, sets, individual recovery doses, equipment counts or actual 15-athlete timing are certified.","No athlete attendance/results, current facility approval or completed separate tumbling prescription is inferred.","A focus opportunity does not prove sufficient training frequency or realized adaptation for every fixed-day athlete."])

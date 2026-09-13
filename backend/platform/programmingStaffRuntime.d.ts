@@ -32,6 +32,8 @@ export interface ProgrammingStaffTrace {
   readonly outputTokensReserved: number
 }
 export interface ProgrammingStaffRun {
+  /** Enforces cancellation and the shared deadline at deterministic stage boundaries. */
+  assertActive(): void
   call<T>(args: { readonly capabilityId: string; readonly role: string; readonly input: unknown; readonly outputSchema: object;
     readonly parseOutput: (raw: unknown) => T }): Promise<Readonly<T>>
   telemetry(): ProgrammingStaffTrace

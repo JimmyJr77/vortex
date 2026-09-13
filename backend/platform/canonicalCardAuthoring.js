@@ -4,6 +4,7 @@ import {
   score100,
 } from './canonicalWorkoutContract.js'
 import { findExerciseSkillLevelPaths } from './exerciseCardSemantics.js'
+import { parseCanonicalProgrammingExecutionRules } from './canonicalProgrammingRulesContract.js'
 import {
   evaluateTaxonomyV2Completeness,
   normalizeTaxonomyV2Decision,
@@ -562,6 +563,9 @@ export function validateCanonicalCardDraft(raw) {
     errors.push(`Unknown laterality value: ${card.anatomy.laterality}.`)
   }
   card.variants.forEach((variant, variantIndex) => {
+    try { parseCanonicalProgrammingExecutionRules(variant.programming, { requireComplete: false }) } catch (error) {
+      errors.push(`Variant ${variantIndex + 1} execution rules: ${error.message}`)
+    }
     if (!variant.variantKey) errors.push(`Variant ${variantIndex + 1} needs a key.`)
     if (!variant.displayName) errors.push(`Variant ${variantIndex + 1} needs a display name.`)
     if (variant.loadProfile.landingContactsPerRep != null
@@ -686,6 +690,9 @@ export function evaluateCanonicalCardReadiness(raw, { mediaReview = null } = {})
   }
   card.variants.forEach((variant, variantIndex) => {
     const base = `variants.${variantIndex}`
+    try { parseCanonicalProgrammingExecutionRules(variant.programming) } catch (error) {
+      issues.push({ code: 'programming_execution_rules', path: `${base}.programming.executionRules`, message: error.message })
+    }
     const variantTaxonomy = evaluateTaxonomyV2Completeness(variant.taxonomyV2, 'variant')
     for (const issue of variantTaxonomy.issues) {
       issues.push({

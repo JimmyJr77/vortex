@@ -1,7 +1,8 @@
 import type { SessionComponentKey, SessionComponentPlan } from './sessionComponentContract.js'
-import type { DeliveryPhaseKey, LibraryReadPool, ProgrammingResourceSearchResult } from './workoutProgrammingLibrarians.js'
+import type { DeliveryPhaseKey, LibraryReadPool, ProgrammingResourceSearchResult, ProgrammingResourceSearch } from './workoutProgrammingLibrarians.js'
 import type { NormalizedCoachWorkoutRequest } from './workoutProgrammingRequest.js'
-import type { ProgrammingStaffRegistry, ProgrammingStaffRunOptions, ProgrammingStaffTrace, ProgrammingSourceReference } from './programmingStaffRuntime.js'
+import type { ProgrammingAthleteEvidence } from './workoutAthleteEvidence.js'
+import type { ProgrammingStaffRegistry, ProgrammingStaffRunOptions, ProgrammingStaffRun, ProgrammingStaffTrace, ProgrammingSourceReference } from './programmingStaffRuntime.js'
 
 export const PROGRAMMING_DIRECTOR_VERSION: '1.0.0'
 export const COMPONENT_DISCOVERY_PHASES: Readonly<Record<SessionComponentKey, readonly DeliveryPhaseKey[]>>
@@ -12,6 +13,8 @@ export interface ProgrammingDirectorProposal {
     readonly preferredExerciseProfileIds: readonly string[]; readonly preferredProgrammingMethodIds: readonly string[] }[]
   readonly watchPoints: readonly string[]
 }
+export function validateProgrammingDirectorProposal(request: NormalizedCoachWorkoutRequest, resources: readonly ProgrammingResourceSearchResult[], raw: unknown): ProgrammingDirectorProposal
+export function programmingResourceRequests(request: NormalizedCoachWorkoutRequest, limit?: number): readonly ProgrammingResourceSearch[]
 export interface AthleteDevelopmentAdvice {
   readonly observations: readonly { readonly cohortKey: string; readonly summary: string; readonly unknowns: readonly string[]; readonly recommendations: readonly string[] }[]
   readonly watchPoints: readonly string[]
@@ -31,6 +34,7 @@ export interface WorkoutProgrammingSessionIntent {
   readonly resources: readonly ProgrammingResourceSearchResult[]
   readonly proposal: ProgrammingDirectorProposal
   readonly athleteAdvice: AthleteDevelopmentAdvice | null
+  readonly athleteEvidence: ProgrammingAthleteEvidence
   readonly consultantAdvice: readonly { readonly capabilityId: string; readonly sourceReferences: readonly ProgrammingSourceReference[]; readonly advice: MethodologyConsultantAdvice }[]
   readonly decisionSource: 'deterministic_draft' | 'vortex_director'
   readonly status: 'NEEDS_COACH_REVIEW' | 'INTENT_READY'
@@ -50,4 +54,5 @@ export function directWorkoutProgramming(args: {
   readonly directorCapabilityId?: string
   readonly athleteCapabilityId?: string | null
   readonly runOptions?: ProgrammingStaffRunOptions
+  readonly staffRun?: ProgrammingStaffRun | null
 }): Promise<WorkoutProgrammingSessionIntent>

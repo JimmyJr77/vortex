@@ -1,0 +1,284 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T04:00:23.686105+00:00",
+  "session": "OR-05",
+  "scenario_count": 1152,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "incomplete age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages"
+      ]
+    },
+    {
+      "case": "missing purpose",
+      "rejected": true,
+      "sample_findings": [
+        "E1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "simultaneous actions/releases",
+      "rejected": true,
+      "sample_findings": [
+        "serialized athlete slots and one-minute triads"
+      ]
+    },
+    {
+      "case": "release scheduled during retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "serialized athlete slots and one-minute triads"
+      ]
+    },
+    {
+      "case": "early retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "complete ordered action/shutdown/retrieval/rack clock"
+      ]
+    },
+    {
+      "case": "live lane during retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "global shutdown and one release at a time"
+      ]
+    },
+    {
+      "case": "delayed rather than immediate fault shutdown",
+      "rejected": true,
+      "sample_findings": [
+        "immediate conduct control immediate_fault_shutdown"
+      ]
+    },
+    {
+      "case": "waiting athletes keep balls ready",
+      "rejected": true,
+      "sample_findings": [
+        "immediate conduct control waiting_balls_parked"
+      ]
+    },
+    {
+      "case": "missing actual handling gate",
+      "rejected": true,
+      "sample_findings": [
+        "throw: independent evidence gates"
+      ]
+    },
+    {
+      "case": "missing actual floor access and carry gate",
+      "rejected": true,
+      "sample_findings": [
+        "throw: independent evidence gates"
+      ]
+    },
+    {
+      "case": "missing arm-path gate",
+      "rejected": true,
+      "sample_findings": [
+        "throw: independent evidence gates"
+      ]
+    },
+    {
+      "case": "no-ball P2 grants handling",
+      "rejected": true,
+      "sample_findings": [
+        "required policy P2_no_ball_does_not_grant_handling"
+      ]
+    },
+    {
+      "case": "standing P1 grants arm path",
+      "rejected": true,
+      "sample_findings": [
+        "required policy P1_standing_does_not_grant_arm_path"
+      ]
+    },
+    {
+      "case": "false automatic main entry",
+      "rejected": true,
+      "sample_findings": [
+        "throw: no automatic advanced or main-entry credit"
+      ]
+    },
+    {
+      "case": "false go/no-go credit",
+      "rejected": true,
+      "sample_findings": [
+        "throw: no automatic advanced or main-entry credit"
+      ]
+    },
+    {
+      "case": "false cut credit",
+      "rejected": true,
+      "sample_findings": [
+        "throw: no automatic advanced or main-entry credit"
+      ]
+    },
+    {
+      "case": "added throw in one opportunity",
+      "rejected": true,
+      "sample_findings": [
+        "E1/throw/12-14/compressed_D: throw/hold/reach units are distinct"
+      ]
+    },
+    {
+      "case": "phantom preparation throw",
+      "rejected": true,
+      "sample_findings": [
+        "P2/hold/12-14/compressed_D: throw/hold/reach units are distinct",
+        "P2/hold/12-14/compressed_D: preparation has zero releases and one action"
+      ]
+    },
+    {
+      "case": "compressed D extra round",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/reach/hold/throw/default_supports: correct D/L booking opportunity count",
+        "12-14/compressed_D/reach/hold/throw/suspension_pull: correct D/L booking opportunity count"
+      ]
+    },
+    {
+      "case": "missing held-time accounting",
+      "rejected": true,
+      "sample_findings": [
+        "E1/hold/12-14/compressed_D: held seconds separate from pickup/setup"
+      ]
+    },
+    {
+      "case": "pickup time omitted",
+      "rejected": true,
+      "sample_findings": [
+        "complete outward/pickup/carry retrieval subclock",
+        "retrieval totals fifteen seconds"
+      ]
+    },
+    {
+      "case": "floor-handling carry omitted from workload",
+      "rejected": true,
+      "sample_findings": [
+        "P2/hold/12-14/compressed_D: taught carry path or retrieval carry cap remains distinct"
+      ]
+    },
+    {
+      "case": "rack reset omitted",
+      "rejected": true,
+      "sample_findings": [
+        "rack placement and queue clearance subclock",
+        "ten-second rack/reset window"
+      ]
+    },
+    {
+      "case": "second pull set added",
+      "rejected": true,
+      "sample_findings": [
+        "S2/12-14/compressed_D: actual prior authored strength mechanics/dose reused",
+        "12-14/compressed_D/reach/hold/throw/default_supports/S2: one set and three groups"
+      ]
+    },
+    {
+      "case": "one row side omitted",
+      "rejected": true,
+      "sample_findings": [
+        "S2/12-14/compressed_D: both-side repetition accounting"
+      ]
+    },
+    {
+      "case": "source changed to wall variant",
+      "rejected": true,
+      "sample_findings": [
+        "throw: exact main teaching source mapping"
+      ]
+    },
+    {
+      "case": "mandatory age-independent ball reference",
+      "rejected": true,
+      "sample_findings": [
+        "ball selection and containment are conditional"
+      ]
+    },
+    {
+      "case": "ball inspection missing",
+      "rejected": true,
+      "sample_findings": [
+        "ball selection and containment are conditional"
+      ]
+    },
+    {
+      "case": "missing actual ball",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "unknown arm path",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "unknown actual handling despite named hold route",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "unknown floor access despite named hold route",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "unverified retrieval containment",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "all actual readiness unknown",
+      "rejected": true,
+      "sample_findings": [
+        "Synthetic unknown/failed evidence cannot authorize release"
+      ]
+    },
+    {
+      "case": "fabricated source canonical ID",
+      "rejected": true,
+      "sample_findings": [
+        "CHEST-PASS-TEACH: canonical IDs and live approval remain unverified"
+      ]
+    }
+  ],
+  "synthetic_positive_evidence_check": true,
+  "sha256": {
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "instructional_on_ramp/week_01/or_05.md": "92cd8d534a6cd18dea73d5913ff8929f9c5cf17c89193540ce542d75ed622c60",
+    "prescriptions/author_or_05.py": "2c2ad247a13c963184336fbd2102161c30ec4f2229f9466b62c9d09e0ba68bec",
+    "prescriptions/check_or_05.py": "650808e8f9156b36d9c22033b9afaabdbaab15e34c8eb009d7aa1f5ca0087394",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02"
+  },
+  "scope": "All three ages/four modes; P1/P2/main combinations with explicitly conditional evidence; no preparation releases; serialized actions/global retrieval; full subclocks, paired strength counts and recovery; prior strength reuse and local source boundaries.",
+  "limits": [
+    "Numeric models and synthetic probes are not actual athlete results",
+    "All route combinations remain conditional on their own evidence; names or scheduled observations grant no permission",
+    "Ball properties, containment, walking pace/fit and coach coverage remain unverified",
+    "Source pointers identify local records, not live canonical approval",
+    "No separate tumbling prescription is supplied"
+  ]
+}

@@ -48,10 +48,15 @@ export function createProgrammingStaffRun(registry, options = {}) {
   let outputTokensReserved = 0
   let active = false
   const budgetError = (message) => new ProgrammingStaffError('budget_exhausted', message)
+  const assertActive = () => {
+    if (externalSignal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming run was canceled')
+    if (Date.now() - startedAt >= limits.timeoutMs) throw new ProgrammingStaffError('deadline_exceeded', 'Programming run deadline exceeded')
+  }
   return Object.freeze({
+    assertActive,
     async call({ capabilityId, role, input, outputSchema, parseOutput }) {
       if (active) throw new ProgrammingStaffError('concurrent_staff_call', 'Use ordered capability calls within one session revision')
-      if (externalSignal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming run was canceled')
+      assertActive()
       const remainingMs = limits.timeoutMs - (Date.now() - startedAt)
       if (remainingMs <= 0) throw new ProgrammingStaffError('deadline_exceeded', 'Programming run deadline exceeded')
       if (calls.length >= limits.maxCalls) throw budgetError('Programming capability-call budget exhausted')
@@ -102,6 +107,7 @@ export function createProgrammingStaffRun(registry, options = {}) {
         try { parsed = parseOutput(response.output) } catch (error) {
           throw new ProgrammingStaffError('invalid_output', error.message)
         }
+        assertActive()
         entry.status = 'validated'
         return immutableProgrammingValue(structuredClone(parsed))
       } catch (error) {

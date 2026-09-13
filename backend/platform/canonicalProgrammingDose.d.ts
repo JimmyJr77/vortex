@@ -1,6 +1,7 @@
 import type { NormalizedCoachWorkoutRequest } from './workoutProgrammingRequest.js'
 import type { DeliveryPhaseKey } from './workoutProgrammingLibrarians.js'
 import type { SessionComponentKey } from './sessionComponentContract.js'
+import type { ProgrammingMethodClock } from './programmingMethodClock.js'
 
 export class ProgrammingPrescriptionError extends Error {
   readonly code: string
@@ -32,6 +33,11 @@ export interface CanonicalActivityOverhead {
 export interface CanonicalSchedulingCard {
   readonly id: string
   readonly variantId: string
+  readonly cardVersion?: number
+  readonly status?: string
+  readonly approvedBy?: string | null
+  readonly programming?: Readonly<Record<string, unknown>>
+  readonly programmingRulesReview?: { readonly reviewId: string; readonly reviewedCardVersion: number; readonly reviewerUserId: string; readonly sourceHash: string | null } | null
   readonly familyId: string
   readonly deliveryProfiles: readonly CanonicalSchedulingProfile[]
   readonly environment: { readonly stationCapacity?: number; readonly floorAreaSquareFeet?: number; readonly laneLengthFeet?: number }
@@ -46,16 +52,23 @@ export interface CanonicalSchedulingCard {
 }
 export interface CanonicalSchedulingMethod {
   readonly id: string
+  readonly programming_type?: string
   readonly best_session_phase: DeliveryPhaseKey
   readonly compatible_session_phases?: readonly DeliveryPhaseKey[]
   readonly incompatible_phases?: readonly DeliveryPhaseKey[]
   readonly phase_profiles?: readonly { readonly phaseKey: DeliveryPhaseKey; readonly role: string }[]
   readonly fatigue_profile?: { readonly fatigue_level?: string; readonly technical_risk_under_fatigue?: string }
-  readonly workout_builder_rules?: { readonly requires_lanes?: boolean; readonly requires_clear_runout?: boolean }
-  readonly prescriptions: readonly { readonly id: string; readonly age_min?: number | null; readonly age_max?: number | null;
-    readonly training_experience?: string | null; readonly default_rounds?: number | null; readonly default_work_seconds?: number | null;
-    readonly default_rest_seconds?: number | null; readonly default_rest_between_rounds_seconds?: number | null }[]
+  readonly workout_builder_rules?: Readonly<Record<string, unknown>> & { readonly requires_lanes?: boolean; readonly requires_clear_runout?: boolean }
+  readonly work_rest_structure?: Readonly<Record<string, unknown>>
+  readonly prescriptions: readonly CanonicalMethodPrescription[]
   readonly stop_rules?: readonly { readonly stopRule: string }[]
+}
+export interface CanonicalMethodPrescription {
+  readonly id: string; readonly profile_name?: string; readonly age_min?: number | null; readonly age_max?: number | null
+  readonly training_experience?: string | null; readonly default_rounds?: number | null; readonly default_work_seconds?: number | null
+  readonly default_rest_seconds?: number | null; readonly default_rest_between_rounds_seconds?: number | null
+  readonly default_total_minutes?: number | null; readonly default_cap_minutes?: number | string | null
+  readonly default_rpe_min?: number | null; readonly default_rpe_max?: number | null
 }
 export interface ProgrammingDoseProposal { readonly sets?: number; readonly reps?: number | null; readonly workSeconds?: number; readonly restSeconds?: number }
 export interface DoseRange { readonly target: number; readonly min: number; readonly max: number }
@@ -68,6 +81,7 @@ export interface CanonicalProgrammingDose {
   readonly schemaVersion: '1.0.0'
   readonly programmingMethodId: string
   readonly methodPrescriptionId: string
+  readonly clock: ProgrammingMethodClock
   readonly sets: number
   readonly reps: number | null
   readonly workSeconds: number

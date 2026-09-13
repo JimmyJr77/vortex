@@ -1,6 +1,6 @@
 # Vortex session prescription standard
 
-**Stage 3 · Version 1.0 · Reviewable prescriptions; current library release and facility facts remain unverified.**
+**Stage 3 · Version 1.1 · Written athletic exemplar design reviewed; current library release and facility facts remain unverified.**
 
 The complete outline passed its planning gate. A detailed session now needs an independently readable coach export, structured doses and a session-specific timing/workload check. A candidate exercise is not presented as a currently approved facility record. The [mapping register](EXEMPLAR_LIBRARY_MAPPING.md) preserves exact local mechanics, source defaults, proposed contextual changes and remaining gates.
 
@@ -49,3 +49,5 @@ The next exposure uses actual response. Advance only the one justified variable 
 `prescription_complete` means every planned task, dose, age route, set purpose and timing field is written and checked. `programming_review_pass` requires substantive independent review. `operational_release_verified` additionally requires actual facility eligibility, inventory/space, staffing and separate-program coordination. These are different claims. The current local database lacks the canonical/release/method/skill tables needed to prove current approved availability; production remains unknown.
 
 No new card, method or media is published by writing these documents. Proposed session overrides are labeled. The full goal remains unfinished until all 60 main and 20 instructional plans and the required audits, mappings, separate tumbling status and coach assembly are complete.
+
+The reviewed exemplars implement this distinction using `athletic_prescription_complete`, `programming_review_pass`, `operational_release_verified` and `separate_tumbling_prescription_complete`. The first two are true for their written athletic scope; the latter two remain false. See [EXEMPLAR_REVIEW.md](EXEMPLAR_REVIEW.md). Preparation snapshots include exact count units and resolved readiness pointers. Authored timing models support recalculation; the [ledger index](../LEDGER_INDEX.md) distinguishes current detailed dose supplements from the preserved outline-stage planning records.

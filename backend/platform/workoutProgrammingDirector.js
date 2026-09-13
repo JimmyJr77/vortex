@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { randomUUID } from 'node:crypto'
 import { normalizeSessionComponentPlan } from './sessionComponentContract.js'
-import { searchWorkoutProgrammingResourcesBatch } from './workoutProgrammingLibrarians.js'
+import { loadWorkoutProgrammingMaterials } from './workoutProgrammingLibrarians.js'
 import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingStaffRuntime.js'
 import { normalizeCoachWorkoutRequest, allocateProgrammingComponentBudgets, canonicalIntentForProgrammingComponent,
   immutableProgrammingValue, programmingValueHash, parseProgrammingContract } from './workoutProgrammingRequest.js'
@@ -131,12 +131,12 @@ function startingProposal(request, resources) {
 
 /** Only session intent. This cannot validate, save, approve or publish a workout. */
 export async function directWorkoutProgramming({ pool, context, rawRequest, registry, directorCapabilityId = 'vortex/director',
-  athleteCapabilityId = 'vortex/athlete-development', runOptions = {} }) {
+  athleteCapabilityId = 'vortex/athlete-development', runOptions = {}, staffRun = null }) {
   const request = normalizeCoachWorkoutRequest(rawRequest)
   if (request.mode === 'modify_existing') throw new ProgrammingStaffError('source_workout_adapter_required',
     'Modify Existing requires the component-aware persisted-workout adapter; the source workout has not been changed')
-  const run = createProgrammingStaffRun(registry, runOptions)
-  const checkCanceled = () => { if (runOptions.signal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming run was canceled') }
+  const run = staffRun ?? createProgrammingStaffRun(registry, runOptions)
+  const checkCanceled = () => { run.assertActive(); if (runOptions.signal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming run was canceled') }
   checkCanceled()
   const budgets = allocateProgrammingComponentBudgets(request)
   const active = request.components.filter((component) => budgets[component.key] > 0)
@@ -144,9 +144,9 @@ export async function directWorkoutProgramming({ pool, context, rawRequest, regi
     equipment: { available: request.equipment.available, quantities: request.equipment.quantities, excluded: request.equipment.excluded },
     components: active.map((component) => ({ key: component.key, budgetSeconds: budgets[component.key], equipment: component.equipment })),
   })
-  const resources = await searchWorkoutProgrammingResourcesBatch(pool, context, programmingResourceRequests(request))
+  const { resources, athleteEvidence } = await loadWorkoutProgrammingMaterials(pool, context, programmingResourceRequests(request), { athleteRequest: request })
   checkCanceled()
-  const issues = []
+  const issues = athleteEvidence.findings.map((entry) => ({ ...entry, route: 'athlete_development' }))
   for (const resource of resources) {
     if (resource.exercises.status !== 'MATCHES' || resource.programming.status !== 'MATCHES') {
       issues.push({ code: 'library_coverage_requires_review', componentKey: resource.componentKey, detail: resource.nextAction })
@@ -159,7 +159,7 @@ export async function directWorkoutProgramming({ pool, context, rawRequest, regi
   let athleteAdvice = null
   const consultantAdvice = []
   let decisionSource = 'deterministic_draft'
-  const input = { request, componentPlan, resources, preparationSelection: 'deferred_until_downstream_prescription' }
+  const input = { request, componentPlan, resources, athleteEvidence, preparationSelection: 'deferred_until_downstream_prescription' }
   const optionalCall = async (capabilityId, role, contract, payload) => {
     try { return await run.call({ capabilityId, role, input: payload, ...contract }) } catch (error) {
       if (error.code === 'canceled') throw error
@@ -190,7 +190,7 @@ export async function directWorkoutProgramming({ pool, context, rawRequest, regi
     }
   }
   return immutableProgrammingValue({ schemaVersion: PROGRAMMING_DIRECTOR_VERSION, intentId: randomUUID(),
-    request, requestHash: programmingValueHash(request), componentPlan, resources, proposal, athleteAdvice, consultantAdvice,
+    request, requestHash: programmingValueHash(request), componentPlan, resources, proposal, athleteAdvice, consultantAdvice, athleteEvidence,
     decisionSource, status: issues.length ? 'NEEDS_COACH_REVIEW' : 'INTENT_READY', issues,
     preparationStatus: 'DEFERRED_UNTIL_DOWNSTREAM_PRESCRIPTION', omittedComponentKeys: request.components.filter((component) => budgets[component.key] === 0).map((component) => component.key),
     validatedWorkout: false, creatorAuthorized: false, trace: run.telemetry(),

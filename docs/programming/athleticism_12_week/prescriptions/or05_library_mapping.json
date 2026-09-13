@@ -1,0 +1,535 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "Stage 4 OR-05 local chest-pass, release-cue and retrieval mapping; source identity evidence and explicit teaching adaptations, not final workout prescriptions",
+  "planningStatus": "reviewable_local_candidates_and_authored_teaching_tasks_pending_release",
+  "checkedOn": "2026-09-12",
+  "recordIdsAre": "Mapping keys are documentation labels, never database IDs. No exact current canonical/profile IDs are assigned to new teaching tasks.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "productionQueried": false,
+    "secretsRead": false,
+    "approvalCreated": false,
+    "priorAudit": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.accessAudit"
+    },
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "searchCoverage": {
+    "roots": [
+      "scripts/data/canonical-research/contracts",
+      "scripts/data/canonical-research/generated",
+      "scripts/data/canonical-research/batches",
+      "backend/migrations",
+      "scripts/data/output-jump-power-cards-28-38.mjs",
+      "scripts/data/foundation-access-cards-1-10.mjs",
+      "scripts/data/mobility-all-cards.json",
+      "scripts/data/resistance-band-body-resistance-all-cards.json"
+    ],
+    "terms": [
+      "medicine-ball-chest-pass",
+      "med-ball-chest-pass",
+      "stationary chest pass",
+      "forward chest projection",
+      "shallow-countermovement-wall-pass",
+      "squat-countermovement-wall-pass",
+      "open release lane",
+      "unloaded bilateral reach/retract",
+      "standing reach",
+      "ball-at-chest hold"
+    ],
+    "finding": "The broad chest-pass definition and two exact countermovement WALL variants are inspectable. No completed exact stationary/no-preload/open-contained-target variant/profile or simple unloaded standing reach/retract/ball-start-hold profile was verified in the bounded local search. Broad descriptions and research proposals do not establish those records or live approval."
+  },
+  "records": [
+    {
+      "mappingKey": "CHEST-PASS-SOURCE",
+      "name": "Medicine Ball Chest Pass \u2014 broad identity and legacy reference",
+      "sourceSlug": "medicine-ball-chest-pass",
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "broad_review_definition_with_archived_underspecified_generic_baselines",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-jump-power-cards-28-38.mjs",
+          "lines": "1051-1063;1106-1199",
+          "kind": "legacy_authored_card"
+        },
+        {
+          "path": "scripts/data/canonical-research/generated/medicine-ball-chest-pass.v1.json",
+          "lines": "3-110;292-412",
+          "kind": "later_generated_research_snapshot"
+        },
+        {
+          "path": "backend/migrations/343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql",
+          "lines": "219-245;289-350;626-647",
+          "kind": "generic_quarantine_and_identity_consolidation"
+        },
+        {
+          "path": "scripts/data/canonical-research/batches/medicine-ball-throws-foundations.v1.json",
+          "lines": "139-157;229-278",
+          "kind": "earlier_research_proposal"
+        }
+      ],
+      "broadMechanics": "Bilateral two-hand forward projection from chest height, organized torso and full comfortable arm extension; exact stance, preload, ball, target, contacts and return policy must be selected separately.",
+      "legacyMechanics": "Athletic-width standing, ribs over pelvis, ball at chest, light brace/exhale, fast horizontal pass to wall/partner/open target, then safe catch or retrieval and full reset. The legacy card mixes return possibilities and does not fix exact ball mass/size/distance or permitted preload.",
+      "legacyPrerequisiteNames": [
+        "front-support-shape"
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "legacy": {
+          "sets": 3,
+          "repetitions": 4,
+          "restSeconds": 45,
+          "estimatedSecondsPerSet": 60,
+          "rpeRange": [
+            5,
+            8
+          ],
+          "sessionThrowsRange": [
+            6,
+            20
+          ]
+        },
+        "earlierResearchProposal": {
+          "sets": "3-5",
+          "repetitions": "3-6 bilateral throws",
+          "restSeconds": "60-180",
+          "intent": "maximal safe ball speed with full reset"
+        },
+        "boundary": "Neither legacy nor broad research dose is a completed exact OR-05 stationary low-demand profile. Old age labels/light-ball scaling do not establish an age-based mass."
+      },
+      "sourceEquipment": {
+        "ball": "intact declared type, mass, diameter and rebound behavior; light enough to preserve intended release and control",
+        "surface": "level high traction",
+        "target": "broad narrative includes wall, trained partner or open release lane",
+        "return": "throw-only or trained catch declared before the set",
+        "clearance": "release, return and retrieval paths clear; one active thrower per marked lane",
+        "numericMassDiameterDistanceEstablished": false
+      },
+      "quarantineFacts": {
+        "genericBaselineRenamed": "legacy-generic-chest-pass-source",
+        "archivedBaselineKeys": [
+          "baseline",
+          "baseline-source-354"
+        ],
+        "source354Meaning": "Archived historical baseline provenance only; not assumed to be the main chest-pass source ID.",
+        "selectable": false,
+        "reason": "Generic source omits exact stance, preload, ball mass, target, contacts, return, dose and stop contract."
+      },
+      "sourceConflict": "Migration343's broad definition mentions stationary/kneeling/other reviewed variants, but that text does not materialize an exact stationary profile. Environment/population copied from completed countermovement source still specifies wall/partner and squat-or-shallow preload. Preserve the mismatch when authoring another task.",
+      "remainingGates": [
+        "Resolve exact current source owner, variant/profile and approval; no legacy ID was inferred for the main broad chest-pass record.",
+        "Do not select archived generic baselines or cite broad stationary wording as proof a completed stationary/open-target profile exists.",
+        "No current media approval was verified; generated candidates are metadata-only."
+      ]
+    },
+    {
+      "mappingKey": "CHEST-PASS-WALL-BOUNDARY",
+      "name": "Completed countermovement wall chest-pass candidates \u2014 related boundary, not selected OR-05 stationary task",
+      "sourceSlug": "medicine-ball-chest-pass",
+      "originalSourceSlug": "medicine-ball-countermovement-throw",
+      "legacySourceId": null,
+      "localCandidateVariantKeys": [
+        "shallow-countermovement-wall-pass",
+        "squat-countermovement-wall-pass"
+      ],
+      "localCandidateProfileKey": "output-quality",
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_review_variants_consolidated_into_broad_chest_pass",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/342_coaching_researched_identity_boundary_card_completion.sql",
+          "lines": "721-814;1502-1567;1570-1634;1854-1876",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql",
+          "lines": "289-350",
+          "kind": "consolidation_of_existing_variants"
+        }
+      ],
+      "exactMechanics": {
+        "preload": "Shallow bilateral countermovement OR standardized squat countermovement, explicitly chosen.",
+        "release": "Ball starts at chest; coordinated bilateral preload/drive then two-hand forward horizontal chest projection.",
+        "contacts": "Feet remain grounded. No jump or stepping variant is silently added.",
+        "target": "Inspected impact-rated WALL, not an open floor target under the same exact key.",
+        "return": "Throw only, wait, retrieve; no catch. Shut down lane before retrieval, then fully reset.",
+        "boundary": "The target and lower-body preload differ from the proposed stationary/no-preload OR-05 lesson."
+      },
+      "prerequisites": [
+        "Pain-free assigned shallow or squat countermovement.",
+        "Pain-free two-hand chest release with ribs/pelvis and foot control.",
+        "Can follow target, wait/return/retrieval and stop instructions.",
+        "Exact inspected ball/wall/lane, surface and return route fit."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "shallow": {
+          "sets": "3-5",
+          "repetitions": "3-5",
+          "restSeconds": "60-120",
+          "intent": "maximal_crisp",
+          "fullReset": true
+        },
+        "squat": {
+          "sets": "3-5",
+          "repetitions": "2-4",
+          "restSeconds": "75-150",
+          "intent": "maximal_crisp",
+          "fullReset": true
+        },
+        "shallowTimeModel": {
+          "setupSeconds": 60,
+          "secondsPerRep": 12,
+          "transitionSeconds": 20,
+          "restIncluded": true
+        },
+        "boundary": "These source Output doses are not mandatory OR-05 volume. The12-second estimate is not a complete group all-clear and collection clock."
+      },
+      "sourceConstraints": {
+        "requiredEquipment": [
+          "medicine_ball",
+          "wall"
+        ],
+        "ball": "intact declared type/mass/diameter/rebound behavior",
+        "targetDistance": "declared safe release and return distance; no universal numeric value",
+        "surface": "level high traction",
+        "activeThrowersPerLane": 1,
+        "coachPosition": "outside release/return/retrieval paths",
+        "numericMassDiameterEstablished": false
+      },
+      "stops": [
+        "Symptoms, apprehension, pain or dizziness/pressure/neurologic concerns.",
+        "Unsafe ball, wall, lane, traffic, return or retrieval.",
+        "Trunk extension, balance/contact error, target miss or material speed/accuracy loss."
+      ],
+      "remainingGates": [
+        "Current exact variants/profile and approval remain unverified.",
+        "Do not transplant either wall/preload key onto a stationary floor-target throw.",
+        "All loaded handling/release and optional receiving skills require their own readiness; no catch is prescribed by these variants."
+      ]
+    },
+    {
+      "mappingKey": "CHEST-PASS-TEACH",
+      "name": "Stationary Bilateral Chest Projection to Contained Target \u2014 instructional adaptation",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "relatedSourceSlug": "medicine-ball-chest-pass",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_stationary_open_target_teaching_task_without_exact_canonical_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-jump-power-cards-28-38.mjs",
+          "lines": "1051-1063;1111-1139",
+          "kind": "related_broad_chest_projection_mechanics"
+        },
+        {
+          "path": "backend/migrations/342_coaching_researched_identity_boundary_card_completion.sql",
+          "lines": "721-790;1507-1517;1552-1567",
+          "kind": "related_ball_and_throw_only_retrieval_constraints"
+        },
+        {
+          "path": "backend/migrations/343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql",
+          "lines": "219-245;320-350",
+          "kind": "exact_stationary_profile_not_established"
+        }
+      ],
+      "sourceRelationship": "Preserves bilateral forward chest projection and controlled throw-only reset, but intentionally changes exact wall/preload/intent/target/return context. No completed exact stationary/no-preload/open-contained-target profile was verified.",
+      "exactProposedMechanics": {
+        "start": "Stationary bilateral athletic-width stance with knees comfortably unlocked, ribs/pelvis organized, one individually fitting ball at chest held by both hands.",
+        "preload": "No deliberate squat/dip, step, jump or rotational wind-up. If these appear, record the actual deviation rather than silently renaming the source.",
+        "release": "On the single already explained release cue, project the ball forward from chest height with both hands and controlled arm extension toward the declared open contained target area; retain foot contacts and balanced finish.",
+        "target": "Measured inspected open release lane with a contained area for the ball's natural landing after forward chest-height projection; do not aim or drive the ball downward as a slam. Ball and surface must fit the declared dead or low-bounce behavior. No wall rebound, partner catch or airborne catch is prescribed.",
+        "afterRelease": "Keep position and wait. No chasing, catching, rebound exchange or immediate extra throw.",
+        "retrieval": "Collect only after the globally declared all-clear, all releases have stopped, balls are settled and the coach has confirmed the entire retrieval area/route is clear. Follow the exact walking pickup/carry/return path; no throws while any person retrieves.",
+        "reset": "Return to the declared ready/waiting area and safely reestablish the ball-at-chest start only as instructed. Root must state who handles pickup/return when athlete handling is not established."
+      },
+      "readinessForAuthoredTask": [
+        "Independently comfortable stationary stance and unloaded bilateral forward arm action.",
+        "Can securely hold the ACTUAL ball at chest and comfortably control the actual floor pickup, short carry and floor set-down used for own-ball retrieval, observed in counted P2 instruction or a direct equivalent. Rack holding alone does not establish floor retrieval.",
+        "No prior successful throw is required for the first counted E1 instructional release. Entry requires comfortable actual handling/chest start and unloaded arm path, understood conduct, and verified equipment/space; controlled release, stable feet and organized torso are observed during that first counted E1 attempt.",
+        "Understands the one release cue, no-catch/no-chase/wait rules, global all-clear and actual retrieval role.",
+        "Inspected contained lane/target/ball behavior, surface, supervision and total throw/upper-body budget fit."
+      ],
+      "prerequisiteInterpretation": "Entry to the first counted E1 instructional release requires comfortable actual ball handling/chest start and own-retrieval floor pickup/carry/set-down, comfortable unloaded arm path, understood release/wait/retrieval conduct and verified equipment/space. Actual controlled release is observed within E1, not demanded as a prior successful throw. P2 has no release and cannot grant a throwing or full throw/retrieval conduct pass. Its floor-handling observation or a direct equivalent supplies the physical retrieval prerequisite; a rack-only hold does not. The task does not inherit an unused countermovement/squat prerequisite, and an old front-support-shape name alone does not establish handling.",
+      "ballSelectionBoundary": {
+        "numericMassDefault": null,
+        "numericDiameterDefault": null,
+        "rule": "Root must assign the actual inspected ball's type, mass, diameter, texture/grip and bounce behavior. Comfortable handling is observed in counted P2 instruction or a direct equivalent before the first E1 release; actual release control is observed within counted E1. No prior successful throw or universal age mass/size was verified.",
+        "deadLowBounce": "Dead/low-bounce is a declared implement/target choice that must fit the actual surface and containment. A slam ball is not automatically interchangeable with a medicine ball; ball design, size, grip and release suitability must be verified.",
+        "unexpectedBounce": "Stop for uncontained/unexpected bounce or roll; do not retrieve until global clearance is restored."
+      },
+      "sourceDoseNotSessionPrescription": null,
+      "cueContext": {
+        "sourceExactCueProfileVerified": false,
+        "knownCue": "One early explained cue maps to one already specified chest projection. No catch, choice target, surprise rule or perceptual complexity is implied.",
+        "competencyBoundary": "Following a known release permission cue supports an observed task-specific instruction/cue result only. It does not by itself establish reaction speed, unpredictable choice or reactive catching.",
+        "globalAllClear": "Explicit authored group-control rule informed by source lane shutdown, not a copied exact programming-method profile."
+      },
+      "exposureAccounting": "Count every actual ball release, including unsuccessful qualification/invalid attempts. Zero intentional athlete flight/landing events when both feet stay grounded; ball release/landing and any handling are separate exposures. Do not substitute valid-throw quotas for bounded attempts.",
+      "stopRules": [
+        "Stop for symptoms, apprehension, unsafe ball/target/traffic, failed grip, unplanned step/jump/dip, torso extension, loss of balance or uncontrolled release.",
+        "Stop for unexpected bounce/roll, target containment failure, premature retrieval or cue misunderstanding.",
+        "Do not add repeated attempts to earn a throwing pass; use an independently eligible no-throw branch when handling/release is unavailable."
+      ],
+      "remainingGates": [
+        "Root must supply actual ball mass/diameter/fit, release distance/target dimensions, intended effort, bounded attempts, recovery and full global-clear/retrieval clock.",
+        "Exact stationary/open-target/release-cue identity/profile and current approval remain unset pending review.",
+        "Verify separate actual throwing and cue observations before any JUMP-T/REACT-T mapping; neither is earned by no-throw rehearsal or attendance."
+      ],
+      "rootProposedContextNotSourceDefaults": {
+        "ballType": "soft low-rebound medicine ball",
+        "referenceMassKg": 0.5,
+        "referenceDiameterCm": 18,
+        "actualValuesRequired": true,
+        "target": "inspected open contained lane; no wall and no catch",
+        "releaseTiming": "First actual releases occur in the main teaching block on the already explained known cue, not P1/P2. Count those first releases and any invalid/qualification attempts.",
+        "eligibilityBoundary": "The0.5kg/18cm implement is a planning reference, not an age prescription, universal appropriate ball or measured inventory claim. If too demanding for safe release but holding/return are comfortable, use the eligible no-release route; if handling is unavailable, use independently comfortable unloaded orientation.",
+        "doseBoundary": "Low-dose instruction is an explicit session override of legacy/high-intent Output defaults. Root owns actual attempts/rest/global-clear/retrieval clock; no completed exact instructional profile is claimed."
+      }
+    },
+    {
+      "mappingKey": "CHEST-REACH-TEACH",
+      "name": "Unloaded Bilateral Forward Reach and Return \u2014 orientation teaching task",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_unloaded_orientation_task_without_exact_canonical_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-jump-power-cards-28-38.mjs",
+          "lines": "1117-1139",
+          "kind": "related_chest_start_forward_arm_extension_not_an_exact_unloaded_record"
+        }
+      ],
+      "sourceRelationship": "The loaded chest-pass sequence supplies related start/arm-path context only. No completed exact unloaded standing bilateral reach/retract profile was verified; this is newly authored documentation, not a scapular rehabilitation or loaded pressing exercise.",
+      "exactProposedMechanics": "From independently comfortable quiet bilateral standing, bring empty hands to the declared comfortable chest-height start; reach both hands forward through a comfortable range without stepping, dipping, shrugging or rib flare; return hands to the start and relax. Root supplies actual hand orientation, range, cadence, repetitions and cues. No ball or release is present.",
+      "prerequisites": [
+        "Comfortable standing and the actual unloaded shoulder/elbow/wrist motion.",
+        "Understands the small reach/return and stop instruction; no symptoms or forced range."
+      ],
+      "sourceDoseNotSessionPrescription": null,
+      "competencyBoundary": "Unloaded arm-path/position observation only. No ball handling, throwing, chest-pass power, retrieval or reaction-performance pass.",
+      "stopRules": [
+        "Stop for symptoms, discomfort, balance/trunk change or forced arm range.",
+        "If unloaded arm motion is unavailable but quiet standing is independently comfortable, use the separate BILATERAL-STAND-TEACH record; otherwise defer."
+      ],
+      "remainingGates": [
+        "Root must fully prescribe actual range, arms/hands, repetitions, cadence, return and clock.",
+        "No exact canonical/profile ID is invented for this nonthrow task."
+      ],
+      "rootProposedP1Context": {
+        "totalLessonEnvelopeSeconds": 40,
+        "ballUsed": false,
+        "ballReleases": 0,
+        "boundary": "Forty seconds includes root-authored explanation, demonstration, brief unloaded reach/return actions and resets; it is not a40-second sustained reach or an exact source dose."
+      }
+    },
+    {
+      "mappingKey": "BALL-HOLD-TEACH",
+      "name": "Ball-at-Chest Hold with Declared Handling \u2014 floor-handling instruction or rack-hold practice",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "relatedSourceSlug": "medicine-ball-chest-pass",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_handling_orientation_task_without_exact_canonical_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-jump-power-cards-28-38.mjs",
+          "lines": "1117-1126",
+          "kind": "related_ball_at_chest_setup"
+        },
+        {
+          "path": "backend/migrations/342_coaching_researched_identity_boundary_card_completion.sql",
+          "lines": "721-745",
+          "kind": "related_exact_ball_and_readiness_requirements"
+        }
+      ],
+      "exactProposedMechanics": "P2 is one separately segmented no-release floor-handling instruction: controlled floor pickup to chest over 5 s; comfortable stationary chest hold 5 s; short 1 m out-and-back carry over 4 s (2 s walking plus 2 s turning); controlled floor set-down 6 s; exit/reset 4 s. Restore the ball to the same start between groups. Observe actual comfort in this counted action after plausible equipment selection and demonstration; stop and manage set-down immediately if unsuitable. E1 no-release practice is a different shorter rack pickup 2 s / chest hold 3 s / rack set-down 3 s / reset 2 s task. During each chest hold feet are stationary; P2 explicitly includes floor lowering, walking and turning in its handling phases. Neither context includes release, push-out, catch, throwing preload or jumping.",
+      "sourceDoseNotSessionPrescription": null,
+      "prerequisites": [
+        "P2 instructional entry: comfortable standing, ordinary walking/turning and unloaded chest-start arm position; inspected plausible implement selected for this athlete using actual size/load/grip and available prior information; exact floor pickup/carry/set-down demonstrated. Comfortable unloaded floor access must be independently known or observed during the initial reach of the same counted P2 pickup before taking the ball load. A partial-range hinge is not a floor-access pass.",
+        "Understands the hold/wait/set-down and stop instructions, can communicate discomfort, and has direct supervision with a way to end the action safely; no toss/catch handoff is assumed.",
+        "E1 no-release rack practice entry: actual comfortable grip and chest hold from P2 or a direct equivalent, plus an independently appropriate rack height, access and handling arrangement. P2 observes floor return, not rack return; the first scheduled E1 rack action observes actual rack pickup/set-down with no extra trial. E1 throw with own retrieval additionally requires actual comfortable floor pickup/carry/set-down from P2 or a direct equivalent; rack-only comfort is insufficient. Unfamiliar grip/holding is not automatically eligible for the shorter E1 practice envelope."
+      ],
+      "eligibilityBoundary": "No prior successful loaded ball hold or floor-retrieval trial is required for the first counted P2 instructional action when its instruction-entry conditions are met. If comfortable unloaded floor access is not established, observe the initial reach within the same counted pickup before taking load; an unsuitable reach ends that action before lifting and the coach manages the ball. Do not add a screening repetition. P2 supplies actual fit and physical floor-handling/carry observations; unsuitable grip, load, position, lowering, carrying or return ends the action with coach-managed set-down, partial exposure recorded and no extra trial. E1 no-release rack practice requires its actual comfortable handling; E1 throw with own retrieval requires actual comfortable floor pickup/carry/set-down and chest handling. If the relevant evidence is unavailable, use an independently eligible unloaded/quiet-standing E1 route; unknown handling does not earn a passed no-release or retrieval fallback.",
+      "competencyBoundary": "Record actual chest start/hold, floor pickup, 2 m loaded carry with turn and floor set-down separately for P2; shorter E1 rack practice supplies only its actual rack/static handling observations. Neither supplies release, throwing, cue-reactivity, catching or JUMP-T/REACT-T pass. Floor handling is a physical retrieval prerequisite; the full global all-clear/own-ball retrieval sequence is observed during counted E1.",
+      "remainingGates": [
+        "Root must state actual ball identity/load/size, hold time, pickup/handoff/return, supervision and clock.",
+        "No completed exact standalone ball-start-hold profile was verified; canonical IDs remain null."
+      ],
+      "rootProposedP2Context": {
+        "totalLessonEnvelopeSeconds": 140,
+        "ballReleases": 0,
+        "task": "One counted coached floor pickup to chest, brief chest hold, short carry/turn and floor set-down; actual comfortable handling may be established here after plausible inspected implement selection and demonstration. No prior successful loaded trial and no release is demanded.",
+        "referenceBall": {
+          "type": "soft low-rebound medicine ball",
+          "massKg": 0.5,
+          "diameterCm": 18,
+          "actualValuesRequired": true
+        },
+        "boundary": "The 140-second envelope includes explanation/demonstration, brief individual holds, handling and reset. It is not a 140-second continuous loaded hold and includes no throw, catch or hidden release. End unsuitable handling immediately and record the actual partial exposure; no extra ball trial or throwing pass is awarded. Subsequent work uses an independently eligible unloaded/quiet-standing branch when comfortable handling remains unestablished.",
+        "perAthleteEnvelopeSeconds": 24,
+        "executionSegments": [
+          {
+            "name": "floor_pickup_to_chest",
+            "seconds": 5
+          },
+          {
+            "name": "comfortable_chest_hold",
+            "seconds": 5
+          },
+          {
+            "name": "carry_1m_out_and_1m_back",
+            "seconds": 4,
+            "distanceM": 2,
+            "walkingSeconds": 2,
+            "turningSeconds": 2
+          },
+          {
+            "name": "controlled_floor_setdown",
+            "seconds": 6
+          },
+          {
+            "name": "exit_reset",
+            "seconds": 4
+          }
+        ],
+        "ballStart": "Same inspected floor location between groups; no rack-only substitution silently establishes floor retrieval.",
+        "accounting": "One actual floor pickup, one 5 s chest hold, 2 m loaded carry with turn, one floor set-down, zero releases. Record partial completion separately; no extra fit trial.",
+        "E1NoReleasePractice": "Rack pickup 2 s, hold 3 s, rack set-down 3 s, reset 2 s = 10 s; actual rack fit/handling required and no floor retrieval pass inferred."
+      }
+    }
+  ],
+  "defaultUnknownHandlingBranch": {
+    "preferredDocumentationKey": "CHEST-REACH-TEACH",
+    "onlyWhen": "Unloaded movement and standing are independently comfortable. This is the main-practice route when actual comfortable handling remains unestablished; it does not prohibit the separately gated first counted P2 handling instruction.",
+    "ifArmActionUnavailable": {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='BILATERAL-STAND-TEACH')]"
+      }
+    },
+    "boundary": "No throwing, ball handling or release competence is inferred. If standing itself is unavailable, defer rather than forcing a movement fallback."
+  },
+  "retrievalAndCueGates": {
+    "allClearIsGlobal": true,
+    "retrievalOnlyAfterBallsSettled": true,
+    "noActiveThrowWhileRetrieval": true,
+    "rootMustSpecify": [
+      "number/position of throwers and protected lanes",
+      "who releases on each known cue",
+      "what all-clear means and who gives it",
+      "ball pickup and carry or coach retrieval assignment",
+      "contained target and lateral/rear exclusion areas",
+      "actual return and waiting locations",
+      "bounded attempts and release/retrieval/rest clock",
+      "response to premature release, unexpected ball path or early entry"
+    ],
+    "separateCompetencies": [
+      "stable start/handling",
+      "actual two-hand release and finish",
+      "following one known release cue",
+      "waiting until global all-clear",
+      "safe pickup/return"
+    ],
+    "boundary": "A single preannounced permission cue is not a choice/reaction-speed test. Record actual success/failure in each observed component; no invented JUMP-T or REACT-T pass."
+  },
+  "strengthReuse": [
+    {
+      "role": "knee",
+      "mappingKeys": [
+        "GOBLET",
+        "SQUAT-BW"
+      ],
+      "boundary": "Choose independently familiar exact squat/loading; no throwing lesson creates a load progression.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "hinge",
+      "mappingKeys": [
+        "DB-RDL",
+        "HINGE-BW"
+      ],
+      "boundary": "Retain two-dumbbell RDL or exact unloaded hip-back good morning and source hand position.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "push",
+      "mappingKeys": [
+        "INCLINE-PUSH"
+      ],
+      "boundary": "Stable individually fitting support and familiar exact push-up mechanics; no implicit equivalence with a throw.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "pull",
+      "mappingKeys": [
+        "SUPPORTED-ROW"
+      ],
+      "boundary": "Opposite hand AND knee bench support; count both sides and handling.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "brace",
+      "mappingKeys": [
+        "HEEL-TAP",
+        "BREATH-9090-ALT"
+      ],
+      "boundary": "HEEL-TAP requires fixed arms/tabletop and controlled heel return; 90/90 has its own exact wall/lower-leg support and comfortable reach/breath readiness. Contextual Strength use of preparation profiles remains explicit.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    }
+  ],
+  "remainingGlobalGates": [
+    "No live approvals, equipment quantities, athlete history or tumbling inventory was re-queried.",
+    "Root supplies complete OR-05 prescriptions and clocks; source age stereotypes/defaults do not set individual mass, skill or output demand.",
+    "Keep actual throwing and simple cue/retrieval observations separate when recording possible JUMP-T/REACT-T continuity toward OR-09/OR-13.",
+    "Current exact card/profile, media and operational approval remain distinct from inspectable repository content.",
+    "No existing app/source file was edited and no database write or approval was performed."
+  ],
+  "verification": {
+    "sourcePathsAndLineReferences": "validate after write",
+    "noExactIdsInvented": true
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "status": "current_explicit_amendments_to_preserved_stage2_snapshot",
+  "base_outline": "instructional_on_ramp/instructional_map.json",
+  "base_outline_sha256": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+  "authority_rule": "Read the preserved Stage 2 map together with these amendments. These named changes supersede only the affected preparation/progression fields; all other objectives, timing, attendance and independent domain gates remain. An amended future outline is not a detailed workout or a granted competency.",
+  "amendments": [
+    {
+      "id": "OR-05",
+      "state": "implemented_and_individually_reviewed",
+      "affected_fields": ["preparation.targeted_drill_purposes"],
+      "reason": "A first-visit release, global all-clear and retrieval for 15 athletes cannot fit the 180-second target budget alongside the position task.",
+      "current_decision": "P1 is one unloaded chest-start reach/return. P2 progressively adds actual floor pickup, chest hold, short carry, floor set-down and permission without release. First actual release and full retrieval are counted in E1. Do not credit P2 with a throw or retrieval pass.",
+      "detailed_evidence": "instructional_on_ramp/week_01/or_05.json"
+    },
+    {
+      "id": "OR-06",
+      "state": "required_for_next_individual_authoring_not_yet_prescribed",
+      "affected_fields": ["primary_objective", "progression_decision", "prerequisites", "provisional_anchors_methods", "main_entry_unlocks"],
+      "reason": "OR-02's exact low forward jump profile requires independently known basic bilateral flight. Grounded instruction gives no flight pass, and the former OR-06/15/19 chain only retained that jump. The curriculum needs an explicit first-flight acquisition route.",
+      "current_decision": "Use one of two independently eligible learning branches. Established eligible jump branch: retain the actual OR-02 landing variation/geometry and consider only a justified manageable hinge-load or hold decision. First-flight instructional branch: teach a small bilateral takeoff and controlled landing from an actually controlled grounded preparation; hold the actual unloaded hinge variant, setup and recent dose. If first-flight readiness is not present, retain the separately eligible grounded/slow position task. No calendar-based jump, rebound or simultaneous hinge progression.",
+      "first_flight_contract": {
+        "exact_exercise_profile": null,
+        "current_approval_verified": false,
+        "requires_prior_successful_flight": false,
+        "requires_current_grounded_control_conduct_and_verified_space": true,
+        "requires_qualified_supervision": true,
+        "first_takeoff_is_counted_instruction": true,
+        "extra_screening_or_make_up_attempts": false,
+        "concurrent_hinge_load_increase": false,
+        "automatic_forward_jump_or_main_entry_pass": false,
+        "authoring_requirements": "Search existing basic-jump and first-landing instruction records and identity boundaries. Map or fully propose the exact teaching variant, prescribe all three ages and D/L dose/rest/effort, count preparation and main attempts, verify coaching and landing space, and independently review the day. Do not relabel the prior-qualified forward-jump profile as first-flight instruction. If no eligible physical branch fits, retain grounded instruction and record the gap."
+      },
+      "retained_hinge_rule": "Use actual OR-02/03/04/05 or direct equivalent unloaded hinge setup and completed dose/response. A bodyweight-to-dumbbell change requires its own implement/grip/variant instruction; it is not an inherited approved load increase.",
+      "next_evidence_rule": "Record actual flight versus nonflight task, takeoff/landing assistance or cue needs, dose and response separately. Emerging first-flight work is not a same-day automatic pass to the forward jump or main JUMP branch."
+    },
+    {
+      "id": "OR-15",
+      "state": "required_for_future_individual_authoring_not_yet_prescribed",
+      "affected_fields": ["progression_decision", "prerequisites", "observation_recording"],
+      "reason": "Carry OR-06's actual first-flight or retained landing branch forward without overwriting it with assumed forward-jump competence.",
+      "current_decision": "Consolidate the actual qualified OR-02/OR-06 landing or grounded teaching task at its recorded geometry and dose. Continue instruction where flight remains emerging. A justified hinge change is separate and cannot accompany a new landing task or output increase. Only actual independent repeatability can support a later variant change; no additional flight/main-entry permission follows from the date."
+    },
+    {
+      "id": "OR-19",
+      "state": "required_for_future_individual_authoring_not_yet_prescribed",
+      "affected_fields": ["progression_decision", "prerequisites", "observation_recording"],
+      "reason": "Verification must concern the athlete's actual retained branch, including first-flight instruction or grounded work when appropriate.",
+      "current_decision": "Verify only the actual eligible retained OR-06/OR-15 landing task or the independently passed stable-throw route. An emerging or grounded landing record stays instructional. Do not rename first-flight/grounded work a completed forward-jump assessment, substitute throw results for landing results, or award entry from planned attendance."
+    }
+  ],
+  "unchanged_carryover_requirements": {
+    "OR-07": "A controlled stop and supported stance do not establish the announced exit. Teach/observe that exit independently at retained approach and support; no reactive cut.",
+    "OR-08": "Increase running intent only after the actual easy route is repeatable and the existing runoff/return still fits the proposed demand. Short acceleration remains its distinct route/objective.",
+    "OR-09": "Add go/no-go only to the actual repeatable stable throw and known release, retaining implement, stance, direction, intent and retrieval. Its proposed preparation release needs its own counted feasible clock; do not inherit OR-05 P2 as a throw.",
+    "OR-10": "Retain actual start/runoff and independently map/teach front-held load pickup/set-down before a goblet progression; bodyweight squat alone is not implement-handling evidence."
+  },
+  "not_completed": ["OR-06 or any later detailed workout", "actual athlete outcomes", "current canonical or facility approvals", "precise separate tumbling content"]
+}

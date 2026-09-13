@@ -1,3 +1,4 @@
+import { canonicalProgrammingReviewRubric } from './canonicalProgrammingRuleReview.js'
 import {
   approvalAppliesToVersion,
   assertIndependentReviewer,
@@ -822,7 +823,7 @@ export async function recordCanonicalCardReview(pool, facilityId, definitionId, 
        RETURNING *`,
     [
       definitionId, facilityId, reviewerUserId, decision,
-      JSON.stringify(body.rubric ?? {}), notes, card.cardVersion,
+      JSON.stringify(decision === 'approve' ? canonicalProgrammingReviewRubric(card, body.rubric ?? {}) : body.rubric ?? {}), notes, card.cardVersion,
     ],
   )
   if (!result.rows[0]) {

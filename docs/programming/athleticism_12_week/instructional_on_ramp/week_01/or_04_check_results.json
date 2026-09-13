@@ -1,0 +1,311 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T03:30:46.385063+00:00",
+  "session": "OR-04",
+  "scenario_count": 480,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all ages"
+      ]
+    },
+    {
+      "case": "missing purpose",
+      "rejected": true,
+      "sample_findings": [
+        "E0: missing set_purpose"
+      ]
+    },
+    {
+      "case": "missing counted orientation",
+      "rejected": true,
+      "sample_findings": [
+        "travel/long_run/12-14/compressed_D/E0: included positive dose"
+      ]
+    },
+    {
+      "case": "extra target attempt",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/short_walk/basic_march/default_supports/P2: one observed target bout each",
+        "12-14/compressed_D/short_walk/basic_march/suspension_pull/P2: one observed target bout each"
+      ]
+    },
+    {
+      "case": "compressed L gains follow-up",
+      "rejected": true,
+      "sample_findings": [
+        "travel/long_walk/12-14/compressed_L/E1: unavailable opportunity is zero"
+      ]
+    },
+    {
+      "case": "running made available to L",
+      "rejected": true,
+      "sample_findings": [
+        "long_run: route availability",
+        "travel/long_run/9-11/standard_L/P2: included positive dose"
+      ]
+    },
+    {
+      "case": "independent jog gate removed",
+      "rejected": true,
+      "sample_findings": [
+        "long_run: independent readiness gate"
+      ]
+    },
+    {
+      "case": "short start gate removed",
+      "rejected": true,
+      "sample_findings": [
+        "short_acc: independent readiness gate"
+      ]
+    },
+    {
+      "case": "standing gate removed",
+      "rejected": true,
+      "sample_findings": [
+        "stationary_stand: independent readiness gate"
+      ]
+    },
+    {
+      "case": "walk grants running result",
+      "rejected": true,
+      "sample_findings": [
+        "long_walk: distinct observation credit"
+      ]
+    },
+    {
+      "case": "maximal-velocity claim",
+      "rejected": true,
+      "sample_findings": [
+        "long_run: no maximal-velocity result"
+      ]
+    },
+    {
+      "case": "missing numeric phases",
+      "rejected": true,
+      "sample_findings": [
+        "travel/long_run/12-14/compressed_D/E1: explicit execution segments"
+      ]
+    },
+    {
+      "case": "phase total undercounts runout",
+      "rejected": true,
+      "sample_findings": [
+        "travel/long_run/12-14/compressed_D/E1: phase / rep / active sums"
+      ]
+    },
+    {
+      "case": "one march side omitted",
+      "rejected": true,
+      "sample_findings": [
+        "prep/basic_march/12-14/compressed_D/dose: both-side count arithmetic",
+        "prep/basic_march/12-14/compressed_D/dose: four individual march steps, not four cycles"
+      ]
+    },
+    {
+      "case": "insufficient coach coverage",
+      "rejected": true,
+      "sample_findings": [
+        "alternating coach assignment",
+        "9-11/standard_D/long_run/basic_march/default_supports: assigned coach gets 15-second observation gap"
+      ]
+    },
+    {
+      "case": "E0 return misses next lane release",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/long_run/basic_march/default_supports: full E0 return before same-lane reuse",
+        "12-14/compressed_D/long_run/basic_march/suspension_pull: full E0 return before same-lane reuse"
+      ]
+    },
+    {
+      "case": "E1 same-lane return overrun",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/long_walk/basic_march/default_supports: E1 same-lane full return",
+        "12-14/compressed_D/long_walk/basic_march/default_supports: E1 same-lane full return"
+      ]
+    },
+    {
+      "case": "unmodeled second hip set",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/long_run/basic_march/default_supports/S2: one retained set",
+        "12-14/compressed_D/long_run/basic_march/default_supports: five strength sets total"
+      ]
+    },
+    {
+      "case": "both-side row exceeds window",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/long_run/basic_march/default_supports/S4: full instruction/both-side work/quiet recovery",
+        "12-14/compressed_D/long_run/basic_march/default_supports/S4: serialized teaching groups"
+      ]
+    },
+    {
+      "case": "P2 shared return merge",
+      "rejected": true,
+      "sample_findings": [
+        "complete segregated one-way return model"
+      ]
+    },
+    {
+      "case": "P2 transfer shortened",
+      "rejected": true,
+      "sample_findings": [
+        "P2 full bay transfer and route confirmation"
+      ]
+    },
+    {
+      "case": "unmapped source",
+      "rejected": true,
+      "sample_findings": [
+        "S2: mapped source"
+      ]
+    },
+    {
+      "case": "P1 recovery silently increased beyond its earliest gap",
+      "rejected": true,
+      "sample_findings": [
+        "basic_march: explicit 20-second P1 recovery"
+      ]
+    },
+    {
+      "case": "walking route relabeled with hidden running distance",
+      "rejected": true,
+      "sample_findings": [
+        "travel/long_walk/12-14/compressed_D/E1: running remains easy teaching"
+      ]
+    },
+    {
+      "case": "standing route contains marching steps",
+      "rejected": true,
+      "sample_findings": [
+        "travel/stationary_stand/12-14/compressed_D/E0: four individual march steps, not four cycles",
+        "travel/stationary_stand/12-14/compressed_D/E0: march phase identity"
+      ]
+    },
+    {
+      "case": "runoff reclassified as target metres",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/long_run/basic_march/default_supports/E1: target and runoff distances stay distinct",
+        "12-14/compressed_D/long_run/basic_march/suspension_pull/E1: target and runoff distances stay distinct"
+      ]
+    }
+  ],
+  "mixed_P2_return_checks": [
+    {
+      "age_band": "9-11",
+      "mode": "standard_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "9-11",
+      "mode": "standard_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "9-11",
+      "mode": "compressed_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "9-11",
+      "mode": "compressed_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "12-14",
+      "mode": "standard_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "12-14",
+      "mode": "standard_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "12-14",
+      "mode": "compressed_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "12-14",
+      "mode": "compressed_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "15-18",
+      "mode": "standard_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "15-18",
+      "mode": "standard_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "15-18",
+      "mode": "compressed_D",
+      "peak_returners_per_lane": 2,
+      "maximum_adjacent_return_overlap_s": 3,
+      "physical_spacing_verified": false
+    },
+    {
+      "age_band": "15-18",
+      "mode": "compressed_L",
+      "peak_returners_per_lane": 1,
+      "maximum_adjacent_return_overlap_s": 0,
+      "physical_spacing_verified": false
+    }
+  ],
+  "sha256": {
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "instructional_on_ramp/week_01/or_04.md": "e6142d35839122d781be32c236dd903cd0b3047645fda5fad18a4e24f1d577b0",
+    "prescriptions/author_or_04.py": "13a386d2c4f52792a9c4fbe8af37c4ad68f7a71c9140b8376f0920141560d4a0",
+    "prescriptions/check_or_04.py": "8eeb73102c83eeb97eeb0f2461eaaf4da6ac784c418ba43e19db1921fa956528",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863"
+  },
+  "scope": "Three ages, four modes, eligible P1/travel/support selections; exact targets and counted E0; phases, sides, full returns, two assigned coaches, five Strength sets and unknown actuals.",
+  "limits": [
+    "Written arithmetic is not observed delivery or readiness",
+    "Facility, full-corridor sightlines and mixed-return spacing remain unverified",
+    "Mapping pointers identify local source records, not live canonical approval",
+    "Actual contacts/results and separate tumbling remain unknown",
+    "Substantive coaching review is recorded separately"
+  ]
+}

@@ -15,6 +15,10 @@ const text = (max = 1000) => Joi.string().trim().max(max)
 const strings = (max = 100) => Joi.array().items(text(200)).max(max).unique().default([])
 const ids = () => Joi.array().items(id).max(100).unique().default([])
 const uuidList = () => Joi.array().items(CANONICAL_UUID_SCHEMA).max(100).unique().default([])
+export const PROGRAMMING_EVIDENCE_KINDS = Object.freeze(['skill_progress', 'assessment_result', 'gymnastics_evaluation', 'wellness_checkin', 'session', 'completion_log'])
+const evidenceReference = Joi.object({ kind: Joi.string().valid(...PROGRAMMING_EVIDENCE_KINDS).required(), id: id.required(), memberId: id.required(),
+  expectedSourceHash: Joi.string().hex().length(64),
+})
 
 export function immutableProgrammingValue(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -67,6 +71,7 @@ const athleteSchema = Joi.object({
   trainingAgeMonths: Joi.number().integer().min(0).max(1200).allow(null).default(null),
   sportIds: ids(), maturityNotes: text(1000).allow(null).default(null),
   limitations: strings(), competencyEvidenceIds: ids(), recentSessionIds: uuidList(),
+  memberIds: ids(), evidenceReferences: Joi.array().items(evidenceReference).max(100).unique((a, b) => a.kind === b.kind && a.id === b.id && a.memberId === b.memberId).default([]),
   readiness: Joi.object({ observedAt: Joi.string().isoDate().required(), notes: text(2000).required(), sourceRecordIds: ids() }).allow(null).default(null),
 })
 const requestSchema = Joi.object({
@@ -75,9 +80,13 @@ const requestSchema = Joi.object({
   mode: Joi.string().valid(...PROGRAMMING_AUTONOMY_MODES).required(), instruction: text(4000).allow('').default(''),
   athletes: Joi.array().items(athleteSchema).min(1).max(20).unique('key').required(),
   logistics: Joi.object({
+    sessionDate: Joi.string().pattern(/^\d{4}-\d{2}-\d{2}$/).allow(null).default(null),
+    sessionStartsAt: Joi.string().isoDate().allow(null).default(null),
     athleticMinutes: Joi.number().integer().min(15).max(240).required(),
     tumblingMinutes: Joi.number().integer().min(0).max(120).default(0),
     totalBookedMinutes: Joi.number().integer().min(15).max(240).required(),
+    timerAvailable: Joi.boolean().allow(null).default(null), scoreTrackingAvailable: Joi.boolean().allow(null).default(null),
+    clearRunoutConfirmed: Joi.boolean().allow(null).default(null),
     coachCount: Joi.number().integer().min(1).max(20).required(), laneCount: Joi.number().integer().min(0).max(100).required(),
     stationCount: Joi.number().integer().min(1).max(100).required(),
     space: Joi.object({ environment: Joi.string().valid('indoor', 'outdoor').default('indoor'),
@@ -118,6 +127,25 @@ export function normalizeCoachWorkoutRequest(raw) {
   if (athleticMinutes + tumblingMinutes !== totalBookedMinutes) throw new RangeError('Athletic and tumbling minutes must equal total booked minutes')
   if (request.athletes.reduce((sum, cohort) => sum + cohort.athleteCount, 0) > 100) throw new RangeError('Total athlete count exceeds 100')
   for (const cohort of request.athletes) if (cohort.ageMin > cohort.ageMax) throw new RangeError(`${cohort.key}: ageMin exceeds ageMax`)
+  const boundMembers = new Set()
+  for (const cohort of request.athletes) {
+    if (cohort.memberIds.length && cohort.memberIds.length !== cohort.athleteCount) throw new RangeError(`${cohort.key}: roster must bind every athlete in the cohort`)
+    for (const memberId of cohort.memberIds) {
+      if (boundMembers.has(memberId)) throw new RangeError('A member cannot appear in multiple cohorts')
+      boundMembers.add(memberId)
+    }
+    if (cohort.evidenceReferences.some((entry) => !cohort.memberIds.includes(entry.memberId))) throw new RangeError(`${cohort.key}: evidence must belong to a bound cohort member`)
+  }
+  if (request.athletes.reduce((total, cohort) => total + cohort.evidenceReferences.length, 0) > 100) throw new RangeError('Session evidence references exceed 100')
+  if (request.logistics.sessionDate && (Number.isNaN(Date.parse(request.logistics.sessionDate))
+    || new Date(request.logistics.sessionDate).toISOString().slice(0, 10) !== request.logistics.sessionDate)) throw new RangeError('Session date must be a real calendar date')
+  if (request.logistics.sessionStartsAt) {
+    if (!/T.*(?:Z|[+-]\d{2}:\d{2})$/.test(request.logistics.sessionStartsAt)) throw new RangeError('Session start requires an explicit time zone offset')
+    request.logistics.sessionStartsAt = new Date(request.logistics.sessionStartsAt).toISOString()
+    const date = request.logistics.sessionStartsAt.slice(0, 10)
+    if (request.logistics.sessionDate && request.logistics.sessionDate !== date) throw new RangeError('Session date must match the UTC date of its explicit start')
+    request.logistics.sessionDate = date
+  }
   if ((request.mode === 'modify_existing') !== Boolean(request.modification)) throw new RangeError('Modify Existing requires a source workout and expected revision; other modes cannot set modification')
   if (request.mode === 'modify_existing' && !request.instruction) throw new TypeError('Modify Existing requires a coach instruction')
   validatePriorities(request.priorities, 'session priorities')
@@ -197,6 +225,15 @@ export function allocateProgrammingComponentBudgets(request) {
   }
   if (request.logistics.tumblingMinutes) allocated.set('body_control', request.logistics.tumblingMinutes * 60)
   return immutableProgrammingValue(Object.fromEntries(allocated))
+}
+
+export function programmingComponentPlan(request) {
+  const budgets = allocateProgrammingComponentBudgets(request)
+  return normalizeSessionComponentPlan({ durationMinutes: request.logistics.totalBookedMinutes,
+    equipment: { available: request.equipment.available, quantities: request.equipment.quantities, excluded: request.equipment.excluded },
+    components: request.components.filter((entry) => budgets[entry.key] > 0)
+      .map((entry) => ({ key: entry.key, budgetSeconds: budgets[entry.key], equipment: entry.equipment })),
+  })
 }
 
 /** Retrieval projection only; whole-session required coverage stays on the immutable request. */

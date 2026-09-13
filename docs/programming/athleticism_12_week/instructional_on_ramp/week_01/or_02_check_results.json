@@ -1,0 +1,75 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T02:27:38.297497+00:00",
+  "session": "OR-02",
+  "scenario_count": 240,
+  "scope": "Three ages, four modes, mode-eligible jump/short-jump/grounded/slow-position routes, both support alternatives and actual-history hip one-set hold in combination; exact two targets, serialized main observation, five strength roles, recovery and source gates. All four shared preparation profiles/pointers also rechecked.",
+  "limits": [
+    "Authored models, not observed facility execution",
+    "No proof of physiological outcome or actual readiness/results",
+    "Current canonical release unverified",
+    "Separate tumbling prescription missing",
+    "Substantive independent programming review required separately"
+  ],
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age dose",
+      "rejected": true,
+      "sample_findings": [
+        "P1: missing ages",
+        "P1/9-11: missing modes"
+      ]
+    },
+    {
+      "case": "unassigned preparation set purpose",
+      "rejected": true,
+      "sample_findings": [
+        "P2: missing set_purpose"
+      ]
+    },
+    {
+      "case": "overlapping individual landing releases",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/standard_D/jump_reference/default_strength: overlapping main observers",
+        "9-11/standard_D/jump_reference/hip_one_set_hold: overlapping main observers"
+      ]
+    },
+    {
+      "case": "row exceeds teaching time",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/jump_reference/default_strength/S4: active/recovery overrun",
+        "12-14/compressed_D/jump_reference/default_strength/S4: active/recovery overrun"
+      ]
+    },
+    {
+      "case": "flight prerequisite removed",
+      "rejected": true,
+      "sample_findings": [
+        "jump_reference: flight gate missing"
+      ]
+    },
+    {
+      "case": "unmodeled extra rehearsal set",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/standard_D/jump_reference/default_strength/P2: one target set for every athlete",
+        "12-14/standard_D/jump_reference/hip_one_set_hold/P2: one target set for every athlete"
+      ]
+    }
+  ],
+  "sha256": {
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_02.md": "900c605d6866f11e2ad888e8727335e796c67a704c4f06fd43fd492513ba9347",
+    "prescriptions/author_or_02.py": "3d9e5320778c7abcc7e8ca876ba180f302aa22bd8bcfadf6ed18abe45a7b40bd",
+    "prescriptions/check_or_02.py": "a5fba252cd59df764b350cb61692bf1a8adff030b4e6193d1dcbfd23c86a3b46",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867"
+  }
+}

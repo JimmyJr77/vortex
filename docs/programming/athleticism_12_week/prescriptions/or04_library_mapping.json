@@ -1,0 +1,685 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "Stage 4 OR-04 local library audit for upright rhythm and easy progressive running; final session prescriptions and clocks remain with the author",
+  "planningStatus": "reviewable_candidates_and_teaching_adaptations_pending_release",
+  "checkedOn": "2026-09-12",
+  "recordIdsAre": "mappingKey labels are documentation labels, never database IDs. Literal source UUIDs are authored local provenance, not verified current canonical approval.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "productionQueried": false,
+    "secretsRead": false,
+    "approvalCreated": false,
+    "priorAccessAudit": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.accessAudit"
+    },
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "searchCoverage": {
+    "searchedRoots": [
+      "scripts/data/canonical-research/contracts",
+      "scripts/data/canonical-research/generated",
+      "scripts/data/canonical-research/batches",
+      "backend/migrations",
+      "scripts/data/output-max-velocity-cards-11-18.mjs"
+    ],
+    "identitiesAndSynonyms": [
+      "A-March",
+      "A-March Linear",
+      "Build-Up Sprint / Stride-Out",
+      "build-up-sprint-stride-out",
+      "stride-out",
+      "strideout",
+      "progressive easy run",
+      "20-20-20 Build-Up Sprint",
+      "Three-Point Acceleration Build-Up",
+      "Flying Sprint",
+      "source 127",
+      "source 128"
+    ],
+    "findings": "A-March69 and Flying Sprint128 have inspectable completed candidate contracts. Build-Up127 has authored legacy content and identity/alias history but is explicitly contract-quarantined by migration599. No completed current exact low-intent build-up/easy-run contract was found in the targeted local search; this does not establish the state of a live library."
+  },
+  "records": [
+    {
+      "mappingKey": "A-MARCH",
+      "name": "A-March",
+      "sourceSlug": "a-march",
+      "legacySourceId": 69,
+      "otherLegacyProvenanceIds": [
+        878,
+        924
+      ],
+      "localCandidateVariantKey": "traveling-alternating-no-flight-a-march",
+      "sourceAuthoredVariantUuid": "69000000-0000-4000-8000-000000000002",
+      "localCandidateProfileKeys": [
+        "prepare-traveling-a-march",
+        "movement-intelligence-traveling-a-march"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review_quarantined",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/a-march.v1.json",
+          "lines": "6-24;25-26;29-38;41",
+          "kind": "authored_local_content"
+        }
+      ],
+      "exactMechanics": {
+        "start": "Tall traveling-ready stance in a declared clear level lane.",
+        "action": "Travel forward with deliberate alternating no-flight march steps. Lift each thigh toward the declared comfortable landmark while the opposite foot supports; return the next foot close beneath the body and exchange sides with reciprocal opposite arm-leg action.",
+        "laterality": "Alternating left and right single-support steps; one cycle is one controlled step on each side.",
+        "finish": "Controlled walk or stable stop in the safe finish zone, followed by full reset and declared return.",
+        "arms": "Reciprocal arm action is required by the exact candidate; overhead arm sweep is excluded.",
+        "exclusions": [
+          "stationary basic march presented as source-exact traveling A-March",
+          "flight or skipping",
+          "running",
+          "wall support",
+          "resistance",
+          "overhead reach",
+          "projection transition",
+          "obstacle work",
+          "assessment protocol"
+        ],
+        "countRule": "Count steps per side and traveled distance explicitly. Source landingContactsPerRep=2 describes the two walking contacts in a paired cycle; there are zero intentional flight/plyometric landing events.",
+        "targetBoundary": "No universal thigh height or cadence is established. The declared target must preserve current comfortable single-support control; do not force a knee-height landmark."
+      },
+      "prerequisites": [
+        "Safe lane and comfortable pain-free walking.",
+        "Brief controlled single-support exchange.",
+        "Understands alternating pattern, step count, stop signal and exit.",
+        "Actual balance, hip-flexor, lower-leg, walking and technical-fatigue budgets fit."
+      ],
+      "sourceDoseNotSessionPrescription": {
+        "prepare": {
+          "profileKey": "prepare-traveling-a-march",
+          "phase": "prepare_and_access",
+          "role": "conditional",
+          "sets": "1-3",
+          "distanceOrSteps": "8-12m OR6-8 controlled steps per side",
+          "rest": "20-60s OR walk-back",
+          "intensity": "slow to controlled",
+          "timeModel": {
+            "setupSeconds": 45,
+            "perSetSeconds": 60,
+            "resetSeconds": 30
+          }
+        },
+        "movementIntelligence": {
+          "profileKey": "movement-intelligence-traveling-a-march",
+          "phase": "movement_intelligence",
+          "role": "conditional",
+          "sets": "2-4",
+          "distanceOrSteps": "10-20m OR8-12 controlled steps per side",
+          "rest": "30-75s OR walk-back",
+          "intensity": "controlled to crisp WITHOUT flight",
+          "timeModel": {
+            "setupSeconds": 45,
+            "perSetSeconds": 75,
+            "resetSeconds": 45
+          }
+        },
+        "legacy": {
+          "sets": 2,
+          "repetitions": 8,
+          "workSeconds": 30,
+          "restSeconds": 45,
+          "estimatedSecondsPerSet": 60
+        },
+        "boundary": "Profiles permit fewer steps, shorter lane or lower cadence after revalidation. A short OR-04 traveling dose is a declared dose/corridor adaptation; eliminating travel, thigh-target task or reciprocal arms changes the claimed exact mechanics. Root must define count and complete teaching/return clock."
+      },
+      "sourceClearance": {
+        "equipmentToken": "10_to_20_metre_clear_lane",
+        "environmentSpace": "protected8-20m lane with safe finish zone and no cross traffic",
+        "stationCapacity": 1,
+        "surface": "clear level dry non-slip walking lane",
+        "numericDiscrepancy": "Required-equipment token says10-20m while environment says8-20m. Do not silently claim a smaller bay is the unchanged source setup; specify shortened contextual layout and fit/review.",
+        "optionalEquipment": [
+          "cones",
+          "floor_marks",
+          "video"
+        ]
+      },
+      "stopRules": [
+        "Stop for pain, limp, balance loss, unsafe lane or athlete request.",
+        "If flight, reaching, posture loss or pattern confusion cannot be corrected at lower cadence, stop or select an independently eligible different task.",
+        "Do not turn a failed march into skipping/running to maintain rhythm."
+      ],
+      "competencyBoundary": "A-March observations concern actual no-flight exchanges and travel only; no A-Skip, acceleration, running, flying-sprint or maximal-speed pass follows.",
+      "remainingGates": [
+        "Current exact source69 variant/profile and human approval/media remain unverified.",
+        "Declare thigh target, cadence/count, shortened lane if used, safe finish/return and actual support/arm pattern.",
+        "Unknown comfortable single-support exchange selects a separately described walking/orientation task, not an automatic A-March pass."
+      ]
+    },
+    {
+      "mappingKey": "BUILDUP-LEGACY127",
+      "name": "Build-Up Sprint / Stride-Out — archived legacy source",
+      "sourceSlug": "build-up-sprint-stride-out",
+      "legacySourceId": 127,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "legacy_authored_record_with_later_contract_quarantine_not_selectable_current_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-max-velocity-cards-11-18.mjs",
+          "lines": "42-54;89-118;133-177",
+          "kind": "legacy_authored_card"
+        },
+        {
+          "path": "backend/migrations/599_coaching_speed_exposure_sources_127_128_130_contract_quarantine.sql",
+          "lines": "1-13",
+          "kind": "later_identity_quarantine"
+        },
+        {
+          "path": "backend/migrations/392_coaching_score_74_variant_identity_consolidations.sql",
+          "lines": "25-34",
+          "kind": "earlier_alias_consolidation"
+        },
+        {
+          "path": "backend/migrations/112_coaching_output_seed.sql",
+          "lines": "35",
+          "kind": "legacy_seed"
+        }
+      ],
+      "legacyMechanics": {
+        "start": "Choose rolling, two-point or three-point entry explicitly.",
+        "build": "Progressively increase speed through the first half of a declared20-40 yard running distance.",
+        "strideOut": "Hold MAX-EFFORT upright mechanics through the second half; the source summary/intended role is max-velocity Output.",
+        "finish": "Decelerate progressively beyond the finish mark and walk back for full rest. No numerical runoff length is supplied.",
+        "cues": "Tall posture, coordinated arms and contacts close beneath the body; no maximal burst from step one or abrupt finish stop.",
+        "prerequisiteNames": [
+          "a-march",
+          "a-skip"
+        ],
+        "sourceScaling": "20-yard submax stride-outs with coach-led deceleration are mentioned; this is legacy scaling text, not a completed exact current easy-run profile."
+      },
+      "sourceDoseNotSessionPrescription": {
+        "sets": 1,
+        "repetitions": 3,
+        "distance": "20-40 yards",
+        "restSeconds": 90,
+        "estimatedSecondsPerSet": 45,
+        "rpeRange": [
+          6,
+          8
+        ],
+        "sessionRange": "one set of2-3 build-up sprints",
+        "boundary": "These legacy Output defaults and broad RPE labels do not change the written maximal-effort terminal zone into an easy OR-04 lesson. The45s estimate cannot substitute for recovery and runoff/return timing."
+      },
+      "sourceClearance": {
+        "runningDistance": "20-40 yards",
+        "runoff": "beyond prescribed finish; no numerical length established",
+        "return": "walk-back after progressive deceleration",
+        "equipment": [
+          "cones",
+          "line_tape"
+        ],
+        "boundary": "Total clear corridor must include running distance plus adequate gradual runoff and protected return/queue; the record leaves exact geometry unresolved."
+      },
+      "quarantineFacts": {
+        "migration": "599_coaching_speed_exposure_sources_127_128_130_contract_quarantine",
+        "archivedVariantKey": "identity-quarantine-source-127",
+        "definitionStatusWritten": "archived",
+        "selectable": false,
+        "approvalsCreated": false,
+        "publicationQuarantined": true,
+        "unresolved": "segment distance, effort, total distance, approach/exit/deceleration, measurement, rest/dose, load and fatigue contract"
+      },
+      "aliasHistory": "Migration392 consolidates20-20-20 Build-Up Sprint as a segmented progressive-sprint identity relation. Its60-unit fast final segment and source review packet do not create a completed low-intent instructional profile, and later quarantine remains material.",
+      "eligibilityBoundary": "Do not use the legacy record as currently approved or as the exact OR-04 easy lesson. The historical A-Skip prerequisite belongs to its high-intent Output task; it does not itself prove every newly authored easy-jog lesson requires A-Skip mastery.",
+      "remainingGates": [
+        "Exact current build-up/easy-run variant/profile was not found in the bounded local search.",
+        "Do not claim source127 current canonical approval or revive archived baseline/dose through an alias.",
+        "If source mechanics inform EASY-BUILD-RUN-TEACH, label the change of intent/start/segments/volume and use independently defined teaching readiness."
+      ]
+    },
+    {
+      "mappingKey": "EASY-BUILD-RUN-TEACH",
+      "name": "Progressive Easy Run with Gradual Runoff — instructional adaptation",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "relatedLegacySourceId": 127,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "new_authored_low_intent_teaching_task_without_completed_exact_canonical_profile",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/output-max-velocity-cards-11-18.mjs",
+          "lines": "92-118;157-171",
+          "kind": "related_legacy_submax_scaling_and_progressive_exit"
+        },
+        {
+          "path": "backend/migrations/599_coaching_speed_exposure_sources_127_128_130_contract_quarantine.sql",
+          "lines": "1-13",
+          "kind": "why_exact_current_legacy_mapping_is_unavailable"
+        }
+      ],
+      "sourceRelationship": "Related legacy principles are a smooth progressive speed rise, coordinated upright rhythm, gradual deceleration and recovered walk-back. This easy no-maximal-target instructional task is not the exact legacy maximal stride-out or Flying Sprint128.",
+      "teachingMechanicsForRootToSpecify": {
+        "start": "Declare exact standing or walking entry; do not alternate entry methods under one result.",
+        "progression": "Define a comfortable walk/easy-jog transition and/or gentle increase within an explicitly low effort ceiling; no maximal-speed chase, timed fly-zone target or forced acceleration pattern.",
+        "uprightRhythm": "Comfortable coordinated running rhythm without reaching or a forced early upright posture; exact cues and response are authored session choices.",
+        "runoff": "Continue past the marked running finish into a measured gradual slowing zone. Finish only where balanced controlled slowing is available; no abrupt stop at the speed-zone cone.",
+        "reset": "Use a protected walking return and declared recovery; separate release, run, runoff, exit, return and queue.",
+        "boundary": "Root supplies exact segment lengths, pace/effort language, start/end rules, attempts, recovery and teaching time. No completed source dose or universal low-demand corridor geometry was verified."
+      },
+      "prerequisiteInterpretation": "Set the new teaching task's own observed or documented comfortable walking/easy-jog, coordinated contacts, controlled gradual slowing, communication and corridor requirements. A completed A-March or OR-01 attendance alone does not establish easy-running or runoff readiness. Do not import legacy maximal-output/A-Skip requirements as universal facts about this lower-intent authored task.",
+      "proposedDoseNotSourceDefault": null,
+      "sourceClearance": "No exact current easy-run distance, effort range, run-through segment, runoff length or rest is source-fixed. Root must measure the complete corridor and establish fit for actual speed/ability before selecting the running branch.",
+      "stopRules": [
+        "Stop for pain, limp, tightness/pull sensation, stumble, loss of coordination, inability to slow gradually, unsafe corridor or participant request.",
+        "Do not increase speed or add attempts to obtain a clean rhythm result.",
+        "If corridor or task readiness is unverified, use an independently fitting walking/rhythm/quiet-standing branch; do not create a run in cramped space."
+      ],
+      "competencyBoundary": "Record actual easy-running intent, distance, rhythm, runoff and response. Do not label this high-speed exposure, maximal-velocity pass, source127 exact completion or Flying Sprint result.",
+      "remainingGates": [
+        "Root must author a complete reviewable entry/build/runoff/return prescription and clock.",
+        "Resolve/review exact instructional identity/profile before operational release; canonical fields remain null.",
+        "Verify actual individual running/slowing readiness, total corridor, coach sightlines and recovery without assuming weekday attendance supplies competence."
+      ],
+      "rootProposedContextNotSourceDefaults": {
+        "runningDistanceMetres": 20,
+        "buildZoneMetres": [
+          0,
+          10
+        ],
+        "buildEffortRpe": "2 rising gently to 3",
+        "relaxedRhythmZoneMetres": [
+          10,
+          20
+        ],
+        "rhythmEffortRpe": 3,
+        "gradualRunoffZoneMetres": [
+          20,
+          35
+        ],
+        "fullProtectedLaneMetres": 35,
+        "dedicatedReturnRequired": true,
+        "boundary": "Explicit author-proposed easy-running lesson geometry and effort, pending actual individual fit and operational review; no source127 exact profile, maximum-speed target, timed fly zone or automatic prior A-Skip requirement."
+      }
+    },
+    {
+      "mappingKey": "FLYING128-BOUNDARY",
+      "name": "Flying Sprint — boundary reference, not the OR-04 low lesson",
+      "sourceSlug": "flying-10",
+      "legacySourceId": 128,
+      "localCandidateVariantKey": "progressive-build-in-flying-sprint",
+      "sourceAuthoredVariantUuid": "12800000-0000-4000-8000-000000000001",
+      "localCandidateProfileKeys": [
+        "output-flying-10",
+        "output-flying-20"
+      ],
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_canonical_candidate_review_quarantined_excluded_from_easy_lesson",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/flying-sprint.v1.json",
+          "lines": "7-44;77-92;96-99",
+          "kind": "authored_local_content"
+        },
+        {
+          "path": "backend/migrations/705_coaching_flying_sprint_source_128_candidate_materialization.sql",
+          "lines": "1-3",
+          "kind": "candidate_materialization"
+        },
+        {
+          "path": "backend/migrations/706_coaching_flying_sprint_short_acceleration_identity_boundary.sql",
+          "lines": "1-36",
+          "kind": "distinct_identity_boundary"
+        }
+      ],
+      "exactMechanics": "Measured progressive build-in → upright near-maximal/maximal fly zone → run-through → planned gradual run-out. No static-start acceleration, sprint-float-sprint, assistance, wickets or takeoff.",
+      "sourceDoseNotSessionPrescription": {
+        "fly10": {
+          "sets": "2-4",
+          "repetitions": "1-3",
+          "buildIn": "15-30 declared yards OR metres individualized",
+          "flyZone": "10 same declared units",
+          "restSeconds": "120-300",
+          "intent": "near-maximal to maximal"
+        },
+        "fly20": {
+          "sets": "2-3",
+          "repetitions": "1-2",
+          "buildIn": "20-40 declared yards OR metres individualized",
+          "flyZone": "20 same declared units",
+          "restSeconds": "180-360",
+          "intent": "near-maximal to maximal"
+        },
+        "boundary": "Choose one actual measurement unit and include additional run-out; this is not a20m-total low-intent drill. Lowering intent or selecting another task requires revalidation, not a silent claim of source-exact maximal-velocity completion."
+      },
+      "prerequisites": [
+        "Completed progressive speed preparation.",
+        "Can build in and decelerate safely on selected surface.",
+        "Current symptoms, recent high-speed exposure, lane and recovery budget fit.",
+        "Understands measured fly zone, run-out and stop signal."
+      ],
+      "competencyBoundary": "Do not use this candidate to fill OR-04 low-demand rhythm programming or to award high-speed competence after an easy run.",
+      "remainingGates": [
+        "Source128 is a completed local candidate but not verified live approved.",
+        "Its code/contract existence does not repair source127 quarantine or create an easy-run profile."
+      ]
+    },
+    {
+      "mappingKey": "WALK-CORRIDOR-TEACH",
+      "name": "Walking the Protected Running Corridor — orientation teaching task",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "authored_corridor_orientation_procedure_without_exact_canonical_profile",
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+          "lines": "639-694",
+          "kind": "existing_OR_WALK_ROUTE_orientation_mapping"
+        },
+        {
+          "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+          "lines": "235-245",
+          "kind": "owner_instructional_participation_competencies"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='OR-WALK-ROUTE')]"
+      },
+      "sourceRelationship": "Related to the existing OR-01 ordinary route-walking orientation procedure, not source155 jog-to-stick or a new approved exercise card.",
+      "usedBy": [
+        "OR-04 E0 counted full-corridor walk",
+        "Separately declared walking orientation branch when running readiness is unavailable and the walking route itself is verified"
+      ],
+      "exactProposedMechanics": {
+        "entry": "Begin ordinary comfortable walking only after the actual corridor, stop signal and protected return are explained and clear.",
+        "travel": "Walk through the declared build and running-zone markers and continue through the runoff zone at comfortable ordinary walking pace; learn where each later running segment starts/ends. No jog, acceleration target or speed increase is required.",
+        "finish": "End ordinary walking in the declared safe exit area under control. No prescribed source155 bilateral athletic two-second stick, abrupt braking plant or timed stopping test is added.",
+        "return": "Use the separately declared dedicated walking-return path after the travel corridor is clear; any turn belongs to ordinary orientation/return, not a sport redirect or reacceleration drill."
+      },
+      "rootProposedContextNotSourceDefaults": {
+        "E0ForwardWalkMetres": 35,
+        "markerPositionsMetres": [
+          0,
+          10,
+          20,
+          35
+        ],
+        "fullProtectedLaneMetres": 35,
+        "dedicatedReturnRequired": true,
+        "returnDistanceAndDuration": "Root must declare and count actual return separately; no fixed return length is inferred here.",
+        "counting": "The full35m forward walk and actual return belong to E0/main teaching, not an uncounted preparation add-on. Count actual route traversals, explanation and reset."
+      },
+      "prerequisites": [
+        "Independently comfortable ordinary walking at the assigned route/pace.",
+        "The whole walked route, exits and return are actually clear and usable; an unknown running corridor is not presumed safe for walking.",
+        "Understands simple stop/return/waiting instructions and can communicate discomfort."
+      ],
+      "sourceDoseNotSessionPrescription": null,
+      "competencyBoundary": "Route understanding and ordinary walking observation only. No source155 braking/terminal-stick pass, jog-stop result, acceleration, traveling A-March or high-speed competence.",
+      "stopRules": [
+        "Stop for symptoms, limp, instability, unsafe route, misunderstood traffic or participant request.",
+        "If the route or walking readiness is unavailable, select only an independently appropriate shorter verified walking route, stationary basic march or quiet standing task; do not hide that purpose change."
+      ],
+      "remainingGates": [
+        "Root supplies actual walk/return distance, comfortable pace, timing, setup, communication and release rules.",
+        "All exact canonical/profile IDs remain null; this is documentation-only orientation.",
+        "No extra source155 terminal hold or test is introduced under this key."
+      ]
+    },
+    {
+      "mappingKey": "BASIC-MARCH-TEACH",
+      "name": "Basic Alternating March in Place — instructional adaptation",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "relatedLegacySourceId": 69,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "existing_authored_instructional_adaptation_not_exact_traveling_a_march",
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/standard_preparation.json",
+          "lines": "8888;9103",
+          "kind": "existing_SP09_instructional_document_adaptation"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/a-march.v1.json",
+          "lines": "16-24;32-38",
+          "kind": "related_traveling_candidate_identity_boundary"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/standard_preparation.json",
+        "jsonPath": "$.records[?(@.id=='SP-09')].age_band_prescriptions['12-14'].or01_full"
+      },
+      "sourceRelationship": "Existing SP09 OR01 basic stationary teaching action, related to source69 but with traveling and technical thigh-height task explicitly deferred. No exact current canonical variant/profile was verified.",
+      "exactProposedMechanics": "Remain in the personal bay and alternate comfortable low walking-height steps in place without flight. Root specifies relaxed reciprocal arm action as tolerated, one foot settles before the next easy step, no forced thigh landmark, then quiet settling. Stop for discomfort or loss of support/coordination.",
+      "prerequisites": [
+        "Comfortable actual alternating stepping and brief support control.",
+        "Clear personal bay and understood stop/settle cue."
+      ],
+      "rootProposedP1Context": {
+        "stepsTotal": 4,
+        "stepsPerSide": 2,
+        "secondsPerStep": 2,
+        "settleSeconds": 2,
+        "actionAndSettleSeconds": 10,
+        "boundary": "Basic stationary no-flight teaching with comfortable stepping height, not source69 traveling A-March. Count demonstration/setup separately in the actual P1 clock."
+      },
+      "competencyBoundary": "Basic stationary rhythm/step observation only. No traveling source69 A-March, running, acceleration or high-speed pass.",
+      "remainingGates": [
+        "Root supplies complete arm/foot/count mechanics and demonstration/setup clock.",
+        "Unknown alternating-support readiness selects an independently appropriate walking or quiet-standing option, not a false marching pass.",
+        "Retain documentation-only adaptation status and null exact canonical/profile IDs."
+      ]
+    }
+  ],
+  "limitedSpaceAlternative": {
+    "mappingKey": "ACC-STATIC",
+    "registerReference": {
+      "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+      "jsonPath": "$.records[?(@.mappingKey=='ACC-STATIC')]"
+    },
+    "exactStartDecision": "Choose standing-static OR two-point-static, with fixed lead/start geometry if staggered. No moving entry or stop at the target.",
+    "sourceDefaults": {
+      "distanceMetres": [
+        5,
+        20
+      ],
+      "runOutMetres": [
+        10,
+        30
+      ],
+      "intentPercent": [
+        85,
+        100
+      ],
+      "restSeconds": [
+        120,
+        240
+      ],
+      "profileKeys": [
+        "output-standing-static",
+        "output-two-point-static"
+      ]
+    },
+    "alternativeEligibility": "Select only if the shorter acceleration target PLUS adequate gradual run-out, protected return and readiness are independently verified. An absent long upright corridor does not by itself make acceleration fit.",
+    "instructionalBoundary": "If OR-04 uses low-intent short-start teaching, label an explicit contextual reuse with its own readiness/intent/dose/clock; the verified profiles are high-intent Output, not an exact low-intent teaching profile.",
+    "lostPurpose": "Acceleration initiation/projection replaces upright-running rhythm exposure; log changed purpose and no upright-speed/high-speed pass.",
+    "avoid": "Do not select two-point-walk-in-provisional as a fallback; earlier local source marks it avoid/prescriptionBlocked.",
+    "rootProposedTechnicalContextNotSourceDefaults": {
+      "startVariant": "standing-static",
+      "targetMetres": 5,
+      "gradualRunoutMetres": 10,
+      "fullProtectedLaneMetres": 15,
+      "intent": "explicit low-intent instructional start; final effort and dose belong to OR-04",
+      "boundary": "P2 counts one technical start/runout only when independently eligible; otherwise use explicit walking or quiet-standing orientation. This is not the verified high-intent Output profile or upright-speed result."
+    }
+  },
+  "rhythmAndUnknownCorridorFallbacks": [
+    {
+      "mappingKey": "OR-WALK-ROUTE",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='OR-WALK-ROUTE')]"
+      },
+      "scope": "Orientation walk on a separately verified safe local route: entry, signal, gradual exit, return and waiting. Unknown running corridor does not mean an unverified walking route is usable.",
+      "competencyBoundary": "Walking-route understanding only; no acceleration, A-March exact-pattern or high-speed pass."
+    },
+    {
+      "mappingKey": "BASIC-MARCH-TEACH",
+      "sourceSlug": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "liveApprovalVerified": false,
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/standard_preparation.json",
+        "jsonPath": "$.records[?(@.id=='SP-09')].age_band_prescriptions['12-14'].or01_full"
+      },
+      "scope": "Existing preparation document explicitly authors a basic alternating walking march in place with technical knee-height target deferred. The inspected example is four total easy steps (two/side), two seconds per step; this is historical document context, not an OR-04 assigned dose.",
+      "eligibility": "Comfortable actual alternating action, brief support/step control, clear personal bay and stop-signal understanding must fit independently.",
+      "competencyBoundary": "Stationary basic rhythm only; no traveling source69 A-March pass, no run/high-speed pass. Root must specify actual foot/arm/contact/count mechanics and full teaching clock.",
+      "rootProposedP1Context": {
+        "stepsTotal": 4,
+        "stepsPerSide": 2,
+        "secondsPerStep": 2,
+        "settleSeconds": 2,
+        "actionAndSettleSeconds": 10,
+        "boundary": "Basic stationary no-flight teaching with comfortable stepping height, not source69 traveling A-March. Count demonstration/setup separately in the actual P1 clock."
+      }
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "jsonPath": "$.records[?(@.mappingKey=='BILATERAL-STAND-TEACH')]"
+      },
+      "scope": "Only if comfortable quiet standing is independently available when walking/marching are not. No step/lowering or locomotor result is implied.",
+      "competencyBoundary": "Quiet-standing observation only; no rhythm, march or run pass."
+    }
+  ],
+  "strengthReuse": [
+    {
+      "role": "squat",
+      "mappingKeys": [
+        "GOBLET",
+        "SQUAT-BW"
+      ],
+      "boundary": "Choose an independently familiar loaded goblet squat or exact unloaded tempo squat. These are separate records; no load increase or relearning obligation follows calendar week.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "hinge",
+      "mappingKeys": [
+        "DB-RDL",
+        "HINGE-BW"
+      ],
+      "boundary": "DB-RDL retains two dumbbells and its exact variant. HINGE-BW retains its declared source hand position and unloaded hip-back pattern. Forward-reach or wall-contact teaching is not a silent substitute.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "push",
+      "mappingKeys": [
+        "INCLINE-PUSH"
+      ],
+      "boundary": "Stable individually fitting support height and familiar exact push-up mechanics.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "pull",
+      "mappingKeys": [
+        "SUPPORTED-ROW"
+      ],
+      "boundary": "Opposite hand AND knee supported on the bench; choose load by actual familiar control, count both sides and equipment fit.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    },
+    {
+      "role": "brace",
+      "mappingKeys": [
+        "HEEL-TAP",
+        "BREATH-9090-ALT"
+      ],
+      "boundary": "HEEL-TAP requires fixed vertical arms, owned tabletop and controlled heel contact/return.90/90 is a different supported breathing/reach job: choose exact feet-on-wall or lower-legs-supported variant and verify its own floor/support/arm/breath readiness. Strength placement remains contextual use of preparation profiles; no missing tabletop pass.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "jsonPath": "$.records keyed by mappingKey"
+      }
+    }
+  ],
+  "sourceConflicts": [
+    {
+      "key": "BUILDUP-QUARANTINE",
+      "finding": "Source127 legacy mechanics exist but migration599 archives the underspecified contract; targeted search found no completedcurrenteasy-runcontract.",
+      "decision": "Author EASY-BUILD-RUN-TEACH transparently; no invented source127 variant/profile approval."
+    },
+    {
+      "key": "LEGACY-INTENT",
+      "finding": "Legacy card says max-effort upright second half while lower RPE/submax scaling also appears.",
+      "decision": "Retain the written high-intent identity boundary; clearly separate easy lesson adaptation and its readiness."
+    },
+    {
+      "key": "MARCH-SPACE",
+      "finding": "A-March equipment token10-20m and environment8-20m differ; shorter-lane scaling exists.",
+      "decision": "Declare actual shortened dose/corridor and revalidate instead of implying a stationary bay is unchanged source69."
+    },
+    {
+      "key": "MARCH-COUNTS",
+      "finding": "Source cycle=one step each side; contact field2 refers walking contacts, not flight.",
+      "decision": "State steps per side/total and distance; zero intentional jump/landing events."
+    },
+    {
+      "key": "ACCEL-VS-UPRIGHT",
+      "finding": "ACC-STATIC and Flying Sprint are distinct source identities and high-intent profiles.",
+      "decision": "Limited-space acceleration changes purpose; easy teaching in either family remains explicitly adapted and earns no high-speed pass."
+    }
+  ],
+  "remainingGlobalGates": [
+    "No live library, equipment quantities, athlete histories or tumbling records were queried. Existing access/release gates stand.",
+    "Root must individually author OR-04 exact start/segments/intent/runoff/return, actual attempts, method, feedback and age/context clocks.",
+    "Preserve continuity from OR-01 and feed actual observations to OR-08/OR-12; dates or completed lower-demand tasks never grant high-speed eligibility.",
+    "Review exact candidate/adaptation identity/profile, current canonical owner, media and approval before operational release.",
+    "No app changes, source edits, source imports, approval creation or maximal-speed test is part of this audit."
+  ],
+  "verification": {
+    "sourcePathsAndReferences": "validated after write",
+    "sourceIdsAreLiteralWherePresent": true,
+    "newDatabaseCalls": false
+  }
+}

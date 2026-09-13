@@ -1,4 +1,5 @@
 import { libraryScopeId } from './coachingLibraryContext.js'
+import { loadCanonicalProgrammingRuleReviews } from './canonicalProgrammingRuleReview.js'
 
 /**
  * Loads only coach-approved canonical cards. Legacy review rows are deliberately
@@ -315,7 +316,10 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
       }
     }
   }
-  return [...cards.values()]
+  const library = [...cards.values()]
+  const ruleReviews = await loadCanonicalProgrammingRuleReviews(pool, facilityId, library)
+  for (const card of library) if (card.programming?.executionRules != null) card.programmingRulesReview = ruleReviews.get(card.variantId) ?? null
+  return library
 }
 
 export async function loadCurrentCanonicalLibraryRelease(pool, facilityId) {

@@ -1,4 +1,7 @@
 import type { ComponentEquipmentPreferences, SessionComponentKey } from './sessionComponentContract.js'
+import type { CanonicalSchedulingCard, CanonicalSchedulingMethod } from './canonicalProgrammingDose.js'
+import type { NormalizedCoachWorkoutRequest } from './workoutProgrammingRequest.js'
+import type { ProgrammingAthleteEvidence } from './workoutAthleteEvidence.js'
 
 export type DeliveryPhaseKey = 'prepare_and_access' | 'movement_intelligence' | 'output'
   | 'capacity' | 'resilience' | 'sustained_capacity' | 'restore'
@@ -101,3 +104,15 @@ export function searchWorkoutProgrammingResourcesBatch(
   context: { readonly facilityId: number | string; readonly userId: number | string },
   raw: readonly ProgrammingResourceSearch[],
 ): Promise<readonly ProgrammingResourceSearchResult[]>
+export interface WorkoutProgrammingMaterials {
+  readonly athleteEvidence: ProgrammingAthleteEvidence | null
+  readonly resources: readonly ProgrammingResourceSearchResult[]
+  readonly library: readonly CanonicalSchedulingCard[]
+  readonly methods: readonly CanonicalSchedulingMethod[]
+  readonly release: Readonly<Record<string, unknown>> | null
+  readonly libraryStatus: 'ready' | 'no_published_release' | 'no_eligible_released_cards'
+  readonly programmingSearchComplete: boolean
+}
+export function loadWorkoutProgrammingMaterials(pool: LibraryReadPool,
+  context: { readonly facilityId: number | string; readonly userId: number | string },
+  raw: readonly ProgrammingResourceSearch[], options?: { readonly athleteRequest?: NormalizedCoachWorkoutRequest | null }): Promise<WorkoutProgrammingMaterials>

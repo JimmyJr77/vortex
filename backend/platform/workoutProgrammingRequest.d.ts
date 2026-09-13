@@ -1,8 +1,16 @@
 import type Joi from 'joi'
-import type { ComponentEquipmentPreferences, SessionComponentKey } from './sessionComponentContract.js'
+import type { ComponentEquipmentPreferences, SessionComponentKey, SessionComponentPlan } from './sessionComponentContract.js'
 import type { CanonicalExerciseReference } from './workoutProgrammingLibrarians.js'
 
 export type ProgrammingAutonomyMode = 'generate_for_me' | 'guided' | 'coach_directed' | 'modify_existing'
+export type ProgrammingEvidenceKind = 'skill_progress' | 'assessment_result' | 'gymnastics_evaluation' | 'wellness_checkin' | 'session' | 'completion_log'
+export interface ProgrammingEvidenceReference {
+  readonly kind: ProgrammingEvidenceKind
+  readonly id: string
+  readonly memberId: string
+  readonly expectedSourceHash?: string
+}
+export const PROGRAMMING_EVIDENCE_KINDS: readonly ProgrammingEvidenceKind[]
 export type ProgrammingPriorityFacet = 'tenet' | 'methodology' | 'training_family' | 'athletic_niche' | 'force_velocity'
   | 'movement_character' | 'programming_set_structure' | 'programming_clock_structure' | 'conditioning_protocol' | 'physiology_mechanism'
 export interface ProgrammingPriority {
@@ -21,7 +29,12 @@ export interface ProgrammingAthleteCohort {
   readonly sportIds?: readonly string[]
   readonly maturityNotes?: string | null
   readonly limitations?: readonly string[]
+  /** Complete roster or empty for anonymous cohort planning. */
+  readonly memberIds?: readonly string[]
+  readonly evidenceReferences?: readonly ProgrammingEvidenceReference[]
+  /** @deprecated Untyped IDs require explicit migration to evidenceReferences; never inferred. */
   readonly competencyEvidenceIds?: readonly string[]
+  /** @deprecated These UUIDs are not performed coaching-session IDs. */
   readonly recentSessionIds?: readonly string[]
   readonly readiness?: { readonly observedAt: string; readonly notes: string; readonly sourceRecordIds?: readonly string[] } | null
 }
@@ -48,12 +61,18 @@ export interface CoachWorkoutRequest {
   readonly instruction?: string
   readonly athletes: readonly ProgrammingAthleteCohort[]
   readonly logistics: {
+    readonly sessionDate?: string | null
+    /** ISO instant with offset; normalized to UTC and its UTC session date. */
+    readonly sessionStartsAt?: string | null
     readonly athleticMinutes: number
     readonly tumblingMinutes?: number
     readonly totalBookedMinutes: number
     readonly coachCount: number
     readonly laneCount: number
     readonly stationCount: number
+    readonly timerAvailable?: boolean | null
+    readonly scoreTrackingAvailable?: boolean | null
+    readonly clearRunoutConfirmed?: boolean | null
     readonly space?: { readonly environment?: 'indoor' | 'outdoor'; readonly floorAreaSquareFeet?: number | null; readonly laneLengthFeet?: number | null }
   }
   readonly equipment: { readonly available: readonly string[]; readonly quantities?: Readonly<Record<string, number | null>>;
@@ -93,5 +112,6 @@ export function programmingValueHash(value: unknown): string
 export function parseProgrammingContract<T>(schema: Joi.Schema<T>, raw: unknown, label: string): T
 export function normalizeCoachWorkoutRequest(raw: unknown): NormalizedCoachWorkoutRequest
 export function allocateProgrammingComponentBudgets(request: NormalizedCoachWorkoutRequest): Readonly<Partial<Record<SessionComponentKey, number>>>
+export function programmingComponentPlan(request: NormalizedCoachWorkoutRequest): SessionComponentPlan
 /** Existing canonical intent; this projection cannot establish session coverage or final eligibility. */
 export function canonicalIntentForProgrammingComponent(request: NormalizedCoachWorkoutRequest, componentKey: SessionComponentKey): Readonly<Record<string, unknown>>

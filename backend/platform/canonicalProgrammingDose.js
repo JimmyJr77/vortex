@@ -1,13 +1,9 @@
 import { immutableProgrammingValue } from './workoutProgrammingRequest.js'
 import { normalizePhaseKey } from './sessionPhaseKeys.js'
+import { ProgrammingPrescriptionError, prescriptionInteger } from './programmingPrescriptionContract.js'
+import { selectProgrammingMethodPrescription, resolveProgrammingMethodClock } from './programmingMethodClock.js'
 
-export class ProgrammingPrescriptionError extends Error {
-  constructor(code, message, details = {}) { super(message); this.name = 'ProgrammingPrescriptionError'; this.code = code; this.details = details }
-}
-export function prescriptionInteger(value, field, min = 0, max = 14400) {
-  if (!Number.isSafeInteger(value) || value < min || value > max) throw new ProgrammingPrescriptionError('invalid_prescription_metadata', `${field} must be an integer from ${min} to ${max}`)
-  return value
-}
+export { ProgrammingPrescriptionError, prescriptionInteger } from './programmingPrescriptionContract.js'
 function range(dose, field, fallback, min, max) {
   const preferred = dose[field] ?? fallback
   if (preferred == null) throw new ProgrammingPrescriptionError('missing_prescription_metadata', `Reviewed ${field} is required`)
@@ -56,16 +52,9 @@ export function resolveCanonicalProgrammingDose({ card, profile, method, request
       && !method.compatible_session_phases?.some((key) => normalizePhaseKey(key) === phaseKey))) {
     throw new ProgrammingPrescriptionError('method_phase_mismatch', 'Canonical method does not support this delivery phase')
   }
-  const youngest = Math.min(...request.athletes.map((cohort) => cohort.ageMin))
-  const oldest = Math.max(...request.athletes.map((cohort) => cohort.ageMax))
-  const experience = ['beginner', 'intermediate', 'advanced'].find((level) => request.athletes.some((cohort) => cohort.trainingExperience === level))
-  const prescriptions = (method.prescriptions ?? []).filter((entry) =>
-    (entry.age_min == null || Number(entry.age_min) <= youngest) && (entry.age_max == null || Number(entry.age_max) >= oldest)
-    && (entry.training_experience == null || entry.training_experience === 'all' || entry.training_experience === experience))
-    .sort((a, b) => Number(b.training_experience === experience) - Number(a.training_experience === experience)
-      || String(a.id).localeCompare(String(b.id)))
-  const prescription = prescriptions[0]
-  if (!prescription?.id) throw new ProgrammingPrescriptionError('method_prescription_missing', 'No canonical method prescription covers this group')
+  const selectedPrescription = selectProgrammingMethodPrescription(method, request)
+  const prescription = selectedPrescription.profile
+  const clock = resolveProgrammingMethodClock(method, selectedPrescription)
   if (componentKey === 'capacity_competition' && request.logistics.tumblingMinutes > 0 && method.fatigue_profile?.fatigue_level === 'high') {
     throw new ProgrammingPrescriptionError('fatigue_before_tumbling', 'High-fatigue conditioning cannot precede booked tumbling')
   }
@@ -78,13 +67,14 @@ export function resolveCanonicalProgrammingDose({ card, profile, method, request
   const restBounds = range(reviewed, 'restSeconds', null, 0, 3600)
   const repsBounds = reviewed.reps == null ? null : range(reviewed, 'reps', null, 1, 1000)
   const methodRounds = prescription.default_rounds == null ? null : Number(prescription.default_rounds)
-  const sets = chooseRange(setsBounds, proposal.sets ?? methodRounds, 'sets')
-  const workSeconds = chooseRange(workBounds, proposal.workSeconds ?? (prescription.default_work_seconds == null ? null : Number(prescription.default_work_seconds)), 'workSeconds')
-  const restSeconds = chooseRange(restBounds, proposal.restSeconds ?? (prescription.default_rest_seconds == null ? null : Number(prescription.default_rest_seconds)), 'restSeconds')
+  const sets = chooseRange(setsBounds, proposal.sets ?? clock.targetSets ?? methodRounds, 'sets')
+  if (clock.targetSets != null && sets !== clock.targetSets) throw new ProgrammingPrescriptionError('method_clock_set_mismatch', 'A fixed clock cannot be shortened by reducing its reviewed cycle count')
+  const workSeconds = chooseRange(workBounds, proposal.workSeconds ?? clock.workSeconds, 'workSeconds')
+  const restSeconds = chooseRange(restBounds, proposal.restSeconds ?? clock.restSeconds, 'restSeconds')
   const reps = repsBounds ? chooseRange(repsBounds, proposal.reps, 'reps') : null
   if (!repsBounds && proposal.reps != null) throw new ProgrammingPrescriptionError('invalid_dose_proposal', 'A timed profile has no reviewed repetition prescription')
   // A proposal cannot turn a named clock into a different work/rest format.
-  for (const [field, methodValue] of [['workSeconds', prescription.default_work_seconds], ['restSeconds', prescription.default_rest_seconds]]) {
+  for (const [field, methodValue] of [['workSeconds', clock.workSeconds], ['restSeconds', clock.restSeconds]]) {
     if (proposal[field] != null && methodValue != null && proposal[field] !== Number(methodValue)) {
       throw new ProgrammingPrescriptionError('method_clock_mismatch', `Proposed ${field} differs from the canonical method prescription`)
     }
@@ -96,11 +86,11 @@ export function resolveCanonicalProgrammingDose({ card, profile, method, request
   if (!Number.isFinite(impactScore)) throw new ProgrammingPrescriptionError('missing_impact_metadata', 'Reviewed impact score is required')
   if (impactScore > 40 && contactExposure.contacts == null) throw new ProgrammingPrescriptionError('unknown_high_impact_contacts', 'High-impact work requires a reviewed contact count or estimate')
   return immutableProgrammingValue(structuredClone({
-    schemaVersion: '1.0.0', programmingMethodId: String(method.id), methodPrescriptionId: String(prescription.id),
+    schemaVersion: '1.0.0', programmingMethodId: String(method.id), methodPrescriptionId: String(prescription.id), clock,
     sets, reps, workSeconds, restSeconds, restBetweenRoundsSeconds,
     activeSecondsPerAthlete: sets * workSeconds, contacts: contactExposure.contacts, contactExposure,
     highImpactContacts: impactScore > 40 ? contactExposure.contacts : 0,
-    tempo: reviewed.tempo ?? null, rpe: reviewed.rpe ?? null, loadMethod: reviewed.loadMethod ?? card.loadProfile?.externalLoadMethod ?? null,
+    tempo: reviewed.tempo ?? null, rpe: reviewed.rpe ?? clock.rpeRange, loadMethod: reviewed.loadMethod ?? card.loadProfile?.externalLoadMethod ?? null,
     loadTarget: reviewed.loadTarget ?? null, bounds: { sets: setsBounds, reps: repsBounds, workSeconds: workBounds, restSeconds: restBounds },
     qualityGate: profile.qualityGate, stopRules: [...new Set([...(profile.stopRules ?? []), ...(method.stop_rules ?? []).map((entry) => entry.stopRule)])],
   }))

@@ -1,0 +1,1622 @@
+{
+  "schema_version": 1,
+  "status": "planned_instruction_actual_evidence_unknown",
+  "entries": [
+    {
+      "key": "OR-02::P1",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "HINGE-BW",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "The one short set makes hip-back motion and trunk organization visible before the upcoming hinge lesson; the coach explains its relationship to the athletic finish without adding a squat comparison set.",
+      "prior_current_next": "OR-01 hip observation or direct prior evidence →P1 counted rehearsal today →S1 hip/squat distinction →OR-06 same hinge with a possible separately justified load decision.",
+      "advance_hold_regress": "Hold range and repetitions today; improve understanding rather than add load. Symptoms, distress or materially altered mechanics stop the task. A reduced range must be recorded; inability to perform it remains unresolved.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only; easy 2/10 effort, 3s hips back and 1s stand. Comfortable owned range, no stretch target.",
+            "minimum_rest_s": null,
+            "side_change_s": 0,
+            "handling_s_per_set": 2,
+            "notes": "This counted position rehearsal uses the same hip action as S1. One set; inter-set rest is not applicable. Observe the first listed repetition, with no extra assessment rep."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::P2",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "JUMP-STICK",
+      "conditional_mapping_refs": [
+        "JUMP-STICK",
+        "SNAP-STICK",
+        "SQUAT-BW"
+      ],
+      "live_canonical_definition_id": null,
+      "set_purpose": "One scheduled attempt rehearses the precise takeoff/finish or selected nonflight action before the main teaching window. It is a counted rehearsal, not an unrecorded readiness test or a search for a valid landing.",
+      "prior_current_next": "Actual qualified basic jump/grounded-control evidence →one counted P2 attempt →E1 only at the eligible action. Neither this task nor OR-02 establishes throwing or JUMP-T competence.",
+      "advance_hold_regress": "Repeat the declared eligible action; a fault ends that attempt and is recorded physically even if not valid. Stop for symptoms or unsafe setup. If quieter control requires less displacement, use the explicit0.10m main jump route rather than adding practice. No flight is introduced merely because the clock has started.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.10m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#landing_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::E1",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "JUMP-STICK",
+      "conditional_mapping_refs": [
+        "JUMP-STICK",
+        "SNAP-STICK",
+        "SQUAT-BW"
+      ],
+      "live_canonical_definition_id": null,
+      "set_purpose": "Every scheduled single-attempt set has the same job: practice one repeatable finish under direct individual observation with feedback and full recovery. The third standard set supplies another observation at retained conditions; compressed delivery explicitly removes it. No set seeks greater distance or fatigue.",
+      "prior_current_next": "Basic qualified jump/grounded evidence and P2 →today’s actual attempts, valid finishes and first-fault record →OR-03 straight-stop observation is a separate task; OR-06 repeats the same eligible landing. A failed landing does not authorize JUMP-T; its throw/retrieval gates are independent.",
+      "advance_hold_regress": "Retain action, arm rule, target, surface and hold. Stop/hold for the first relevant quality fault; use a separately recorded eligible simpler route only after recovery and reassessment, without replacing lost attempts. OR-06 retains the actual established landing geometry while considering only a justified hinge-load change. No next-day rebound or longer target is implied.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "standard_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 3,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_D": {
+            "variant": "Low-Amplitude Forward Jump to Stick — bilateral terminal stick",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight; easy low-amplitude intent (about3/10 effort), no height/distance contest. Nominal forward displacement 0.20m; relaxed arms start beside the trunk and use a small natural forward swing. Two-foot takeoff and landing, then a2s hold.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "The8s figure is an execution/hold/reset envelope, not a command to slow flight: up to2s for dip/takeoff/landing,2s hold,4s standing/walking reset inside the same bay. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          },
+          "compressed_L": {
+            "variant": "Snap-Down to Stick — bilateral-tall-reach-stick, grounded",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 8,
+            "effort_load": "Bodyweight, low-demand controlled grounded descent; 1s descent, 2s stick, 5s stand/reset. No takeoff or flight.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "Grounded8s envelope:1s controlled descent,2s hold,5s stand/reset; both feet stay grounded throughout. Source default set/rep counts and profile placement are explicitly adapted for instruction. Count attempts including faults; no replacement attempts to achieve a valid-rep quota."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#landing_routes",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::S1",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "HINGE-BW",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "The two-set D reference retains an actually established comparable two-set dose: first reproduce hip-back motion with a concise cue, then retain it after recovery. If the actual previous dose was one set, including OR-01 compressed D, or history is unknown, select the explicit one-set D hold below. L has one smaller observed set. More teaching time alone never adds a set or resistance.",
+      "prior_current_next": "OR-01 standard D supplies2×3/4/4, while OR-01 compressed D supplies1×3/4/4. Actual comparable two-set history →retain two sets today when ready; actual one-set or unknown history →D one-set hold at3/4/4. OR-06 starts from that actual finishing dose and can retain it or consider one justified change. No calendar increment or missed-session debt.",
+      "advance_hold_regress": "Keep arms, range, cadence and zero external load while cue dependence decreases. Hold emerging control; reduce the stated range or stop as appropriate. A later manageable hinge resistance requires separate setup/handling evidence and recorded readiness; it is not earned by finishing two sets.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 2,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight only;3s hips back/1s stand. Easy practice, at least5 controlled reps in reserve by coach judgment. Retain the comfortable demonstrated range; no loading increase.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::S2",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "SQUAT-BW",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "One set preserves the knee pattern and gives a contrast to the hip lesson without a second knee volume demand after landing practice.",
+      "prior_current_next": "Actual OR-01 knee observation or direct equivalent →one retained set today →OR-03 knee/unilateral distinction at its separately qualified stance. Standard OR-01’s second knee set is deliberately omitted, not owed later.",
+      "advance_hold_regress": "Retain zero load, tempo and comfortable range. Stop or simplify within the recorded range if control is lost. Keep the pattern-specific status separate from landing and hinge results.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::S3",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "INCLINE-PUSH",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "The single set retains supported pressing and trunk organization at low fatigue, leaving shoulder/wrist capacity for the separate tumbling decision.",
+      "prior_current_next": "Actual OR-01 or direct support/push record →one retained set →OR-03 familiar upper-body role; OR-05 later checks upper-body handling independently of jump competence.",
+      "advance_hold_regress": "Retain support, range and load; no lower surface today. Stop/reduce the action for control loss or symptoms. A different support/foot position must be recorded and timed.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — stable90cm reference support, individually verified height",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve. Retain the qualified support/foot position from the actual prior exposure; first visitors use a coach-selected suitable high support.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual height. All ages use the same support-selection rule; older age does not lower the surface."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::S4",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "SUPPORTED-ROW",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "One both-side set retains a controlled pulling pattern and safe handling while avoiding extra posterior-chain teaching or unsupported trunk demand.",
+      "prior_current_next": "Actual OR-01 row/setup evidence or direct equivalent →one controlled both-side set →OR-03 retains eligible pulling; OR-05 later handles upper-body/release skills independently.",
+      "advance_hold_regress": "Retain the suitable prior load, or use a coach-selected very manageable first-visit load. Record actual kg and side quality. Stop for symptoms or loss of support/control; do not restore lost reps with a second set.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench, one manageable dumbbell",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Retain a qualified manageable prior load, or coach-select a very light first-visit load; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "Both sides belong to this single set. The first listed repetition is the observation check; no extra test rep."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    },
+    {
+      "key": "OR-02::S5",
+      "session": "OR-02",
+      "outline_ref": {
+        "path": "instructional_on_ramp/instructional_map.json",
+        "id": "OR-02",
+        "prior": [
+          "OR-01"
+        ],
+        "next": [
+          "OR-03",
+          "OR-06"
+        ]
+      },
+      "mapping_ref": "HEEL-TAP",
+      "conditional_mapping_refs": [],
+      "live_canonical_definition_id": null,
+      "set_purpose": "One low-load set rehearses quiet trunk position with alternating leg motion. It preserves the brace role while reducing standard OR-01’s second set after new landing practice.",
+      "prior_current_next": "Actual OR-01 brace or direct equivalent →one small set today →OR-03 selected brace and separate tumbling handoff. Supported breathing records its own result rather than a heel-tap pass.",
+      "advance_hold_regress": "Hold the exact range/arm rule and small dose. Shorten recorded range or stop if trunk control changes. One set suffices for today’s supporting role; later dose depends on actual response and the tumbling workload.",
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — arms fixed vertical, alternating bent-leg contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return with natural breathing. Use an explicitly selected comfortable light heel target; stop before trunk position changes.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Observe tabletop during setup. The first listed heel contact is the moving-limb observation, counted within the total. This is the labeled Strength-context adaptation of a preparation profile."
+          }
+        }
+      },
+      "all_route_doses_ref": "instructional_on_ramp/week_01/or_02.json#alternative_doses",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null
+    }
+  ]
+}

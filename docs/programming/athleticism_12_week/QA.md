@@ -72,7 +72,7 @@ The Director authored all sixty main daily briefs and the common operating contr
 
 ### Gate decision and limits
 
-The **outline-before-prescription gate is open for Stage 3 work**. This permits resolving standards and developing the two exemplars; it is not exercise-card publication, clinical clearance, a claim that equipment exists, or approval of an unwritten workout. No detailed main or instructional session has yet been completed. None of the final exercise-level age prescriptions, set-purpose/dose arithmetic or actual group timing has been certified by the Stage 2 checker.
+The **outline-before-prescription gate opened for Stage 3 work**. At that Stage 2 checkpoint no detailed main or instructional session had been completed. This historical gate permitted standards and exemplar development; it was not exercise-card publication, clinical clearance, or a claim that equipment exists. None of the final exercise-level age prescriptions, set-purpose/dose arithmetic or actual group timing is certified by the Stage 2 checker. The subsequent Stage 3 evidence below has its own scope.
 
 Current facility/release eligibility, exact exercise/cue variants, implements/counts, running geometry, coaching coverage, actual athlete history and precise separately managed tumbling content remain explicit later dependencies. Resolve or transparently carry the appropriate planning assumptions; do not invent approval or treat missing actual work as zero. Once a detailed session changes an outline decision, update the revision log and affected exposure links before extending it.
 
@@ -81,9 +81,47 @@ Current facility/release eligibility, exact exercise/cue variants, implements/co
 | Stage | Required evidence | Current state |
 |---|---|---|
 | 2 | All 60 main outline entries and 20 instructional-map entries, prior/next relevant exposures, targets, anchors, attendance and workload logic; independent audit and reconciliation | Complete for outline scope; PASS with later-stage dependencies explicit |
-| 3 | Resolved library/age/prescription standards, complete timed preparation, one main exemplar and one on-ramp exemplar; set-purpose and logistical review | Not started |
-| 4 | 20 individually developed instructional sessions; competency/entry matrix and weekly audits | Not started |
-| 5 | 60 individually developed main sessions; each day/week/period reviewed with updated workload and progression ledgers | Not started |
+| 3 | Resolved library/age/prescription standards, complete timed preparation, one main exemplar and one on-ramp exemplar; set-purpose and logistical review | Written athletic design complete and reviewed; operational release and separate tumbling remain unresolved |
+| 4 | 20 individually developed instructional sessions; competency/entry matrix and weekly audits | OR-01–04 written/reviewed; OR-05–20 and weekly audits remain |
+| 5 | 60 individually developed main sessions; each day/week/period reviewed with updated workload and progression ledgers | Day 1 exemplar written/reviewed; Day 2–60 and weekly/period audits remain |
 | 6 | Complete coach assembly and requirement-by-requirement verification, including separate tumbling status and full exposure-chain traceability | Not started |
 
 Do not infer that a future session passes because this strategy is coherent. Calculable timing, identities, set purposes, age prescriptions and equipment constraints require their own evidence; programming judgment additionally reviews whether the work contributes to the stated outcome.
+
+## Stage 3 — PASS for two written athletic exemplars
+
+[EXEMPLAR_REVIEW.md](prescriptions/EXEMPLAR_REVIEW.md) records the substantive corrections, actual agent roles, final scoped review and outstanding dependencies. The complete preparation and both session exports now include the three age bands, exact set purposes/doses, D/L and compressed prescriptions, competency overrides, selected alternatives and auditable timing. The reviewed sessions preserve their distinct continuing-athlete and instructional purposes.
+
+[EXEMPLAR_CHECK_RESULTS.json](prescriptions/EXEMPLAR_CHECK_RESULTS.json) recalculates 132 age/mode/alternative scenarios, all four preparation clocks and 384 readiness routes, with five deliberate invalid cases rejected. These are checks of authored numeric models, not observed execution or approval. The Director added the mixed-cohort heel-tap scenarios after the critic's final integrated review; they preserve its explicitly reviewed one-brace-set schedule. Source and export fingerprints identify the checked state.
+
+[LEDGER_INDEX.md](LEDGER_INDEX.md) explains the detailed progression/workload supplements and their links to the unchanged Stage 2 anchor/family architecture. Current written doses are in those supplements; actual histories/results remain unknown. No extra finisher work or missing tumbling dose is silently entered as completed training.
+
+At the Stage 3 checkpoint, the next work unit was OR-02; that PASS did not preapprove it. The subsequent session-specific evidence below establishes its own written-design result. The full goal still requires the remaining main/instructional sessions, weekly/period/program audits, coach assembly and truthful resolution/status of the mapping/facility/tumbling dependencies.
+
+## Stage 4 — OR-02 written and reviewed
+
+[OR-02 review](instructional_on_ramp/week_01/or_02_review.md) records the individually authored landing/hinge session, source gates, exact age/mode doses and the resolved carryover/route findings. The independent programming critic returned PASS for its written design. The preparation/age specialist verified the final grounded notes, target interpretation and one-set hip hold. The librarian documented the exact local jump/snap-down source contracts and their remaining release conflicts.
+
+[OR-02 numeric results](instructional_on_ramp/week_01/or_02_check_results.json) cover 240 eligible scenarios and six rejected invalid probes. These include the prior-one-set/unknown-history D hinge hold, which prevents the compressed OR-01 visitor's hip volume from being silently doubled. The source and exported prescriptions match the saved fingerprints. Session-specific progression/workload ledgers keep planned scenarios separate from unknown actual work.
+
+At the OR-02 checkpoint, two instructional athletic sessions and one main exemplar were reviewed; eighteen instructional and fifty-nine main sessions remained. That checkpoint opened OR-03 without preapproving it. Its later evidence is below. No instructional week or main phase was complete at that point; operating approvals and separate tumbling remained unresolved.
+
+## Stage 4 — OR-03 written and reviewed
+
+[OR-03 review](instructional_on_ramp/week_01/or_03_review.md) records the individually authored straight-stop and supported-stance lesson. The independent programming critic returned PASS after the complete movement/return envelopes, preparation transfers, wall reorientation and unknown-entry alternatives were corrected. The librarian distinguished exact jogging and mid-range isometric records from walking, high-stance and quiet-standing teaching adaptations.
+
+[OR-03 numeric results](instructional_on_ramp/week_01/or_03_check_results.json) recalculate 504 eligible scenarios across three ages, four modes, four travel/position choices, three stance histories and two independent support alternatives. Jogging is restricted to D; all combinations are alternatives, not cumulative work. The checks cover both-lead holds, exactly two preparation tasks, complete group clocks, returns and recovery, five planned Strength sets, source gates, and distinct approach/contact categories. Deliberately invalid models must be rejected; the result file records the cases and source fingerprints.
+
+OR-02's actual one-set hip history stays one; actual two-set history is explicitly reduced to one supporting set while stopping and stance instruction lead. The unknown-entry stance route adds no P1 split holds and counts S1's first taught entries inside its sole set. Planned attempts include faults; actual results and incomplete/deferred work remain separately recorded, never inferred from a numeric scenario.
+
+At the OR-03 checkpoint, three instructional athletic sessions and one main exemplar were reviewed. Seventeen instructional and fifty-nine main detailed sessions remained. That checkpoint opened OR-04 without preapproving it; its later evidence is below. Weekly/period/program audits, assembly, operational approvals and precise separate tumbling remained open.
+
+## Stage 4 — OR-04 written and reviewed
+
+[OR-04 review](instructional_on_ramp/week_01/or_04_review.md) documents the upright-rhythm/corridor lesson, including a separately counted whole-corridor walk before the main practice. The independent critic returned PASS for the complete written design. Local source review distinguished archived maximal stride-out content and Flying Sprint from the explicitly authored easy lesson, and traveling A-March from its basic stationary teaching adaptation.
+
+[OR-04 numeric results](instructional_on_ramp/week_01/or_04_check_results.json) cover 480 eligible age/mode/preparation/travel/support combinations. The checker verifies nine task records, exactly two preparation tasks, a counted E0 walk/orientation, all physical phases and side counts, returns, assigned coach coverage, recovery, five familiar Strength sets, source/readiness gates and rejected invalid cases. Mixed P2 return checks retain physical spacing as an unverified condition. Source fingerprints and separate nine-row anchor/workload supplements preserve exact checked inputs and unknown actual work.
+
+The 40/140-second target split charges bay-to-queue transfer to P2. Basic P1 rehearsal explicitly uses20s recovery; stationary P2/E1 keep60s. Compressed L has no E1 follow-up after its counted E0 observation. Equal six/four-minute Strength blocks preserve balanced teaching while actual one-set history stays one and compatible two-set history is deliberately reduced. Long easy running, long walking, short acceleration, short walking, stationary marching and quiet standing retain distinct results; none automatically qualifies maximal velocity.
+
+Four instructional athletic sessions and one main exemplar are now written and reviewed. OR-05 is next, then the instructional Week 1 audit. Sixteen instructional and fifty-nine main detailed sessions remain, with later weekly/period/program audits and assembly open. Current operational approval, actual facility/readiness and the separate tumbling prescription remain unresolved.

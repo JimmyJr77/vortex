@@ -1,0 +1,188 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T03:04:20.360890+00:00",
+  "session": "OR-03",
+  "scenario_count": 504,
+  "scope": "All three ages/four modes, eligible travel and stance routes, both support switches; individual attempts/returns/recovery, paired lead holds, five Strength sets, actual-history hip retention, source gates and separate walking/jogging/braking/standing exposure. Shared preparation rechecked.",
+  "limits": [
+    "Numeric authored model, not observed delivery or a readiness pass",
+    "Actual contacts/results remain unknown",
+    "Current canonical release unverified",
+    "Precise separate tumbling missing",
+    "Substantive coaching review is recorded separately",
+    "Selections are conditional planned scenarios; an actual mixed cohort still requires route, sightline and path checks",
+    "P2 permits up to two returners in each dedicated one-way path; physical width and headway remain unverified"
+  ],
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages",
+        "P1/9-11: all four modes"
+      ]
+    },
+    {
+      "case": "missing set purpose",
+      "rejected": true,
+      "sample_findings": [
+        "P1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "extra target attempt",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/walk/midrange/default_supports/P2: target covers 15 once",
+        "12-14/compressed_D/walk/midrange/suspension_pull/P2: target covers 15 once"
+      ]
+    },
+    {
+      "case": "missing independent easy-jog gate",
+      "rejected": true,
+      "sample_findings": [
+        "independent easy-jog prerequisite"
+      ]
+    },
+    {
+      "case": "zero incorrectly asserted jogging contacts",
+      "rejected": true,
+      "sample_findings": [
+        "jogging/braking contacts unknown, not zero"
+      ]
+    },
+    {
+      "case": "jog route made available in L",
+      "rejected": true,
+      "sample_findings": [
+        "jog D-only",
+        "travel/jog/9-11/standard_L/P2: sets"
+      ]
+    },
+    {
+      "case": "midrange entry gate removed",
+      "rejected": true,
+      "sample_findings": [
+        "midrange source212 entry/exit gates"
+      ]
+    },
+    {
+      "case": "one lead omitted from S1",
+      "rejected": true,
+      "sample_findings": [
+        "stance/midrange/12-14/compressed_D/S1: both-side repetition arithmetic"
+      ]
+    },
+    {
+      "case": "unmodeled second supporting hip set",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/jog/midrange/default_supports/S2: one supporting/teaching set",
+        "12-14/compressed_D/jog/midrange/default_supports: exactly five Strength sets"
+      ]
+    },
+    {
+      "case": "overlapping main observers",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/standard_D/jog/midrange/default_supports: main observation needs five-second coach/marker gap",
+        "9-11/standard_D/jog/midrange/default_supports: same lane reused before full return"
+      ]
+    },
+    {
+      "case": "return extends past next same-lane release",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/jog/midrange/default_supports: same lane reused before full return",
+        "12-14/compressed_D/jog/midrange/default_supports: same lane reused before full return"
+      ]
+    },
+    {
+      "case": "row exceeds serialized window",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/jog/midrange/default_supports/S4: instruction/work/recovery allocation",
+        "12-14/compressed_D/jog/midrange/default_supports/S4: instruction/work/recovery allocation"
+      ]
+    },
+    {
+      "case": "braking cue after brake zone begins",
+      "rejected": true,
+      "sample_findings": [
+        "jog: ordered approach/brake/finish/runoff"
+      ]
+    },
+    {
+      "case": "unmapped source reference",
+      "rejected": true,
+      "sample_findings": [
+        "S2: mapped source record"
+      ]
+    },
+    {
+      "case": "standing prerequisite removed",
+      "rejected": true,
+      "sample_findings": [
+        "standing independent comfortable-standing prerequisite"
+      ]
+    },
+    {
+      "case": "newcomer P1 gains an uncounted split entry",
+      "rejected": true,
+      "sample_findings": [
+        "12-14/compressed_D/jog/learn_high/default_supports: learn-high P1 contains zero split holds or trial entries",
+        "12-14/compressed_D/jog/learn_high/suspension_pull: learn-high P1 contains zero split holds or trial entries"
+      ]
+    },
+    {
+      "case": "P2 return path has shared merge",
+      "rejected": true,
+      "sample_findings": [
+        "P2 overlapping return occupancy requires dedicated one-way paths without shared merges"
+      ]
+    },
+    {
+      "case": "required P1 numeric segments removed",
+      "rejected": true,
+      "sample_findings": [
+        "high/P1: required execution segments"
+      ]
+    },
+    {
+      "case": "P2 side exit exceeds short-route bound",
+      "rejected": true,
+      "sample_findings": [
+        "P2 side gate within one metre of finish"
+      ]
+    },
+    {
+      "case": "main fits active time but lacks five-second coach gap",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/standard_D/jog/midrange/default_supports: main observation needs five-second coach/marker gap",
+        "9-11/standard_D/jog/midrange/suspension_pull: main observation needs five-second coach/marker gap"
+      ]
+    },
+    {
+      "case": "standing alternative omitted",
+      "rejected": true,
+      "sample_findings": [
+        "four required travel routes"
+      ]
+    }
+  ],
+  "sha256": {
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "instructional_on_ramp/week_01/or_03.md": "be50f1e6125dac66e1ce7b35f08fbe06d93861c7e5c7a097f8cb47eec595aa47",
+    "prescriptions/author_or_03.py": "450ae208678fe43c6516da688d9d0c43ff671d15a1413d51ca84684840432401",
+    "prescriptions/check_or_03.py": "863d2b75a0e261035d80c721d7bdb7f0da0268a0e7f40627f77e167c16c295f7",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11"
+  }
+}

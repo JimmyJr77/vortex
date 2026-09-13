@@ -35,19 +35,22 @@ function cardRows(cards) {
     structured_profile_reviewed_by: card.structuredProfileReview.reviewedBy,
     structured_profile_reviewed_at: card.structuredProfileReview.reviewedAt,
     load_profile_json: card.loadProfile, fatigue_profile_json: card.fatigueProfile,
+    programming_profile_json: card.programming,
     profile_key: profile.id, phase_key: profile.phaseKey, role: profile.role, purpose: profile.purpose,
     phase_suitability: profile.phaseSuitability, methodology_alignment: profile.methodologyAlignment,
     objective_relevance_json: profile.objectiveRelevance, dosage_json: profile.dosage,
     quality_gate: profile.qualityGate, stop_rules: profile.stopRules, coach_instructions: profile.coachInstructions,
     athlete_instructions: profile.athleteInstructions, expected_adaptation: profile.expectedAdaptation,
+    time_model_json: profile.timeModel, dose_scaling_json: profile.doseScaling,
     equipment_required: profile.equipmentRequired, logistics_json: {
+      ...profile.logistics,
       scalingByCohort: profile.scalingByCohort, modifierKeys: profile.modifierKeys,
     },
   })))
 }
 
 export function libraryPool({ cards = [libraryCard()], releaseIds = cards.map((card) => card.id), noRelease = false,
-  methods = [], profiles = [], failQuery = null, rollbackFailure = null } = {}) {
+  methods = [], profiles = [], prescriptions = [], methodStopRules = [], methodValidatorRules = [], methodCompatibilityRows = [], methodQualityStandards = [], programmingRuleReviews = [], failQuery = null, rollbackFailure = null } = {}) {
   const calls = []
   const client = {
     async query(sql, params = []) {
@@ -55,6 +58,11 @@ export function libraryPool({ cards = [libraryCard()], releaseIds = cards.map((c
       if (sql === 'ROLLBACK' && rollbackFailure) throw rollbackFailure
       if (failQuery && sql.includes(failQuery)) throw new Error('database unavailable')
       if (/^(BEGIN|COMMIT|ROLLBACK)/.test(sql)) return { rows: [] }
+      if (sql.includes('canonical_programming_rule_reviews')) {
+        assert.equal(params[0], '9')
+        const requested = JSON.parse(params[1])
+        return { rows: programmingRuleReviews.filter((row) => requested.some((entry) => entry.variantId === row.variant_id && entry.cardVersion === row.reviewed_card_version)) }
+      }
       if (sql.includes('workout_library_release_v1')) {
         assert.deepEqual(params, ['9'])
         return { rows: noRelease ? [] : [{ id: uuid(900), version: 'fixture-release', rule_version: 'fixture-rules', definition_ids: releaseIds }] }
@@ -71,6 +79,11 @@ export function libraryPool({ cards = [libraryCard()], releaseIds = cards.map((c
       if (sql.includes('SELECT * FROM coaching.programming_method_phase_profile')) {
         return { rows: profiles.filter((profile) => params[0].includes(String(profile.programming_method_id))) }
       }
+      if (sql.includes('SELECT * FROM coaching.programming_method_prescription_profile')) return { rows: prescriptions.filter((row) => params[0].includes(String(row.programming_method_id))) }
+      if (sql.includes('SELECT * FROM coaching.programming_method_stop_rule')) return { rows: methodStopRules.filter((row) => params[0].includes(String(row.programming_method_id))) }
+      if (sql.includes('SELECT * FROM coaching.programming_method_validator_rule')) return { rows: methodValidatorRules.filter((row) => params[0].includes(String(row.programming_method_id))) }
+      if (sql.includes('SELECT * FROM coaching.programming_method_exercise_compatibility')) return { rows: methodCompatibilityRows.filter((row) => params[0].includes(String(row.programming_method_id))) }
+      if (sql.includes('SELECT * FROM coaching.programming_method_quality_standard')) return { rows: methodQualityStandards.filter((row) => params[0].includes(String(row.programming_method_id))) }
       return { rows: [] }
     },
     release(error) { calls.push({ sql: 'RELEASE', error }) },
