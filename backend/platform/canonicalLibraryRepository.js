@@ -1,3 +1,5 @@
+import { libraryScopeId } from './coachingLibraryContext.js'
+
 /**
  * Loads only coach-approved canonical cards. Legacy review rows are deliberately
  * invisible until definition, variant, profile, scores, and media are approved.
@@ -282,6 +284,7 @@ export async function loadPublishedCanonicalLibrary(pool, facilityId) {
       equipmentRequired: row.equipment_required ?? [],
       substitutions: (row.substitution_ids ?? []).map(String),
       timeModel: row.time_model_json ?? {},
+      logistics: row.logistics_json ?? {},
       doseScaling: row.dose_scaling_json ?? {},
       measurement: row.measurement_json ?? {},
       supportPrompts: row.support_prompts_json ?? {},
@@ -323,6 +326,22 @@ export async function loadCurrentCanonicalLibraryRelease(pool, facilityId) {
     [facilityId],
   )
   return result.rows[0] ?? null
+}
+
+/** Shared release intersection; use a snapshot client for a multi-library handoff. */
+export async function loadReleasedCanonicalLibrary(pool, facilityId) {
+  const scopeId = libraryScopeId(facilityId, 'facilityId')
+  const release = await loadCurrentCanonicalLibraryRelease(pool, scopeId)
+  if (!release) return { release: null, library: [], status: 'no_published_release', publishedVariantCount: 0 }
+  const published = await loadPublishedCanonicalLibrary(pool, scopeId)
+  const releaseIds = new Set((release.definition_ids ?? []).map(String))
+  const library = published.filter((card) => releaseIds.has(String(card.id)))
+  return {
+    release,
+    library,
+    status: library.length > 0 ? 'ready' : 'no_eligible_released_cards',
+    publishedVariantCount: published.length,
+  }
 }
 
 export async function persistCanonicalWorkout(pool, facilityId, userId, release, output) {

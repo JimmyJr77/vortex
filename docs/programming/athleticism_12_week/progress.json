@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "project": "Vortex recurring athleticism block and separate instructional on-ramp",
+  "objective_ref": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+  "status": "active",
+  "current_stage": 2,
+  "stage_status": "complete",
+  "previous_goal_turn": {
+    "classification": "no_progress",
+    "evidence": "The immediately preceding turn fulfilled the separate Git request and verified the philosophy was already pushed; it did not advance regimen design. This continuation revalidated the worktree and completed the next safe work unit: the full Stage 2 outline and audit."
+  },
+  "scope": {
+    "main_weeks": 12,
+    "main_days_per_week_offered": 5,
+    "main_sessions_required": 60,
+    "on_ramp_weeks": 4,
+    "on_ramp_days_per_week_offered": 5,
+    "on_ramp_sessions_required": 20,
+    "reference_age_band": "12–14; experience independent of age",
+    "age_bands": [
+      "9–11",
+      "12–14",
+      "15–18"
+    ],
+    "athletic_minutes": [
+      90,
+      60
+    ],
+    "separate_tumbling_minutes": 30,
+    "calendar_dates_assigned": false,
+    "app_implementation": false
+  },
+  "completed_counts": {
+    "main_outline_entries": 60,
+    "on_ramp_outline_entries": 20,
+    "main_detailed_sessions": 0,
+    "on_ramp_detailed_sessions": 0,
+    "finalized_canonical_exercise_mappings": 0,
+    "linked_approved_tumbling_sessions": 0,
+    "planned_anchor_ledger_rows": 420,
+    "planned_main_workload_rows": 60
+  },
+  "artifacts": {
+    "strategy": "BLOCK_STRATEGY.md",
+    "source_conflict_assumption_register": "SOURCE_REGISTER.md",
+    "quality_review": "QA.md",
+    "progression_outline": "PROGRESSION_OUTLINE.md",
+    "structured_progression_outline": "progression_outline.json",
+    "outline_contract": "OUTLINE_CONTRACT.md",
+    "instructional_map": "instructional_on_ramp/INSTRUCTIONAL_MAP.md",
+    "structured_instructional_map": "instructional_on_ramp/instructional_map.json",
+    "anchor_library_candidates": "ANCHOR_LIBRARY_CANDIDATES.md",
+    "anchor_progression_ledger": "anchor_progression_ledger.json",
+    "workload_exposure_ledger": "workload_exposure_ledger.json",
+    "outline_revision_log": "OUTLINE_REVISION_LOG.md",
+    "outline_deterministic_checks": "OUTLINE_CHECK_RESULTS.json",
+    "outline_authoring_source": "planning/main_outline_authoring.py",
+    "outline_renderer": "planning/render_main_outline.py",
+    "outline_checker": "planning/check_outline.py"
+  },
+  "source_snapshot": {
+    "spec": {
+      "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+      "sha256": "42752dd131b45ed5d44e76927a8da6c3677f64773da625cad4de444cfab93cb3",
+      "downloads_copy_identical": true
+    },
+    "philosophy": {
+      "path": "docs/VORTEX_TRAINING_PHILOSOPHY.md",
+      "sha256": "3364eba6ff9b7ecfe4f44ebf07eb2e2755bb2f85f940e9977976a0e2154a529e"
+    },
+    "original_supplied_philosophy": {
+      "path": "/Users/jimmy_mac/Downloads/Vortex_Training_Philosophy_Codex.md",
+      "sha256": "f5ffc86f0e0f114177e38b99afcba95927df7f0f45755eb76b9f1dedcac9ffdc"
+    }
+  },
+  "agent_reviews": [
+    {
+      "role": "Programming/exercise librarian",
+      "agent": "library_review",
+      "status": "completed",
+      "evidence": "SOURCE_REGISTER.md R06–R15; D01–D10; A04–A07"
+    },
+    {
+      "role": "Public-methodology reviewer",
+      "agent": "public_principles",
+      "status": "completed",
+      "evidence": "SOURCE_REGISTER.md E01–E07; D13–D14"
+    },
+    {
+      "role": "Independent programming critic",
+      "agent": "strategy_critic",
+      "status": "completed",
+      "result": "PASS for Stage 1; optional entry-week wording clarified"
+    },
+    {
+      "role": "Instructional on-ramp specialist",
+      "agent": "public_principles",
+      "stage": 2,
+      "status": "completed",
+      "evidence": "20 authored instructional entries,10 competency domains,hypothetical mid-block pathway and synchronized JUMP-T/REACT-T gates."
+    },
+    {
+      "role": "Exercise/programming librarian",
+      "agent": "library_review",
+      "stage": 2,
+      "status": "completed",
+      "evidence": "ANCHOR_LIBRARY_CANDIDATES.md: tangible local identities, alternatives and method semantic constraints; no live approval claimed."
+    },
+    {
+      "role": "Independent programming critic",
+      "agent": "strategy_critic",
+      "stage": 2,
+      "status": "completed",
+      "result": "PASS after reconciliation",
+      "evidence": "QA.md Stage2 and OUTLINE_REVISION_LOG.md 2.0-02 through2.0-05."
+    }
+  ],
+  "next_work_unit": "Stage 3: resolve current library identities/eligibility or explicitly bounded candidate mappings, prescription template and all three age/readiness fields; calculate full and compact standardized preparation for15athletes/3lanes/assumed2coaches. Build one complete main exemplar (Day1) and one complete instructional exemplar (OR-01), each with every set purpose,dose,explicit age variants,independent progression links,D/L and compressed routes,equipment/rest/transition arithmetic,and truthful separate tumbling status. Review/correct both before sequential on-ramp development. Do not bulk-fill workouts.",
+  "detailed_prescription_gate": {
+    "state": "open_for_stage3",
+    "evidence": "All60 main and20 OR outline entries complete; independent complete-outline programming PASS; synchronized entry gates and PASS_STRUCTURAL with fingerprints in OUTLINE_CHECK_RESULTS.json.",
+    "limit": "This opens standards/exemplar work only; no exercise approval, final dose, timed-group-feasibility or completed tumbling prescription is inferred."
+  },
+  "future_state_artifacts": {
+    "progression_outline": "complete_stage2",
+    "instructional_map": "complete_stage2",
+    "prescription_template": "not_started",
+    "standardized_warmup_prescriptions": "not_started",
+    "anchor_progression_ledger": "created_stage2_planned_intents_numeric_doses_unresolved",
+    "workload_exposure_ledger": "created_stage2_main_offerings_numeric_and_actual_work_unknown",
+    "outline_revision_log": "created_and_reconciled_stage2"
+  },
+  "unresolved_dependencies": [
+    "Current approved facility/release exercise, variant, delivery-profile and programming-method records before final selections.",
+    "Actual coach count, lane dimensions/run-off, equipment quantities and supervision feasibility before final session timing.",
+    "Actual athlete completed exposure/history, restrictions and sport commitments before individual delivery.",
+    "Precise separately approved tumbling session references or explicitly reviewed separate content; a handoff is not a completed prescription."
+  ],
+  "last_checks": {
+    "source_copy_integrity": "pass",
+    "vortex_facing_branding": "pass",
+    "stage1_has_no_daily_workout_files": "pass",
+    "template_arithmetic": "90+30=120;60+30=90",
+    "prescription_timing": "not_yet_testable",
+    "full_goal_completion": "not_achieved",
+    "independent_stage1_critique": "PASS",
+    "template_clock_parsed_from_strategy": "PASS: contiguous 0–90 and 0–60 athletic windows",
+    "stage2_counts": "PASS:60main+20OR",
+    "stage2_traceability": "PASS:420plannedanchorrows+60mainworkloadrows",
+    "fixed_weekday_coverage": "PASS:every5-weekwindowincludesall5focusfamilies;31nonemptyfixedweekdaypatternsinspected",
+    "independent_stage2_critique": "PASS afterfour substantivecorrectiongroups",
+    "stage2_entry_branch_sync": "PASS:JUMP-T/REACT-T separate gates/accounting/recovery;OR-06 alone does not qualify throwing",
+    "actual_exposure_data": "unknown;notzero",
+    "stage2_check_command": "python3 docs/programming/athleticism_12_week/planning/check_outline.py"
+  },
+  "next_stage": 3,
+  "outline_version": "2.0",
+  "outline_evidence_sha256": {
+    "progression_outline.json": "67a937c6938bb29354f4c4c10af9a669121a36f7aa0252bf5c449bb589d3956e",
+    "anchor_progression_ledger.json": "c657a8d8e207a7b4982aa5e83e6a2aa87adfc9d27b620a9d456b96b1793c5f7c",
+    "workload_exposure_ledger.json": "db562684fa38034a58f569da8e4989cc76a9b705dde1bdbe58b9b2a2c6905f78",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867"
+  }
+}

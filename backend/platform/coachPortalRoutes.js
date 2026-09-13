@@ -123,7 +123,7 @@ import {
   listCanonicalSwapCandidates,
 } from './canonicalDeterministicEngine.js'
 import {
-  loadCurrentCanonicalLibraryRelease,
+  loadReleasedCanonicalLibrary,
   loadPublishedCanonicalLibrary,
   persistCanonicalWorkout,
 } from './canonicalLibraryRepository.js'
@@ -1929,13 +1929,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       const access = await canonicalFacilityFeatureAccess(pool, facilityId, 'canonical_generator_coach_opt_in')
       if (!access.enabled) return bad(res, 'Canonical workout generator is not enabled for this facility.', 404, { reason: access.reason })
       const userId = Number(req.platformAuth.user.id)
-      const release = await loadCurrentCanonicalLibraryRelease(pool, facilityId)
+      const { release, library } = await loadReleasedCanonicalLibrary(pool, facilityId)
       if (!release) {
         return bad(res, 'No published canonical exercise-library release is available.', 409)
       }
-      const published = await loadPublishedCanonicalLibrary(pool, facilityId)
-      const releaseIds = new Set((release.definition_ids ?? []).map(String))
-      const library = published.filter((card) => releaseIds.has(String(card.id)))
       if (library.length === 0) {
         return bad(res, 'The published canonical library release has no eligible cards.', 409)
       }
@@ -2027,11 +2024,8 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
         })
       }
 
-      const release = await loadCurrentCanonicalLibraryRelease(pool, facilityId)
+      const { release, library } = await loadReleasedCanonicalLibrary(pool, facilityId)
       if (!release) return bad(res, 'No published canonical exercise-library release is available.', 409)
-      const published = await loadPublishedCanonicalLibrary(pool, facilityId)
-      const releaseIds = new Set((release.definition_ids ?? []).map(String))
-      const library = published.filter((card) => releaseIds.has(String(card.id)))
       if (library.length === 0) return bad(res, 'The published canonical library release has no eligible cards.', 409)
       const output = generateCanonicalWorkout(intent, library, {
         libraryVersion: release.version,

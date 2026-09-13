@@ -1,0 +1,699 @@
+{
+  "stage": 2,
+  "result": "PASS_STRUCTURAL",
+  "errors": [],
+  "counts": {
+    "main_outline_entries": 60,
+    "on_ramp_outline_entries": 20,
+    "planned_anchor_rows": 420,
+    "planned_workload_rows": 60,
+    "main_detailed_sessions": 0,
+    "on_ramp_detailed_sessions": 0
+  },
+  "fixed_weekday_family_counts": {
+    "Monday": {
+      "ACC": 3,
+      "JUMP": 3,
+      "BRAKE": 2,
+      "RUN": 2,
+      "REACT": 2
+    },
+    "Tuesday": {
+      "JUMP": 3,
+      "BRAKE": 3,
+      "RUN": 2,
+      "REACT": 2,
+      "ACC": 2
+    },
+    "Wednesday": {
+      "BRAKE": 3,
+      "RUN": 3,
+      "REACT": 2,
+      "ACC": 2,
+      "JUMP": 2
+    },
+    "Thursday": {
+      "RUN": 3,
+      "REACT": 3,
+      "ACC": 2,
+      "JUMP": 2,
+      "BRAKE": 2
+    },
+    "Friday": {
+      "REACT": 3,
+      "ACC": 3,
+      "JUMP": 2,
+      "BRAKE": 2,
+      "RUN": 2
+    }
+  },
+  "all_31_fixed_weekday_subsets": [
+    {
+      "weekdays": [
+        1
+      ],
+      "example_routes": [
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 3,
+        "JUMP": 3,
+        "BRAKE": 2,
+        "RUN": 2,
+        "REACT": 2
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2
+      ],
+      "example_routes": [
+        "D"
+      ],
+      "focus_coverage": {
+        "JUMP": 3,
+        "BRAKE": 3,
+        "RUN": 2,
+        "REACT": 2,
+        "ACC": 2
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        3
+      ],
+      "example_routes": [
+        "D"
+      ],
+      "focus_coverage": {
+        "BRAKE": 3,
+        "RUN": 3,
+        "REACT": 2,
+        "ACC": 2,
+        "JUMP": 2
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        4
+      ],
+      "example_routes": [
+        "D"
+      ],
+      "focus_coverage": {
+        "RUN": 3,
+        "REACT": 3,
+        "ACC": 2,
+        "JUMP": 2,
+        "BRAKE": 2
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        5
+      ],
+      "example_routes": [
+        "D"
+      ],
+      "focus_coverage": {
+        "REACT": 3,
+        "ACC": 3,
+        "JUMP": 2,
+        "BRAKE": 2,
+        "RUN": 2
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2
+      ],
+      "example_routes": [
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "ACC": 5,
+        "JUMP": 6,
+        "BRAKE": 5,
+        "RUN": 4,
+        "REACT": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        3
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 5,
+        "BRAKE": 5,
+        "JUMP": 5,
+        "RUN": 5,
+        "REACT": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 5,
+        "RUN": 5,
+        "JUMP": 5,
+        "REACT": 5,
+        "BRAKE": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 6,
+        "REACT": 5,
+        "JUMP": 5,
+        "BRAKE": 4,
+        "RUN": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        3
+      ],
+      "example_routes": [
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "JUMP": 5,
+        "BRAKE": 6,
+        "RUN": 5,
+        "REACT": 4,
+        "ACC": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "JUMP": 5,
+        "RUN": 5,
+        "BRAKE": 5,
+        "REACT": 5,
+        "ACC": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "JUMP": 5,
+        "REACT": 5,
+        "BRAKE": 5,
+        "ACC": 5,
+        "RUN": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        3,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "BRAKE": 5,
+        "RUN": 6,
+        "REACT": 5,
+        "ACC": 4,
+        "JUMP": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        3,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "BRAKE": 5,
+        "REACT": 5,
+        "RUN": 5,
+        "ACC": 5,
+        "JUMP": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "RUN": 5,
+        "REACT": 6,
+        "ACC": 5,
+        "JUMP": 4,
+        "BRAKE": 4
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 7,
+        "JUMP": 8,
+        "BRAKE": 8,
+        "RUN": 7,
+        "REACT": 6
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 7,
+        "JUMP": 8,
+        "RUN": 7,
+        "BRAKE": 7,
+        "REACT": 7
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 8,
+        "JUMP": 8,
+        "REACT": 7,
+        "BRAKE": 7,
+        "RUN": 6
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        3,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "ACC": 7,
+        "BRAKE": 7,
+        "RUN": 8,
+        "JUMP": 7,
+        "REACT": 7
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        3,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 8,
+        "BRAKE": 7,
+        "REACT": 7,
+        "JUMP": 7,
+        "RUN": 7
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "ACC": 8,
+        "RUN": 7,
+        "REACT": 8,
+        "JUMP": 7,
+        "BRAKE": 6
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        3,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "JUMP": 7,
+        "BRAKE": 8,
+        "RUN": 8,
+        "REACT": 7,
+        "ACC": 6
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        3,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "JUMP": 7,
+        "BRAKE": 8,
+        "REACT": 7,
+        "RUN": 7,
+        "ACC": 7
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "JUMP": 7,
+        "RUN": 7,
+        "REACT": 8,
+        "BRAKE": 7,
+        "ACC": 7
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        3,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "BRAKE": 7,
+        "RUN": 8,
+        "REACT": 8,
+        "ACC": 7,
+        "JUMP": 6
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "ACC": 9,
+        "JUMP": 10,
+        "BRAKE": 10,
+        "RUN": 10,
+        "REACT": 9
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 10,
+        "JUMP": 10,
+        "BRAKE": 10,
+        "REACT": 9,
+        "RUN": 9
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "ACC": 10,
+        "JUMP": 10,
+        "RUN": 9,
+        "REACT": 10,
+        "BRAKE": 9
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        3,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 10,
+        "BRAKE": 9,
+        "RUN": 10,
+        "REACT": 10,
+        "JUMP": 9
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D",
+        "L"
+      ],
+      "focus_coverage": {
+        "JUMP": 9,
+        "BRAKE": 10,
+        "RUN": 10,
+        "REACT": 10,
+        "ACC": 9
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    },
+    {
+      "weekdays": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "example_routes": [
+        "D",
+        "L",
+        "D",
+        "L",
+        "D"
+      ],
+      "focus_coverage": {
+        "ACC": 12,
+        "JUMP": 12,
+        "BRAKE": 12,
+        "RUN": 12,
+        "REACT": 12
+      },
+      "note": "Availability/coverage check only; actual recovery, dose and sport workload remain individual."
+    }
+  ],
+  "focus_chain_gaps": {
+    "ACC": {
+      "offering_slot_gaps": [
+        4,
+        9
+      ],
+      "count": 12
+    },
+    "JUMP": {
+      "offering_slot_gaps": [
+        4,
+        9
+      ],
+      "count": 12
+    },
+    "BRAKE": {
+      "offering_slot_gaps": [
+        4,
+        9
+      ],
+      "count": 12
+    },
+    "RUN": {
+      "offering_slot_gaps": [
+        4,
+        9
+      ],
+      "count": 12
+    },
+    "REACT": {
+      "offering_slot_gaps": [
+        4,
+        9
+      ],
+      "count": 12
+    }
+  },
+  "failure_probes": {
+    "duplicate_day_rejected": true,
+    "broken_anchor_link_rejected": true
+  },
+  "evidence_sha256": {
+    "progression_outline.json": "67a937c6938bb29354f4c4c10af9a669121a36f7aa0252bf5c449bb589d3956e",
+    "anchor_progression_ledger.json": "c657a8d8e207a7b4982aa5e83e6a2aa87adfc9d27b620a9d456b96b1793c5f7c",
+    "workload_exposure_ledger.json": "db562684fa38034a58f569da8e4989cc76a9b705dde1bdbe58b9b2a2c6905f78",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867"
+  },
+  "limits": [
+    "Presence/links/counts/template arithmetic and labeled planning-route coverage only; substantive programming requires independent review.",
+    "No final exercise IDs, age prescriptions, sets, individual recovery doses, equipment counts or actual 15-athlete timing are certified.",
+    "No athlete attendance/results, current facility approval or completed separate tumbling prescription is inferred.",
+    "A focus opportunity does not prove sufficient training frequency or realized adaptation for every fixed-day athlete."
+  ]
+}

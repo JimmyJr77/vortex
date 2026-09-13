@@ -109,6 +109,7 @@ test('repository groups published delivery profiles under a stable variant card'
   const cards = await loadPublishedCanonicalLibrary(pool, 9)
   assert.equal(cards.length, 1)
   assert.equal(cards[0].deliveryProfiles[0].phaseKey, 'capacity')
+  assert.deepEqual(cards[0].deliveryProfiles[0].logistics, { demonstrationSeconds: 30 })
   assert.equal(cards[0].status, 'published')
   assert.deepEqual(cards[0].deliveryProfiles[0].substitutions, ['variant-2'])
   assert.equal(cards[0].relationships[0].similarityScore, 92)

@@ -4,6 +4,7 @@
  */
 import { generateText, jsonSchema, Output } from 'ai'
 import { openai } from '@ai-sdk/openai'
+import { createProgrammingStaffModelInvoker } from './programmingStaffModel.js'
 
 export function isLlmConfigured() {
   return Boolean(process.env.OPENAI_API_KEY || process.env.AI_GATEWAY_API_KEY)
@@ -12,6 +13,13 @@ export function isLlmConfigured() {
 function resolveModel() {
   const modelId = process.env.OPENAI_MODEL || 'gpt-4o-mini'
   return openai(modelId)
+}
+
+/** Staff capabilities reuse the application's configured model/provider. */
+export function configuredProgrammingStaffInvoker(role, sourceReferences = []) {
+  if (!isLlmConfigured()) return null
+  const model = resolveModel()
+  return createProgrammingStaffModelInvoker({ model, modelVersion: model.modelId, role, sourceReferences })
 }
 
 /**

@@ -10,6 +10,7 @@ import {
 } from './programmingMethodProgramming.js'
 import { validateProgrammingBlock, scoreProgrammingMethodForBlock } from './programmingValidation.js'
 import { normalizePhaseKey } from './sessionPhaseKeys.js'
+import { loadProgrammingLibraryPage } from './programmingLibraryRepository.js'
 
 function num(v) {
   if (v == null || v === '') return null
@@ -47,36 +48,14 @@ export function registerProgrammingRoutes(app, pool, { can, canMutateRow: shared
     try {
       const facilityId = req.platformAuth.user.facility_id
       const userId = Number(req.platformAuth.user.id)
-      const params = [facilityId, userId]
-      const where = [
-        `pm.facility_id = $1`,
-        `pm.archived = FALSE`,
-        `((pm.visibility = 'facility' AND pm.is_published = TRUE) OR pm.created_by = $2)`,
-      ]
-      const q = req.query.q ? String(req.query.q).trim() : null
-      if (q) {
-        params.push(`%${q}%`)
-        where.push(`(pm.name ILIKE $${params.length} OR pm.definition ILIKE $${params.length} OR pm.coach_summary ILIKE $${params.length})`)
-      }
-      if (req.query.category) {
-        params.push(String(req.query.category))
-        where.push(`pm.category = $${params.length}`)
-      }
-      const phase = req.query.phase ? normalizePhaseKey(String(req.query.phase)) : null
-      if (phase) {
-        params.push(phase)
-        where.push(`(pm.best_session_phase = $${params.length} OR $${params.length} = ANY(pm.compatible_session_phases))`)
-      }
-      if (req.query.groupFriendly === 'true') {
-        where.push(`(pm.workout_builder_rules->>'group_friendly')::boolean IS TRUE`)
-      }
-      const result = await pool.query(
-        `SELECT pm.* FROM coaching.programming_method pm WHERE ${where.join(' AND ')} ORDER BY pm.category, pm.name LIMIT 500`,
-        params,
-      )
-      const ids = result.rows.map((r) => Number(r.id))
-      const bundle = await loadProgrammingMethodBundle(pool, ids)
-      ok(res, result.rows.map((row) => programmingMethodSummary(row, attachProgrammingMethod(row, bundle))))
+      const page = await loadProgrammingLibraryPage(pool, { facilityId, userId }, {
+        q: req.query.q ? String(req.query.q) : null,
+        category: req.query.category ? String(req.query.category) : null,
+        phaseKey: req.query.phase ? normalizePhaseKey(String(req.query.phase)) : null,
+        groupFriendly: req.query.groupFriendly === 'true',
+        includeOwnDrafts: true,
+      })
+      ok(res, page.methods.map((method) => programmingMethodSummary(method, method)))
     } catch (error) {
       bad(res, error.message, 500)
     }
