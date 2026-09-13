@@ -27,6 +27,12 @@ function routes(overrides = {}, pool = {}) {
     proposeExercise: async (args) => { calls.push({ type: 'proposeExercise', args }); return { state: 'AI_PROPOSED', canonicalDraftId: null, libraryApprovalGranted: false } },
     loadExerciseProposal: async (_pool, context, id) => { calls.push({ type: 'loadExerciseProposal', context, id }); return null },
     acceptExerciseProposal: async (_pool, context, id, input) => { calls.push({ type: 'acceptExerciseProposal', context, id, input }); return { canonicalCardId: 'saved-draft', libraryApprovalGranted: false } },
+    listExerciseProposals: async (_pool, context, options) => { calls.push({ type: 'listExerciseProposals', context, options }); return { items: [], nextCursor: null } },
+    reviewExerciseProposal: async (_pool, context, id) => { calls.push({ type: 'reviewExerciseProposal', context, id }); return null },
+    stageExerciseProposal: async (_pool, context, id, input) => { calls.push({ type: 'stageExerciseProposal', context, id, input }); return { alreadyStaged: false } },
+    loadStagedRevision: async (_pool, context, id) => { calls.push({ type: 'loadStagedRevision', context, id }); return null },
+    loadProposalRevision: async (_pool, context, id) => { calls.push({ type: 'loadProposalRevision', context, id }); return null },
+    changeStagedRevision: async (_pool, context, id, input) => { calls.push({ type: 'changeStagedRevision', context, id, input }); return { state: 'review' } },
     ...overrides,
   })
   const invoke = async (key, patch = {}) => {
@@ -42,7 +48,7 @@ function routes(overrides = {}, pool = {}) {
 test('generation uses authenticated scope, server-owned capabilities and bounded budgets', async () => {
   const api = routes()
   const { req, res, result } = await api.invoke('post /api/coach/workout-programming')
-  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', ...Array.from({ length: 5 }, () => ['workouts.manage', 'library.manage']).flat(), ...Array(5).fill('workouts.manage')])
+  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', ...Array.from({ length: 11 }, () => ['workouts.manage', 'library.manage']).flat(), ...Array(5).fill('workouts.manage')])
   assert.equal(result.status, 200)
   const invocation = api.calls.find((entry) => entry.type === 'generate').args
   assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
@@ -360,5 +366,51 @@ test('human proposal acceptance uses authenticated scope and facility access wit
   for (const code of ['exercise_proposal_not_applicable', 'exercise_proposal_revision_required', 'exercise_proposal_audit_conflict', 'exercise_gap_sources_changed']) {
     const conflict = routes({ acceptExerciseProposal: async () => { throw Object.assign(new Error('Acceptance conflict'), { code }) } })
     assert.equal((await conflict.invoke(key, { body })).result.status, 409)
+  }
+})
+
+test('proposal history and review are scoped reads without model authority or query overrides', async () => {
+  const api = routes({ registryFactory() { throw new Error('Proposal review must not invoke AI') } })
+  const listKey = 'get /api/coach/workout-programming/exercise-proposals'
+  const reviewKey = 'get /api/coach/workout-programming/exercise-proposals/:id/review'
+  assert.equal((await api.invoke(listKey, { query: { limit: '10', beforeCreatedAt: '2026-09-13T00:00:00.000001Z', beforeId: 'audit-id' } })).result.status, 200)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'listExerciseProposals'), { type: 'listExerciseProposals', context: { facilityId: '9', userId: '7' },
+    options: { limit: 10, before: { createdAt: '2026-09-13T00:00:00.000001Z', id: 'audit-id' } } })
+  for (const query of [{ scope: '10' }, { beforeId: 'missing-date' }, { limit: '1.5' }, { limit: ['10'] }]) {
+    assert.equal((await api.invoke(listKey, { query })).result.status, 400)
+  }
+  assert.equal((await api.invoke(reviewKey, { params: { id: 'audit-id' } })).result.status, 404)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'reviewExerciseProposal').context, { facilityId: '9', userId: '7' })
+  assert.equal((await api.invoke(reviewKey, { query: { approved: 'true' } })).result.status, 400)
+  for (const key of [listKey, reviewKey]) {
+    const disabled = routes({ featureAccess: async () => ({ enabled: false }) })
+    assert.equal((await disabled.invoke(key)).result.status, 404)
+    assert.ok(disabled.calls.every((entry) => !['listExerciseProposals', 'reviewExerciseProposal'].includes(entry.type)))
+  }
+})
+
+test('staged revision routes reuse authenticated permissions, facility gates and strict human action contracts without AI', async () => {
+  const stage = 'post /api/coach/workout-programming/exercise-proposals/:id/stage-revision'
+  const read = 'get /api/coach/workout-programming/staged-card-revisions/:id'
+  const change = 'post /api/coach/workout-programming/staged-card-revisions/:id/change'
+  const recover = 'get /api/coach/workout-programming/exercise-proposals/:id/staged-revision'
+  const api = routes({ registryFactory() { throw new Error('Staged review must not invoke AI') } })
+  const hash = 'a'.repeat(64)
+  assert.equal((await api.invoke(stage, { body: { expectedProposalHash: hash }, params: { id: 'proposal-id' } })).result.status, 200)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'stageExerciseProposal').context, { facilityId: '9', userId: '7' })
+  assert.equal((await api.invoke(read, { params: { id: 'staged-id' } })).result.status, 404)
+  assert.equal((await api.invoke(recover, { params: { id: 'proposal-id' } })).result.status, 404)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'loadProposalRevision').context, { facilityId: '9', userId: '7' })
+  const body = { expectedEventHash: hash, action: 'submit', changeSummary: 'Submit this exact staged profile for independent review.' }
+  assert.equal((await api.invoke(change, { params: { id: 'staged-id' }, body })).result.status, 200)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'changeStagedRevision').input, body)
+  assert.equal((await api.invoke(change, { body: { ...body, action: 'approve' } })).result.status, 400)
+  for (const [key, body] of [[stage, { expectedProposalHash: hash }], [read, {}], [recover, {}], [change, { expectedEventHash: hash, action: 'submit', changeSummary: 'Submit this exact candidate.' }]]) {
+    assert.equal((await api.invoke(key, { body, query: { facilityId: '10' } })).result.status, 400)
+    assert.equal((await routes({ featureAccess: async () => ({ enabled: false }) }).invoke(key, { body })).result.status, 404)
+  }
+  for (const code of ['canonical_revision_source_changed', 'canonical_revision_profile_conflict', 'canonical_revision_audit_conflict', 'canonical_revision_conflict', 'canonical_revision_transition']) {
+    const conflict = routes({ changeStagedRevision: async () => { throw Object.assign(new Error('Revision conflict'), { code }) } })
+    assert.equal((await conflict.invoke(change, { body })).result.status, 409)
   }
 })

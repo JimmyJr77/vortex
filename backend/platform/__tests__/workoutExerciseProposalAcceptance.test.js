@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { acceptWorkoutExerciseProposal, normalizeExerciseProposalAcceptanceInput, proposeWorkoutExercise } from '../workoutExerciseProposal.js'
+import { acceptWorkoutExerciseProposal, normalizeExerciseProposalAcceptanceInput, proposeWorkoutExercise, listWorkoutExerciseProposals } from '../workoutExerciseProposal.js'
 import { proposalFixtures, proposalRegistry } from './workoutExerciseProposalFixtures.js'
 import { SCOPE, uuid } from './workoutProgrammingLibrarianFixtures.js'
 
@@ -42,4 +42,13 @@ test('profile proposals remain quarantined until a reviewed revision of their ex
     { code: 'exercise_proposal_revision_required' })
   assert.deepEqual(state.rows, before)
   assert.ok(state.audit.calls.every(({ sql }) => !/^(?:INSERT INTO|UPDATE) coaching\.exercise_(definition|variant|delivery_profile)_v1/.test(sql)))
+})
+
+test('proposal pagination rejects malformed dates, incomplete cursors and unbounded scans before querying', async () => {
+  const pool = { connect() { assert.fail('Invalid list input must not open a database transaction') } }
+  for (const options of [{ limit: 101 }, { limit: 0 }, { limit: '20' }, { scope: 'all' }, { before: { id: uuid(1) } },
+    { before: { id: uuid(1), createdAt: '2026-02-30T00:00:00Z' } }, { before: { id: 'invalid', createdAt: '2026-09-13T00:00:00Z' } },
+    { before: { id: uuid(1), createdAt: '2026-09-13T00:00:00Z', scope: 'all' } }]) {
+    await assert.rejects(listWorkoutExerciseProposals(pool, SCOPE, options), TypeError)
+  }
 })

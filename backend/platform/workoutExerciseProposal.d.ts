@@ -2,6 +2,7 @@ import type { LibraryReadPool, DeliveryPhaseKey } from './workoutProgrammingLibr
 import type { WorkoutExerciseGapResearchInput } from './workoutExerciseGapResearch.js'
 import type { WorkoutExerciseGapAssessment, ExerciseGap } from './workoutExerciseGapAssessment.js'
 import type { ProgrammingStaffRegistry, ProgrammingStaffRunOptions, ProgrammingStaffTrace } from './programmingStaffRuntime.js'
+import type { StagedCanonicalEvent } from './canonicalCardStagedRevision.js'
 
 /** Existing normalized profile fields; remaining canonical metadata stays schema-owned. */
 export interface QuarantinedExerciseProfile {
@@ -20,7 +21,9 @@ export interface QuarantinedExerciseCard {
   readonly familyKey: string; readonly movementPatterns: readonly string[]; readonly bodyRegions: readonly string[]
   readonly requiredEquipment: readonly string[]; readonly optionalEquipment: readonly string[]; readonly contentConfidence: number; readonly scoringConfidence: number
   readonly mediaConfidence: null; readonly approvedVideoUrl: null; readonly provenance: ExerciseProposalProvenance
-  readonly variants: readonly { readonly variantKey: string; readonly displayName: string; readonly profiles: readonly QuarantinedExerciseProfile[]; readonly [canonicalField: string]: unknown }[]
+  readonly variants: readonly { readonly variantKey: string; readonly displayName: string; readonly profiles: readonly QuarantinedExerciseProfile[];
+    readonly difficulty: { readonly technicalComplexity: number; readonly absoluteLoadDemand: number; readonly supervisionDemand: number;
+      readonly failureConsequence: number; readonly impact: number; readonly workCapacityDemand: number }; readonly [canonicalField: string]: unknown }[]
   readonly [canonicalField: string]: unknown
 }
 export type QuarantinedExerciseProposal = { readonly kind: 'new_card'; readonly draft: QuarantinedExerciseCard;
@@ -48,6 +51,20 @@ export interface AcceptedExerciseProposal {
   readonly status: 'draft' | 'review' | 'published' | 'deprecated' | 'archived'
   readonly acceptedBy: string; readonly acceptedAt: string; readonly alreadyAccepted: boolean; readonly libraryApprovalGranted: false
 }
+export interface ExerciseProposalReview { readonly record: RecordedExerciseProposal; readonly acceptance: AcceptedExerciseProposal | null }
+export interface ExerciseProposalCursor { readonly id: string; readonly createdAt: string }
+export interface ExerciseProposalPage {
+  readonly items: readonly { readonly draftAuditId: string; readonly createdAt: string; readonly name: string;
+    readonly componentKey: WorkoutExerciseGapResearchInput['componentKey']; readonly state: RecordedExerciseProposal['state'];
+    readonly kind: QuarantinedExerciseProposal['kind'] | null }[]
+  readonly nextCursor: ExerciseProposalCursor | null
+}
+export function reviewWorkoutExerciseProposal(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string): Promise<ExerciseProposalReview | null>
+export function listWorkoutExerciseProposals(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number },
+  options?: { readonly limit?: number; readonly before?: ExerciseProposalCursor | null }): Promise<ExerciseProposalPage>
 export function normalizeExerciseProposalAcceptanceInput(raw: unknown): ExerciseProposalAcceptanceInput
 export function acceptWorkoutExerciseProposal(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string,
   input: ExerciseProposalAcceptanceInput): Promise<AcceptedExerciseProposal | null>
+export function stageWorkoutExerciseProposal(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string,
+  input: ExerciseProposalAcceptanceInput): Promise<{ readonly event: StagedCanonicalEvent; readonly alreadyStaged: boolean } | null>
+export function loadWorkoutExerciseProposalRevision(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string): Promise<StagedCanonicalEvent | null>

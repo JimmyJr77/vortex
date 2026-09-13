@@ -9,14 +9,19 @@ import { withCoachingLibrarySnapshot } from './coachingLibraryContext.js'
 import { interpretWorkoutProgrammingRevision, normalizeProgrammingInterpretationInput } from './workoutProgrammingInterpretation.js'
 import { researchWorkoutExerciseGap, normalizeWorkoutExerciseGapResearchInput } from './workoutExerciseGapResearch.js'
 import { assessWorkoutExerciseGap } from './workoutExerciseGapAssessment.js'
-import { proposeWorkoutExercise, loadWorkoutExerciseProposal, acceptWorkoutExerciseProposal, normalizeExerciseProposalAcceptanceInput } from './workoutExerciseProposal.js'
+import { proposeWorkoutExercise, loadWorkoutExerciseProposal, acceptWorkoutExerciseProposal, stageWorkoutExerciseProposal, loadWorkoutExerciseProposalRevision, normalizeExerciseProposalAcceptanceInput,
+  reviewWorkoutExerciseProposal, listWorkoutExerciseProposals } from './workoutExerciseProposal.js'
+import { loadStagedCanonicalRevision, changeStagedCanonicalRevision, normalizeStagedCanonicalRevisionChange } from './canonicalCardStagedRevision.js'
 
 /** Existing coach permissions and facility rollout gates remain authoritative. No endpoint accepts a model/QA artifact. */
 export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
   featureAccess = canonicalFacilityFeatureAccess, registryFactory = configuredProgrammingStaffRegistry,
   generate = generateAndPersistWorkoutProgramming, load = loadWorkoutProgrammingRun, list = listWorkoutProgrammingRuns, revalidate = revalidateWorkoutProgrammingRun,
   choices = loadWorkoutProgrammingChoices, interpret = interpretWorkoutProgrammingRevision, gapResearch = researchWorkoutExerciseGap, gapAssessment = assessWorkoutExerciseGap,
-  proposeExercise = proposeWorkoutExercise, loadExerciseProposal = loadWorkoutExerciseProposal, acceptExerciseProposal = acceptWorkoutExerciseProposal }) {
+  proposeExercise = proposeWorkoutExercise, loadExerciseProposal = loadWorkoutExerciseProposal, acceptExerciseProposal = acceptWorkoutExerciseProposal,
+  reviewExerciseProposal = reviewWorkoutExerciseProposal, listExerciseProposals = listWorkoutExerciseProposals,
+  stageExerciseProposal = stageWorkoutExerciseProposal, loadProposalRevision = loadWorkoutExerciseProposalRevision,
+  loadStagedRevision = loadStagedCanonicalRevision, changeStagedRevision = changeStagedCanonicalRevision }) {
   const context = (req) => ({ facilityId: req.platformAuth.user.facility_id, userId: req.platformAuth.user.id })
   const allowed = async (req, res, ai = false) => {
     for (const feature of ['canonical_generator_coach_opt_in', ...(ai ? ['canonical_ai_intent'] : [])]) {
@@ -27,6 +32,7 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
   }
   const failure = (res, error) => {
     const status = error.code === 'programming_snapshot_forbidden' ? 403
+      : ['canonical_revision_source_changed', 'canonical_revision_profile_conflict', 'canonical_revision_audit_conflict', 'canonical_revision_conflict', 'canonical_revision_transition'].includes(error.code) ? 409
       : ['programming_snapshot_conflict', 'foreign_session_intent', 'stale_library_release', 'source_workout_adapter_required', 'source_workout_revision_conflict', 'source_workout_incomplete', 'interpretation_sources_changed', 'exercise_gap_sources_changed', 'exercise_proposal_duplicate', 'exercise_proposal_search_incomplete', 'exercise_proposal_audit_conflict', 'exercise_proposal_target_equipment_conflict', 'exercise_proposal_not_applicable', 'exercise_proposal_revision_required'].includes(error.code) ? 409
       : error.code === 'source_workout_unavailable' ? 404
       : error.code === 'invalid_modification_controls' ? 400
@@ -96,6 +102,25 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
     } catch (error) { if (!controller.signal.aborted) failure(res, error) }
     finally { req.off('aborted', abort); res.off('close', close) }
   })
+  app.get('/api/coach/workout-programming/exercise-proposals', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      const { limit, beforeCreatedAt, beforeId, ...unknown } = req.query
+      if (Object.keys(unknown).length || (beforeCreatedAt == null) !== (beforeId == null)
+        || limit !== undefined && (typeof limit !== 'string' || !/^[1-9][0-9]{0,2}$/.test(limit))) throw new TypeError('Use a valid limit and complete proposal cursor')
+      ok(res, await listExerciseProposals(pool, context(req), { limit: limit === undefined ? 20 : Number(limit),
+        before: beforeId === undefined ? null : { createdAt: beforeCreatedAt, id: beforeId } }))
+    } catch (error) { failure(res, error) }
+  })
+  app.get('/api/coach/workout-programming/exercise-proposals/:id/review', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      if (Object.keys(req.query).length) throw new TypeError('Review an exercise proposal by its audit ID only')
+      const result = await reviewExerciseProposal(pool, context(req), req.params.id)
+      if (!result) return bad(res, 'Exercise proposal not found.', 404)
+      ok(res, result)
+    } catch (error) { failure(res, error) }
+  })
   app.get('/api/coach/workout-programming/exercise-proposals/:id', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
     try {
       if (!await allowed(req, res)) return
@@ -113,6 +138,44 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
       const accepted = await acceptExerciseProposal(pool, context(req), req.params.id, req.body)
       if (!accepted) return bad(res, 'Exercise proposal not found.', 404)
       ok(res, accepted)
+    } catch (error) { failure(res, error) }
+  })
+  app.post('/api/coach/workout-programming/exercise-proposals/:id/stage-revision', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      if (Object.keys(req.query).length) throw new TypeError('Stage a proposal by its audit ID and expected hash only')
+      normalizeExerciseProposalAcceptanceInput(req.body)
+      const result = await stageExerciseProposal(pool, context(req), req.params.id, req.body)
+      if (!result) return bad(res, 'Exercise proposal not found.', 404)
+      ok(res, result)
+    } catch (error) { failure(res, error) }
+  })
+  app.get('/api/coach/workout-programming/staged-card-revisions/:id', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      if (Object.keys(req.query).length) throw new TypeError('Open a staged revision by its ID only')
+      const result = await loadStagedRevision(pool, context(req), req.params.id)
+      if (!result) return bad(res, 'Staged revision not found.', 404)
+      ok(res, result)
+    } catch (error) { failure(res, error) }
+  })
+  app.get('/api/coach/workout-programming/exercise-proposals/:id/staged-revision', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      if (Object.keys(req.query).length) throw new TypeError('Recover a staged revision using its proposal audit ID only')
+      const result = await loadProposalRevision(pool, context(req), req.params.id)
+      if (!result) return bad(res, 'Staged revision not found.', 404)
+      ok(res, result)
+    } catch (error) { failure(res, error) }
+  })
+  app.post('/api/coach/workout-programming/staged-card-revisions/:id/change', ...can('workouts.manage'), ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      if (Object.keys(req.query).length) throw new TypeError('Change a staged revision by its ID and current event hash only')
+      normalizeStagedCanonicalRevisionChange(req.body)
+      const result = await changeStagedRevision(pool, context(req), req.params.id, req.body)
+      if (!result) return bad(res, 'Staged revision not found.', 404)
+      ok(res, result)
     } catch (error) { failure(res, error) }
   })
   app.post('/api/coach/workout-programming/interpret', ...can('workouts.manage'), async (req, res) => {

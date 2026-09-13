@@ -39,3 +39,6 @@ public/*.mp4
 
 # Private billing audit exports (customer and Stripe data)
 outputs/billing-audit-*/
+
+# Generated browser traces can exceed GitHub's file size limit
+test-results/**/trace.zip

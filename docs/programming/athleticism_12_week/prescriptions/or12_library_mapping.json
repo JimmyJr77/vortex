@@ -1,0 +1,946 @@
+{
+  "schemaVersion": "1.0.0",
+  "documentPurpose": "OR12 bounded local mapping for retained running and report/recovery responsibility",
+  "checkedOn": "2026-09-13",
+  "planningStatus": "source_identity_core_ready_actual_author_dose_clock_comparison_pending",
+  "accessBoundary": "No live database/current approval query, app/schema/source edits or frozen artifact changes. Current IDs/approval/media/calibration and actual history/inventory remain unverified.",
+  "records": [
+    {
+      "mappingKey": "EASY-BUILD-RUN-TEACH",
+      "name": "Easy Build and Rhythm Run — retained 35 m teaching context",
+      "sourceSlug": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "existing_complete_local_teaching_proposal_OR12_retained_context_pending_release",
+      "sourceProposal": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
+        "documentationId": "proposal:or08:easy-build-run-teach"
+      },
+      "sourceProposalSha256": "ec2bb7424acb51ac7dfad092d5eb2651c264e491f7c3b7f79630f26853abbe5d",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or08_library_mapping.json",
+        "mappingKey": "EASY-BUILD-RUN-TEACH"
+      },
+      "mechanics": {
+        "start": "Still comfortable bilateral standing start with relaxed natural arms and a known straight route. No rolling, three-point, falling or reactive start is added.",
+        "build": "Build smoothly over 0–10 m: easy context about 2/10 toward 3/10; independently qualified modest-intent context about 2/10 toward 4/10. No maximal start or forced early upright posture.",
+        "rhythm": "Retain relaxed selected effort over 10–20 m: about 3/10 easy or 4/10 in the qualified context. Natural coordinated running and arms; no fly threshold, timed result or maximal second half.",
+        "runoff": "Reduce speed gradually through 20–35 m. Do not force an abrupt stop at 35 m or shorten runoff for the clock. If actual effort no longer fits the retained protected route, hold/reduce, explicitly reconfigure or defer.",
+        "exitReturn": "Exit by the declared protected path, then use the separate one-way outside return and full recovery. Return turns and staging are logistics, not extra technical or cutting repetitions.",
+        "contactRule": "Count every attempt, including partial/faulted work. Record actual build/rhythm/runoff/exit/return, intended/reported effort, contacts, distance, time and response. Zero prescribed jump-drill repetitions is not zero cyclic running flight, contacts or impact; actual contact totals remain null until observed.",
+        "excluded": [
+          "maximal or flying sprint",
+          "timed speed quota",
+          "forced stride/cadence or thigh height",
+          "late/reactive cue or cut",
+          "assistance/resistance/external load",
+          "obstacle or jump sequence",
+          "extra trial or make-up attempt"
+        ]
+      },
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json",
+          "lines": "727-777",
+          "kind": "OR08_intent_only_objective"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/planning/OR08_STIMULUS_AND_SOURCE_REVIEW.md",
+          "lines": "1-67",
+          "kind": "bounded_source_review"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_01/or_04.json",
+          "lines": "15-17;50-61;436-447;855-866;1250-1261;10777-10821",
+          "kind": "prior_authored_route_instruction_and_history"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR04_LIBRARY_MAPPING.md",
+          "lines": "21-78",
+          "kind": "prior_identity_readiness_and_approval_boundaries"
+        },
+        {
+          "path": "scripts/data/output-max-velocity-cards-11-18.mjs",
+          "lines": "42-53;92-118;142-171",
+          "kind": "related127_legacy_maximal_task_not_easy_profile"
+        },
+        {
+          "path": "backend/migrations/599_coaching_speed_exposure_sources_127_128_130_contract_quarantine.sql",
+          "lines": "1-13",
+          "kind": "127_archived_quarantine"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/flying-sprint.v1.json",
+          "lines": "2-20;33-53;79-92",
+          "kind": "later128_distinct_maximal_fly_review_candidate"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/a-march.v1.json",
+          "lines": "12-24;29-38",
+          "kind": "traveling_A_march_not_stationary_teaching"
+        },
+        {
+          "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
+          "lines": "292-307;373-395",
+          "kind": "short_static_acceleration_variants"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": "461-464;624-680;707-718;772-774",
+          "kind": "two_dumbbell_RDL_identity"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR06_LIBRARY_MAPPING.md",
+          "lines": "53-76",
+          "kind": "first_loaded_handling_and_familiar_history"
+        },
+        {
+          "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+          "lines": "305-315",
+          "kind": "proposal_and_dose_identity_policy"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+          "lines": "92-149",
+          "kind": "active_OR08_amendment_independent_P2_two_modest_entry_paths_and_history"
+        },
+        {
+          "path": "scripts/data/capacity-hinge-cards-11-18.mjs",
+          "lines": "239-284",
+          "kind": "related_RDL_top_range_and_no_floor_reach_instructions"
+        }
+      ],
+      "OR12ReadinessAndBoundary": "Retain actual compatible known whole route and intent with suitable current response, gradual slowing, return conduct and verified protected geometry. Easy2→3/3 remains easy; modest2→4/4 requires independently repeatable retained same-context4, not an emerging first4 attempt. Do not require reconstruction of older3 for qualified4 retention. OR12 adds no first run or first intent-increase lesson. P2 is narrower and no extra full-corridor orientation is created because a prior OR08 E0 existed.",
+      "OR12RunningContexts": {
+        "long_easy": {
+          "sourceProposalProfileId": "proposal:or08:progressive-run-easy",
+          "selection": "retained actual compatible easy2→3/3 only",
+          "buildZoneM": [
+            0,
+            10
+          ],
+          "rhythmZoneM": [
+            10,
+            20
+          ],
+          "runoffZoneM": [
+            20,
+            35
+          ],
+          "maximumStandardDOpportunities": 2,
+          "maximumCompressedDOpportunities": 1,
+          "LRunningAllowed": false,
+          "activeExitSeconds": 25,
+          "returnSeconds": 40,
+          "minimumRecoveryAfterWorkReturnSeconds": 90
+        },
+        "long_purposeful": {
+          "sourceProposalProfileId": "proposal:or08:progressive-run-modest-intent",
+          "selection": "retained actual repeatable compatible2→4/4 only; no first increase",
+          "buildZoneM": [
+            0,
+            10
+          ],
+          "rhythmZoneM": [
+            10,
+            20
+          ],
+          "runoffZoneM": [
+            20,
+            35
+          ],
+          "maximumStandardDOpportunities": 2,
+          "maximumCompressedDOpportunities": 1,
+          "LRunningAllowed": false,
+          "activeExitSeconds": 25,
+          "returnSeconds": 40,
+          "minimumRecoveryAfterWorkReturnSeconds": 90
+        }
+      },
+      "sourceScopeOverride": "The frozen OR08 proposal contains first-easy and first-modest teaching plus its old E0 orientation and older supporting-context annotations. Those are historical source contexts, not automatically selected in OR12. Current OR12 context and the corrected OR10/11 support mapping govern the new session; no old snapshot is edited."
+    },
+    {
+      "mappingKey": "ACC-TEACH",
+      "name": "Standing-static short acceleration, retained technical context",
+      "sourceSlug": "10-yard-sprint",
+      "localCandidateVariantKey": "standing-static",
+      "localCandidateProfileKey": "output-standing-static",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Comfortable bilateral standing-static start, natural arms, individual release through 5 m target; continue the entire 15 m gradual runoff, then use the separate inspected outside walking return. No staggered two-point start, hard target stop, cut, race or timed test.",
+      "readinessAndBoundary": "Source output profile is provenance, not the exact lower-intent instructional prescription. Require prior actual repeatable same start/5+15 m route/intent/return and current suitability. E0 is the first counted opportunity, E1 only remaining opportunities after suitable E0. technical_low_20 preserves actual 50–60% and at most two starts even in D. A shorter or easier record cannot restore this route.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
+          "lines": [
+            292,
+            307
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
+          "lines": [
+            373,
+            395
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/454_coaching_short_acceleration_audit_hardening.sql",
+          "lines": [
+            1,
+            24
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/EXEMPLAR_LIBRARY_MAPPING.md",
+          "lines": [
+            31,
+            49
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "existingDocumentationKey": "ACC-STATIC",
+      "sourceDefaultBoundary": "85–100% intent, 5–20 m target and 10–30 m runoff, 120–240 s rest are local source Output defaults; OR10 uses its explicit retained teaching context, no high-speed pass.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "ACC-TEACH"
+      },
+      "OR12Boundary": "Separate retained standing-static acceleration,5 m target+15 m runoff. technical_20 retains actual60–75% D or50–60% L; technical_low_20 preserves actual50–60% and ceiling2 even in D before smaller cap. No percentage-to-RPE conversion, new start,20 m upright-rhythm claim or35 m route credit. OR10 main context180 s recovery after complete work/return remains retained, not long-run90 s."
+    },
+    {
+      "mappingKey": "ACC-EASY-TEACH",
+      "name": "Standing-static short acceleration, retained easy context",
+      "sourceSlug": "10-yard-sprint",
+      "localCandidateVariantKey": "standing-static",
+      "localCandidateProfileKey": "output-standing-static",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Same standing-static movement; 5 m target plus 10 m gradual runoff at retained easy 2 to 3/10, followed by its outside walking return.",
+      "readinessAndBoundary": "D only. Require actual repeatable same 5+10 m easy route and current fit. No first running instruction, no long 35 m run credit, no substitute proof of the 5+15 m technical route. Lower intent and shorter runoff are declared dose/logistics context, not a new exercise identity or exact source Output profile.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
+          "lines": [
+            373,
+            395
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR04_LIBRARY_MAPPING.md",
+          "lines": [
+            60,
+            78
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR08_LIBRARY_MAPPING.md",
+          "lines": [
+            31,
+            47
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "existingDocumentationKey": "ACC-STATIC",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "ACC-EASY-TEACH"
+      },
+      "OR12Boundary": "Separate retained standing-static5 m easy2→3/10 initiation+10 m runoff; D only. Preserve actual15 m geometry/intent and180 s recovery after complete work/return. It is not the technical20 m or long35 m context and contains no first running instruction."
+    },
+    {
+      "mappingKey": "WALK-ROUTE",
+      "name": "Ordinary walking route orientation",
+      "sourceSlug": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Ordinary forward walking through the declared target and walking exit, then a separate one-way walking return; no terminal braking stick, forced pace or running action. P2 explicitly selects 10 m or 15 m outbound; main walking is 5+5 m.",
+      "readinessAndBoundary": "Actual comfortable walking, turning and route conduct plus verified paths; walking may be taught within its counted opportunity without a prior running pass. Short P2 does not establish complete 20 m running/runoff readiness.",
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+          "lines": [
+            639,
+            662
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "existingDocumentationKey": "OR-WALK-ROUTE",
+      "identityBoundary": "Existing authored ordinary-walk context; no source155 deceleration profile or invented canonical identity.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "WALK-ROUTE"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author."
+    },
+    {
+      "mappingKey": "STAND-READY",
+      "name": "Bilateral ready-position or quiet-standing context",
+      "sourceSlug": null,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "P1: remain in personal bay, settle 2 s and hold comfortable bilateral ready stance 3 s, relaxed/ready arms, feet still, no launch. Stationary P2/main: 2 s settle, 2 s comfortable quiet bilateral hold with knees unlocked and arms relaxed, 6 s reset; no travel.",
+      "readinessAndBoundary": "Independently comfortable standing and basic conduct suffice. These two explicit hold doses are not running, braking, squatting or split-stance passes. Later gather/staging is separately timed, not hidden in P1.",
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+          "lines": [
+            550,
+            623
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/EXEMPLAR_LIBRARY_MAPPING.md",
+          "lines": [
+            31,
+            49
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "existingDocumentationKeys": [
+        "ACC-STATIC setup only",
+        "BILATERAL-STAND-TEACH"
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "STAND-READY"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author."
+    },
+    {
+      "mappingKey": "BW-SQUAT-T",
+      "name": "Tempo Bodyweight Squat",
+      "sourceSlug": "tempo-bodyweight-squat",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Unloaded comfortable bilateral stance and owned free-squat range, level heels; 3 s lower, 1 s gentle pause, 1 s stand. No box contact, manual support or new depth target.",
+      "readinessAndBoundary": "Existing SQUAT-BW identity with an explicit 3-1-1 OR10 delivery context. Familiar actual control/count governs. Unknown longitudinal dose may use at most two counted reps only when independently suitable; smaller actual one-rep ceiling persists. This is not automatic loaded permission.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            21,
+            30
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            133,
+            201
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "existingDocumentationKey": "SQUAT-BW",
+      "sourceDefaultBoundary": "Legacy source supplies a controlled slow descent and brief pause; exact 3-1-1 cadence, one set and reduced counts are declared session dosage.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "BW-SQUAT-T"
+      },
+      "OR12Boundary": "Retain an actually familiar bilateral bodyweight squat at owned stance/range and declared tempo. OR10 context3 s lower/1 s gentle pause/1 s stand is separate from the earlier4 s hinge and static split hold. Current count uncertainty is not permission for an unfamiliar movement lesson. Preserve actual compatible smaller work; no automatic restoration from a prior booking."
+    },
+    {
+      "mappingKey": "GOBLET-OR10",
+      "name": "Goblet Squat — Dumbbell, level heels",
+      "sourceSlug": "goblet-squat",
+      "localCandidateVariantKey": "dumbbell-goblet",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "ONE dumbbell, two-hand center-chest support, controlled pickup, declared bilateral stance, level heels, owned range, controlled dynamic squat and set-down. OR10 fitting context: fixed nonadjustable DB held shaft vertical, both palms under opposite sides of upper head with comfortable fingers around edges, lower head clear of trunk; stable individually fitting elevated cradle supports lower head only during parking. The cradle carries no load during squat reps. Preserve 3 s lower / 1 s gentle pause / 1 s stand; breathe naturally.",
+      "readinessAndBoundary": "OR12 selects only familiar retention: actual most recent compatible repeatable same one-DB/grip/load/stance/range/tempo/count and independently controlled familiar pickup/chest support/squat/parking. One first OR10 goblet lesson is not familiar10 s handling. Actual newer bilateral unloaded squat work blocks older-load restoration; OR11 supported static stance is not that unloading. Unknown or unsuitable grip/parking selects an independently eligible familiar unloaded task before pickup or defers. No first load, increment, reintroduction, replacement set or extra trial.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            275,
+            310
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            323,
+            385
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            451,
+            458
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            489,
+            555
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            677,
+            709
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
+          "lines": [
+            755,
+            785
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "relatedLegacySourceIds": [
+        167,
+        415,
+        461,
+        464,
+        748,
+        1255,
+        1295,
+        1699
+      ],
+      "selectionTradeoff": "Selected dynamic one-DB goblet preserves bilateral owned squat with one centered implement. Kettlebell horns/bell, medicine-ball chest support and heel elevation have exact distinct variants; barbell, two independent racks, unilateral rack and sumo are not silent substitutes.",
+      "sourceQuarantine": "Migration retains review status and human/publication/media/calibration gates unresolved. Runtime-selected definition UUIDs and authored local scores are not current live IDs or calibration.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "GOBLET-OR10"
+      },
+      "OR12Boundary": "Retain the actual fixed nonadjustable DB with shaft vertical, palms under the upper head and comfortable edges, lower head clear of trunk, fitting elevated cradle for parking only. These are authored fit choices, not universal source447 requirements. Familiar handling4 s pickup/chest setup+4 s parking+2 s clear; no borrowed20 s first/changed handling or first-set competency inference."
+    },
+    {
+      "mappingKey": "HINGE-BW",
+      "name": "Bodyweight Hip Hinge Good Morning",
+      "sourceSlug": "bodyweight-hip-hinge-good-morning",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Arms crossed at chest, soft knees; hips back 3 s and stand 1 s through actual owned comfortable range. Five seconds setup/exit. No wall contact, floor reach or new arm position.",
+      "readinessAndBoundary": "Actual currently familiar pattern/setup/control; unknown longitudinal count may use its at-most-two packet, not first unfamiliar instruction. Most recent actual unloaded record blocks calling older DB work retained.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            2521,
+            2526
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            2615,
+            2674
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "HINGE-BW"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "HINGE-BW",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "DB-RDL",
+      "name": "Romanian Deadlift — two dumbbells, standard tempo",
+      "sourceSlug": "romanian-deadlift",
+      "localCandidateVariantKey": "dumbbell-standard-tempo",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "TWO dumbbells, one per hand, palms inward and long arms, tall top start near thighs; soft knees, organized trunk, close weight paths and owned hamstring-limited range, no floor-touch quota. Retained elevated parking: 4 s pickup, 3 s lower/1 s stand repetitions, 4 s set-down and 2 s clear.",
+      "readinessAndBoundary": "D only, actual most recent compatible same pair/load/range/count and independently familiar pickup/top-start/hinge/set-down. One first OR06 loaded set does not establish familiar 10 s handling. No first loaded hip instruction or restoration after newer unloading. Five fitting elevated stations/ten suitable DBs and two-coach direct observation must fit.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            461,
+            464
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            624,
+            680
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            707,
+            718
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            772,
+            774
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR06_LIBRARY_MAPPING.md",
+          "lines": [
+            53,
+            76
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Local capacity-strength source 2–5 sets, 3–10 reps, 90–240 s recovery is not OR10 one-set retained teaching dosage; neutral hand orientation and elevated parking are exact authored setup context.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "DB-RDL"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "DB-RDL",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "name": "Push-Up — hands elevated on stable support",
+      "sourceSlug": "push-up",
+      "localCandidateVariantKey": "hands-elevated-stable",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Hands secure on individually fitted stable elevated platform, feet on lower support at recorded position, organized head/pelvis/feet body line; owned full cycle 2 s lower/1 s press, no knees-down or new support geometry.",
+      "readinessAndBoundary": "Familiar actual support and control only. Verify current contacts in setup; first listed rep observes response. No first support-height/push instruction in the short role, no automatic lower support by age. Migration455 is a later exact local family contract than the frozen legacy incline-push-up snapshot; 682 normalizes profile attributes without granting approval.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/455_coaching_push_up_identity_and_family_completion.sql",
+          "lines": [
+            380,
+            380
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/455_coaching_push_up_identity_and_family_completion.sql",
+          "lines": [
+            431,
+            490
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/682_coaching_push_up_standard_profile_mapping.sql",
+          "lines": [
+            1,
+            66
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source capacity-strength 3 x 8 and 120 s rest/reserve2 are not copied; OR10 retained one small set, 60 s recovery and >=5 RIR are an explicit teaching dose.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "name": "One-Arm Dumbbell Row — bench supported",
+      "sourceSlug": "one-arm-dumbbell-row",
+      "localCandidateVariantKey": "bench-supported-dumbbell",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "OPPOSITE hand AND knee on suitable stable bench, other foot planted; one actual familiar DB, pull toward hip/lower rib without intentional torso rotation, 1 s pull/1 s organized top/2 s lower. One set includes both sides, 10 s side change and 10 s total handling.",
+      "readinessAndBoundary": "Familiar actual bench contacts, selected DB grip/handling and both-side control. Source orientation/light first reps are counted listed work, never bonus reps. Independent suspension substitute requires its own familiar anchors/angle/body line; no manual assistance or new loaded row lesson.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            184,
+            209
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            312,
+            312
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            344,
+            386
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source 4 x 6 per side/120 s recovery/reserve2 and source transition estimates are defaults, not the one-set OR10 dose or its 10 s side change.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "RING-ROW-ALT",
+      "name": "Ring Row / TRX Row, bilateral suspension alternative",
+      "sourceSlug": "ring-row-trx-row",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Two equal stable suspension contacts, secure grips, independently familiar body angle and foot position; organized whole-body line and bilateral pulling/lowering. Exact anchors, handles and range must be recorded.",
+      "readinessAndBoundary": "Legacy local candidate, no verified exact current canonical profile. Requires independent familiar suspension setup/control and fitting anchors. It is a bilateral alternative, not the same unilateral bench-supported variant or automatic equipment equivalence.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/capacity-pull-cards-27-36.mjs",
+          "lines": [
+            53,
+            54
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "scripts/data/capacity-pull-cards-27-36.mjs",
+          "lines": [
+            114,
+            172
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+          "lines": [
+            414,
+            459
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "RING-ROW-ALT"
+      },
+      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "RING-ROW-ALT",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "name": "Dead Bug Heel Tap — arms fixed, alternating bent-leg heel contact",
+      "sourceSlug": "dead-bug-heel-tap",
+      "localCandidateVariantKey": "bodyweight-supine-arms-fixed-alternating-heel-tap",
+      "localCandidateProfileKey": "prepare-bodyweight-arms-fixed-alternating-dead-bug-heel-tap",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Supine, arms fixed vertically, comfortable tabletop; lower one bent leg to light heel contact at selected target, return then alternate, 2 s out/2 s back. No heel slide, long straight-leg lever or opposite-arm reach.",
+      "readinessAndBoundary": "Actual comfortable floor access/tabletop and trunk/limb control; setup checks retained position, first counted heel contact observes response. If unavailable, separately eligible fully supported breathing or defer. Source Prepare profile is exact provenance; use in retained Strength brace role is disclosed contextual placement, not canonical profile approval.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/dead-bug-heel-tap.v1.json",
+          "lines": [
+            1,
+            1
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/542_coaching_dead_bug_heel_tap_source_66_candidate_materialization.sql",
+          "lines": [
+            1,
+            7
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "verifiedLegacySourceId": 66,
+      "sourceJsonPaths": [
+        "$.cards[0].definition",
+        "$.cards[0].variants[0]",
+        "$.cards[0].variants[0].deliveryProfiles[0]"
+      ],
+      "sourceDefaultBoundary": "Local contract 1–3 sets, 3–6 cycles per side, 20–45 s rest and setup20/perSet40/reset20 are not OR10 retained low-dose defaults.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "HEEL-TAP"
+      },
+      "OR12Boundary": "Retain fixed vertical arms and bent-leg heel contact/return from actually suitable tabletop/floor/control. Preserve actual smaller/asymmetric side counts including omission; no heel slide, extra-side repayment or breathing-to-tabletop pass.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "HEEL-TAP",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "BREATH-9090-ALT",
+      "name": "90/90 Breathing with Reach — lower legs supported, bilateral reach",
+      "sourceSlug": "9090-breathing-with-reach",
+      "localCandidateVariantKey": "lower-leg-supported-bilateral-reach",
+      "localCandidateProfileKey": "prepare-and-access-lower-leg-support",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mechanics": "Supine lower legs/calves and/or heels fully passively supported by stable nonrolling bench/box near 90/90. BOTH arms reach vertically together with gentle scapular protraction; comfortable inhale and longer unforced exhale. No heel drive, hip lift, forced flattening/crunch, breath hold or sequential side reach.",
+      "readinessAndBoundary": "Independent comfortable floor transfer, fitted full passive lower-leg support, suitable simultaneous bilateral arm reach/position and comfortable breathing. First whole breathing instruction may occur in the counted set; prior whole breathing success or heel-tap pass is not required. Actual smaller cycles govern; unknown compatible history selects the one-cycle packet after these components fit. No floor/support suitability means defer.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql",
+          "lines": [
+            992,
+            1022
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql",
+          "lines": [
+            1363,
+            1378
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source one set/four breaths/15 s rest; the OR10 shorter unforced 2/3 cadence is an explicit delivery context. Both arms together is the selected source action.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT"
+      },
+      "OR12Boundary": "Passive full lower-leg support, both arms vertically together, comfortable breathing; no sequential reach, heel drive, hip lift or forced exhale. First counted cycle may be taught from independently suitable floor transfer/support/bilateral arm/breathing components without prior whole breathing or heel-tap success. Actual smaller cycle history persists; unsuitable components defer.",
+      "latestRegisterReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT",
+        "array": "reusedMappings"
+      }
+    },
+    {
+      "mappingKey": "BASIC-MARCH-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or04_library_mapping.json",
+        "mappingKey": "BASIC-MARCH-TEACH"
+      },
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "existing_local_teaching_identity_available_if_explicitly_selected",
+      "OR12Boundary": "In-place no-flight and natural arms; not exact traveling69. OR12 must select and fully count any such preparation/alternative; this is not an extra full-corridor orientation or a whole-running pass."
+    },
+    {
+      "mappingKey": "WALK-CORRIDOR-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or04_library_mapping.json",
+        "mappingKey": "WALK-CORRIDOR-TEACH"
+      },
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "existing_local_teaching_identity_available_if_explicitly_selected",
+      "OR12Boundary": "Count whole route/return, walking only. OR12 must select and fully count any such preparation/alternative; this is not an extra full-corridor orientation or a whole-running pass."
+    }
+  ],
+  "reportRecoveryContext": {
+    "organization": "Finite retained technical opportunities with an authored report/wait/request-extra-recovery context; coach retains release. Descriptive organization, no verified canonical method ID.",
+    "movementIdentityChangedByReportAlone": false,
+    "firstReportNeedsPriorIndependentReportSuccess": false,
+    "coachReleaseRequired": true,
+    "emptyLaneOrTimerAloneGrantsRelease": false,
+    "athleteReportAloneGrantsRelease": false,
+    "fatigueInductionForAssessment": false,
+    "extraScreeningOrRepairEfforts": 0,
+    "firstKnownWholeMainAlreadyInsideTotal": true,
+    "automaticExtraWholeCorridorWalk": false,
+    "oneOpportunityObservation": "Record actual run/task quality, safe return, current report and acceptance of continued rest. Between-two-runs restart behavior and post-wait run quality are unobserved, not failed/passed; preserve cap1 without repayment.",
+    "historyRule": "Actual compatible count/setup/intent and current response govern; retain smaller/zero/asymmetric records independently by role. Unknown remains null; missing attendance is not fabricated zero. A report or direction-specific OR11 stop/exit does not grant another movement domain.",
+    "namedMethodExclusions": [
+      {
+        "slug": "repeat-sprint-format",
+        "path": "scripts/data/programming-methods-top50.mjs",
+        "lines": [
+          6596,
+          6678
+        ],
+        "reason": "Intentional fatigue/Sustained Capacity; incompatible with Output/Movement Intelligence."
+      },
+      {
+        "slug": "recovery-pace-circuit",
+        "path": "scripts/data/programming-methods-top50.mjs",
+        "lines": [
+          5950,
+          6067
+        ],
+        "reason": "Restore/circuit task with incompatible phases and mixed fatigue/default language; title does not identify a release/report lesson."
+      },
+      {
+        "slug": "simple-work-rest-intervals",
+        "path": "scripts/data/programming-methods-top50.mjs",
+        "lines": [
+          319,
+          355
+        ],
+        "reason": "Repeatability under fatigue, not finite fresh technical instruction."
+      }
+    ]
+  },
+  "completeCardDecision": {
+    "newProposalRequiredFromCurrentDesign": false,
+    "existingCompleteProposalPath": "docs/programming/athleticism_12_week/prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
+    "rationale": "The original long-running teaching gap already has a complete local OR08 card. OR12 adds no first movement/intent or changed mechanics; report/request/wait behavior is a coach-support/session context. Separate standing-static acceleration and exact retained strength records already exist locally. Human exact owner/profile approval remains unresolved. Reopen only if actual authoring introduces a genuine new action/identity gap.",
+    "newProposalPath": null,
+    "approvedSubstituteVerified": false
+  },
+  "sessionBinding": {
+    "status": "waiting_for_actual_OR12_author_export_and_additive_amendment",
+    "firstMainRehearsalConsumesExistingTotal": true,
+    "noExtraHistoricalE0Walk": true,
+    "P2GrantsWholeRun": false,
+    "reportOnlyNewResponsibility": true,
+    "newLoadOrFirstHandling": false
+  },
+  "verification": {
+    "status": "source_core_prepared_full_dose_schema_reference_binding_pending"
+  }
+}

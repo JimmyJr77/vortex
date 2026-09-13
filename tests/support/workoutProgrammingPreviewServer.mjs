@@ -8,6 +8,10 @@ import { TAXONOMY_V2_FACETS } from '../../backend/platform/taxonomyV2.js'
 import { evidenceFixtures } from '../../backend/platform/__tests__/workoutAthleteEvidenceFixtures.js'
 import { modificationFixtureRegistry } from '../../backend/platform/__tests__/workoutProgrammingModificationFixtures.js'
 import { scriptedInterpretationRegistry, syntheticInterpretationTaxonomy, withSyntheticInterpretationTaxonomy } from '../../backend/platform/__tests__/workoutProgrammingInterpretationFixtures.js'
+import { exerciseProposalPreviewFixtures } from '../../backend/platform/__tests__/workoutExerciseProposalPreviewFixtures.js'
+import { researchWorkoutExerciseGap } from '../../backend/platform/workoutExerciseGapResearch.js'
+import { proposeWorkoutExercise, listWorkoutExerciseProposals, reviewWorkoutExerciseProposal, acceptWorkoutExerciseProposal, stageWorkoutExerciseProposal, loadWorkoutExerciseProposalRevision } from '../../backend/platform/workoutExerciseProposal.js'
+import { loadStagedCanonicalRevision, changeStagedCanonicalRevision } from '../../backend/platform/canonicalCardStagedRevision.js'
 
 // Loopback-only preview. This process never opens a production DB or configures a paid model.
 const express = createRequire(new URL('../../backend/package.json', import.meta.url))('express')
@@ -15,6 +19,7 @@ const port = Number(process.env.PROGRAMMING_PREVIEW_PORT ?? 5183)
 const origin = `http://127.0.0.1:${port}`
 process.env.VITE_API_URL = origin
 const fixtures = await storageFixtures()
+const exerciseLibrary = exerciseProposalPreviewFixtures()
 const interpretation = { operations: [], questions: [], delayMs: 0, calls: [], inFlight: 0 }
 const registry = scriptedInterpretationRegistry(modificationFixtureRegistry(fixtures.registry), interpretation)
 const database = memoryStorageDatabase()
@@ -40,17 +45,38 @@ const app = express()
 app.use(express.json({ limit: '1mb' }))
 app.use('/api/coach', (req, _res, next) => { req.platformAuth = { user: { facility_id: '9', id: '7' } }; next() })
 app.get('/api/coach/canonical/rollout-status', (_req, res) => res.json({ data: { coachGeneration: { enabled: true }, aiIntent: { enabled: true } } }))
-app.get('/api/coach/taxonomy-v2', (_req, res) => res.json({ data: { version: '2.0.0', aliases: [], facets: Object.fromEntries(Object.entries(TAXONOMY_V2_FACETS)
-  .map(([key, terms]) => [key, terms.map((term, index) => ({ ...term, id: index + 1, status: 'active', sortOrder: index, metadata: {} }))])) } }))
+const taxonomyV2 = { version: '2.0.0', aliases: [], facets: Object.fromEntries(Object.entries(TAXONOMY_V2_FACETS)
+  .map(([key, terms]) => [key, terms.map((term, index) => ({ ...term, id: index + 1, status: 'active', sortOrder: index, metadata: {} }))])) }
+app.get('/api/coach/taxonomy-v2', (_req, res) => res.json({ data: taxonomyV2 }))
 app.get('/api/coach/members', (_req, res) => res.json({ data: Array.from({ length: 15 }, (_, index) => ({ id: 101 + index, name: `Fixture athlete ${index + 1}` })) }))
+app.get('/api/coach/taxonomy', (_req, res) => res.json({ data: { ...exerciseLibrary.taxonomy, taxonomyV2 } }))
+app.get('/api/coach/canonical/cards/:id', (req, res) => {
+  const card = exerciseLibrary.getCard(req.params.id)
+  if (!card) return res.status(404).json({ message: 'Synthetic canonical card not found.' })
+  res.json({ data: card })
+})
 let delayMs = 0
 let lastRequest = null
 let inFlight = 0
 const originalSourceInstructions = fixtures.options.cards[3].deliveryProfiles[0].coachInstructions
 registerWorkoutProgrammingRoutes(app, pool, {
-  can: () => [], ok: (res, data) => res.json({ success: true, data }),
+  can: (permission) => permission === 'library.manage' ? [(req, res, next) => exerciseLibrary.control.denyLibrary ? res.status(403).json({ message: 'Library management access required.' }) : next()] : [],
+  ok: (res, data) => res.json({ success: true, data }),
   bad: (res, message, status = 400, details = null) => res.status(status).json({ success: false, message, details }),
   featureAccess: async () => ({ enabled: true }), registryFactory: () => registry,
+  gapResearch: (_pool, context, input) => researchWorkoutExerciseGap(exerciseLibrary.pool, context, input),
+  listExerciseProposals: (_pool, context, options) => listWorkoutExerciseProposals(exerciseLibrary.pool, context, options),
+  reviewExerciseProposal: (_pool, context, id) => reviewWorkoutExerciseProposal(exerciseLibrary.pool, context, id),
+  acceptExerciseProposal: (_pool, context, id, input) => acceptWorkoutExerciseProposal(exerciseLibrary.pool, context, id, input),
+  stageExerciseProposal: (_pool, context, id, input) => stageWorkoutExerciseProposal(exerciseLibrary.pool, context, id, input),
+  loadProposalRevision: (_pool, context, id) => loadWorkoutExerciseProposalRevision(exerciseLibrary.pool, context, id),
+  loadStagedRevision: (_pool, context, id) => loadStagedCanonicalRevision(exerciseLibrary.pool, context, id),
+  changeStagedRevision: (_pool, context, id, input) => changeStagedCanonicalRevision(exerciseLibrary.pool, context, id, input),
+  proposeExercise: async (args) => {
+    exerciseLibrary.control.inFlight++; exerciseLibrary.control.lastInput = args.rawInput
+    try { return await proposeWorkoutExercise({ ...args, pool: exerciseLibrary.pool, registry: exerciseLibrary.registry }) }
+    finally { exerciseLibrary.control.inFlight-- }
+  },
   generate: async (args) => {
     lastRequest = args.rawRequest
     inFlight++
@@ -61,9 +87,12 @@ registerWorkoutProgrammingRoutes(app, pool, {
   },
 })
 app.get('/__preview/state', (_req, res) => res.json({ savedCount: database.rows.size, lastRequest, inFlight,
-  interpretationCount: interpretation.calls.length, interpretationsInFlight: interpretation.inFlight, lastInterpretationRequest: interpretation.calls.at(-1)?.request ?? null }))
+  interpretationCount: interpretation.calls.length, interpretationsInFlight: interpretation.inFlight, lastInterpretationRequest: interpretation.calls.at(-1)?.request ?? null,
+  exerciseProposals: { ...exerciseLibrary.control, auditCount: exerciseLibrary.audit.rows.size, cardCount: exerciseLibrary.cards.size,
+    stagedEventCount: exerciseLibrary.staged.events.size, sourceCard: exerciseLibrary.staged.source } }))
 app.post('/__preview/reset', (_req, res) => {
-  if (inFlight || interpretation.inFlight) return res.status(409).json({ message: 'Wait for the current synthetic request to finish.' })
+  if (inFlight || interpretation.inFlight || exerciseLibrary.control.inFlight) return res.status(409).json({ message: 'Wait for the current synthetic request to finish.' })
+  exerciseLibrary.reset()
   database.rows.clear(); lastRequest = null; delayMs = 0
   interpretation.operations = []; interpretation.questions = []; interpretation.delayMs = 0; interpretation.calls = []
   fixtures.options.cards[3].deliveryProfiles[0].coachInstructions = originalSourceInstructions
@@ -71,6 +100,14 @@ app.post('/__preview/reset', (_req, res) => {
 })
 app.post('/__preview/change-source', (_req, res) => { fixtures.options.cards[3].deliveryProfiles[0].coachInstructions = 'Synthetic source changed after the saved review.'; res.json({ changed: true }) })
 app.post('/__preview/delay', (req, res) => { delayMs = Math.min(3000, Math.max(0, Number(req.body.milliseconds) || 0)); res.json({ delayMs }) })
+app.post('/__preview/exercise-proposals', (req, res) => {
+  if (exerciseLibrary.control.inFlight) return res.status(409).json({ message: 'Wait for the current synthetic exercise request.' })
+  if (['new_card', 'profile', 'reuse', 'invalid', 'needs_review'].includes(req.body.mode)) exerciseLibrary.control.mode = req.body.mode
+  exerciseLibrary.control.delayMs = Math.min(3000, Math.max(0, Number(req.body.delayMs) || 0))
+  exerciseLibrary.control.denyLibrary = req.body.denyLibrary === true
+  if (req.body.changeProfileSource === true) exerciseLibrary.staged.source.description = 'Synthetic published source changed after revision staging.'
+  res.json({ configured: true })
+})
 app.post('/__preview/interpretation', (req, res) => {
   if (interpretation.inFlight) return res.status(409).json({ message: 'Wait for the synthetic interpretation to finish.' })
   interpretation.operations = req.body.operations ?? []; interpretation.questions = req.body.questions ?? []

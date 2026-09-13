@@ -2,7 +2,8 @@ import { assessWorkoutExerciseGap } from './workoutExerciseGapAssessment.js'
 import { normalizeWorkoutExerciseGapResearchInput, researchWorkoutExerciseGapInSnapshot } from './workoutExerciseGapResearch.js'
 import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingStaffRuntime.js'
 import { withCoachingLibrarySnapshot, libraryScopeId } from './coachingLibraryContext.js'
-import { loadCanonicalAuthoringTaxonomy, saveCanonicalCardDraftInTransaction, withCanonicalCardTransaction } from './canonicalCardRepository.js'
+import { loadCanonicalAuthoringTaxonomy, loadCanonicalCard, saveCanonicalCardDraftInTransaction, withCanonicalCardTransaction } from './canonicalCardRepository.js'
+import { findStagedCanonicalRevisionForProposal, stageCanonicalDeliveryProfileInTransaction } from './canonicalCardStagedRevision.js'
 import { loadReleasedCanonicalLibrary } from './canonicalLibraryRepository.js'
 import { loadCanonicalExerciseResearchCatalog } from './canonicalExerciseResearchRepository.js'
 import { findPotentialCanonicalDuplicates } from './canonicalCardAuthoring.js'
@@ -209,6 +210,50 @@ function acceptanceResult(record, card, alreadyAccepted) {
     acceptedBy: origin.acceptedBy, acceptedAt: origin.acceptedAt, alreadyAccepted, libraryApprovalGranted: false })
 }
 
+async function readAcceptance(client, scope, record) {
+  const result = await client.query(`SELECT id,card_version,status,provenance_json FROM coaching.exercise_definition_v1
+    WHERE facility_id=$1 AND provenance_json->'exerciseProposal'->>'auditId'=$2`, [scope.facilityId, record.draftAuditId])
+  if (result.rows.length > 1) fail('exercise_proposal_audit_conflict', 'More than one canonical card references this proposal; review the library identities.')
+  return result.rows[0] ? acceptanceResult(record, result.rows[0], true) : null
+}
+
+/** Current canonical state is separate from the historical, immutable AI proposal. */
+export async function reviewWorkoutExerciseProposal(pool, context, id) {
+  validateProposalId(id)
+  return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
+    const record = await readProposalAudit(client, scope, id)
+    if (!record) return null
+    return immutableProgrammingValue({ record, acceptance: await readAcceptance(client, scope, record) })
+  })
+}
+
+export async function listWorkoutExerciseProposals(pool, context, options = {}) {
+  if (!options || typeof options !== 'object' || Array.isArray(options) || Object.keys(options).some((key) => !['limit', 'before'].includes(key))) {
+    throw new TypeError('Use a limit and complete proposal cursor')
+  }
+  const { limit = 20, before = null } = options
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new TypeError('Choose a proposal limit from 1 to 100')
+  if (before != null) {
+    if (typeof before !== 'object' || Array.isArray(before) || Object.keys(before).length !== 2
+      || typeof before.createdAt !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,6})?Z$/.test(before.createdAt)
+      || !Number.isFinite(Date.parse(before.createdAt)) || new Date(before.createdAt).toISOString().slice(0, 19) !== before.createdAt.slice(0, 19)) throw new TypeError('Use a complete proposal cursor')
+    validateProposalId(before.id)
+  }
+  return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
+    const result = await client.query(`SELECT id,to_char(created_at AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS created_at,
+      draft_json #>> '{request,need,canonicalName}' AS name, draft_json #>> '{request,componentKey}' AS component_key,
+      draft_json->>'state' AS state, draft_json #>> '{proposal,kind}' AS kind
+      FROM coaching.exercise_card_ai_draft_audit_v1
+      WHERE facility_id=$1 AND draft_json->>'workflow'='vortex_exercise_proposal_v1' AND draft_json->>'schemaVersion'='1.0.0'
+        AND ($2::timestamptz IS NULL OR (created_at,id)<($2::timestamptz,$3::uuid))
+      ORDER BY created_at DESC,id DESC LIMIT $4`, [scope.facilityId, before?.createdAt ?? null, before?.id ?? null, limit + 1])
+    const items = result.rows.slice(0, limit).map((row) => ({ draftAuditId: String(row.id), createdAt: row.created_at,
+      name: row.name, componentKey: row.component_key, state: row.state, kind: row.kind }))
+    const last = items.at(-1)
+    return immutableProgrammingValue({ items, nextCursor: result.rows.length > limit && last ? { id: last.draftAuditId, createdAt: last.createdAt } : null })
+  })
+}
+
 /** Explicit human acceptance creates one ordinary canonical draft, never publication approval. */
 export async function acceptWorkoutExerciseProposal(pool, context, id, rawInput) {
   validateProposalId(id)
@@ -226,10 +271,8 @@ export async function acceptWorkoutExerciseProposal(pool, context, id, rawInput)
         if (record.proposal.kind !== 'new_card') {
           fail('exercise_proposal_revision_required', 'This profile needs a reviewed revision of its existing card. Keep the proposal quarantined until that revision workflow is available.')
         }
-        const existing = await client.query(`SELECT id,card_version,status,provenance_json FROM coaching.exercise_definition_v1
-          WHERE facility_id=$1 AND provenance_json->'exerciseProposal'->>'auditId'=$2`, [scope.facilityId, record.draftAuditId])
-        if (existing.rows.length > 1) fail('exercise_proposal_audit_conflict', 'More than one canonical card references this proposal; review the library identities.')
-        if (existing.rows[0]) return acceptanceResult(record, existing.rows[0], true)
+        const existing = await readAcceptance(client, scope, record)
+        if (existing) return existing
         // Research hashes include the originating actor. Rehydrate that same source
         // context; the current authenticated human owns acceptance and the new draft.
         await proposalContext(client, record.scope, record.request, record.assessment.exerciseGap)
@@ -256,4 +299,43 @@ export async function acceptWorkoutExerciseProposal(pool, context, id, rawInput)
       throw error
     }
   }
+}
+
+/** Human acceptance of a profile proposal stages an exact revision; the live source remains published. */
+export async function stageWorkoutExerciseProposal(pool, context, id, rawInput) {
+  validateProposalId(id)
+  const { expectedProposalHash } = normalizeExerciseProposalAcceptanceInput(rawInput)
+  const scope = { facilityId: libraryScopeId(context.facilityId, 'facilityId'), userId: libraryScopeId(context.userId, 'userId') }
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try { return await withCanonicalCardTransaction(pool, scope.facilityId, async (client) => {
+      const record = await readProposalAudit(client, scope, id, true)
+      if (!record) return null
+      if (record.contentHash !== expectedProposalHash) fail('exercise_proposal_audit_conflict', 'Reopen the exact proposal before staging its revision.')
+      if (record.state !== 'AI_PROPOSED' || record.proposal?.kind !== 'delivery_profile' || record.assessment.status !== 'GAP_CONFIRMED') {
+        fail('exercise_proposal_not_applicable', 'Only a confirmed delivery-profile proposal can stage a revision of its published source.')
+      }
+      const existing = await findStagedCanonicalRevisionForProposal(client, scope, record.draftAuditId, record.contentHash)
+      if (existing) return immutableProgrammingValue({ event: existing, alreadyStaged: true })
+      await proposalContext(client, record.scope, record.request, record.assessment.exerciseGap)
+      const source = await loadCanonicalCard(client, scope.facilityId, record.proposal.target.exerciseCardId, client)
+      if (!source) fail('canonical_revision_source_changed', 'The source card is no longer available.')
+      const event = await stageCanonicalDeliveryProfileInTransaction(client, scope, source, record.proposal,
+        { draftAuditId: record.draftAuditId, proposalHash: record.contentHash })
+      return immutableProgrammingValue({ event, alreadyStaged: false })
+    }, { repeatableRead: true }) } catch (error) {
+      if (attempt < 2 && ['40001', '23505'].includes(error.code)) continue
+      if (['40001', '23505'].includes(error.code)) fail('canonical_revision_conflict', 'The canonical revision history changed during staging. Reopen the proposal and retry.')
+      throw error
+    }
+  }
+}
+
+/** Recover a staged revision from its original proposal without another acceptance/write. */
+export async function loadWorkoutExerciseProposalRevision(pool, context, id) {
+  validateProposalId(id)
+  return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
+    const record = await readProposalAudit(client, scope, id)
+    if (!record || record.proposal?.kind !== 'delivery_profile') return null
+    return findStagedCanonicalRevisionForProposal(client, scope, record.draftAuditId, record.contentHash)
+  })
 }

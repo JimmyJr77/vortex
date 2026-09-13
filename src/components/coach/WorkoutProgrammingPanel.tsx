@@ -11,6 +11,7 @@ import { ProgrammingAthletes, type ProgrammingRosterMember } from './Programming
 import { ProgrammingSessionView } from './ProgrammingSessionView'
 import { ProgrammingRevisionControls } from './ProgrammingRevisionControls'
 import { ProgrammingInterpretationPreview } from './ProgrammingInterpretationPreview'
+import { ProgrammingExerciseLibrary } from './ProgrammingExerciseLibrary'
 
 interface RolloutStatus { coachGeneration: { enabled: boolean }; aiIntent: { enabled: boolean } }
 interface SavedPage { items: ProgrammingWorkoutListItem[]; nextCursor: ProgrammingWorkoutCursor | null }
@@ -33,6 +34,8 @@ export function WorkoutProgrammingPanel() {
   const [revalidation, setRevalidation] = useState<ProgrammingRevalidation | null>(null)
   const [choices, setChoices] = useState<WorkoutProgrammingChoices | null>(null)
   const [operation, setOperation] = useState<string | null>(null)
+  const [showExerciseLibrary, setShowExerciseLibrary] = useState(false)
+  const [libraryBusy, setLibraryBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initializing, setInitializing] = useState(true)
   const [reload, setReload] = useState(0)
@@ -141,7 +144,7 @@ export function WorkoutProgrammingPanel() {
       if (!signal.aborted) setRevalidation(result)
     })
   }
-  const busy = operation !== null
+  const busy = operation !== null || libraryBusy
   const invalidRevisionScope = request.mode === 'modify_existing' && request.modification?.regenerateComponentKeys != null
     && !request.modification.regenerateComponentKeys.some((key) => activeProgrammingComponents(request).includes(key))
   const globalChoices = choices ? {
@@ -242,6 +245,10 @@ export function WorkoutProgrammingPanel() {
         {!!choices?.findings.length && <ul className="list-disc space-y-1 pl-5 text-sm text-amber-800">{choices.findings.map((finding, index) => <li key={`${finding.code}:${index}`}>{finding.detail}</li>)}</ul>}
       </fieldset>
     </form>
+    <button type="button" className={actionClass} aria-expanded={showExerciseLibrary} disabled={busy || initializing || !rollout?.coachGeneration.enabled}
+      onClick={() => setShowExerciseLibrary((shown) => !shown)}>{showExerciseLibrary ? 'Hide exercise library research' : 'Research exercise needs & proposals'}</button>
+    {showExerciseLibrary && <ProgrammingExerciseLibrary request={request} disabled={operation !== null || initializing || !rollout?.coachGeneration.enabled}
+      aiEnabled={!!rollout?.aiIntent.enabled} onBusy={setLibraryBusy} />}
     {operation && <div role="status" aria-live="polite" className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 text-sm"><Loader2 className="h-4 w-4 animate-spin" />{operation}…
       <button type="button" className="ml-auto underline" onClick={() => { active.current?.abort(); setError(operation === 'Interpreting your revision instruction'
         ? 'Instruction preview canceled. Your current controls were kept.' : 'Cancellation requested. Refresh saved sessions before retrying generation.') }}>Cancel</button></div>}

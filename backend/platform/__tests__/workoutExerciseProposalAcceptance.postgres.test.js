@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import pg from 'pg'
-import { acceptWorkoutExerciseProposal, proposeWorkoutExercise, loadWorkoutExerciseProposal } from '../workoutExerciseProposal.js'
+import { acceptWorkoutExerciseProposal, proposeWorkoutExercise, loadWorkoutExerciseProposal, listWorkoutExerciseProposals, reviewWorkoutExerciseProposal } from '../workoutExerciseProposal.js'
 import { saveCanonicalCardDraftInTransaction, withCanonicalCardTransaction } from '../canonicalCardRepository.js'
 import { proposalRegistry } from './workoutExerciseProposalFixtures.js'
 import { exerciseGapResearchFixtures } from './workoutExerciseGapFixtures.js'
@@ -184,6 +184,38 @@ test('human acceptance uses the existing canonical authoring DDL and immutable A
         assert.equal((await database.query('SELECT count(*)::int AS count FROM coaching.exercise_card_revision_v1')).rows[0].count, 0)
         assert.deepEqual(await loadWorkoutExerciseProposal(pool, SCOPE, saved.draftAuditId), saved)
       }
+    })
+
+    await t.test('review recovers current acceptance from canonical origin while preserving the historical audit and facility scope', async () => {
+      const { pool, saved, accept } = await setup()
+      assert.deepEqual(await reviewWorkoutExerciseProposal(pool, SCOPE, saved.draftAuditId), { record: saved, acceptance: null })
+      const accepted = await accept()
+      const reopened = await reviewWorkoutExerciseProposal(pool, { ...SCOPE, userId: '8' }, saved.draftAuditId)
+      assert.deepEqual(reopened.record, saved)
+      assert.deepEqual(reopened.acceptance, { ...accepted, alreadyAccepted: true })
+      assert.equal(await reviewWorkoutExerciseProposal(pool, { ...SCOPE, facilityId: '10' }, saved.draftAuditId), null)
+      await database.query("UPDATE coaching.exercise_definition_v1 SET provenance_json=jsonb_set(provenance_json,'{exerciseProposal,contentHash}', '\"conflicting-origin\"'::jsonb) WHERE id=$1", [accepted.canonicalCardId])
+      await assert.rejects(reviewWorkoutExerciseProposal(pool, SCOPE, saved.draftAuditId), { code: 'exercise_proposal_audit_conflict' })
+    })
+
+    await t.test('proposal history preserves microsecond cursor order, projects summaries and excludes other workflows and facilities', async () => {
+      const { pool, saved } = await setup()
+      await database.query("UPDATE coaching.exercise_card_ai_draft_audit_v1 SET created_at='2026-09-13T12:00:00.000001Z' WHERE id=$1", [saved.draftAuditId])
+      await database.query(`INSERT INTO coaching.exercise_card_ai_draft_audit_v1 (facility_id,user_id,request_hash,status,draft_json,created_at)
+        SELECT facility_id,user_id,request_hash,status,draft_json,'2026-09-13T12:00:00.000002Z'::timestamptz
+        FROM coaching.exercise_card_ai_draft_audit_v1 WHERE id=$1`, [saved.draftAuditId])
+      await database.query(`INSERT INTO coaching.exercise_card_ai_draft_audit_v1 (facility_id,user_id,request_hash,status,draft_json)
+        VALUES (9,7,'synthetic','validated','{"workflow":"legacy-ai-draft"}'), (10,8,'synthetic','validated','{"workflow":"legacy-ai-draft"}')`)
+      const first = await listWorkoutExerciseProposals(pool, SCOPE, { limit: 1 })
+      assert.equal(first.items.length, 1)
+      assert.equal(first.items[0].createdAt, '2026-09-13T12:00:00.000002Z')
+      assert.equal(first.items[0].name, saved.request.need.canonicalName)
+      assert.deepEqual(Object.keys(first.items[0]).sort(), ['componentKey', 'createdAt', 'draftAuditId', 'kind', 'name', 'state'])
+      const second = await listWorkoutExerciseProposals(pool, SCOPE, { limit: 1, before: first.nextCursor })
+      assert.equal(second.items[0].draftAuditId, saved.draftAuditId)
+      assert.equal(second.items[0].createdAt, '2026-09-13T12:00:00.000001Z')
+      assert.equal(second.nextCursor, null)
+      assert.deepEqual((await listWorkoutExerciseProposals(pool, { ...SCOPE, facilityId: '10' })).items, [])
     })
   } finally { await database.end() }
 })
