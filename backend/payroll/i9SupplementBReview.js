@@ -27,7 +27,7 @@ export async function previewI9SupplementB(db,ctx,taskId,body){
  taskId=current.row.compliance_task_id
  const answers=i9SupplementBInput(body.answers),pdf=await renderI9SupplementBPreview(current.bytes,answers),previewSha256=hash(pdf)
  const evidence={answers,pdfBase64:pdf.toString('base64'),sourceDocumentId:current.row.document_id,sourceSha256:current.row.content_sha256,sourcePdfBase64:current.bytes.toString('base64')}
- const row=(await db.query(`INSERT INTO payroll_i9_supplement_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,previewSha256,encryptDocument(Buffer.from(JSON.stringify(evidence)),aad(ctx,{compliance_task_id:taskId,actor_user_id:ctx.admin}))])).rows[0]
+ const row=(await db.query(`INSERT INTO payroll_i9_supplement_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,document_fingerprint) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,previewSha256,encryptDocument(Buffer.from(JSON.stringify(evidence)),aad(ctx,{compliance_task_id:taskId,actor_user_id:ctx.admin})),hash(JSON.stringify(answers.document))])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_SUPPLEMENT_PREVIEW_CREATED','i9_supplement_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,complianceTaskId:taskId,signatureId:current.row.id,previewSha256}])
  return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:evidence.pdfBase64,pageCount:1,source:{documentId:evidence.sourceDocumentId,sha256:evidence.sourceSha256,pdfBase64:evidence.sourcePdfBase64,pageCount:4},attestation:I9_SUPPLEMENT_B_ATTESTATION}
 }
@@ -38,7 +38,7 @@ export async function currentI9SupplementBReview(db,ctx,taskId,body){
  const latest=(await db.query('SELECT id FROM payroll_i9_supplement_review WHERE compliance_task_id=$1 ORDER BY id DESC LIMIT 1',[taskId])).rows[0]
  if(!row||!row.unexpired||String(row.id)!==String(latest?.id)||row.preview_sha256!==body.previewSha256||row.basis_hash!==current.basisHash||String(row.signature_id)!==String(current.row.id))throw fail('This Supplement B review expired or its source changed. Prepare a new review.')
  const retained=JSON.parse(decryptDocument(row.encrypted_review,aad(ctx,row)).toString())
- if(hash(Buffer.from(retained.pdfBase64,'base64'))!==row.preview_sha256||hash(Buffer.from(retained.sourcePdfBase64,'base64'))!==current.row.content_sha256)throw fail('The retained Supplement B review failed its integrity check.')
+ if(row.document_fingerprint!==hash(JSON.stringify(retained.answers.document))||hash(Buffer.from(retained.pdfBase64,'base64'))!==row.preview_sha256||hash(Buffer.from(retained.sourcePdfBase64,'base64'))!==current.row.content_sha256)throw fail('The retained Supplement B review failed its integrity check.')
  return {row,retained,current}
 }
 export async function recordI9SupplementBPage(db,ctx,taskId,body){
