@@ -25,7 +25,7 @@ export async function signI9SupplementB(db,ctx,taskId,body){
  for(const previous of review.retained.previousSupplements||[])if(!pages.some(p=>p.document_key===previous.documentKey&&p.page_number===1))throw fail('Display every retained prior supplement before signing.')
  for(const prior of review.retained.previousReceiptAmendments||[])for(let n=1;n<=prior.pageCount;n++)if(!pages.some(p=>p.document_key===prior.documentKey&&p.page_number===n))throw fail('Display every prior receipt amendment page before signing.')
  const clock=(await db.query('SELECT clock_timestamp() AS signed_at,(clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- const context={today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.followupExaminedOn,attestationKind:review.current.retained.context.attestationKind,eVerify:review.current.retained.context.eVerify}
+ const context={today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.followupExaminedOn,attestationKind:review.current.retained.context.attestationKind,...review.current.examinationContext}
  const timing=validateI9SupplementBExamination(examination,review.retained.answers,context),copies=[]
  for(const copyId of examination.copyIds){
   const {copy}=await currentI9SupplementBCopy(db,ctx,taskId,{...body,copyId})

@@ -22,7 +22,7 @@ export async function signI9DifferentSupplement(db,ctx,taskId,body){
  if(signature!==named)throw fail('Sign as the representative named on the reviewed supplement.',400)
  const clock=(await db.query('SELECT clock_timestamp() AS signed_at,(clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
  if(clock.today!==checked.today)throw fail('The signing date changed. Prepare and review the replacement again.')
- const context={...review.current.retained.context,...review.current.currentHiringContext,today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn}
+ const context={...review.current.retained.context,...review.current.currentHiringContext,...review.current.examinationContext,today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn}
  const timing=checked.findings,copies=checked.copies.map(c=>({...c,copyId:c.id}))
  const part=review.retained.packet.find(p=>p.documentKey==='replacement')
  const pdf=await signI9DifferentSupplementPdf(Buffer.from(part.pdfBase64,'base64'),{signature,signedOn:clock.today,pageCount:part.pageCount})

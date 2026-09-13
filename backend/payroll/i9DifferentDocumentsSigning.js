@@ -25,7 +25,7 @@ export async function signI9DifferentDocuments(db,ctx,taskId,body){
  const pages=(await db.query('SELECT document_key,page_number FROM payroll_i9_different_page_visit WHERE review_id=$1',[review.row.id])).rows
  for(const [key,count] of Object.entries(review.row.page_counts))for(let n=1;n<=count;n++)if(!pages.some(p=>p.document_key===key&&p.page_number===n))throw fail('Display every replacement and retained source page before signing.')
  const clock=(await db.query('SELECT clock_timestamp() AS signed_at,(clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- const context={...review.current.retained.context,...review.current.currentHiringContext,today:clock.today,dueOn:review.current.receiptTasks[0].dueOn,originalExaminedOn:review.current.retained.examination.examinedOn}
+ const context={...review.current.retained.context,...review.current.currentHiringContext,...review.current.examinationContext,today:clock.today,dueOn:review.current.receiptTasks[0].dueOn,originalExaminedOn:review.current.retained.examination.examinedOn}
  const timing=validateI9DifferentDocumentsExamination(facts,review.retained,context),copies=[]
  for(const decision of facts.examination.documents)for(const copyId of decision.copyIds){
   const {copy}=await currentI9DifferentDocumentsCopy(db,ctx,taskId,{...body,rowKey:decision.rowKey,copyId})

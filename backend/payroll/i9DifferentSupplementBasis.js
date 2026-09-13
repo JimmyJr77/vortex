@@ -15,7 +15,7 @@ export async function i9DifferentSupplementBasis(db,ctx,taskId){
 export async function i9DifferentSupplementContext(db,ctx,taskId){
  const current=await i9DifferentSupplementBasis(db,ctx,taskId)
  const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- return {signatureId:current.row.id,receiptSignatureId:current.receiptSignatureId,sourceKind:'SUPPLEMENT_B',dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.receipt.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,eVerify:current.currentHiringContext.eVerify}}
+ return {signatureId:current.row.id,receiptSignatureId:current.receiptSignatureId,sourceKind:'SUPPLEMENT_B',dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.receipt.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,...current.examinationContext}}
 }
 export async function prepareI9DifferentSupplement(db,ctx,taskId,body){
  if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(key=>!['signatureId','supplement','reason','initials'].includes(key)))throw fail('Use the supported replacement supplement preparation fields.',400)

@@ -43,5 +43,5 @@ export async function i9DifferentDocumentsContext(db,ctx,taskId){
  const current=await i9DifferentDocumentsBasis(db,ctx,taskId)
  const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
  const original=current.originalSection2
- return {receiptTasks:current.receiptTasks,signatureId:current.row.id,sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.retained.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,eVerify:current.retained.context.eVerify},employerDefaults:{firstDayEmployed:original.firstDayEmployed,businessName:original.businessName,businessAddress:original.businessAddress}}
+ return {receiptTasks:current.receiptTasks,signatureId:current.row.id,sourceKind:current.receipt.sourceKind,rowKey:current.receipt.rowKey,dueOn:current.row.due_on,today:clock.today,originalExaminedOn:current.retained.examination.examinedOn,retainedHiringContext:{attestationKind:current.retained.context.attestationKind,...current.examinationContext},employerDefaults:{firstDayEmployed:original.firstDayEmployed,businessName:original.businessName,businessAddress:original.businessAddress}}
 }

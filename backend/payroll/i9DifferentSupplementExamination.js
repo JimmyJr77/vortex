@@ -24,7 +24,7 @@ export async function reviewedI9DifferentSupplementExamination(db,ctx,taskId,bod
  const review=await currentI9DifferentSupplementReview(db,ctx,taskId,body)
  const input=i9DifferentSupplementExaminationInput(body.findings)
  const clock=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- const findings=validateI9DifferentSupplementExamination(input,review.retained,{today:clock.today,dueOn:review.current.row.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn,attestationKind:review.current.retained.context.attestationKind,eVerify:review.current.currentHiringContext.eVerify})
+ const findings=validateI9DifferentSupplementExamination(input,review.retained,{today:clock.today,dueOn:review.current.row.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn,attestationKind:review.current.retained.context.attestationKind,...review.current.examinationContext})
  const visits=(await db.query('SELECT document_key,count(*)::integer AS count FROM payroll_i9_different_supplement_page_visit WHERE review_id=$1 GROUP BY document_key',[review.row.id])).rows
  for(const [key,count] of Object.entries(review.row.page_counts))if(visits.find(v=>v.document_key===key)?.count!==count)throw Object.assign(new Error('Review every page of the current replacement packet.'),{status:409})
  const copies=[]

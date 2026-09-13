@@ -23,7 +23,7 @@ export async function signI9Receipt(db,ctx,taskId,body){
  const pages=(await db.query('SELECT document_key,page_number FROM payroll_i9_receipt_page_visit WHERE review_id=$1',[review.row.id])).rows
  for(const [key,count] of [['source',review.row.source_page_count],['amendment',review.row.page_count]])for(let n=1;n<=count;n++)if(!pages.some(p=>p.document_key===key&&p.page_number===n))throw fail('Display every source and amendment page before signing.')
  const clock=(await db.query('SELECT clock_timestamp() AS signed_at,(clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]
- const context={today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn||review.current.retained.examination.examinedOn,attestationKind:review.current.retained.context.attestationKind,eVerify:review.current.retained.context.eVerify}
+ const context={today:clock.today,dueOn:root.due_on,originalExaminedOn:review.current.receipt.examination.examinedOn||review.current.retained.examination.examinedOn,attestationKind:review.current.retained.context.attestationKind,...review.current.examinationContext}
  const timing=validateI9ReceiptExamination(examination,review.retained.answers,context),copies=[]
  for(const copyId of examination.copyIds){
   const {copy}=await currentI9ReceiptCopy(db,ctx,taskId,{...body,copyId})
