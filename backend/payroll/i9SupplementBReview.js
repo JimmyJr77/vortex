@@ -31,7 +31,13 @@ export async function i9DocumentFollowupBasis(db,ctx,taskId,kind){
   if(hash(pdf)!==prior.content_sha256||evidence.documentSha256!==prior.content_sha256||!Number.isInteger(evidence.pageCount)||evidence.pageCount<2||evidence.pageCount>100)throw fail('A prior receipt amendment failed its integrity check.')
   previousReceiptAmendments.push({signatureId:prior.id,documentId:prior.document_id,documentKey:`receipt:${prior.id}`,sha256:prior.content_sha256,pdfBase64:pdf.toString('base64'),pageCount:evidence.pageCount})
  }
- const basisHash=hash(JSON.stringify({signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on,previousSupplements:previousSupplements.map(p=>[p.signatureId,p.sha256]),previousReceiptAmendments:previousReceiptAmendments.map(p=>[p.signatureId,p.sha256])}))
+ for(const prior of (await db.query('SELECT s.*,d.content_sha256,d.encrypted_content,d.task_id FROM payroll_i9_different_signature s JOIN payroll_private_document d ON d.id=s.document_id WHERE s.signature_id=$1 ORDER BY s.id',[row.id])).rows){
+  const evidence=JSON.parse(decryptDocument(prior.encrypted_evidence,`i9-different-signature:${ctx.facility}:${ctx.employee}:${prior.compliance_task_id}:${prior.actor_user_id}`).toString())
+  const pdf=decryptDocument(prior.encrypted_content,`${ctx.facility}:${ctx.employee}:${prior.task_id}`)
+  if(hash(pdf)!==prior.content_sha256||evidence.documentSha256!==prior.content_sha256||!Number.isInteger(evidence.pageCount)||evidence.pageCount<2||evidence.pageCount>100)throw fail('A prior different-document certification failed its integrity check.')
+  previousReceiptAmendments.push({signatureId:prior.id,documentId:prior.document_id,documentKey:`different:${prior.id}`,sha256:prior.content_sha256,pdfBase64:pdf.toString('base64'),pageCount:evidence.pageCount})
+ }
+ const basisHash=hash(JSON.stringify({signatureId:row.id,sourceSha256:row.content_sha256,cycle:row.current_cycle,employee:row.employee_response,employer:row.employer_response,status:row.status,dueOn:row.due_on,previousSupplements:previousSupplements.map(p=>[p.signatureId,p.sha256]),previousReceiptAmendments:previousReceiptAmendments.map(p=>[p.documentKey,p.signatureId,p.sha256])}))
  return {row,bytes,retained,basisHash,previousSupplements,previousReceiptAmendments}
 }
 export const i9SupplementBBasis=(db,ctx,taskId)=>i9DocumentFollowupBasis(db,ctx,taskId,'REVERIFICATION')
@@ -57,7 +63,7 @@ export async function currentI9SupplementBReview(db,ctx,taskId,body){
  return {row,retained,current}
 }
 export async function recordI9SupplementBPage(db,ctx,taskId,body){
- if(body.displayed!==true||!(['supplement','source'].includes(body.documentKey)||/^(prior|receipt):[1-9]\d*$/.test(body.documentKey))||!Number.isInteger(body.page)||body.page<1)throw fail('Display a page from the current Supplement B review packet.',400)
+ if(body.displayed!==true||!(['supplement','source'].includes(body.documentKey)||/^(prior|receipt|different):[1-9]\d*$/.test(body.documentKey))||!Number.isInteger(body.page)||body.page<1)throw fail('Display a page from the current Supplement B review packet.',400)
  const {row,retained}=await currentI9SupplementBReview(db,ctx,taskId,body)
  const count=body.documentKey==='source'?4:body.documentKey==='supplement'?1:[...(retained.previousSupplements||[]),...(retained.previousReceiptAmendments||[])].find(p=>p.documentKey===body.documentKey)?.pageCount
  if(!count||body.page>count)throw fail('Choose a page in this review packet.',400)
