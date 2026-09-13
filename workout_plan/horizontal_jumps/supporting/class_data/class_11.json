@@ -1,0 +1,245 @@
+{
+  "class_number": 11,
+  "title": "Express fast forward force against light external resistance.",
+  "brief": "A lightly rear-resisted broad jump is the priority, keeping the natural arm drive while resisting forward body travel. A small dumbbell broad jump removes free arm swing and adds carried mass; grounded landmine extension and a kickstand swing emphasize rapid loaded leg/hip force with fewer impacts. Two different forward release paths complete the external-acceleration jobs.",
+  "explosive": [
+    {
+      "name": "Rear-band-Resisted Broad Jump",
+      "job": "Apply forward body impulse against an opposing horizontal force while preserving arm coordination.",
+      "cue": "Use a broad comfortable band low around the pelvis, secured behind by a qualified holder/verified anchor; dip and swing naturally into a short two-foot forward jump, then hold.",
+      "regress": "Reduce tension and travel; stop if the band shifts, rebounds the athlete backward or destabilizes the landing.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Light consistent resistance and short controlled projection",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Dumbbell Broad Jump — Arms Fixed at Sides",
+      "job": "Produce forward impulse with carried mass and no free arm swing.",
+      "cue": "Hold very light dumbbells securely at the sides, dip once and make a short forward jump; keep arms quiet and land on two feet with a 2 s hold.",
+      "regress": "Reduce load/travel; stop if grip, arm swinging or a heavy landing dominates.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Very light load, fast push, modest distance",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Landmine Power Squat — No Flight",
+      "job": "Drive a lightly loaded angled implement rapidly through leg extension without another landing.",
+      "cue": "Hold a light landmine end at chest level with both hands, use a shallow squat and stand rapidly to a tall finish while keeping feet in contact; no separate press. Lower/reset under control.",
+      "regress": "Use less load/range; stop if the anchor moves or the athlete arches/pushes with the arms instead of extending the legs.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "grounded",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Rapid extension against light resistance; feet remain planted",
+      "gate": "Secure landmine pivot, suitable bar/handle and verified arc clearance.",
+      "note": ""
+    },
+    {
+      "name": "Kickstand Dead-Stop Kettlebell Swing",
+      "job": "Bias fast hip extension toward one lead leg while the rear foot supplies a stable small support.",
+      "cue": "Use a short kickstand stance, park a light bell between reps; hike, snap the hips to float the bell below chest height, then park under control without twisting.",
+      "regress": "Reduce load and narrow the rear offset; stop if pelvis rotation or arm lifting replaces hip drive.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "swing",
+      "contacts": 0,
+      "seconds_per_rep": 5,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Crisp hip-driven acceleration; feet stay planted and the bell stays controlled",
+      "gate": "Familiar kickstand hinge and bell handling.",
+      "note": ""
+    },
+    {
+      "name": "Squat Medicine Ball Chest Throw",
+      "job": "Accelerate a chest-held load forward through a coordinated bilateral leg drive.",
+      "cue": "Hold a light ball at the chest, descend to a comfortable squat and extend promptly into a two-hand forward chest release, keeping feet planted and ribs controlled.",
+      "regress": "Reduce ball load/depth; stop for an arm-only heave or lumbar arching.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Half-Kneeling Forward Medicine Ball Scoop Toss",
+      "job": "Use a split grounded hip base and long low-to-forward arm path to express projection.",
+      "cue": "One knee down and opposite foot flat, ball low beside/in front of the lead thigh; extend the hip and scoop straight forward with two hands, without twisting or rising into a jump.",
+      "regress": "Use a lighter ball and smaller hinge; stop for unstable knee/foot support or rotation.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Pallof Press — Bilateral Athletic Stance",
+      "job": "Lightly resist trunk rotation so external force remains aligned with the forward push.",
+      "cue": "With a light band pulling from one side, feet parallel and knees soft, press both hands forward, hold 2 s and return without turning; repeat facing the opposite pull direction.",
+      "regress": "Use less band tension/shorter reach; stop for twisting or breath-holding.",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 6,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    },
+    {
+      "name": "Glute Bridge March",
+      "job": "Keep the pelvis steady while support alternates under a braced hip position.",
+      "cue": "From a low short-lever bridge, lift and replace one foot at a time, alternating for eight total marches (four per side) without pelvic roll.",
+      "regress": "Use smaller foot lifts/lower hip height; stop for cramp or trunk arching.",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "calf",
+      "name": "Standing Calf Raise — hand-supported single-leg, dumbbell",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 8,
+    "unilateral_landing_events": 0,
+    "throws": 8,
+    "other_ballistic_efforts": 12,
+    "drop_landings": 0,
+    "low_amplitude_landings": 0,
+    "primary_rounds": 8,
+    "primary_bouts": 10,
+    "primary_reps": 60,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 9,
+    "prep_reps": 32,
+    "prep_cycles": 1,
+    "stabilization_reps": 16,
+    "stabilization_hold_seconds": 0,
+    "landing_events": 8,
+    "landing_foot_contacts": 16
+  },
+  "duration_after_preparation_seconds": 4588,
+  "decision": "Resistance is kept light; only eight loaded/resisted jump landings are prescribed. Rearward elastic opposition, carried mass with fixed arms, and an anchored no-flight squat change force application/support rather than merely changing a weight number on an old drill. Kickstand swings change which leg carries the hip demand; all other work remains grounded or a throw. No heavier resistance, longer jump or added working set is earned by reaching Class 11. Strength doses stay modest with technical reserve.",
+  "next_job": "Class 12 integrates a modest stationary hop–step–jump sequence with precise receiving and entry constraints; review actual linked-contact competence and recovery before delivery. The full sequence is now audited.",
+  "observed": null,
+  "class_sha256": "b8d91cc1726adc25c05ee28a2ca6dec0966e71fc44163f4bee48bd91943b725e"
+}

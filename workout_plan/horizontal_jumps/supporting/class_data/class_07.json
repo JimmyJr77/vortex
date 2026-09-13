@@ -1,0 +1,245 @@
+{
+  "class_number": 7,
+  "title": "Carry forward momentum through alternating support legs.",
+  "brief": "Three linked alternating bounds are the main task. Same-foot skip hops, short forward unilateral pogos, a walking-entry bound and low-hurdle alternating contacts each constrain a different part of takeoff/receive timing. A step-through chest release couples one forward weight transfer with the arms without another landing.",
+  "explosive": [
+    {
+      "name": "Alternating Bounds — Three Linked Contacts",
+      "job": "Transfer impulse repeatedly from one support leg to the other.",
+      "cue": "Begin with a single-leg push and alternate receiving feet for exactly three forward bounds; hold the last landing 2 s. Start the second set from the other leg.",
+      "regress": "Shorten each bound; stop if an intermediate contact collapses or the athlete cannot control the final stop.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Six total landings, three on each leg across the two sets."
+    },
+    {
+      "name": "Power Skip for Distance",
+      "job": "Coordinate a same-foot hop with the next stepping support before alternating projection.",
+      "cue": "Perform four step-hop cycles traveling forward: land the hop on its takeoff foot, then step onto the other foot for the next hop.",
+      "regress": "Shorten the hop and slow the stepping rhythm; stop if it becomes uncontrolled running bounds.",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four hop landings (two each leg) plus four ordinary setup/transfer steps; at most 4 m."
+    },
+    {
+      "name": "Single-leg Forward-Traveling Pogo",
+      "job": "Keep a small forward-moving ankle rebound organized on each support foot.",
+      "cue": "Make two low consecutive forward same-foot contacts, then settle; repeat on the other side.",
+      "regress": "Reduce travel/amplitude; stop for knee locking, foot reaching or loss of rhythm.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "low_unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Low amplitude and modest travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Walking-entry Opposite-leg Bound to Stick",
+      "job": "Receive a small amount of entry momentum before transferring to the other leg.",
+      "cue": "Take one walking step onto the takeoff foot, immediately bound forward to the opposite foot and hold 2 s.",
+      "regress": "Shorten/slow the entry; stop for an extra gather step or uncontrolled reach.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Two ordinary entry steps total; each entry at most 1 m."
+    },
+    {
+      "name": "Step-through Medicine Ball Chest Pass",
+      "job": "Match forward weight transfer to a two-arm release.",
+      "cue": "From a staggered stance, step the rear foot forward while driving a light ball from the chest; finish balanced without chasing the throw.",
+      "regress": "Slow/shorten the step and reduce ball load; stop if the body falls through the release.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": "Six forward step-throughs total; no athlete jump intended."
+    },
+    {
+      "name": "Alternating Bounds over Two Low Hurdles",
+      "job": "Place alternating contacts around a real flight-clearance constraint.",
+      "cue": "Clear two very low hurdles with two alternating forward bounds and hold the final landing; each clearance lands on the opposite foot.",
+      "regress": "Lower/bring the hurdles closer while retaining comfortable alternate contacts; stop for clipping or a rushed landing.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Familiar low-hurdle alternating clearance; no new maximum height.",
+      "note": "Two total unilateral landings, one each leg."
+    }
+  ],
+  "control": [
+    {
+      "name": "Isometric Ankle Inversion Press — Self Resisted",
+      "job": "Lightly stabilize medial foot direction during alternating stance.",
+      "cue": "Seated, heel supported; use the opposite hand as gentle resistance while the working forefoot presses inward without turning the knee.",
+      "regress": "Reduce pressure; stop for toe curling or ankle discomfort.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Single-Leg Glute Bridge Iso Hold",
+      "job": "Maintain pelvic height when the other leg is not supporting the body.",
+      "cue": "From a short-lever bridge, unload one foot and hold the pelvis level with ribs down; keep the working heel comfortably close.",
+      "regress": "Shorten the lever and lower the hold; stop for pelvic rotation or cramp.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    }
+  ],
+  "strength": [
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "calf",
+      "name": "Standing Calf Raise — hand-supported single-leg, dumbbell",
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 0,
+    "unilateral_landing_events": 18,
+    "throws": 6,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 4,
+    "primary_rounds": 8,
+    "primary_bouts": 11,
+    "primary_reps": 66,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 10,
+    "prep_reps": 36,
+    "prep_cycles": 1,
+    "stabilization_reps": 0,
+    "stabilization_hold_seconds": 48,
+    "landing_events": 18,
+    "landing_foot_contacts": 18
+  },
+  "duration_after_preparation_seconds": 4220,
+  "decision": "The main bound uses six linked contacts total, balanced across legs by changing the starting side. Other unilateral drills are deliberately small: two entry bounds and two hurdle bounds. This limits the shift toward all-single-leg landings instead of equating them with the earlier bilateral totals. The calf lift changes to a supported straight-knee version for late stance force; squat and walkout volume are reduced to keep unilateral strength productive. Strength loads remain conditional on actual capability.",
+  "next_job": "Class 8 will address repeated projection from the same leg; use actual alternating-contact and recovery observations to decide whether that demand is appropriate.",
+  "observed": null,
+  "class_sha256": "363c0d249d9798abda25bc7ebc05a5a508fb431abd80411294616ead6d028a7b"
+}

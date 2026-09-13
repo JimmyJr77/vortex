@@ -1,0 +1,405 @@
+{
+  "n": 8,
+  "effort": "Produce a short forward push and receive it under a controlled stance position without an external drop or run-up.",
+  "brief": "After the prescribed linked-contact emphasis, this class restores isolated receiving. E1 anchors the coordinated countermovement forward push. Raised receiving, nominated single-leg receiving, low obstacle clearance, a stationary split-stance exchange and a grounded preload-to-rebound task expose different foot-placement demands. Primary step-up strength supports raising body mass through the stance leg; the remainder retains ankle, hinge and leg-recovery roles.",
+  "anchor": "E1",
+  "marker": "Count controlled finishes within each two-attempt set: one dip and coordinated arms, two-foot landing beneath the body held for 2 s without an extra step. Keep the modest chosen distance repeatable; farther is not automatically better for this support task.",
+  "review": "Class 7 prescribed 29 landings, twelve single-leg receiving events and linked alternatives, but no actual completion is known. Class 8 restores full resets and uses only four single-leg receiving events. The new main step-up uses the same 2 × 6 per-leg working count as the earlier split-squat anchor; the task change is conditional, not an automatic load progression.",
+  "sequence": "E1 is first with two sets; the more demanding nominated-leg receiving follows a shared raised landing task while fresh. The final three tasks have small doses and full resets; no long horizontal or switching-lunge circuit.",
+  "E": [
+    {
+      "name": "Broad Jump to Stick — countermovement with arms",
+      "identity": "broad_cmj_stick",
+      "family": "coordinated bilateral horizontal push",
+      "library_slug": "broad-jump-to-stick",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 120,
+      "gap": 20,
+      "t": 4,
+      "job": "Main integrated forward push with coordinated hip/knee extension and arm action, followed by owned receiving.",
+      "cue": "One smooth dip, swing arms forward and jump a modest distance; bring both feet under the body and hold 2 s. No reaching heels far ahead. Shorten distance for a backward fall or extra step; no maximum-distance test."
+    },
+    {
+      "name": "Single-Leg Forward Jump to Low Box — two-foot landing",
+      "identity": "sl_forward_to_box_bilateral",
+      "family": "unilateral push with raised shared receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per takeoff leg",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 5,
+      "job": "Express each leg's forward/upward push while using a low raised two-foot finish to reduce fall distance.",
+      "cue": "Start close to a very low stable box, one-foot push, land with both feet flat on top without tucking and hold 2 s. Step down. Lower target/shorten gap for knee tuck or a cramped landing; do not jump off the box."
+    },
+    {
+      "name": "Two-Foot Forward Jump to Single-Leg Stick",
+      "identity": "bilateral_forward_to_sl",
+      "family": "single-leg horizontal receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per receiving leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 120,
+      "gap": 20,
+      "t": 4,
+      "job": "Concentrate a small forward receiving demand on one stance leg while sharing the takeoff effort.",
+      "cue": "Very low two-foot forward push, no more than one own foot length; land on the nominated foot underneath the pelvis and hold 2 s. Reduce travel/flight for collapse or extra steps. This needs demonstrated current single-leg receiving control."
+    },
+    {
+      "name": "Single Low Hurdle Jump to Stick",
+      "identity": "single_hurdle_jump_stick",
+      "family": "isolated clearance with shared receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Clear a small obstacle through a purposeful push and place both feet accurately without a rebound demand.",
+      "cue": "One suitably low hurdle, stationary two-foot takeoff, land just beyond and hold 2 s. No preceding bounce or linked second jump. Lower/remove the hurdle rather than tucking knees or stretching the landing."
+    },
+    {
+      "name": "Split Jump Switch to Stick",
+      "identity": "split_switch_stick",
+      "family": "asymmetric force with stance exchange",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per starting lead leg",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Change which leg receives the lead support role during a short, controlled explosive stance exchange.",
+      "cue": "Small split stance, shallow dip, low jump and exchange lead legs once; land in a short split stance and hold 2 s. Reset before another jump. No traveling, repeated jumping-lunge rhythm or maximal depth; reduce stance length for twisting."
+    },
+    {
+      "name": "Grounded Snap-Down to Low Rebound Jump",
+      "identity": "grounded_snapdown_rebound",
+      "family": "rapid preload to bilateral rebound",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "rebound jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Organize a rapid lowering into a responsive push without adding the energy of a drop from a box.",
+      "cue": "Start tall with heels lightly raised but forefeet grounded; quickly settle heels and bend hips/knees slightly, then make one small vertical rebound jump and stick 2 s. The initial snap-down has no flight. Reduce speed/depth if alignment is lost; no extra pogo afterward."
+    }
+  ],
+  "S": [
+    {
+      "name": "Lateral Step-Down — low heel tap",
+      "identity": "low_lateral_stepdown",
+      "library_slug": "lateral-step-down",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Lightly strengthen knee/pelvis alignment during lowering into the stance leg.",
+      "cue": "Use a low stable step, free heel reaches beside the box; lower 3 s and rise 1 s without pushing from the free heel. Reduce range for hip drop. Use supported shallow single-leg squat instead if no suitable low step exists, same dose and tempo."
+    },
+    {
+      "name": "Short-Lever Hamstring Bridge Hold",
+      "identity": "short_lever_heel_bridge_hold",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "seconds, both heels",
+      "rest": 45,
+      "t": 1,
+      "job": "Light hamstring/pelvic support before the stronger hinge and walkout tasks.",
+      "cue": "Supine with heels close and knees well bent; gently lift hips to a low comfortable bridge while pressing heels down. Hold level with easy breathing, not maximal effort. Lower height/bring heels closer for cramp or back arch; ten seconds is a hold, not ten reps."
+    }
+  ],
+  "P": [
+    {
+      "name": "Dumbbell Step-Up",
+      "slug": "dumbbell-step-up",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Use a stable low box placing the working thigh below horizontal; whole foot on top. Rise 1 s using the upper leg, lower 3 s; no push/jump from the trailing foot. Reduce load/height for pelvic hike. If no suitable low box exists, use floor Split Squat instead at the same working/preparation counts and tempo; record the different task.",
+      "job": "Primary stance-leg force: raise body mass through a supported forward foot placement.",
+      "key": "stepup",
+      "decision": "Earlier split squat 2 × 6 per leg → low DB step-up 2 × 6 per leg. Working count is unchanged; establish step height and load from current control. The floor split-squat replacement preserves the count if the box is unsuitable."
+    },
+    {
+      "name": "Single-Leg Romanian Deadlift — hand supported, dumbbell",
+      "slug": "single-leg-romanian-deadlift",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "One DB opposite working leg, free hand on stable support. Soft stance knee, free leg travels back, pelvis faces floor; lower 3 s and rise 1 s. Support removes balance as the limiter. Reduce load/range for hip opening or trunk rotation.",
+      "job": "Maintain a supported one-leg hip hinge so receiving stance is backed by loadable hip force.",
+      "key": "slrdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Keep controlled knee-flexed ankle force after the isolated receiving work.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Retain a limited straight-knee calf force role without additional impacts.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Challenge knee-flexor control through changing lever length after the brief easy hold.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Maintain resisted leg recovery with the pelvis stabilized.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "All boxes/hurdles must fit the athlete and be stable; no minimum jump height is required. E2 without a suitable low box uses same-leg forward push to a two-foot floor landing instead, same 1 × 2 per takeoff leg/rest, four two-foot events. E3 uses a two-foot receiving landing instead when one-leg control is insufficient, 1 × 4 total with 20 s resets and 120 s afterward; four events remain but add four individual foot contacts. Remove E4's hurdle instead of adding height. Use a no-switch Split-Squat Jump to Stick instead of E5 if stance exchange is not controlled, same counts/rest. E6 uses a slower grounded lowering before the single jump instead if rapid preload fails; no extra flight.",
+  "count_note": "Default landings: E1 four + E2 four + E3 four + E4 two + E5 four + E6 three = 21 events: 17 two-foot, four single-leg, 38 individual foot contacts. E2 adds four grounded box descents. E6 has three nonflight snap-downs plus three airborne-jump landings; heel settling is not an extra jump. E5 always lands on two feet despite switching lead leg. These receiving types are not equal mechanical loads.",
+  "novelty": "The default drills add integrated countermovement forward push, raised shared receiving after one-leg propulsion, two-to-one forward receiving, isolated hurdle clearance, a single split-stance exchange and grounded preload-to-rebound. They are meaningful variants of earlier jump families with changed force-sharing, clearance or coupling, not arbitrary new labels. Returning simpler floor/no-switch mechanics as readiness replacements is intentional.",
+  "audit": "Reduced unilateral receiving to four events after Class 7's linked emphasis and rejected any external box drop. A possible repeated split-switch sequence was reduced to isolated single switches with full rest. The grounded snap-down is separated from its one actual landing in the workload count. New main step-up is conditional on box fit and leg-dominant execution; no load or depth is presumed earned.",
+  "progression": "Use current technical control to select each receiving route. Keep a consistent step height/stance and record the load if performed; no future percentage increase is scheduled. Class 9 can emphasize rapid force against light external resistance while reducing landing exposure, provided the implement can be handled securely.",
+  "map_note": "Isolated forward receiving; four single-leg landings and a conditional main step-up.",
+  "next_job": "Rapid force against manageable external resistance with low landing exposure.",
+  "handoff": "Review Class 8's receiving variants, step-up setup and any actual response, then finalize and save Class 9 before proceeding.",
+  "reviewed_files": {
+    "curriculum.md": "9159b71f78f04a4be1d6fb693c59dbf1c608473e708f0d6ff0e9e1ed2520a2e5",
+    "progress.json": "c5e3a8c4c60ca8fafb842f93133f561ba6844a9525776a88df85766a510cec01",
+    "progression_ledger.md": "3dff25fdbef943a117c9d07c5b9394e7e748b8c1ac3c94b31998ae9a117ae9d8",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_07.md": "3f6ef82f80dff3a14e857fb7cb2a4ef4393ec2459a1b0e722aa25914faccb854"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 21,
+    "bilateral_landing_events": 17,
+    "single_leg_landing_events": 4,
+    "individual_foot_contacts": 38,
+    "other_explosive": [],
+    "primary_set_rounds": 7,
+    "primary_bouts": 12,
+    "primary_work": {
+      "reps": 72,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 6,
+    "preparation_bouts": 10,
+    "preparation_work": {
+      "reps": 34,
+      "cycles": 1
+    },
+    "stabilization_bouts": 3,
+    "time_seconds": {
+      "explosive": 1598,
+      "stabilization": 237,
+      "primary": 2252,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 72,
+    "time_max": 82,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Lateral Step-Down — low heel tap",
+        "sets": 1,
+        "reps_or_seconds_per_side": 4,
+        "sides": 2,
+        "total": 8,
+        "unit": "reps"
+      },
+      {
+        "exercise": "Short-Lever Hamstring Bridge Hold",
+        "sets": 1,
+        "reps_or_seconds_per_side": 10,
+        "sides": 1,
+        "total": 10,
+        "unit": "seconds, both heels"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Broad Jump to Stick — countermovement with arms",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Forward Jump to Low Box — two-foot landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Two-Foot Forward Jump to Single-Leg Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Single Low Hurdle Jump to Stick",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 2,
+        "unit": "jumps",
+        "landing_events": 2,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 2,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split Jump Switch to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Grounded Snap-Down to Low Rebound Jump",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 3,
+        "unit": "rebound jumps",
+        "landing_events": 3,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 3,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 19
+  },
+  "status": "finalized_prescription",
+  "final_review": "Reviewed isolated receiving after the linked class. The default has 21 landings with only four single-leg receiving events; snap-downs start grounded and do not add hidden jumps. Split switches are individual reset attempts, not a running or lunge circuit. Main step-up and all raised targets have defined floor replacements. No external depth drop, automatic height increase or earned-load claim is present."
+}

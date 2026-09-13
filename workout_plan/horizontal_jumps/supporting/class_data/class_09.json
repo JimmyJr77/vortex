@@ -1,0 +1,245 @@
+{
+  "class_number": 9,
+  "title": "Convert a short controlled forward entry into horizontal takeoff.",
+  "brief": "The two-step bilateral approach jump is the priority. A one-leg long-jump plant, a walking box entry, height-oriented alternating bounds and a reverse-lunge drive each constrain how the legs organize an incoming body; an overhead forward throw couples a step to a longer arm lever.",
+  "explosive": [
+    {
+      "name": "Two-step Approach Broad Jump",
+      "job": "Redirect a small amount of forward entry momentum through a two-foot takeoff.",
+      "cue": "Take exactly two controlled forward steps into a two-foot plant, swing the arms and jump forward; hold the bilateral finish 2 s.",
+      "regress": "Slow/shorten the entry; stop if braking or an extra shuffle replaces the plant.",
+      "sets": 3,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "12 entry steps total; each entry at most 2 m."
+    },
+    {
+      "name": "One-step Long Jump to Two-foot Landing",
+      "job": "Use a single-foot plant after entry while gathering into a bilateral finish.",
+      "cue": "Take one controlled step onto the takeoff leg, drive the free knee/arms forward and jump from that foot; land on two feet and hold 2 s.",
+      "regress": "Slow the step and shorten travel; stop for a buckling plant or a feet-first reach.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four ordinary entry steps total, each at most 1 m."
+    },
+    {
+      "name": "Walk-in Two-foot Box Jump",
+      "job": "Organize a moving two-foot plant into an elevated full-foot receiving position.",
+      "cue": "Walk two short steps into a two-foot gather, then jump forward/up onto a low box and hold 2 s; step down to reset.",
+      "regress": "Lower the box and slow entry; stop for a rushed plant, clipping or partial-foot landing.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four ordinary walking entry steps total; each two-step entry at most 2 m."
+    },
+    {
+      "name": "Alternating Bounds for Height",
+      "job": "Preserve a useful upward component while carrying forward momentum from one leg to the next.",
+      "cue": "Use four controlled alternating bounds with a tall trunk, upward free-knee drive and short forward travel; hold the final contact.",
+      "regress": "Reduce height/step length; stop for reaching the foot or losing the tall hip position.",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Controlled upward projection with modest forward travel",
+      "gate": "",
+      "note": "Four landings, two each leg; at most 4 m. This is not a distance-bound score."
+    },
+    {
+      "name": "Step-in Forward Overhead Medicine Ball Throw",
+      "job": "Time a forward step with a long-lever two-arm release.",
+      "cue": "Start with a light ball above the forehead, take one short forward step and extend the arms to release ahead while ribs remain controlled; keep a stable finish.",
+      "regress": "Use lighter load and a shorter arm excursion; stop for lumbar arching or throwing outside verified containment.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": "Four ordinary step-ins total; no athlete jump."
+    },
+    {
+      "name": "Reverse-Lunge Drive Jump to Two-foot Landing",
+      "job": "Convert a rear-step loading action into a lead-leg drive and balanced finish.",
+      "cue": "Step back into a shallow reverse lunge, drive through the front foot as the rear knee comes forward and make a modest forward/up jump; land on two feet and hold.",
+      "regress": "Shorten the lunge and flight; stop for rear-foot slipping, a twisting push or uncontrolled landing.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four ordinary rear entry steps total; no running approach."
+    }
+  ],
+  "control": [
+    {
+      "name": "Wall Drive Iso Hold",
+      "job": "Lightly maintain trunk/shin alignment in a forward-driving plant position.",
+      "cue": "Use a verified fixed wall or immovable high support, lean as a straight body line and hold one knee raised while the stance heel stays comfortably lifted.",
+      "regress": "Use a more upright angle and less pressure; stop for lumbar sag or calf strain.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Lateral Step-Down",
+      "job": "Control frontal-plane pelvis/knee position while a single leg receives the approaching body.",
+      "cue": "Stand on a low stable step, lower the free heel toward the floor beside the step for 3 s and rise in 1 s without pushing from that heel.",
+      "regress": "Lower step height/load; stop for pelvic drop or loss of the whole stance foot.",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "stepup",
+      "name": "Dumbbell Step-Up — controlled forward step",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 16,
+    "unilateral_landing_events": 4,
+    "throws": 4,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 0,
+    "primary_rounds": 8,
+    "primary_bouts": 11,
+    "primary_reps": 66,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 10,
+    "prep_reps": 36,
+    "prep_cycles": 1,
+    "stabilization_reps": 8,
+    "stabilization_hold_seconds": 24,
+    "landing_events": 20,
+    "landing_foot_contacts": 36
+  },
+  "duration_after_preparation_seconds": 4642,
+  "decision": "Forward-entry tasks replace stationary drills rather than increasing their prescribed run-up distances and calling that novelty. Bilateral versus single-foot plant and floor versus box receiving geometry are explicit differences; height-oriented bounds use a different impulse direction and are not compared with distance bounds. Step-up becomes the lead strength task for controlled forward weight transfer; the bilateral squat is omitted from the six selected lifts to avoid unnecessary knee-extension volume. New step-up loads start from demonstrated handling and reserve, not from previous squat weights.",
+  "next_job": "Class 10 will address receiving a small imposed drop and projecting forward; it requires separate demonstrated rebound competence and recovery.",
+  "observed": null,
+  "class_sha256": "10953b88998bf80b592aee49330f05963245adc00ecb02a014065196e420a40c"
+}

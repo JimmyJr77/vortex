@@ -1,0 +1,425 @@
+{
+  "status": "Prescribed only; not athlete completed work",
+  "classes": [
+    {
+      "class": 1,
+      "workload": {
+        "E": {
+          "reps": 40,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 26,
+          "bouts": 4,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 88,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "ball_releases": 40,
+        "throws": 34,
+        "slams": 6,
+        "retained_or_unloaded_fast_actions": 0,
+        "received_balls": 0,
+        "primary_preparation_reps": 36,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        80,
+        90
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 2,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 10,
+          "bouts": 3,
+          "hold_seconds": 30
+        },
+        "P": {
+          "reps": 94,
+          "bouts": 15,
+          "hold_seconds": 0
+        },
+        "ball_releases": 12,
+        "throws": 12,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 30,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        80,
+        90
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 3,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 14,
+          "bouts": 3,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 24,
+        "throws": 24,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 18,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        75,
+        85
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 4,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 22,
+          "bouts": 4,
+          "hold_seconds": 12
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 24,
+        "throws": 24,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 18,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        80,
+        90
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 5,
+      "workload": {
+        "E": {
+          "reps": 32,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 22,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 16,
+        "throws": 12,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 16,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        75,
+        85
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 6,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 28,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 8,
+        "throws": 8,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 20,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        70,
+        80
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 7,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 20,
+          "bouts": 3,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 16,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 20,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        70,
+        85
+      ],
+      "baseline_handoffs": 20,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 8,
+      "workload": {
+        "E": {
+          "reps": 34,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 10,
+          "bouts": 3,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 12,
+        "slams": 8,
+        "retained_or_unloaded_fast_actions": 14,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        75,
+        85
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 9,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 28,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 16,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        75,
+        85
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 10,
+      "workload": {
+        "E": {
+          "reps": 32,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 24,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 20,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 12,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        75,
+        85
+      ],
+      "baseline_handoffs": 0,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 11,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 18,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 20,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 16,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        70,
+        85
+      ],
+      "baseline_handoffs": 16,
+      "baseline_airborne_catches": 0
+    },
+    {
+      "class": 12,
+      "workload": {
+        "E": {
+          "reps": 38,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 26,
+          "bouts": 4,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 88,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "ball_releases": 28,
+        "throws": 22,
+        "slams": 6,
+        "retained_or_unloaded_fast_actions": 10,
+        "received_balls": 4,
+        "primary_preparation_reps": 36,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      },
+      "estimated_minutes_excluding_existing_preparation_and_added_queues": [
+        85,
+        95
+      ],
+      "baseline_handoffs": 4,
+      "baseline_airborne_catches": 0
+    }
+  ]
+}

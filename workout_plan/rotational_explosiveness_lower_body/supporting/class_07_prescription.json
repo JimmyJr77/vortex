@@ -1,0 +1,152 @@
+{
+  "n": 7,
+  "label": "Qualify rapid load-to-turn coupling",
+  "effort": "Use a small controlled load-and-release action to initiate a hip turn without losing the support-foot base.",
+  "brief": "The new variable is the time between loading and force expression, not kick height, long travel or maximum jump height. The supporting jobs cover split-stance ankle coupling, grounded hip loading, free-thigh reversal, stance exchange and a small lateral rebound.",
+  "marker": "valid E2 attempts out of two per leg with a quiet preparatory landing, a coordinated grounded pivot and no extra bounce before the low kick. Log linked and paused versions separately.",
+  "e": [
+    {
+      "name": "Two-contact split-stance rebound hop",
+      "side": "lead leg",
+      "reps": 1,
+      "bilateral": 2,
+      "seconds": 6,
+      "execution": "One attempt is exactly two low hops in the same shallow split stance: land once and rebound once, then hold the second landing 2 s. Feet do not exchange or turn. Mirror the lead leg; two attempts total give four bilateral landings.",
+      "job": "Qualify short load-release timing through a kick-like split support base.",
+      "gate": "Use instead two separately reset low split-stance hops if rebound position is unproven; retain four landings and allow extra reset time. Stop for heel slap or knee drift.",
+      "novelty": "Two linked contacts without stance exchange, rather than a single scissor hop or rotational jump.",
+      "total_attempts": 2,
+      "modeled_seconds": 132
+    },
+    {
+      "name": "Single-bounce start low roundhouse",
+      "side": "kicking leg",
+      "sets": 2,
+      "reps": 1,
+      "bilateral": 1,
+      "kicks": 1,
+      "seconds": 8,
+      "execution": "Make one low two-foot bounce in the rear-leg kick stance, land quietly, then launch the low rear-leg roundhouse while the support foot turns freely. Recoil to stance. One attempt contains one preparatory landing and one grounded kick, not an airborne kick.",
+      "job": "Transfer a small elastic preload into the direct rotational task.",
+      "gate": "Use instead bounce, two-second landing hold, then the low kick if immediate transfer is unproven; same landing/kick counts, longer reset. Do not add a second bounce.",
+      "novelty": "Integrated single-bounce initiation instead of a stationary or shuffle-fed kick; the additional flight is explicitly counted.",
+      "total_attempts": 4,
+      "modeled_seconds": 332
+    },
+    {
+      "name": "Lateral hip rock-to-pivot release",
+      "side": "loaded hip",
+      "grounded": 1,
+      "execution": "With both feet initially grounded in a comfortable stance, shift a short distance into the named hip and immediately push out of that load into a small hip turn. Let the feet turn with the pelvis and finish in kick stance; no step-in or jump.",
+      "job": "Express force after a small continuous lateral preload without another landing.",
+      "gate": "Use a smaller rock or a brief pause instead if the turn becomes a lumbar twist or foot pressure is lost.",
+      "novelty": "Continuous weight-bearing lateral preload and release, distinct from Class 1 still pivot or Class 3 held departure.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Bent-knee counter-sweep to chamber",
+      "side": "moving leg",
+      "grounded": 1,
+      "execution": "Hold the free knee folded below hip height, move the thigh a small distance outward/back under control, then reverse briskly into a low forward roundhouse chamber as the support foot releases. No knee extension or ballistic end-range stretch.",
+      "job": "Coordinate a short free-thigh loading reversal with hip-turn initiation.",
+      "gate": "Use a smaller counter-sweep or a still start instead if the pelvis tips or the knee is flung beyond control.",
+      "novelty": "Direction reversal in the suspended thigh before chamber acceleration, rather than a one-way pre-chambered sweep or hover-start lift.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Grounded switch-step rotational knee drive",
+      "side": "driving leg",
+      "grounded": 1,
+      "seconds": 6,
+      "execution": "Exchange front/rear foot positions with two short grounded steps, let the new support foot settle and turn, and drive the free folded knee across into a low rotational chamber. No hop, knee extension or contact; finish within 2 m.",
+      "job": "Link a fast support-role exchange to proximal rotational output without a full additional kick.",
+      "gate": "Use slower, shorter exchange steps instead until the legs uncross cleanly; never pivot while the feet are tangled.",
+      "novelty": "Grounded stance exchange feeding a bent-knee rotational drive; differs from scissor flight, lateral crossover travel and stationary chamber work.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    },
+    {
+      "name": "Two-contact bilateral lateral rebound hop",
+      "side": "initial travel direction",
+      "reps": 1,
+      "bilateral": 2,
+      "seconds": 6,
+      "execution": "One attempt is exactly two low lateral hops: cross a floor line on two feet and rebound back once, then hold 2 s. No turn or hurdle. Mirror the first direction; two attempts give four bilateral landings.",
+      "job": "Qualify lateral load reversal at the ankle/hip without a single-leg rotational landing.",
+      "gate": "Use instead two separately reset lateral hops with the same four landings if immediate return is unproven; shorten travel before considering faster contact.",
+      "novelty": "Linked lateral out-and-back flight; distinct from grounded jab-step reversal and one-way bounds.",
+      "total_attempts": 2,
+      "modeled_seconds": 162
+    }
+  ],
+  "sets": [
+    2,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Main strength investment supports the planted push after a short load-release event.",
+    "Maintain posterior-chain control without an additional hinge round after the new contact timing.",
+    "Keep lateral hip/adductor force for rocking and lateral rebound at one round.",
+    "Preserve a controlled hip-turn torque anchor without adding speed to loaded rotation.",
+    "Maintain active chamber strength after the bounce and stance exchange tasks.",
+    "Retain bent-knee ankle force with one working set after the added contact timing."
+  ],
+  "s_jobs": "Easy hip cycles and foot holds restore precise positions after the timing drills without becoming a fatigue block.",
+  "readiness": "Linked contacts are conditional on controlled isolated landings and current recovery; no prior pass is inferred. Without evidence, start with the explicit separated-contact replacements inside the planned counts, and record that the reactive version was not completed. A kick remains grounded after its bounce.",
+  "strength_reason": "From Class 6 all-one-round consolidation, use [2,1,1,1,1,1], 88 working reps. This conditional return of one main split-squat round remains below earlier 96-rep prescriptions; no load increase is prescribed. If current readiness does not support it, use one P1 round instead and record 76 total working reps.",
+  "exposure_note": "Twelve bilateral landings: four in E1, four preparatory bounces in E2 and four in E6. Twelve efforts in E3–E5 have no flight. E2 adds four grounded kick actions within its four bounce-start attempts; do not add four more complete attempts. Separated-contact replacements retain landing counts but change timing/intensity.",
+  "space": "Use low contacts over an ordinary floor line in a clear footprint, with at most 1 m lateral excursion and 2 m clear recovery; switch steps stay within 2 m inside a 10 m lane.",
+  "progression": "The new demand is conditional coupling, not a blanket increase in contacts or strength. Compare this prescription with Class 6, but do not treat its reduced planned load as evidence the athletes recovered. Preserve separate records for paused and linked versions.",
+  "audit": "High boxes, repeated rotational rebounds and single-leg reactive turns were rejected. Linked drills contain exactly two repetitions of one hop pattern, not a concealed circuit; all their landings are counted. The main task has only two attempts per leg to limit combined bounce/kick demand.",
+  "prescribed_summary": {
+    "bilateral_landings": 12,
+    "unilateral_landings": 0,
+    "total_landing_events": 12,
+    "grounded_explosive_efforts": 12,
+    "kick_actions": 4,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 88,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4321,
+    "planning_minutes_excluding_existing_preparation": [
+      73,
+      80
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      132,
+      332,
+      210,
+      210,
+      214,
+      162
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      638,
+      372,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 7 and whether linked contacts were actually qualified, then design Class 8 around controlled forward entry rather than assuming reactive ability; audit/save before continuing.",
+  "reviewed_previous_at_authoring_sha256": "84a563a4984fa8cdefcbb5ad4ff95f5461067b78d2f9590381e98e601e84b2d6",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "40d4296e94950dc3238689b1ace6e28fcbe69d399024ad1f7c78e2fe62ced456",
+  "final_previous_class_sha256": "b697b43944ae587b2015ff1e83494f364e9a2dd0a1f900aec37580b21cbcf78e"
+}

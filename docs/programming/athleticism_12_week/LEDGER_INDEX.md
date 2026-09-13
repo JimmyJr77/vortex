@@ -1,5 +1,7 @@
 # Progression and workload record index
 
+**Current detailed inventory:13 athletic sessions (Day1 andOR01–12),108task rows,33,780daily clock scenarios and24daily ledger files. Separate weekly aggregates remain103,092paths/1,023summaries across two completed audits.**
+
 The complete outline and the detailed prescriptions describe different planning stages. Read them together; a blank numeric field in the preserved outline is not the current dose when a detailed entry exists.
 
 | Record | Authority and use |
@@ -102,3 +104,12 @@ Resolve instructional_on_ramp/week_03/or_11_workload_ledger.json with the shared
 The companion anchor ledger has eight task rows, with actual prior/selected/completed work null. P1/P2 and the full base remain counted; static stance holds/entries, dynamic repetitions, handling, approaches, assessed walking exits and ordinary returns use separate units. Unknown main/stance history stays null and selects only its independently eligible current cap. Natural contacts, actual kg and separate tumbling remain unknown.
 
 The index now contains 12 written athletic sessions (Day1 and OR01–11), 100 task rows and 32,652 daily clock scenarios, with 22 daily ledger files. The two weekly reviews retain their separate 103,092 paths/1,023 summaries. OR11 adds one inspected mapping-record snapshot, resolving 14 reused/proposed keys for its review; the project total of 54 inspected record snapshots does not mean 54 unique or approved canonical exercises.
+
+
+## OR-12 — complete clocks, independent dose factors and actual-delay models
+
+The [anchor ledger](instructional_on_ramp/week_03/or_12_anchor_ledger.json) adds eight purposeful task rows. The [workload ledger](instructional_on_ramp/week_03/or_12_workload_ledger.json) adds1,128 complete age/mode/route/Strength clock cohorts. Resolve the schema-2 root catalog with `prescriptions/check_or_12.py`’s imported `resolve_workload_scenarios`. Its `hypothetical_delay_cases` catalog separately resolves16 cases; `independent_dose_factor_checks` contains1,404 factors. These are additional checked choices and explanations, not extra daily attendance histories or physical sets.
+
+The complete2,233,269-byte document passes serialize/parse/resolve equality at both catalog levels. Root cohort digest is `4e95529a61cd0092334222f519cf1d815874f5c6f195ed86202de84dd8adf894`; delay digest is `ca8207b6184c77a6a663396dd3bf264a0d8f2d2e023c8b368ed21c9f351b41a1`. Preserve original slot identifiers, exact route-specific recovery, actual omissions and the main-to-Strength recovery requirement when interpreting these models. Delays are explicitly hypothetical; actual athlete values remain null.
+
+The current cumulative inventory is13 sessions/108task rows/33,780daily scenarios/24ledger files. OR12 adds17 inspected mapping-record snapshots, yielding71 across source documents; this is neither71 unique movements nor71 approvals. Its16 selected movement keys plus one retained historical alias remain distinct. No new proposal was required. Earlier414 evidence bindings remain intact; OR12 has a separately recorded evidence group. Weekly path counts and unresolved separate tumbling are not added to daily physical workload.

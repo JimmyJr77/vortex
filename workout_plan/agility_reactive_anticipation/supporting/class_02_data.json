@@ -1,0 +1,295 @@
+{
+  "class_number": 2,
+  "effort": "Read forward commitment, accelerate briefly and own the stop.",
+  "brief": "Transfer Class 1’s body-read principle from side-to-side tracking to forward release. The main problem is initiating from real weight transfer without guessing. E1 is the live-release anchor; ankle rebound, forward impulse, staggered drive, a known brake and a forward ballistic release supply distinct physical jobs.",
+  "anchor_protocol": "Coach and athlete face the same direction on parallel paths, coach half a step ahead. Coach visibly shifts weight and leaves after a variable 1–3 s interval; no verbal go. Athlete reads the departure, accelerates from 2 m to 5 m, and stops by 8 m. Six departures; reset by walking outside the active path. Record cue provider and start geometry. Hold a slower coach departure if initiation or stopping is not controlled.",
+  "quality_marker": "For each of six E1 starts: movement after visible commitment, smooth first two steps, and stop before the 8 m line without a reaching locked-knee plant. Record correct read/control separately; no reaction-time claim.",
+  "layout": "Use one 10 m athlete lane and a separate parallel coach path with at least 2 m verified separation. E1/E4 start at 2 m, travel 3 m, brake within 3 m, leaving 2 m at each end. Jump travel stays within 2–6 m, with a clear 2 m landing buffer. E6 releases a light medicine ball forward from 2 m into an empty 2–7 m catch-free landing zone; one thrower, retrieve only after the ball stops. Choose load/trajectory that remain inside it. If no ball is light enough for a fast low release, delivery of E6 requires an appropriate ball rather than extra loaded jumps.",
+  "progression": "Previous: Class 1 prescribed lateral cue work, lateral lunge/split squat/RDL and adductor/calf loading; no actual work reported. Current: forward task, two-set goblet squat, one-set reverse lunge and retained hinge/ankle anchors. This changes force direction and reduces unilateral compound volume. Hold loads and the controlled-speed cue while feedback is absent. Advance later only when the actual full dose, 2–3 RIR, stopping control and recovery are documented; do not convert new drill success into a load increase.",
+  "audit": "Kept the perceptual anchor first, limited forward and staggered jumps to three/four landings, and used one reverse-lunge set/leg to limit overlap with squat and RDL. Forward toss is a single low release, not a catch circuit. No Class 1 agility drill is repeated. Next class adds a no-go decision only if the coach can elicit a clear response to genuine commitment.",
+  "explosive": [
+    {
+      "name": "Forward Release Chase",
+      "dose": "2 × 3 starts × 3 m",
+      "job": "Main live read-to-forward-drive task; identify opponent departure rather than memorizing a sound cue.",
+      "execution": "Rapid first steps at a controllable speed; brake within 3 m. Rest 45 s between starts, 90 s between sets and 90 s before E2. Stop for guessing or boundary loss.",
+      "identity": "live_forward_departure_parallel_chase",
+      "account": {
+        "locomotor_attempts": 6,
+        "rapid_metres": 18,
+        "stopping_metres_max": 18,
+        "decision_opportunities_max": 6
+      },
+      "seconds": 444,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Forward–Back Line Hops",
+      "dose": "1 × 8 bilateral contacts",
+      "job": "Quick fore–aft ankle return supports the first acceleration contacts and the later backward pressure of braking.",
+      "execution": "Both feet cross a visible floor seam forward/back, four each way; low amplitude, stop after contact eight. Rest 60 s before E3; reduce amplitude for heel slap or ankle roll.",
+      "identity": "bilateral_anteroposterior_line_rebounds",
+      "account": {
+        "bilateral_landings": 8
+      },
+      "seconds": 130,
+      "source": "line-pogo-forward-back; exact bilateral direction verified locally"
+    },
+    {
+      "name": "Standing Broad Jump to Stick",
+      "dose": "1 × 3 jumps",
+      "job": "Whole-body forward impulse from a parallel stance, without a perceptual or unilateral landing demand.",
+      "execution": "Two-foot takeoff and landing, natural arms; choose a controllable distance and hold 2 s. Rest 30 s between jumps, 60 s before E4. Shorten distance for extra steps.",
+      "identity": "bilateral_countermovement_horizontal_stick",
+      "account": {
+        "bilateral_landings": 3
+      },
+      "seconds": 198,
+      "source": "broad-jump-to-stick; local family"
+    },
+    {
+      "name": "Sprint-to-Stick Deceleration",
+      "dose": "1 × 4 repetitions × 3 m",
+      "job": "Isolate a known forward braking boundary so the live task is not limited by an absent stopping strategy.",
+      "execution": "Begin at 2 m; accelerate to 5 m and brake by 8 m using several controlled contacts. No sudden locked-leg stop. Rest 45 s between reps and 60 s before E5. Reduce entry speed for overshoot.",
+      "identity": "planned_forward_3m_acceleration_terminal_brake",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 12,
+        "stopping_metres_max": 12
+      },
+      "seconds": 279,
+      "source": "sprint-to-stick-deceleration; short-lane execution proposed"
+    },
+    {
+      "name": "Split-Stance Broad Jump to Parallel Landing",
+      "dose": "1 × 2 per lead leg",
+      "job": "Express forward drive from an asymmetric starting base, then share acceptance across both feet.",
+      "execution": "Pause in a comfortable staggered stance, jump forward and land with feet parallel; no stance-switch jumps. Two starts each lead. Rest 30 s between attempts, 60 s before E6; reduce distance for rotation.",
+      "identity": "staggered_two_foot_takeoff_forward_parallel_landing",
+      "account": {
+        "bilateral_landings": 4
+      },
+      "seconds": 234,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Medicine Ball Scoop Toss — forward",
+      "dose": "1 × 4 throws",
+      "job": "Link hip/knee extension to a forward release while keeping the athlete grounded; supports whole-body forward projection.",
+      "execution": "Light ball, quarter squat, quick leg drive and low two-hand underhand release. No jump or return catch. Stay inside the marked throw zone. Rest 30 s between throws and 90 s before strength; reduce ball load for slow arm-dominated release.",
+      "identity": "bilateral_grounded_forward_scoop_release",
+      "account": {
+        "throws": 4
+      },
+      "seconds": 260,
+      "source": "medicine-ball-scoop-toss; forward grounded execution proposed"
+    }
+  ],
+  "stabilization": [
+    {
+      "name": "Seated Band Ankle Eversion — light",
+      "dose": "1 × 6/ankle",
+      "job": "Light ankle control against outward rolling during the first planted acceleration step.",
+      "execution": "With heel supported and shin still, turn the forefoot slightly outward against a light band held securely by the coach, away from the face. Return slowly; no ankle rolling or knee turn. Reduce tension/range for loss of control. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 12,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "eversion"
+    },
+    {
+      "name": "Heel-Dig Bridge Hold — light bilateral",
+      "dose": "2 × 10 s",
+      "job": "Easy posterior-chain positional tension before the stronger hinge; do not turn it into hamstring fatigue.",
+      "execution": "On a comfortable floor surface, heels down and knees bent; lift hips only to a stacked trunk and gently pull heels toward the hips without moving them. Keep easy and breathe; lower height for cramp or back extension. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 0,
+        "hold_seconds": 20,
+        "bouts": 2
+      },
+      "seconds": 150,
+      "identity": "bridge"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Goblet Squat",
+      "dose": "2 × 6 bilateral",
+      "job": "Bilateral knee/hip extension for projecting forward from the initial athletic stance.",
+      "execution": "Hold one dumbbell at the chest; sit between the hips with whole-foot pressure and rise smoothly. Use an owned depth; reduce load/range for heel lift or trunk collapse. 120 s between rounds and 120 s before the next exercise.",
+      "identity": "squat",
+      "source": "goblet-squat",
+      "account": {
+        "rounds": 2,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 428
+    },
+    {
+      "name": "Reverse Lunge — dumbbells",
+      "dose": "1 × 6/side",
+      "job": "Front-leg force through the return step without another full two-set unilateral block.",
+      "execution": "Step one foot backward, lower under control, then use the front leg to return to standing. Keep the front heel down; shorten the step/load for wobble or push-off from the rear toes. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "reverse",
+      "source": "reverse-lunge",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 432
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "dose": "2 × 6 bilateral",
+      "job": "Retained hip-hinge anchor for braking with the hips back and returning to extension.",
+      "execution": "Hinge from standing with soft knees; keep weights close and stop descent where the pelvis/spine remain controlled. Finish tall without leaning back. Reduce range/load for rounding. 120 s between rounds and 120 s before the next exercise.",
+      "identity": "rdl",
+      "source": "romanian-deadlift",
+      "account": {
+        "rounds": 2,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 428
+    },
+    {
+      "name": "Partner Manual-Resistance Hamstring Curl",
+      "dose": "1 × 8/side",
+      "job": "Direct knee-flexor force supports control of the lower leg through the first running steps.",
+      "execution": "Lie prone on a comfortable floor surface; coach applies smooth resistance above the heel while the athlete bends and straightens the knee through an owned range. Keep hips down; no sudden pushes. Match resistance to 2–3 RIR, not a contest. If prone support/contact is unsuitable, use Seated Band Hamstring Curl instead, same sets/reps per side: sit on a stable bench, secure a light band at the heel with a coach holding steady forward tension, then pull the heel beneath the bench without moving the thigh. Qualify band/bench fit; no sudden release. This replaces only this slot and preserves totals. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "curl",
+      "source": "partner-manual-resistance-hamstring-curl",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Single-Leg Calf Raise — supported standing, dumbbell",
+      "dose": "1 × 8/side",
+      "job": "Retained straighter-knee ankle push as the pursuit stride opens.",
+      "execution": "Stand on flat floor with a nearly straight knee and light hand support; raise the heel, pause briefly and lower for 2 seconds. No bounce or ankle roll. Reduce load when heel height declines. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "calf",
+      "source": "single-leg-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bilateral, bent-knee",
+      "dose": "1 × 10 bilateral",
+      "job": "Bent-knee ankle drive for the initial low stance; one set limits accumulated calf work.",
+      "execution": "Use a stable bench, knees near right angles, secure dumbbells on distal thighs above knees. Lower heels for 2 seconds to the floor, pause, then rise. Reduce load for bouncing or shortened range. Rest 60 s before the next exercise.",
+      "identity": "soleus",
+      "source": "seated-dumbbell-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 225
+    }
+  ],
+  "totals": {
+    "explosive": {
+      "locomotor_attempts": 10,
+      "rapid_metres": 30,
+      "stopping_metres_max": 30,
+      "decision_opportunities_max": 6,
+      "bilateral_landings": 15,
+      "throws": 4
+    },
+    "stabilization": {
+      "dynamic_reps": 12,
+      "hold_seconds": 20,
+      "bouts": 4
+    },
+    "primary": {
+      "rounds": 8,
+      "bouts": 11,
+      "dynamic_reps": 78,
+      "hold_seconds": 0
+    },
+    "preparation": {
+      "dynamic_reps": 33,
+      "hold_seconds": 0,
+      "bouts": 9
+    }
+  },
+  "time": {
+    "section_minutes": [
+      25.8,
+      5.5,
+      36.6
+    ],
+    "booking_excluding_Access_Prepare_1": [
+      75,
+      90
+    ]
+  },
+  "observed_work": null,
+  "reviewed_before_design": {
+    "classes/class_01.md": "021617760e8fa000bd7cda00463a5559c64dd5cd179f33cf07f418186fe5f94e",
+    "progression_ledger.md": "4334c326b1a2d065a8a820e738aa51b2b21e7933af32316f4d7bdb6c546cd542",
+    "athlete_feedback.md": "27b4ee2723ee08a45a58624ee8f32607f267c2ee18478008d64f092adde4c0e1",
+    "progress.json": "6b5a934beb53c6e85708ab806bdecfbaa13a0df9abfd98064a7be2d237f7a906",
+    "curriculum.md": "50d2b6d96ee37522d09376e47a49e5a3d65c94669854c860f27fc877f0cdea1a"
+  },
+  "post_sequence_audit": {
+    "drill_identity_review": "manual comparison of support, contraction, trajectory and decision rule; names alone are not the uniqueness evidence",
+    "geometry_review": "straight/parallel route with stated stopping buffers",
+    "replacement_review": "no substitution duplicates an existing primary slot; holds and dynamic alternatives accounted separately"
+  }
+}

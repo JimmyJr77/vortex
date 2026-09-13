@@ -1,0 +1,292 @@
+{
+  "status": "all_12_prescriptions_audited",
+  "actual_completion": null,
+  "counting_note": "Totals sum twelve separate planned exposures, not a weekly schedule, performed work or equal stress units. Grounded efforts are whole attempts without flight; kick actions overlap these attempts or occur after a counted bounce. Do not add the columns into an equivalent-load score.",
+  "classes": [
+    {
+      "class": 1,
+      "label": "Stationary support-foot pivot and low roundhouse",
+      "explosive_entries": 6,
+      "stabilization_entries": 2,
+      "primary_strength_entries": 6,
+      "bilateral_landings": 8,
+      "unilateral_landings": 4,
+      "total_landing_events": 12,
+      "grounded_explosive_efforts": 26,
+      "throws": 0,
+      "target_impacts": 0,
+      "sprint_metres": 0,
+      "primary_working_rounds": 8,
+      "primary_working_bouts": 14,
+      "primary_working_reps": 96,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4977,
+      "planning_minutes_excluding_existing_preparation": [
+        83,
+        90
+      ],
+      "full_session_duration_minutes": null,
+      "kick_actions": 12
+    },
+    {
+      "class": 2,
+      "label": "Free the lead leg without an extra gather",
+      "bilateral_landings": 8,
+      "unilateral_landings": 4,
+      "total_landing_events": 12,
+      "grounded_explosive_efforts": 16,
+      "kick_actions": 8,
+      "primary_working_rounds": 8,
+      "primary_working_bouts": 14,
+      "primary_working_reps": 96,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4623,
+      "planning_minutes_excluding_existing_preparation": [
+        78,
+        85
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 3,
+      "label": "Rotational force from a held start",
+      "bilateral_landings": 8,
+      "unilateral_landings": 0,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 8,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 92,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4497,
+      "planning_minutes_excluding_existing_preparation": [
+        75,
+        82
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 4,
+      "label": "Accelerate the free leg and own its return",
+      "bilateral_landings": 4,
+      "unilateral_landings": 4,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 12,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 92,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4457,
+      "planning_minutes_excluding_existing_preparation": [
+        75,
+        82
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 5,
+      "label": "Lateral arrival into rotational force",
+      "bilateral_landings": 4,
+      "unilateral_landings": 4,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 8,
+      "primary_working_rounds": 8,
+      "primary_working_bouts": 14,
+      "primary_working_reps": 96,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4639,
+      "planning_minutes_excluding_existing_preparation": [
+        78,
+        85
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 6,
+      "label": "Lower-volume consolidation of hip-turn control",
+      "bilateral_landings": 4,
+      "unilateral_landings": 0,
+      "total_landing_events": 4,
+      "grounded_explosive_efforts": 24,
+      "kick_actions": 12,
+      "primary_working_rounds": 6,
+      "primary_working_bouts": 11,
+      "primary_working_reps": 76,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4243,
+      "planning_minutes_excluding_existing_preparation": [
+        71,
+        78
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 7,
+      "label": "Qualify rapid load-to-turn coupling",
+      "bilateral_landings": 12,
+      "unilateral_landings": 0,
+      "total_landing_events": 12,
+      "grounded_explosive_efforts": 12,
+      "kick_actions": 4,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 88,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4321,
+      "planning_minutes_excluding_existing_preparation": [
+        73,
+        80
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 8,
+      "label": "Forward entry and a usable rotational plant",
+      "bilateral_landings": 4,
+      "unilateral_landings": 4,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 12,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 88,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4517,
+      "planning_minutes_excluding_existing_preparation": [
+        76,
+        83
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 9,
+      "label": "Withdraw, redirect and recover the rotational base",
+      "bilateral_landings": 8,
+      "unilateral_landings": 4,
+      "total_landing_events": 12,
+      "grounded_explosive_efforts": 16,
+      "kick_actions": 12,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 88,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4467,
+      "planning_minutes_excluding_existing_preparation": [
+        75,
+        82
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 10,
+      "label": "Early cue, committed hip turn",
+      "bilateral_landings": 8,
+      "unilateral_landings": 0,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 8,
+      "primary_working_rounds": 7,
+      "primary_working_bouts": 13,
+      "primary_working_reps": 92,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 5073,
+      "planning_minutes_excluding_existing_preparation": [
+        85,
+        92
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 11,
+      "label": "Precise low-kick line with restrained workload",
+      "bilateral_landings": 4,
+      "unilateral_landings": 4,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 20,
+      "kick_actions": 12,
+      "primary_working_rounds": 6,
+      "primary_working_bouts": 11,
+      "primary_working_reps": 76,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4251,
+      "planning_minutes_excluding_existing_preparation": [
+        71,
+        78
+      ],
+      "full_session_duration_minutes": null
+    },
+    {
+      "class": 12,
+      "label": "Matched baseline and controlled application",
+      "bilateral_landings": 8,
+      "unilateral_landings": 0,
+      "total_landing_events": 8,
+      "grounded_explosive_efforts": 22,
+      "kick_actions": 18,
+      "primary_working_rounds": 6,
+      "primary_working_bouts": 11,
+      "primary_working_reps": 76,
+      "primary_preparation_reps": 39,
+      "stabilization_dynamic_reps": 8,
+      "stabilization_hold_foot_seconds": 30,
+      "modeled_seconds_excluding_existing_preparation": 4477,
+      "planning_minutes_excluding_existing_preparation": [
+        75,
+        82
+      ],
+      "full_session_duration_minutes": null
+    }
+  ],
+  "planned_totals": {
+    "bilateral_landings": 80,
+    "unilateral_landings": 28,
+    "total_landing_events": 108,
+    "grounded_explosive_efforts": 236,
+    "kick_actions": 126,
+    "primary_working_rounds": 84,
+    "primary_working_bouts": 153,
+    "primary_working_reps": 1056,
+    "primary_preparation_reps": 468,
+    "stabilization_dynamic_reps": 96,
+    "stabilization_hold_foot_seconds": 360
+  },
+  "explosive_slots": 72,
+  "distinct_named_task_prescriptions": 69,
+  "intentional_repeats": {
+    "Split-stance explosive hip pivot": 2,
+    "Standing low roundhouse shadow kick": 2,
+    "90-Degree Hop to Stick": 2
+  },
+  "novelty_limit": "Many are meaningful variants in shared movement families; 69 distinct names does not mean 69 unrelated or independently validated movement patterns.",
+  "conditional_delivery_profiles": {
+    "class_07_without_reactive_evidence": "Use the separated-contact and bounce-pause-kick replacements: twelve bilateral landings and four kick actions remain prescribed; linked transitions are not assumed and actual extra reset time must be logged.",
+    "class_09_without_return_bound_evidence": "Use separated return bounds: eight bilateral and four unilateral landings remain prescribed, but there is no assumed reactive return pass.",
+    "class_11_without_single_leg_turn_evidence": "Use E3 single-leg takeoff to two-foot catch: eight bilateral landings and zero unilateral landings across the class instead of the qualified variant's four/four.",
+    "class_12_without_matched_class_01_observations": "Record the first known baseline; do not calculate or claim improvement. Necessary regressions are separate comparison conditions."
+  }
+}

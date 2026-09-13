@@ -1,4 +1,5 @@
 import { assertIndependentReviewer } from './canonicalCardAuthoring.js'
+import { normalizeTaxonomyV2ReviewInput } from './taxonomyV2.js'
 
 const REQUIRED_FACETS_SQL = `
   VALUES
@@ -307,11 +308,7 @@ export async function reviewTaxonomyV2Record(
   body = {},
 ) {
   if (!['assignment', 'decision'].includes(recordType)) throw new TypeError('Unknown taxonomy review record type.')
-  const outcome = body.outcome === 'approve' ? 'approved' : body.outcome === 'reject' ? 'rejected' : null
-  const notes = String(body.notes || '').trim()
-  if (!outcome || notes.length < 20) {
-    throw new TypeError('Taxonomy review outcome and at least 20 characters of observed evidence are required.')
-  }
+  const { outcome, notes } = normalizeTaxonomyV2ReviewInput(body)
   const client = await pool.connect()
   try {
     await client.query('BEGIN')

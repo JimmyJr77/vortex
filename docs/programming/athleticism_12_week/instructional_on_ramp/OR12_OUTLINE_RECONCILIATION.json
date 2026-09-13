@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "session": "OR-12",
+  "status": "implemented_and_reviewed_written_design",
+  "base_outline": "instructional_on_ramp/instructional_map.json",
+  "frozen_prior_reconciliation": "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+  "prior_addendum": "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json",
+  "reason": "Retain the primary actual OR08 running lineage while making recovery-report instruction physically coachable inside the approved windows.",
+  "changes": [
+    "Primary35 m easy/repeatable modest running remains distinct from separately owned OR10 static acceleration. Reporting responsibility alone changes; no first running/intent/loading lesson. The progressive whole running rehearsal normally placed in target2 is explicitly retained inside the first counted main opportunity; P2 instead rehearses ordinary travel/return conduct without an extra run.",
+    "Full standard/compact base plus P1basic support40 s and P2ordinary15 m walk/quiet140 s. No extra prep run or E0; first whole selected task uses an original E1 opportunity.",
+    "Main uses two fixed corridors/coaches from the three-lane preparation test case; third lane closes as buffer. Dedicated outside returns and rear report/staging bays require actual site/sightline fit.",
+    "50 s global and100 s same-lane earliest release intervals, routine10 s after-return report and5 s next staging; standard rounds120/920 s relative to main, compact120 s. Actual delays retain spacing/recovery or omit without repayment.",
+    "All selected main contexts have ceilings2 standard/1 compact before compatible smaller, unknown-current1, or knownzero0. No unseen restart/subsequent-run credit when fewer than two actually occur.",
+    "Five independent retained Strength roles; compressed row groups40/112/184 s preserve52 s work and20 s reset within240 s. S1dynamic BW or independently familiar retained goblet only. OR11static stance is not bilateral squat unloading. Exact hip/support handling and actual smaller/asymmetric/null/zero policies persist.",
+    "Actual delayed main recovery carries into first performed Strength. Individual delayed actions stay inside original group windows with20 s reset before a following group, or are omitted; no new group/slot or automatic recovery from a report.",
+    "Final athletic window has no physical sets; precise separate tumbling remains unresolved, not zero workload or automatic clearance."
+  ],
+  "source_sha256": {
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json": "53cd15be2842935e5c97f340d353edb37252a1b33a983ba4740c84dda8972bd5",
+    "planning/OR12_STIMULUS_AND_SOURCE_REVIEW.md": "45ad234acad505d1a37b632e9d3d35c408698e5752b3a5ae8dcb2834a13a5b42",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "instructional_on_ramp/week_03/or_11.json": "ec040d4d5d3a1fbd934462e59a7452a6046dafdf9afb30eb92b410bfd210e7b8",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a"
+  },
+  "actual_history": null,
+  "operational_release_verified": false
+}

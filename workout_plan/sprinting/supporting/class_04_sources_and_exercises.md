@@ -1,0 +1,31 @@
+# Class 4 — sources, exercise identities and assumptions
+
+Reviewed 2026-09-13. Sources inform particular choices; none validates this exact session, its youth dose or a guaranteed change in sprint speed. No long runways, published adult/elite volumes or additional preparation routines are imported.
+
+## Evidence and coaching inspiration
+
+- [Overtime Athletes: Sprint Mechanics for Maximum Speed](https://blog.overtimeathletes.com/sprint-mechanics-for-maximum-speed/) describes bent-knee recovery, straight-leg force drills and cycling. This supports the general combination of upright mechanics and targeted strength. Stationary A-run/scissor-bounce prescriptions are local adaptations; their small doses, contact rules and fallbacks are authored here. The article's preference for repeated drills yields to the user's explicit preference for unique drills, while mechanical continuity remains. Do not import outcome guarantees or aggressive reaching/pulling cues.
+- [Overtime Athletes: Low Box Hip Switch](https://blog.overtimeathletes.com/use-low-box-hip-switch-to-sprint-faster/) describes keeping one foot on a small platform while the free foot touches the floor and returns, with pelvic control. Class 4 keeps that task but prescribes only three reps per leg with full resets. The platform is approximately 10 cm only if a suitable stable item exists; no assumption that the listed jump boxes include that height. Marketing claims about correcting imbalance or increasing speed are not treated as demonstrated outcomes.
+- [Brooks et al.: Does restricting arm motion compromise short sprint running performance?](https://pubmed.ncbi.nlm.nih.gov/35276457/) reports a small short-sprint performance difference with restricted arm motion and discusses compensatory upper-body rotation. This supports considering arm action in the posture task. It does not test seated arm drills or show that forcing faster arms improves sprint speed.
+- [Weyand et al., 2000](https://pubmed.ncbi.nlm.nih.gov/11053354/) and [Dorn, Schache and Pandy, 2012](https://journals.biologists.com/jeb/article/215/11/1944/10883/Muscular-strategy-shift-in-human-running) supply the previously reviewed ground-force and hip/ankle-function rationale. The specific jump, bridge, calf and hip-flexion choices remain programming inferences, not tested consequences of those studies. Stationary foot placement is not literal full-speed touchdown geometry.
+- [NSCA youth resistance-training position statement](https://dxpprod.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf), previously reviewed, informs supervised, technically qualified resistance work. Age alone does not establish readiness and the statement does not certify this whole class or a fixed recovery interval.
+
+## Local identity checks
+
+Read `docs/exercise-difficulty-review.csv` for names/slugs and the generated straight-leg identity record. Slugs below are verified local lookup values, not invented IDs or claims that the live application publishes the exact prescribed version. No library/database content was changed.
+
+| Slot | Lookup evidence | Binding and prescribed distinction |
+|---|---|---|
+| E1 stationary A-run | No exact matching high-knee/A-run identity found in the inspected CSV | **Proposed addition:** alternating airborne bent-knee exchanges, stationary, counted by foot contacts. It is not the prior A-skip or low-dribble record. |
+| E2 single-leg vertical jump/stick | Related `single-leg-hop-to-stick` and `single-leg-hop-to-stick-low-amplitude` found | **Proposed explicit variant:** vertical countermovement, same-leg reception and terminal two-second stick. CSV names alone do not establish axis, amplitude or arm rules, so no exact canonical binding is claimed. |
+| E3 straight-leg scissor bounce | Related `straight-leg-bound-march`; inspected `scripts/data/canonical-research/generated/straight-leg-bound-march.v1.json` | That record explicitly identifies unresolved march/bound conflation. **Proposed addition:** stationary, alternating, very low flight, softly extended knees, six contacts and terminal control. Do not bind a no-flight march or traveling bound to this prescription. |
+| E4 low box hip switch | No exact matching low-box hip-switch identity in inspected CSV; official OTA description reviewed | **Proposed addition:** elevated support foot stays put; free foot taps floor and returns. Distinct from Class 3 step-up and from alternating box-foot jumps. |
+| E5 arm action | `arm-action-drill` — Arm Action Drill — Seated or Standing; related `sprint-arm-action-switches` | Verified family name; selected seated bodyweight rapid-exchange variant with explicit count. Exact delivery dose/seat condition is authored, not claimed as a published database card. |
+| E6 rapid single-leg bridge | `single-leg-glute-bridge` found; separate hold/isometric names also present | Verified dynamic family. Rapid-concentric, nonflight variant is an explicit local prescription; do not bind to a hold card or count it as the walkout. |
+| S1/S2 and P1–P6 | Prior [source/exercise register](sources_and_exercises.md) | Retain the previous identity qualifications and DB variants. Names, tempo and preparation doses stay consistent; P1 working rounds reduce. No newly invented identifiers. |
+
+Fallbacks are named in the class and history. Fast A-march and straight-leg quick steps explicitly remove flight; bilateral CMJ recurrence comes from the earlier optional family; the low-box fallback repeats Class 3's standing cycle. Standing arm action uses the same verified family with different support. Bilateral rapid bridge uses the verified glute-bridge family, but the rapid dose remains locally authored. Actual selected versions are unknown.
+
+## Limits carried forward
+
+No athlete attendance, load, recovery, actual ground contacts or class duration is observed. Bench/box fit, low-platform availability, DB ranges, surface, staffing and class size require on-site verification. The prescribed primary dose is challenging by technical reserve, not a universal weight. The 64–74 minute work allowance excludes the existing Access & Prepare 1 and unmodeled delays. Current user/spec seven-category and 6/2/6 requirements govern over the older facility template. No actual maximum-velocity exposure or transfer outcome is claimed.

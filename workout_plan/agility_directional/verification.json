@@ -1,0 +1,147 @@
+{
+  "verified_on": "2026-09-13",
+  "scope": "All twelve written workout prescriptions, complete manual and saved state. Not actual athlete delivery, recovery, measured facility fit, live database publication or performance gains.",
+  "checks": {
+    "exactly_12_full_class_files": true,
+    "every_class_exact_structure_positive_dose_and_required_notes": true,
+    "aggregate_slot_counts": true,
+    "72_unique_names_and_mechanical_keys": true,
+    "no_repeated_verified_drill_identifier": true,
+    "11_new_classes_have_review_records": true,
+    "actuals_unknown": true,
+    "all_new_class_dose_side_distance_braking_flight_and_time_arithmetic": true,
+    "M_route_geometry": true,
+    "no_unjustified_class3_set_increase": true,
+    "no_class7_adductor_prefatigue": true,
+    "exact_seven_category_framework": true,
+    "spec_copy_unchanged": true,
+    "completed_state_and_no_class13": true,
+    "all_state_paths_exist": true,
+    "all_local_markdown_links_resolve": true,
+    "manual_contains_all_12_final_classes": true,
+    "manual_has_168_rows": true,
+    "all_identifiers_have_existing_source_records": true,
+    "sequence_audit_and_space_limitation_present": true
+  },
+  "class_counts": [
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    },
+    {
+      "E": 6,
+      "S": 2,
+      "P": 6
+    }
+  ],
+  "unique_explosive_drills": 72,
+  "structural_errors": [],
+  "workload_errors": [],
+  "missing_local_links": [],
+  "manual_mechanical_review": "sequence_audit.md and drill_index.md; distinct keys alone do not prove a distinct task",
+  "file_sha256": {
+    "AGILITY_DIRECTIONAL_12_WORKOUTS.md": "8882aae806d849aa435144f6be00cdc20ec6e18b040ee74ff382852b51805481",
+    "athlete_feedback.md": "a730e1b75d52e825945553f9a9ca96101ffb0b6fc88a6a24a36047a300332299",
+    "audits/class_02_audit.md": "f355ae7950d8da77800e39ed14c66c553edb836b14335ee9e671e8a731ae039a",
+    "audits/class_03_audit.md": "00da4e7dd66227a6c4620674fd3efb0ba0ea37f3f743b193fbf1afab7599e8e6",
+    "audits/class_04_audit.md": "07836f339272f7a0d491b6893b678d7fe6bf9265d41178c95454a656e5520f9c",
+    "audits/class_05_audit.md": "7872b768db42b74ddfe359b07fcdde649bbd800a0a19a94e8fece2ca85038ef8",
+    "audits/class_06_audit.md": "119708eaf93d9e0ae0e2862063e7b77cf10a22384361874d178e794a1090b539",
+    "audits/class_07_audit.md": "6e8932c33aef22dd4e6ceca77b51aa3df3e44e58c25363476084c0b9d8d7ee69",
+    "audits/class_08_audit.md": "18a16734fbe432e294538aec427b566cbe5ff869b9d6c556f7635df9a174b3f1",
+    "audits/class_09_audit.md": "8c29b0507b85ccfd67caa4a4ac7c310c58fa7b2c447e4e3a528f8501bb334f21",
+    "audits/class_10_audit.md": "1c65004d95232b66ac03368fa73cd26a9e1c44410a1acee94ba45220977b1c1b",
+    "audits/class_11_audit.md": "0c0e3c9fe90f1e32bfbb6dd0481fdd13133b41c42d909ab2ffba01550bf6c6b5",
+    "audits/class_12_audit.md": "2fd37c38c291ac23146f282787dc7215dd7f40e7a5de63141318c9b8bee0f91a",
+    "class_01_audit.md": "c248b6c4f07a5967666c0cabf03f41d92b6cbe528de35bbf073bad71678665d9",
+    "classes/class_01.md": "7d073b302f411e8a565c556f7263bde81a228c855fa1a5cbecbc31f2fc235ea8",
+    "classes/class_02.json": "ccb6eabe79fbce1514eff1181a13d36ffd1bf317d81d91b6c8667c9e877aa781",
+    "classes/class_02.md": "e3c2b84dc0e83fb69e1f555f506ef6a9b401439124ad9fa50d01ad2d34838362",
+    "classes/class_03.json": "8bad60c03ad4f27c8523c99630ee68707cc96a22ba52490afb0f47d5610bc4d6",
+    "classes/class_03.md": "ec88bf6e23ceae7e369076f655610635276cfeebc3c227ff0bf9e6a90a741e13",
+    "classes/class_04.json": "95d8eca6055aebcfb845efe8e037c3c45ba167f02da8b85cb0ffb4cd10eff424",
+    "classes/class_04.md": "9ce69f844634a4b5a3881180deb8adcd9bdb00249804af2c9d95145f9a428ae2",
+    "classes/class_05.json": "897ed5363df6d066d6db79d6b5fb751992ac057ddb8644826195aa8150dd4cc7",
+    "classes/class_05.md": "dbbc7b45463791d1dae79efd52e7e62ee0cd97b04bf878ddedb6ca06b9595d08",
+    "classes/class_06.json": "4f7789bbff574effcbaa67bc169f05cd0b96370829939de12bf596f1ba2e2055",
+    "classes/class_06.md": "bae19c78ce424345972e59c249af816940cba06d1994153deb15f2188d603d14",
+    "classes/class_07.json": "43c37a3529bd666c78eed4654214b3a8a27d954e61a4fc1b5d959cb9298c10ba",
+    "classes/class_07.md": "17d2347cace7a32619b2109c3e3c4cf9d00fba793ed900c7e1f851262fd3fd93",
+    "classes/class_08.json": "b2048df4300d67ec5abf926f2fb6d399f031503989f0461f500ddad518c30054",
+    "classes/class_08.md": "82da2561e6821eb1d9fddfc4929be7ef361d920cfcee64b137fe6236aaefa2dd",
+    "classes/class_09.json": "9b1744926babbfe0de3fba8b73c170d193a1da8b87086fc1deff46b2f0b079b9",
+    "classes/class_09.md": "9755914c76927025ac6d77ac991bba3ace1b2dd48a92c19d5b84d96802579bd3",
+    "classes/class_10.json": "9bcb5191849ef9c140b921eb76f64f1685b781093c7b731f57e4af5236872408",
+    "classes/class_10.md": "2765b1bb308c81b8ad3b908fa521e980a30671868a8bb2803a3a6cd7a089d333",
+    "classes/class_11.json": "7c3b859434e2e732d02c699742093389997c8a6444776c45921d46dca5f8cf0f",
+    "classes/class_11.md": "e7a2c326ffdbc87912054774c66841b02b29d00bc018d26cfb52d8cb4b121b97",
+    "classes/class_12.json": "4bc62b08e9d88b9dd72dd47095fa71bd52129b34c76819e561576b4b6d0568e9",
+    "classes/class_12.md": "09acfbcc631c825911804964e72fb7b0f564707d91177bb4ae2f13524b47f09f",
+    "curriculum.md": "d6ee6ab36a98c78fcc329bc328dffee24c43e5778996b3fc542e4965ccb48915",
+    "drill_index.md": "5c1d675818038803471350de7c9f9fca9bb3472f8698919b7f43619c967b6adc",
+    "exercise_register.md": "d913e7eb9c0f0420461fe39b880a196463a86cd5163bec82a4b8ee830487c8fb",
+    "progress.json": "b73af3e852bfd61ab6b9b3e88fc4407884b71f8a5e0ba69e950e666586c056b8",
+    "progression_ledger.md": "79687878bbf015266e3a28591c26788206ee0179aa36e8ae75764e6b0fa3f6a4",
+    "sequence_audit.md": "a7d925f548de2727c726a99a7bd90e7a27448303adfc0db8ec379dcfc93297b3",
+    "sources/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/author_class.py": "4e088639dabe7f98de379cf1e2fba7ed3ba67c49cf40421974e171643c066d32",
+    "supporting/drill_inventory.json": "624c916ab66af09d412b25c7bbbf6dba7c8b22cdf8bec5afdb4e69219a88b4e2",
+    "supporting/finalize_course.py": "0c78e6b7ec10af15a7e7997538016e97f706808d403f5f34a8c6fefe7d738865",
+    "supporting/library_provenance.json": "de92cfca7a3cdb1b693461b7c6b481e3150356ca275c0f0d5c8e28151c176e40",
+    "supporting/sequence_revisions.py": "d56b38dd4510d93e243312042c561feb090a49af6825808ba8476f28e23cca58",
+    "supporting/strength_catalog.json": "0cd3e2d60fb6c0428897e29a7391298d59582f746a4ee9e31761ca1112b75013",
+    "supporting/workload_by_class.json": "134d189058df977354e87ceca23a086dbf7f93e93a3df820a6b502562dd0b774",
+    "workload_summary.md": "11a1376b888720ce2677f0a0475d3542ff174b0a865eea03cbc8ef972e72a658"
+  }
+}

@@ -1,0 +1,527 @@
+{
+  "verified_at": "2026-09-13",
+  "status": "passed",
+  "scope": "All twelve written class prescriptions, framework, exact table/section structure, independent Markdown-to-record dose and workload checks, record/source/link integrity, final handoff and documented manual audit. Not athlete execution or clinical validation.",
+  "finalized_class_count": 12,
+  "total_exercise_entries": 168,
+  "section_totals": {
+    "explosive": 72,
+    "light_resilience": 24,
+    "primary_strength": 72
+  },
+  "checks": {
+    "all_twelve_complete_files": true,
+    "exact_framework_preserved": true,
+    "specification_copy_identical": true,
+    "exact_section_order_each_class": true,
+    "four_column_exercise_tables_each_class": true,
+    "positive_doses_and_both_side_accounting": true,
+    "all_class_audits_exist": true,
+    "each_new_class_has_prior_review_provenance": true,
+    "manual_contains_final_workout_rows": true,
+    "internal_links_resolve": true,
+    "json_parse": true,
+    "library_sources_exist_for_claimed_local_names": true,
+    "unique_drill_decisions_reviewed": true,
+    "no_next_class_pending": true,
+    "observed_work_remains_unknown": true
+  },
+  "prescribed_only_totals": {
+    "ball_releases": 252,
+    "other_fast_actions": 162,
+    "baseline_handoffs": 40,
+    "baseline_airborne_catches": 0,
+    "primary_working_reps": 954,
+    "minimum_primary_preparation_reps": 412
+  },
+  "drill_decisions": {
+    "introductions_including_related_variants": 49,
+    "explicit_recurrences": 23,
+    "interpretation": "Not 72 unique drills or 49 unrelated movement families; see manual comparison audit."
+  },
+  "class_results": [
+    {
+      "class": 1,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 40,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 26,
+          "bouts": 4,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 88,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "ball_releases": 40,
+        "throws": 34,
+        "slams": 6,
+        "retained_or_unloaded_fast_actions": 0,
+        "received_balls": 0,
+        "primary_preparation_reps": 36,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 2,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 10,
+          "bouts": 3,
+          "hold_seconds": 30
+        },
+        "P": {
+          "reps": 94,
+          "bouts": 15,
+          "hold_seconds": 0
+        },
+        "ball_releases": 12,
+        "throws": 12,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 30,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 3,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 14,
+          "bouts": 3,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 24,
+        "throws": 24,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 18,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 4,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 42,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 22,
+          "bouts": 4,
+          "hold_seconds": 12
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 24,
+        "throws": 24,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 18,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 5,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 32,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 22,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 16,
+        "throws": 12,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 16,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 6,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 28,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 8,
+        "throws": 8,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 20,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 7,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 20,
+          "bouts": 3,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 16,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 20,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 8,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 34,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 10,
+          "bouts": 3,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 12,
+        "slams": 8,
+        "retained_or_unloaded_fast_actions": 14,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 9,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 28,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 76,
+          "bouts": 12,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 16,
+        "slams": 4,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 10,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 32,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 24,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 82,
+          "bouts": 13,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 20,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 12,
+        "received_balls": 0,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 11,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 28,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 18,
+          "bouts": 4,
+          "hold_seconds": 0
+        },
+        "P": {
+          "reps": 70,
+          "bouts": 11,
+          "hold_seconds": 0
+        },
+        "ball_releases": 20,
+        "throws": 20,
+        "slams": 0,
+        "retained_or_unloaded_fast_actions": 8,
+        "received_balls": 16,
+        "primary_preparation_reps": 34,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    },
+    {
+      "class": 12,
+      "status": "passed",
+      "counts": [
+        6,
+        2,
+        6
+      ],
+      "markdown_doses_match_record": true,
+      "workload": {
+        "E": {
+          "reps": 38,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "S": {
+          "reps": 26,
+          "bouts": 4,
+          "hold_seconds": 20
+        },
+        "P": {
+          "reps": 88,
+          "bouts": 14,
+          "hold_seconds": 0
+        },
+        "ball_releases": 28,
+        "throws": 22,
+        "slams": 6,
+        "retained_or_unloaded_fast_actions": 10,
+        "received_balls": 4,
+        "primary_preparation_reps": 36,
+        "primary_preparation_bouts": 11,
+        "human_jump_landings": 0,
+        "sprint_metres": 0
+      }
+    }
+  ],
+  "manual_audit": "supporting/full_sequence_audit.md",
+  "file_sha256": {
+    "README.md": "13e07869977e348956a28bc6c655e94eaee53a4d0989882845014f21a92f53e9",
+    "athlete_feedback.md": "21a5fa2a7716a571cc1ddb16cb926c2af567504ff7c3165d4f0745019dbf9507",
+    "classes/class_01.md": "d682f3fdd6f1fb1190d6c60df165d15e0349e244f976ed91487033d643ad0bf7",
+    "classes/class_02.md": "754332fa3e379cf8019e8eb25266138da406bc8384598ba2323c78d93412e280",
+    "classes/class_03.md": "78e0e26594b654c5329bf9c79d9149390116353822a43188c6ae78b976ef608a",
+    "classes/class_04.md": "dfa21ca153e6529ba45f50706d7f7525fb164c0d04934c08c02e69c8a985e5db",
+    "classes/class_05.md": "063c4447063715536a4511d836abe85905109a437f86a2bcaa6e2a49886c2d06",
+    "classes/class_06.md": "a54669f93be43f8b206e2298c1d6bca3137199cb3a01183fa15ad642a74b9931",
+    "classes/class_07.md": "857aa4f34deedb19f64515bd8e0cfc2e19225b73771533a6703d0b8c08441106",
+    "classes/class_08.md": "60b3906aaf901846abfc48396f757f418b8de00ab9790094ed77bbb7ad117a0d",
+    "classes/class_09.md": "d9a3116b05026a0aef7ac508e0ef6b14b03a567d3e3093271a213e05bac39cbc",
+    "classes/class_10.md": "183998da3d57cbef93ccabd2b022b6725ab44c10738ab40561c9992ea805eb62",
+    "classes/class_11.md": "99254a683311309949bc30c29aef94bd40f56fa545f1da4d3d96ee2cd2802786",
+    "classes/class_12.md": "125b7d1b2a6f1972ce28f9112c67539603e11bd723809119721f30b1d653d79e",
+    "coach_manual.md": "1dcda342942c8f07ceac82fef51feec4bd3d2db684b36b580ee63ffab8a09548",
+    "curriculum.md": "cbac23d78d0adcc9cbab386c5a9e3082062e17ecffd532deaf545970f5182fb1",
+    "progress.json": "9983ddc57a597204fea83ea4b5547592cc1e01fdb89f26b12f2dfd0deb24fc63",
+    "progression_ledger.md": "113590fe12bbe6ce0fdd6f75e2e2e1cfedc209f10ae6955ec3f11de3a24d11b0",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "bb879c1bd5bbb1ee58bdac99dfc2d1b9a4b7728e172cfb92252220eee8ee0975",
+    "supporting/class_02_audit.md": "a72a17043dcb94a672e0034b8da5268dea7e91c7831b9ad837e3d6d6306d9849",
+    "supporting/class_03_audit.md": "c71c8eb1ee25c8f44f426423e4d4a031b0c0392818221dfaa1cbac06d935048e",
+    "supporting/class_04_audit.md": "0a6d3353184ef680f15ffa7ae091225088bf6772853e61c53c97a5fa2d19e9e7",
+    "supporting/class_05_audit.md": "f14c7e8a1d2b8f088f7da46250763a16c85761f09cded2bd36545c53f41c51a8",
+    "supporting/class_06_audit.md": "95d3979667efaed55043003961a4cacd8af5402a4694e15e5299b71c5ace8aaf",
+    "supporting/class_07_audit.md": "d2cd190d7457c8b3ec68da3754b1b6a02d0173418f07faa1322261c8de0b20c5",
+    "supporting/class_08_audit.md": "c467bd5fac9f861b3cf420349eb9b6257a8ae8d47885fb8f1d1def29b0179075",
+    "supporting/class_09_audit.md": "d20e08d06ac0571103ae647123cd079edec85558b0824754292877e1173ca19e",
+    "supporting/class_10_audit.md": "c79bdd09feff2be65f2cdac55d5500ba696ca4936da206287b7c78811b852b47",
+    "supporting/class_11_audit.md": "966e51e326f8564c84c6c2746b1117c766282b0443ece7b027cac1507cba2686",
+    "supporting/class_12_audit.md": "8a835069d9d7fafb64709840a4a5ec789310174ebad2c51c0916bb2991160d99",
+    "supporting/class_records/class_01.json": "c1d164dfad576056f61c3b3cb0e3e8dcc2937ec4099f529a46f57f4ac438e194",
+    "supporting/class_records/class_02.json": "378a458932dcd7839ea7af59120930d8e3bde04633911a2e240bdd31c5724b7d",
+    "supporting/class_records/class_03.json": "6eaba4b713817becc73c553852813ecaa474bd22eb97ce94d2deaddc4610662a",
+    "supporting/class_records/class_04.json": "5769bdd0f84c44ba9c5b6e9b255f404698ce3368eaf815d93116c934bd955051",
+    "supporting/class_records/class_05.json": "410321bdcf1e78d1115bccdfb2c239954dd64c55f3332c2ea08702e36885857a",
+    "supporting/class_records/class_06.json": "2d36f915c0d5c4f6ba5c17ebfdda3e7a2776504a59b200d63a48d4d8cf5cdc75",
+    "supporting/class_records/class_07.json": "0c4b4ed1eb9eb25a5eeaa782813217c151d7581c71f013b82e8676c6114ae52d",
+    "supporting/class_records/class_08.json": "32d78e8731af86804a7c522ea2d9d606a360db9fdebc89c7f81937ff1c64e13e",
+    "supporting/class_records/class_09.json": "362e4829791fe7f37534c532fa5e223db1c446d50220185221cedac17923afd5",
+    "supporting/class_records/class_10.json": "49894baa0eef2df9a77a27cb762d9b3c2d2e63a0492f125ed21b5d1ce8f53996",
+    "supporting/class_records/class_11.json": "f3d8455f72aff41d9bd9bce0bb26d142f338ee18a62e7e91d7af09af752f701a",
+    "supporting/class_records/class_12.json": "6be6b1afd597ddd894f6b7e3e1b21650dd0dcae33a51089f19bbd32125874b11",
+    "supporting/drill_usage.md": "2e560fa69c75287ab9f3b689a947489d0123dedcb706f69443cb9a6ce348b11e",
+    "supporting/full_sequence_audit.md": "0a216170b98201b3b46ad299d008bdf209473bc00c2b41d97f19881f67849b27",
+    "supporting/library_snapshot.json": "454c76962bb8bdb7ff2aeaf7708f148bfe535b11abbb4ed231c6718f7fea8c61",
+    "supporting/sources_and_library.md": "7a9459b135ac1772ab102bb34df70d65c6d978476a040da0cf69a34d645e0225",
+    "supporting/workload_summary.json": "be99e5c5a7751531d8f67a097542234d96d32834ca0011198e7f891a8ef7b1c1"
+  }
+}

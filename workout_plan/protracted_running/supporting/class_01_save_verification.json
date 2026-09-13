@@ -1,0 +1,52 @@
+{
+  "verified_at": "2026-09-13",
+  "status": "PASS",
+  "checks": {
+    "four_ordered_sections": true,
+    "exact_0_6_2_6_table_rows": true,
+    "four_column_tables": true,
+    "only_class_01_finalized": true,
+    "twelve_provisional_map_rows": true,
+    "exact_framework_and_subcategories": true,
+    "source_snapshot_verbatim": true,
+    "observed_completion_stays_unknown": true,
+    "landing_arithmetic": true,
+    "primary_working_arithmetic": true,
+    "primary_preparation_arithmetic": true,
+    "p4_bilateral_replacement_arithmetic": true,
+    "e6_toss_replacement_arithmetic": true,
+    "indexed_files_exist": true,
+    "authored_local_links_resolve": true
+  },
+  "table_row_counts": [
+    0,
+    6,
+    2,
+    6
+  ],
+  "broken_links": [],
+  "derived_default_totals": {
+    "landing_events": 39,
+    "individual_foot_contacts": 64,
+    "primary_working_rounds": 9,
+    "primary_working_bouts": 13,
+    "primary_ordinary_working_reps": 80,
+    "primary_working_walkout_cycles": 4,
+    "primary_preparation_rounds": 7,
+    "primary_preparation_bouts": 11,
+    "primary_ordinary_preparation_reps": 43,
+    "primary_preparation_walkout_cycles": 1
+  },
+  "scope": "Document structure, arithmetic, state and saved-file integrity only. Manual programming review in class_01_audit.md. No athlete delivery, clinical suitability, actual outcomes or group timing validated.",
+  "files_sha256": {
+    "athlete_feedback.md": "b4e619310d70f87f437fe2d21482eb393e7f5190ca208f754a44251d447cec77",
+    "classes/class_01.md": "b0f4bd3df4c49c50bb30f84d7a8c3049e342b124c4d20595111be536781a6fe7",
+    "curriculum.md": "f6d575e348c369b589d4924f3c368799742c55655f85876ef966568670a91e38",
+    "progress.json": "942fca7710b2e15fb87d3f9116377974c61d0d1f0972f4390f4405d0c2f776d3",
+    "progression_ledger.md": "8c21e0a3b74bf1d36a9e121819749caffdd692a4c2358c56be4995b7371d09f3",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "92237beee1f803725fee5787cd7ae52a1c000734e402ac3a01b086a974f441c9",
+    "supporting/class_01_design_brief.md": "ad19facd73e7337b0616ae881ee732dd9f37ffaedafc1b737ae3a2beac5d2e58",
+    "supporting/source_and_exercise_register.md": "9c3e0e101c78121e77988ccbe1281d4a0b2f82daa433870a4d9954a227775812"
+  }
+}

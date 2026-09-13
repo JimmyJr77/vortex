@@ -1,0 +1,245 @@
+{
+  "status": "prescribed_only; actual exposure unknown",
+  "classes": [
+    {
+      "n": 1,
+      "bi": 12,
+      "uni": 4,
+      "throws": 0,
+      "other": 0,
+      "loco": 14,
+      "decisions": 16,
+      "rounds": 10,
+      "bouts": 16,
+      "reps": 88,
+      "holds": 30,
+      "prep_reps": 30,
+      "prep_holds": 10,
+      "time": [
+        75,
+        90
+      ],
+      "types": "8 low bilateral pogo + 4 paused bilateral lateral + 4 opposite-leg bound landings"
+    },
+    {
+      "n": 2,
+      "bi": 15,
+      "uni": 0,
+      "throws": 4,
+      "other": 0,
+      "loco": 10,
+      "decisions": 6,
+      "rounds": 8,
+      "bouts": 11,
+      "reps": 78,
+      "holds": 0,
+      "prep_reps": 33,
+      "prep_holds": 0,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: Forward–Back Line Hops (8 landings); E3: Standing Broad Jump to Stick (3 landings); E5: Split-Stance Broad Jump to Parallel Landing (4 landings)"
+    },
+    {
+      "n": 3,
+      "bi": 11,
+      "uni": 4,
+      "throws": 0,
+      "other": 0,
+      "loco": 12,
+      "decisions": 14,
+      "rounds": 8,
+      "bouts": 11,
+      "reps": 62,
+      "holds": 30,
+      "prep_reps": 27,
+      "prep_holds": 10,
+      "time": [
+        80,
+        95
+      ],
+      "types": "E2: Opponent-Timed Split-Step Pounce (4 landings); E3: Single-Leg Forward Hop to Stick (4 landings); E4: Seated Broad Jump (3 landings); E5: Low-Hurdle Lateral Rebound Return (4 landings)"
+    },
+    {
+      "n": 4,
+      "bi": 4,
+      "uni": 4,
+      "throws": 4,
+      "other": 0,
+      "loco": 8,
+      "decisions": 4,
+      "rounds": 7,
+      "bouts": 12,
+      "reps": 62,
+      "holds": 30,
+      "prep_reps": 28,
+      "prep_holds": 10,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: 45-Degree Cut Bound to Stick (2 landings); E3: Skater Rebound-Return (2 landings); E4: Lateral Single-Leg Takeoff to Two-Foot Landing (4 landings)"
+    },
+    {
+      "n": 5,
+      "bi": 13,
+      "uni": 0,
+      "throws": 0,
+      "other": 0,
+      "loco": 11,
+      "decisions": 7,
+      "rounds": 7,
+      "bouts": 11,
+      "reps": 64,
+      "holds": 30,
+      "prep_reps": 27,
+      "prep_holds": 10,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: Backward Travelling Pogo Hops (6 landings); E3: Backward Broad Jump to Stick (3 landings); E5: Split-Squat Jump to Same-Stance Stick (4 landings)"
+    },
+    {
+      "n": 6,
+      "bi": 7,
+      "uni": 4,
+      "throws": 4,
+      "other": 0,
+      "loco": 8,
+      "decisions": 8,
+      "rounds": 7,
+      "bouts": 10,
+      "reps": 56,
+      "holds": 30,
+      "prep_reps": 27,
+      "prep_holds": 10,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: Countermovement Jump to Stick (4 landings); E3: Low-Hurdle Forward Jump to Stick (3 landings); E4: Single-Leg Forward–Back Rebound (4 landings)"
+    },
+    {
+      "n": 7,
+      "bi": 4,
+      "uni": 6,
+      "throws": 0,
+      "other": 0,
+      "loco": 8,
+      "decisions": 4,
+      "rounds": 7,
+      "bouts": 12,
+      "reps": 80,
+      "holds": 0,
+      "prep_reps": 34,
+      "prep_holds": 0,
+      "time": [
+        80,
+        95
+      ],
+      "types": "E2: Alternating Forward Bounds (2 landings); E3: Single-Leg Lateral Hop to Stick (2 landings); E4: 90-Degree Jump Turn to Stick (4 landings); E5: Single-Leg Vertical Hop to Stick (2 landings)"
+    },
+    {
+      "n": 8,
+      "bi": 8,
+      "uni": 4,
+      "throws": 4,
+      "other": 0,
+      "loco": 8,
+      "decisions": 8,
+      "rounds": 7,
+      "bouts": 12,
+      "reps": 66,
+      "holds": 30,
+      "prep_reps": 28,
+      "prep_holds": 10,
+      "time": [
+        80,
+        95
+      ],
+      "types": "E2: Split-Switch Jump to Stick (4 landings); E3: Forward Two-Foot Rebound Pair (4 landings); E4: Lateral Power Skip (4 landings)"
+    },
+    {
+      "n": 9,
+      "bi": 0,
+      "uni": 8,
+      "throws": 4,
+      "other": 0,
+      "loco": 11,
+      "decisions": 12,
+      "rounds": 6,
+      "bouts": 9,
+      "reps": 68,
+      "holds": 0,
+      "prep_reps": 33,
+      "prep_holds": 0,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: Single-Leg Pogo in Place (6 landings); E3: Straight-Leg Bounds — low amplitude (2 landings)"
+    },
+    {
+      "n": 10,
+      "bi": 3,
+      "uni": 4,
+      "throws": 4,
+      "other": 0,
+      "loco": 12,
+      "decisions": 8,
+      "rounds": 6,
+      "bouts": 10,
+      "reps": 54,
+      "holds": 30,
+      "prep_reps": 28,
+      "prep_holds": 10,
+      "time": [
+        80,
+        95
+      ],
+      "types": "E2: Single-Leg Quarter-Turn Hop to Stick (4 landings); E3: Low Box Jump to Stick (3 landings)"
+    },
+    {
+      "n": 11,
+      "bi": 0,
+      "uni": 6,
+      "throws": 4,
+      "other": 0,
+      "loco": 12,
+      "decisions": 6,
+      "rounds": 6,
+      "bouts": 10,
+      "reps": 56,
+      "holds": 30,
+      "prep_reps": 28,
+      "prep_holds": 10,
+      "time": [
+        70,
+        85
+      ],
+      "types": "E4: Fixed-Lead Lateral Gallop (4 landings); E6: Single-Leg Hop-to-Cut Read (2 landings)"
+    },
+    {
+      "n": 12,
+      "bi": 2,
+      "uni": 6,
+      "throws": 0,
+      "other": 6,
+      "loco": 10,
+      "decisions": 10,
+      "rounds": 6,
+      "bouts": 10,
+      "reps": 54,
+      "holds": 30,
+      "prep_reps": 28,
+      "prep_holds": 10,
+      "time": [
+        75,
+        90
+      ],
+      "types": "E2: Single-Leg Forward-to-Lateral Rebound Hop (4 landings); E3: Forward Jump to Split-Stance Landing (2 landings); E4: Shuffle-to-Bound Release (2 landings)"
+    }
+  ]
+}

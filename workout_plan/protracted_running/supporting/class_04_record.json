@@ -1,0 +1,414 @@
+{
+  "n": 4,
+  "effort": "Express ankle force with a flexed knee while retaining a stable trunk and controlled foot platform.",
+  "brief": "The day's demand is rapid plantarflexor action when the knee is already flexed, a stance-support condition. E1 is the main shallow-knee spring task. Small forward travel and a short obstacle pair add contact placement; seated takeoff supplies knee/hip force from a supported start; two no-flight tasks supply rapid bent-knee ankle and hip extension. Light lateral-ankle control and pelvis control avoid a calf pre-fatigue block.",
+  "anchor": "E1",
+  "marker": "Count five low bounces per set that preserve the declared shallow knee bend without progressively sinking or straightening. Keep height small and repeatable. This is a joint-position/control marker, not proof of soleus isolation or a contact-time target.",
+  "review": "Class 3 prescribed 16 landings including 10 single-leg events, eight primary rounds and a supported single-leg hinge. No response is known. Class 4 removes single-leg jump receiving and restores the familiar bilateral RDL with the same twelve working hinge reps; the bent-knee calf lift moves first in primary strength without a preset load increase.",
+  "sequence": "E1 receives two short sets while fresh; E2/E3 are very small complementary ankle exposures. E4 has full resets; E5/E6 are fast concentric actions with feet supported, not fatigue circuits.",
+  "E": [
+    {
+      "name": "Low Squat Pogo — shallow knee bend",
+      "identity": "shallow_knee_squat_pogo",
+      "family": "knee-flexed bilateral spring",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 5,
+      "sides": 1,
+      "unit": "hops",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "t": 1,
+      "job": "Main task: express ankle spring while preserving a modest knee-flexed support position.",
+      "cue": "Set a small athletic knee bend, hands on hips, bounce only a little off the floor with both feet. Keep the knee bend approximately steady, not rigidly locked; reduce height or stop if each contact becomes a deeper squat."
+    },
+    {
+      "name": "Forward-Traveling Low Pogo",
+      "identity": "forward_travel_pogo",
+      "family": "bilateral ankle spring with translation",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "hops",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "t": 1,
+      "job": "Keep ankle-driven support underneath the body during small forward displacement.",
+      "cue": "Both feet together, low contacts, at most 1 m total travel. Use tiny increments and finish still after hop six. Shorten travel for reaching feet ahead or excessive knee dip; walk back after the set."
+    },
+    {
+      "name": "Low Hurdle Hop Pair — two linked jumps",
+      "identity": "low_hurdle_hop_pair",
+      "family": "bilateral elastic obstacle clearance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "two-jump sequences",
+      "footfalls": [
+        2,
+        2
+      ],
+      "rest": 90,
+      "gap": 25,
+      "t": 4,
+      "job": "Organize two quick support contacts around a low clearance demand without building a long jumping circuit.",
+      "cue": "Two very low forgiving hurdles, spacing close enough for controlled upright hops within 2 m total. Jump over each once, hold the second landing 2 s. No preparatory bounce, no third jump; reduce height/spacing for tucking or reaching."
+    },
+    {
+      "name": "Seated Squat Jump to Stick",
+      "identity": "seated_squat_jump",
+      "family": "supported-start rapid leg extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Produce knee/hip extension quickly from a supported start while the ankle transfers that force into takeoff.",
+      "cue": "Sit upright on a stable box/bench with feet flat and thighs around or above parallel; pause 2 s without rocking, hands at hips. Jump modestly up from the seat, land on both feet and hold 2 s. Lower takeoff intent if feet slide, rocking appears or the landing is uncontrolled."
+    },
+    {
+      "name": "Seated Bent-Knee Calf Raise — fast concentric",
+      "identity": "fast_seated_bent_knee_raise",
+      "family": "rapid knee-flexed ankle force without impact",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "bilateral heel rises",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Accelerate plantarflexion with the knees flexed under light external resistance, complementing slower challenging P1 strength.",
+      "cue": "Both feet supported on floor, knees near 90°, light DBs held securely on thighs. Lift heels quickly without the forefeet leaving, lower over 2 s. No bounce or grinding; use less load if heel height/speed declines."
+    },
+    {
+      "name": "Explosive Floor Glute Bridge",
+      "identity": "explosive_floor_bridge",
+      "family": "rapid terminal hip extension without impact",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 5,
+      "sides": 1,
+      "unit": "hip drives",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Supply fast hip-extension support so the day does not depend entirely on repeated ankle work.",
+      "cue": "Supine, knees bent, feet planted. Drive the pelvis up quickly, stop at ribs/pelvis alignment and lower over 2 s. Bodyweight only, no launching shoulders or feet off the floor. Reduce range for back arching."
+    }
+  ],
+  "S": [
+    {
+      "name": "Seated Band Ankle Eversion",
+      "identity": "band_ankle_eversion",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Lightly strengthen lateral ankle control to keep the forefoot platform organized during spring contacts.",
+      "cue": "Seated, loop light band around both forefeet with heels grounded; hold the nonworking foot straight while the target forefoot turns gently outward without rotating the knee. 2 s out, 2 s return. Use less band tension for whole-leg movement; without a suitable loop, use gentle hand-resisted eversion instead at the same dose."
+    },
+    {
+      "name": "Dead Bug Heel Tap",
+      "identity": "dead_bug_heel_tap",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Light trunk strengthening to keep ribs/pelvis quiet while a thigh changes position, supporting controlled stance-to-swing organization.",
+      "cue": "Supine, hips/knees bent, arms pointing up. Lower one heel to a light floor tap over 2 s and return 2 s while the other leg stays still. Breathe, no back arching. Shorten the heel reach instead if pelvis moves; this must remain easy."
+    }
+  ],
+  "P": [
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 2,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Primary force anchor today: challenge knee-flexed plantarflexion after the low-dose rapid work.",
+      "key": "soleus",
+      "decision": "Class 3 2 × 8 → 2 × 8, moved first for the day's ankle-force priority. No load increase without actual heel-range/effort/recovery evidence."
+    },
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Retain stance-leg knee/hip force while keeping the foot platform planted.",
+      "key": "split"
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 2,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Return to the familiar bilateral hinge to preserve hip force without another unilateral balance demand.",
+      "key": "rdl",
+      "decision": "Class 3 supported single-leg 1 × 6 each → familiar bilateral 2 × 6: same twelve total hinge reps, changed support rather than assumed improvement."
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Keep one straight-knee calf set per leg as a limited complement to the day's knee-flexed focus.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Preserve knee-flexor loading while the hip is supported, avoiding further standing ankle demand.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Maintain resisted thigh recovery under a quiet pelvis with no added contacts.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "The hurdle pair requires suitably low obstacles and room for two controlled landings. If obstacle height/spacing is unsuitable, use two marked floor positions instead of hurdles with the same two-jump sequences, removing clearance demand and preserving four two-foot landings. E4 requires a stable seat at a suitable height; use a paused floor Squat Jump instead if seating fails, same 1 × 3 and rest. E5 uses only a light securely held DB; use bodyweight instead if no suitable load fits. Bench/box quantities and dimensions remain unconfirmed.",
+  "count_note": "E1 10 + E2 6 + E3 four linked-jump landings + E4 3 = 23 two-foot landing events, 46 foot contacts. E3 has two sequences of exactly two jumps, not two reps of an open-ended series. E5 contributes six nonflight heel rises and E6 five hip drives. No single-leg landing or drop from a height is prescribed. Light eversion has twelve reps; dead-bug work has eight heel taps. E5 fast light work and P1 challenging controlled work are separate performances and separate loads.",
+  "novelty": "All six default drill executions are new, but the seated squat jump and fast calf raise are explicitly related variants of known force patterns rather than unrelated inventions. The seated start removes standing pre-load; the knee-flexed quick raise changes force-speed intent from seated strength. Forward pogo travel differs from fore-aft target reversal. Rejected extra single-leg ankle variants because the day already concentrates plantarflexor load.",
+  "audit": "Kept the main bent-knee spring to ten contacts and total jumps to 23, with no single-leg receiving. A proposed longer hurdle series was reduced to two pairs with explicit contact counts. Used eversion and easy trunk work instead of another calf isometric pre-fatigue task. The rapid seated calf task is only six light reps; its overlap with challenging P1 is explicit and requires calf/Achilles recovery review.",
+  "progression": "The knee-flexed emphasis changes organization, not an earned load or volume step. Retain P1's 2 × 8 and recorded knee angle/heel range for a later comparison. Advance resistance alone only with reported control, technical reserve and acceptable subsequent recovery; otherwise hold/reduce. Class 5 should shift the emphasis toward hip drive and hamstring force while reducing ankle concentration.",
+  "map_note": "Knee-flexed emphasis with 23 bilateral landings and unchanged main calf dose.",
+  "next_job": "Hip drive and hamstring contribution with less ankle-rebound concentration.",
+  "handoff": "Review this class's calf/ankle overlap and any actual feedback, then develop and audit Class 5 before continuing.",
+  "reviewed_files": {
+    "curriculum.md": "a10dd5e04513f0938963ff49706e0f96fadc5826b821ad73eabae20bb4d30884",
+    "progress.json": "84423315e9c9c87242658e134ee20b6c747f2bcddeb3c629d5f8a77e261aeaa2",
+    "progression_ledger.md": "67961ec8b4d1642a047c7196b008a9b988b3e0e68af9b99c29f51c633724d9e5",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_03.md": "32898957c83baba7bd2900fb628680a3a82604da527ab2f273f4a5298bc38a2f"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 23,
+    "bilateral_landing_events": 23,
+    "single_leg_landing_events": 0,
+    "individual_foot_contacts": 46,
+    "other_explosive": [
+      {
+        "name": "Seated Bent-Knee Calf Raise — fast concentric",
+        "amount": 6,
+        "unit": "bilateral heel rises"
+      },
+      {
+        "name": "Explosive Floor Glute Bridge",
+        "amount": 5,
+        "unit": "hip drives"
+      }
+    ],
+    "primary_set_rounds": 9,
+    "primary_bouts": 13,
+    "primary_work": {
+      "reps": 80,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1034,
+      "stabilization": 290,
+      "primary": 2488,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 67,
+    "time_max": 77,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Seated Band Ankle Eversion",
+        "sets": 1,
+        "reps_or_seconds_per_side": 6,
+        "sides": 2,
+        "total": 12,
+        "unit": "reps"
+      },
+      {
+        "exercise": "Dead Bug Heel Tap",
+        "sets": 1,
+        "reps_or_seconds_per_side": 4,
+        "sides": 2,
+        "total": 8,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Low Squat Pogo — shallow knee bend",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 10,
+        "unit": "hops",
+        "landing_events": 10,
+        "individual_foot_contacts": 20,
+        "bilateral_landing_events": 10,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Forward-Traveling Low Pogo",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 6,
+        "unit": "hops",
+        "landing_events": 6,
+        "individual_foot_contacts": 12,
+        "bilateral_landing_events": 6,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Low Hurdle Hop Pair — two linked jumps",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 2,
+        "unit": "two-jump sequences",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Seated Squat Jump to Stick",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 3,
+        "unit": "jumps",
+        "landing_events": 3,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 3,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Seated Bent-Knee Calf Raise — fast concentric",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 6,
+        "unit": "bilateral heel rises",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Explosive Floor Glute Bridge",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 5,
+        "unit": "hip drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 23
+  },
+  "status": "finalized_prescription",
+  "final_review": "Checked the knee-flexed calf emphasis against all ankle loading. The hurdle task is exactly two two-jump sequences, and the light fast calf task is distinct from slower challenging strength. Twenty-three bilateral landings and zero unilateral receiving are intentional. Replaced another proposed calf isometric with eversion/low-fatigue trunk control; documented that seated-start and fast-calf tasks are related variants."
+}

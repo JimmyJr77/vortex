@@ -1,0 +1,578 @@
+[
+  {
+    "slot": "E1",
+    "name": "Sprint-to-Stick Deceleration \u2014 3 m approach",
+    "identity": "forward_accelerate_bilateral_stop",
+    "slug": "sprint-to-stick-deceleration",
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "slot": "E2",
+    "name": "180-Degree Turn / Shuttle Cut \u2014 3 m in, 3 m out",
+    "identity": "linear_180_running_reversal",
+    "slug": "180-degree-turn-shuttle-cut",
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "slot": "E3",
+    "name": "Lateral Bound to Stick \u2014 opposite-leg landing",
+    "identity": "lateral_bound_opposite_leg_stick",
+    "slug": "lateral-bound-to-stick",
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "slot": "E4",
+    "name": "Lateral Shuffle Decel Stick",
+    "identity": "lateral_shuffle_terminal_stop",
+    "slug": "lateral-shuffle-decel-stick",
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "slot": "E5",
+    "name": "Planned Lateral Shuffle Reversal",
+    "identity": "lateral_shuffle_180_return",
+    "slug": null,
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "slot": "E6",
+    "name": "Crossover Step and Go",
+    "identity": "stationary_crossover_running_exit",
+    "slug": "crossover-step-and-go",
+    "difference": "Original Class 1 reference; reserved against repetition.",
+    "class": 1
+  },
+  {
+    "class": 2,
+    "slot": "E1",
+    "name": "Lateral Line Pogo",
+    "identity": "bilateral_lateral_line_elastic_rebounds",
+    "slug": "lateral-line-pogo",
+    "difference": "Repeated bilateral ankle rebounds; unlike Class 1's single-flight opposite-leg bound and grounded shuffles."
+  },
+  {
+    "class": 2,
+    "slot": "E2",
+    "name": "Shuffle-to-Sprint Transition",
+    "identity": "lateral_shuffle_to_orthogonal_forward_run",
+    "slug": "shuffle-to-sprint-transition",
+    "difference": "Moving lateral entry into an orthogonal running exit, unlike the stationary crossover start or same-facing reversal in Class 1."
+  },
+  {
+    "class": 2,
+    "slot": "E3",
+    "name": "Lateral Open-Step to Sprint",
+    "identity": "stationary_open_step_without_crossover_to_run",
+    "slug": "lateral-open-step-to-sprint",
+    "difference": "Near-leg open step replaces Class 1's far-leg crossover; this is a different first contact sequence, not a faster copy."
+  },
+  {
+    "class": 2,
+    "slot": "E4",
+    "name": "Lateral Hop to Stick \u2014 bilateral",
+    "identity": "bilateral_lateral_single_flight_terminal_stick",
+    "slug": "lateral-hop-to-stick-low-amplitude",
+    "difference": "Bilateral takeoff and landing with a terminal hold, unlike single-leg bounds or continuous line rebounds."
+  },
+  {
+    "class": 2,
+    "slot": "E5",
+    "name": "Skater Bound Continuous \u2014 one out-and-back pair",
+    "identity": "opposite_leg_lateral_bound_immediate_return_two_flights",
+    "slug": "skater-bound-continuous",
+    "difference": "Two linked opposite-leg flights with one active rebound; Class 1's bound ends in a static hold."
+  },
+  {
+    "class": 2,
+    "slot": "E6",
+    "name": "Grounded Lateral Scoop Slam",
+    "identity": "grounded_lateral_weight_shift_low_diagonal_ball_release",
+    "slug": null,
+    "difference": "Grounded externally resisted lateral projection; no earlier ballistic throw slot exists."
+  },
+  {
+    "class": 3,
+    "slot": "E1",
+    "name": "Paused Split-Stance Diagonal Jump",
+    "identity": "paused_split_stance_diagonal_push_to_bilateral_landing",
+    "slug": null,
+    "difference": "Paused split-stance two-foot takeoff and shared landing; not the lateral bilateral countermovement jump or unilateral bound."
+  },
+  {
+    "class": 3,
+    "slot": "E2",
+    "name": "45-Degree Cut and Reaccelerate",
+    "identity": "linear_running_entry_single_45_cut_running_exit",
+    "slug": "45-degree-cut-and-reaccelerate",
+    "difference": "One diagonal planted running cut, distinct from a 180-degree return or shuffle-to-forward gait change."
+  },
+  {
+    "class": 3,
+    "slot": "E3",
+    "name": "45-Degree Cut-and-Stick",
+    "identity": "linear_entry_45_redirection_terminal_stick_no_acceleration",
+    "slug": "45-degree-cut-and-stick",
+    "difference": "Terminal control after a diagonal redirection; E2 continues accelerating instead. It is not a second copy at a different speed."
+  },
+  {
+    "class": 3,
+    "slot": "E4",
+    "name": "Crossover Bound to Stick",
+    "identity": "crossover_entry_single_bound_opposite_leg_stick",
+    "slug": "crossover-bound",
+    "difference": "A crossover loads one bounded flight and terminal single-leg landing; Class 1's crossover continues running."
+  },
+  {
+    "class": 3,
+    "slot": "E5",
+    "name": "Split-Step to Diagonal Sprint",
+    "identity": "bilateral_low_split_step_landing_to_45_running_exit",
+    "slug": null,
+    "difference": "Bilateral landing initiates the run, unlike a static start, a run-to-cut or a jump that ends in a hold."
+  },
+  {
+    "class": 3,
+    "slot": "E6",
+    "name": "Single-Leg Diagonal Hop to Stick",
+    "identity": "same_leg_single_diagonal_flight_terminal_stick",
+    "slug": null,
+    "difference": "Same-leg takeoff/landing; earlier diagonal jumps share the landing or switch legs."
+  },
+  {
+    "class": 4,
+    "slot": "E1",
+    "name": "Forward-Back Line Hops",
+    "identity": "bilateral_sagittal_line_elastic_rebounds",
+    "slug": "forward-back-line-hops",
+    "difference": "Sagittal forward/back force reversal rather than Class 2's frontal lateral line hops; plane change has a specific braking-support role."
+  },
+  {
+    "class": 4,
+    "slot": "E2",
+    "name": "Deceleration Re-Acceleration Sprint",
+    "identity": "linear_run_brake_one_second_stop_same_heading_restart",
+    "slug": "deceleration-re-acceleration-sprint",
+    "difference": "Contains a deliberate stopped interval and same-heading restart; Class 1's linear stop ends the attempt and its shuttle reverses direction."
+  },
+  {
+    "class": 4,
+    "slot": "E3",
+    "name": "Falling Start Acceleration \u2014 short exit",
+    "identity": "controlled_forward_fall_initiation_running_exit",
+    "slug": "falling-start-to-10-yards",
+    "difference": "A controlled fall initiates movement; it isolates projection from stillness rather than a run-to-stop sequence."
+  },
+  {
+    "class": 4,
+    "slot": "E4",
+    "name": "Forward Run to Lateral Shuffle",
+    "identity": "forward_running_brake_to_orthogonal_same_facing_shuffle",
+    "slug": null,
+    "difference": "Forward entry becomes lateral shuffle; it reverses the gait relationship of Class 2's shuffle-to-running exit."
+  },
+  {
+    "class": 4,
+    "slot": "E5",
+    "name": "Forward Hop to Stick \u2014 bilateral",
+    "identity": "bilateral_forward_single_flight_terminal_stick",
+    "slug": "forward-hop-to-stick-low-amplitude",
+    "difference": "Forward bilateral terminal landing; earlier bilateral lateral jumps load a different plane and line hops are continuous elastic work."
+  },
+  {
+    "class": 4,
+    "slot": "E6",
+    "name": "Single-Leg Forward Hop to Stick",
+    "identity": "same_leg_sagittal_single_flight_terminal_stick",
+    "slug": "single-leg-hop-to-stick",
+    "difference": "Same-leg sagittal absorption is deliberately separated from oblique/diagonal acceptance; no crossing or lateral plant component."
+  },
+  {
+    "class": 5,
+    "slot": "E1",
+    "name": "Quarter-Turn Jump to Stick \u2014 bilateral",
+    "identity": "bilateral_in_place_90_degree_air_turn_terminal_stick",
+    "slug": null,
+    "difference": "An in-flight bilateral body turn, absent from all previous drills."
+  },
+  {
+    "class": 5,
+    "slot": "E2",
+    "name": "90-Degree Speed Cut",
+    "identity": "linear_running_entry_single_square_90_cut",
+    "slug": "90-degree-speed-cut",
+    "difference": "A square running corner needs different momentum redirection from the previous 45-degree cut; direction is the deliberate training variable, not a renamed time trial."
+  },
+  {
+    "class": 5,
+    "slot": "E3",
+    "name": "Shuffle-to-Backpedal Corner",
+    "identity": "lateral_shuffle_to_orthogonal_backward_gait",
+    "slug": null,
+    "difference": "Lateral entry changes to backward gait; earlier transitions ended in forward running or lateral shuffling."
+  },
+  {
+    "class": 5,
+    "slot": "E4",
+    "name": "Single-Leg Lateral Hop to Stick",
+    "identity": "same_leg_single_lateral_flight_terminal_stick",
+    "slug": "single-leg-lateral-hop-to-stick",
+    "difference": "Same-leg lateral landing rather than the opposite-leg bound or sagittal/diagonal hop."
+  },
+  {
+    "class": 5,
+    "slot": "E5",
+    "name": "Lateral Bound to Forward Sprint",
+    "identity": "opposite_leg_lateral_bound_landing_to_forward_run",
+    "slug": null,
+    "difference": "The bound landing becomes a running redirection rather than a static hold or return bound."
+  },
+  {
+    "class": 5,
+    "slot": "E6",
+    "name": "Three-Point Diagonal Start",
+    "identity": "three_point_hand_supported_diagonal_running_initiation",
+    "slug": null,
+    "difference": "A hand-supported low start changes initial support and force projection; not the falling or standing crossover start."
+  },
+  {
+    "class": 6,
+    "slot": "E1",
+    "name": "Backpedal-to-Stick",
+    "identity": "backward_gait_terminal_bilateral_stop",
+    "slug": "backpedal-to-stick",
+    "difference": "Backward gait and backward braking replace the forward/lateral terminal stops already used."
+  },
+  {
+    "class": 6,
+    "slot": "E2",
+    "name": "Backpedal-to-Forward Reversal",
+    "identity": "backpedal_brake_reverse_travel_forward_run_facing_unchanged",
+    "slug": null,
+    "difference": "Travel reverses while facing stays constant; Class 1's running shuttle required a body turn."
+  },
+  {
+    "class": 6,
+    "slot": "E3",
+    "name": "Sprint-to-Backpedal Transition",
+    "identity": "forward_run_brake_reverse_travel_backward_gait",
+    "slug": "sprint-to-backpedal-transition",
+    "difference": "Forward-to-backward gait order contrasts with E2's backward-to-forward task and requires a different first exit action."
+  },
+  {
+    "class": 6,
+    "slot": "E4",
+    "name": "Backward Two-Foot Jump to Stick",
+    "identity": "bilateral_backward_single_flight_terminal_stick",
+    "slug": null,
+    "difference": "Backward bilateral flight and absorption, absent from the earlier forward/lateral/turning landing tasks."
+  },
+  {
+    "class": 6,
+    "slot": "E5",
+    "name": "Drop-Step Crossover Go",
+    "identity": "stationary_drop_step_then_crossover_running_exit",
+    "slug": "drop-step-crossover-go",
+    "difference": "A drop step precedes the crossover; Class 1 expressly used crossover first with no drop step."
+  },
+  {
+    "class": 6,
+    "slot": "E6",
+    "name": "Backpedal-to-Sprint Turn \u2014 open, same travel heading",
+    "identity": "backward_gait_body_half_turn_continue_same_travel_running",
+    "slug": "backpedal-to-sprint-turn",
+    "difference": "Facing changes while travel continues; E2 changes travel while facing stays fixed."
+  },
+  {
+    "class": 7,
+    "slot": "E1",
+    "name": "Split-Stance Pogo",
+    "identity": "staggered_bilateral_ankle_rebounds_fixed_lead",
+    "slug": "split-stance-pogo",
+    "difference": "Fixed staggered bilateral support rather than parallel-foot lateral or forward/back line travel."
+  },
+  {
+    "class": 7,
+    "slot": "E2",
+    "name": "135-Degree Running Cut",
+    "identity": "linear_running_entry_single_obtuse_135_cut",
+    "slug": null,
+    "difference": "An obtuse return diagonal differs from the 45-degree continuation, square corner and full 180-degree shuttle; the distinct braking demand justifies the angle-specific drill."
+  },
+  {
+    "class": 7,
+    "slot": "E3",
+    "name": "Drop-Step Decel Cone Box",
+    "identity": "single_drop_step_reorientation_to_terminal_staggered_stop",
+    "slug": "drop-step-decel-cone-box",
+    "difference": "One rapid step into a terminal stop; the earlier drop-step drill continued through a crossover into running."
+  },
+  {
+    "class": 7,
+    "slot": "E4",
+    "name": "Crossover Run to Stick",
+    "identity": "crossover_running_entry_terminal_stop",
+    "slug": "crossover-run-to-stick",
+    "difference": "A moving crossover gait terminates in braking; stationary crossover starts and crossover-to-bound have different contact sequences."
+  },
+  {
+    "class": 7,
+    "slot": "E5",
+    "name": "Curved Run Decel",
+    "identity": "quarter_arc_running_entry_tangent_terminal_stop",
+    "slug": "curved-run-decel",
+    "difference": "Distributed curving entry then terminal deceleration, rather than a straight entry or a discrete cone cut."
+  },
+  {
+    "class": 7,
+    "slot": "E6",
+    "name": "Rotational Bound to Stick",
+    "identity": "single_leg_quarter_turn_bound_opposite_leg_terminal_landing",
+    "slug": "rotational-bound-to-stick",
+    "difference": "Unilateral opposite-leg landing with an airborne quarter-turn, distinct from the bilateral quarter-turn jump and non-rotating lateral bound."
+  },
+  {
+    "class": 8,
+    "slot": "E1",
+    "name": "Lateral Skip \u2014 two cycles",
+    "identity": "lateral_step_hop_same_leg_skip_pattern",
+    "slug": null,
+    "difference": "Step-hop skip rhythm with repeated same-leg support, unlike bilateral pogos or opposite-leg bounding."
+  },
+  {
+    "class": 8,
+    "slot": "E2",
+    "name": "Curved Run to Cut",
+    "identity": "quarter_arc_entry_discrete_90_cut_running_exit",
+    "slug": "curved-run-to-cut",
+    "difference": "Curved entry is followed by a discrete planted cut; Class 7's curved run only decelerated to a terminal stop."
+  },
+  {
+    "class": 8,
+    "slot": "E3",
+    "name": "Figure-8 Cone Run",
+    "identity": "two_opposite_continuous_loops_figure_eight_running",
+    "slug": "figure-8-cone-run",
+    "difference": "Two opposing continuous loops with an inflection, not a single curved stop or a sharp cone cut."
+  },
+  {
+    "class": 8,
+    "slot": "E4",
+    "name": "Carioca Quick Hips",
+    "identity": "lateral_alternating_front_and_rear_crossing_gait",
+    "slug": "carioca-quick-hips",
+    "difference": "Alternating front/behind crossing gait rather than crossover running with only an open forward crossing."
+  },
+  {
+    "class": 8,
+    "slot": "E5",
+    "name": "Diagonal-to-Lateral Bound Pattern",
+    "identity": "linked_diagonal_then_lateral_opposite_leg_bounds",
+    "slug": null,
+    "difference": "The two flights change between diagonal and lateral vectors; the earlier skater pair reversed along one lateral line."
+  },
+  {
+    "class": 8,
+    "slot": "E6",
+    "name": "Shuffle Arc to Running Exit",
+    "identity": "shuffle_entry_continuous_arc_opening_to_running_tangent",
+    "slug": null,
+    "difference": "Continuous curving gait transition rather than Class 2's abrupt orthogonal shuffle-to-sprint corner."
+  },
+  {
+    "class": 9,
+    "slot": "E1",
+    "name": "W Drill Forward Cuts \u2014 short three-leg route",
+    "identity": "three_forward_diagonal_running_legs_two_alternating_cuts",
+    "slug": "w-drill-forward-cuts",
+    "difference": "Two linked alternating cuts in one forward course rather than one isolated cut."
+  },
+  {
+    "class": 9,
+    "slot": "E2",
+    "name": "Z Route \u2014 Two Square Corners",
+    "identity": "three_running_legs_two_opposing_90_corners_z_path",
+    "slug": null,
+    "difference": "Two opposing square cuts joined by a short lateral leg; no previous isolated corner or continuous curve has this route/contact structure."
+  },
+  {
+    "class": 9,
+    "slot": "E3",
+    "name": "Triangle Shuffle-Sprint Drill",
+    "identity": "closed_triangle_running_shuffle_running_two_gait_corners",
+    "slug": "triangle-shuffle-sprint-drill",
+    "difference": "Two running/shuffle transitions around a closed triangle, unlike the all-running W or Z routes."
+  },
+  {
+    "class": 9,
+    "slot": "E4",
+    "name": "U-Drill Turn-and-Go",
+    "identity": "parallel_running_legs_joined_by_continuous_semicircle",
+    "slug": "u-drill-turn-and-go",
+    "difference": "Rounded half-loop joining parallel legs instead of the original planted same-line shuttle reversal."
+  },
+  {
+    "class": 9,
+    "slot": "E5",
+    "name": "Forward Zigzag Bounds \u2014 two flights",
+    "identity": "linked_alternating_forward_diagonal_opposite_leg_bounds",
+    "slug": null,
+    "difference": "Both flights retain forward travel with alternating diagonal vectors; earlier pairs returned laterally or switched from diagonal to pure lateral."
+  },
+  {
+    "class": 9,
+    "slot": "E6",
+    "name": "Split-Stance Rotational Scoop Slam",
+    "identity": "stationary_split_stance_rotational_low_ball_release",
+    "slug": null,
+    "difference": "Rotation from a fixed split base, unlike Class 2's translating lateral weight-shift projection."
+  },
+  {
+    "class": 10,
+    "slot": "E1",
+    "name": "W Drill Backpedal Cuts \u2014 short route",
+    "identity": "three_backward_diagonal_gait_legs_two_alternating_cuts",
+    "slug": "w-drill-backpedal-cuts",
+    "difference": "Backward gait through linked changes; Class 9's W used forward running."
+  },
+  {
+    "class": 10,
+    "slot": "E2",
+    "name": "Box Drill \u2014 Sprint, Shuffle, Backpedal",
+    "identity": "four_square_legs_forward_lateral_backward_lateral_gait",
+    "slug": "box-drill-sprint-shuffle-backpedal",
+    "difference": "Four sides with three distinct gait transitions, unlike the triangle's two corners or a single transition."
+  },
+  {
+    "class": 10,
+    "slot": "E3",
+    "name": "X Crossing Route \u2014 two obtuse plants",
+    "identity": "diagonal_across_square_top_return_diagonal_crossing_course",
+    "slug": null,
+    "difference": "Crossing diagonals linked by a transverse leg create two obtuse plants; neither the W nor Z has this crossing topology."
+  },
+  {
+    "class": 10,
+    "slot": "E4",
+    "name": "Crossover Run Reversal",
+    "identity": "lateral_crossover_running_entry_180_return_crossover_gait",
+    "slug": null,
+    "difference": "Crossing lateral gait enters and leaves the reversal; earlier lateral reversals used non-crossing shuffle contacts."
+  },
+  {
+    "class": 10,
+    "slot": "E5",
+    "name": "Single-Leg Backward Hop to Stick",
+    "identity": "same_leg_backward_single_flight_terminal_stick",
+    "slug": null,
+    "difference": "Backward same-leg landing instead of the earlier bilateral backward jump or forward/diagonal same-leg hop."
+  },
+  {
+    "class": 10,
+    "slot": "E6",
+    "name": "Quarter-Turn Single-Leg Hop to Stick",
+    "identity": "same_leg_in_place_quarter_turn_single_flight_stick",
+    "slug": null,
+    "difference": "Same-leg landing during the airborne turn, rather than the bilateral quarter-turn or opposite-leg rotational bound."
+  },
+  {
+    "class": 11,
+    "slot": "E1",
+    "name": "Two-Foot Lateral Jump to Single-Leg Landing",
+    "identity": "bilateral_lateral_takeoff_unilateral_terminal_landing",
+    "slug": null,
+    "difference": "Bilateral takeoff to unilateral landing, not a unilateral bound or a bilateral lateral landing."
+  },
+  {
+    "class": 11,
+    "slot": "E2",
+    "name": "Planned Lateral Jab-to-Crossover Exit",
+    "identity": "lateral_false_step_acceptance_opposite_diagonal_crossover_run",
+    "slug": null,
+    "difference": "A weight-bearing false step precedes an opposite-direction crossover exit; previous stationary crossover/drop-step starts did not reverse a jab's momentum."
+  },
+  {
+    "class": 11,
+    "slot": "E3",
+    "name": "V Shuttle to Opposite Diagonal",
+    "identity": "diagonal_out_180_return_then_90_other_diagonal_exit",
+    "slug": null,
+    "difference": "One 180-degree turn followed by a 90-degree exit at the shared origin; earlier multi-cut routes used repeated/alternating corner types without this return junction."
+  },
+  {
+    "class": 11,
+    "slot": "E4",
+    "name": "Two Forward Rebound Jumps",
+    "identity": "bilateral_whole_leg_forward_rebound_two_flights",
+    "slug": null,
+    "difference": "Whole-leg forward rebound with two flights, unlike ankle-only line hops or a forward jump ending in a hold."
+  },
+  {
+    "class": 11,
+    "slot": "E5",
+    "name": "Single Forward Bound to Running Exit",
+    "identity": "single_forward_opposite_leg_bound_immediate_same_heading_run",
+    "slug": null,
+    "difference": "Forward flight continues into the same-heading run; the earlier lateral bound-to-run required perpendicular redirection."
+  },
+  {
+    "class": 11,
+    "slot": "E6",
+    "name": "Half-Kneeling Lateral Start",
+    "identity": "half_kneeling_support_to_lateral_running_initiation",
+    "slug": null,
+    "difference": "One knee and one foot provide the initial support, unlike standing, falling or hand-supported starts."
+  },
+  {
+    "class": 12,
+    "slot": "E1",
+    "name": "Gathered Stop-to-Diagonal Restart",
+    "identity": "linear_entry_two_step_reoriented_gather_stop_then_diagonal_restart",
+    "slug": null,
+    "difference": "A reoriented two-step gather and deliberate pause precede a diagonal restart; earlier stop-restarts stayed straight and earlier diagonal cuts had no static reset."
+  },
+  {
+    "class": 12,
+    "slot": "E2",
+    "name": "M-Drill Multidirectional Cut \u2014 compact course",
+    "identity": "four_running_legs_three_alternating_corners_m_course",
+    "slug": "m-drill-multidirectional-cut",
+    "difference": "Four legs and three alternating corner demands, unlike the shorter W/Z/X patterns; the middle valley requires a second reorganization before the last peak."
+  },
+  {
+    "class": 12,
+    "slot": "E3",
+    "name": "Five-Cone Compass Route \u2014 known three-arm sequence",
+    "identity": "centre_north_return_east_return_south_compass_sequence",
+    "slug": "5-cone-compass-drill",
+    "difference": "Repeated returns to a shared centre with different outgoing arms; unlike a perimeter course or the two-arm V junction."
+  },
+  {
+    "class": 12,
+    "slot": "E4",
+    "name": "Three-Hop Directional Pattern \u2014 same leg",
+    "identity": "same_leg_forward_lateral_return_diagonal_three_hop_pattern",
+    "slug": null,
+    "difference": "Three same-leg contacts across three vectors; previous linked bounds alternated legs and ended after two flights."
+  },
+  {
+    "class": 12,
+    "slot": "E5",
+    "name": "Crossover Run to Backpedal Exit",
+    "identity": "lateral_crossover_gait_to_orthogonal_backward_gait",
+    "slug": null,
+    "difference": "Crossing-gait entry into backpedal rather than the earlier square shuffle entry or forward-running entry."
+  },
+  {
+    "class": 12,
+    "slot": "E6",
+    "name": "Single-Leg Lateral Push Jump to Two-Foot Landing",
+    "identity": "paused_single_leg_lateral_takeoff_bilateral_terminal_landing",
+    "slug": null,
+    "difference": "Unilateral paused takeoff to a bilateral landing; earlier lateral tasks used same-leg/opposite-leg landings or bilateral takeoff."
+  }
+]

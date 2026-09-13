@@ -1,0 +1,245 @@
+{
+  "class_number": 12,
+  "title": "Integrate same-leg and opposite-leg contacts into a controlled horizontal finish.",
+  "brief": "The main task is one integrated hop–step–jump foot sequence from a stationary single-leg start at modest travel. Lateral entry, an elevated same-leg finish and release tasks rehearse organizing different incoming positions into forward force. This is integration, not a maximum-distance test or a claim that the full competition event has been trained.",
+  "explosive": [
+    {
+      "name": "Stationary Single-leg Hop–Step–Jump",
+      "job": "Integrate same-leg reuse, opposite-leg transfer and a bilateral final reception into one defined horizontal foot sequence.",
+      "cue": "From one foot, hop to the same foot, step-bound to the opposite foot, then jump from that foot to both feet; hold the final landing. Start the other set on the opposite leg.",
+      "regress": "Shorten each segment and slow entry intent while keeping the sequence; stop for a collapsing intermediate contact or incorrect foot order.",
+      "sets": 2,
+      "reps": 1,
+      "sides": 1,
+      "kind": "hop_step_jump",
+      "contacts": 3,
+      "seconds_per_rep": 10,
+      "reset": 0,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Two integrated sequences = six landings: four unilateral and two bilateral. No running approach; not three bilateral broad jumps."
+    },
+    {
+      "name": "Lateral Step-in Broad Jump",
+      "job": "Redirect a small lateral entry into a straight-ahead two-foot push.",
+      "cue": "Take one short lateral step into a parallel two-foot gather, square the pelvis to the forward lane and jump forward; hold the landing 2 s.",
+      "regress": "Shorten/slow the lateral step; stop if the jump drifts sideways or the pelvis rotates through landing.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four ordinary lateral entry steps, two from each direction; each at most 1 m. This needs verified lane width."
+    },
+    {
+      "name": "Same-leg Forward Hop onto a Low Box",
+      "job": "Receive one-leg forward force with full-foot placement on a raised support without assistance from the free foot.",
+      "cue": "Hop from one foot to the same foot on a very low wide stable box; hold 2 s with the pelvis level, then use a controlled step-down to reset.",
+      "regress": "Lower/bring the box closer; stop for partial-foot contact, free-foot rescue or pelvic collapse.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Demonstrated elevated same-leg landing; no narrow or tall box.",
+      "note": ""
+    },
+    {
+      "name": "Lateral-entry Forward Medicine Ball Scoop Throw",
+      "job": "Square the hips after a side entry and direct leg-to-arm force forward.",
+      "cue": "Take one short lateral step into a stable bilateral base, then immediately use a shallow dip and light forward scoop release with the pelvis facing the target.",
+      "regress": "Slow the side step and lighten the ball; stop if the throw becomes rotational or entry balance is lost.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 5,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": "Four ordinary side-entry steps total; no athlete flight."
+    },
+    {
+      "name": "Tall-Kneeling Forward Overhead Medicine Ball Throw",
+      "job": "Express a forward long-lever arm impulse while holding the hip/trunk base steady.",
+      "cue": "Kneel tall with a very light ball above the forehead; release straight forward through a quick two-arm overhead throw with knees grounded and ribs down.",
+      "regress": "Use a lighter ball and smaller arm excursion; stop for back arching or uncomfortable kneeling.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Forward Medicine Ball Jump Throw",
+      "job": "Coordinate full-body takeoff with an airborne forward release and then recover the feet for landing.",
+      "cue": "With a very light ball low in front, dip and jump modestly forward while scooping the ball forward during flight; land on both feet and hold 2 s.",
+      "regress": "Use smaller flight/lighter ball; stop if the ball enters the athlete's landing zone or release disrupts foot recovery.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "jump_throw",
+      "contacts": 1,
+      "seconds_per_rep": 7,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Small crisp jump with light airborne forward release",
+      "gate": "Familiar jump-release coordination and physically separated athlete/ball landing envelopes.",
+      "note": "Four releases and four bilateral athlete landings are both counted; no return catch."
+    }
+  ],
+  "control": [
+    {
+      "name": "Standing Hip Abduction Wall Press",
+      "job": "Lightly stabilize the support-side pelvis against lateral pressure before the next forward push.",
+      "cue": "Stand side-on to a fixed wall/support, hold the nearer knee gently against it while the other foot supports the body; keep pelvis level and stance knee aligned.",
+      "regress": "Use lighter pressure and a more upright stance; stop for leaning through the back or losing foot contact.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Side-Lying Banded Clamshell",
+      "job": "Control femoral external rotation without allowing the pelvis to roll during contact preparation.",
+      "cue": "Lie on the side with hips/knees comfortably bent and feet together; open the top knee slightly against a light band, then lower slowly while keeping pelvis stacked.",
+      "regress": "Use less tension/smaller opening; stop if the pelvis rolls backward or hip discomfort appears.",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 10,
+    "unilateral_landing_events": 8,
+    "throws": 11,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 0,
+    "primary_rounds": 8,
+    "primary_bouts": 9,
+    "primary_reps": 54,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 10,
+    "stabilization_hold_seconds": 24,
+    "landing_events": 18,
+    "landing_foot_contacts": 28
+  },
+  "duration_after_preparation_seconds": 4141,
+  "decision": "The hop–step–jump is one defined athletics foot-sequence task with all three landings counted, not a circuit of exercises hidden in one slot. Only two modest sequences are prescribed. Its single-leg start is a declared training adaptation, not a competition test. Lateral entry changes the incoming direction; the raised same-leg finish changes receiving support; the airborne ball release adds both a throw and a landing. The full sequence ends with modest strength doses rather than an assumed maximum-output peak. No before/after jump gain can be claimed because the user requested unique drills and no actual response has been supplied.",
+  "next_job": "All twelve prescriptions and the full-sequence audit are complete. The next user-directed run should review actual delivery or revise a named class; do not create Class 13 or infer athlete completion.",
+  "observed": null,
+  "class_sha256": "66f163ed16b7ef4ac97242edbe856f062a5208798b2cc67ab7445c560ada7782"
+}

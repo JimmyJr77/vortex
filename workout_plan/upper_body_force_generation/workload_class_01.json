@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "class_number": 1,
+  "data_status": "prescribed_only; actual execution and recovery unknown",
+  "counting_conventions": "Bilateral cycle counts once; unilateral repetitions count separately for each arm. Rounds are table sets; bouts include each side. Throw attempts include misses. No summation across exposure types is a safety score. Existing preparation is unknown, not zero.",
+  "entries": [
+    {
+      "slot": "E1",
+      "exercise": "Medicine Ball Chest Pass — stationary, paused",
+      "sets": 3,
+      "reps_per_set_per_execution_side": 3,
+      "execution_sides": 1,
+      "type": "bilateral_throw",
+      "set_rounds": 3,
+      "set_bouts": 3,
+      "task_repetitions": 9,
+      "actual": null
+    },
+    {
+      "slot": "E2",
+      "exercise": "Two-Hand Landmine Bent-Over Row — fast pull from a pause",
+      "sets": 2,
+      "reps_per_set_per_execution_side": 3,
+      "execution_sides": 1,
+      "type": "bilateral_rapid_pull",
+      "set_rounds": 2,
+      "set_bouts": 2,
+      "task_repetitions": 6,
+      "actual": null
+    },
+    {
+      "slot": "E3",
+      "exercise": "Plyo Push-Up — hands elevated",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 3,
+      "execution_sides": 1,
+      "type": "bilateral_hand_landing",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 3,
+      "actual": null
+    },
+    {
+      "slot": "E4",
+      "exercise": "Medicine Ball Chest Pass — shallow countermovement",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 3,
+      "execution_sides": 1,
+      "type": "bilateral_throw",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 3,
+      "actual": null
+    },
+    {
+      "slot": "E5",
+      "exercise": "Band Row — seated, fast pull",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 4,
+      "execution_sides": 1,
+      "type": "bilateral_rapid_pull",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 4,
+      "actual": null
+    },
+    {
+      "slot": "E6",
+      "exercise": "Medicine Ball Shot Put Throw — forward-facing, no rotation",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 2,
+      "execution_sides": 2,
+      "type": "unilateral_throw",
+      "set_rounds": 1,
+      "set_bouts": 2,
+      "task_repetitions": 4,
+      "actual": null
+    },
+    {
+      "slot": "S1",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 6,
+      "execution_sides": 1,
+      "type": "light_bilateral_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 6,
+      "actual": null
+    },
+    {
+      "slot": "S2",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 8,
+      "execution_sides": 1,
+      "type": "light_bilateral_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 8,
+      "actual": null
+    },
+    {
+      "slot": "P1",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "sets": 2,
+      "reps_per_set_per_execution_side": 6,
+      "execution_sides": 1,
+      "type": "bilateral_primary_strength",
+      "set_rounds": 2,
+      "set_bouts": 2,
+      "task_repetitions": 12,
+      "actual": null
+    },
+    {
+      "slot": "P2",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "sets": 2,
+      "reps_per_set_per_execution_side": 6,
+      "execution_sides": 2,
+      "type": "unilateral_primary_strength",
+      "set_rounds": 2,
+      "set_bouts": 4,
+      "task_repetitions": 24,
+      "actual": null
+    },
+    {
+      "slot": "P3",
+      "exercise": "Push-Up — controlled full repetition",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 8,
+      "execution_sides": 1,
+      "type": "bilateral_primary_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 8,
+      "actual": null
+    },
+    {
+      "slot": "P4",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 8,
+      "execution_sides": 1,
+      "type": "bilateral_primary_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 8,
+      "actual": null
+    },
+    {
+      "slot": "P5",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 8,
+      "execution_sides": 1,
+      "type": "bilateral_primary_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 8,
+      "actual": null
+    },
+    {
+      "slot": "P6",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "sets": 1,
+      "reps_per_set_per_execution_side": 8,
+      "execution_sides": 1,
+      "type": "bilateral_primary_strength",
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "task_repetitions": 8,
+      "actual": null
+    }
+  ],
+  "primary_preparation_sets": [
+    {
+      "slot": "P1",
+      "reps_by_set": [
+        6,
+        3
+      ],
+      "execution_sides": 1,
+      "task_repetitions": 9,
+      "set_rounds": 2,
+      "set_bouts": 2,
+      "actual": null
+    },
+    {
+      "slot": "P2",
+      "reps_by_set": [
+        5
+      ],
+      "execution_sides": 2,
+      "task_repetitions": 10,
+      "set_rounds": 1,
+      "set_bouts": 2,
+      "actual": null
+    },
+    {
+      "slot": "P3",
+      "reps_by_set": [
+        3
+      ],
+      "execution_sides": 1,
+      "task_repetitions": 3,
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "actual": null
+    },
+    {
+      "slot": "P4",
+      "reps_by_set": [
+        5
+      ],
+      "execution_sides": 1,
+      "task_repetitions": 5,
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "actual": null
+    },
+    {
+      "slot": "P5",
+      "reps_by_set": [
+        5
+      ],
+      "execution_sides": 1,
+      "task_repetitions": 5,
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "actual": null
+    },
+    {
+      "slot": "P6",
+      "reps_by_set": [
+        5
+      ],
+      "execution_sides": 1,
+      "task_repetitions": 5,
+      "set_rounds": 1,
+      "set_bouts": 1,
+      "actual": null
+    }
+  ],
+  "summary": {
+    "exercise_counts": {
+      "explosiveness": 6,
+      "stabilization_resilience": 2,
+      "primary_strength": 6
+    },
+    "explosive_set_rounds": 9,
+    "explosive_set_bouts": 10,
+    "throws": 16,
+    "bilateral_throws": 12,
+    "unilateral_throws": {
+      "left": 2,
+      "right": 2
+    },
+    "rapid_bilateral_pull_cycles": 10,
+    "bilateral_hand_landing_events": 3,
+    "individual_hand_contacts": 6,
+    "explosive_task_repetitions_descriptive_only": 29,
+    "lower_body_jump_hop_bound_repetitions": 0,
+    "lower_body_landing_events": 0,
+    "sprint_repetitions": 0,
+    "sprint_distance_m": 0,
+    "catch_repetitions": 0,
+    "rotational_throws": 0,
+    "stabilization_set_rounds": 2,
+    "stabilization_set_bouts": 2,
+    "stabilization_bilateral_cycles": 14,
+    "stabilization_aggregate_finish_hold_seconds": 20,
+    "primary_working_set_rounds": 8,
+    "primary_working_set_bouts": 10,
+    "primary_working_task_repetitions": 68,
+    "primary_working_cycles_per_arm": {
+      "left": 56,
+      "right": 56
+    },
+    "primary_preparation_set_rounds": 7,
+    "primary_preparation_set_bouts": 8,
+    "primary_preparation_task_repetitions": 37,
+    "primary_preparation_cycles_per_arm": {
+      "left": 32,
+      "right": 32
+    },
+    "access_prepare_1_workload": null,
+    "estimated_prescribed_work_minutes": [
+      65,
+      75
+    ],
+    "access_prepare_1_minutes": null,
+    "additional_group_queue_minutes": null,
+    "complete_session_minutes": null,
+    "primary_load_kg": null,
+    "primary_working_technical_reps_in_reserve": [
+      2,
+      3
+    ],
+    "stabilization_minimum_technical_reps_in_reserve": 5
+  },
+  "actual_observations": null,
+  "replacement_effects": {
+    "all_three_throw_slots_replaced_by_band_presses": {
+      "throws": 0,
+      "resisted_press_cycles": 16,
+      "free_release_practice_gap": true
+    },
+    "only_E6_replaced_by_band_press": {
+      "throws": 12,
+      "unilateral_resisted_press_cycles": 4,
+      "unilateral_release_practice_gap": true
+    },
+    "E3_replaced_by_nonflight_fast_pushup": {
+      "bilateral_hand_landing_events": 0,
+      "individual_hand_contacts": 0
+    }
+  }
+}

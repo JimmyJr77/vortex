@@ -1,0 +1,146 @@
+{
+  "n": 4,
+  "label": "Accelerate the free leg and own its return",
+  "effort": "Sweep the free leg quickly through a low rotational kick and arrest it in a controlled re-chamber before putting it down.",
+  "brief": "The demand shifts from starting the body to accelerating and recovering the moving thigh. The supporting jobs isolate lateral chamber lift, single-leg upward push, inward sweep, knee-flexor recoil and stance control while the free leg stays raised.",
+  "marker": "valid E2 attempts out of four per leg with an immediate soft-knee recoil and a two-second re-chamber hold without a rescue touchdown.",
+  "e": [
+    {
+      "name": "Supported fast lateral chamber lift",
+      "side": "lifting leg",
+      "grounded": 1,
+      "execution": "Use light fingertip bench support. Lift the bent free knee briskly outward to a low roundhouse chamber, keeping the knee folded and the pelvis tall; lower under control. This is a short lift, not a leg swing through end range.",
+      "job": "Accelerate the thigh into the lateral chamber before the lower leg contributes.",
+      "gate": "Reduce lift height instead if the pelvis hikes or the trunk leans; support must remain light.",
+      "novelty": "Rapid frontal-plane chamber lift from the floor, distinct from the sagittal knee drive and already-raised thigh sweep.",
+      "total_attempts": 4,
+      "modeled_seconds": 180
+    },
+    {
+      "name": "Low roundhouse to suspended re-chamber",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "From a stationary rear-leg kick stance, perform one low roundhouse. Immediately fold the knee and recover the thigh to a low chamber; hold the foot off the floor for 2 s before placing it back in stance. The athlete does not jump.",
+      "job": "Directly train the rapid return and controlled arrest of the kicking leg, rather than allowing it to fall after extension.",
+      "gate": "Use a shorter extension/low chamber instead if the foot drops or the support knee twists; hold quality matters more than range.",
+      "novelty": "Terminal task is active suspended re-chamber, not Class 1 return-to-ground finish or Class 2 no-gather launch.",
+      "total_attempts": 8,
+      "modeled_seconds": 420
+    },
+    {
+      "name": "Single-leg knee-drive jump to two-foot stick",
+      "side": "takeoff leg",
+      "bilateral": 1,
+      "execution": "Push vertically from the named leg while driving the other bent knee upward; land softly on two feet and hold 2 s. Keep height controlled and do not turn in flight.",
+      "job": "Coordinate stance-leg extension with free-thigh acceleration while simplifying landing support.",
+      "gate": "Use lower height or a small rear-toe assist at takeoff instead if force production becomes a balance struggle; record assistance.",
+      "novelty": "Unilateral vertical takeoff plus free-knee drive to bilateral landing; no lateral travel, scissor exchange or airborne rotation.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Low inward crescent shadow sweep",
+      "side": "sweeping leg",
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "With a soft knee, sweep the low free foot from slightly outside toward the midline in a small inward arc, coordinated with a comfortable support-foot/pelvic turn. Finish by folding the knee and placing the foot down. No crossing beyond a controllable midline range.",
+      "job": "Express an inward thigh/adductor sweep that helps recover the leg after rotational extension.",
+      "gate": "Use a bent-knee inward sweep instead at the same dose if the longer lever pulls at the groin; never force a high or locked-knee crescent.",
+      "novelty": "New inward sweeping action, rather than outward roundhouse projection; terminal lever and tissue demand are explicitly limited.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Supported rapid knee-flexion recoil",
+      "side": "moving leg",
+      "grounded": 1,
+      "execution": "Stand with fingertip support and the moving thigh nearly vertical. Briskly fold that knee to bring the heel toward the back of the thigh through a comfortable range, then lower slowly. Keep the hip quiet and avoid a ballistic heel strike.",
+      "job": "Isolate knee-flexor acceleration for the folding phase of re-chamber without another whole kick.",
+      "gate": "Use a smaller fold instead for hamstring cramp, back arching or hip swing; symptoms end the task.",
+      "novelty": "Rapid isolated knee flexion; no hip lift, transverse sweep or support exchange.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Forward support-leg hop with chamber held",
+      "side": "support leg",
+      "unilateral": 1,
+      "execution": "Hold the free knee in a low bent chamber and make one very short forward hop on the support leg, landing on that same leg with the chamber maintained. Hold 2 s; travel no more than 0.5 m, no turn.",
+      "job": "Keep the supporting leg organized while the other leg remains unavailable to catch bodyweight during recoil.",
+      "gate": "Use a smaller hop or an assisted free-toe touchdown instead if the chamber drops or another hop is needed; record the assistance.",
+      "novelty": "Forward same-leg support task with a suspended free thigh, unlike Class 2 lateral hop with the free leg available.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    1,
+    2,
+    1
+  ],
+  "p_jobs": [
+    "Maintain stance-leg push without spending extra sets before the chamber-strength emphasis.",
+    "Load posterior-chain control that steadies the support hip during free-leg recoil.",
+    "Supply adductor/lateral hip capacity for the inward sweep and return to stance.",
+    "Maintain a controlled hip-turn strength contribution while reducing its set share from Class 3.",
+    "Main strength investment: active chamber lifting and controlled lowering, separate from rapid recoil skill.",
+    "Support the flexed-knee ankle base while the free leg is suspended."
+  ],
+  "s_jobs": "Airplane work reinforces pelvic control during a raised-leg task; short-foot holds support the forefoot base without adding calf fatigue.",
+  "readiness": "The coach must qualify low suspended-chamber balance and a pain-free inward arc. No high crescent, locked-knee kick, repeated snap or fast stretch is prescribed. If recoil cannot be controlled, reduce the lever/height inside the same slot.",
+  "strength_reason": "Class 3 allocated two rounds to hip internal rotation. Shift that second round to P5 hip flexion: [1,1,1,1,2,1], still 92 working reps. This is a change in strength job emphasis, not an automatic band-load increase.",
+  "exposure_note": "Eight flight/landings: four unilateral takeoffs to bilateral landings plus four same-leg hop landings. Twenty grounded efforts include twelve kick/sweep actions; the re-chamber hold is part of each kick, not an extra rep.",
+  "space": "Keep vertical jumps in a cleared footprint, hops within 0.5 m and kick sweeps below hip height with clear space all around; retain at least 2 m recovery clearance in the 10 m lane.",
+  "progression": "After held-start work, the new learning objective is active free-leg recovery. Total landings stay at eight, with four now unilateral; that redistribution needs independent landing qualification and is not an inferred progression pass.",
+  "audit": "A second full roundhouse variant was avoided: the supporting drills separate thigh lift, inward sweep, knee folding and stance control. Only four inward sweeps are prescribed, with a shorter-lever replacement. The main kick stops in a low re-chamber rather than an extreme end position.",
+  "prescribed_summary": {
+    "bilateral_landings": 4,
+    "unilateral_landings": 4,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 12,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 92,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4457,
+    "planning_minutes_excluding_existing_preparation": [
+      75,
+      82
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      180,
+      420,
+      210,
+      210,
+      210,
+      210
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      281,
+      487,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 4 and actual hip/adductor response before Class 5, then design lateral arrival into rotational force; audit/save Class 5 before continuing.",
+  "reviewed_previous_at_authoring_sha256": "e6f3eded05e764222ea321ba5af70932c49d04c718581ac421d363f3797c4d5b",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "5723ca81aedf3564011623b1729c5b72b0749f844befb2f49c9232e5908d6b0f",
+  "final_previous_class_sha256": "c9062fd632e188f70d2da6f25c4c6dc4be1a2ca430197c5516ff77ec8efdbd3c"
+}

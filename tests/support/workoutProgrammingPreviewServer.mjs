@@ -11,7 +11,7 @@ import { scriptedInterpretationRegistry, syntheticInterpretationTaxonomy, withSy
 import { exerciseProposalPreviewFixtures } from '../../backend/platform/__tests__/workoutExerciseProposalPreviewFixtures.js'
 import { researchWorkoutExerciseGap } from '../../backend/platform/workoutExerciseGapResearch.js'
 import { proposeWorkoutExercise, listWorkoutExerciseProposals, reviewWorkoutExerciseProposal, acceptWorkoutExerciseProposal, stageWorkoutExerciseProposal, loadWorkoutExerciseProposalRevision } from '../../backend/platform/workoutExerciseProposal.js'
-import { loadStagedCanonicalRevision, changeStagedCanonicalRevision } from '../../backend/platform/canonicalCardStagedRevision.js'
+import { loadStagedCanonicalRevision, changeStagedCanonicalRevision, reviewStagedCanonicalRevision } from '../../backend/platform/canonicalCardStagedRevision.js'
 
 // Loopback-only preview. This process never opens a production DB or configures a paid model.
 const express = createRequire(new URL('../../backend/package.json', import.meta.url))('express')
@@ -42,8 +42,9 @@ const pool = { async connect() {
   }, release: (error) => client.release(error) }
 } }
 const app = express()
+let syntheticUserId = '7'
 app.use(express.json({ limit: '1mb' }))
-app.use('/api/coach', (req, _res, next) => { req.platformAuth = { user: { facility_id: '9', id: '7' } }; next() })
+app.use('/api/coach', (req, _res, next) => { req.platformAuth = { user: { facility_id: '9', id: syntheticUserId } }; next() })
 app.get('/api/coach/canonical/rollout-status', (_req, res) => res.json({ data: { coachGeneration: { enabled: true }, aiIntent: { enabled: true } } }))
 const taxonomyV2 = { version: '2.0.0', aliases: [], facets: Object.fromEntries(Object.entries(TAXONOMY_V2_FACETS)
   .map(([key, terms]) => [key, terms.map((term, index) => ({ ...term, id: index + 1, status: 'active', sortOrder: index, metadata: {} }))])) }
@@ -72,6 +73,7 @@ registerWorkoutProgrammingRoutes(app, pool, {
   loadProposalRevision: (_pool, context, id) => loadWorkoutExerciseProposalRevision(exerciseLibrary.pool, context, id),
   loadStagedRevision: (_pool, context, id) => loadStagedCanonicalRevision(exerciseLibrary.pool, context, id),
   changeStagedRevision: (_pool, context, id, input) => changeStagedCanonicalRevision(exerciseLibrary.pool, context, id, input),
+  reviewStagedRevision: (_pool, context, id, input) => reviewStagedCanonicalRevision(exerciseLibrary.pool, context, id, input),
   proposeExercise: async (args) => {
     exerciseLibrary.control.inFlight++; exerciseLibrary.control.lastInput = args.rawInput
     try { return await proposeWorkoutExercise({ ...args, pool: exerciseLibrary.pool, registry: exerciseLibrary.registry }) }
@@ -93,6 +95,7 @@ app.get('/__preview/state', (_req, res) => res.json({ savedCount: database.rows.
 app.post('/__preview/reset', (_req, res) => {
   if (inFlight || interpretation.inFlight || exerciseLibrary.control.inFlight) return res.status(409).json({ message: 'Wait for the current synthetic request to finish.' })
   exerciseLibrary.reset()
+  syntheticUserId = '7'
   database.rows.clear(); lastRequest = null; delayMs = 0
   interpretation.operations = []; interpretation.questions = []; interpretation.delayMs = 0; interpretation.calls = []
   fixtures.options.cards[3].deliveryProfiles[0].coachInstructions = originalSourceInstructions
@@ -105,6 +108,8 @@ app.post('/__preview/exercise-proposals', (req, res) => {
   if (['new_card', 'profile', 'reuse', 'invalid', 'needs_review'].includes(req.body.mode)) exerciseLibrary.control.mode = req.body.mode
   exerciseLibrary.control.delayMs = Math.min(3000, Math.max(0, Number(req.body.delayMs) || 0))
   exerciseLibrary.control.denyLibrary = req.body.denyLibrary === true
+  if (['7', '8', '9'].includes(req.body.syntheticReviewer)) syntheticUserId = req.body.syntheticReviewer
+  if (req.body.completeSyntheticSource === true) exerciseLibrary.staged.useCompleteSyntheticSource()
   if (req.body.changeProfileSource === true) exerciseLibrary.staged.source.description = 'Synthetic published source changed after revision staging.'
   res.json({ configured: true })
 })

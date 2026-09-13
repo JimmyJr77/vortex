@@ -1,0 +1,299 @@
+{
+  "class_number": 5,
+  "effort": "Retreat under control, reopen the hips and recover the opponent’s route.",
+  "brief": "Build from Class 4’s backward brake into orientation change. E1 is a live backpedal-to-turn task. Backward ankle travel, a small backward landing, a planned drop-step, split-stance force and a gap-preservation task support different parts of retreat and recovery. Avoid blind full-speed running backward.",
+  "anchor_protocol": "Coach stands in view on a separate parallel route. Athlete starts at 6 m facing toward the 0 m end and backpedals 1.5 m toward 7.5 m while coach advances slowly on the other route; coach then visibly opens the hips toward one of two forward-diagonal exits. Athlete plants, turns using steps rather than twisting a planted knee, and runs 2 m toward the selected exit, then stops within 2 m. Four trials, two exits each. Coach commits before the retreat ends; when readiness is unknown, begin with the exit body cue already visible and a walking retreat.",
+  "quality_marker": "E1: correct exit, no crossing/tangling of the retreat feet, head/hips reorient together and controlled stop. Record cue timing and retreat speed; a faster departure with a poor turn is not an advance.",
+  "layout": "Use a verified up-to-10 m long × 7 m wide combined bay within the 10 m length; retreat from 6 to 7.5 m and exits return diagonally toward the 0 m end so the turn never needs extra runway beyond 10 m. Mark two 2 m exits with 2 m stopping extensions. Keep coach ≥2 m from the athlete’s path. Backward jumps and pogos use a prechecked empty 2–6 m strip; nobody stands behind the athlete. E6 uses parallel paths and a coach position offset longitudinally, with no physical chase/tag. Full-route width is a requirement, not confirmed inventory: branch stopping extensions can exceed a 4 m bay. Compact same-drill option: keep the 1.5 m retreat but reduce E1 to a 1 m diagonal exit plus 1 m stop; E4 likewise uses a 1 m diagonal launch plus 1 m stop, at controlled speed. Keep trial counts and turn directions. Those paired diagonal branches fit a verified 4 m-wide bay with body margins. E1 movement becomes 10 m plus up to 4 m stopping; E4 movement becomes 4 m plus up to 4 m stopping. At setup, mark complete body/landing envelopes, both possible routes, run-off and the coach position; a floor-line diagram alone does not establish clearance. If even the compact footprint is unavailable, resolve the layout before delivery.",
+  "progression": "Previous: Class 4 prescribed short backward stops and a reduced angled landing dose; actual execution unknown. Current: orientation change is introduced at a slow retreat, not by increasing running distance or forcing a late cue. Retain reverse-lunge, hinge, adductor and ankle loads; a single hip-thrust set adds hip-extension support without another full compound block. Advance retreat speed or cue lateness one at a time only after actual clear turns, stops and recovery are reported.",
+  "audit": "Backward movement uses short visible/prechecked routes and a deliberate speed ceiling. Drop-step launch is a planned opening action; the main task opens after retreat momentum, and gap-preservation trains closing rate without a turn. Small backward jumps are kept low and at three attempts. No extra athlete-leader rounds. Next class shifts to controlled closeout, not more retreat speed. Geometry revision: removed the implication that every full-length angled route fits a 4 m-wide rectangle; added a quantified shorter same-drill alternative. Default ledger totals remain the full-route prescription; compact actual travel is logged separately.",
+  "explosive": [
+    {
+      "name": "Backpedal Turn-and-Go Read",
+      "dose": "1 × 4 trials, 2 exits each",
+      "job": "Main reorientation from retreat momentum to a live opponent exit.",
+      "execution": "Backpedal 1.5 m, step-turn toward the body cue, accelerate 2 m, stop in 2 m. Rest 75 s between trials and 90 s before E2. Start slower/cue earlier if feet cross or the turn twists a fixed knee.",
+      "identity": "retreat_momentum_live_hip_open_exit",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 14,
+        "stopping_metres_max": 8,
+        "decision_opportunities_max": 4,
+        "direction_changes_max": 4
+      },
+      "seconds": 403,
+      "source": "partner-backpedal-turn-and-go-cue; short route variant proposed"
+    },
+    {
+      "name": "Backward Travelling Pogo Hops",
+      "dose": "1 × 6 bilateral contacts",
+      "job": "Produce repeated small rearward ankle impulses while preserving an upright torso; unlike reciprocal line hops, every landing travels backward.",
+      "execution": "Both feet together, six low contacts over no more than 1.5 m, eyes forward and route prechecked. Stop after six. Rest 60 s before E3; reduce travel for heel slap or leaning backward.",
+      "identity": "bilateral_unidirectional_rearward_travelling_pogo",
+      "account": {
+        "bilateral_landings": 6
+      },
+      "seconds": 130,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Backward Broad Jump to Stick",
+      "dose": "1 × 3 jumps",
+      "job": "Accept a small backward displacement over both feet before asking the athlete to redirect from retreat.",
+      "execution": "From parallel feet, make a short low backward jump into a clear landing area and hold 2 s. No maximum distance. Rest 45 s between jumps and 60 s before E4; shorten distance for stepping/falling backward.",
+      "identity": "bilateral_rearward_horizontal_jump_terminal_stick",
+      "account": {
+        "bilateral_landings": 3
+      },
+      "seconds": 228,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Drop-Step Diagonal Launch",
+      "dose": "1 × 2 each exit × 2 m",
+      "job": "Practice opening the hip and aligning the first drive step before adding a live retreat cue.",
+      "execution": "From facing stance, step the exit-side foot back/open, turn through the feet, accelerate 2 m diagonally and stop in 2 m. No shuffle or crossover chase. Rest 45 s between attempts and 60 s before E5. Reduce exit angle for knee twisting.",
+      "identity": "planned_drop_step_opening_to_diagonal_acceleration",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 8,
+        "stopping_metres_max": 8
+      },
+      "seconds": 279,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Split-Squat Jump to Same-Stance Stick",
+      "dose": "1 × 2 per lead leg",
+      "job": "Rapid lead-leg extension with an asymmetric landing base, supporting the push out of an opened hip position.",
+      "execution": "Jump upward from a shallow split stance and land in the same stance; both feet contact, front leg accepts the bias. Hold 2 s. Rest 30 s between jumps, 60 s before E6. Lower height for pelvic rotation or unstable front-foot contact.",
+      "identity": "split_stance_vertical_jump_same_stance_landing",
+      "account": {
+        "bilateral_landings": 4
+      },
+      "seconds": 234,
+      "source": "split-squat-jump-to-stick; same-stance contract"
+    },
+    {
+      "name": "Gap-Preservation Retreat",
+      "dose": "1 × 3 bouts, ≤4 s and ≤2 m each",
+      "job": "Read closing rate to preserve a useful defensive gap instead of following only a direction.",
+      "execution": "Coach advances once then eases/stops on the separate path; athlete retreats only far enough to keep the marked starting longitudinal gap, then brakes. Cap retreat at 2 m plus 1 m stopping. No turn or chase. Rest 60 s between bouts and 90 s before strength. Slow coach approach if the athlete runs out of space.",
+      "identity": "closing_rate_gap_control_retreat_without_turn",
+      "account": {
+        "locomotor_attempts": 3,
+        "rapid_metres": 6,
+        "stopping_metres_max": 3,
+        "decision_opportunities_max": 3
+      },
+      "seconds": 288,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    }
+  ],
+  "stabilization": [
+    {
+      "name": "Mini-Band Lateral Walk — light",
+      "dose": "1 × 4 steps each direction",
+      "job": "Light lateral hip control while the stance opens and closes.",
+      "execution": "Secure a light band loop above the knees, shallow athletic stance; take short steps with feet apart and pelvis level. Reduce tension for trunk sway. If no suitable loop, use standing manual-resistance hip abduction instead, 1 × 4/side. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 8,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 150,
+      "identity": "hip"
+    },
+    {
+      "name": "Heel-Dig Bridge Hold — light bilateral",
+      "dose": "2 × 10 s",
+      "job": "Easy heel-driven posterior-chain position before retreat-supporting strength; keep effort low.",
+      "execution": "On a comfortable floor surface, heels down and knees bent; lift hips only to a stacked trunk and gently pull heels toward the hips without moving them. Keep easy and breathe; lower height for cramp or back extension. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 0,
+        "hold_seconds": 20,
+        "bouts": 2
+      },
+      "seconds": 150,
+      "identity": "bridge"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Reverse Lunge — dumbbells",
+      "dose": "2 × 6/side",
+      "job": "Retreat-step acceptance and front-leg drive to recover forward position.",
+      "execution": "Step one foot backward, lower under control, then use the front leg to return to standing. Keep the front heel down; shorten the step/load for wobble or push-off from the rear toes. Rest 90 s between sides; 120 s between rounds and 120 s before the next exercise.",
+      "identity": "reverse",
+      "source": "reverse-lunge",
+      "account": {
+        "rounds": 2,
+        "bouts": 4,
+        "dynamic_reps": 24,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 690
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "dose": "1 × 6 bilateral",
+      "job": "Retain hip-hinge control for braking backward momentum without excessive lumbar motion.",
+      "execution": "Hinge from standing with soft knees; keep weights close and stop descent where the pelvis/spine remain controlled. Finish tall without leaning back. Reduce range/load for rounding. Rest 120 s before the next exercise.",
+      "identity": "rdl",
+      "source": "romanian-deadlift",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 6,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 284
+    },
+    {
+      "name": "Hip Thrust — sandbag",
+      "dose": "1 × 8 bilateral",
+      "job": "Hip-extension force to finish the first recovery step, limited to one set.",
+      "execution": "Support upper back on a stable bench, secure the sandbag across the hip crease, drive through both feet and finish with ribs stacked. No lumbar arch; reduce load for pelvic loss. If bench fit fails, use a floor glute bridge instead, same dose, recording the shorter range. Rest 120 s before the next exercise.",
+      "identity": "thrust",
+      "source": "hip-thrust",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 8,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 292
+    },
+    {
+      "name": "Copenhagen Plank — Short Lever",
+      "dose": "1 × 15 s/side",
+      "job": "Support pelvic/adductor control as the feet open from a facing stance.",
+      "execution": "Upper knee bent about 90 degrees on a stable bench, forearm under shoulder; lift the lower leg and keep pelvis level. Select a short lever with about 5 seconds clean hold reserve. Stop for groin, shoulder or knee pain. If bench/support is unsuitable, use side-lying hip adduction instead, 1 × 8/side at 2–3 RIR; record changed hold/repetition totals. For that replacement, prepare with 1 × 4 easy reps/side instead of the two 5 s preparation holds; retain side rest. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "copenhagen",
+      "source": "copenhagen-plank-short-lever",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 0,
+        "hold_seconds": 30
+      },
+      "preparation": {
+        "dose": "1 × 5 s/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 0,
+        "hold_seconds": 10,
+        "bouts": 2
+      },
+      "seconds": 295
+    },
+    {
+      "name": "Single-Leg Calf Raise — supported standing, dumbbell",
+      "dose": "1 × 8/side",
+      "job": "Ankle push after the body reorients into pursuit.",
+      "execution": "Stand on flat floor with a nearly straight knee and light hand support; raise the heel, pause briefly and lower for 2 seconds. No bounce or ankle roll. Reduce load when heel height declines. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "calf",
+      "source": "single-leg-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bilateral, bent-knee",
+      "dose": "1 × 10 bilateral",
+      "job": "Bent-knee ankle force during low retreat and plant positions.",
+      "execution": "Use a stable bench, knees near right angles, secure dumbbells on distal thighs above knees. Lower heels for 2 seconds to the floor, pause, then rise. Reduce load for bouncing or shortened range. Rest 60 s before the next exercise.",
+      "identity": "soleus",
+      "source": "seated-dumbbell-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 225
+    }
+  ],
+  "totals": {
+    "explosive": {
+      "locomotor_attempts": 11,
+      "rapid_metres": 28,
+      "stopping_metres_max": 19,
+      "decision_opportunities_max": 7,
+      "direction_changes_max": 4,
+      "bilateral_landings": 13
+    },
+    "stabilization": {
+      "dynamic_reps": 8,
+      "hold_seconds": 20,
+      "bouts": 4
+    },
+    "primary": {
+      "rounds": 7,
+      "bouts": 11,
+      "dynamic_reps": 64,
+      "hold_seconds": 30
+    },
+    "preparation": {
+      "dynamic_reps": 27,
+      "hold_seconds": 10,
+      "bouts": 9
+    }
+  },
+  "time": {
+    "section_minutes": [
+      26.0,
+      5.0,
+      35.5
+    ],
+    "booking_excluding_Access_Prepare_1": [
+      75,
+      90
+    ]
+  },
+  "observed_work": null,
+  "reviewed_before_design": {
+    "classes/class_04.md": "217b701bb7bb245d86bca83d8bd2c05e6aaa9ab023df6bce0081a08d191658a9",
+    "progression_ledger.md": "c19b13e623d88d7852c6dd2779b1c2dc418b88bde6388dfd3bad6f9285f42e6e",
+    "athlete_feedback.md": "27b4ee2723ee08a45a58624ee8f32607f267c2ee18478008d64f092adde4c0e1",
+    "progress.json": "79966b94515f15996b8f61855c73268f11ff0e1d1498d33ad2cbc3c5dec93499",
+    "curriculum.md": "63c25d41077ed6191a0d585da5f81bafcbcbf6ac0d164759fd72bf61e2ee4276"
+  },
+  "post_sequence_audit": {
+    "drill_identity_review": "manual comparison of support, contraction, trajectory and decision rule; names alone are not the uniqueness evidence",
+    "geometry_review": "full route and quantified same-drill compact option",
+    "replacement_review": "no substitution duplicates an existing primary slot; holds and dynamic alternatives accounted separately"
+  }
+}

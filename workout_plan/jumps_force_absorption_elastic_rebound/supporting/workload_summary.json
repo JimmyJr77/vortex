@@ -1,0 +1,1058 @@
+{
+  "scope": "Prescribed scenarios only, not actual training or a cumulative target. Choose one complete route per class; never sum alternative routes. Support/load/range adjustments without changed reps preserve nominal counts but change the task. Stopped work must be logged separately.",
+  "classes": [
+    {
+      "class_number": 1,
+      "class_file": "classes/class_01.md",
+      "listed_workload": {
+        "landing_events": 37,
+        "bilateral": 23,
+        "single_leg": 14,
+        "single_leg_per_side": 7,
+        "limb_contacts": 60,
+        "rebound_transitions": 21,
+        "terminal_landings": 16,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 74,
+        "primary_working_rounds": 9,
+        "primary_working_bouts": 12,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1063,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2210,
+        "primary_entry_seconds": [
+          492,
+          394,
+          379,
+          379,
+          336,
+          230
+        ],
+        "movement_recovery_seconds": 3536,
+        "estimated_minutes": [
+          75,
+          85
+        ],
+        "maximum_route_extra_seconds": 0,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "full E3",
+          "landings": 37,
+          "bilateral": 23,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 21,
+          "terminal_landings": 16,
+          "limb_contacts": 60,
+          "movement_recovery_seconds": 3536
+        },
+        {
+          "route": "E3 two jumps per set",
+          "landings": 34,
+          "bilateral": 20,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 18,
+          "terminal_landings": 16,
+          "limb_contacts": 54,
+          "movement_recovery_seconds": 3533
+        }
+      ]
+    },
+    {
+      "class_number": 2,
+      "class_file": "classes/class_02.md",
+      "listed_workload": {
+        "landing_events": 37,
+        "bilateral": 23,
+        "single_leg": 14,
+        "single_leg_per_side": 7,
+        "limb_contacts": 60,
+        "rebound_transitions": 21,
+        "terminal_landings": 16,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 74,
+        "primary_working_rounds": 9,
+        "primary_working_bouts": 12,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1063,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2210,
+        "primary_entry_seconds": [
+          492,
+          394,
+          379,
+          379,
+          336,
+          230
+        ],
+        "movement_recovery_seconds": 3536,
+        "estimated_minutes": [
+          75,
+          85
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "full E3",
+          "landings": 37,
+          "bilateral": 23,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 21,
+          "terminal_landings": 16,
+          "limb_contacts": 60,
+          "movement_recovery_seconds": 3536
+        },
+        {
+          "route": "E3 two jumps per set",
+          "landings": 34,
+          "bilateral": 20,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 18,
+          "terminal_landings": 16,
+          "limb_contacts": 54,
+          "movement_recovery_seconds": 3533
+        }
+      ]
+    },
+    {
+      "class_number": 3,
+      "class_file": "classes/class_03.md",
+      "listed_workload": {
+        "landing_events": 37,
+        "bilateral": 23,
+        "single_leg": 14,
+        "single_leg_per_side": 7,
+        "limb_contacts": 60,
+        "rebound_transitions": 21,
+        "terminal_landings": 16,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 74,
+        "primary_working_rounds": 9,
+        "primary_working_bouts": 12,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1063,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2210,
+        "primary_entry_seconds": [
+          492,
+          394,
+          379,
+          379,
+          336,
+          230
+        ],
+        "movement_recovery_seconds": 3536,
+        "estimated_minutes": [
+          75,
+          85
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 familiar or conditionally increased amplitude",
+          "landings": 37,
+          "bilateral": 23,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 21,
+          "terminal_landings": 16,
+          "limb_contacts": 60,
+          "movement_recovery_seconds": 3536
+        },
+        {
+          "route": "E3 two jumps per set",
+          "landings": 34,
+          "bilateral": 20,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 18,
+          "terminal_landings": 16,
+          "limb_contacts": 54,
+          "movement_recovery_seconds": 3533
+        }
+      ]
+    },
+    {
+      "class_number": 4,
+      "class_file": "classes/class_04.md",
+      "listed_workload": {
+        "landing_events": 31,
+        "bilateral": 19,
+        "single_leg": 12,
+        "single_leg_per_side": 6,
+        "limb_contacts": 50,
+        "rebound_transitions": 15,
+        "terminal_landings": 16,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1029,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3296,
+        "estimated_minutes": [
+          71,
+          81
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 three jumps",
+          "landings": 31,
+          "bilateral": 19,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 15,
+          "terminal_landings": 16,
+          "limb_contacts": 50,
+          "movement_recovery_seconds": 3296
+        },
+        {
+          "route": "E3 two jumps",
+          "landings": 29,
+          "bilateral": 17,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 13,
+          "terminal_landings": 16,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3294
+        }
+      ]
+    },
+    {
+      "class_number": 5,
+      "class_file": "classes/class_05.md",
+      "listed_workload": {
+        "landing_events": 32,
+        "bilateral": 16,
+        "single_leg": 16,
+        "single_leg_per_side": 8,
+        "limb_contacts": 48,
+        "rebound_transitions": 15,
+        "terminal_landings": 17,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1114,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3381,
+        "estimated_minutes": [
+          73,
+          83
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 two lateral-stop sets; E4 three jumps",
+          "landings": 32,
+          "bilateral": 16,
+          "single_leg": 16,
+          "single_leg_per_side": 8,
+          "rebound_transitions": 15,
+          "terminal_landings": 17,
+          "limb_contacts": 48,
+          "movement_recovery_seconds": 3381
+        },
+        {
+          "route": "E3 two lateral-stop sets; E4 two jumps",
+          "landings": 30,
+          "bilateral": 14,
+          "single_leg": 16,
+          "single_leg_per_side": 8,
+          "rebound_transitions": 13,
+          "terminal_landings": 17,
+          "limb_contacts": 44,
+          "movement_recovery_seconds": 3379
+        },
+        {
+          "route": "E3 one lateral-stop set; E4 three jumps",
+          "landings": 28,
+          "bilateral": 16,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 44,
+          "movement_recovery_seconds": 3181
+        },
+        {
+          "route": "E3 one lateral-stop set; E4 two jumps",
+          "landings": 26,
+          "bilateral": 14,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 40,
+          "movement_recovery_seconds": 3179
+        }
+      ]
+    },
+    {
+      "class_number": 6,
+      "class_file": "classes/class_06.md",
+      "listed_workload": {
+        "landing_events": 32,
+        "bilateral": 20,
+        "single_leg": 12,
+        "single_leg_per_side": 6,
+        "limb_contacts": 52,
+        "rebound_transitions": 18,
+        "terminal_landings": 14,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1139,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3406,
+        "estimated_minutes": [
+          73,
+          83
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 connected forward; E4 three jumps",
+          "landings": 32,
+          "bilateral": 20,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 18,
+          "terminal_landings": 14,
+          "limb_contacts": 52,
+          "movement_recovery_seconds": 3406
+        },
+        {
+          "route": "E3 connected forward; E4 two jumps",
+          "landings": 30,
+          "bilateral": 18,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 16,
+          "terminal_landings": 14,
+          "limb_contacts": 48,
+          "movement_recovery_seconds": 3404
+        },
+        {
+          "route": "E3 vertical-stop replacement; E4 three jumps",
+          "landings": 32,
+          "bilateral": 20,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 15,
+          "terminal_landings": 17,
+          "limb_contacts": 52,
+          "movement_recovery_seconds": 3381
+        },
+        {
+          "route": "E3 vertical-stop replacement; E4 two jumps",
+          "landings": 30,
+          "bilateral": 18,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 13,
+          "terminal_landings": 17,
+          "limb_contacts": 48,
+          "movement_recovery_seconds": 3379
+        }
+      ]
+    },
+    {
+      "class_number": 7,
+      "class_file": "classes/class_07.md",
+      "listed_workload": {
+        "landing_events": 32,
+        "bilateral": 16,
+        "single_leg": 16,
+        "single_leg_per_side": 8,
+        "limb_contacts": 48,
+        "rebound_transitions": 19,
+        "terminal_landings": 13,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1094,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3361,
+        "estimated_minutes": [
+          73,
+          83
+        ],
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 connected lateral full; E4 three jumps",
+          "landings": 32,
+          "bilateral": 16,
+          "single_leg": 16,
+          "single_leg_per_side": 8,
+          "rebound_transitions": 19,
+          "terminal_landings": 13,
+          "limb_contacts": 48,
+          "movement_recovery_seconds": 3361
+        },
+        {
+          "route": "E3 connected lateral full; E4 two jumps",
+          "landings": 30,
+          "bilateral": 14,
+          "single_leg": 16,
+          "single_leg_per_side": 8,
+          "rebound_transitions": 17,
+          "terminal_landings": 13,
+          "limb_contacts": 44,
+          "movement_recovery_seconds": 3359
+        },
+        {
+          "route": "E3 four lateral stops; E4 three jumps",
+          "landings": 28,
+          "bilateral": 16,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 44,
+          "movement_recovery_seconds": 3181
+        },
+        {
+          "route": "E3 four lateral stops; E4 two jumps",
+          "landings": 26,
+          "bilateral": 14,
+          "single_leg": 12,
+          "single_leg_per_side": 6,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 40,
+          "movement_recovery_seconds": 3179
+        }
+      ]
+    },
+    {
+      "class_number": 8,
+      "class_file": "classes/class_08.md",
+      "listed_workload": {
+        "landing_events": 28,
+        "bilateral": 18,
+        "single_leg": 10,
+        "single_leg_per_side": 5,
+        "limb_contacts": 46,
+        "rebound_transitions": 17,
+        "terminal_landings": 11,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1032,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3299,
+        "estimated_minutes": [
+          71,
+          82
+        ],
+        "maximum_route_extra_seconds": 40,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 connected lateral; E5 connected forward; E4 three jumps",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 17,
+          "terminal_landings": 11,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3299
+        },
+        {
+          "route": "E3 connected lateral; E5 connected forward; E4 two jumps",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 11,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3297
+        },
+        {
+          "route": "E3 connected lateral; E5 held forward; E4 three jumps",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3329
+        },
+        {
+          "route": "E3 connected lateral; E5 held forward; E4 two jumps",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3327
+        },
+        {
+          "route": "E3 held lateral; E5 connected forward; E4 three jumps",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3309
+        },
+        {
+          "route": "E3 held lateral; E5 connected forward; E4 two jumps",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3307
+        },
+        {
+          "route": "E3 held lateral; E5 held forward; E4 three jumps",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 15,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3339
+        },
+        {
+          "route": "E3 held lateral; E5 held forward; E4 two jumps",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 11,
+          "terminal_landings": 15,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3337
+        }
+      ]
+    },
+    {
+      "class_number": 9,
+      "class_file": "classes/class_09.md",
+      "listed_workload": {
+        "landing_events": 28,
+        "bilateral": 18,
+        "single_leg": 10,
+        "single_leg_per_side": 5,
+        "limb_contacts": 46,
+        "rebound_transitions": 15,
+        "terminal_landings": 13,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1012,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3279,
+        "estimated_minutes": [
+          71,
+          82
+        ],
+        "maximum_route_extra_seconds": 30,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 three jumps at selected amplitude; E4 connected forward",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3279
+        },
+        {
+          "route": "E3 three jumps at selected amplitude; E4 held forward",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 15,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3309
+        },
+        {
+          "route": "E3 two jumps; E4 connected forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3277
+        },
+        {
+          "route": "E3 two jumps; E4 held forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 11,
+          "terminal_landings": 15,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3307
+        }
+      ]
+    },
+    {
+      "class_number": 10,
+      "class_file": "classes/class_10.md",
+      "listed_workload": {
+        "landing_events": 28,
+        "bilateral": 18,
+        "single_leg": 10,
+        "single_leg_per_side": 5,
+        "limb_contacts": 46,
+        "rebound_transitions": 15,
+        "terminal_landings": 13,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1013,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3280,
+        "estimated_minutes": [
+          71,
+          82
+        ],
+        "maximum_route_extra_seconds": 30,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 four jumps; E4 connected forward",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 13,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3280
+        },
+        {
+          "route": "E3 four jumps; E4 held forward",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 15,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3310
+        },
+        {
+          "route": "E3 three jumps; E4 connected forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3278
+        },
+        {
+          "route": "E3 three jumps; E4 held forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 11,
+          "terminal_landings": 15,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3308
+        }
+      ]
+    },
+    {
+      "class_number": 11,
+      "class_file": "classes/class_11.md",
+      "listed_workload": {
+        "landing_events": 30,
+        "bilateral": 16,
+        "single_leg": 14,
+        "single_leg_per_side": 7,
+        "limb_contacts": 46,
+        "rebound_transitions": 17,
+        "terminal_landings": 13,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1221,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3488,
+        "estimated_minutes": [
+          75,
+          85
+        ],
+        "maximum_route_extra_seconds": 30,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 full connected lateral; E5 connected forward",
+          "landings": 30,
+          "bilateral": 16,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 17,
+          "terminal_landings": 13,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3488
+        },
+        {
+          "route": "E3 full connected lateral; E5 held forward",
+          "landings": 30,
+          "bilateral": 16,
+          "single_leg": 14,
+          "single_leg_per_side": 7,
+          "rebound_transitions": 15,
+          "terminal_landings": 15,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3518
+        },
+        {
+          "route": "E3 smaller connected lateral; E5 connected forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 11,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3298
+        },
+        {
+          "route": "E3 smaller connected lateral; E5 held forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3328
+        },
+        {
+          "route": "E3 four held lateral; E5 connected forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 13,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3308
+        },
+        {
+          "route": "E3 four held lateral; E5 held forward",
+          "landings": 26,
+          "bilateral": 16,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 11,
+          "terminal_landings": 15,
+          "limb_contacts": 42,
+          "movement_recovery_seconds": 3338
+        }
+      ]
+    },
+    {
+      "class_number": 12,
+      "class_file": "classes/class_12.md",
+      "listed_workload": {
+        "landing_events": 33,
+        "bilateral": 23,
+        "single_leg": 10,
+        "single_leg_per_side": 5,
+        "limb_contacts": 56,
+        "rebound_transitions": 17,
+        "terminal_landings": 16,
+        "throws": 0,
+        "sprints": 0,
+        "external_drops": 0,
+        "loaded_jumps": 0,
+        "stabilization_holds_seconds": 30,
+        "stabilization_repetitions": 12,
+        "primary_working_reps": 60,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 10,
+        "primary_preparation_reps": 36
+      },
+      "timing": {
+        "explosive_seconds": 1059,
+        "stabilization_seconds": 263,
+        "primary_seconds": 2004,
+        "primary_entry_seconds": [
+          492,
+          250,
+          379,
+          379,
+          336,
+          168
+        ],
+        "movement_recovery_seconds": 3326,
+        "estimated_minutes": [
+          72,
+          82
+        ],
+        "maximum_route_extra_seconds": 0,
+        "access_prepare_minutes": null,
+        "full_session_minutes": null
+      },
+      "actual_results": null,
+      "mutually_exclusive_route_scenarios": [
+        {
+          "route": "E3 three sets of three",
+          "landings": 33,
+          "bilateral": 23,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 17,
+          "terminal_landings": 16,
+          "limb_contacts": 56,
+          "movement_recovery_seconds": 3326
+        },
+        {
+          "route": "E3 two sets of three",
+          "landings": 30,
+          "bilateral": 20,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 15,
+          "terminal_landings": 15,
+          "limb_contacts": 50,
+          "movement_recovery_seconds": 3200
+        },
+        {
+          "route": "E3 two sets of two",
+          "landings": 28,
+          "bilateral": 18,
+          "single_leg": 10,
+          "single_leg_per_side": 5,
+          "rebound_transitions": 13,
+          "terminal_landings": 15,
+          "limb_contacts": 46,
+          "movement_recovery_seconds": 3198
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,418 @@
+{
+  "n": 12,
+  "effort": "Revisit the original ankle-spring marker, apply controlled stance-force tasks and establish an honest end-of-curriculum gym record.",
+  "brief": "E1 repeats the original marker under its original conditions before fatigue. Three new low-dose receiving constraints examine shared-to-split, lateral single-leg push to shared receiving and force from a paused single-leg start. Two familiar planted-foot hip-drive tasks close the explosive work without more landings. Familiar light control and six one-round strength roles support interpretation without manufacturing a final workload peak.",
+  "anchor": "E1",
+  "marker": "Repeat Class 1's two sets of eight stationary bilateral ankle pogos: hands on hips, low height, soft knees, same surface/shoes where recorded, 60 s after each set. Count clean centred landings with stable rhythm and no progressive deep knee bend/trunk drift. Compare with Class 1 only if actual compatible observations exist; otherwise record a new baseline and compare the two current sets only.",
+  "review": "Class 11 prescribed no flight, 46 brief rapid-force efforts and six primary rounds; actual response is unknown. The full saved sequence and initial Class 1 anchor were reviewed. Class 12 deliberately repeats three explosive defaults for anchor/skill continuity while adding three small related receiving variants. Primary work stays at six rounds rather than automatically restoring the initial nine-round workload.",
+  "sequence": "E1 is unchanged from the initial marker and stays first. E2–E4 have only two attempts per stated stance/side and full resets. E5/E6 deliberately return known hip-force tasks with feet planted; they are not presented as unique new drills.",
+  "E": [
+    {
+      "name": "Stationary Bilateral Ankle Pogo",
+      "identity": "stationary_bilateral_pogo",
+      "family": "bilateral ankle rebound",
+      "library_slug": "ankle-pogo-in-place",
+      "sets": 2,
+      "reps": 8,
+      "sides": 1,
+      "unit": "hops",
+      "footfalls": [
+        2
+      ],
+      "rest": 60,
+      "t": 1,
+      "job": "Repeat the original ankle-spring marker under matched conditions to distinguish a real recorded change from a different task.",
+      "cue": "Hands on hips, small centred two-foot bounces, knees soft and ankles free. Record clean contacts within each set; stop for drift, progressive knee bend or rhythm loss. Lower amplitude for control and label changed conditions rather than forcing a comparison."
+    },
+    {
+      "name": "Two-Foot Forward Jump to Split-Stance Stick",
+      "identity": "bilateral_forward_to_split",
+      "family": "shared push to asymmetric receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per receiving lead-leg stance",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Receive a small shared forward push in a controlled split base, assigning a clear lead/trail support role.",
+      "cue": "Parallel two-foot start, modest forward jump, place feet in a short split stance together and hold 2 s with pelvis forward. No long split, twist or second jump. Shorten distance/stance if front knee or rear ankle alignment is lost."
+    },
+    {
+      "name": "Single-Leg Lateral Jump to Two-Foot Landing",
+      "identity": "sl_lateral_to_bilateral",
+      "family": "unilateral frontal push with shared receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per takeoff leg",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Express a short lateral stance-leg push while both legs share the receiving load.",
+      "cue": "Start on one foot, push a small distance outward, land on both feet parallel beneath the body and hold 2 s. Face forward with no crossover or turn. Reduce distance for reaching or trunk lean."
+    },
+    {
+      "name": "Paused Single-Leg Squat Jump to Two-Foot Landing",
+      "identity": "paused_sl_squat_to_bilateral",
+      "family": "unilateral rapid force from stillness",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per takeoff leg",
+      "footfalls": [
+        2
+      ],
+      "rest": 120,
+      "gap": 20,
+      "t": 5,
+      "job": "Produce a controlled one-leg push from a still partial squat, separating force initiation from countermovement assistance.",
+      "cue": "Hold a small single-leg knee/hip bend for 2 s, push quickly to a modest height without another dip, receive on both feet and hold 2 s. Use a shallower start for control; no maximum-height target. An unstable pause is a fault, not a reason for extra attempts."
+    },
+    {
+      "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+      "identity": "split_stance_forward_scoop",
+      "family": "asymmetric hip drive with pelvic control",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "throws per lead-leg stance",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 20,
+      "t": 2,
+      "job": "Retain a familiar split-base forward hip-force expression after the receiving tasks, without another landing demand.",
+      "cue": "Use Class 6's short split stance and light ball; shallow dip and fast forward scoop with both feet planted and pelvis facing ahead. No rotation, catch or step. Reduce load for an arm-only heave/back arch; retrieve by walking after the ball stops."
+    },
+    {
+      "name": "Two-Hand Kettlebell Swing",
+      "identity": "two_hand_kb_swing",
+      "family": "bilateral ballistic hip extension",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 5,
+      "sides": 1,
+      "unit": "swings",
+      "footfalls": [],
+      "rest": 90,
+      "t": 2,
+      "job": "Revisit the original planted-foot ballistic hip-drive skill with a familiar complete swing cycle.",
+      "cue": "Two hands, stable parallel feet, light-to-moderate bell chosen for crisp speed. Hinge and snap tall; bell floats no higher than chest, no arm lifting/back arch. Park after five. Use actual prior load only if recorded and appropriate; it is not a mandated increase."
+    }
+  ],
+  "S": [
+    {
+      "name": "Short-Foot Drill",
+      "identity": "standing_short_foot_target",
+      "library_slug": "short-foot-drill",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "five-second holds",
+      "rest": 30,
+      "gap": 3,
+      "t": 5,
+      "job": "Retain the original light arch-control role for a stable contact and lifting platform.",
+      "cue": "Both feet supported, target one arch at a time, long toes and heel grounded. Relax fully between holds. Use seated execution instead for cramping or toe gripping; do not increase effort to make the final class harder."
+    },
+    {
+      "name": "Side-Lying Hip Abduction",
+      "identity": "side_lying_abduction",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 5,
+      "job": "Retain the original low-fatigue hip-abductor support role for pelvic control.",
+      "cue": "Pelvis stacked, bottom knee bent, top leg straight and slightly behind trunk; lift 2 s, hold 1 s, lower 2 s. Reduce range for rolling or hip hike; bodyweight only and at least five clean reps available."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Record a familiar challenging stance-force set on each leg under the original exercise geometry.",
+      "key": "split",
+      "decision": "Original Class 1 2 × 6 per leg → final 1 × 6 per leg, retaining Class 11's smaller working allocation. Compare first-set load/quality only if actual prior geometry/effort records exist; different preceding workloads limit interpretation."
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Record a familiar controlled hip-hinge strength set without a final volume peak.",
+      "key": "rdl",
+      "decision": "Original 2 × 6 → final 1 × 6; keep the established tempo and actual suitable range. This is consolidation, not an earned heavier load."
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Record knee-flexed ankle force with the original seated angle/heel range where actual setup is known.",
+      "key": "soleus",
+      "decision": "Original 2 × 8 → final 1 × 8. Compare compatible first-set execution/load cautiously; no extra set or weight is required to claim completion."
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Retain the original one-set straight-knee ankle-force role on each leg.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Return to the original controlled knee-flexor cycle task using a recorded lever only if available.",
+      "key": "walkout",
+      "decision": "Four-cycle role returns after Class 11's floor bridge. Log heel reach/partial cycles; do not equate bridge reps with walkout cycles or infer tolerance."
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Retain the original resisted leg-recovery role with a controlled pelvis.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "E1 requires the original surface/hand/footwear conditions only for a true comparison; if those are unavailable, record changed conditions. E2 may use a parallel two-foot landing instead when split receiving is unsuitable, same four events/rest. E4 may use a light rear-toe kickstand paused takeoff instead when a single-leg pause cannot be controlled, same 1 × 2 per lead side and two-foot receiving; record the altered takeoff. E5 without safe contained throwing space uses Class 11's split-stance held-ball hip drive instead, same six total force efforts, no throws. E6 without competent swing/handling uses a light fast floor hip bridge instead, 2 × 5 with 90 s rest and a 2 s lowering phase, replacing ten swings with ten nonflight hip drives. Do not add a comparison test outside these rows.",
+  "count_note": "E1 sixteen + E2 four + E3 four + E4 four = 28 two-foot landing events, 56 individual foot contacts. E3/E4 have unilateral takeoff but bilateral receiving; no single-leg landing is prescribed. E5 adds six throws and E6 ten swings. Primary work stays at six rounds; initial two-set strength doses are not automatically restored. Comparable records require actual observations and matching exercise conditions, not merely the same exercise name.",
+  "novelty": "Three deliberate explosive repeat exceptions close the sequence: E1 repeats Class 1 for the only exact initial pogo comparison; E5 repeats Class 6 for familiar asymmetrical hip-force skill; E6 repeats Class 1 for familiar swing execution. E2–E4 add small force-sharing/start-condition variants with clear jobs. This honors the push for drill variety without presenting a renamed test or unnecessary complex novelty as a better final comparison. Light and primary strength recur intentionally.",
+  "audit": "Preserved the original E1 dose/position/rest before fatigue; did not claim that different jump variants measure improvement. Rejected a maximal jump/strength test and an automatic return to nine primary rounds. Three new receiving/start variants use small fully reset doses, while the familiar no-flight tasks limit impact. All twelve classes must still pass the full-sequence audit before the written curriculum is declared complete.",
+  "progression": "If actual Class 1 and Class 12 records are compatible, describe observed differences without attributing all change to this curriculum. If prior observations are absent, leave improvement unknown and use today's record as a baseline. Future support work should maintain, advance one justified variable, or regress from actual execution and recovery; no Class 13 or new running block is prescribed here.",
+  "map_note": "Original pogo comparison plus purposeful repeat exceptions; six primary rounds, no final workload peak.",
+  "next_job": "Full-sequence audit, then await actual athlete feedback for implementation or revision.",
+  "handoff": "Audit all twelve saved classes for exact framework/6–2–6 counts, meaningful variety, conditional progression, workload, recovery, timing, source/library accuracy and saved-state integrity. Correct substantive inconsistencies, save the completed curriculum and handoff, then stop; actual athlete completion remains unknown.",
+  "reviewed_files": {
+    "curriculum.md": "071f16e1c7edfc3bda1f914fa741e37380a790725272a759253d9af0ed855458",
+    "progress.json": "ce5d82a91640d1e8ae120197da8abac7846e96527eb834d03c2f9eef6d81af86",
+    "progression_ledger.md": "883315adee51856449f50fb779338381315435b33503dac5bfffe30b03abc127",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_11.md": "53342119fe7e384f278a7ca889e3c5a2f9655055f98e49e68ad29c606a1822f1"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 28,
+    "bilateral_landing_events": 28,
+    "single_leg_landing_events": 0,
+    "individual_foot_contacts": 56,
+    "other_explosive": [
+      {
+        "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+        "amount": 6,
+        "unit": "throws"
+      },
+      {
+        "name": "Two-Hand Kettlebell Swing",
+        "amount": 10,
+        "unit": "swings"
+      }
+    ],
+    "primary_set_rounds": 6,
+    "primary_bouts": 9,
+    "primary_work": {
+      "reps": 54,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1650,
+      "stabilization": 348,
+      "primary": 2006,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 70,
+    "time_max": 80,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Short-Foot Drill",
+        "sets": 1,
+        "reps_or_seconds_per_side": 4,
+        "sides": 2,
+        "total": 8,
+        "unit": "five-second holds"
+      },
+      {
+        "exercise": "Side-Lying Hip Abduction",
+        "sets": 1,
+        "reps_or_seconds_per_side": 8,
+        "sides": 2,
+        "total": 16,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Stationary Bilateral Ankle Pogo",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 16,
+        "unit": "hops",
+        "landing_events": 16,
+        "individual_foot_contacts": 32,
+        "bilateral_landing_events": 16,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Two-Foot Forward Jump to Split-Stance Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Lateral Jump to Two-Foot Landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Paused Single-Leg Squat Jump to Two-Foot Landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Stance Medicine Ball Forward Scoop Toss",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "throws",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Two-Hand Kettlebell Swing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 10,
+        "unit": "swings",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 28
+  },
+  "status": "finalized_prescription",
+  "final_review": "Reviewed the final class against the initial marker and current request. Three explosive defaults deliberately recur, while three receiving/start variants have specific jobs. E1 matches the original first-position pogo dose/rest; strength remains at six rounds with no invented improvement or final workload peak. Twenty-eight two-foot landings and separate throws/swings are consistent. Proceeding to the required full-sequence audit before declaring completion."
+}

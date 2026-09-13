@@ -1,0 +1,245 @@
+{
+  "class_number": 4,
+  "title": "Synchronize arm action with a staggered two-foot forward push.",
+  "brief": "The priority is gathering a split starting base into a parallel landing while the arms match leg extension. Elevated landing, one-arm forward release, fore-aft ankle reversal, a switched split landing and a small integrated vertical jump give distinct coordination jobs without returning to Class 1's drill.",
+  "explosive": [
+    {
+      "name": "Split-Stance Broad Jump to Parallel Landing",
+      "job": "Convert a staggered bilateral push into aligned forward travel.",
+      "cue": "Begin with one foot modestly ahead, dip once and swing both arms; push off both feet and gather into a parallel two-foot landing held 2 s.",
+      "regress": "Reduce stagger and travel; stop if it becomes a single-leg jump or the landing twists.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Countermovement Broad Jump onto a Low Box",
+      "job": "Time the forward arm drive while receiving the body on a higher surface.",
+      "cue": "Use a stationary two-foot dip and forward/up arm swing to land both feet fully on a low stable box; stand, then step down under control.",
+      "regress": "Use lower/closer placement; stop for excessive knee tucking, partial-foot landing or an unstable box.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Full-foot low-box landing and controlled step-down.",
+      "note": ""
+    },
+    {
+      "name": "Single-arm Forward Medicine Ball Push Throw",
+      "job": "Couple one arm's forward force with a bilateral leg drive while resisting unwanted rotation.",
+      "cue": "Use a very light ball at one shoulder, feet parallel; dip and extend into a forward push release while keeping hips facing the target and feet planted.",
+      "regress": "Reduce load; stop if trunk rotation or an arm-only strain replaces the coordinated push.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Two-foot Forward–Backward Line Pogo",
+      "job": "Reverse small fore-aft ankle contacts while maintaining an organized trunk.",
+      "cue": "Make six low two-foot crossings of a flat floor line, alternating forward/backward; each crossing is one landing, then settle.",
+      "regress": "Narrow the crossing distance; stop for deep squatting or loss of rhythm.",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "low_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Small quick crossings",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Lunge Switch Jump",
+      "job": "Reorganize an asymmetrical base in flight without a long forward bound.",
+      "cue": "From a shallow split stance, jump modestly and switch legs in flight; hold the opposite split landing 2 s. Reset the stated starting side before each rep.",
+      "regress": "Reduce height and stance length; stop if the feet cross or the landing cannot be held.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Countermovement Jump — Natural Arms",
+      "job": "Integrate dip-to-arm timing with a small vertical flight before fatigue accumulates in lifting.",
+      "cue": "Dip once, drive the arms up with leg extension, land in the starting area on two feet and hold 2 s.",
+      "regress": "Use modest height; stop if the arms finish after takeoff or landing control fails.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Dead Bug Isometric Hand-to-Thigh Press",
+      "job": "Lightly brace the trunk against arm/leg force so the takeoff push is not accompanied by lumbar arching.",
+      "cue": "Lie supine, one hip/knee bent; press the opposite palm and thigh gently together while keeping ribs down and breathing.",
+      "regress": "Lower the limb lever/pressure; stop for breath-holding or back arching.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Big Toe Press Iso Hold",
+      "job": "Maintain the big-toe contact used to direct the final foot push.",
+      "cue": "Keep the foot flat and long toes; press the big toe gently down without curling it or lifting the other contact points.",
+      "regress": "Reduce pressure; stop if the arch collapses or the toes claw.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 5,
+      "reset": 5,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 3,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 25,
+    "unilateral_landing_events": 0,
+    "throws": 6,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 6,
+    "primary_rounds": 9,
+    "primary_bouts": 10,
+    "primary_reps": 60,
+    "primary_cycles": 3,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 0,
+    "stabilization_hold_seconds": 60,
+    "landing_events": 25,
+    "landing_foot_contacts": 50
+  },
+  "duration_after_preparation_seconds": 4598,
+  "decision": "This is a bilateral coordination emphasis after the single-support class, not a harder contact day. The low-box jump changes the landing elevation and full-foot placement task; it is not presented as a different distance target for the ordinary broad jump. The switched split landing differs from Class 2's same-stance landing. Split-squat volume returns to one set per side and squat to three bilateral sets; no load increase is earned from written work.",
+  "next_job": "Class 5 will emphasize hip-led projection and rapid hip impulse; review actual arm/landing timing and lower-body recovery first.",
+  "observed": null,
+  "class_sha256": "f7a3c0e1715b5c5cafae5a5be1bf52c4686183efb2936515862cba31cb76e064"
+}

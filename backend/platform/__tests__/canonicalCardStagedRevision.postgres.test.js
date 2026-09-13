@@ -3,11 +3,14 @@ import test from 'node:test'
 import { readFile } from 'node:fs/promises'
 import pg from 'pg'
 import { stageWorkoutExerciseProposal, proposeWorkoutExercise, loadWorkoutExerciseProposal, loadWorkoutExerciseProposalRevision } from '../workoutExerciseProposal.js'
-import { changeStagedCanonicalRevision, loadStagedCanonicalRevision } from '../canonicalCardStagedRevision.js'
+import { changeStagedCanonicalRevision, loadStagedCanonicalRevision, reviewStagedCanonicalRevision } from '../canonicalCardStagedRevision.js'
 import { saveCanonicalCardDraftInTransaction, withCanonicalCardTransaction, loadCanonicalCard } from '../canonicalCardRepository.js'
 import { exerciseGapResearchFixtures } from './workoutExerciseGapFixtures.js'
 import { stagedProposalRegistry, stagedSourceFixture } from './canonicalCardStagedRevisionFixtures.js'
 import { SCOPE } from './workoutProgrammingLibrarianFixtures.js'
+import { stagedReviewEvidenceFixture, stagedMediaReviewInput } from './canonicalStagedReviewEvidenceFixtures.js'
+import { stagedCanonicalProfile } from '../canonicalStagedReviewEvidence.js'
+import { TAXONOMY_V2_FACETS } from '../taxonomyV2.js'
 const connectionString = process.env.WORKOUT_PROGRAMMING_TEST_DATABASE_URL
 const migration = (name) => readFile(new URL(`../../migrations/${name}.sql`, import.meta.url), 'utf8')
 
@@ -44,11 +47,25 @@ test('staged profile revisions use existing canonical audit storage without chan
     const stagingMigration = await migration('814_coaching_staged_card_revisions_v1')
     await database.query(stagingMigration)
     await database.query(stagingMigration)
+    for (const [facet, terms] of Object.entries(TAXONOMY_V2_FACETS)) for (const term of terms) {
+      await database.query('INSERT INTO coaching.taxonomy_term_v2 (facet_type,key,name,allowed_scopes) VALUES ($1,$2,$3,$4)', [facet, term.key, term.name, term.scopes])
+    }
 
-    const setup = async () => {
+    const setup = async (completeSource = false) => {
       await database.query('TRUNCATE coaching.exercise_definition_v1, coaching.exercise_card_ai_draft_audit_v1 CASCADE')
       const sources = exerciseGapResearchFixtures()
-      const source = stagedSourceFixture(sources)
+      let source = stagedSourceFixture(sources)
+      if (completeSource) {
+        const complete = stagedReviewEvidenceFixture().event.sourceCard
+        complete.id = source.id; complete.slug = source.slug; complete.variants[0].id = source.variants[0].id
+        complete.variants[0].variantKey = source.variants[0].variantKey
+        complete.variants[0].profiles[0].id = source.variants[0].profiles[0].id
+        complete.variants[0].profiles[0].profileKey = source.variants[0].profiles[0].profileKey
+        source = complete
+        for (const key of source.movementPatterns) sources.taxonomy.movement_pattern.add(key)
+        for (const key of source.bodyRegions) sources.taxonomy.body_region.add(key)
+        for (const key of [...source.requiredEquipment, ...source.optionalEquipment]) sources.taxonomy.equipment.add(key)
+      }
       const hooks = { afterStagedInsert: null, beforeAdvisoryLock: null, failStagedInsert: false }
       // Released workout materials/model judgments are synthetic. All canonical
       // authoring reads, source writes, revision SQL and transactions are real.
@@ -65,7 +82,7 @@ test('staged profile revisions use existing canonical audit storage without chan
             || sql.startsWith('SELECT p.* FROM coaching.exercise_delivery_profile_v1') || sql.startsWith('SELECT url, exact_variant_match, demonstration_quality_score')
             || sql.startsWith('SELECT * FROM coaching.exercise_card_review_v1 WHERE definition_id')
             || sql.startsWith('SELECT r.*, fv.display_name') || sql.startsWith('SELECT assignment.*, term.facet_type')
-            || sql.startsWith('SELECT decision.*') || sql.includes('FROM coaching.exercise_definition_v1 definition')) {
+            || sql.startsWith('SELECT decision.*') || sql.includes('FROM coaching.exercise_definition_v1 definition') || sql.includes('staged_revision_taxonomy_terms')) {
             const result = await client.query(sql, params)
             if (stagedInsert) await hooks.afterStagedInsert?.()
             return result
@@ -88,6 +105,13 @@ test('staged profile revisions use existing canonical audit storage without chan
       await database.query("UPDATE coaching.exercise_definition_v1 SET card_version=1,status='published',approved_by=8,reviewed_by=8 WHERE id=$1", [source.id])
       await database.query("UPDATE coaching.exercise_variant_v1 SET status='published' WHERE definition_id=$1", [source.id])
       await database.query("UPDATE coaching.exercise_delivery_profile_v1 SET status='published' WHERE variant_id=$1", [variant.id])
+      if (completeSource) {
+        // Explicit synthetic prior-version governance, never a production approval.
+        await database.query("UPDATE coaching.exercise_variant_v1 SET structured_profile_review_status='approved',structured_profile_reviewed_by=8,structured_profile_reviewed_at=now() WHERE id=$1", [variant.id])
+        for (const table of ['exercise_taxonomy_assignment_v2', 'exercise_taxonomy_decision_v2']) {
+          await database.query(`UPDATE coaching.${table} SET review_status='approved',reviewed_by=8,reviewed_at=now()`)
+        }
+      }
       const input = { request: sources.request, componentKey: 'strength', need: sources.need }
       const proposal = await proposeWorkoutExercise({ pool, context: SCOPE, rawInput: input, registry: stagedProposalRegistry(sources) })
       assert.equal(proposal.proposal.kind, 'delivery_profile')
@@ -105,6 +129,98 @@ test('staged profile revisions use existing canonical audit storage without chan
     const profileOf = (event) => event.card.variants.find((variant) => variant.id === event.target.variantId).profiles.find((profile) => profile.profileKey === event.target.profileKey)
     const change = (state, event, action, patch = {}, userId = '7') => changeStagedCanonicalRevision(state.pool, { ...SCOPE, userId }, event.stagedRevisionId,
       { expectedEventHash: event.contentHash, action, changeSummary: 'Synthetic human review change for the exact staged profile.', ...patch })
+    const review = (state, event, body = { kind: 'card', decision: 'request_changes' }, userId = '8') => reviewStagedCanonicalRevision(state.pool, { ...SCOPE, userId }, event.stagedRevisionId,
+      { ...body, expectedEventHash: event.contentHash, notes: 'Synthetic independent review evidence for this exact staged candidate.' })
+
+    await t.test('independent evidence approves an exact candidate while every live source and approval row stays unchanged', async () => {
+      const state = await setup(true)
+      const persisted = await sourceRows()
+      assert.ok(persisted.exercise_taxonomy_assignment_v2.some((row) => row.subject_scope === 'definition'))
+      assert.ok(persisted.exercise_taxonomy_assignment_v2.every((row) => row.created_by === '7'))
+      assert.ok(persisted.exercise_taxonomy_decision_v2.every((row) => row.created_by === '7'))
+      assert.equal(persisted.exercise_variant_v1[0].structured_profile_created_by, '7')
+      let event = (await state.stage()).event
+      const completeProfile = structuredClone(stagedCanonicalProfile(stagedReviewEvidenceFixture().event))
+      event = await change(state, event, 'edit', { profile: { ...completeProfile, profileKey: event.target.profileKey, phaseKey: event.target.phaseKey } })
+      event = await change(state, event, 'submit')
+      const before = await sourceRows()
+      assert.deepEqual((await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)).reviewAccess,
+        { canReview: false, canApprove: false, reason: 'independent_reviewer_required' })
+      assert.deepEqual((await loadStagedCanonicalRevision(state.pool, { ...SCOPE, userId: '8' }, event.stagedRevisionId)).reviewAccess,
+        { canReview: true, canApprove: false, reason: null })
+      await assert.rejects(review(state, event, { kind: 'card', decision: 'approve' }), { code: 'canonical_revision_not_ready' })
+      const unreviewed = structuredClone(event.card)
+      for (const [kind, records] of Object.entries(profileOf(event).taxonomyV2)) for (const record of records) {
+        event = await review(state, event, { kind: 'taxonomy', recordType: kind === 'assignments' ? 'assignment' : 'decision',
+          facetType: record.facetType, termKey: record.key ?? null, outcome: 'approve' })
+      }
+      event = await review(state, event, stagedMediaReviewInput(event))
+      const ready = (await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)).review
+      assert.equal(ready.readiness.ready, true, JSON.stringify(ready.readiness.issues))
+      assert.notEqual(ready.testPacket.status, 'failed', JSON.stringify(ready.testPacket))
+      assert.deepEqual((await loadStagedCanonicalRevision(state.pool, { ...SCOPE, userId: '8' }, event.stagedRevisionId)).reviewAccess,
+        { canReview: true, canApprove: true, reason: null })
+      event = await review(state, event, { kind: 'card', decision: 'approve', rubric: { programmingExecutionRules: { forged: true } } })
+      let opened = await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)
+      assert.equal(opened.review.approval.reviewerUserId, '8')
+      assert.equal(opened.review.approval.details.rubric.programmingExecutionRules, undefined)
+      assert.equal(opened.review.readiness.ready, true)
+      assert.equal(opened.reviewAccess.canApprove, false)
+      assert.equal(event.libraryApprovalGranted, false)
+      assert.deepEqual(event.card, unreviewed)
+      assert.deepEqual(await sourceRows(), before)
+      assert.equal(event.card.mediaReview, null)
+      const media = event.reviewEvidence.find((entry) => entry.kind === 'media')
+      assert.equal(media.details.reviewedCardVersion, 2)
+      assert.equal(event.source.cardVersion, 1)
+      await database.query(stagingMigration)
+      assert.deepEqual((await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)).event, event)
+      event = await review(state, event, { kind: 'taxonomy', recordType: 'assignment', facetType: 'tenet', termKey: 'strength', outcome: 'reject' })
+      opened = await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)
+      assert.equal(opened.review.approval, null)
+      assert.equal(opened.review.readiness.ready, false)
+      event = await change(state, event, 'return')
+      assert.deepEqual(event.reviewEvidence, [])
+      assert.equal(event.readiness.ready, false)
+      assert.deepEqual(await sourceRows(), before)
+    })
+
+    await t.test('review requires submitted/current content and excludes the source author and every editor', async () => {
+      const state = await setup(), initial = (await state.stage()).event
+      await assert.rejects(review(state, initial), { code: 'canonical_revision_transition' })
+      let event = await change(state, initial, 'edit', { profile: { ...profileOf(initial), coachInstructions: 'A second authenticated editor changed these coaching instructions.' } }, '8')
+      event = await change(state, event, 'submit')
+      for (const actor of ['7', '8']) await assert.rejects(review(state, event, undefined, actor), { code: 'canonical_revision_independent_review' })
+      const reviewed = await review(state, event, undefined, '9')
+      assert.equal(reviewed.reviewEvidence[0].reviewerUserId, '9')
+      await assert.rejects(review(state, event, undefined, '9'), { code: 'canonical_revision_conflict' })
+      assert.equal(await reviewStagedCanonicalRevision(state.pool, { ...SCOPE, facilityId: '10', userId: '9' }, event.stagedRevisionId,
+        { kind: 'card', decision: 'request_changes', expectedEventHash: event.contentHash, notes: 'A foreign facility must never see this candidate.' }), null)
+      const edited = await change(state, reviewed, 'edit', { profile: { ...profileOf(reviewed), purpose: 'A subsequent content edit invalidates all earlier review evidence.' } })
+      assert.deepEqual(edited.reviewEvidence, [])
+      const submitted = await change(state, edited, 'submit')
+      await database.query("UPDATE coaching.exercise_definition_v1 SET description='Source content changed after submission.' WHERE id=$1", [event.definitionId])
+      await assert.rejects(review(state, submitted, undefined, '9'), { code: 'canonical_revision_source_changed' })
+    })
+
+    await t.test('concurrent review evidence cannot overwrite another reviewer and failed writes roll back', async () => {
+      const state = await setup()
+      const event = await change(state, (await state.stage()).event, 'submit')
+      const before = await sourceRows()
+      state.hooks.failStagedInsert = true
+      await assert.rejects(review(state, event), /Synthetic staged history write failure/)
+      assert.deepEqual((await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)).event.reviewEvidence, [])
+      state.hooks.failStagedInsert = false
+      let unblock
+      const entered = new Promise((resolve) => { unblock = resolve })
+      let locks = 0
+      state.hooks.beforeAdvisoryLock = () => { if (++locks === 2) unblock() }
+      state.hooks.afterStagedInsert = () => entered
+      const results = await Promise.allSettled(['8', '9'].map((actor) => review(state, event, undefined, actor)))
+      assert.equal(results.filter((result) => result.status === 'fulfilled').length, 1)
+      assert.equal(results.find((result) => result.status === 'rejected').reason.code, 'canonical_revision_conflict')
+      assert.deepEqual(await sourceRows(), before)
+    })
 
     await t.test('staging preserves all live source rows and existing approvals while recording an exact versioned candidate', async () => {
       const state = await setup()
@@ -129,6 +245,7 @@ test('staged profile revisions use existing canonical audit storage without chan
       const reopened = await loadStagedCanonicalRevision(state.pool, SCOPE, event.stagedRevisionId)
       assert.equal(reopened.sourceMatches, true)
       assert.equal(reopened.liveSourceStatus, 'published')
+      assert.deepEqual(reopened.reviewAccess, { canReview: false, canApprove: false, reason: 'not_submitted' })
       assert.deepEqual(reopened.event, event)
       assert.deepEqual(await loadWorkoutExerciseProposalRevision(state.pool, SCOPE, state.proposal.draftAuditId), event)
       assert.equal(await loadWorkoutExerciseProposalRevision(state.pool, { ...SCOPE, facilityId: '10' }, state.proposal.draftAuditId), null)

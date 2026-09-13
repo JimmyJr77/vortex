@@ -1,0 +1,149 @@
+{
+  "n": 3,
+  "label": "Rotational force from a held start",
+  "effort": "Initiate a hip-led low kick without a bounce, preparatory dip or extra gathering step.",
+  "brief": "A brief still start removes an immediate countermovement. The supporting jobs distinguish bilateral turn impulse, single-leg lateral drive, isolated hip-turn acceleration, free-thigh acceleration without toe push and release from a loaded stance.",
+  "marker": "valid E2 attempts out of four per leg after a visibly still two-second start, with no redip and a controlled recoil.",
+  "e": [
+    {
+      "name": "Paused quarter-turn squat jump",
+      "side": "turn direction",
+      "bilateral": 1,
+      "seconds": 7,
+      "execution": "Hold a comfortable quarter squat for 2 s, then jump and turn up to 90 degrees without another dip. Use a two-foot landing already facing the new line and hold 2 s.",
+      "job": "Produce rotational takeoff impulse without immediate dip assistance.",
+      "gate": "Use a smaller turn instead for late orientation; a redip invalidates the held-start marker but counts as an attempt.",
+      "novelty": "True held-start variant of Class 1 countermovement jump; the previously discarded paused candidate was never finalized as prior work.",
+      "total_attempts": 4,
+      "modeled_seconds": 188
+    },
+    {
+      "name": "Low roundhouse from a held split-squat start",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 7,
+      "execution": "Kicking leg starts rear. Hold a shallow split squat 2 s, then drive through the front support leg into a low roundhouse, actively recoil and return to the original split stance. No initial bounce or deeper dip.",
+      "job": "Link stance-leg force from stillness to the free thigh and pelvic turn.",
+      "gate": "Make the starting squat shallower instead if rising produces a lurch; do not force a deep hold or fast knee lockout.",
+      "novelty": "Held, lowered weight-bearing start changes force initiation compared with Classes 1–2 upright kicks.",
+      "total_attempts": 8,
+      "modeled_seconds": 436
+    },
+    {
+      "name": "Split-stance lateral jump to parallel landing",
+      "side": "lead push leg",
+      "bilateral": 1,
+      "execution": "From a shallow split stance with most weight on the named lead leg, push laterally away from that leg into a short flight; bring feet parallel for a two-foot stick. Face the same direction throughout; no scissor exchange.",
+      "job": "Load asymmetrical lateral push while simplifying the receiving base to two feet.",
+      "gate": "Shorten distance or reduce the rear-foot contribution; do not cross the legs in flight.",
+      "novelty": "Asymmetrical split-stance lateral projection to parallel support, rather than a same-leg hop, opposite-leg bound or scissor switch.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Seated light-band hip-rotation acceleration",
+      "side": "hip",
+      "grounded": 1,
+      "execution": "Sit with thighs supported, hips/knees near 90 degrees and a very light loop at the lower shins. Start still, then move one foot a short distance outward briskly by rotating at the hip; knee/pelvis stay quiet. Return slowly; no bouncing or forced end range.",
+      "job": "Give the hip internal rotators a small rapid force-expression task without the balance or whole-kick demand.",
+      "gate": "Use self-resistance from the opposite hand instead if no suitable loop fits, or reduce range/tension for knee movement; speed is controlled, never a ballistic joint wrench.",
+      "novelty": "New light, rapid isolated rotation task. P4 shares the joint action but uses challenging resistance and slow cycles; neither counts toward the other.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Rear-leg hover-start knee drive",
+      "side": "driving leg",
+      "grounded": 1,
+      "seconds": 7,
+      "execution": "Stand on one leg with fingertip bench support. Hold the other toes just clear of the floor slightly behind the body for 2 s, then drive that bent knee forward/up briskly. Set it down under control before resetting; do not push off its toes.",
+      "job": "Accelerate the free thigh from stillness without assistance from the swinging foot on the floor.",
+      "gate": "Keep the hover close to neutral and chamber low; use a smaller path instead if the back arches or the support leg hops.",
+      "novelty": "Removes the rear-foot push and starts the limb suspended, unlike the split-stance band drive or pre-chambered rotational sweep.",
+      "total_attempts": 4,
+      "modeled_seconds": 218
+    },
+    {
+      "name": "Lateral release step from held split stance",
+      "side": "push leg",
+      "grounded": 1,
+      "seconds": 7,
+      "execution": "Hold a shallow split stance for 2 s with the named leg in front. Push from that leg into one short lateral step, allow the feet/pelvis to open together up to 45 degrees, and finish in a stable kick stance. No jump or follow-on kick.",
+      "job": "Release planted leg force into a grounded turn when there is no incoming momentum.",
+      "gate": "Shorten the step and turn for foot sticking or overstriding; keep motion within 2 m.",
+      "novelty": "Static loaded departure replaces Class 1 arriving lateral plant; the force source is a held front leg rather than an incoming step.",
+      "total_attempts": 4,
+      "modeled_seconds": 218
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    2,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain planted knee/hip extension with a smaller single working round while hip torque gets the main investment.",
+    "Preserve hip-extensor control of the stationary support leg.",
+    "Load the lateral hip range used in the held-stance release without a large adductor dose.",
+    "Primary strength investment: controlled hip internal-rotation torque from a still, supported setup.",
+    "Maintain active free-thigh lifting force without toe push or torso swing.",
+    "Preserve bent-knee ankle drive for rising from the stationary support stance."
+  ],
+  "s_jobs": "Small supported airplane cycles prepare the hip to control a held base; foot holds reinforce quiet pressure before heel release.",
+  "readiness": "The coach must see a still start and freely turning feet. E4 uses only a short comfortable hip arc and very light resistance; do not convert it into forceful knee/ankle rotation.",
+  "strength_reason": "Compared with Class 2 [2,1,1,1,1,2], use [1,1,1,2,1,1]: 92 working reps instead of 96. This reallocates sets toward hip torque while reducing split-squat/calf work; it does not prescribe heavier bands or prove increased capacity.",
+  "exposure_note": "Eight bilateral landings and no unilateral landings. Twenty efforts remain grounded, including eight kicks. The hover and still-start pauses add active time, not extra repetitions.",
+  "space": "All starts and turns stay in a clear footprint; the lateral flight/step stays within 2 m plus 2 m recovery clearance in a 10 m lane. Bench dimensions and band fit need qualification.",
+  "progression": "The preceding class addressed lead-leg release; this one changes the initiation condition to stillness and reduces landing count from twelve to eight. Keep angle and height controllable. No prior performance is assumed.",
+  "audit": "A second seated or paused bilateral jump would duplicate the held-start job, so the other flight uses asymmetrical lateral push and a two-foot catch. Isolated rotation is four fast light efforts only; its slow strength counterpart gets relative load rather than speed. Forceful end-range rotation and maximum-height demands are excluded.",
+  "prescribed_summary": {
+    "bilateral_landings": 8,
+    "unilateral_landings": 0,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 8,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 92,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4497,
+    "planning_minutes_excluding_existing_preparation": [
+      75,
+      82
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      188,
+      436,
+      210,
+      210,
+      218,
+      218
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      495,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 3 and new feedback before Class 4, whose intended job is free-leg acceleration and active recoil; finalize and save it before continuing.",
+  "reviewed_previous_at_authoring_sha256": "207f6123866223035e8a1eb36886e150fe0c1ea638147c7c7443537da61ba8e8",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "c9062fd632e188f70d2da6f25c4c6dc4be1a2ca430197c5516ff77ec8efdbd3c",
+  "final_previous_class_sha256": "a47f290ef345538f75cf87558a0231ff388d3c2baaa67151ad7638f3cddb6878"
+}

@@ -1,0 +1,412 @@
+{
+  "n": 2,
+  "effort": "Keep ankle return centred while the support position changes slightly, preserving leg-force reserve for repeated stance.",
+  "brief": "The demand is accurate low-amplitude foot return, then organized force from split or single-leg support. E1 supplies the repeatability marker. Split-stance spring, supported upward projection, unilateral push, forward hip-driven release and unloaded-by-bodyweight ankle acceleration fill different supporting jobs. Light toe-lift and knee-control work precede the unchanged six strength roles.",
+  "anchor": "E1",
+  "marker": "Count accurate fore-aft line-hop landings within each six-contact set: return to the two declared positions without progressive drift, excess knee bend or rhythm loss. One crossing is one hop; six hops, not six out-and-back pairs. Compare the two sets only, not with Class 1 stationary pogo scores.",
+  "review": "Class 1 prescribed 39 landings/64 foot contacts and 9 primary set rounds, with actual work unknown. The new user instruction favors distinct drills, so its planned repeated E1 is replaced by a target-control task; the split squat, RDL and calf prescriptions remain unchanged.",
+  "sequence": "E1 is first and receives two brief sets. E2 changes stance at low amplitude; E3/E4 use isolated, fully reset takeoffs; E5/E6 add rapid force without further impacts.",
+  "E": [
+    {
+      "name": "Line Pogo Forward-Back",
+      "identity": "line_pogo_foreaft",
+      "family": "bilateral ankle rebound",
+      "library_slug": "line-pogo-forward-back",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "hops",
+      "footfalls": [
+        2
+      ],
+      "rest": 60,
+      "t": 1,
+      "job": "Main accuracy task: produce a quick ankle return while controlling very small fore-aft displacement.",
+      "cue": "Use a floor seam or two positions indicated by cones outside the landing area, less than one foot length apart. Jump across and back with both feet together, low height and soft knees. Shorten travel for drift; end a set if it becomes a squat-jump pattern."
+    },
+    {
+      "name": "Split-Stance Pogo",
+      "identity": "split_stance_pogo",
+      "family": "asymmetric ankle rebound",
+      "library_slug": "split-stance-pogo",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "unit": "hops per lead-leg stance",
+      "footfalls": [
+        2
+      ],
+      "rest": 60,
+      "t": 1,
+      "job": "Express ankle spring with unequal front/rear leg contributions while keeping the pelvis facing forward.",
+      "cue": "Small floor split stance; both feet leave and return together, no leg switching. Stay tall with soft knees. Reduce split length/amplitude if the rear ankle or pelvis cannot stay controlled."
+    },
+    {
+      "name": "Box Jump — low box, step-down reset",
+      "identity": "low_box_jump",
+      "family": "bilateral upward projection",
+      "library_slug": "box-jump-step-down-reset",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Create rapid knee/hip extension while limiting the fall distance of the landing through a low raised target.",
+      "cue": "Use a stable low box that permits landing without a knee tuck. One dip, jump up, land on both feet and hold 2 s; step down, never jump down. Lower the target for a deep crouched landing. The box height is not a jump-height test."
+    },
+    {
+      "name": "Single-Leg Vertical Jump to Two-Foot Landing",
+      "identity": "sl_vertical_to_bilateral",
+      "family": "unilateral upward push",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "jumps per takeoff leg",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 15,
+      "t": 4,
+      "job": "Make each leg supply the upward push while using a simpler bilateral finish to control receiving demand.",
+      "cue": "Dip on the takeoff leg, push quickly over a modest height, place both feet underneath and hold 2 s. Lower height if the pelvis rotates or feet reach forward. Do not compare this with a same-leg pogo."
+    },
+    {
+      "name": "Forward Medicine Ball Scoop Toss",
+      "identity": "bilateral_forward_scoop",
+      "family": "hip-knee ballistic projection",
+      "library_slug": "medicine-ball-scoop-toss",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "unit": "throws",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 20,
+      "t": 2,
+      "job": "Accelerate a light implement forward through coordinated leg/hip extension without extra landing demand.",
+      "cue": "Face forward with ball low; one shallow dip, drive and release forward/slightly up. Feet remain planted, no catch, no trunk twist. Reduce ball mass if arms dominate or the back arches; walk to retrieve only after it stops."
+    },
+    {
+      "name": "Seated Straight-Knee Band Plantarflexion — fast press",
+      "identity": "seated_band_fast_straight_knee_pf",
+      "family": "rapid ankle force without impact",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "presses",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Practice quick ankle force expression against light resistance with no additional bodyweight impact.",
+      "cue": "Sit on the floor, target heel grounded and knee softly extended; loop an intact band around forefoot and hold both ends securely away from the face. Press the forefoot away rapidly, return over 2 s. Keep the leg still; use less tension for jerking or toe curling."
+    }
+  ],
+  "S": [
+    {
+      "name": "Heel-Supported Toe Raise",
+      "identity": "heel_supported_toe_raise",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "reps, both feet",
+      "rest": 30,
+      "t": 3,
+      "job": "Light dorsiflexor strengthening for foot clearance and controlled foot return.",
+      "cue": "Hold stable bench support, keep both heels grounded and lift forefeet for 1 s, lower 2 s. Shift less weight onto heels if the shin work burns or the body rocks; no hopping."
+    },
+    {
+      "name": "Step-Down to Hover — low forward reach",
+      "identity": "low_forward_stepdown",
+      "library_slug": "step-down-to-hover",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Lightly strengthen stance-knee/pelvic control as the opposite foot approaches the floor.",
+      "cue": "Use a suitably low stable box; lower 3 s, free heel hovers, rise 1 s without pushing from it. Reduce range for inward knee drift. If no low step fits, use a supported shallow single-leg squat instead with the same dose/tempo, free foot clear."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Retain the main stance-leg knee/hip force anchor while the explosive foot-return task changes.",
+      "key": "split"
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 2,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Retain loadable hip-extension force without adding another balance-demanding lift.",
+      "key": "rdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 2,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Retain bent-knee ankle force so new spring drills do not also trigger a calf-volume increase.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Maintain the smaller straight-knee calf exposure alongside the main knee-flexed work.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Maintain knee-flexor control through changing knee angle after the hip-dominant hinge.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Keep a challenging leg-recovery action under a stable pelvis, distinct from the light toe-lift work.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "Use low boxes only after verifying height, stability and full-foot room. If E3 has no suitable box, use a low countermovement jump to stick instead, 1 × 3 with the same rest; three two-foot landings remain but are on the floor. E5 requires verified containment of flight, bounce and retrieval within an exclusive 10 m lane; if unavailable, use the familiar two-hand kettlebell swing instead, 2 × 3 with 90 s after sets, replacing six throws with six swings. For E6, if no band can be securely held, use a supported fast straight-knee heel raise instead, 1 × 6 per leg, 60 s after sides, rapid rise/2 s return with no flight; record the different load-bearing condition.",
+  "count_note": "E3 includes three controlled step-down descents, not three extra jumps. All 31 planned landing events are two-foot; the unilateral takeoffs in E4 do not make its landings single-leg. No unverified box/floor forces are treated as equal. E6 adds 12 nonimpact band presses. Stated replacements preserve landing count but change force/support conditions; log only the chosen routes.",
+  "novelty": "Six default explosive drills differ from Class 1 defaults. The forward toss appeared only as a Class 1 contingency, so it is not new if an athlete actually used that option; actual usage is unknown. Line target crossing changes displacement control, split pogo changes ankle-force stance, box landing changes receiving height, single-leg-to-two-foot jump changes takeoff/landing laterality, and fast seated plantarflexion removes bodyweight impact. Strength repetitions preserve useful comparison conditions.",
+  "audit": "Reduced planned landings from 39 to 31 while adding placement/stance changes; did not raise strength volume. Rejected a longer hurdle circuit because precise low contacts are the objective. Specified box step-down accounting and a nonthrowing replacement so neither hidden landings nor unconfirmed throwing space enter the dose. E6 is explicitly rapid force practice, not a conditioning calf set.",
+  "progression": "Treat the new tasks as conditional applications of existing skills, not earned difficulty. Keep actual prior loads only if recorded and appropriate today; otherwise select through preparation. Class 3 may emphasize unilateral stance force, but with absent feedback keep impact modest and change no automatic load/rep variable.",
+  "map_note": "Distinct target/stance drills with unchanged strength doses; no assumed prior completion.",
+  "next_job": "Unilateral force expression and supported single-leg strength without a large unilateral landing increase.",
+  "handoff": "Read this class, its audit/record, map, ledger and any new actual feedback; finalize Class 3 next under the authorization to finish all twelve, then save/audit before proceeding.",
+  "reviewed_files": {
+    "curriculum.md": "19231043a1c04841dc6b23e758483da45897187b7a7ea44454d9a1e13cdcc512",
+    "progress.json": "40092a1bdbac9a0993e7ba4848ead250ade70095e83e760b4eb3a40fa4db15f5",
+    "progression_ledger.md": "8c21e0a3b74bf1d36a9e121819749caffdd692a4c2358c56be4995b7371d09f3",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_01.md": "b0f4bd3df4c49c50bb30f84d7a8c3049e342b124c4d20595111be536781a6fe7"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 31,
+    "bilateral_landing_events": 31,
+    "single_leg_landing_events": 0,
+    "individual_foot_contacts": 62,
+    "other_explosive": [
+      {
+        "name": "Forward Medicine Ball Scoop Toss",
+        "amount": 6,
+        "unit": "throws"
+      },
+      {
+        "name": "Seated Straight-Knee Band Plantarflexion — fast press",
+        "amount": 12,
+        "unit": "presses"
+      }
+    ],
+    "primary_set_rounds": 9,
+    "primary_bouts": 13,
+    "primary_work": {
+      "reps": 80,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 3,
+    "time_seconds": {
+      "explosive": 1366,
+      "stabilization": 242,
+      "primary": 2488,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 72,
+    "time_max": 82,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Heel-Supported Toe Raise",
+        "sets": 1,
+        "reps_or_seconds_per_side": 10,
+        "sides": 1,
+        "total": 10,
+        "unit": "reps, both feet"
+      },
+      {
+        "exercise": "Step-Down to Hover — low forward reach",
+        "sets": 1,
+        "reps_or_seconds_per_side": 4,
+        "sides": 2,
+        "total": 8,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Line Pogo Forward-Back",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 12,
+        "unit": "hops",
+        "landing_events": 12,
+        "individual_foot_contacts": 24,
+        "bilateral_landing_events": 12,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Stance Pogo",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 10,
+        "unit": "hops",
+        "landing_events": 10,
+        "individual_foot_contacts": 20,
+        "bilateral_landing_events": 10,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Box Jump — low box, step-down reset",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 3,
+        "unit": "jumps",
+        "landing_events": 3,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 3,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Vertical Jump to Two-Foot Landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "jumps",
+        "landing_events": 6,
+        "individual_foot_contacts": 12,
+        "bilateral_landing_events": 6,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Forward Medicine Ball Scoop Toss",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "throws",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Seated Straight-Knee Band Plantarflexion — fast press",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 12,
+        "unit": "presses",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 31
+  },
+  "status": "finalized_prescription",
+  "final_review": "Reviewed the rendered four-section class and arithmetic. All six default drills have a distinct task from Class 1 defaults; the toss contingency overlap is disclosed. Landing total is 31 two-foot events, not unilateral landings from unilateral takeoffs. Strength holds at 9 rounds/13 bouts. The 72–82-minute estimate is longer than an assumed one-hour booking and is disclosed without shortening recovery."
+}

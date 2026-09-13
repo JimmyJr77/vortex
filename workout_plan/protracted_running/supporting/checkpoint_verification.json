@@ -1,0 +1,94 @@
+{
+  "last_finalized_class": 12,
+  "next_class": null,
+  "status": "PASS",
+  "actual_completion": null,
+  "class_counts": {
+    "classes/class_01.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_02.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_03.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_04.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_05.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_06.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_07.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_08.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_09.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_10.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_11.md": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "classes/class_12.md": [
+      0,
+      6,
+      2,
+      6
+    ]
+  },
+  "files_sha256": {
+    "classes/class_01.md": "b0f4bd3df4c49c50bb30f84d7a8c3049e342b124c4d20595111be536781a6fe7",
+    "classes/class_02.md": "4b176c884bdad1ce829528300e431280dee0e3dc94d1da24046febc0a618c2a5",
+    "classes/class_03.md": "32898957c83baba7bd2900fb628680a3a82604da527ab2f273f4a5298bc38a2f",
+    "classes/class_04.md": "3a8f88b7d8ab991dd472039e63cc43dd0afeebee594a8b45969179822faa4793",
+    "classes/class_05.md": "4b6b797e4313052673d8ab156991ac113063b5ce8b2e8de5a61b17b067fe1e9f",
+    "classes/class_06.md": "e6b38e9f38fe386ed9c5e0b279244bcd85187e582c79080d51e11455507cfeec",
+    "classes/class_07.md": "3f6ef82f80dff3a14e857fb7cb2a4ef4393ec2459a1b0e722aa25914faccb854",
+    "classes/class_08.md": "b4c6998efcddeb9fabf5a171a71cfcdd9ad0a79f0884f0d5378fd1d0113b1160",
+    "classes/class_09.md": "935b63336708ad391d457a92253ee251303134593d7f4f91e48ad4a80f903edd",
+    "classes/class_10.md": "a147071a73041a516375ef1a9d9280c8fb37cd059352569db0d82eeda82aef34",
+    "classes/class_11.md": "53342119fe7e384f278a7ca889e3c5a2f9655055f98e49e68ad29c606a1822f1",
+    "classes/class_12.md": "36c1020302736593157c06e310246189b5a1ac3a0f64bcae891316c65814fdd2"
+  }
+}

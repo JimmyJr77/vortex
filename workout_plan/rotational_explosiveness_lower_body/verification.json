@@ -1,0 +1,468 @@
+{
+  "date": "2026-09-13",
+  "status": "pass",
+  "completed_prescriptions": 12,
+  "observed_completed_classes": null,
+  "checks": {
+    "exact_seven_categories_and_subcategories": true,
+    "original_spec_byte_identical": true,
+    "all_twelve_classes_four_sections_6_2_6": true,
+    "nonzero_doses_jobs_cues_and_resets": true,
+    "per_side_working_preparation_and_flight_arithmetic": true,
+    "timing_recomputed_from_all_work_and_rests": true,
+    "69_named_tasks_3_declared_repeats": true,
+    "class_12_matched_prefix_dose_rest": true,
+    "no_class_13_or_placeholders": true,
+    "final_state_sequence": true,
+    "observations_remain_unknown": true,
+    "all_referenced_state_files_exist": true,
+    "local_markdown_links_resolve": true,
+    "claimed_catalog_identities_verified": true,
+    "conditional_variants_and_full_audit_present": true,
+    "summary_matches_class_records": true
+  },
+  "classes": [
+    {
+      "class": 1,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "explosive_entries": 6,
+        "stabilization_entries": 2,
+        "primary_strength_entries": 6,
+        "bilateral_landings": 8,
+        "unilateral_landings": 4,
+        "total_landing_events": 12,
+        "grounded_explosive_efforts": 26,
+        "throws": 0,
+        "target_impacts": 0,
+        "sprint_metres": 0,
+        "primary_working_rounds": 8,
+        "primary_working_bouts": 14,
+        "primary_working_reps": 96,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4977,
+        "planning_minutes_excluding_existing_preparation": [
+          83,
+          90
+        ],
+        "full_session_duration_minutes": null,
+        "kick_actions": 12
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 2,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 8,
+        "unilateral_landings": 4,
+        "total_landing_events": 12,
+        "grounded_explosive_efforts": 16,
+        "kick_actions": 8,
+        "primary_working_rounds": 8,
+        "primary_working_bouts": 14,
+        "primary_working_reps": 96,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4623,
+        "planning_minutes_excluding_existing_preparation": [
+          78,
+          85
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 3,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 8,
+        "unilateral_landings": 0,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 8,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 92,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4497,
+        "planning_minutes_excluding_existing_preparation": [
+          75,
+          82
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 4,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 4,
+        "unilateral_landings": 4,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 12,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 92,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4457,
+        "planning_minutes_excluding_existing_preparation": [
+          75,
+          82
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 5,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 4,
+        "unilateral_landings": 4,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 8,
+        "primary_working_rounds": 8,
+        "primary_working_bouts": 14,
+        "primary_working_reps": 96,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4639,
+        "planning_minutes_excluding_existing_preparation": [
+          78,
+          85
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 6,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 4,
+        "unilateral_landings": 0,
+        "total_landing_events": 4,
+        "grounded_explosive_efforts": 24,
+        "kick_actions": 12,
+        "primary_working_rounds": 6,
+        "primary_working_bouts": 11,
+        "primary_working_reps": 76,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4243,
+        "planning_minutes_excluding_existing_preparation": [
+          71,
+          78
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 7,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 12,
+        "unilateral_landings": 0,
+        "total_landing_events": 12,
+        "grounded_explosive_efforts": 12,
+        "kick_actions": 4,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 88,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4321,
+        "planning_minutes_excluding_existing_preparation": [
+          73,
+          80
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 8,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 4,
+        "unilateral_landings": 4,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 12,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 88,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4517,
+        "planning_minutes_excluding_existing_preparation": [
+          76,
+          83
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 9,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 8,
+        "unilateral_landings": 4,
+        "total_landing_events": 12,
+        "grounded_explosive_efforts": 16,
+        "kick_actions": 12,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 88,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4467,
+        "planning_minutes_excluding_existing_preparation": [
+          75,
+          82
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 10,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 8,
+        "unilateral_landings": 0,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 8,
+        "primary_working_rounds": 7,
+        "primary_working_bouts": 13,
+        "primary_working_reps": 92,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 5073,
+        "planning_minutes_excluding_existing_preparation": [
+          85,
+          92
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 11,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 4,
+        "unilateral_landings": 4,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 20,
+        "kick_actions": 12,
+        "primary_working_rounds": 6,
+        "primary_working_bouts": 11,
+        "primary_working_reps": 76,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4251,
+        "planning_minutes_excluding_existing_preparation": [
+          71,
+          78
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    },
+    {
+      "class": 12,
+      "counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "status": "pass",
+      "prescribed_summary": {
+        "bilateral_landings": 8,
+        "unilateral_landings": 0,
+        "total_landing_events": 8,
+        "grounded_explosive_efforts": 22,
+        "kick_actions": 18,
+        "primary_working_rounds": 6,
+        "primary_working_bouts": 11,
+        "primary_working_reps": 76,
+        "primary_preparation_reps": 39,
+        "stabilization_dynamic_reps": 8,
+        "stabilization_hold_foot_seconds": 30,
+        "modeled_seconds_excluding_existing_preparation": 4477,
+        "planning_minutes_excluding_existing_preparation": [
+          75,
+          82
+        ],
+        "full_session_duration_minutes": null
+      },
+      "athlete_execution": null
+    }
+  ],
+  "named_drill_repeats": {
+    "Split-stance explosive hip pivot": 2,
+    "Standing low roundhouse shadow kick": 2,
+    "90-Degree Hop to Stick": 2
+  },
+  "planned_totals": {
+    "bilateral_landings": 80,
+    "unilateral_landings": 28,
+    "total_landing_events": 108,
+    "grounded_explosive_efforts": 236,
+    "kick_actions": 126,
+    "primary_working_rounds": 84,
+    "primary_working_bouts": 153,
+    "primary_working_reps": 1056,
+    "primary_preparation_reps": 468,
+    "stabilization_dynamic_reps": 96,
+    "stabilization_hold_foot_seconds": 360
+  },
+  "source_sha256": {
+    "scripts/data/kicking-athletes-all-cards.json": "ad66c3c070c84056a62775858ea3d192ac30c828e3ae46c159c492bcbf9149ef",
+    "scripts/data/rotational-power-exercise-library-all-50.json": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+    "scripts/data/loaded-strength-all-cards.json": "f3bfd36bd1d4ab60c8f8466a9563da5dd17a94b85986e2937b618d0f388b4ea9",
+    "backend/migrations/522_coaching_short_foot_drill_identity_and_family_audit_hardening.sql": "faf5c95198af36e38c0e25ec34f1c8a72b1fdbc4a0fe0aca228df9833d9751ca"
+  },
+  "artifact_sha256": {
+    "README.md": "316126a078cc542bf408347de3cc8e3b179a4145e8d7ca81fb605675bb0d71f2",
+    "athlete_feedback.md": "0a497ad3283cca22fcfbec8dd209fb987997ff2ba325ebba6ba107f1354ecd29",
+    "classes/class_01.md": "65685c47b8d2b68b381234251e4f0cbeaf7eb9f5d94dcfc93a600f0b7ca4d700",
+    "classes/class_02.md": "a47f290ef345538f75cf87558a0231ff388d3c2baaa67151ad7638f3cddb6878",
+    "classes/class_03.md": "c9062fd632e188f70d2da6f25c4c6dc4be1a2ca430197c5516ff77ec8efdbd3c",
+    "classes/class_04.md": "5723ca81aedf3564011623b1729c5b72b0749f844befb2f49c9232e5908d6b0f",
+    "classes/class_05.md": "ff25d7ffb575f314d2e15559838c72bb2707532b0cf5c66d6463bcc97c57dee0",
+    "classes/class_06.md": "b697b43944ae587b2015ff1e83494f364e9a2dd0a1f900aec37580b21cbcf78e",
+    "classes/class_07.md": "40d4296e94950dc3238689b1ace6e28fcbe69d399024ad1f7c78e2fe62ced456",
+    "classes/class_08.md": "b47d7c624c93bb48d7d78fbc679dda6890ee66595b628dc0f00f70a0642c725a",
+    "classes/class_09.md": "d1a6570f6f5d407be16d76363f47191326d5e0e0a30a8f883d90111a80c6a81a",
+    "classes/class_10.md": "064e94056784f3925476d63ed9bbba7d6292c23bbc9ed1ebae27cf0a4038835d",
+    "classes/class_11.md": "7742be4eda3f4b01e877ca1a09bf5daa6b6f1427a9806a25261ac1de52810149",
+    "classes/class_12.md": "e351cd7e841f9e4fd3a64ecaebc16e6d99b8184f93558774b844126fe6ea389c",
+    "curriculum.md": "e4b8882a4123bc63c5d2fc7de1f69470485a0b879ec408aafe0c06a770c5778e",
+    "drill_register.md": "5e9d3812c549896c1c68c5885659a2062c9d7c3e16964c64b5dc6c92369f5930",
+    "progress.json": "a3e42396ab3ed6fb7a4eb4114bb2042e69e2641d49a18195bae9ed95fa08cea8",
+    "progression_ledger.md": "b44db66d45a57b4f8fd8fa682d94be6872f5e541bf5761160eedee594a4a73ba",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "71419167f58a0e7fbacb4b6fdac6b970177801777fd9b69205eef6386819f697",
+    "supporting/class_02_audit.md": "04e70540190ad2ba10c00d6268f2c47f1ab667e2ecede2655830a3ae8b5e0a2c",
+    "supporting/class_02_prescription.json": "3906d1d29166392b1d77b030e39b9547f53789dd9b5bd4d4f539c7e72191b229",
+    "supporting/class_03_audit.md": "19de6575b958288e4f8d64797c80c1b7ce69d876d61190d699e8fa4835b85479",
+    "supporting/class_03_prescription.json": "04fab0fe4e176d85c78f19fc45798eba00d0dd815d77e212c6df05d96206ffeb",
+    "supporting/class_04_audit.md": "e2511a0f9ea2327f5d9acc697ac7bb936196173944d5d7dbf4b365831db67927",
+    "supporting/class_04_prescription.json": "31ef1c0b038bf2bc42cab57c3ce36b015c47228ff7ad461df14ba39575a937cf",
+    "supporting/class_05_audit.md": "c59498d797b3521996dd8c2d0330f85fb4b0037ac854f8e556dc2d775f9eaff4",
+    "supporting/class_05_prescription.json": "42db1cfe8308830c1f09f14e856923d9ec88b4eafa4b7a1352f8bfcc572ab9da",
+    "supporting/class_06_audit.md": "2130a62cce97309e6adfd78fdbf1b6b5789eaaf2c28eb6bf44b399cd905256c7",
+    "supporting/class_06_prescription.json": "aa17283997daef1e0e71acb57695ff467937bdb00380571b776d2bb3e433aefa",
+    "supporting/class_07_audit.md": "a1d7d99c852f1dac30b5630c7d0a21abaf04308c949a154f6095dc451d92956c",
+    "supporting/class_07_prescription.json": "7feaf92d156da14f4118eac5270ffad7bdb28bd7e4d274087f67395f4a88a43b",
+    "supporting/class_08_audit.md": "0999ce433ef9918fe333a5cede240a30b5bdc088656451ca63b3576bebba2ed1",
+    "supporting/class_08_prescription.json": "abb9a07ea4faa6f55312b121c8ee17856763bb47be5e71a5ebc60cefa5ab4ce5",
+    "supporting/class_09_audit.md": "a5a2b0bbaa5d01b0c39b726769c8d6ea9d5aa18fd7114aa2408ec7d57b8706a3",
+    "supporting/class_09_prescription.json": "2fcde4c1c7585a2fd2737f109b5f091e07470a2f4089cecffe07fec49c40d0d6",
+    "supporting/class_10_audit.md": "0a74cbb9c63781702f35dbaab82d092cb34cb4df93906a67de6b00a8c918cc3b",
+    "supporting/class_10_prescription.json": "f7eb007c4fe0365192747db6a909bd30db174acf368cf1e87f7d3d509492934d",
+    "supporting/class_11_audit.md": "8c62cc2fc42c6c2e651bfcca9a1e7f95f45675365c2c79153a8056f2cf1dc9fc",
+    "supporting/class_11_prescription.json": "e65bc83485109fa8e3b1d5052f72cb9ec9a5683c752c78f6aad53fd0c9ed48eb",
+    "supporting/class_12_audit.md": "5b81ecba0b3f89880831bfe0b63ad1004093ab0c97d0761cd2c7f164c6fe18fb",
+    "supporting/class_12_prescription.json": "ee99eedc680e72d8f755fa73c95d7ae4361d030d30d37455d90b32b6d8987484",
+    "supporting/full_sequence_audit.md": "7e9a05ed29df0df82b335e4e7beee0a2b67122c9ac63a0931c77ac34e7426f00",
+    "supporting/sequence_summary.json": "6bdd5898864b90c39e41596ee2e187773b9a8b0be01823162708d4fe4533f5c8",
+    "supporting/sources_and_library.md": "0128d797e45e13594e1594bd049705331435723df26740c74a070898ad347201"
+  },
+  "limits": [
+    "Structural, arithmetic, source-name and link consistency were verified; physical athlete delivery was not observed.",
+    "Individual class audits and full_sequence_audit.md retain equipment, timing, readiness and performance limitations.",
+    "Different drill tasks do not prove progression; written totals are not actual or weekly workload."
+  ]
+}

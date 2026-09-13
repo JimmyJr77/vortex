@@ -41,7 +41,12 @@ export function ProgrammingExerciseLibrary({ request, disabled, aiEnabled, onBus
     const controller = new AbortController(); active.current = controller
     setOperation(name); setError(null)
     try { await action(controller.signal) }
-    catch (error) { if (!controller.signal.aborted) setError(programmingError(error)) }
+    catch (error) { if (!controller.signal.aborted) {
+      setError(programmingError(error))
+      if (error instanceof Error && 'status' in error && error.status === 403) {
+        setAccess(false); setPage({ items: [], nextCursor: null }); setReview(null); setEditor(null); setResearch(null); setAssessment(null)
+      }
+    } }
     finally { if (active.current === controller) { active.current = null; setOperation(null) } }
   }
   useEffect(() => () => { active.current?.abort() }, [])
@@ -156,7 +161,7 @@ export function ProgrammingExerciseLibrary({ request, disabled, aiEnabled, onBus
     </div></details>
     {review && <ProgrammingExerciseReview key={review.record.draftAuditId} review={review} disabled={busy} onOpenCard={openCard} onAccept={accept}
       onRefresh={() => void run('Refreshing proposal status', (signal) => openReview(review.record.draftAuditId, signal))} />}
-    {review?.record.proposal?.kind === 'delivery_profile' && <ProgrammingProfileRevision key={review.record.draftAuditId} review={review} taxonomy={taxonomy}
+    {review?.record.proposal?.kind === 'delivery_profile' && <ProgrammingProfileRevision key={`revision:${review.record.draftAuditId}`} review={review} taxonomy={taxonomy}
       disabled={disabled || operation !== null} run={run} onDirty={setStagedDirty} />}
     {editor && <CanonicalCardEditor source={editor} onClose={() => { setEditor(null); if (review) void run('Refreshing proposal status', (signal) => openReview(review.record.draftAuditId, signal)) }} onSaved={setEditor} />}
   </section>

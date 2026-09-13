@@ -237,6 +237,22 @@ export function normalizeMediaReviewBasis(raw) {
   }
 }
 
+export const CANONICAL_MEDIA_REVIEW_DAYS = 180
+
+/** Shared observed-evidence contract for live-card and staged-version reviews. */
+export function normalizeCanonicalMediaReviewInput(card, body = {}) {
+  const url = String(body.url || '').trim()
+  if (!url || url !== card.approvedVideoUrl) throw new TypeError('Media review URL must match the card approved video.')
+  const demonstrationQualityScore = Number(body.demonstrationQualityScore)
+  if (!Number.isInteger(demonstrationQualityScore) || demonstrationQualityScore < 1 || demonstrationQualityScore > 100) throw new RangeError('Media quality must be an integer from 1 to 100.')
+  const linkStatus = ['healthy', 'broken', 'mismatched'].includes(body.linkStatus) ? body.linkStatus : null
+  if (!linkStatus) throw new TypeError('A valid media link status is required.')
+  const notes = String(body.notes || '').trim()
+  if (notes.length < 20) throw new TypeError('Media review notes must document at least 20 characters of observed evidence.')
+  return { url, demonstrationQualityScore, linkStatus, notes, exactVariantMatch: body.exactVariantMatch === true,
+    reviewBasis: normalizeMediaReviewBasis(body.reviewBasis ?? body.review_basis) }
+}
+
 export function hasVerifiedMediaReviewBasis(raw) {
   try {
     normalizeMediaReviewBasis(raw)

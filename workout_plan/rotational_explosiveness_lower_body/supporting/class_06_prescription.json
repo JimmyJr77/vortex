@@ -1,0 +1,146 @@
+{
+  "n": 6,
+  "label": "Lower-volume consolidation of hip-turn control",
+  "effort": "Produce a short clean rotational kick from a simple base while reducing landing and strength volume.",
+  "brief": "This is a workload consolidation, not a claim that unfamiliar drills are already mastered. Supporting tasks simplify balance or remove large travel: ankle-led release, leg-driven turning without an arm swing, a low outward sweep, a retreat plant and supported return-direction hip torque.",
+  "marker": "valid E2 attempts out of four per leg from the same parallel stance, with one weight shift, no extra step and a controlled low finish.",
+  "e": [
+    {
+      "name": "Supported calf-pop to low knee chamber",
+      "side": "support leg",
+      "grounded": 1,
+      "execution": "With fingertip bench support, keep the support knee softly bent and make a brisk heel rise while bringing the opposite bent knee to a low chamber. The supporting forefoot stays down; no hop or large turn. Lower and reset.",
+      "job": "Coordinate the ankle-led heel release with unloading the free leg, without another landing.",
+      "gate": "Use a smaller heel rise/chamber instead if the ankle rolls or the forefoot leaves the floor.",
+      "novelty": "Ankle-led non-flight rise plus free-leg unloading, distinct from a thigh-led band drive or full hip pivot.",
+      "total_attempts": 4,
+      "modeled_seconds": 180
+    },
+    {
+      "name": "Parallel-stance low roundhouse",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "Start with both feet parallel in a comfortable athletic stance. Shift onto the support leg and turn its foot/pelvis into one low roundhouse with the other leg; recoil and return to the original parallel base. No preselected front/rear fighting stance or entry step.",
+      "job": "Organize support selection and the hip turn from a neutral two-foot base.",
+      "gate": "Widen the starting base slightly or reduce the kick arc instead if the athlete needs a rescue step; feet must be free to turn.",
+      "novelty": "Neutral parallel start requires support selection rather than the prearranged front/rear loading in earlier full kicks.",
+      "total_attempts": 8,
+      "modeled_seconds": 420
+    },
+    {
+      "name": "Hands-on-hips rotational jump to stick",
+      "side": "turn direction",
+      "bilateral": 1,
+      "execution": "Keep hands resting on the hips. Use a small natural dip and turn in a low two-foot jump through a controllable arc up to 90 degrees; land aligned and hold 2 s. No arm wind-up or repeated bounce.",
+      "job": "Observe leg/hip-driven rotational takeoff with arm-swing assistance removed.",
+      "gate": "Use a smaller turn instead if removing the arms disrupts landing; do not chase the angle achieved with free arms.",
+      "novelty": "Explicit arm-contribution constraint within the known rotational-jump family; a distinct task condition, not a new unrelated jump pattern.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Supported low outward crescent sweep",
+      "side": "sweeping leg",
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "With light fingertip support, start the low free foot near the midline and sweep it outward in a small arc with a soft knee and comfortable hip turn, then fold the knee and set down. No high lift or forced crossing start.",
+      "job": "Express the outward hip sweep and its arrest, complementing the inward return action examined in Class 4.",
+      "gate": "Use a bent-knee outward sweep instead if the longer lever causes groin pull or pelvic lean; do not rotate against a fixed support foot.",
+      "novelty": "Outward hip action with added support, opposite mechanical sweep to the earlier inward crescent; not merely the other leg.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Retreat-step hip-open plant",
+      "side": "receiving leg",
+      "grounded": 1,
+      "execution": "Take one short step backward onto the named leg and open feet/pelvis together into a shallow kick stance. Stop the backward drift within the same 2 m segment and hold 2 s. No kick, run or fast blind travel.",
+      "job": "Retain a usable rotational base while receiving backward bodyweight instead of advancing or moving laterally.",
+      "gate": "Use a shorter, slower retreat instead if the athlete cannot see/control the clear route or heels collide.",
+      "novelty": "Backward receiving momentum and an opening plant; earlier entries arrived forward or laterally.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Seated self-resisted hip external-rotation acceleration",
+      "side": "hip",
+      "grounded": 1,
+      "execution": "Sit with thighs supported and knee near 90 degrees. The working foot moves a short distance inward as the hip externally rotates; the same-side hand gives very light opposing pressure at the inner lower shin. Accelerate smoothly, then return slowly with knee/pelvis still.",
+      "job": "Give the return-direction hip rotators a small rapid torque task with standing balance removed.",
+      "gate": "Reduce pressure/range instead for any knee/ankle motion or pinching; never jerk into end range.",
+      "novelty": "External-rotation torque with self-resistance, distinct joint action from Class 3 internal-rotation acceleration; four efforts only.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain a challenging planted-leg push with one working round rather than adding fatigue during consolidation.",
+    "Preserve posterior-chain strength and controlled stance support at reduced total volume.",
+    "Maintain lateral hip/adductor force with one round after the preceding lateral emphasis.",
+    "Keep a reproducible direct internal-rotation strength anchor while the explosive task also samples the return direction.",
+    "Maintain active chamber-lifting strength without a second round.",
+    "Maintain bent-knee ankle force with one working set and full control."
+  ],
+  "s_jobs": "The same easy hip/foot strengthening preserves stable execution conditions while the overall demanding work is reduced.",
+  "readiness": "Use supported versions and small arcs; the new neutral-start kick still needs qualification. The external-rotation task must move at the hip with a quiet knee. If unfamiliar coordination needs slow instruction, log technique-only attempts rather than insist on full speed.",
+  "strength_reason": "Reduce Class 5 [1,1,2,1,1,2] to one round per lift [1,1,1,1,1,1]: 76 working reps and 11 working bouts. Relative effort remains challenging at 2–3 RIR; volume is reduced, not replaced by light balance work.",
+  "exposure_note": "Only four bilateral landings are planned, all from the arms-constrained rotational jump. Twenty-four non-flight efforts include twelve kick/sweep actions. Supported and seated rapid tasks are non-flight efforts, not landing contacts.",
+  "space": "Most work is stationary; only the short retreat uses up to 2 m plus 2 m recovery space within one 10 m lane. Check the backward path and place nobody behind the receiving athlete.",
+  "progression": "Following the lateral-entry prescription, this class deliberately halves planned landings from eight to four and reduces strength work from 96 to 76 reps. It consolidates workload and known strength patterns; new drill conditions do not imply skill mastery.",
+  "audit": "A linked rebound and a second flight drill were rejected for this lower-volume exposure. Support and seated positions reduce balance demands in selected tasks; they still require active rapid force expression and a full reset. The arms-constrained jump is honestly recorded as a variant of the rotational-jump family.",
+  "prescribed_summary": {
+    "bilateral_landings": 4,
+    "unilateral_landings": 0,
+    "total_landing_events": 4,
+    "grounded_explosive_efforts": 24,
+    "kick_actions": 12,
+    "primary_working_rounds": 6,
+    "primary_working_bouts": 11,
+    "primary_working_reps": 76,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4243,
+    "planning_minutes_excluding_existing_preparation": [
+      71,
+      78
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      180,
+      420,
+      210,
+      210,
+      210,
+      210
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 6 and actual recovery before Class 7; only then qualify any rapid load-to-turn or linked-contact task, with a non-linked same-slot replacement when needed.",
+  "reviewed_previous_at_authoring_sha256": "0762fd6e6b6216dbedfdfe968d91718c770dfc6450fc11f0ce8f726ac44f21d2",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "b697b43944ae587b2015ff1e83494f364e9a2dd0a1f900aec37580b21cbcf78e",
+  "final_previous_class_sha256": "ff25d7ffb575f314d2e15559838c72bb2707532b0cf5c66d6463bcc97c57dee0"
+}

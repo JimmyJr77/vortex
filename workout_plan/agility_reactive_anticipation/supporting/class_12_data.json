@@ -1,0 +1,302 @@
+{
+  "class_number": 12,
+  "effort": "Recognize opponent intent, select the appropriate movement and adapt when a route closes.",
+  "brief": "Integrate approach, retreat and lateral response without trying to make the final class the hardest. E1 uses three opponent intentions and a short response distance. A fore–aft-to-lateral rebound, parallel-to-split acceptance, moving lateral takeoff, ballistic hip extension and a late route closure test different execution requirements. End with review of actual evidence, not a repeated drill or a manufactured before/after score.",
+  "anchor_protocol": "Athlete starts in the centre of a marked response bay. Coach presents six natural body commitments in hidden order: two advances (athlete gives ground), two retreats (athlete closes), and two lateral openings (athlete shifts the same way, one each side). Each athlete response is only 1 m, with 1 m stopping space. Coach remains in a protected front observation box, not the athlete route. Give obvious movements with no feints when readiness is unknown. Classify the intention first, then move; no extra trial is added to improve the score.",
+  "quality_marker": "E1: report six actual intention choices and whether the selected movement, foot placement and stop were controlled. Keep approach, retreat and lateral outcomes separate. Scores from the 12 different drills cannot establish an improvement in reaction time. Strength evidence may be compared only under matched execution/load/range/rest conditions, if actual records exist.",
+  "layout": "For E1 use a verified response bay with ≥5 m usable width, athlete centred at longitudinal 4 m; forward/back endpoints including stopping lie at 2/6 m, lateral endpoints are ±2 m from centre. Coach has a protected box near the 9–10 m end; verify ≥2 m body clearance from the entire athlete envelope. E2/E4 use short jump travel in a clear strip. E5 needs a manageable kettlebell and overhead-free swing space; no person in front. E6 needs a separately verified branching bay and a coach position outside both exits; its ≤2.5 m travel plus ≤1.5 m stopping fits longitudinally within 10 m. If width or clearance is unavailable, reconfigure the task footprint before delivery, rather than assuming three lanes supply it. Full-route width is a requirement, not confirmed inventory: branch stopping extensions can exceed a 4 m bay. Compact same-drill option for E1: keep forward/back responses at 1 m plus 1 m stopping but shorten each lateral response to 0.5 m plus 0.75 m stopping. Two responses of each intent give 5 m movement plus up to 5.5 m stopping. E6 uses a first step of 0.5 m, then a 1 m redirected route and 1 m stopping, with early closure; two trials give 3 m movement plus up to 2 m stopping. Verify all paths in a 4 m-wide bay and keep the coach outside the buffers. No additional trials or exercises. At setup, mark complete body/landing envelopes, both possible routes, run-off and the coach position; a floor-line diagram alone does not establish clearance. If even the compact footprint is unavailable, resolve the layout before delivery.",
+  "progression": "Previous: Class 11 prescribed an attention handoff and six unilateral landings after its volume revision; no actual response reported. Current: one opponent, three clear intentions and short routes; all six primary lifts have one challenging working round. Kettlebell swing is a new physical task and requires a coached hinge and secure grip; the first scheduled swings stay small, and stop the exercise if the pattern is not controlled. Keep known strength loads rather than test maxima. Any future progression follows actual weak-link findings, not the fact that twelve files exist.",
+  "audit": "Final class retains meaningful work in all 14 slots while limiting strength volume and route length. Fore–aft-to-lateral rebound changes plane between linked same-leg contacts; split landing reverses the takeoff/landing asymmetry of Class 2; shuffle-bound converts incoming lateral momentum into one flight. Swing supplies grounded ballistic hip extension without more impacts. Late closure is an offensive route-replanning problem, not a repeated two-junction chase. Full-sequence audit must confirm unique drills, conditional strength progression, accounting and unresolved delivery assumptions before handoff. Geometry revision: removed the implication that every full-length angled route fits a 4 m-wide rectangle; added a quantified shorter same-drill alternative. Default ledger totals remain the full-route prescription; compact actual travel is logged separately.",
+  "explosive": [
+    {
+      "name": "Three-Intent Opponent Read",
+      "dose": "1 × 6 trials: 2 advance, 2 retreat, 2 lateral",
+      "job": "Main integration: choose whether to give ground, close space or shift laterally from the opponent’s intention.",
+      "execution": "Each selected response travels 1 m and stops within 1 m. Coach gives one clear intention per trial; lateral openings include one each way. Rest 75 s between trials and 90 s before E2. Keep intentions obvious and response speed controlled if accuracy is uncertain.",
+      "identity": "three_intention_approach_retreat_lateral_response_selection",
+      "account": {
+        "locomotor_attempts": 6,
+        "rapid_metres": 6,
+        "stopping_metres_max": 6,
+        "decision_opportunities_max": 6
+      },
+      "seconds": 555,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Single-Leg Forward-to-Lateral Rebound Hop",
+      "dose": "1 × 1 pair/leg = 4 landings",
+      "job": "Redirect a small forward landing into an outward lateral push on the same leg, rather than reversing back along the same line.",
+      "execution": "Hop a short distance forward, rebound outward once on the same leg, then hold 2 s; right leg exits right, left leg exits left. Rest 75 s between legs and 60 s before E3. Shorten both distances if the second contact loses alignment.",
+      "identity": "same_leg_forward_to_outward_orthogonal_rebound_pair",
+      "account": {
+        "unilateral_landings": 4
+      },
+      "seconds": 211,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Forward Jump to Split-Stance Landing",
+      "dose": "1 × 1 per landing lead = 2 jumps",
+      "job": "Accept a two-foot forward impulse in an asymmetric ready base, preparing either leg to own the next step.",
+      "execution": "Jump a short distance forward from parallel feet and land split, both feet contacting with control; one each lead leg, hold 2 s. Do not switch again or add a second jump. Rest 45 s between jumps and 60 s before E4. Shorten travel/stance for a heavy front-foot landing.",
+      "identity": "parallel_bilateral_forward_takeoff_staggered_terminal_landing",
+      "account": {
+        "bilateral_landings": 2
+      },
+      "seconds": 177,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Shuffle-to-Bound Release",
+      "dose": "1 × 1 each direction = 2 bounds",
+      "job": "Convert incoming lateral travel into one unilateral flight, unlike the stationary skater push or grounded shuffle stop.",
+      "execution": "Take two controlled shuffle steps over ≤1 m, push off the trailing-side leg into one small opposite-leg lateral bound and hold 2 s. One each direction. Rest 75 s between trials and 60 s before E5. Slow/shorten the shuffle and bound for reaching or collapse.",
+      "identity": "lateral_shuffle_momentum_to_opposite_leg_bound_stick",
+      "account": {
+        "unilateral_landings": 2,
+        "locomotor_attempts": 2,
+        "movement_metres_max": 2
+      },
+      "seconds": 211,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Kettlebell Swing — two-hand",
+      "dose": "1 × 6 swings",
+      "job": "Rapid hip extension from a grounded hinge supports repeated acceleration impulses without extra jump landings.",
+      "execution": "Use a manageable bell, secure two-hand grip, hinge then snap hips so the bell floats no higher than chest height. Arms guide, spine stays stacked; no overhead swing or squat-lift. First two scheduled swings stay small. Rest 90 s before E6. Stop for rounding, lumbar lean-back, grip loss or an arm-dominated pattern; do not replace failed swings with extra reps.",
+      "identity": "grounded_repeated_ballistic_hip_hinge_swing",
+      "account": {
+        "other_ballistic_efforts": 6
+      },
+      "seconds": 168,
+      "source": "kettlebell-swing; two-hand chest-height execution specified"
+    },
+    {
+      "name": "Late Gate-Closure Escape",
+      "dose": "1 × 2 trials, one initial route each side",
+      "job": "Re-plan an offensive route when the initially available exit is closed after departure.",
+      "execution": "Coach on protected path leaves a gate open; athlete starts toward it. After the first step, coach visibly covers that route; athlete brakes, selects the other exit and stops. Total movement ≤2.5 m plus ≤1.5 m stopping. Rest 90 s between trials and 90 s before strength. Default is an early, obvious closure and a deliberate braking step; no last-instant planted-knee twist.",
+      "identity": "offensive_route_departure_then_late_coverage_replan",
+      "account": {
+        "locomotor_attempts": 2,
+        "rapid_metres": 5,
+        "stopping_metres_max": 3,
+        "decision_opportunities_max": 4,
+        "direction_changes_max": 2
+      },
+      "seconds": 256,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    }
+  ],
+  "stabilization": [
+    {
+      "name": "Lateral Step-Down — light dumbbell",
+      "dose": "1 × 4/leg",
+      "job": "Final low-fatigue control check over a planted leg, without turning it into a balance test.",
+      "execution": "Lower for 3 s from a suitably low stable platform, free heel lightly taps; keep standing heel down. Use bodyweight or reduce range for pelvic/knee drift. If no platform fits, use a shallow supported single-leg squat instead, same dose. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 8,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "stepdown"
+    },
+    {
+      "name": "Short-Foot Drill — both feet supported",
+      "dose": "1 × 3 holds × 5 s/foot",
+      "job": "Maintain the contact base used across the three response types.",
+      "execution": "Keep both feet supported and work one target foot at a time: maintain heel and metatarsal contact while gently raising the arch, with long toes. Relax 5 s between holds; use seated support instead if toes curl. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 0,
+        "hold_seconds": 30,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "foot"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Lateral Lunge — goblet dumbbell",
+      "dose": "1 × 5/side",
+      "job": "Retain the original outside-plant/return strength anchor at a smaller final-session dose.",
+      "execution": "Step sideways from standing, sit into the working hip with whole-foot pressure, then return to the starting stance. Reduce depth/load for groin discomfort, knee collapse or twisting. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "lateral",
+      "source": "lateral-lunge",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 424
+    },
+    {
+      "name": "Split Squat — dumbbells at sides",
+      "dose": "1 × 6/side",
+      "job": "Retain stable lead-leg extension for whichever response is selected.",
+      "execution": "Keep both feet on the floor in a stationary staggered stance; front heel down, controlled descent, drive through the lead leg. Reduce depth/load for pelvic rotation or rear-leg jumping. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "split",
+      "source": "split-squat",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 432
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "dose": "1 × 6 bilateral",
+      "job": "Retain hip-hinge strength, with only one set after the new swing exposure.",
+      "execution": "Hinge from standing with soft knees; keep weights close and stop descent where the pelvis/spine remain controlled. Finish tall without leaning back. Reduce range/load for rounding. Rest 120 s before the next exercise.",
+      "identity": "rdl",
+      "source": "romanian-deadlift",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 6,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 284
+    },
+    {
+      "name": "Copenhagen Plank — Short Lever",
+      "dose": "1 × 15 s/side",
+      "job": "Maintain adductor/pelvis force for an unexpected route closure.",
+      "execution": "Upper knee bent about 90 degrees on a stable bench, forearm under shoulder; lift the lower leg and keep pelvis level. Select a short lever with about 5 seconds clean hold reserve. Stop for groin, shoulder or knee pain. If bench/support is unsuitable, use side-lying hip adduction instead, 1 × 8/side at 2–3 RIR; record changed hold/repetition totals. For that replacement, prepare with 1 × 4 easy reps/side instead of the two 5 s preparation holds; retain side rest. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "copenhagen",
+      "source": "copenhagen-plank-short-lever",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 0,
+        "hold_seconds": 30
+      },
+      "preparation": {
+        "dose": "1 × 5 s/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 0,
+        "hold_seconds": 10,
+        "bouts": 2
+      },
+      "seconds": 295
+    },
+    {
+      "name": "Single-Leg Calf Raise — supported standing, dumbbell",
+      "dose": "1 × 8/side",
+      "job": "Maintain single-leg ankle push without a fatigue test or maximal load.",
+      "execution": "Stand on flat floor with a nearly straight knee and light hand support; raise the heel, pause briefly and lower for 2 seconds. No bounce or ankle roll. Reduce load when heel height declines. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "calf",
+      "source": "single-leg-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bilateral, bent-knee",
+      "dose": "1 × 10 bilateral",
+      "job": "Maintain low-stance ankle strength through controlled repetitions.",
+      "execution": "Use a stable bench, knees near right angles, secure dumbbells on distal thighs above knees. Lower heels for 2 seconds to the floor, pause, then rise. Reduce load for bouncing or shortened range. Rest 60 s before the next exercise.",
+      "identity": "soleus",
+      "source": "seated-dumbbell-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 225
+    }
+  ],
+  "totals": {
+    "explosive": {
+      "locomotor_attempts": 10,
+      "rapid_metres": 11,
+      "stopping_metres_max": 9,
+      "decision_opportunities_max": 10,
+      "unilateral_landings": 6,
+      "bilateral_landings": 2,
+      "movement_metres_max": 2,
+      "other_ballistic_efforts": 6,
+      "direction_changes_max": 2
+    },
+    "stabilization": {
+      "dynamic_reps": 8,
+      "hold_seconds": 30,
+      "bouts": 4
+    },
+    "primary": {
+      "rounds": 6,
+      "bouts": 10,
+      "dynamic_reps": 54,
+      "hold_seconds": 30
+    },
+    "preparation": {
+      "dynamic_reps": 28,
+      "hold_seconds": 10,
+      "bouts": 10
+    }
+  },
+  "time": {
+    "section_minutes": [
+      26.3,
+      6.0,
+      33.4
+    ],
+    "booking_excluding_Access_Prepare_1": [
+      75,
+      90
+    ]
+  },
+  "observed_work": null,
+  "reviewed_before_design": {
+    "classes/class_11.md": "b9586456aebd46b21ef356b9e07381db9906cd941371348ee5cfe2849faa8961",
+    "progression_ledger.md": "34cefab4d84b5edb8366428fa0d27cd2dafc8c350c9b1d595cad4fa24f9d501b",
+    "athlete_feedback.md": "27b4ee2723ee08a45a58624ee8f32607f267c2ee18478008d64f092adde4c0e1",
+    "progress.json": "b15e3880c8facf04267088fdaf97b68f373c461dd7a5216f38dd0690cd4d9b71",
+    "curriculum.md": "eb0f286d176e20b66629a570bbfce214a8104a19145f224f2bfd2f0a25f908df"
+  },
+  "post_sequence_audit": {
+    "drill_identity_review": "manual comparison of support, contraction, trajectory and decision rule; names alone are not the uniqueness evidence",
+    "geometry_review": "full route and quantified same-drill compact option",
+    "replacement_review": "no substitution duplicates an existing primary slot; holds and dynamic alternatives accounted separately"
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "class_number": 3,
+  "title": "Apply forward force from one leg and organize the receiving leg.",
+  "brief": "The forward same-leg hop is the priority. Low unilateral ankle contacts, an opposite-leg bound, a supported-height takeoff and a small vertical one-leg jump separate the propulsion and receiving tasks; a staggered throw rehearses force from an unequal base without another landing.",
+  "explosive": [
+    {
+      "name": "Forward Hop to Stick — Same Leg",
+      "job": "Own a single-leg forward push and receive on that same leg.",
+      "cue": "Use one comfortable dip and natural arms, hop forward, absorb through ankle/knee/hip and hold the same-foot landing 2 s.",
+      "regress": "Shorten travel; stop for repeated free-foot touchdown, knee collapse or painful contact.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Single-Leg Pogo in Place",
+      "job": "Supply a small ankle-rebound dose on each support leg without long travel.",
+      "cue": "Keep a softly bent knee and make low same-foot rebounds in place; settle after the third.",
+      "regress": "Reduce height; stop for stiff painful contacts or uncontrolled travel.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "low_unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Low amplitude and quick, not maximum height",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Opposite-leg Forward Bound to Stick",
+      "job": "Transfer forward impulse from a pushing leg to a different receiving leg.",
+      "cue": "Push from one foot, swing the opposite thigh forward and land on that opposite foot; hold 2 s.",
+      "regress": "Shorten the bound and reduce free-leg swing; stop if reaching the landing foot causes a collapse.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Sprinter Step-Up Jump — Two-foot Floor Landing",
+      "job": "Drive through a forward supported stance leg while coordinating the free knee.",
+      "cue": "Start with one entire foot on a very low stable step, drive up/forward from that leg and land on both feet on the clear floor; hold 2 s and walk to reset.",
+      "regress": "Use a lower step and smaller flight; stop if the rear foot pushes off or the floor landing becomes a drop the athlete cannot control.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Suitable low step and familiar jump-off/floor landing.",
+      "note": ""
+    },
+    {
+      "name": "Split-Stance Forward Medicine Ball Scoop Toss",
+      "job": "Coordinate forward release from a staggered support base without a landing.",
+      "cue": "Hold the lead-foot stance fixed, dip shallowly and extend through the legs into a forward two-hand scoop; no trunk rotation or step.",
+      "regress": "Use a lighter ball and smaller dip; stop if the rear foot slips or the throw becomes a twist.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Single-leg Vertical Jump to Two-foot Landing",
+      "job": "Express stance-leg extension without the added forward braking of E1.",
+      "cue": "Dip on one leg, jump a modest height with natural arms, bring both feet into a quiet two-foot landing and hold 2 s.",
+      "regress": "Reduce height; stop if takeoff knee/pelvis control is lost.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Hip Airplane Iso Hold — Hand Supported",
+      "job": "Lightly control hip/pelvis rotation around the planted leg for a forward landing.",
+      "cue": "Hinge shallowly on one leg with stable hand support; open the pelvis slightly and hold without rotating the stance knee or foot.",
+      "regress": "Reduce hinge/rotation; stop if balance or hamstring tension dominates.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Self-resisted Seated Ankle Dorsiflexion",
+      "job": "Strengthen controlled toe lift for foot placement and early heel acceptance.",
+      "cue": "Sit with the heel planted; press lightly downward on the top of the forefoot with the hand while the foot lifts against it, then return slowly.",
+      "regress": "Reduce hand resistance; keep toes relaxed and stop on discomfort.",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 8,
+    "unilateral_landing_events": 18,
+    "throws": 6,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 6,
+    "primary_rounds": 9,
+    "primary_bouts": 11,
+    "primary_reps": 66,
+    "primary_cycles": 3,
+    "prep_rounds": 7,
+    "prep_bouts": 9,
+    "prep_reps": 32,
+    "prep_cycles": 1,
+    "stabilization_reps": 10,
+    "stabilization_hold_seconds": 24,
+    "landing_events": 26,
+    "landing_foot_contacts": 34
+  },
+  "duration_after_preparation_seconds": 4988,
+  "decision": "Unilateral landing contacts are introduced only for athletes with actual competence. The static-start class does not grant that competence. Low pogo contacts are limited to three per leg; the main hop has eight attempts while the step-up and vertical supports use two per leg. Strength priority shifts to split squat (two sets per side); squat falls to two sets and walkout to three cycles to constrain combined unilateral/posterior-chain fatigue. Loads are held at current demonstrated capacity.",
+  "next_job": "Class 4 will link arm timing with a staggered bilateral takeoff; review response to single-leg contacts before any new exposure.",
+  "observed": null,
+  "class_sha256": "7d83b50c839de75353ea04ed6a90f3fe3756606c6eb636e9d33be96b52f447fc"
+}

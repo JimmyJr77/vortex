@@ -1,0 +1,245 @@
+{
+  "class_number": 5,
+  "title": "Drive horizontal projection through a decisive hip impulse.",
+  "brief": "The main task reverses a small backward step into a forward two-foot push. Hip-driven throws, a loaded extension jump, resisted grounded hip extension and low straight-leg bounds separate hip impulse from approach speed. The half-kneeling chest release reinforces a forward force path through a steady pelvis.",
+  "explosive": [
+    {
+      "name": "Backward-step Reversal Broad Jump",
+      "job": "Convert a small rearward load into forward hip-driven projection.",
+      "cue": "From standing, take one short backward step then step forward to gather both feet and immediately jump forward with natural arms; hold the bilateral landing 2 s.",
+      "regress": "Shorten and slow the entry; stop for extra shuffles or an uncontrolled forward pitch.",
+      "sets": 3,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Two entry steps per attempt: 12 total walking entry steps; each entry fits within 2 m, at most 12 m across all entries."
+    },
+    {
+      "name": "Backward Overhead Medicine Ball Throw",
+      "job": "Express hip/knee extension into a free external load without another athlete landing.",
+      "cue": "Face away from the clear throw area, hinge with a light ball between the thighs and drive the hips/legs to release back overhead; keep the feet planted and avoid lumbar arching.",
+      "regress": "Reduce ball load and hinge; do not throw unless the full overhead trajectory and landing/roll fit the verified area.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Dumbbell Jump Shrug",
+      "job": "Apply rapid hip/knee/ankle extension against a small hanging load.",
+      "cue": "Hold very light bells at the sides, use a shallow hinge/dip and jump a small height while finishing tall; arms stay long, then land on two feet and reset.",
+      "regress": "Reduce load/height; stop if grip, shoulder pulling or landing control limits the leg drive.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Very light load, fast extension and modest height",
+      "gate": "Demonstrated unloaded jump and secure DB handling.",
+      "note": ""
+    },
+    {
+      "name": "Band-resisted Hip Snap — Feet Planted",
+      "job": "Produce fast hip extension against rearward resistance without an impact.",
+      "cue": "With a comfortable broad band low around the pelvis and a verified rear anchor/holder, hinge slightly then snap to tall hips while keeping both feet planted and ribs down.",
+      "regress": "Use less tension and smaller range; stop for lumbar arching, band migration or insecure anchoring.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "grounded",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Rapid extension against light resistance; feet remain planted",
+      "gate": "Band condition, pelvic fit and rear anchoring verified; no elastic release toward people.",
+      "note": ""
+    },
+    {
+      "name": "Low Straight-Leg Alternating Bounds",
+      "job": "Use hip action and ankle stiffness to project with limited knee cycling.",
+      "cue": "Travel forward through six small alternating contacts, three on each foot; keep knees softly unlocked and contact beneath the moving body rather than reaching. Finish under control.",
+      "regress": "Shorten the travel and lower amplitude; stop for jarring locked-knee contact or reaching.",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "low_unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Low amplitude, controlled speed",
+      "gate": "",
+      "note": "Six contacts total, not six left-right pairs; whole route at most 4 m."
+    },
+    {
+      "name": "Half-Kneeling Forward Medicine Ball Chest Pass",
+      "job": "Transfer a forward arm impulse through a stable split hip/pelvic base.",
+      "cue": "One knee down, opposite foot flat; with a light ball at chest height, push forward explosively while retaining tall ribs/pelvis and grounded supports.",
+      "regress": "Reduce load; stop if the torso twists or kneeling pressure is uncomfortable.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Long-Lever Hamstring Bridge Iso Hold",
+      "job": "Lightly maintain hip height against the longer heel lever used during forward contact.",
+      "cue": "Lie supine with heels farther from hips than a short bridge, knees still comfortably bent; raise the pelvis modestly and breathe.",
+      "regress": "Bring heels closer and lower effort; stop for cramp or lumbar extension.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Side-Lying Hip Adduction",
+      "job": "Support medial hip control so forward bounds do not drift away from the intended line.",
+      "cue": "Lie on the side with the top foot planted in front; lift the bottom straight leg a small amount and lower slowly, pelvis stacked.",
+      "regress": "Use a smaller lift; stop if the pelvis rolls or hip discomfort appears.",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 10,
+    "unilateral_landing_events": 6,
+    "throws": 12,
+    "other_ballistic_efforts": 6,
+    "drop_landings": 0,
+    "low_amplitude_landings": 6,
+    "primary_rounds": 8,
+    "primary_bouts": 9,
+    "primary_reps": 54,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 10,
+    "stabilization_hold_seconds": 15,
+    "landing_events": 16,
+    "landing_foot_contacts": 26
+  },
+  "duration_after_preparation_seconds": 4433,
+  "decision": "Backward-step reversal introduces a different entry momentum rather than another stationary broad jump name. Loaded extension is limited to four landings; grounded band snaps and throws add power opportunities without more impacts. Low straight-leg contacts remain six total. RDL leads at its retained two-set dose; squat is reduced to two sets and walkout to two cycles because bounds, hinges and the long-lever control hold overlap. Band and throw setup are explicit conditions, not assumed installed equipment.",
+  "next_job": "Class 6 uses low elevated receiving and clearance tasks while keeping forward intent; review actual posterior-chain and calf response and verify apparatus fit first.",
+  "observed": null,
+  "class_sha256": "f94123f83c6cc6912e6d88c9889da952c7ea61f63add82bad70a5f6d314fb681"
+}

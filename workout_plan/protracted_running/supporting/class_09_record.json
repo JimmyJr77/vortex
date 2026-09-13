@@ -1,0 +1,421 @@
+{
+  "n": 9,
+  "effort": "Express leg force rapidly against manageable external resistance while keeping the foot and pelvis organized.",
+  "brief": "The limiting demand is maintaining fast force expression when an implement adds resistance. E1 gives a very small externally loaded takeoff exposure; landmine squat and split-hinge drives offer guided planted-foot force, supported hip thrust addresses hip finish, seated thigh lift addresses leg recovery, and straight-knee heel rise addresses ankle force. The latter five have no flight. Light ankle and offset-trunk work precede familiar challenging strength.",
+  "anchor": "E1",
+  "marker": "Across two sets of two jumps, record secure DB handling, a crisp takeoff and a controlled two-foot landing under the body. Choose the smallest useful load that does not visibly disrupt speed or position; no universal kilograms, velocity target or maximum-load test. If loaded execution is unsuitable, the unloaded route is the correct recorded result.",
+  "review": "Class 8 prescribed 21 landings and seven primary rounds with a new step-up. No actual response is known. Class 9 reduces jump landings to four, replaces most impact with short resisted rapid-force tasks and retains seven primary rounds. External resistance is a conditional task constraint, not proof of strength gained over eight written classes.",
+  "sequence": "Only E1 includes flight and it receives two tiny sets. Every subsequent row uses a light implement for fast concentric force with controlled return; stop well before fatigue reduces speed.",
+  "E": [
+    {
+      "name": "Loaded Squat Jump — light dumbbells",
+      "identity": "light_db_squat_jump",
+      "family": "externally loaded bilateral takeoff",
+      "library_slug": "loaded-squat-jump",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 120,
+      "gap": 20,
+      "t": 4,
+      "job": "Main task: retain coordinated takeoff and receiving while a small external mass adds force demand.",
+      "cue": "Very light DBs at sides, one shallow dip, modest vertical jump, land both feet under the hips and hold 2 s with arms quiet. Never throw or drop the DBs. Use unloaded jumps instead if grip, landing or speed is compromised."
+    },
+    {
+      "name": "Landmine Squat-to-Forefoot Drive — no flight",
+      "identity": "landmine_squat_forefoot_drive",
+      "family": "guided rapid triple extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "unit": "drives",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 5,
+      "t": 3,
+      "job": "Express coordinated hip/knee/ankle extension against a guided forward-up load without another landing.",
+      "cue": "Secure landmine and suitable light bar/load; both hands hold the end at chest. From a shallow squat drive tall onto forefeet in one continuous rise, keep forefeet grounded, then lower over 2 s. No overhead press or arm push; reduce load if the bar controls posture."
+    },
+    {
+      "name": "Split-Stance Landmine Hinge Drive",
+      "identity": "landmine_split_hinge_drive",
+      "family": "guided asymmetric rapid hip extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "drives per lead-leg stance",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 5,
+      "t": 3,
+      "job": "Direct fast hip-extension force through an asymmetric base while the guided implement limits unnecessary swing travel.",
+      "cue": "Light landmine end held in both hands low in front, short split stance. Hinge with softly bent knees, drive hips tall quickly and return over 2 s. Both feet stay planted, no arm curl or pelvis twist; shorten hinge/rack distance for trunk loss."
+    },
+    {
+      "name": "Explosive Hip Thrust — light dumbbell, bench supported",
+      "identity": "fast_bench_hipthrust",
+      "family": "supported resisted rapid hip finish",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "unit": "hip drives",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Accelerate terminal hip extension through a supported range against a small external load.",
+      "cue": "Upper back on a stable suitable bench, feet grounded, hands secure a light pelvic DB. Drive up quickly to ribs/pelvis alignment, lower over 2 s; do not launch the implement or arch the back. Use less load/range if speed or control fades."
+    },
+    {
+      "name": "Seated Dumbbell Hip Flexion — fast thigh lift",
+      "identity": "fast_seated_db_hipflex",
+      "family": "supported resisted rapid leg recovery",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "thigh lifts",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Accelerate the thigh against light resistance while the supported pelvis removes a balance limit.",
+      "cue": "Sit tall with foot grounded, hands securing a light DB above the knee. Lift the thigh a small amount quickly, lower over 2 s without leaning back. No loose weight on a foot; reduce load/range for pelvic movement."
+    },
+    {
+      "name": "Standing Calf Raise — fast concentric, supported single leg",
+      "identity": "fast_standing_sl_calf",
+      "family": "resisted rapid straight-knee ankle force",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "heel rises",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Express fast plantarflexion through the straight-knee stance configuration without leaving the floor.",
+      "cue": "One light DB, stable hand support, near-straight soft knee. Rise quickly through the forefoot, return over 2 s; forefoot never leaves. Use bodyweight instead if external load changes speed or ankle alignment."
+    }
+  ],
+  "S": [
+    {
+      "name": "Seated Band Ankle Inversion",
+      "identity": "band_ankle_inversion",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Light medial-ankle/foot control to preserve the arch platform under resisted leg drive.",
+      "cue": "Seated, target heel grounded; loop a light band around forefoot and hold ends slightly to the outside of that foot. Turn forefoot gently inward against tension for 2 s and return 2 s without rotating the knee. Reduce tension for whole-leg movement; gentle hand resistance may replace the band at the same dose."
+    },
+    {
+      "name": "Split-Stance Suitcase Hold — light dumbbell",
+      "identity": "light_split_suitcase_hold",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 12,
+      "sides": 2,
+      "unit": "seconds per loaded arm",
+      "rest": 30,
+      "t": 1,
+      "job": "Light anti-side-bend trunk/pelvic strengthening for transferring force through an asymmetrically loaded stance.",
+      "cue": "One light DB beside the body, opposite foot slightly forward; keep both feet grounded and ribs over pelvis. Hold tall without leaning or shrugging, breathe easily. Switch arm and lead foot for the other side; use less weight for sway."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Retain the familiar main stance-force anchor while external-speed tasks change.",
+      "key": "split"
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Supply one challenging hip-hinge set after the limited fast hinge/thrust work.",
+      "key": "rdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Maintain controlled knee-flexed ankle force alongside the fast straight-knee drill.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Keep the established controlled straight-knee strength role; this is a separate slower, heavier performance from E6.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Retain knee-flexor strength through changing heel lever without another loaded standing hinge.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Maintain supported challenging hip-flexor strength, distinct from E5's small fast light-load dose.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "E1 requires secure light DB handling and prior current unloaded jump control; use unloaded countermovement jumps instead at the same 2 × 2/rest if needed. E2/E3 require a secured landmine with a manageable total bar/handle mass; availability does not prove a light enough setup. Use a light goblet squat-to-forefoot drive instead of E2, same 1 × 4/no flight, or a light two-hand DB split-stance hinge drive instead of E3, same 1 × 3 per lead side/no flight. E4 uses a light loaded floor bridge instead if bench fit fails, same 1 × 4/rest, changed range recorded. E5 can be unloaded instead if no safe small DB fits; it remains a rapid thigh-lift task. If even unloaded controlled flight or implement handling is unsuitable, record modified/incomplete work rather than adding contacts.",
+  "count_note": "Only E1 has flight: four two-foot landings, eight individual foot contacts. Other rapid work totals four landmine squat drives, six split-hinge drives, four supported hip drives, eight thigh lifts and eight heel rises; these are 30 nonflight force efforts, not 30 jump contacts. Speed-task loads differ from primary-strength loads, and no rep is counted in both blocks. All stated replacements preserve the default landing count but change resistance/support.",
+  "novelty": "The new default task constraints are a small held jump load, guided triple extension, guided split-hinge force, bench-supported rapid hip finish, a secured seated thigh load and fast straight-knee force without impact. These are openly related resisted/support variants, not six unrelated families. The fast heel-rise action was already a Class 2 contingency, so it is not new for an athlete who actually used that route; that usage is unknown. Simpler substitutes can recur deliberately.",
+  "audit": "Rejected Olympic-lift catches, heavy loaded jumps and loose DB-on-foot drills. Restricted loaded flight to four events and defined secure holds/grounded feet for all other tasks. Kept each overlapping fast hip/ankle task to a few light reps and main strength to seven rounds; slowed challenging sets are separate performances. Landmine mass and bench fit remain delivery checks with practical substitutes.",
+  "progression": "A heavier implement is not the goal. Select load for fast controlled execution today, and hold it until actual speed/control and recovery are reported. Do not advance explosive and strength loads together automatically. Class 10 should consolidate repeatable low-cost force tasks, using familiar anchors where comparison is more useful than novelty.",
+  "map_note": "Four loaded landing events; most rapid force comes from planted/supporting tasks.",
+  "next_job": "Consolidate repeatability with low-amplitude/contact-controlled force tasks and a small strength dose.",
+  "handoff": "Review actual handling, selected substitutions and recovery if reported, then finalize Class 10 and save its audit/state before continuing.",
+  "reviewed_files": {
+    "curriculum.md": "09b82e4f99b97141cf779781d7979ef58ec74889ea4ea7af166c2ef5b1de2307",
+    "progress.json": "2b500146c1b6103524cb9a0f78df3ea9edb5bdf710732ff0ad99621dd2792ff0",
+    "progression_ledger.md": "79341d9ee20478c4ad2984bf59e9b864d4c65af99ce7ae49c0519f7ad65b7eec",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_08.md": "b4c6998efcddeb9fabf5a171a71cfcdd9ad0a79f0884f0d5378fd1d0113b1160"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 4,
+    "bilateral_landing_events": 4,
+    "single_leg_landing_events": 0,
+    "individual_foot_contacts": 8,
+    "other_explosive": [
+      {
+        "name": "Landmine Squat-to-Forefoot Drive — no flight",
+        "amount": 4,
+        "unit": "drives"
+      },
+      {
+        "name": "Split-Stance Landmine Hinge Drive",
+        "amount": 6,
+        "unit": "drives"
+      },
+      {
+        "name": "Explosive Hip Thrust — light dumbbell, bench supported",
+        "amount": 4,
+        "unit": "hip drives"
+      },
+      {
+        "name": "Seated Dumbbell Hip Flexion — fast thigh lift",
+        "amount": 8,
+        "unit": "thigh lifts"
+      },
+      {
+        "name": "Standing Calf Raise — fast concentric, supported single leg",
+        "amount": 8,
+        "unit": "heel rises"
+      }
+    ],
+    "primary_set_rounds": 7,
+    "primary_bouts": 11,
+    "primary_work": {
+      "reps": 66,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1291,
+      "stabilization": 282,
+      "primary": 2222,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 67,
+    "time_max": 77,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Seated Band Ankle Inversion",
+        "sets": 1,
+        "reps_or_seconds_per_side": 6,
+        "sides": 2,
+        "total": 12,
+        "unit": "reps"
+      },
+      {
+        "exercise": "Split-Stance Suitcase Hold — light dumbbell",
+        "sets": 1,
+        "reps_or_seconds_per_side": 12,
+        "sides": 2,
+        "total": 24,
+        "unit": "seconds per loaded arm"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Loaded Squat Jump — light dumbbells",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Landmine Squat-to-Forefoot Drive — no flight",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 4,
+        "unit": "drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Stance Landmine Hinge Drive",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Explosive Hip Thrust — light dumbbell, bench supported",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 4,
+        "unit": "hip drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Seated Dumbbell Hip Flexion — fast thigh lift",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "thigh lifts",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Standing Calf Raise — fast concentric, supported single leg",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "heel rises",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 4
+  },
+  "status": "finalized_prescription",
+  "final_review": "Checked that each nonflight row contains a real rapid lower-limb force task rather than conditioning or upper-body filler. Loaded flight is limited to four events; secure-handling and lighter/no-load routes are explicit. Thirty nonflight force efforts remain distinct from jump contacts and from primary strength repetitions. Guided/loaded variants are labeled honestly, with no automatic load progression."
+}

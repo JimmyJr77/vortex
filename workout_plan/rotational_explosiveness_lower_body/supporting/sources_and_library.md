@@ -1,0 +1,61 @@
+# Sources, assumptions and exercise identity record
+
+Reviewed **2026-09-13**. Local cards establish inspected names and intended roles, not evidence of athlete outcomes or confirmation of a live database identity. Source-local integer card numbers are not global exercise IDs. No exercise library or application record was changed.
+
+## Source hierarchy and review
+
+1. The user's current request selects lower-body rotational explosiveness, one finalized class per run, exact seven-category framework, exact 6/2/6 work and storage in `workout_plan`. The subsequent instruction prioritizes unique drills while allowing strength lifts to recur; new explosive drills are now the default across classes.
+2. The [supplied specification](VORTEX_12_CLASS_CURRICULUM_SPEC.md) provides the details. Its Vertical Jumps example is an example, not this focus's workout. Its default vertical focus does not override the user's named rotational focus. Its reference to a default storage directory does not override `workout_plan`.
+3. Existing class, progression and feedback files in sibling focus folders were reviewed for progression state and overlapping prescriptions. No lower-body rotational class existed. The available feedback records reported unknown execution. No actual athlete database or private communication source was accessed.
+4. The separate facility note conflicts on lane length and template. The current request/spec govern; the design uses no more than the spec's 10 m length. The note's broader 12 m claim and eight-tenet athleticism booking are disclosed, not silently imported.
+5. Exercise library searches covered the kicking and rotational libraries, loaded-strength library, short-foot identity migration and related repository name searches. Their generic defaults, taxonomy and promotional transfer wording do not replace this prescription's doses or the user's framework.
+
+## External evidence and style references
+
+| Source | What it supports here | Limits |
+|---|---|---|
+| [Overtime Athletes — 3 Best Exercises to Build Rotational Power for Athletes](https://blog.overtimeathletes.com/3-best-exercises-to-build-rotational-power-for-athletes/) | Public style reference: force initiated through the legs/hips, deliberate sequencing, explosive practice alongside loaded strength. | Coaching material, not validation of a youth kick curriculum. The article primarily illustrates upper-body release tasks; this plan uses lower-body tasks for the requested emphasis. Claims that vertical-jump gains reliably guarantee rotation gains were not adopted. |
+| [Gavagan & Sayers, 2017 — roundhouse-kick biomechanics](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0182645), PLOS ONE 12(8), e0182645 | Primary study of 24 highly skilled practitioners across three disciplines. It identifies pelvic rotation and hip/knee actions as relevant components and reports a relationship between foot velocity at impact and relative impact force. These observations inform the selection of a hip-turn/chamber anchor. | Expert high-target impact kicks differ from low shadow kicks by 12–14-year-olds. This is biomechanical observation, not a trial of these fourteen exercises. It does not validate any claimed force improvement, dose, kick height or transfer from seated hip-rotation strength. |
+| [Faigenbaum et al., 2009 — NSCA Youth Resistance Training Position Statement](https://dxpprod.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf), especially pp. S70–S72 | Qualified instruction, technically controlled loading, few high-quality power repetitions, individualized progression and sufficient rest. It discusses longer recovery for demanding power/skill tasks and nonconsecutive strength exposures. | General guidance, not a bespoke fourteen-entry or roundhouse prescription. The class's 2–3 RIR target, low support doses and timing model are programming choices under the user's spec. The source's sample preparation/cooldown does not add exercises here. |
+
+All per-exercise jobs describe **intended mechanical contributions**, not proven isolated causes of stronger kicks. No source establishes that the exact complete class is optimal. No source authorizes extra training blocks. This is original programming inspired by OTA principles, not an OTA-authored or endorsed class.
+
+## Inspected local exercise identities
+
+Key: **K** = `scripts/data/kicking-athletes-all-cards.json`; **R** = `scripts/data/rotational-power-exercise-library-all-50.json`; **L** = `scripts/data/loaded-strength-all-cards.json`. Paths are relative to repository root. The file hashes in `verification.json` identify the reviewed source snapshots.
+
+| Slot | Checked name / source identity | Exact execution status |
+|---|---|---|
+| E1 | **Proposed addition: Split-stance explosive hip pivot. No canonical ID claimed.** Related K card 14, `support-leg-pivot-drill`, is **Support-Leg Pivot Drill**, a movement-intelligence card. | The class's grounded, rapid force-expression task is deliberately specified as a proposed explosive exercise. It is not the slow source card relabeled as power. |
+| E2 | **Proposed addition: Standing low roundhouse shadow kick. No canonical ID claimed.** | Local slow roundhouse, reactive pad and shuffle-to-target cards did not match the stationary, low, noncontact prescription. No invented library identity or unconfirmed pad was used. |
+| E3 | R card 47: **90-Degree Hop to Stick**, `90-degree-hop-to-stick`. | The generic source describes a quarter-turn jump/stick. Class explicitly chooses two-foot takeoff/landing, one countermovement, lower support dose and no rebound. 45° is a recorded replacement angle, not another slot. |
+| E4 | R card 46: **Lateral Bound to Rotational Stick**, `lateral-bound-to-rotational-stick`. | Source family retained; exact opposite-leg landing, short distance, ≤45° turn and dose are class-level constraints. |
+| E5 | **Proposed addition: Lateral step-in to rotational plant. No canonical ID claimed.** | Short grounded entry/weight acceptance redirected into a hip turn. Distinct from E1's in-place initiation and E4's airborne reorientation. Replaces the initially considered paused-jump variant after the user requested stronger uniqueness. |
+| E6 | K card 22: **Split-Stance Band-Resisted Knee Drive**, `split-stance-band-resisted-knee-drive`. | Light forefoot-loop version with no hop/forced rotation. Source default volume was reduced; no anchor fixture is presumed. |
+| S1 | K card 13: **Standing Hip Airplane Kick Prep**, `standing-hip-airplane-kick-prep`. | Source is movement intelligence. The **proposed strengthening execution** uses support, slow out/return work and a small range to load stance-hip control. It remains light; this is not a claim the source taxonomy already classifies it as strength. |
+| S2 | **Short-Foot Drill**, `short-foot-drill`; inspected `backend/migrations/522_coaching_short_foot_drill_identity_and_family_audit_hardening.sql`. | Standing both-feet-supported, single-target-foot doming/hold/return matches the inspected execution family. Three easy 5 s holds per foot are the class dose. |
+| P1 | L, dumbbell-strength cluster: **Dumbbell Split Squat**, `dumbbell-split-squat`. | Floor-supported stationary split stance; not rear-foot elevation, an unstable variation or a rotational lunge. |
+| P2 | K card 33: **Single-Leg Romanian Deadlift**, `single-leg-romanian-deadlift-kicking`. | Hand support and a single dumbbell are declared execution constraints so force, not balance, limits the working set. |
+| P3 | R card 28: **Loaded Cossack Squat**, `loaded-cossack-squat`. | Goblet dumbbell, athlete-qualified depth, one side at a time; no forced deep range. Related K Cossack card is not counted separately. |
+| P4 | **Proposed addition: Seated band hip internal rotation. No canonical ID claimed.** | No exact matching loaded seated internal-rotation card was found in the searched material. Direct rotation strength was preferred to an unrelated library-convenient exercise. |
+| P5 | K card 37: **Standing Cable or Band Hip Flexion**, `standing-cable-or-band-hip-flexion`. | Band-only, slow challenging version. The exercise name includes cable; this prescription does not assume a cable machine exists. |
+| P6 | L, dumbbell-strength cluster: **Seated Dumbbell Calf Raise**, `seated-dumbbell-calf-raise`. | Bilateral floor-range work, knees bent, secured load. No step/deficit or machine assumed. |
+
+Same-slot replacements without an exact checked identity—unresisted split-stance knee drive, kickstand RDL, manual seated internal rotation/hip flexion and supported standing bent-knee calf raise—are explicitly prescribed alternatives, not claims of catalog membership. Record the chosen version. No replacement is added on top of the original slot, and no database insertion is part of this task.
+
+## Consequential comparisons retained for review
+
+- **Direct kick vs medicine-ball rotation:** E2 gives direct practice of the requested lower-body output. Med-ball releases and landmine presses would shift attention toward an upper-body endpoint and, for throws, need unconfirmed clearance. They were considered but not selected merely to signal OTA style.
+- **Grounded initiation vs a slow pivot drill:** E1 requires crisp force expression. Slow technical instruction, if needed, remains honestly logged as technique-only exposure; the source movement-intelligence drill is not miscounted as completed explosive work.
+- **Rotational jump vs grounded arriving plant:** E3 supplies the countermovement flight task. After the uniqueness request, E5 became a short grounded entry-to-turn task instead of a second similar rotational jump. This removes four bilateral landings and adds four grounded plants; counts, workload and timing were revised together.
+- **Split squat vs elevated split squat:** The floor-supported choice supplies challenging unilateral push with less setup and no required bench-height qualification. P2/P3 supply hinge and lateral/adductor jobs, avoiding three near-identical split-stance squats.
+- **Specific torque vs loaded torso twist:** P4 targets controlled hip rotation without an arm-dominant implement or an unstable spinning load. Transfer to the planted kick is an inference, not a demonstrated training effect of this exact exercise.
+- **Chamber speed vs chamber strength:** E6 and P5 intentionally share hip flexion but have different force/velocity and execution jobs. E6 is six fast light efforts; P5 is sixteen controlled challenging reps. They are not identical prescriptions counted twice.
+
+## Completion-run source and identity review
+
+Classes 2–12 were designed, audited and saved sequentially after the user's expanded authorization. The kicking/rotational/loaded-strength catalogs and current feedback records were reviewed again. Exact additional source matches used are Rotational Broad Jump to Stick (kicking card 24, rotational-broad-jump-to-stick) and Step-Behind Lateral Bound to Stick (kicking card 23, step-behind-lateral-bound-to-stick). Other new exact executions are identified as proposed variants with no invented canonical identifier in each class audit. The generic source defaults are not silently copied.
+
+The additional public [OTA lateral-plyometric progression](https://blog.overtimeathletes.com/lateral-plyo-progression-for-increasing-baseball-exit-velocity/) illustrates separating stable acceptance from reactive redirection. That informs the conditional separated-contact options in Classes 7/9. Its loaded-ball sequence, baseball outcomes and advanced catch/throw combinations were not imported into this lower-body kicking curriculum. This remains style guidance, not evidence that these youth kicks improve force. The NSCA youth guidance and primary kicking study already listed remain the basis for general loading and mechanical context; no new quantified outcome is asserted.
+
+Class 10 deliberately uses cue-based task variants, and Class 11 uses spatial/endpoint constraints. They are not claimed as new anatomical movement patterns. Class 12 deliberately repeats three Class 1 tasks for comparison conditions. A repeated task without an actual earlier observation provides a first baseline, not a measured improvement.

@@ -1,6 +1,7 @@
 import type { CanonicalCard, CanonicalDeliveryProfile } from '../../src/components/coach/canonicalCardTypes.js'
 import type { LibraryReadClient, LibraryReadPool } from './workoutProgrammingLibrarians.js'
 import type { QuarantinedExerciseProposal } from './workoutExerciseProposal.js'
+import type { StagedCanonicalReviewInput, StagedCanonicalReviewEvidence, StagedCanonicalReviewStatus } from './canonicalStagedReviewEvidence.js'
 
 export interface StagedCanonicalScope { readonly facilityId: string; readonly userId: string }
 export interface StagedCanonicalOrigin { readonly draftAuditId: string; readonly proposalHash: string }
@@ -12,12 +13,15 @@ export interface StagedCanonicalEvent {
   readonly card: Readonly<CanonicalCard> & { readonly id: string; readonly cardVersion: number; readonly status: 'draft' }
   readonly readiness: { readonly ready: boolean; readonly issues: readonly { readonly code: string; readonly path?: string; readonly message: string }[] }
   readonly testPacket: Readonly<Record<string, unknown>>; readonly state: 'draft' | 'review' | 'archived'
-  readonly action: 'revision_staged' | 'revision_edited' | 'revision_submitted' | 'revision_returned' | 'revision_archived'
+  readonly action: 'revision_staged' | 'revision_edited' | 'revision_submitted' | 'revision_returned' | 'revision_archived' | 'revision_reviewed'
+  readonly reviewEvidence?: readonly StagedCanonicalReviewEvidence[]
   readonly actorUserId: string; readonly contributorUserIds: readonly string[]; readonly humanReviewRequired: true; readonly libraryApprovalGranted: false
   readonly contentHash: string; readonly revisionNumber: number; readonly createdAt: string
 }
 export interface StagedCanonicalRevisionView {
   readonly event: StagedCanonicalEvent; readonly sourceMatches: boolean; readonly liveSourceVersion: number | null; readonly liveSourceStatus: string | null
+  readonly review: StagedCanonicalReviewStatus
+  readonly reviewAccess: { readonly canReview: boolean; readonly canApprove: boolean; readonly reason: 'source_changed' | 'not_submitted' | 'independent_reviewer_required' | null }
 }
 export type StagedCanonicalRevisionChange = { readonly expectedEventHash: string; readonly changeSummary: string } & (
   { readonly action: 'edit'; readonly profile: CanonicalDeliveryProfile } | { readonly action: 'submit' | 'return' | 'archive' })
@@ -30,3 +34,5 @@ export function loadStagedCanonicalRevision(pool: LibraryReadPool, context: { re
 export function normalizeStagedCanonicalRevisionChange(raw: unknown): StagedCanonicalRevisionChange
 export function changeStagedCanonicalRevision(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string,
   input: StagedCanonicalRevisionChange): Promise<StagedCanonicalEvent | null>
+export function reviewStagedCanonicalRevision(pool: LibraryReadPool, context: { readonly facilityId: string | number; readonly userId: string | number }, id: string,
+  input: StagedCanonicalReviewInput): Promise<StagedCanonicalEvent | null>

@@ -1,0 +1,245 @@
+{
+  "class_number": 6,
+  "title": "Project forward while clearing an obstacle and owning an elevated landing.",
+  "brief": "The seated box jump is the priority: coordinate a forward/up impulse from support and place both feet fully on a higher receiving surface. A unilateral-to-box task, one hurdle clearance, short linked hurdle contacts and rope singles address different placement/clearance demands; a seated chest pass isolates rapid forward arm force.",
+  "explosive": [
+    {
+      "name": "Seated Box Jump",
+      "job": "Create forward/up projection from support into a higher receiving surface.",
+      "cue": "Sit still with feet flat, swing the arms and jump forward/up onto a separate low stable box; hold 2 s, stand, then step down and reset.",
+      "regress": "Lower/bring the landing box closer; stop for rocking, foot clipping or knee-tucking to reach a high box.",
+      "sets": 3,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Single-leg Takeoff to Two-foot Box Landing",
+      "job": "Apply one leg's propulsion while receiving with both feet on an elevated surface.",
+      "cue": "From one foot near a low box, dip and drive forward/up, then land both feet fully on the box and hold 2 s.",
+      "regress": "Lower/bring the box closer; stop for twisting takeoff or partial-foot landing.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Low Hurdle Forward Jump to Stick",
+      "job": "Clear a small physical barrier without overreaching the forward landing.",
+      "cue": "Start stationary on two feet, dip and jump over one low hurdle; land beyond it on two feet and hold 2 s.",
+      "regress": "Lower the hurdle and shorten travel; stop for clipping or a feet-first reach that loses the torso.",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Continuous Low Hurdle Hops",
+      "job": "Organize successive forward contacts against an external clearance rhythm.",
+      "cue": "Use two low hurdles, make two linked two-foot hops with no intentional pause, then hold the final landing 2 s.",
+      "regress": "Lower/narrow the hurdle arrangement while retaining two distinct clearances; stop if rushing contact causes clipping or collapse.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Demonstrated low linked clearances.",
+      "note": "Each rep is one hurdle clearance/landing: four total landings, not four two-hop sequences."
+    },
+    {
+      "name": "Seated Medicine Ball Chest Pass",
+      "job": "Supply rapid forward arm force while keeping the leg impact dose unchanged.",
+      "cue": "Sit upright on a stable bench, feet flat; release a light ball forward from chest height with a quick two-hand push, no torso heave.",
+      "regress": "Use a lighter ball; stop for back arching or unsafe containment.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Jump Rope Power Singles",
+      "job": "Practice active foot clearance and an organized ankle return under a predictable rope passage.",
+      "cue": "Use one rope turn per modest two-foot jump, six controlled contacts in place; clear the rope without tucking the knees high.",
+      "regress": "Lower jump height and slow the rope to retain one turn per jump; stop after catches or disrupted landings.",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Crisp modest jumps; no speed/endurance target",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Soleus Isometric Hold — Bent Knee",
+      "job": "Lightly control plantarflexion with flexed knees for the box/hurdle receiving position.",
+      "cue": "With stable hand support, bend both knees slightly and lift heels a small amount; hold knee angle and quiet forefoot contact.",
+      "regress": "Reduce heel height/effort; stop for ankle rolling or shaking.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Seated Band Ankle Eversion",
+      "job": "Control the outer foot border when setting the whole foot on a receiving surface.",
+      "cue": "Seated with heel supported, hold a light band to pull the forefoot inward; move the forefoot gently outward against it while keeping the lower leg still, then return.",
+      "regress": "Use less tension/range; stop if the knee rotates instead of the ankle.",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 4,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": false
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 23,
+    "unilateral_landing_events": 0,
+    "throws": 6,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 0,
+    "primary_rounds": 8,
+    "primary_bouts": 9,
+    "primary_reps": 54,
+    "primary_cycles": 3,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 10,
+    "stabilization_hold_seconds": 15,
+    "landing_events": 23,
+    "landing_foot_contacts": 46
+  },
+  "duration_after_preparation_seconds": 4165,
+  "decision": "The elevated landing is a different support task, not evidence of a longer jump. Seated versus countermovement box takeoff changes the force-generation start; single-leg-to-box changes propulsion laterality. Hurdles impose an actual clearance constraint rather than renamed distance targets. Linked hurdle work is only four contacts; rope singles only six. Bilateral squat remains at two sets after Class 5 and other strength loads are held, preserving capacity without assuming accumulated tolerance.",
+  "next_job": "Class 7 will emphasize alternating forward contacts and a controlled final stop; review actual clearance rhythm and receiving control before proceeding.",
+  "observed": null,
+  "class_sha256": "d218703ecfbc837a9625b7a172265dbde3a1281975764a6b5426437cff4bc7b5"
+}

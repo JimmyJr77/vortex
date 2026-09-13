@@ -1,0 +1,245 @@
+{
+  "class_number": 10,
+  "title": "Receive a small imposed landing and redirect force forward.",
+  "brief": "The low drop-to-broad jump is the priority. A grounded snap-down start, a small vertical drop rebound, a received-ball scoop return and supported angled ankle contacts separate eccentric arrival, direction and rapid return. A very small seated single-leg box dose supplies controlled unilateral force without another imposed drop.",
+  "explosive": [
+    {
+      "name": "Low Drop to Broad Jump",
+      "job": "Redirect an externally imposed downward arrival into forward projection.",
+      "cue": "Step off a very low stable box, receive on both feet and immediately jump forward; use the needed knee/hip bend, then hold the final landing 2 s.",
+      "regress": "Lower the starting step and shorten the forward jump; stop for a stiff/jarring arrival, knee collapse or a deliberate reset between contacts.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "drop_bilateral",
+      "contacts": 2,
+      "seconds_per_rep": 8,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Four attempts = four initial drop landings plus four final jump landings; eight events total."
+    },
+    {
+      "name": "Grounded Snap-Down to Forward Rebound Jump",
+      "job": "Create a quick active lowering action and use it for forward force.",
+      "cue": "Start tall with arms raised and heels lightly lifted; snap into a shallow athletic position without leaving the floor, then immediately jump forward and hold the final landing.",
+      "regress": "Reduce lowering speed/depth and travel; stop if an unintended initial hop appears or the athlete loses the foot base.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "No flight in the initial snap-down: only the forward-jump landing counts unless an extra hop actually occurs."
+    },
+    {
+      "name": "Low Drop to Vertical Rebound",
+      "job": "Separate rapid receiving/return from the forward-direction task.",
+      "cue": "Step off a very low box, land bilaterally and rebound a modest amount upward; control the final two-foot landing.",
+      "regress": "Lower the step and rebound height; stop if impact control or alignment deteriorates.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "kind": "drop_bilateral",
+      "contacts": 2,
+      "seconds_per_rep": 8,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Two attempts = two initial drop and two final landings; four events total."
+    },
+    {
+      "name": "Partner-fed Forward Medicine Ball Scoop Return",
+      "job": "Use a gentle received load to organize an eccentric-to-forward arm/hip impulse.",
+      "cue": "A coach standing offset feeds a very light ball gently to the athlete's low two-hand scoop position; accept it with a small hip/knee bend and promptly throw forward into a clear area, feet planted.",
+      "regress": "Use a slower/lighter feed; stop if catching or containment is unreliable or the torso twists.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 5,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "Competent light-ball receiving and qualified feeder outside the outgoing throw path.",
+      "note": "Six catches integrated into six rapid return throws, not an extra catch block."
+    },
+    {
+      "name": "Wall Ankling Pogo — Bilateral Forward Lean",
+      "job": "Practice an angled ankle rebound while hand support limits whole-body drift.",
+      "cue": "Hands on a verified fixed wall/support, body in a modest forward lean; make six tiny two-foot ankle rebounds in place with knees soft and trunk aligned.",
+      "regress": "Use less lean/amplitude; stop if the support shifts or the athlete collapses through hips/knees.",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "kind": "low_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Small brisk ankle contacts",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Seated Single-leg Jump onto a Low Box",
+      "job": "Supply a controlled one-leg initial impulse into a two-foot elevated finish.",
+      "cue": "Sit still with one foot flat and the other free; push from the supported leg and swing arms to land both feet fully on a very low nearby box; hold and step down.",
+      "regress": "Raise the seat or lower/bring the landing box closer while keeping the same task; stop for rocking, twisting or incomplete foot placement.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "Demonstrated single-leg seated takeoff and box landing; no attempt to force height.",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Wall Sit — Shallow Bilateral Hold",
+      "job": "Lightly hold the knee/hip receiving position against a stable support.",
+      "cue": "Back against a fixed wall, feet flat, settle into a comfortable shallow squat and breathe while knees track over feet.",
+      "regress": "Use a higher position; stop for discomfort or a burning/quivering effort.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Tibialis ISO Toe-Up Hold",
+      "job": "Maintain dorsiflexor control for organized foot arrival rather than a loose forefoot slap.",
+      "cue": "Sit with heels planted and lift the forefeet/toes into a comfortable toe-up position; hold gently without curling toes.",
+      "regress": "Lower the lift/effort; stop for cramp or ankle discomfort.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 24,
+    "unilateral_landing_events": 0,
+    "throws": 6,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 6,
+    "low_amplitude_landings": 6,
+    "primary_rounds": 8,
+    "primary_bouts": 9,
+    "primary_reps": 54,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 0,
+    "stabilization_hold_seconds": 30,
+    "landing_events": 24,
+    "landing_foot_contacts": 48
+  },
+  "duration_after_preparation_seconds": 3928,
+  "decision": "Drop height is not progressed by calendar or class number. The main task has four attempts and the vertical support only two; both initial drop and final jump landings are counted. A received-ball return and hand-supported ankle work provide different rapid-force tasks instead of six depth-jump variants. The seated unilateral support is only one attempt per side and requires specific competence. Strength returns to modest bilateral anchor doses with reserve; the earlier step-up emphasis is not stacked on this eccentric contact day.",
+  "next_job": "Class 11 will emphasize fast projection against light external resistance; actual response to the drop contacts must guide readiness and dose.",
+  "observed": null,
+  "class_sha256": "d22519e7004c6ce08c1fae220ee7a9aa66e10646e0015e954f338e672a68d57a"
+}

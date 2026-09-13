@@ -1,0 +1,248 @@
+{
+  "checked_at": "2026-09-13",
+  "result": "passed_for_12_complete_conditional_prescriptions",
+  "scope": "12 class files and compiled manual; 72 unique scheduled explosive drill prescriptions; 24 light-strength and 72 primary-strength slots. Not athlete/facility certification.",
+  "checks": {
+    "all_12_finalized_and_indexed": true,
+    "next_class_is_null": true,
+    "exact_seven_categories_and_subcategories": true,
+    "source_snapshot_unchanged": true,
+    "per_class_counts": [
+      {
+        "class": 1,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 10,
+          "bouts": 16,
+          "dynamic_reps": 88,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 2,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 8,
+          "bouts": 11,
+          "dynamic_reps": 78,
+          "hold_seconds": 0
+        }
+      },
+      {
+        "class": 3,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 8,
+          "bouts": 11,
+          "dynamic_reps": 62,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 4,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 7,
+          "bouts": 12,
+          "dynamic_reps": 62,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 5,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 7,
+          "bouts": 11,
+          "dynamic_reps": 64,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 6,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 7,
+          "bouts": 10,
+          "dynamic_reps": 56,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 7,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 7,
+          "bouts": 12,
+          "dynamic_reps": 80,
+          "hold_seconds": 0
+        }
+      },
+      {
+        "class": 8,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 7,
+          "bouts": 12,
+          "dynamic_reps": 66,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 9,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 6,
+          "bouts": 9,
+          "dynamic_reps": 68,
+          "hold_seconds": 0
+        }
+      },
+      {
+        "class": 10,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 6,
+          "bouts": 10,
+          "dynamic_reps": 54,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 11,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 6,
+          "bouts": 10,
+          "dynamic_reps": 56,
+          "hold_seconds": 30
+        }
+      },
+      {
+        "class": 12,
+        "counts": [
+          6,
+          2,
+          6
+        ],
+        "primary_totals_from_saved_table": {
+          "rounds": 6,
+          "bouts": 10,
+          "dynamic_reps": 54,
+          "hold_seconds": 30
+        }
+      }
+    ],
+    "unique_explosive_names": 72,
+    "unique_reviewed_explosive_identities": 72,
+    "four_column_tables": true,
+    "actual_table_strength_arithmetic_matches_data_and_ledger_summary": true,
+    "structured_explosive_and_stabilization_totals_reconcile": true,
+    "local_library_claims_have_real_file_matches": true,
+    "local_links_resolve": true,
+    "compiled_manual_matches_all_saved_classes": true,
+    "observed_work_remains_unknown": true
+  },
+  "manual_review_evidence": [
+    "supporting/full_sequence_audit.md",
+    "supporting/drill_register.md",
+    "supporting/strength_progression_trace.md",
+    "supporting/workload_summary.md"
+  ],
+  "limitations": [
+    "No athlete attendance, actual dose, loads, performance, symptoms or recovery supplied.",
+    "Existing Access & Prepare 1 content, duration and workload unknown; reference only.",
+    "Sport/position, competition schedule and other sport/gym/separate tumbling workload unknown.",
+    "Specification uses 10 m lanes; another facility reference states 12 m. Plan stays within 10 m; usable width, run-off, queues and coach positions unverified.",
+    "Full angular routes can need up to 7 m usable width. Quantified compact same-drill options require a verified 4 m-wide bay and complete body/route clearance; neither width is assumed available.",
+    "Class 11 requires a second non-training cue provider. Actual group size/staffing/equipment quantities are unknown.",
+    "Equipment loads, box/hurdle/bench dimensions, bands, hand supports, comfortable contact surfaces, ball trajectories/retrieval and kettlebell fit require qualification.",
+    "Timing estimates span 70–95 min outside Access & Prepare 1 for one coached athlete without queues; no full group booking is proven feasible.",
+    "Local source matches do not establish live exercise-card approval; exact proposed variants are labeled.",
+    "Unique drills prevent a common pre/post agility test; generic opponent cues do not prove sport-specific game transfer."
+  ],
+  "sha256": {
+    "athlete_feedback.md": "893f09a3396cd8c01cb3d84817fc783dbecdf9ea3425310f736716d49e4385f3",
+    "classes/class_01.md": "b69434e73373fc68ee919d31f986ef9fae0096f15168248d3c579f1b39d57ab2",
+    "classes/class_02.md": "8b70f24924fc07bafaf9e7156fd19513a1cb481ce70ab123ee109faff15a8972",
+    "classes/class_03.md": "b776d24008112cd44061cca50a0a21a0fd99c2093d3ab2eac167d0e68008b223",
+    "classes/class_04.md": "20749a2a0e1bd2b84ba7489b61678bd48b40825a4aca223cac6329f64b3d54ed",
+    "classes/class_05.md": "7e8fa3c3af0c1da735e6400d9fddfb0a1b570c8a3c942ede5e2d00d2be36e328",
+    "classes/class_06.md": "dc4b290e65fb4665048d28ed2da9278eaddb3e3d440f2ff1a997b2620551a9c1",
+    "classes/class_07.md": "a853f28dcbb1285f97417a3fdd6322c23ca66a66dbe56228e690b9e2c764dce0",
+    "classes/class_08.md": "7c12f415a5ca6a9c79ff7ba6d628540642f3898923d00c5589992aa209f47871",
+    "classes/class_09.md": "d43bc9e5074f1c44f3d218a50474d21a3f4716cec93c2fbe19d19ff6e943a1d9",
+    "classes/class_10.md": "9900ebf9de9049005fa78aaf87f8e4027ccf58f5a05731a878bcb58cbd20489b",
+    "classes/class_11.md": "896f44125ce2755ea2d8bd93de8b98c6ff7391c8361d78ee84e4e2cfb1e0e1a5",
+    "classes/class_12.md": "91178fd458a4c73ed044d35bc5198ccf515071c9f8e19aa836ff9fc04dbdb47e",
+    "curriculum.md": "e49bd8fdcfe7dadb0602058424073bbc058a2bec81b71e2f0b4378b02098a678",
+    "full_workouts.md": "21d88503bda6c89375ed61f333c83ce38de15b0a5036fe58ee767832a7269782",
+    "progress.json": "c7c85356786143bc08a7c54669bf4ae773528d35e66b2e55ed1c2433c9efcabd",
+    "progression_ledger.md": "aa21ab69ba8537e46f8e969f3cb9ba05058e2988a48ce5fd2775b3f7add5af60",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "c2024c8493e3015b45210f33d6834f62b09d51dbfd1a780ab040ec549af867fb",
+    "supporting/class_02_data.json": "a1c2912d44f69927d5504d8cb19145c952b9ff50509189df3b41788ee2665b25",
+    "supporting/class_03_data.json": "66c2372282d3612049cbee5341239f3abf3865305d055e3bf9183a3b98b6e739",
+    "supporting/class_04_data.json": "dde3dc8d0b0db55a3322c0c2748ee1b1e8bb288802776a613ac8467b01abe9cd",
+    "supporting/class_05_data.json": "12f6f0c88d2aad83d7f3a213fa9a4540156c09dad048ee63ae92c642f22f7cb2",
+    "supporting/class_06_data.json": "92e8dec15420e25f43ccd2865ef5b7f64c228e4a5a4e8e5cd41a3426451eacbb",
+    "supporting/class_07_data.json": "3d3ba9ab63220d813178ceaa2f83182a0593a406b47b41cd6b400b4e75651e49",
+    "supporting/class_08_data.json": "772942223ecd4bf0417cd68fa330b6e0e79560ffc169dc4901bba60b110a0aa7",
+    "supporting/class_09_data.json": "1176d1f34bad659f8aa4f75dcbac3e34e2cb1a54cf6edd9a9b8dfb348a7c1deb",
+    "supporting/class_10_data.json": "f360af2bbf6e86e70fffa148e03b02cfb093596d3d47416a5a96ed187f28be25",
+    "supporting/class_11_data.json": "906dc5e79c63a67282a68ca285fca04fe8278583c07bf69044a9f3ebc24da83c",
+    "supporting/class_12_data.json": "6d2edcdbc3594fc47adc991e0b844b0760b6c38ef07333aa126fa650d6a73ec8",
+    "supporting/drill_identity_register.json": "c85d8b4def71405fd85d2d20eb3d6fce63b3a057d4653fee1cb4a2c817a41d08",
+    "supporting/drill_register.md": "e7ad650e286064d8f0b238ba0757605cdcab87fda388d1c4733544cc99f8d3c3",
+    "supporting/full_sequence_audit.md": "ef66329bbd115f702ebbc7ab81be9ccdaf058a9bd7c835e35b1921bfef3cdefa",
+    "supporting/local_library_matches.json": "06224102a52492bc8657f1d8b8b549d6fc5b2c6b6b69b181ad8a682ff34728ab",
+    "supporting/source_and_exercise_register.md": "47646005dbc1a05dadbf36d9492588d2d9b9f9ef83a3aa9a8761d473f3903011",
+    "supporting/strength_progression_trace.md": "3ecea64c7a240f74f3c9a34186671ce248ee5afaebe25ae58573a333194075a4",
+    "supporting/workload_summary.json": "385e410b9d486152572f3c5c4160d424c2c295597ca66a68eae1490ad5767fe0",
+    "supporting/workload_summary.md": "434a98a4e4e2e91e81c2b623211b32d290ea389112f4d83e14c5672c779dc9d0"
+  }
+}

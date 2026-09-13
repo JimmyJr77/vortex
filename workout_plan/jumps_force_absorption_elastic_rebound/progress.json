@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "focus": "Force Absorption & Elastic Rebound",
+  "focus_mapping": [
+    "Jumps > Force absorption",
+    "Jumps > Elastic rebound"
+  ],
+  "target_class_count": 12,
+  "status": "complete_written_curriculum",
+  "last_finalized_class": 12,
+  "next_class": null,
+  "finalized_class_files": [
+    "classes/class_01.md",
+    "classes/class_02.md",
+    "classes/class_03.md",
+    "classes/class_04.md",
+    "classes/class_05.md",
+    "classes/class_06.md",
+    "classes/class_07.md",
+    "classes/class_08.md",
+    "classes/class_09.md",
+    "classes/class_10.md",
+    "classes/class_11.md",
+    "classes/class_12.md"
+  ],
+  "remaining_classes_are_provisional": false,
+  "observed_completed_classes": null,
+  "observed_athlete_results": null,
+  "last_updated": "2026-09-13",
+  "run_boundary": "User authorized completion through Class 12 in this execution; each class is designed, audited and saved sequentially.",
+  "files": {
+    "curriculum": "curriculum.md",
+    "progression_ledger": "progression_ledger.md",
+    "athlete_feedback": "athlete_feedback.md",
+    "class_audit": "supporting/sequence_audit.md",
+    "source_and_library_record": "supporting/sources_and_library.md",
+    "specification_snapshot": "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md",
+    "verification": "supporting/verification.json",
+    "index": "README.md",
+    "complete_curriculum": "12_class_curriculum.md",
+    "first_class_audit": "supporting/class_01_audit.md",
+    "workload_summary": "supporting/workload_summary.json"
+  },
+  "class_01_prescribed_workload": {
+    "explosive_exercise_entries": 6,
+    "stabilization_exercise_entries": 2,
+    "primary_strength_exercise_entries": 6,
+    "jump_hop_bound_landing_events": 37,
+    "bilateral_landing_events": 23,
+    "single_leg_landing_events": 14,
+    "single_leg_landings_by_receiving_leg": {
+      "left": 7,
+      "right": 7
+    },
+    "limb_contacts": 60,
+    "low_ankle_rebound_transitions": 15,
+    "multi_joint_rebound_transitions": 6,
+    "terminal_landings": 16,
+    "throws": 0,
+    "sprints": 0,
+    "external_drops": 0,
+    "loaded_jumps": 0,
+    "stabilization_hold_seconds_total": 30,
+    "stabilization_dynamic_repetitions_total": 12,
+    "primary_working_set_rounds": 9,
+    "primary_working_bouts": 12,
+    "primary_working_repetitions": 74,
+    "primary_preparation_set_rounds": 7,
+    "primary_preparation_bouts": 10,
+    "primary_preparation_repetitions": 36,
+    "primary_working_effort": "Approximately 2–3 technically sound repetitions in reserve",
+    "stabilization_effort": "At least 5 technical repetitions in reserve or similarly easy holds",
+    "sections_2_to_4_movement_and_rest_seconds": 3536,
+    "sections_2_to_4_estimated_minutes": [
+      75,
+      85
+    ],
+    "access_and_prepare_1_minutes": null,
+    "full_session_minutes": null,
+    "outside_training_exposure": null,
+    "alternative_E3_two_jump_route": {
+      "replace_only": true,
+      "total_landing_events": 34,
+      "total_rebound_transitions": 18,
+      "limb_contacts": 54
+    }
+  },
+  "observation_status": "No actual athlete feedback has been supplied during authoring; the generalized recording form remains blank. Completion refers only to curriculum documents.",
+  "reviewed_prior_context": [
+    "Separate workout_plan/vertical_jumps/classes/class_01.md; written prescription only",
+    "Older athleticism_12_week progress, anchor and workload records; no actual response established",
+    "OR12 conditional planned ledgers with null actual results",
+    "Week 2 attendance/workload scenarios with reviewed actual-result fields null"
+  ],
+  "unresolved_issues": [
+    {
+      "issue": "Individual readiness, actual training history and response are unknown",
+      "handling": "Use conditional delivery; record actual work and recovery; no automatic progression"
+    },
+    {
+      "issue": "Access & Prepare 1 exact content and duration are unavailable",
+      "handling": "Reference the existing sequence only; review its real workload and add its actual duration"
+    },
+    {
+      "issue": "Current specification has 10 m lanes; older facility record says 12 m",
+      "handling": "Use 10 m in this curriculum; verify actual layout; no joined runway"
+    },
+    {
+      "issue": "Group size, staffing, booking and equipment queues are unknown",
+      "handling": "75–85 minutes covers Sections 2–4 with prompt equipment access; full session unresolved; no assumed fit to 60/90-minute bookings"
+    },
+    {
+      "issue": "Equipment quantities, load ranges, bench/support dimensions, floor and overhead clearance are unknown",
+      "handling": "Verify stations and use only the stated replacements when suitable"
+    },
+    {
+      "issue": "Actual outside sport, gym, jumping and tumbling exposures are unknown",
+      "handling": "Review overlap and recovery before delivery, including the separate Vertical Jumps plan"
+    },
+    {
+      "issue": "Side-lying hip adduction, goblet lateral lunge and the connected lateral-return execution are proposed additions/variants rather than exact production library bindings",
+      "handling": "Local canonical families are documented where verified. Do not invent identifiers or modify the exercise library."
+    },
+    {
+      "issue": "Force plate methods and capabilities are unverified",
+      "handling": "Use the qualitative E3 marker; no device-derived values or extra test attempts"
+    }
+  ],
+  "next_class_intended_job": null,
+  "resume_instruction": "The twelve-class curriculum is complete. Read README.md, curriculum.md, the complete or individual class documents, progression_ledger.md, supporting/sequence_audit.md, supporting/workload_summary.json, athlete_feedback.md and this state. Verify referenced files exist. For a future requested revision or athlete-feedback update, distinguish actual work from prescriptions, select the appropriate existing class/route, update its audit and affected ledger/state, and preserve exact seven categories and 6/2/6. Do not generate Class 13 or assume any class was performed.",
+  "class_workload_records": {
+    "2": "supporting/class_02_data.json",
+    "3": "supporting/class_03_data.json",
+    "4": "supporting/class_04_data.json",
+    "5": "supporting/class_05_data.json",
+    "6": "supporting/class_06_data.json",
+    "7": "supporting/class_07_data.json",
+    "8": "supporting/class_08_data.json",
+    "9": "supporting/class_09_data.json",
+    "10": "supporting/class_10_data.json",
+    "11": "supporting/class_11_data.json",
+    "12": "supporting/class_12_data.json",
+    "1": "supporting/class_01_data.json"
+  },
+  "class_review_records": {
+    "2": "supporting/class_02_review.md",
+    "3": "supporting/class_03_review.md",
+    "4": "supporting/class_04_review.md",
+    "5": "supporting/class_05_review.md",
+    "6": "supporting/class_06_review.md",
+    "7": "supporting/class_07_review.md",
+    "8": "supporting/class_08_review.md",
+    "9": "supporting/class_09_review.md",
+    "10": "supporting/class_10_review.md",
+    "11": "supporting/class_11_review.md",
+    "12": "supporting/class_12_review.md",
+    "1": "supporting/class_01_audit.md"
+  },
+  "completed_class_count": 12,
+  "final_sequence_audit_status": "complete_and_verified",
+  "delivery_handoff": "All twelve classes are written. Before delivery, review the selected class, actual athlete history/response, current readiness, Access & Prepare 1 exposure/duration, equipment fit, staffing and booked time. Use the listed hold/replacement route when progression evidence is absent. Record actual work and recovery separately. No automatic Class 13 or harder block is prescribed.",
+  "final_sequence_audit_corrections": [
+    "Clarified that retained strength loads must still meet 2–3 technical RIR; hold jump demands when strength loads need upward calibration.",
+    "Retained the Class 1 first-five order/doses/rests in the full Class 12 comparison route; actual baseline and preparation conditions remain required.",
+    "Made the bent-knee calf replacement final settling period explicit in Classes 4–12.",
+    "Clarified that lane fit still requires on-site verification.",
+    "Reconciled 45 count-changing route combinations and updated all current handoffs to twelve completed documents."
+  ],
+  "verification_scope": "All twelve written classes, exact framework/counts, workload and replacement arithmetic, recorded timing, linked files and current state. Does not verify actual athlete performance, on-site delivery or total session duration."
+}

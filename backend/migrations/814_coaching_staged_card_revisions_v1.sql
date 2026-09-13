@@ -11,7 +11,7 @@ ALTER TABLE coaching.exercise_card_revision_v1
 ALTER TABLE coaching.exercise_card_revision_v1
   ADD CONSTRAINT exercise_card_revision_v1_action_check CHECK (action IN (
     'created', 'updated', 'submitted_for_review', 'returned_to_draft', 'published', 'deprecated', 'archived',
-    'revision_staged', 'revision_edited', 'revision_submitted', 'revision_returned', 'revision_archived'
+    'revision_staged', 'revision_edited', 'revision_submitted', 'revision_returned', 'revision_archived', 'revision_reviewed'
   ));
 
 ALTER TABLE coaching.exercise_card_revision_v1

@@ -1,0 +1,44 @@
+# Source and exercise register
+
+Reviewed 2026-09-13. Local paths below are repository-relative unless linked. Slugs are verified in local files; they do not prove live database publication, current approval, equipment fit or athlete competence. Proposed variants/additions receive **no invented library identifier**. Slot codes E1–P6 are class row references only. No exercise records were modified.
+
+## Governing and contextual sources
+
+The [copied curriculum specification](VORTEX_12_CLASS_CURRICULUM_SPEC.md) is byte-identical to the available supplied file at `workout_plan/jumps_force_absorption_elastic_rebound/supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md`. Current user instructions select this plan's `workout_plan` storage and reactive-agility focus. The seven-category framework, four sections and exact counts take precedence over unrelated older templates.
+
+Reviewed `workout_plan/vertical_jumps/{curriculum.md,progression_ledger.md,classes/class_01.md}`; `docs/programming/FACILITY_AND_EQUIPMENT.md`; the broader athleticism `progress.json`, `anchor_progression_ledger.json`, `workload_exposure_ledger.json`; and `instructional_on_ramp/week_03/or_12_workload_ledger.json`. Other-program prescriptions and hypothetical scenarios were not counted as performed training. No reactive-agility class existed when the initial Class 1 run began; an interrupted turn provided no verifiable saved progress for this focus.
+
+## Accessible specialist guidance and primary research
+
+1. **OTA, [Partner Agility Drill for Athletes](https://blog.overtimeathletes.com/try-this-partner-agility-drill-for-athletes/).** Describes a bounded live mirror task and prior mechanical preparation. Inspired the live body cue, lateral emphasis and strength support. This curriculum uses facing starts, short coach-led bouts and no spin; it does not copy OTA's exercise sequence, phase placement or dose. OTA's marketing claims are not adopted as evidence of guaranteed transfer or injury prevention.
+2. **Faigenbaum et al., NSCA, [Youth Resistance Training position statement](https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf).** Supports qualified supervision, individualized technique-led loading and recovery appropriate to task demands. Its rest discussion acknowledges that high-power/high-skill youth tasks may need longer recovery. The exact 6/2/6 session, RIR/hold-reserve targets, scoring protocol and time estimate here are coaching decisions, not a validated protocol from that statement.
+3. **Nimmerichter et al., [Effects of Video-Based Visual Training on Decision-Making and Reactive Agility in Adolescent Football Players](https://pubmed.ncbi.nlm.nih.gov/29910249/).** The primary-study abstract reports a six-week visual-training intervention in 34 academy players, about age 14, with decision/reactive-agility test changes. Actual game transfer remained unestablished. It supports distinguishing perceptual decisions from movement execution; it does not validate this live mirror task, strength selection or dose. The PubMed abstract was accessible; the direct PMC page returned a browser challenge when opened, so no unseen full-text details were used.
+
+**Inference and limits:** Matching a lift to the joint positions/force directions of a plant is a mechanical rationale, not a demonstrated causal effect on anticipation. Nonreactive jumps/stops and strength work cannot replace reading opponents. No universal optimal volume, injury-proofing claim, millisecond reaction gain or direct sport-transfer promise is made.
+
+## Local identity checks and class variants
+
+| Slot | Name / local identifier and evidence | Exact class application / status |
+|---|---|---|
+| E1 | Lateral Line Pogo — `lateral-line-pogo`; `scripts/data/canonical-research/generated/line-pogo-identity-completion/lateral-line-pogo.v1.json`. | Verified bilateral repeated side-to-side low-amplitude identity. Eight contacts, no unilateral relabeling. |
+| E2 | Mirror Shuffle — `mirror-shuffle`; `scripts/data/canonical-research/generated/mirror-shuffle.v1.json`. | Verified live noncontact lateral leader/follower identity. Coach is leader; 4 s cap/one reversal are delivery constraints. No second renamed mirror slot. |
+| E3 | Bilateral Lateral Jump to Stick — local slug `lateral-hop-to-stick`; corresponding generated JSON explicitly recommends the bilateral display name. | Two feet to two feet. **Paused-start variant is proposed**, not claimed as an approved exact variant; the 2 s static hold differentiates its force task from E1 and E4. |
+| E4 | Lateral Skater Bound to Stick — `lateral-skater-bound-stick`; corresponding generated JSON. | Verified opposite-leg lateral bound with 2 s unilateral landing hold. Two attempts each direction, not same-leg hopping. |
+| E5 | Lateral Shuffle to Stick — `lateral-shuffle-to-stick`; `backend/migrations/129_coaching_control_resilience_seed.sql`. | Legacy source prescribes low/moderate precision control. **Rapid-entry explosive variant is proposed** and explicitly dosed in the class; do not represent the old slow drill as an approved explosive card. |
+| E6 | Crossover Step to Sprint Cone — `crossover-step-to-sprint-cone`; `scripts/data/cone-drill-exercise-cards-all-50.json`. | Local source has a longer predetermined run. **Short live-pursuit variant is proposed**; 3 m acceleration plus 2 m stop, rather than importing its 7–10 yard distance. |
+| S1 | Lateral Step-Down — `lateral-step-down`; migration 129 above. | Light dumbbell, slow eccentric, individually suitable platform. No platform height/quantity claimed. Supported shallow single-leg squat replacement is a proposed execution, no new ID. |
+| S2 | Short-Foot Drill — `short-foot-drill`; `scripts/data/canonical-research/generated/short-foot-drill/short-foot-drill.v1.json`. | Both feet supported, one target foot at a time, no toe curl. Does not silently convert the identity into a single-leg balance test. Seated support is a verified family variant. |
+| P1 | Lateral Lunge family — `lateral-lunge`; `backend/migrations/457_coaching_lateral_lunge_identity_and_family_completion.sql`. | Step out and return; not a fixed-wide-stance Cossack squat. **Goblet-loaded execution proposed**: migration warns underspecified loaded rows remain archived. No approved loaded-card status claimed. |
+| P2 | Split Squat — `split-squat`; `scripts/data/canonical-research/generated/split-squat.v1.json`. | Verified stationary floor-supported family with dumbbell variants. No elevated foot, reverse step or jump. |
+| P3 | Romanian Deadlift — `romanian-deadlift`; corresponding generated JSON. | Verified bilateral hinge family; two dumbbells, top start, controlled depth. Not relabeled single-leg work. |
+| P4 | Copenhagen Plank — Short Lever — `copenhagen-plank-short-lever`; `backend/migrations/121_coaching_capacity_seed.sql`. | Verified local legacy name/slug. Exact knee-on-bench setup and 15 s target specified here; later alias approval not verified. Side-lying adduction replacement is a **proposed addition**, no claimed library ID. |
+| P5 | Single-Leg Calf Raise — `single-leg-calf-raise`; `backend/migrations/155_coaching_bodyweight_strength_infrastructure_and_seed.sql`. | Local bodyweight name verified. **Loaded hand-supported execution proposed.** Do not use `standing-calf-raise` as an exact match: its generated contract is bilateral/unloaded and excludes this execution. |
+| P6 | Seated Dumbbell Calf Raise — `seated-dumbbell-calf-raise`; `backend/migrations/149_coaching_loaded_strength_infrastructure_and_seed.sql`. | Local name/slug verified; class explicitly uses a stable seated, bilateral, bent-knee execution. Current live-card status unknown. |
+
+Exact identifiers are optional for a proposed exercise; a more relevant choice is not discarded merely because only an adjacent or legacy local card exists. The register preserves that distinction instead of modifying the library to make the workout appear approved.
+
+## Continuation source review
+
+The [full drill register](drill_register.md) and [local source matches](local_library_matches.json) extend this initial Class 1 register to all twelve workouts. Proposed short-space or live-cue variants are labeled; local matches do not establish live publication/approval.
+
+OTA’s [Deceleration Exercises for Athletes](https://blog.overtimeathletes.com/deceleration-exercises-for-athletes-how-to-cut-harder-and-reduce-injury-risk/) was consulted for its emphasis on purposeful eccentric/isometric support and controlled landing/braking tasks. The curriculum uses those broad programming ideas, not its high-level tuck/drop combinations or its broad injury/performance promises. Existing NSCA youth guidance and the cited primary perception study remain the evidence context. No source validates this exact 12-workout set, dose or game transfer.

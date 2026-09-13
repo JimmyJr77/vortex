@@ -1,0 +1,411 @@
+{
+  "n": 10,
+  "effort": "Repeat accurate foot return and stance force with full resets, using a smaller primary-strength allocation for consolidation.",
+  "brief": "The target is consistency of the initial push and receiving position, not fatigue tolerance. E1 provides repeated isolated ankle-hop observations on each leg. Small split-stance travel, shared diagonal receiving and a low raised same-leg finish vary placement/support. Dead-stop hip drive removes swing carryover; single-leg bridge drive supplies rapid terminal hip force without a landing. Familiar foot control and a small pelvic-control task precede six meaningful single-round strength roles.",
+  "anchor": "E1",
+  "marker": "For each leg, record clean centred landings in the two sets of two isolated ankle hops. Start each attempt tall and still, keep knee motion small and land over the foot for 2 s. Compare only matching same-leg full-reset attempts; do not compare them with continuous pogo contact rhythm.",
+  "review": "Class 9 prescribed four loaded landings plus thirty nonflight force efforts and seven primary rounds. Actual response remains unknown. Class 10 uses unloaded isolated contacts, twelve single-leg events in total, and six primary rounds. The step-up returns at one set per leg rather than the earlier two; this is deliberate consolidation, not a response to assumed fatigue.",
+  "sequence": "E1 is the main full-reset observation, first while fresh. E2/E3 keep travel small; E4 uses only two attempts per leg if a suitable raised surface exists. E5/E6 have no flight. Do not compress the rests to make this a repeatability-under-fatigue test.",
+  "E": [
+    {
+      "name": "Single-Leg Ankle Hop to Stick — full reset",
+      "identity": "isolated_sl_ankle_hop",
+      "family": "isolated unilateral ankle force",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "unit": "hops per leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Main repeatability task: initiate a small ankle-led push from stillness and return over the same foot.",
+      "cue": "Hands on hips, tall stance and soft knee. One low hop without a preparatory bounce, hold same-leg landing 2 s, fully reset. Keep knee/hip dip small; lower height for wobble rather than adding support complexity."
+    },
+    {
+      "name": "Split-Stance Forward Pogo",
+      "identity": "split_forward_pogo",
+      "family": "asymmetric ankle spring with translation",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "hops per lead-leg stance",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "t": 1,
+      "job": "Maintain split-base ankle support during a tiny forward displacement, without switching the lead leg.",
+      "cue": "Both feet leave and return together in the same short split stance; four low hops travel no more than one own foot length total. Pelvis faces forward. Shorten travel/stance for uneven contact or drift; walk to reset."
+    },
+    {
+      "name": "Two-Foot Diagonal Jump to Stick",
+      "identity": "bilateral_diagonal_stick",
+      "family": "shared diagonal force acceptance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per diagonal direction",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Place the feet under the body after a small combined forward/frontal push while both legs share receiving.",
+      "cue": "From parallel feet jump forward and slightly outward over a short declared distance, land parallel and hold 2 s. Toes/pelvis stay forward, no twisting turn. Reduce distance for lateral collapse or reaching."
+    },
+    {
+      "name": "Single-Leg Vertical Jump to Low Box — same-leg landing",
+      "identity": "sl_vertical_to_box_sl",
+      "family": "same-leg whole-leg force to raised receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 120,
+      "gap": 20,
+      "t": 5,
+      "job": "Use hip/knee extension from one leg and receive on that leg at a low raised surface, distinct from E1's tiny ankle-only push.",
+      "cue": "Start near a very low stable box, small whole-leg dip, jump up onto the same foot, hold 2 s, then step down. No knee tuck or target-height challenge. This needs current competent single-leg receiving and a genuinely suitable low surface."
+    },
+    {
+      "name": "Dead-Stop Two-Hand Kettlebell Swing",
+      "identity": "deadstop_kb_swing",
+      "family": "ballistic hip drive without continuous carryover",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "unit": "single swings",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 10,
+      "t": 3,
+      "job": "Repeat a fast hip drive from a parked implement, removing the assistance of a preceding swing cycle.",
+      "cue": "Set a light bell slightly in front, hinge and hike once, drive one swing below chest height, then park. Completely reset grip/stance before the next single. Feet stay planted. Reduce load for back extension, arm lifting or uncertain parking."
+    },
+    {
+      "name": "Explosive Single-Leg Floor Bridge",
+      "identity": "fast_sl_floor_bridge",
+      "family": "unilateral rapid terminal hip extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "hip drives",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Express fast stance-side hip extension near the finish without adding foot contacts.",
+      "cue": "Working foot flat, other thigh held still; drive pelvis up quickly and lower over 2 s, keeping hips level and ribs down. No floor launch. Use a light kickstand foot instead if rotation prevents a clean single-leg drive; log changed support."
+    }
+  ],
+  "S": [
+    {
+      "name": "Short-Foot Drill — seated target-foot holds",
+      "identity": "seated_short_foot",
+      "library_slug": "short-foot-drill",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "five-second holds",
+      "rest": 30,
+      "gap": 3,
+      "t": 5,
+      "job": "Retain low-fatigue active arch control before the foot handles the primary loaded work.",
+      "cue": "Sit with both feet supported; gently shorten one target arch without toe curl or heel lift. Release fully between holds. Ease pressure for cramping. This is a familiar strength/control task, not a new drill family."
+    },
+    {
+      "name": "Supported Hip Hike — low step",
+      "identity": "supported_hip_hike",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Lightly strengthen pelvic elevation/control over a supported stance hip.",
+      "cue": "Hand support, stance foot on a low stable step, free foot clear. With knee softly straight, lower free-side pelvis slightly for 2 s and return to level for 2 s; do not shrug, bend sideways or push off the free foot. Reduce range for loss of control. If no suitable edge exists, use a supported shallow single-leg squat instead at the same count/tempo to retain stance-pelvis control."
+    }
+  ],
+  "P": [
+    {
+      "name": "Dumbbell Step-Up",
+      "slug": "dumbbell-step-up",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Use a stable low box placing the working thigh below horizontal; whole foot on top. Rise 1 s using the upper leg, lower 3 s; no push/jump from the trailing foot. Reduce load/height for pelvic hike. If no suitable low box exists, use floor Split Squat instead at the same working/preparation counts and tempo; record the different task.",
+      "job": "Keep a challenging stance-leg force role with one productive set per leg.",
+      "key": "stepup",
+      "decision": "Class 8 2 × 6 per leg → 1 × 6 per leg for consolidation. Keep step height/load only if actually recorded and appropriate; no load rise to compensate for fewer sets."
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Maintain a familiar loaded hip-hinge force role at one challenging set.",
+      "key": "rdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Retain knee-flexed ankle-force work without more calf-volume escalation.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Keep one straight-knee calf set per leg after the twelve unilateral receiving events.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Maintain knee-flexor force through the existing small cycle dose.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Maintain resisted leg recovery while the pelvis is supported.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "E4 requires a very low stable target appropriate to same-leg receiving; use a same-leg vertical jump to a floor stick instead when it is absent, 1 × 2 per leg and the same rest. That replacement still uses a modest hip/knee dip and natural arms, unlike E1's ankle-only still-start task. If single-leg receiving is not suitable, use two-foot receiving instead for those four attempts; add four individual foot contacts in the log. E5 without competent single-swing handling uses a familiar two-hand continuous swing instead at 2 × 3/rest, six swings total, recorded as a coupling change. All platforms/supports must fit the athlete without reaching or leaning to preserve balance.",
+  "count_note": "E1 eight + E2 eight + E3 four + E4 four = 24 landing events: twelve two-foot and twelve single-leg, 36 foot contacts. E4 adds four grounded box descents. E5 has six single swings with six setup hikes/parks that do not add swing repetitions; E6 has eight nonflight hip drives. Strength has six working rounds, with both sides still fully prescribed. Isolated-hop resets are recovery, not more hops.",
+  "novelty": "The six default executions add isolated ankle initiation, split-base forward translation, shared diagonal receiving, whole-leg same-foot raised receiving, dead-stop implement initiation and unilateral rapid hip finish. These are purposeful support/coupling variants of established families. The seated short-foot task is an intentional familiar control exercise; no new foot exercise is invented just for a different name. Known simpler replacements are not counted as novelty.",
+  "audit": "Kept impact to 24 events and changed primary allocation to six meaningful challenging rounds. Distinguished ankle-only E1 from whole-leg E4 so the raised/floor replacement cannot become a duplicate slot. Dead-stop swings specify one actual swing per hike/park. No extra load or contact target is used to make a consolidation class artificially harder.",
+  "progression": "Hold load/height/range unless actual control and recovery justify a specific change. The goal is repeatable execution under matched conditions, not a higher total. Class 11 should retain controlled force reserve with low-impact support options and adjust to the actual sport schedule if it becomes known.",
+  "map_note": "Full-reset consistency; 24 unloaded landings and six primary working rounds.",
+  "next_job": "Maintain stance-force reserve through low-impact support tasks before the final comparison class.",
+  "handoff": "Review Class 10 and any actual feedback, then finalize and audit Class 11; keep the final class conditional until its own review.",
+  "reviewed_files": {
+    "curriculum.md": "e4a9324ad70a5aae3b9b6ebee1fa415b472e86e0a224d7f007eb21402d459737",
+    "progress.json": "b3733d52182475aa0b9948c657a52d230d608492127d71ffb7d00a59bd4529db",
+    "progression_ledger.md": "275230dd002b96ca2a2e1af8f8f40588a617fb6b918c9194b701c344fa16ca7e",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_09.md": "935b63336708ad391d457a92253ee251303134593d7f4f91e48ad4a80f903edd"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 24,
+    "bilateral_landing_events": 12,
+    "single_leg_landing_events": 12,
+    "individual_foot_contacts": 36,
+    "other_explosive": [
+      {
+        "name": "Dead-Stop Two-Hand Kettlebell Swing",
+        "amount": 6,
+        "unit": "single swings"
+      },
+      {
+        "name": "Explosive Single-Leg Floor Bridge",
+        "amount": 8,
+        "unit": "hip drives"
+      }
+    ],
+    "primary_set_rounds": 6,
+    "primary_bouts": 9,
+    "primary_work": {
+      "reps": 54,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 6,
+    "preparation_bouts": 9,
+    "preparation_work": {
+      "reps": 33,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1908,
+      "stabilization": 292,
+      "primary": 1916,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 72,
+    "time_max": 82,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Short-Foot Drill — seated target-foot holds",
+        "sets": 1,
+        "reps_or_seconds_per_side": 3,
+        "sides": 2,
+        "total": 6,
+        "unit": "five-second holds"
+      },
+      {
+        "exercise": "Supported Hip Hike — low step",
+        "sets": 1,
+        "reps_or_seconds_per_side": 5,
+        "sides": 2,
+        "total": 10,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Single-Leg Ankle Hop to Stick — full reset",
+        "set_bouts": 4,
+        "total_reps_or_sequences": 8,
+        "unit": "hops",
+        "landing_events": 8,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 8
+      },
+      {
+        "exercise": "Split-Stance Forward Pogo",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "hops",
+        "landing_events": 8,
+        "individual_foot_contacts": 16,
+        "bilateral_landing_events": 8,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Two-Foot Diagonal Jump to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Vertical Jump to Low Box — same-leg landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Dead-Stop Two-Hand Kettlebell Swing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "single swings",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Explosive Single-Leg Floor Bridge",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "hip drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 18
+  },
+  "status": "finalized_prescription",
+  "final_review": "Checked consolidation rather than automatic overload. The main ankle hop and raised whole-leg jump remain mechanically distinct even with the floor replacement. Six challenging primary rounds retain all required strength slots. Twenty-four landings, twelve unilateral events and six actual dead-stop swings are accounted with full rest; prior performance remains unknown."
+}

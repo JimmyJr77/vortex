@@ -1,0 +1,150 @@
+{
+  "n": 9,
+  "label": "Withdraw, redirect and recover the rotational base",
+  "effort": "Create a small amount of separation, produce a low rotational counter-kick and recover without uncontrolled spin or drift.",
+  "brief": "The new task is a change in bodyweight direction. Supporting jobs cover backward loading before a turn, lateral return force, hip unwinding with a raised free leg, a short hooked return sweep and a stable backward catch.",
+  "marker": "valid E2 attempts out of four per kicking leg after one controlled retreat step, with no second retreat, trapped knee or extra recovery hop.",
+  "e": [
+    {
+      "name": "Drop-step loaded rotational jump to stick",
+      "side": "loading side",
+      "bilateral": 1,
+      "seconds": 6,
+      "execution": "Take one short drop step backward to load the named hip, gather onto two feet and drive into a low turn toward the original forward line. Finish the turn in the air and land on two feet, holding 2 s. Keep the drop/gather/flight within 2 m.",
+      "job": "Reverse a small backward load into forward-facing rotational leg force.",
+      "gate": "Use a shorter drop and smaller turn instead if the gather twists a planted knee or balance is lost.",
+      "novelty": "Backward hip loading redirected toward the original line, rather than a forward approach continuing into a turn.",
+      "total_attempts": 4,
+      "modeled_seconds": 184
+    },
+    {
+      "name": "Retreat-step low roundhouse counter",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "Make one short retreat step onto the support leg, arrest the backward drift, turn that support foot with the pelvis and execute a low opposite-leg roundhouse. Recoil into a stable stance within the 2 m segment. No opponent or pad.",
+      "job": "Directly change backward bodyweight travel into a controlled rotational counter action.",
+      "gate": "Use a smaller/slower retreat or a brief settled plant instead if the athlete continues drifting; do not reach with the kick to compensate.",
+      "novelty": "A retreat and redirection precede the full kick; Class 6 retreat ended in stance only, and Class 8 kicks followed forward travel.",
+      "total_attempts": 8,
+      "modeled_seconds": 428
+    },
+    {
+      "name": "Two-bound lateral return to starting leg",
+      "side": "initial takeoff leg",
+      "reps": 1,
+      "unilateral": 2,
+      "seconds": 7,
+      "execution": "One attempt is a short bound to the opposite leg and one return bound to the original leg, then a 2 s stick. No turn. Mirror the initial leg; two attempts give four unilateral landings.",
+      "job": "Qualify opposite-leg acceptance and pushback needed to recover from lateral displacement.",
+      "gate": "Use instead two separately reset short bounds if immediate return is not proven; same four landings, with extra reset time. Reduce distance for a hard receiving knee.",
+      "novelty": "Unilateral out-and-back transfer, distinct from one-way bounds and Class 7 bilateral lateral rebounds.",
+      "total_attempts": 2,
+      "modeled_seconds": 164
+    },
+    {
+      "name": "Pre-chambered hip-unwind step-down",
+      "side": "raised leg",
+      "grounded": 1,
+      "execution": "Start with a low folded-knee chamber and the pelvis comfortably turned, using light fingertip support if needed. Briskly unwind the pelvis with a freely turning support foot while bringing the raised leg back to a rear stance position; finish still. No kick extension.",
+      "job": "Recover the rotational base when the free leg begins suspended instead of available on the floor.",
+      "gate": "Use a smaller starting turn/chamber instead for foot sticking or a slapping return; do not torque the standing knee backward.",
+      "novelty": "Return-direction hip/stance recovery from a raised-leg start, rather than launching into a chamber or returning only the lower leg.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Low bent-knee hook shadow sweep",
+      "side": "sweeping leg",
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "From a comfortable open kick stance, lift the free thigh low, extend only slightly and sweep inward while folding the knee, then place the foot under control. Keep the arc small, below hip height, and coordinate the support-foot turn; no spin or contact.",
+      "job": "Practice the coupled inward thigh sweep and knee folding used to recover a rotational leg action.",
+      "gate": "Use an entirely folded-knee inward hook instead if the longer lever cannot be controlled; stop for groin or knee discomfort.",
+      "novelty": "Hooked return couples adduction with knee flexion; different from the relatively open-knee inward crescent and isolated knee recoil.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Backward push-off to parallel two-foot catch",
+      "side": "lead push leg",
+      "bilateral": 1,
+      "execution": "From a shallow split stance, push backward a short distance from the named lead leg and receive the low flight on two parallel feet. Stay facing forward, no turn, and hold 2 s. Travel at most 0.5 m on a coach-cleared path.",
+      "job": "Accept a small backward displacement in a stable base without adding a single-leg rotating landing.",
+      "gate": "Use less displacement instead if the heels slap or trunk tips; clear the route before every attempt and do not jump into an unseen queue.",
+      "novelty": "Backward displacement from asymmetrical support to a two-foot catch; earlier hops projected forward or sideways.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    }
+  ],
+  "sets": [
+    1,
+    2,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain planted push capacity after the retreat with one working round.",
+    "Main strength investment: posterior-chain control and hip extension when arresting backward travel and restoring stance.",
+    "Maintain lateral/adductor return force without a second lateral-squat round after the hooked sweeps and return bounds.",
+    "Keep direct hip-turn torque reproducible while practicing return-direction control.",
+    "Maintain active chamber force during the counter action and suspended recovery.",
+    "Support the soft-knee ankle base during withdrawal and the backward catch."
+  ],
+  "s_jobs": "Supported hip control limits pelvic spill during unwinding; easy foot doming keeps pressure organized when direction changes.",
+  "readiness": "The retreat path must be clear and the low hook action coached at a short lever. Immediate unilateral return bounds are conditional; without demonstrated control, use the separated bounds in the same slot. No new maximum range, spinning or opponent pressure is added.",
+  "strength_reason": "Move the extra compound round from Class 8 split squat to the hinge: [1,2,1,1,1,1], still 88 working reps. The hinge now serves backward-momentum control; maintain current qualified load and avoid simultaneous range/load progression.",
+  "exposure_note": "Twelve landings: eight bilateral (drop-step turns and backward catches) plus four unilateral return-bound landings. Sixteen grounded efforts include twelve kick/hook actions. The two-bound drill has two flights per attempt, already counted. Separated bounds preserve four landings but change reactive demand.",
+  "space": "Retreat/drop-step sequences fit within 2 m plus 2 m recovery clearance in a 10 m lane; backward flight is at most 0.5 m. Confirm width for the lateral returns and keep all queues away from behind the athlete.",
+  "progression": "Class 8 taught a forward receiving condition; this class changes to withdrawal, redirection and recovery. The number of planned landings rises from eight to twelve, with a conditional non-linked version; this needs fresh readiness review and does not imply prior tolerance.",
+  "audit": "A 180-degree spinning kick and rotating single-leg return bound were rejected. The hook remains short and low, while backward flight finishes on two feet. The extra hinge round replaces rather than supplements the preceding extra split-squat round.",
+  "prescribed_summary": {
+    "bilateral_landings": 8,
+    "unilateral_landings": 4,
+    "total_landing_events": 12,
+    "grounded_explosive_efforts": 16,
+    "kick_actions": 12,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 88,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4467,
+    "planning_minutes_excluding_existing_preparation": [
+      75,
+      82
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      184,
+      428,
+      164,
+      210,
+      210,
+      210
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      630,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 9 and actual directional control, then design Class 10 around an early decision cue with movement quality preserved; finalize/audit before continuing.",
+  "reviewed_previous_at_authoring_sha256": "5f1fe3a58c2849c3acad6c81c6940673943dc9b99787614d4bfae283c8d0355a",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "d1a6570f6f5d407be16d76363f47191326d5e0e0a30a8f883d90111a80c6a81a",
+  "final_previous_class_sha256": "b47d7c624c93bb48d7d78fbc679dda6890ee66595b628dc0f00f70a0642c725a"
+}

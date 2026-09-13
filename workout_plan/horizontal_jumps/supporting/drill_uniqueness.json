@@ -1,0 +1,584 @@
+{
+  "scope": "72 explosive and 24 stabilization/resilience default entries; strength repetitions allowed; Class 1 named drill replacements reserved",
+  "count": 96,
+  "exact_name_duplicates": [],
+  "semantic_review": "See full_sequence_audit.md; shared movement families with meaningful execution changes, no load-number or rep-count-only renames",
+  "entries": [
+    {
+      "class": 1,
+      "slot": "E1",
+      "name": "Low-amplitude forward-traveling pogos",
+      "job_and_execution": "Rehearse ankle-driven rebound while the body travels forward, preparing the contact demand used in E5 without tiring the main jump. Keep knees soft, feet beneath the body and travel increments small. Reduce travel if contacts become deep squats or loud slaps; stop for lost rhythm or discomfort."
+    },
+    {
+      "class": 1,
+      "slot": "E2",
+      "name": "Broad Jump to Stick — natural arm swing (primary anchor)",
+      "job_and_execution": "Integrate forward projection: dip once, send the arms forward/up with leg extension, then bring both feet into the landing and hold for 2 s. Avoid reaching the feet far ahead of an unsupported torso. Reduce distance if the athlete cannot hold the finish; retain the same arm/start protocol."
+    },
+    {
+      "class": 1,
+      "slot": "E3",
+      "name": "Paused Broad Jump to Stick — hands on hips",
+      "job_and_execution": "Produce forward force from stillness, separating the leg push from a countermovement and arm contribution. Hands remain on hips; land on two feet and hold 2 s. Shorten distance/start depth if needed. A re-dip invalidates the static-start task; do not make up the attempt."
+    },
+    {
+      "class": 1,
+      "slot": "E4",
+      "name": "Single-leg Broad Jump to Two-foot Landing",
+      "job_and_execution": "Make each leg supply forward propulsion while retaining the simpler two-foot landing. Keep the free foot off the floor at takeoff, use natural arms, land with both feet and hold 2 s. Reduce travel if pelvis/knee control deteriorates; do not chase equal distances or add weaker-side reps."
+    },
+    {
+      "class": 1,
+      "slot": "E5",
+      "name": "Repeated Broad Jump — two linked jumps",
+      "job_and_execution": "Receive forward momentum and use the intermediate bilateral contact to project again. Link without an intentional pause, allow the knee/hip bend the task needs, then stick the second landing for 2 s. Do not chase the shortest possible contact. Use only with demonstrated linked-jump competence; see replacement below."
+    },
+    {
+      "class": 1,
+      "slot": "E6",
+      "name": "Forward Medicine Ball Scoop Toss — light, bilateral",
+      "job_and_execution": "Accelerate a small external load forward through rapid hip/knee extension and a two-hand scoop. Start facing forward, ball low in front; use one shallow dip, drive and release forward/slightly upward without twisting, stepping or jumping. Choose a load that stays fast without back arching or an arm-only heave. Do not catch the return."
+    },
+    {
+      "class": 1,
+      "slot": "S1",
+      "name": "Step-Down to Hover — low forward heel-hover execution",
+      "job_and_execution": "Lightly strengthen stance-leg knee/hip control as the body lowers toward the position used to absorb a forward landing. Keep the whole stance foot supported, pelvis level and knee tracking with the foot; do not push from the free heel. Reduce height/load for knee collapse or pelvic drop."
+    },
+    {
+      "class": 1,
+      "slot": "S2",
+      "name": "Short-Foot Drill — standing, one target foot at a time",
+      "job_and_execution": "Strengthen active foot-arch control while maintaining heel, big-toe base and little-toe base contact for the takeoff push and landing. Shorten the target foot gently without clawing toes, rolling the ankle or lifting the forefoot. Reduce effort if the toes grip or the foot cramps."
+    },
+    {
+      "class": 2,
+      "slot": "E1",
+      "name": "Seated Broad Jump",
+      "job_and_execution": "Project forward from a supported motionless start. Sit near the edge, feet flat under or slightly ahead of knees; pause 2 s, swing the arms and jump forward to a two-foot 2 s hold. **Regress/stop:** Reduce distance and choose a seat height allowing feet flat; stop if rocking or loss of landing replaces the task."
+    },
+    {
+      "class": 2,
+      "slot": "E2",
+      "name": "Squat Jump",
+      "job_and_execution": "Supply rapid leg extension from stillness without the forward-landing demand of the main drill. Hold a comfortable partial squat 2 s with hands on hips; jump upward without a new dip and stick on two feet. **Regress/stop:** Use a shallower comfortable start and modest height; stop on a re-dip or unstable landing."
+    },
+    {
+      "class": 2,
+      "slot": "E3",
+      "name": "Tall-Kneeling Forward Medicine Ball Scoop Toss",
+      "job_and_execution": "Isolate hip-to-arm forward acceleration while removing ankle/knee takeoff. Kneel tall on a comfortable stable surface, ball low; hinge slightly at the hips then extend and scoop forward, keeping knees down and ribs controlled. **Regress/stop:** Use a lighter ball and smaller hinge; no throw if kneeling is uncomfortable or containment is unverified."
+    },
+    {
+      "class": 2,
+      "slot": "E4",
+      "name": "Split-Stance Pogo",
+      "job_and_execution": "Organize quick ankle pressure through a staggered base before split-position force work. Keep the chosen staggered stance unchanged; make small two-foot rebounds in place, then settle. Change lead foot for the other bout. **Regress/stop:** Reduce amplitude; stop if feet scissor or contacts become deep knee bends."
+    },
+    {
+      "class": 2,
+      "slot": "E5",
+      "name": "Dead-Stop Kettlebell Swing",
+      "job_and_execution": "Produce a discrete hip impulse from a parked load rather than reuse successive swing momentum. Hike a light bell, snap the hips to float it below chest height, then guide it back to the floor and fully reset; one hike/swing/park is one rep. **Regress/stop:** Use a lighter bell; stop for lumbar extension, arm lifting or loss of safe parking. **Entry:** Familiar hinge/swing and secure two-hand handling."
+    },
+    {
+      "class": 2,
+      "slot": "E6",
+      "name": "Static Split-Squat Jump to Same-Stance Landing",
+      "job_and_execution": "Express rapid force from a fixed asymmetrical base without a midair leg switch. Pause 2 s in a shallow split squat, jump a small amount up/forward, land in the same split stance and hold 2 s. **Regress/stop:** Reduce depth/travel; stop if the stance narrows, knee collapses or landing cannot be held."
+    },
+    {
+      "class": 2,
+      "slot": "S1",
+      "name": "Split Squat Isometric Hold",
+      "job_and_execution": "Lightly stabilize the knee/pelvis in the settled push position. Hold a shallow split stance with whole front foot down, rear heel lifted and pelvis level. **Regress/stop:** Use a higher position; stop if it becomes a strain or knee control is lost."
+    },
+    {
+      "class": 2,
+      "slot": "S2",
+      "name": "Calf Isometric Hold — Straight-Knee",
+      "job_and_execution": "Maintain controlled forefoot force with knees nearly straight at the end of the push. Both feet supported, rise modestly onto the forefeet and hold without ankle rolling; light hand support may steady the body. **Regress/stop:** Lower heel height or effort; stop on cramp or shaking."
+    },
+    {
+      "class": 3,
+      "slot": "E1",
+      "name": "Forward Hop to Stick — Same Leg",
+      "job_and_execution": "Own a single-leg forward push and receive on that same leg. Use one comfortable dip and natural arms, hop forward, absorb through ankle/knee/hip and hold the same-foot landing 2 s. **Regress/stop:** Shorten travel; stop for repeated free-foot touchdown, knee collapse or painful contact."
+    },
+    {
+      "class": 3,
+      "slot": "E2",
+      "name": "Single-Leg Pogo in Place",
+      "job_and_execution": "Supply a small ankle-rebound dose on each support leg without long travel. Keep a softly bent knee and make low same-foot rebounds in place; settle after the third. **Regress/stop:** Reduce height; stop for stiff painful contacts or uncontrolled travel."
+    },
+    {
+      "class": 3,
+      "slot": "E3",
+      "name": "Opposite-leg Forward Bound to Stick",
+      "job_and_execution": "Transfer forward impulse from a pushing leg to a different receiving leg. Push from one foot, swing the opposite thigh forward and land on that opposite foot; hold 2 s. **Regress/stop:** Shorten the bound and reduce free-leg swing; stop if reaching the landing foot causes a collapse."
+    },
+    {
+      "class": 3,
+      "slot": "E4",
+      "name": "Sprinter Step-Up Jump — Two-foot Floor Landing",
+      "job_and_execution": "Drive through a forward supported stance leg while coordinating the free knee. Start with one entire foot on a very low stable step, drive up/forward from that leg and land on both feet on the clear floor; hold 2 s and walk to reset. **Regress/stop:** Use a lower step and smaller flight; stop if the rear foot pushes off or the floor landing becomes a drop the athlete cannot control. **Entry:** Suitable low step and familiar jump-off/floor landing."
+    },
+    {
+      "class": 3,
+      "slot": "E5",
+      "name": "Split-Stance Forward Medicine Ball Scoop Toss",
+      "job_and_execution": "Coordinate forward release from a staggered support base without a landing. Hold the lead-foot stance fixed, dip shallowly and extend through the legs into a forward two-hand scoop; no trunk rotation or step. **Regress/stop:** Use a lighter ball and smaller dip; stop if the rear foot slips or the throw becomes a twist."
+    },
+    {
+      "class": 3,
+      "slot": "E6",
+      "name": "Single-leg Vertical Jump to Two-foot Landing",
+      "job_and_execution": "Express stance-leg extension without the added forward braking of E1. Dip on one leg, jump a modest height with natural arms, bring both feet into a quiet two-foot landing and hold 2 s. **Regress/stop:** Reduce height; stop if takeoff knee/pelvis control is lost."
+    },
+    {
+      "class": 3,
+      "slot": "S1",
+      "name": "Hip Airplane Iso Hold — Hand Supported",
+      "job_and_execution": "Lightly control hip/pelvis rotation around the planted leg for a forward landing. Hinge shallowly on one leg with stable hand support; open the pelvis slightly and hold without rotating the stance knee or foot. **Regress/stop:** Reduce hinge/rotation; stop if balance or hamstring tension dominates."
+    },
+    {
+      "class": 3,
+      "slot": "S2",
+      "name": "Self-resisted Seated Ankle Dorsiflexion",
+      "job_and_execution": "Strengthen controlled toe lift for foot placement and early heel acceptance. Sit with the heel planted; press lightly downward on the top of the forefoot with the hand while the foot lifts against it, then return slowly. **Regress/stop:** Reduce hand resistance; keep toes relaxed and stop on discomfort."
+    },
+    {
+      "class": 4,
+      "slot": "E1",
+      "name": "Split-Stance Broad Jump to Parallel Landing",
+      "job_and_execution": "Convert a staggered bilateral push into aligned forward travel. Begin with one foot modestly ahead, dip once and swing both arms; push off both feet and gather into a parallel two-foot landing held 2 s. **Regress/stop:** Reduce stagger and travel; stop if it becomes a single-leg jump or the landing twists."
+    },
+    {
+      "class": 4,
+      "slot": "E2",
+      "name": "Countermovement Broad Jump onto a Low Box",
+      "job_and_execution": "Time the forward arm drive while receiving the body on a higher surface. Use a stationary two-foot dip and forward/up arm swing to land both feet fully on a low stable box; stand, then step down under control. **Regress/stop:** Use lower/closer placement; stop for excessive knee tucking, partial-foot landing or an unstable box. **Entry:** Full-foot low-box landing and controlled step-down."
+    },
+    {
+      "class": 4,
+      "slot": "E3",
+      "name": "Single-arm Forward Medicine Ball Push Throw",
+      "job_and_execution": "Couple one arm's forward force with a bilateral leg drive while resisting unwanted rotation. Use a very light ball at one shoulder, feet parallel; dip and extend into a forward push release while keeping hips facing the target and feet planted. **Regress/stop:** Reduce load; stop if trunk rotation or an arm-only strain replaces the coordinated push."
+    },
+    {
+      "class": 4,
+      "slot": "E4",
+      "name": "Two-foot Forward–Backward Line Pogo",
+      "job_and_execution": "Reverse small fore-aft ankle contacts while maintaining an organized trunk. Make six low two-foot crossings of a flat floor line, alternating forward/backward; each crossing is one landing, then settle. **Regress/stop:** Narrow the crossing distance; stop for deep squatting or loss of rhythm."
+    },
+    {
+      "class": 4,
+      "slot": "E5",
+      "name": "Lunge Switch Jump",
+      "job_and_execution": "Reorganize an asymmetrical base in flight without a long forward bound. From a shallow split stance, jump modestly and switch legs in flight; hold the opposite split landing 2 s. Reset the stated starting side before each rep. **Regress/stop:** Reduce height and stance length; stop if the feet cross or the landing cannot be held."
+    },
+    {
+      "class": 4,
+      "slot": "E6",
+      "name": "Countermovement Jump — Natural Arms",
+      "job_and_execution": "Integrate dip-to-arm timing with a small vertical flight before fatigue accumulates in lifting. Dip once, drive the arms up with leg extension, land in the starting area on two feet and hold 2 s. **Regress/stop:** Use modest height; stop if the arms finish after takeoff or landing control fails."
+    },
+    {
+      "class": 4,
+      "slot": "S1",
+      "name": "Dead Bug Isometric Hand-to-Thigh Press",
+      "job_and_execution": "Lightly brace the trunk against arm/leg force so the takeoff push is not accompanied by lumbar arching. Lie supine, one hip/knee bent; press the opposite palm and thigh gently together while keeping ribs down and breathing. **Regress/stop:** Lower the limb lever/pressure; stop for breath-holding or back arching."
+    },
+    {
+      "class": 4,
+      "slot": "S2",
+      "name": "Big Toe Press Iso Hold",
+      "job_and_execution": "Maintain the big-toe contact used to direct the final foot push. Keep the foot flat and long toes; press the big toe gently down without curling it or lifting the other contact points. **Regress/stop:** Reduce pressure; stop if the arch collapses or the toes claw."
+    },
+    {
+      "class": 5,
+      "slot": "E1",
+      "name": "Backward-step Reversal Broad Jump",
+      "job_and_execution": "Convert a small rearward load into forward hip-driven projection. From standing, take one short backward step then step forward to gather both feet and immediately jump forward with natural arms; hold the bilateral landing 2 s. **Regress/stop:** Shorten and slow the entry; stop for extra shuffles or an uncontrolled forward pitch."
+    },
+    {
+      "class": 5,
+      "slot": "E2",
+      "name": "Backward Overhead Medicine Ball Throw",
+      "job_and_execution": "Express hip/knee extension into a free external load without another athlete landing. Face away from the clear throw area, hinge with a light ball between the thighs and drive the hips/legs to release back overhead; keep the feet planted and avoid lumbar arching. **Regress/stop:** Reduce ball load and hinge; do not throw unless the full overhead trajectory and landing/roll fit the verified area."
+    },
+    {
+      "class": 5,
+      "slot": "E3",
+      "name": "Dumbbell Jump Shrug",
+      "job_and_execution": "Apply rapid hip/knee/ankle extension against a small hanging load. Hold very light bells at the sides, use a shallow hinge/dip and jump a small height while finishing tall; arms stay long, then land on two feet and reset. **Regress/stop:** Reduce load/height; stop if grip, shoulder pulling or landing control limits the leg drive. **Entry:** Demonstrated unloaded jump and secure DB handling."
+    },
+    {
+      "class": 5,
+      "slot": "E4",
+      "name": "Band-resisted Hip Snap — Feet Planted",
+      "job_and_execution": "Produce fast hip extension against rearward resistance without an impact. With a comfortable broad band low around the pelvis and a verified rear anchor/holder, hinge slightly then snap to tall hips while keeping both feet planted and ribs down. **Regress/stop:** Use less tension and smaller range; stop for lumbar arching, band migration or insecure anchoring. **Entry:** Band condition, pelvic fit and rear anchoring verified; no elastic release toward people."
+    },
+    {
+      "class": 5,
+      "slot": "E5",
+      "name": "Low Straight-Leg Alternating Bounds",
+      "job_and_execution": "Use hip action and ankle stiffness to project with limited knee cycling. Travel forward through six small alternating contacts, three on each foot; keep knees softly unlocked and contact beneath the moving body rather than reaching. Finish under control. **Regress/stop:** Shorten the travel and lower amplitude; stop for jarring locked-knee contact or reaching."
+    },
+    {
+      "class": 5,
+      "slot": "E6",
+      "name": "Half-Kneeling Forward Medicine Ball Chest Pass",
+      "job_and_execution": "Transfer a forward arm impulse through a stable split hip/pelvic base. One knee down, opposite foot flat; with a light ball at chest height, push forward explosively while retaining tall ribs/pelvis and grounded supports. **Regress/stop:** Reduce load; stop if the torso twists or kneeling pressure is uncomfortable."
+    },
+    {
+      "class": 5,
+      "slot": "S1",
+      "name": "Long-Lever Hamstring Bridge Iso Hold",
+      "job_and_execution": "Lightly maintain hip height against the longer heel lever used during forward contact. Lie supine with heels farther from hips than a short bridge, knees still comfortably bent; raise the pelvis modestly and breathe. **Regress/stop:** Bring heels closer and lower effort; stop for cramp or lumbar extension."
+    },
+    {
+      "class": 5,
+      "slot": "S2",
+      "name": "Side-Lying Hip Adduction",
+      "job_and_execution": "Support medial hip control so forward bounds do not drift away from the intended line. Lie on the side with the top foot planted in front; lift the bottom straight leg a small amount and lower slowly, pelvis stacked. **Regress/stop:** Use a smaller lift; stop if the pelvis rolls or hip discomfort appears."
+    },
+    {
+      "class": 6,
+      "slot": "E1",
+      "name": "Seated Box Jump",
+      "job_and_execution": "Create forward/up projection from support into a higher receiving surface. Sit still with feet flat, swing the arms and jump forward/up onto a separate low stable box; hold 2 s, stand, then step down and reset. **Regress/stop:** Lower/bring the landing box closer; stop for rocking, foot clipping or knee-tucking to reach a high box."
+    },
+    {
+      "class": 6,
+      "slot": "E2",
+      "name": "Single-leg Takeoff to Two-foot Box Landing",
+      "job_and_execution": "Apply one leg's propulsion while receiving with both feet on an elevated surface. From one foot near a low box, dip and drive forward/up, then land both feet fully on the box and hold 2 s. **Regress/stop:** Lower/bring the box closer; stop for twisting takeoff or partial-foot landing."
+    },
+    {
+      "class": 6,
+      "slot": "E3",
+      "name": "Low Hurdle Forward Jump to Stick",
+      "job_and_execution": "Clear a small physical barrier without overreaching the forward landing. Start stationary on two feet, dip and jump over one low hurdle; land beyond it on two feet and hold 2 s. **Regress/stop:** Lower the hurdle and shorten travel; stop for clipping or a feet-first reach that loses the torso."
+    },
+    {
+      "class": 6,
+      "slot": "E4",
+      "name": "Continuous Low Hurdle Hops",
+      "job_and_execution": "Organize successive forward contacts against an external clearance rhythm. Use two low hurdles, make two linked two-foot hops with no intentional pause, then hold the final landing 2 s. **Regress/stop:** Lower/narrow the hurdle arrangement while retaining two distinct clearances; stop if rushing contact causes clipping or collapse. **Entry:** Demonstrated low linked clearances."
+    },
+    {
+      "class": 6,
+      "slot": "E5",
+      "name": "Seated Medicine Ball Chest Pass",
+      "job_and_execution": "Supply rapid forward arm force while keeping the leg impact dose unchanged. Sit upright on a stable bench, feet flat; release a light ball forward from chest height with a quick two-hand push, no torso heave. **Regress/stop:** Use a lighter ball; stop for back arching or unsafe containment."
+    },
+    {
+      "class": 6,
+      "slot": "E6",
+      "name": "Jump Rope Power Singles",
+      "job_and_execution": "Practice active foot clearance and an organized ankle return under a predictable rope passage. Use one rope turn per modest two-foot jump, six controlled contacts in place; clear the rope without tucking the knees high. **Regress/stop:** Lower jump height and slow the rope to retain one turn per jump; stop after catches or disrupted landings."
+    },
+    {
+      "class": 6,
+      "slot": "S1",
+      "name": "Soleus Isometric Hold — Bent Knee",
+      "job_and_execution": "Lightly control plantarflexion with flexed knees for the box/hurdle receiving position. With stable hand support, bend both knees slightly and lift heels a small amount; hold knee angle and quiet forefoot contact. **Regress/stop:** Reduce heel height/effort; stop for ankle rolling or shaking."
+    },
+    {
+      "class": 6,
+      "slot": "S2",
+      "name": "Seated Band Ankle Eversion",
+      "job_and_execution": "Control the outer foot border when setting the whole foot on a receiving surface. Seated with heel supported, hold a light band to pull the forefoot inward; move the forefoot gently outward against it while keeping the lower leg still, then return. **Regress/stop:** Use less tension/range; stop if the knee rotates instead of the ankle."
+    },
+    {
+      "class": 7,
+      "slot": "E1",
+      "name": "Alternating Bounds — Three Linked Contacts",
+      "job_and_execution": "Transfer impulse repeatedly from one support leg to the other. Begin with a single-leg push and alternate receiving feet for exactly three forward bounds; hold the last landing 2 s. Start the second set from the other leg. **Regress/stop:** Shorten each bound; stop if an intermediate contact collapses or the athlete cannot control the final stop."
+    },
+    {
+      "class": 7,
+      "slot": "E2",
+      "name": "Power Skip for Distance",
+      "job_and_execution": "Coordinate a same-foot hop with the next stepping support before alternating projection. Perform four step-hop cycles traveling forward: land the hop on its takeoff foot, then step onto the other foot for the next hop. **Regress/stop:** Shorten the hop and slow the stepping rhythm; stop if it becomes uncontrolled running bounds."
+    },
+    {
+      "class": 7,
+      "slot": "E3",
+      "name": "Single-leg Forward-Traveling Pogo",
+      "job_and_execution": "Keep a small forward-moving ankle rebound organized on each support foot. Make two low consecutive forward same-foot contacts, then settle; repeat on the other side. **Regress/stop:** Reduce travel/amplitude; stop for knee locking, foot reaching or loss of rhythm."
+    },
+    {
+      "class": 7,
+      "slot": "E4",
+      "name": "Walking-entry Opposite-leg Bound to Stick",
+      "job_and_execution": "Receive a small amount of entry momentum before transferring to the other leg. Take one walking step onto the takeoff foot, immediately bound forward to the opposite foot and hold 2 s. **Regress/stop:** Shorten/slow the entry; stop for an extra gather step or uncontrolled reach."
+    },
+    {
+      "class": 7,
+      "slot": "E5",
+      "name": "Step-through Medicine Ball Chest Pass",
+      "job_and_execution": "Match forward weight transfer to a two-arm release. From a staggered stance, step the rear foot forward while driving a light ball from the chest; finish balanced without chasing the throw. **Regress/stop:** Slow/shorten the step and reduce ball load; stop if the body falls through the release."
+    },
+    {
+      "class": 7,
+      "slot": "E6",
+      "name": "Alternating Bounds over Two Low Hurdles",
+      "job_and_execution": "Place alternating contacts around a real flight-clearance constraint. Clear two very low hurdles with two alternating forward bounds and hold the final landing; each clearance lands on the opposite foot. **Regress/stop:** Lower/bring the hurdles closer while retaining comfortable alternate contacts; stop for clipping or a rushed landing. **Entry:** Familiar low-hurdle alternating clearance; no new maximum height."
+    },
+    {
+      "class": 7,
+      "slot": "S1",
+      "name": "Isometric Ankle Inversion Press — Self Resisted",
+      "job_and_execution": "Lightly stabilize medial foot direction during alternating stance. Seated, heel supported; use the opposite hand as gentle resistance while the working forefoot presses inward without turning the knee. **Regress/stop:** Reduce pressure; stop for toe curling or ankle discomfort."
+    },
+    {
+      "class": 7,
+      "slot": "S2",
+      "name": "Single-Leg Glute Bridge Iso Hold",
+      "job_and_execution": "Maintain pelvic height when the other leg is not supporting the body. From a short-lever bridge, unload one foot and hold the pelvis level with ribs down; keep the working heel comfortably close. **Regress/stop:** Shorten the lever and lower the hold; stop for pelvic rotation or cramp."
+    },
+    {
+      "class": 8,
+      "slot": "E1",
+      "name": "Repeated Single-leg Forward Hops — Two Contacts",
+      "job_and_execution": "Reapply forward impulse from the same receiving leg. Hop twice forward on the same foot without an intentional pause, then hold the second landing 2 s; alternate side bouts. **Regress/stop:** Shorten each hop; stop for a collapsing intermediate knee/hip or an uncontrolled final contact."
+    },
+    {
+      "class": 8,
+      "slot": "E2",
+      "name": "Single-leg Forward Hurdle Hop to Stick",
+      "job_and_execution": "Maintain same-leg propulsion and landing around a real clearance constraint. Hop from one foot over a very low hurdle to the same foot and hold 2 s, keeping the receiving knee aligned. **Regress/stop:** Lower/bring the hurdle closer; stop for clipping, reaching or a free-foot touchdown."
+    },
+    {
+      "class": 8,
+      "slot": "E3",
+      "name": "Paused Single-leg Broad Jump to Two-foot Landing",
+      "job_and_execution": "Express a fresh one-leg push without reusing a preceding contact or adding a one-leg finish. Hold a shallow one-leg dip still for 2 s, use the arms and jump forward to two feet; hold 2 s. **Regress/stop:** Shorten travel and make the start shallower; stop if a re-dip replaces the paused push."
+    },
+    {
+      "class": 8,
+      "slot": "E4",
+      "name": "Single-leg Forward–Backward Line Hops",
+      "job_and_execution": "Control a small fore-aft reversal through the same foot. Make one forward and one backward crossing of a flat line on the same foot, then settle; repeat on the other foot. **Regress/stop:** Narrow the crossing and lower height; stop if the knee locks or balance dominates."
+    },
+    {
+      "class": 8,
+      "slot": "E5",
+      "name": "Single-leg Forward Medicine Ball Scoop Toss",
+      "job_and_execution": "Transmit forward force through one planted leg and a controlled pelvis without a landing. Stand on one foot with a very light ball low in front; use a shallow hip/knee dip to scoop forward, keeping the free foot clear and torso facing ahead. **Regress/stop:** Reduce load/dip; stop for hopping, twisting or loss of foot control. **Entry:** Comfortable one-leg ball handling; power must not be limited by balance."
+    },
+    {
+      "class": 8,
+      "slot": "E6",
+      "name": "Split-Squat Jump onto a Low Box",
+      "job_and_execution": "Gather a lead-leg-biased push into a symmetrical elevated finish. From a shallow fixed split stance on the floor, dip once and jump forward/up onto a low box with both feet; hold 2 s, then step down. **Regress/stop:** Lower/bring the box closer; stop if the rear leg is trapped, the stance twists or feet land partly off the box."
+    },
+    {
+      "class": 8,
+      "slot": "S1",
+      "name": "Short-Lever Side Plank",
+      "job_and_execution": "Lightly support frontal-plane trunk/pelvic control during same-leg contacts. Support on forearm and bent knees, lift hips modestly and hold a straight shoulder–hip–knee line while breathing. **Regress/stop:** Shorten the lever/lower effort; stop if the shoulder or back is uncomfortable."
+    },
+    {
+      "class": 8,
+      "slot": "S2",
+      "name": "Hip Flexor March Iso Hold — Hand Supported",
+      "job_and_execution": "Maintain free-thigh position without tipping the pelvis away from the support leg. Use light hand support, raise one thigh to a comfortable march position and hold with ribs stacked over the planted foot. **Regress/stop:** Lower the thigh and reduce effort; stop if lumbar arching or stance-foot rolling appears."
+    },
+    {
+      "class": 9,
+      "slot": "E1",
+      "name": "Two-step Approach Broad Jump",
+      "job_and_execution": "Redirect a small amount of forward entry momentum through a two-foot takeoff. Take exactly two controlled forward steps into a two-foot plant, swing the arms and jump forward; hold the bilateral finish 2 s. **Regress/stop:** Slow/shorten the entry; stop if braking or an extra shuffle replaces the plant."
+    },
+    {
+      "class": 9,
+      "slot": "E2",
+      "name": "One-step Long Jump to Two-foot Landing",
+      "job_and_execution": "Use a single-foot plant after entry while gathering into a bilateral finish. Take one controlled step onto the takeoff leg, drive the free knee/arms forward and jump from that foot; land on two feet and hold 2 s. **Regress/stop:** Slow the step and shorten travel; stop for a buckling plant or a feet-first reach."
+    },
+    {
+      "class": 9,
+      "slot": "E3",
+      "name": "Walk-in Two-foot Box Jump",
+      "job_and_execution": "Organize a moving two-foot plant into an elevated full-foot receiving position. Walk two short steps into a two-foot gather, then jump forward/up onto a low box and hold 2 s; step down to reset. **Regress/stop:** Lower the box and slow entry; stop for a rushed plant, clipping or partial-foot landing."
+    },
+    {
+      "class": 9,
+      "slot": "E4",
+      "name": "Alternating Bounds for Height",
+      "job_and_execution": "Preserve a useful upward component while carrying forward momentum from one leg to the next. Use four controlled alternating bounds with a tall trunk, upward free-knee drive and short forward travel; hold the final contact. **Regress/stop:** Reduce height/step length; stop for reaching the foot or losing the tall hip position."
+    },
+    {
+      "class": 9,
+      "slot": "E5",
+      "name": "Step-in Forward Overhead Medicine Ball Throw",
+      "job_and_execution": "Time a forward step with a long-lever two-arm release. Start with a light ball above the forehead, take one short forward step and extend the arms to release ahead while ribs remain controlled; keep a stable finish. **Regress/stop:** Use lighter load and a shorter arm excursion; stop for lumbar arching or throwing outside verified containment."
+    },
+    {
+      "class": 9,
+      "slot": "E6",
+      "name": "Reverse-Lunge Drive Jump to Two-foot Landing",
+      "job_and_execution": "Convert a rear-step loading action into a lead-leg drive and balanced finish. Step back into a shallow reverse lunge, drive through the front foot as the rear knee comes forward and make a modest forward/up jump; land on two feet and hold. **Regress/stop:** Shorten the lunge and flight; stop for rear-foot slipping, a twisting push or uncontrolled landing."
+    },
+    {
+      "class": 9,
+      "slot": "S1",
+      "name": "Wall Drive Iso Hold",
+      "job_and_execution": "Lightly maintain trunk/shin alignment in a forward-driving plant position. Use a verified fixed wall or immovable high support, lean as a straight body line and hold one knee raised while the stance heel stays comfortably lifted. **Regress/stop:** Use a more upright angle and less pressure; stop for lumbar sag or calf strain."
+    },
+    {
+      "class": 9,
+      "slot": "S2",
+      "name": "Lateral Step-Down",
+      "job_and_execution": "Control frontal-plane pelvis/knee position while a single leg receives the approaching body. Stand on a low stable step, lower the free heel toward the floor beside the step for 3 s and rise in 1 s without pushing from that heel. **Regress/stop:** Lower step height/load; stop for pelvic drop or loss of the whole stance foot."
+    },
+    {
+      "class": 10,
+      "slot": "E1",
+      "name": "Low Drop to Broad Jump",
+      "job_and_execution": "Redirect an externally imposed downward arrival into forward projection. Step off a very low stable box, receive on both feet and immediately jump forward; use the needed knee/hip bend, then hold the final landing 2 s. **Regress/stop:** Lower the starting step and shorten the forward jump; stop for a stiff/jarring arrival, knee collapse or a deliberate reset between contacts."
+    },
+    {
+      "class": 10,
+      "slot": "E2",
+      "name": "Grounded Snap-Down to Forward Rebound Jump",
+      "job_and_execution": "Create a quick active lowering action and use it for forward force. Start tall with arms raised and heels lightly lifted; snap into a shallow athletic position without leaving the floor, then immediately jump forward and hold the final landing. **Regress/stop:** Reduce lowering speed/depth and travel; stop if an unintended initial hop appears or the athlete loses the foot base."
+    },
+    {
+      "class": 10,
+      "slot": "E3",
+      "name": "Low Drop to Vertical Rebound",
+      "job_and_execution": "Separate rapid receiving/return from the forward-direction task. Step off a very low box, land bilaterally and rebound a modest amount upward; control the final two-foot landing. **Regress/stop:** Lower the step and rebound height; stop if impact control or alignment deteriorates."
+    },
+    {
+      "class": 10,
+      "slot": "E4",
+      "name": "Partner-fed Forward Medicine Ball Scoop Return",
+      "job_and_execution": "Use a gentle received load to organize an eccentric-to-forward arm/hip impulse. A coach standing offset feeds a very light ball gently to the athlete's low two-hand scoop position; accept it with a small hip/knee bend and promptly throw forward into a clear area, feet planted. **Regress/stop:** Use a slower/lighter feed; stop if catching or containment is unreliable or the torso twists. **Entry:** Competent light-ball receiving and qualified feeder outside the outgoing throw path."
+    },
+    {
+      "class": 10,
+      "slot": "E5",
+      "name": "Wall Ankling Pogo — Bilateral Forward Lean",
+      "job_and_execution": "Practice an angled ankle rebound while hand support limits whole-body drift. Hands on a verified fixed wall/support, body in a modest forward lean; make six tiny two-foot ankle rebounds in place with knees soft and trunk aligned. **Regress/stop:** Use less lean/amplitude; stop if the support shifts or the athlete collapses through hips/knees."
+    },
+    {
+      "class": 10,
+      "slot": "E6",
+      "name": "Seated Single-leg Jump onto a Low Box",
+      "job_and_execution": "Supply a controlled one-leg initial impulse into a two-foot elevated finish. Sit still with one foot flat and the other free; push from the supported leg and swing arms to land both feet fully on a very low nearby box; hold and step down. **Regress/stop:** Raise the seat or lower/bring the landing box closer while keeping the same task; stop for rocking, twisting or incomplete foot placement. **Entry:** Demonstrated single-leg seated takeoff and box landing; no attempt to force height."
+    },
+    {
+      "class": 10,
+      "slot": "S1",
+      "name": "Wall Sit — Shallow Bilateral Hold",
+      "job_and_execution": "Lightly hold the knee/hip receiving position against a stable support. Back against a fixed wall, feet flat, settle into a comfortable shallow squat and breathe while knees track over feet. **Regress/stop:** Use a higher position; stop for discomfort or a burning/quivering effort."
+    },
+    {
+      "class": 10,
+      "slot": "S2",
+      "name": "Tibialis ISO Toe-Up Hold",
+      "job_and_execution": "Maintain dorsiflexor control for organized foot arrival rather than a loose forefoot slap. Sit with heels planted and lift the forefeet/toes into a comfortable toe-up position; hold gently without curling toes. **Regress/stop:** Lower the lift/effort; stop for cramp or ankle discomfort."
+    },
+    {
+      "class": 11,
+      "slot": "E1",
+      "name": "Rear-band-Resisted Broad Jump",
+      "job_and_execution": "Apply forward body impulse against an opposing horizontal force while preserving arm coordination. Use a broad comfortable band low around the pelvis, secured behind by a qualified holder/verified anchor; dip and swing naturally into a short two-foot forward jump, then hold. **Regress/stop:** Reduce tension and travel; stop if the band shifts, rebounds the athlete backward or destabilizes the landing."
+    },
+    {
+      "class": 11,
+      "slot": "E2",
+      "name": "Dumbbell Broad Jump — Arms Fixed at Sides",
+      "job_and_execution": "Produce forward impulse with carried mass and no free arm swing. Hold very light dumbbells securely at the sides, dip once and make a short forward jump; keep arms quiet and land on two feet with a 2 s hold. **Regress/stop:** Reduce load/travel; stop if grip, arm swinging or a heavy landing dominates."
+    },
+    {
+      "class": 11,
+      "slot": "E3",
+      "name": "Landmine Power Squat — No Flight",
+      "job_and_execution": "Drive a lightly loaded angled implement rapidly through leg extension without another landing. Hold a light landmine end at chest level with both hands, use a shallow squat and stand rapidly to a tall finish while keeping feet in contact; no separate press. Lower/reset under control. **Regress/stop:** Use less load/range; stop if the anchor moves or the athlete arches/pushes with the arms instead of extending the legs. **Entry:** Secure landmine pivot, suitable bar/handle and verified arc clearance."
+    },
+    {
+      "class": 11,
+      "slot": "E4",
+      "name": "Kickstand Dead-Stop Kettlebell Swing",
+      "job_and_execution": "Bias fast hip extension toward one lead leg while the rear foot supplies a stable small support. Use a short kickstand stance, park a light bell between reps; hike, snap the hips to float the bell below chest height, then park under control without twisting. **Regress/stop:** Reduce load and narrow the rear offset; stop if pelvis rotation or arm lifting replaces hip drive. **Entry:** Familiar kickstand hinge and bell handling."
+    },
+    {
+      "class": 11,
+      "slot": "E5",
+      "name": "Squat Medicine Ball Chest Throw",
+      "job_and_execution": "Accelerate a chest-held load forward through a coordinated bilateral leg drive. Hold a light ball at the chest, descend to a comfortable squat and extend promptly into a two-hand forward chest release, keeping feet planted and ribs controlled. **Regress/stop:** Reduce ball load/depth; stop for an arm-only heave or lumbar arching."
+    },
+    {
+      "class": 11,
+      "slot": "E6",
+      "name": "Half-Kneeling Forward Medicine Ball Scoop Toss",
+      "job_and_execution": "Use a split grounded hip base and long low-to-forward arm path to express projection. One knee down and opposite foot flat, ball low beside/in front of the lead thigh; extend the hip and scoop straight forward with two hands, without twisting or rising into a jump. **Regress/stop:** Use a lighter ball and smaller hinge; stop for unstable knee/foot support or rotation."
+    },
+    {
+      "class": 11,
+      "slot": "S1",
+      "name": "Pallof Press — Bilateral Athletic Stance",
+      "job_and_execution": "Lightly resist trunk rotation so external force remains aligned with the forward push. With a light band pulling from one side, feet parallel and knees soft, press both hands forward, hold 2 s and return without turning; repeat facing the opposite pull direction. **Regress/stop:** Use less band tension/shorter reach; stop for twisting or breath-holding."
+    },
+    {
+      "class": 11,
+      "slot": "S2",
+      "name": "Glute Bridge March",
+      "job_and_execution": "Keep the pelvis steady while support alternates under a braced hip position. From a low short-lever bridge, lift and replace one foot at a time, alternating for eight total marches (four per side) without pelvic roll. **Regress/stop:** Use smaller foot lifts/lower hip height; stop for cramp or trunk arching."
+    },
+    {
+      "class": 12,
+      "slot": "E1",
+      "name": "Stationary Single-leg Hop–Step–Jump",
+      "job_and_execution": "Integrate same-leg reuse, opposite-leg transfer and a bilateral final reception into one defined horizontal foot sequence. From one foot, hop to the same foot, step-bound to the opposite foot, then jump from that foot to both feet; hold the final landing. Start the other set on the opposite leg. **Regress/stop:** Shorten each segment and slow entry intent while keeping the sequence; stop for a collapsing intermediate contact or incorrect foot order."
+    },
+    {
+      "class": 12,
+      "slot": "E2",
+      "name": "Lateral Step-in Broad Jump",
+      "job_and_execution": "Redirect a small lateral entry into a straight-ahead two-foot push. Take one short lateral step into a parallel two-foot gather, square the pelvis to the forward lane and jump forward; hold the landing 2 s. **Regress/stop:** Shorten/slow the lateral step; stop if the jump drifts sideways or the pelvis rotates through landing."
+    },
+    {
+      "class": 12,
+      "slot": "E3",
+      "name": "Same-leg Forward Hop onto a Low Box",
+      "job_and_execution": "Receive one-leg forward force with full-foot placement on a raised support without assistance from the free foot. Hop from one foot to the same foot on a very low wide stable box; hold 2 s with the pelvis level, then use a controlled step-down to reset. **Regress/stop:** Lower/bring the box closer; stop for partial-foot contact, free-foot rescue or pelvic collapse. **Entry:** Demonstrated elevated same-leg landing; no narrow or tall box."
+    },
+    {
+      "class": 12,
+      "slot": "E4",
+      "name": "Lateral-entry Forward Medicine Ball Scoop Throw",
+      "job_and_execution": "Square the hips after a side entry and direct leg-to-arm force forward. Take one short lateral step into a stable bilateral base, then immediately use a shallow dip and light forward scoop release with the pelvis facing the target. **Regress/stop:** Slow the side step and lighten the ball; stop if the throw becomes rotational or entry balance is lost."
+    },
+    {
+      "class": 12,
+      "slot": "E5",
+      "name": "Tall-Kneeling Forward Overhead Medicine Ball Throw",
+      "job_and_execution": "Express a forward long-lever arm impulse while holding the hip/trunk base steady. Kneel tall with a very light ball above the forehead; release straight forward through a quick two-arm overhead throw with knees grounded and ribs down. **Regress/stop:** Use a lighter ball and smaller arm excursion; stop for back arching or uncomfortable kneeling."
+    },
+    {
+      "class": 12,
+      "slot": "E6",
+      "name": "Forward Medicine Ball Jump Throw",
+      "job_and_execution": "Coordinate full-body takeoff with an airborne forward release and then recover the feet for landing. With a very light ball low in front, dip and jump modestly forward while scooping the ball forward during flight; land on both feet and hold 2 s. **Regress/stop:** Use smaller flight/lighter ball; stop if the ball enters the athlete's landing zone or release disrupts foot recovery. **Entry:** Familiar jump-release coordination and physically separated athlete/ball landing envelopes."
+    },
+    {
+      "class": 12,
+      "slot": "S1",
+      "name": "Standing Hip Abduction Wall Press",
+      "job_and_execution": "Lightly stabilize the support-side pelvis against lateral pressure before the next forward push. Stand side-on to a fixed wall/support, hold the nearer knee gently against it while the other foot supports the body; keep pelvis level and stance knee aligned. **Regress/stop:** Use lighter pressure and a more upright stance; stop for leaning through the back or losing foot contact."
+    },
+    {
+      "class": 12,
+      "slot": "S2",
+      "name": "Side-Lying Banded Clamshell",
+      "job_and_execution": "Control femoral external rotation without allowing the pelvis to roll during contact preparation. Lie on the side with hips/knees comfortably bent and feet together; open the top knee slightly against a light band, then lower slowly while keeping pelvis stacked. **Regress/stop:** Use less tension/smaller opening; stop if the pelvis rolls backward or hip discomfort appears."
+    }
+  ]
+}

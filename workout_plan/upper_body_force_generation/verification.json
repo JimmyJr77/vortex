@@ -1,0 +1,2798 @@
+{
+  "verified_on": "2026-09-13",
+  "status": "passed",
+  "scope": "Saved document structure, dose/side/event arithmetic, timing model, trace history, local identity sources, links and manual synchronization; not athlete execution or clinical validation.",
+  "check_count": 697,
+  "checks": [
+    {
+      "check": "Twelve real class files",
+      "passed": true
+    },
+    {
+      "check": "Unchanged source specification",
+      "passed": true
+    },
+    {
+      "check": "Exact seven-category and subcategory text",
+      "passed": true
+    },
+    {
+      "check": "Class 1: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 1: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 1: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 1: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 1: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 1: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 1: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 1: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 1: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 1: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 1: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 1: original exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 2: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 2: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 2: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 2: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 2: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 2 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 2: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 2: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 2: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 2: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 2: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 2: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 2: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 2: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 2: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 2: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 2: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 2: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 3: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 3: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 3: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 3: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 3: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 3 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 3: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 3: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 3: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 3: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 3: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 3: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 3: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 3: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 3: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 3: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 3: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 3: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 4: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 4: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 4: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 4: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 4: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 4 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 4: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 4: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 4: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 4: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 4: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 4: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 4: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 4: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 4: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 4: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 4: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 4: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 5: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 5: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 5: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 5: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 5: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 5 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 5: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 5: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 5: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 5: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 5: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 5: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 5: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 5: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 5: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 5: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 5: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 5: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 6: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 6: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 6: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 6: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 6: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 6 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 6: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 6: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 6: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 6: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 6: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 6: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 6: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 6: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 6: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 6: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 6: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 6: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 7: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 7: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 7: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 7: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 7: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 7 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 7: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 7: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 7: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 7: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 7: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 7: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 7: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 7: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 7: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 7: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 7: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 7: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 8: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 8: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 8: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 8: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 8: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 8 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 8: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 8: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 8: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 8: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 8: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 8: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 8: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 8: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 8: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 8: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 8: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 8: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 9: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 9: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 9: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 9: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 9: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 9 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 9: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 9: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 9: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 9: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 9: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 9: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 9: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 9: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 9: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 9: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 9: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 9: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 10: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 10: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 10: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 10: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 10: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 10 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 10: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 10: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 10: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 10: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 10: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 10: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 10: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 10: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 10: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 10: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 10: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 10: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 11: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 11: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 11: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 11: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 11: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 11 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 11: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 11: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 11: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 11: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 11: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 11: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 11: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 11: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 11: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 11: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 11: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 11: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "Class 12: title and four ordered sections",
+      "passed": true
+    },
+    {
+      "check": "Class 12: exact section identities",
+      "passed": true
+    },
+    {
+      "check": "Class 12: exactly 0/6/2/6 real rows",
+      "passed": true
+    },
+    {
+      "check": "Class 12: preparation reference only",
+      "passed": true
+    },
+    {
+      "check": "Class 12: required four-column table headers",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 S1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 S1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 S2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 S2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P1: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P1: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P2: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P2: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P3: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P3: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P4: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P4: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P5: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P5: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P6: name/dose/laterality match",
+      "passed": true
+    },
+    {
+      "check": "Class 12 P6: specific job, execution and replacement",
+      "passed": true
+    },
+    {
+      "check": "Class 12: no within-explosive exact duplicates",
+      "passed": true
+    },
+    {
+      "check": "Class 12: primary working arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 12: preparation arithmetic and six existing slots",
+      "passed": true
+    },
+    {
+      "check": "Class 12: preparation per-side dose matches lift",
+      "passed": true
+    },
+    {
+      "check": "Class 12: actuals and complete timing unknown",
+      "passed": true
+    },
+    {
+      "check": "Class 12: progression/audit/recovery present",
+      "passed": true
+    },
+    {
+      "check": "Class 12: rapid exposure arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 12: light-strength arithmetic",
+      "passed": true
+    },
+    {
+      "check": "Class 12: per-arm primary cycles",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E1: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E2: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E3: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E4: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E5: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12 E6: novelty correctly discloses exact prior use",
+      "passed": true
+    },
+    {
+      "check": "Class 12: timing components recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 12: timing range recomputed",
+      "passed": true
+    },
+    {
+      "check": "Class 12: earlier class and state review recorded",
+      "passed": true
+    },
+    {
+      "check": "168 purposeful exercise rows",
+      "passed": true
+    },
+    {
+      "check": "Class 4 opposing hold metadata and cue",
+      "passed": true
+    },
+    {
+      "check": "Class 5 linked-pair resets",
+      "passed": true
+    },
+    {
+      "check": "Aggregate throws/catches/contacts/steps reconcile",
+      "passed": true
+    },
+    {
+      "check": "Uniqueness register counts reconcile",
+      "passed": true
+    },
+    {
+      "check": "All 96 primary/light strength prescriptions traced",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 1 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 2 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 3 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 4 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 5 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 6 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 7 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 8 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 9 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 10 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 11 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 S1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 S2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P1: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P2: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P3: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P4: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P5: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Strength trace Class 12 P6: prior record correct",
+      "passed": true
+    },
+    {
+      "check": "Manual contains exact final class content with adjusted links",
+      "passed": true
+    },
+    {
+      "check": "All local Markdown links resolve",
+      "passed": true
+    },
+    {
+      "check": "Band family slugs exist",
+      "passed": true
+    },
+    {
+      "check": "Landmine family slugs exist",
+      "passed": true
+    },
+    {
+      "check": "Generated family source files exist",
+      "passed": true
+    }
+  ],
+  "manual_design_review": "full_sequence_audit.md",
+  "actual_observations": null
+}

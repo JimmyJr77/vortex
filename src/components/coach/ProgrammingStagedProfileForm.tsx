@@ -66,9 +66,9 @@ export function ProgrammingStagedProfileForm({ view, taxonomy, disabled, needsRe
       <p role="status">Revision status: <strong>{event.state === 'review' ? 'Awaiting review' : event.state === 'archived' ? 'Archived' : 'Draft'}</strong> · Saved {new Date(event.createdAt).toLocaleString()}</p>
     </div>
     {!view.sourceMatches && <p role="alert" className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">The published source changed. Editing and review submission are paused. Research the current card to prepare a new proposal, or archive this revision.</p>}
-    <p className="text-sm text-gray-600">Submission prepares this revision for human review. Approval and publication are not yet available here.</p>
-    <details><summary className="cursor-pointer text-sm font-semibold">Publication readiness findings · {event.readiness.issues.length}</summary>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">{event.readiness.issues.map((issue, index) => <li key={index}>{issue.message}</li>)}</ul></details>
+    <p className="text-sm text-gray-600">Submission prepares this revision for independent coach review. Approval records evidence for this candidate; publication is a separate step.</p>
+    <details><summary className="cursor-pointer text-sm font-semibold">Publication readiness findings · {view.review.readiness.issues.length}</summary>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">{view.review.readiness.issues.map((issue, index) => <li key={index}>{issue.message}</li>)}</ul></details>
     <form onSubmit={submit} className="space-y-4" aria-label="Edit staged delivery profile">
       <fieldset disabled={!editable} className="min-w-0 space-y-4" key={resetKey}>
         <legend className="mb-3 font-semibold">Proposed profile</legend>

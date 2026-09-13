@@ -1,0 +1,423 @@
+{
+  "n": 11,
+  "effort": "Maintain rapid stance-support force with no planned jump landings, preparing for a controlled final comparison exposure.",
+  "brief": "The emphasis is force expression with supported feet and a quiet pelvis, preserving training quality without an impact requirement. E1 anchors quick knee-flexed ankle force. Long-lever hip drive, split-base held-implement drive, resisted hip extension, dorsiflexion and hip abduction cover the distinct support/recovery actions. Every rapid task is brief and light; familiar light foot/adductor control precedes six challenging strength roles.",
+  "anchor": "E1",
+  "marker": "For each leg, compare the two sets of three heel rises: similar heel height, steady small knee bend, no ankle roll and a visibly crisp rise. Forefoot stays grounded. This is execution consistency, not measured power, tendon stiffness or clearance for more impact.",
+  "review": "Class 10 prescribed 24 landings including twelve unilateral events and six primary rounds. No actual response is known. Class 11 uses zero planned flight and retains six primary rounds as a deliberate support option; this is not a claim the athlete needs a taper or is sore. Any actual competition schedule still governs placement.",
+  "sequence": "E1 is the main rapid ankle-force observation. E2/E3 express hip force while supported; E4–E6 accelerate individual leg/foot actions against light resistance without turning them into running drills or a continuous circuit.",
+  "E": [
+    {
+      "name": "Supported Single-Leg Bent-Knee Calf Rise — fast concentric",
+      "identity": "fast_supported_sl_bent_knee_calf",
+      "family": "rapid flexed-knee stance ankle force",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 3,
+      "sides": 2,
+      "unit": "heel rises per leg",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Main no-impact task: express ankle force quickly under a stable flexed-knee single-leg support position.",
+      "cue": "Stable hand support, small knee bend, working forefoot grounded. Rise quickly and lower over 2 s while holding approximately the same knee angle. Bodyweight or a very light DB only if speed/control remain. Use more hand unloading or a small kickstand foot instead if bodyweight is too demanding."
+    },
+    {
+      "name": "Long-Lever Heel-Bridge Drive — fast concentric",
+      "identity": "fast_long_lever_heel_bridge",
+      "family": "rapid hamstring-biased hip extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "unit": "hip drives",
+      "footfalls": [],
+      "rest": 90,
+      "t": 3,
+      "job": "Express hip extension with a more open knee angle so hamstrings contribute without a jumping demand.",
+      "cue": "Supine, heels grounded farther from hips than a normal bridge, knees still softly bent. Drive hips up a small amount quickly, return over 2 s; feet/shoulders never launch. Bring heels closer for cramping or back arch. This changes lever/joint position, not a new hip-extension family."
+    },
+    {
+      "name": "Split-Stance Held-Ball Hip Drive — no release",
+      "identity": "split_held_ball_hip_drive",
+      "family": "asymmetric rapid force into a retained implement",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "drives per lead-leg stance",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 5,
+      "t": 3,
+      "job": "Accelerate a light external mass using the legs/hips while the split base controls pelvic rotation.",
+      "cue": "Light ball held low close to body, short split stance; shallow knee/hip bend then drive tall quickly while carrying the ball only to waist/lower-chest height. No release, jump, overhead lift or arm-only heave. Return over 2 s; reduce load/stance offset for twisting."
+    },
+    {
+      "name": "Supported Band Hip Extension — fast back drive",
+      "identity": "standing_fast_band_hip_extension",
+      "family": "rapid hip extension with pelvis fixed",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "back drives",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Accelerate the thigh backward through a small hip-extension range without substituting lumbar movement.",
+      "cue": "Light band at working ankle to a verified low anchor in front, stable hand support. Stance foot planted; drive the working thigh slightly behind the body with knee soft, return over 2 s. Keep pelvis facing forward. Reduce band/range for back arch or pelvic rotation."
+    },
+    {
+      "name": "Seated Band Dorsiflexion — fast toe-up",
+      "identity": "fast_seated_band_dorsiflexion",
+      "family": "rapid foot-clearance force",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "toe lifts",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Accelerate forefoot lift against light resistance for the foot-clearance component of leg recovery.",
+      "cue": "Sit with heel supported, light band around forefoot to a verified low anchor ahead. Pull toes/forefoot toward shin quickly, return over 2 s; knee/heel stay still. Reduce tension for toe curling or whole-leg pulling. No forced end-range stretch."
+    },
+    {
+      "name": "Supported Band Hip Abduction — quick lateral lift",
+      "identity": "standing_fast_band_hip_abduction",
+      "family": "rapid lateral hip-support force",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "lateral lifts",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Express short-range lateral hip force while keeping the stance pelvis controlled.",
+      "cue": "Suitable light loop around ankles, stable hand support. Stance foot planted; move the other straight-but-soft leg a small distance sideways quickly, return over 2 s and reset. No side step, torso lean or pelvis hike. Use less tension/range for compensation."
+    }
+  ],
+  "S": [
+    {
+      "name": "Short-Foot Drill — bilateral supported stance",
+      "identity": "standing_short_foot_target",
+      "library_slug": "short-foot-drill",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "five-second holds",
+      "rest": 30,
+      "gap": 3,
+      "t": 5,
+      "job": "Maintain familiar light active-arch support while limiting unnecessary novelty before the final exposure.",
+      "cue": "Both feet supported, one target arch gently shortens while toes stay long and heel remains grounded; relax between holds. Use seated execution instead if standing causes toe grip. Do not increase hold force to create fatigue."
+    },
+    {
+      "name": "Side-Lying Hip Adduction",
+      "identity": "side_lying_adduction",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 5,
+      "job": "Retain easy adductor force for pelvic support, complementing the rapid abductor task.",
+      "cue": "Top foot supported on floor in front, bottom leg straight; lift bottom thigh 2 s, hold 1 s, lower 2 s without rolling. Bodyweight only, smaller range if effort becomes strenuous. Stop for groin discomfort or cramping."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Maintain one challenging stance-leg knee/hip force set per leg.",
+      "key": "split",
+      "decision": "Return to the familiar split-squat pattern at 1 × 6 per leg for consolidation. Same working count as Class 10's one-set step-up; do not infer equivalent load."
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Retain a small loadable hip-hinge force exposure.",
+      "key": "rdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Maintain controlled knee-flexed ankle strength separately from E1's fast light task.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Maintain the established straight-knee calf strength exposure without flight.",
+      "key": "calf"
+    },
+    {
+      "name": "Dumbbell Glute Bridge — floor",
+      "slug": "dumbbell-glute-bridge",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Hands secure a DB across pelvis. From knees bent and feet planted, rise 1 s, hold aligned ribs/pelvis 1 s, lower 2 s. Finish through hip extension, not back arching. Reduce load for lumbar extension or unstable implement.",
+      "job": "Use a supported hip-extension finish to retain challenging force work without a long walkout demand.",
+      "key": "bridge",
+      "decision": "One 1 × 8 loaded floor bridge replaces the four-cycle walkout role for this no-impact support class. Select actual resistance for technical reserve; knee-flexor cycle counts are not converted to bridge reps."
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Retain challenging supported hip-flexor force for leg recovery.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "Band anchors/attachments in E4/E5 must be verified secure; the supplied inventory does not confirm them. Use unresisted supported hip-extension drives instead of E4 if the anchor is unavailable, same count/tempo/rest. Use heel-supported fast forefoot lifts against gravity instead of E5, same count/tempo/rest, if no safe anchored band fits. E6 may be unresisted instead if no suitable loop exists. All remain brief rapid-force practice but changed resistance is logged, not claimed equivalent. Choose stable hand-support heights and a comfortable floor surface for E2; no treadmill, sled, cable station or running lane traversal is needed.",
+  "count_note": "Zero planned jump landings, zero sprint/running metres. Rapid force efforts are twelve bent-knee heel rises, four long-lever hip drives, six retained-ball drives, eight hip-extension drives, eight dorsiflexion lifts and eight abduction lifts = 46 nonflight efforts. They are not zero-dose explosive slots: each has fast concentric intent and a controlled return. The primary block has six challenging rounds with both sides accounted; lighter S holds total 30 arch seconds plus ten adduction reps.",
+  "novelty": "Default rapid tasks introduce standing single-leg knee-flexed ankle force, a longer-knee hip-drive lever, retained split-base implement acceleration, isolated resisted hip extension, resisted dorsiflexion and grounded lateral hip acceleration. The held-ball task was previously a contingency and may not be novel if actually used; that history is unknown. Several are declared force/support variants rather than new families. Familiar light control work intentionally recurs under the user's allowance for strength continuity.",
+  "audit": "Kept all six rapid slots meaningful while removing planned flight; did not relabel a steady hold or slow strengthening rep as explosive. Rejected added jump novelty before the final comparison. Each band-dependent task has a lower-resistance same-action option, and that lower load is not equated with the default. Primary work remains challenging despite the small one-round allocation; the class is not assumed to be a medically indicated deload or a competition taper.",
+  "progression": "No exercise/load progression is earned without actual response. Use this support-focused prescription when current readiness and schedule suit it; it does not guarantee recovery. Class 12 should return the original ankle marker and selected strength anchors under matching conditions, with deliberate repeat exceptions documented rather than inventing a new test.",
+  "map_note": "No planned flight; brief rapid-force support and six primary working rounds.",
+  "next_job": "Final matched-condition gym-anchor review, plus full written-sequence audit and honest direct-practice gaps.",
+  "handoff": "Review Class 11, all saved anchor/workload records and any actual feedback; finalize Class 12, then audit all twelve classes before declaring the written curriculum complete.",
+  "reviewed_files": {
+    "curriculum.md": "8ca2aad187a0c3498ad318ff014f10708e07f24f125f366f863afdbad064adad",
+    "progress.json": "becc172d3b858284d9c2ee064a973445f25223bbf618c01b4fa1cff0c104a610",
+    "progression_ledger.md": "383094868b050dd4f70d0083b9abb5193f405fb60771e6f39899b2178a07e688",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_10.md": "a147071a73041a516375ef1a9d9280c8fb37cd059352569db0d82eeda82aef34"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 0,
+    "bilateral_landing_events": 0,
+    "single_leg_landing_events": 0,
+    "individual_foot_contacts": 0,
+    "other_explosive": [
+      {
+        "name": "Supported Single-Leg Bent-Knee Calf Rise — fast concentric",
+        "amount": 12,
+        "unit": "heel rises"
+      },
+      {
+        "name": "Long-Lever Heel-Bridge Drive — fast concentric",
+        "amount": 4,
+        "unit": "hip drives"
+      },
+      {
+        "name": "Split-Stance Held-Ball Hip Drive — no release",
+        "amount": 6,
+        "unit": "drives"
+      },
+      {
+        "name": "Supported Band Hip Extension — fast back drive",
+        "amount": 8,
+        "unit": "back drives"
+      },
+      {
+        "name": "Seated Band Dorsiflexion — fast toe-up",
+        "amount": 8,
+        "unit": "toe lifts"
+      },
+      {
+        "name": "Supported Band Hip Abduction — quick lateral lift",
+        "amount": 8,
+        "unit": "lateral lifts"
+      }
+    ],
+    "primary_set_rounds": 6,
+    "primary_bouts": 9,
+    "primary_work": {
+      "reps": 62
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 48
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1418,
+      "stabilization": 302,
+      "primary": 2018,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 66,
+    "time_max": 76,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Short-Foot Drill — bilateral supported stance",
+        "sets": 1,
+        "reps_or_seconds_per_side": 3,
+        "sides": 2,
+        "total": 6,
+        "unit": "five-second holds"
+      },
+      {
+        "exercise": "Side-Lying Hip Adduction",
+        "sets": 1,
+        "reps_or_seconds_per_side": 5,
+        "sides": 2,
+        "total": 10,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Supported Single-Leg Bent-Knee Calf Rise — fast concentric",
+        "set_bouts": 4,
+        "total_reps_or_sequences": 12,
+        "unit": "heel rises",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Long-Lever Heel-Bridge Drive — fast concentric",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 4,
+        "unit": "hip drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Stance Held-Ball Hip Drive — no release",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Supported Band Hip Extension — fast back drive",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "back drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Seated Band Dorsiflexion — fast toe-up",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "toe lifts",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Supported Band Hip Abduction — quick lateral lift",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "lateral lifts",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 0
+  },
+  "status": "finalized_prescription",
+  "final_review": "Checked all six rapid-force slots for actual fast concentric work despite zero planned flight. Forty-six nonflight efforts are distinct from the six challenging strength rounds. Band-anchor availability is explicitly unresolved with same-action lower-resistance replacements. This is a planned support option, not an assumed taper, symptom response or proof of recovery."
+}

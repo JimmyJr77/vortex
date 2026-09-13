@@ -1,0 +1,138 @@
+{
+  "class_number": 10,
+  "status": "finalized_written_conditional_prescription",
+  "observed_results": null,
+  "reviewed_before_design": {
+    "curriculum.md": "a20256dc5a891e3b2d7636c9fc69715c2febf1b2595b1bc5ca1558ca990d48df",
+    "progression_ledger.md": "9bfecc40c2681e2e6100ddaf7f29b471623336c3cd99f43c6d57356f8ff245e3",
+    "athlete_feedback.md": "2febab64055ebdc2b46579b78509ec14bd709b7718ced0e6bdaf94f9b1e61114",
+    "progress.json": "f0fc93c98942fade66bcfc9a646c6b28091427c83d629c4fcf3fd8e783f3d30e",
+    "classes/class_09.md": "fb298c74fa7105b9ea56bbb58d2f3865a1cb6163f89ca298da410f555a248b50",
+    "supporting/sources_and_library.md": "5e911d7c1613cca80bcc8c484b744ecb0e868ac57aad82431dd9852ad501667c"
+  },
+  "primary_effort": "Maintain force acceptance and rebound quality through one additional jump in a short vertical sequence.",
+  "readiness_gate": "Use the four-jump route only after actual 2 × 3 execution at the chosen fixed amplitude shows 4/4 organized transitions and 2/2 final holds, acceptable subsequent response and current readiness. A height merely prescribed in Class 9 is not qualified. Without evidence, use two sets of three instead. E4 forward rebounds remain independently gated by actual forward-rebound control and recovery; otherwise use the held-forward replacement. Hold strength load and all distances.",
+  "explosive": [
+    {
+      "name": "Countermovement Jump to Stick",
+      "dose": "**1 × 2 jumps. 20 s between jumps; 60 s before E2.**",
+      "job": "Retain a small bilateral braking reference before single-leg acceptance. Use a controllable vertical jump, coordinated ankle/knee/hip yielding and a 2 s hold. Lower height for stepping or trunk collapse.",
+      "landings": 2,
+      "bilateral": 2,
+      "single_leg": 0,
+      "rebound_transitions": 0,
+      "elapsed_seconds": 90,
+      "kind": "controlled vertical stop",
+      "canonical_slug": "countermovement-jump-to-stick"
+    },
+    {
+      "name": "Ankle Pogo in Place",
+      "dose": "**1 × 4 low jumps**, continuous. **90 s before E3.**",
+      "job": "Keep a short ankle-rhythm entry while allocating two more potential contacts to the primary sequence. Stay tall and centered with soft knees; settle the fourth contact. Lower amplitude or stop for knee pumping or lost rhythm.",
+      "landings": 4,
+      "bilateral": 4,
+      "single_leg": 0,
+      "rebound_transitions": 3,
+      "elapsed_seconds": 93,
+      "kind": "low bilateral ankle",
+      "canonical_slug": "ankle-pogo-in-place"
+    },
+    {
+      "name": "Repeated Vertical Jump — four connected jumps",
+      "dose": "**2 × 4 jumps = 8 landings / 6 transitions. 120 s between sets and before E4.**",
+      "job": "**Primary anchor:** maintain the same receiving/rebound organization through one additional jump per short sequence. Use a previously qualified moderate height and natural arm swing; keep the fourth jump as organized as the earlier ones and hold its landing 2 s. End the sequence if contact becomes a gathering dip, travel increases or the knee/pelvis collapses; do not chase completion.",
+      "landings": 8,
+      "bilateral": 8,
+      "single_leg": 0,
+      "rebound_transitions": 6,
+      "elapsed_seconds": 254,
+      "kind": "moderate bilateral vertical rebound; longer short sequence",
+      "canonical_slug": "repeated-vertical-jump"
+    },
+    {
+      "name": "Repeated Broad Jump — two connected jumps",
+      "dose": "**2 × 2 jumps = 4 landings / 2 forward rebound transitions. 120 s between sets and before E5.**",
+      "job": "Consolidate a separately qualified forward landing-to-takeoff pattern at a small dose. Use modest displacement and natural arm swing, continuous reversal without a gather and a 2 s final stop. Shorten distance or use held broad jumps if reaching or uncontrolled travel appears.",
+      "landings": 4,
+      "bilateral": 4,
+      "single_leg": 0,
+      "rebound_transitions": 2,
+      "elapsed_seconds": 250,
+      "kind": "modest bilateral forward rebound",
+      "canonical_slug": "repeated-broad-jump"
+    },
+    {
+      "name": "Lateral Bound — stick landing",
+      "dose": "**1 × 2 receiving landings per leg = 4 bounds.** Alternate sides, **20 s between bounds; 90 s before E6.**",
+      "job": "Keep lateral single-leg force acceptance without adding lateral return demand while vertical amplitude is the candidate change. Use the familiar small distance and hold each landing 2 s. Shorten for knee collapse, pelvis drop or corrective hops.",
+      "landings": 4,
+      "bilateral": 0,
+      "single_leg": 4,
+      "rebound_transitions": 0,
+      "elapsed_seconds": 170,
+      "kind": "small lateral stop",
+      "canonical_slug": "lateral-bound"
+    },
+    {
+      "name": "Single-Leg Pogo in Place",
+      "dose": "**1 × 3 low hops per leg = 6 hops. 60 s between legs; 90 s before Section 3.**",
+      "job": "Keep a minimal but real one-leg ankle rhythm exposure while directional practice shares the session. Stay centered over the foot with a softly organized knee; settle the third hop. Use lower amplitude/support or stop if alignment or rhythm is lost.",
+      "landings": 6,
+      "bilateral": 0,
+      "single_leg": 6,
+      "rebound_transitions": 4,
+      "elapsed_seconds": 156,
+      "kind": "low unilateral ankle",
+      "canonical_slug": "single-leg-pogo-in-place"
+    }
+  ],
+  "workload": {
+    "landing_events": 28,
+    "bilateral": 18,
+    "single_leg": 10,
+    "single_leg_per_side": 5,
+    "limb_contacts": 46,
+    "rebound_transitions": 15,
+    "terminal_landings": 13,
+    "throws": 0,
+    "sprints": 0,
+    "external_drops": 0,
+    "loaded_jumps": 0,
+    "stabilization_holds_seconds": 30,
+    "stabilization_repetitions": 12,
+    "primary_working_reps": 60,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 10,
+    "primary_preparation_reps": 36
+  },
+  "timing": {
+    "explosive_seconds": 1013,
+    "stabilization_seconds": 263,
+    "primary_seconds": 2004,
+    "primary_entry_seconds": [
+      492,
+      250,
+      379,
+      379,
+      336,
+      168
+    ],
+    "movement_recovery_seconds": 3280,
+    "estimated_minutes": [
+      71,
+      82
+    ],
+    "maximum_route_extra_seconds": 30,
+    "access_prepare_minutes": null,
+    "full_session_minutes": null
+  },
+  "replacement_routes": [
+    {
+      "description": "Listed route: 28 landings = 18 bilateral + 10 single-leg, 15 transitions, 46 limb contacts. E3 three-jump hold: 26 landings = 16 bilateral + 10 single-leg, 13 transitions, 42 limb contacts; E3 time 252 s versus 254."
+    },
+    {
+      "description": "E4 forward-stop replacement keeps the selected E3 route’s landing count and removes 2 transitions: full E3 gives 28 landings/13 transitions; held E3 gives 26/11. It adds 30 s to E4, included in the upper estimate."
+    }
+  ],
+  "next_intended_job": "Class 11 refines the established lateral-return task with familiar amplitudes and short sequences; the earlier single-leg dose is an option only if actual response supports it."
+}

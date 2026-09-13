@@ -1,0 +1,301 @@
+{
+  "class_number": 10,
+  "effort": "Choose the available route and reach an interception line with fewer wasted steps.",
+  "brief": "After timing a window in Class 9, select where to go when one route is covered. E1 is an offensive two-gate choice, not a follow-the-coach task. Unilateral quarter-turn landing, a raised two-foot target, a sharper grounded cut, diagonal trunk force and an inside-route interception give distinct mechanical or perceptual support.",
+  "anchor_protocol": "Mark two athlete exit gates 1.5 m diagonally left/right from the start, each with 2 m stopping space. Coach on a protected parallel representation of the gates visibly covers one before the athlete moves. Athlete chooses the other, open gate, then stops. Four trials, two each open route, order hidden. The opponent’s gate coverage is the information, not a spoken opposite-direction command. If the choice is uncertain, use a clearly wider coach commitment without making the athlete run faster.",
+  "quality_marker": "E1: correct open-gate choice, no extra movement toward the covered gate, and control through the plant/stop. Record both route choices and the coach’s coverage position. Different task rules mean earlier choice percentages are context, not direct test scores.",
+  "layout": "Verify an up-to-10 m × 7 m combined bay containing both exit routes/buffers and the separate coach path. E3 uses a stable low box with full-foot landing area; height must allow a quiet tall landing without a high knee tuck, and a safe step-down route. E4 has 2 m approach, 1 m 90-degree exit and 2 m buffer. E5 uses a verified low-rebound slam ball and isolated floor zone, no overhead obstruction or person near the bounce path. E6 maps separate corresponding gates for coach and athlete; paths never intersect. Full-route width is a requirement, not confirmed inventory: branch stopping extensions can exceed a 4 m bay. Compact same-drill option: E1 and E6 use 1 m diagonal travel plus 1 m stopping (four trials each: 4 m travel and up to 4 m stopping per drill). Rotate E4 so a 1 m approach crosses the width and its 1 m 90-degree exit plus 2 m stopping lies along lane length (four trials: 8 m travel and up to 8 m stopping). Keep the same decision rules/counts and controlled speed. Verify a 4 m-wide bay with margins and a protected coach position. At setup, mark complete body/landing envelopes, both possible routes, run-off and the coach position; a floor-line diagram alone does not establish clearance. If even the compact footprint is unavailable, resolve the layout before delivery.",
+  "progression": "Previous: Class 9 was timing consolidation with six primary set rounds. Current: a two-route decision at controlled speed and a small new unilateral turning dose. Keep strength at one challenging set per slot this class; do not increase lifts merely because the drill is new. Calibrate box height/turn angle within actual skill. Advance route ambiguity only if actual open-route choices and stops are consistent on both sides with adequate recovery; otherwise make coverage more obvious.",
+  "audit": "Open-space choice differs from following an opponent’s departure. The sharper 90-degree grounded cut receives a short approach; the quarter-turn hop uses one contact for each leg/turn combination. Box jumps have no drop-off landings: step down. Inside-route interception asks for a shorter route, not a repeated pursuit trail. No claims that a slam develops perceptual anticipation; its job is rapid diagonal trunk force. Next class uses one later cue around a support transition. Geometry revision: removed the implication that every full-length angled route fits a 4 m-wide rectangle; added a quantified shorter same-drill alternative. Default ledger totals remain the full-route prescription; compact actual travel is logged separately.",
+  "explosive": [
+    {
+      "name": "Two-Gate Advantage Choice",
+      "dose": "1 × 4 trials, 2 open routes each",
+      "job": "Main affordance task: select the route an opponent cannot currently cover instead of mirroring their direction.",
+      "execution": "Coach clearly occupies one corresponding gate on the separate path; athlete bursts 1.5 m toward the other, stops within 2 m. Rest 75 s between trials and 90 s before E2. Increase cue clarity if the athlete moves toward coverage.",
+      "identity": "offensive_spatial_open_gate_selection_against_coverage",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 6,
+        "stopping_metres_max": 8,
+        "decision_opportunities_max": 4
+      },
+      "seconds": 399,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Single-Leg Quarter-Turn Hop to Stick",
+      "dose": "1 × 1 per leg per turn direction = 4 hops",
+      "job": "Reorient onto a single-leg base, distinct from Class 7’s shared two-foot quarter-turn landing.",
+      "execution": "Low hop on the same leg with a quarter turn, then hold 2 s; each leg turns once each way. No loaded twist on the floor. Rest 45 s between hops and 60 s before E3. Use a smaller turn within this drill for uncertain control.",
+      "identity": "single_leg_in_place_quarter_turn_same_leg_stick",
+      "account": {
+        "unilateral_landings": 4
+      },
+      "seconds": 279,
+      "source": "single-leg-quarter-turn-hop-to-stick; local family"
+    },
+    {
+      "name": "Low Box Jump to Stick",
+      "dose": "1 × 3 jumps",
+      "job": "Express force toward a raised target while reducing the landing fall distance, preserving quality for route choices.",
+      "execution": "Two-foot jump onto a low stable box, land fully on it and hold 2 s; step down, never jump off. Rest 45 s between jumps and 60 s before E4. Lower box if feet clip or landing requires a deep tuck/squat.",
+      "identity": "bilateral_takeoff_raised_surface_terminal_landing",
+      "account": {
+        "bilateral_landings": 3
+      },
+      "seconds": 234,
+      "source": "low-box-jump-to-stick; local family"
+    },
+    {
+      "name": "90-Degree Run-Through Cut",
+      "dose": "1 × 2 cuts each side",
+      "job": "Produce a sharper grounded redirection than the earlier oblique cut, using a short controlled approach.",
+      "execution": "Run 2 m, brake through short contacts, redirect 90 degrees for 1 m and stop within 2 m. Do not pivot on a locked knee. Rest 60 s between trials, 60 s before E5. Slow entry and use a wider stepping turn if needed.",
+      "identity": "planned_grounded_right_angle_cut_reacceleration",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 12,
+        "stopping_metres_max": 8,
+        "direction_changes_max": 4
+      },
+      "seconds": 324,
+      "source": "90-degree-cut-and-stick; run-through short variant proposed"
+    },
+    {
+      "name": "Slam Ball Rotational Slam — diagonal",
+      "dose": "1 × 2 each diagonal = 4 slams",
+      "job": "Rapidly direct trunk/hip force diagonally while feet pivot and the body remains stacked; supports decisive reorientation.",
+      "execution": "Light low-rebound slam ball: lift comfortably, drive it down just outside one foot while allowing both feet/hips to pivot; finish balanced. No catch/rebound jump. Rest 30 s between slams, 60 s before E6. Reduce load/range for lumbar arch or a fixed-knee twist.",
+      "identity": "grounded_overhead_to_diagonal_downward_ball_release",
+      "account": {
+        "throws": 4
+      },
+      "seconds": 230,
+      "source": "slam-ball-rotational-slam; diagonal low-rebound execution proposed"
+    },
+    {
+      "name": "Inside-Route Interception",
+      "dose": "1 × 4 routes, 2 each side",
+      "job": "Use opponent path information to select a shorter intercept line rather than following the entire curved route.",
+      "execution": "Coach takes a slow 3 m curved route to one of two gates on a separate path. Athlete reads the exit and travels the corresponding direct 1.5 m diagonal to their own parallel gate; stop within 2 m. No contact or shared finish. Rest 75 s between trials, 90 s before strength. Slow/show more of the coach arc if the target is unclear.",
+      "identity": "curved_opponent_route_direct_corresponding_gate_intercept",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 6,
+        "stopping_metres_max": 8,
+        "decision_opportunities_max": 4
+      },
+      "seconds": 399,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    }
+  ],
+  "stabilization": [
+    {
+      "name": "Half-Kneeling Pallof Press — light band",
+      "dose": "1 × 5/side, 2 s reach hold",
+      "job": "Light resistance to unintended trunk rotation while the athlete chooses a route.",
+      "execution": "Coach supplies a steady sideways band pull at chest height while athlete half-kneels and presses forward without rotating. Use comfortable knee contact; use standing split stance instead if kneeling is unsuitable. Reduce tension if trunk turns. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 10,
+        "hold_seconds": 20,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "pallof"
+    },
+    {
+      "name": "Lateral Step-Down — light dumbbell",
+      "dose": "1 × 4/leg",
+      "job": "Control the knee and pelvis over one foot before the more demanding unilateral strength work.",
+      "execution": "Lower for 3 s from a suitably low stable platform, free heel lightly taps; keep standing heel down. Use bodyweight or reduce range for pelvic/knee drift. If no platform fits, use a shallow supported single-leg squat instead, same dose. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 8,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "stepdown"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Lateral Lunge — goblet dumbbell",
+      "dose": "1 × 5/side",
+      "job": "Maintain outside-plant and push-back strength for rejecting the covered route.",
+      "execution": "Step sideways from standing, sit into the working hip with whole-foot pressure, then return to the starting stance. Reduce depth/load for groin discomfort, knee collapse or twisting. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "lateral",
+      "source": "lateral-lunge",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 424
+    },
+    {
+      "name": "Dumbbell Step-Up",
+      "dose": "1 × 6/side",
+      "job": "Lead-leg force onto a stable support, matching the raised-target and single-support work.",
+      "execution": "Use a stable box below the point where the pelvis tilts; whole lead foot supported. Drive up without a trailing-leg hop and step down under control. Lower box/load if the return drops. If no box fits, use floor-supported Split Squat instead at the same sets/reps per leg, 2–3 RIR, with no other split-squat slot in this class. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "stepup",
+      "source": "dumbbell-step-up",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 432
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "dose": "1 × 6 bilateral",
+      "job": "Retain hip-hinge strength for controlled sharp-cut braking.",
+      "execution": "Hinge from standing with soft knees; keep weights close and stop descent where the pelvis/spine remain controlled. Finish tall without leaning back. Reduce range/load for rounding. Rest 120 s before the next exercise.",
+      "identity": "rdl",
+      "source": "romanian-deadlift",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 6,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 284
+    },
+    {
+      "name": "Copenhagen Plank — Short Lever",
+      "dose": "1 × 15 s/side",
+      "job": "Support adductor and pelvic force when the exit direction changes.",
+      "execution": "Upper knee bent about 90 degrees on a stable bench, forearm under shoulder; lift the lower leg and keep pelvis level. Select a short lever with about 5 seconds clean hold reserve. Stop for groin, shoulder or knee pain. If bench/support is unsuitable, use side-lying hip adduction instead, 1 × 8/side at 2–3 RIR; record changed hold/repetition totals. For that replacement, prepare with 1 × 4 easy reps/side instead of the two 5 s preparation holds; retain side rest. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "copenhagen",
+      "source": "copenhagen-plank-short-lever",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 0,
+        "hold_seconds": 30
+      },
+      "preparation": {
+        "dose": "1 × 5 s/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 0,
+        "hold_seconds": 10,
+        "bouts": 2
+      },
+      "seconds": 295
+    },
+    {
+      "name": "Single-Leg Calf Raise — supported standing, dumbbell",
+      "dose": "1 × 8/side",
+      "job": "Maintain ankle push from the newly selected route leg.",
+      "execution": "Stand on flat floor with a nearly straight knee and light hand support; raise the heel, pause briefly and lower for 2 seconds. No bounce or ankle roll. Reduce load when heel height declines. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "calf",
+      "source": "single-leg-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bilateral, bent-knee",
+      "dose": "1 × 10 bilateral",
+      "job": "Maintain bent-knee ankle force for a low sharper plant.",
+      "execution": "Use a stable bench, knees near right angles, secure dumbbells on distal thighs above knees. Lower heels for 2 seconds to the floor, pause, then rise. Reduce load for bouncing or shortened range. Rest 60 s before the next exercise.",
+      "identity": "soleus",
+      "source": "seated-dumbbell-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 225
+    }
+  ],
+  "totals": {
+    "explosive": {
+      "locomotor_attempts": 12,
+      "rapid_metres": 24,
+      "stopping_metres_max": 24,
+      "decision_opportunities_max": 8,
+      "unilateral_landings": 4,
+      "bilateral_landings": 3,
+      "direction_changes_max": 4,
+      "throws": 4
+    },
+    "stabilization": {
+      "dynamic_reps": 18,
+      "hold_seconds": 20,
+      "bouts": 4
+    },
+    "primary": {
+      "rounds": 6,
+      "bouts": 10,
+      "dynamic_reps": 54,
+      "hold_seconds": 30
+    },
+    "preparation": {
+      "dynamic_reps": 28,
+      "hold_seconds": 10,
+      "bouts": 10
+    }
+  },
+  "time": {
+    "section_minutes": [
+      31.1,
+      6.0,
+      33.4
+    ],
+    "booking_excluding_Access_Prepare_1": [
+      80,
+      95
+    ]
+  },
+  "observed_work": null,
+  "reviewed_before_design": {
+    "classes/class_09.md": "e2d9b3d7697747cd8118559ac42b136fc89e78f86416a2395c8f188e89a1f6f8",
+    "progression_ledger.md": "048f52f0b2669fc8d6affba9cb437731095a48810d79da82e7dc3a3ecaf905a7",
+    "athlete_feedback.md": "27b4ee2723ee08a45a58624ee8f32607f267c2ee18478008d64f092adde4c0e1",
+    "progress.json": "f0d3571b6b591de7d300964ea12dc36d680cba5707089e0c147955a7c633bfb4",
+    "curriculum.md": "7ae0f387fab51fe365d1b5d1dab9450e88212bc42a3062f6a565c997f45ece1f"
+  },
+  "post_sequence_audit": {
+    "drill_identity_review": "manual comparison of support, contraction, trajectory and decision rule; names alone are not the uniqueness evidence",
+    "geometry_review": "full route and quantified same-drill compact option",
+    "replacement_review": "no substitution duplicates an existing primary slot; holds and dynamic alternatives accounted separately"
+  }
+}

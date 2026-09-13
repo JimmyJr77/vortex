@@ -1,3 +1,5 @@
+import { CanonicalMediaReviewFields } from './CanonicalMediaReviewFields'
+import { emptyMediaReviewDraft, mediaReviewDraftComplete } from './canonicalMediaReviewDraft'
 import { useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Loader2, Save, ShieldCheck, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
@@ -193,11 +195,13 @@ function initialCard(): CanonicalCard {
 interface CanonicalCardEditorProps {
   source: CanonicalCard | null
   initialVariantId?: string | null
+  initialProfileKey?: string | null
+  readOnly?: boolean
   onClose: () => void
   onSaved: (card: CanonicalCard) => void
 }
 
-export function CanonicalCardEditor({ source, initialVariantId = null, onClose, onSaved }: CanonicalCardEditorProps) {
+export function CanonicalCardEditor({ source, initialVariantId = null, initialProfileKey = null, readOnly = false, onClose, onSaved }: CanonicalCardEditorProps) {
   const { taxonomy } = useTaxonomy()
   const [card, setCard] = useState<CanonicalCard>(() => source ?? initialCard())
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(() => (
@@ -205,9 +209,10 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
       ?? source?.variants[0]?.id
       ?? null
   ))
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(() => (
-    source?.variants.find((item) => item.id === initialVariantId)?.profiles[0]?.id
-      ?? source?.variants[0]?.profiles[0]?.id
+  const [selectedProfileKey, setSelectedProfileKey] = useState<string | null>(() => (
+    initialProfileKey ??
+    source?.variants.find((item) => item.id === initialVariantId)?.profiles[0]?.profileKey
+      ?? source?.variants[0]?.profiles[0]?.profileKey
       ?? null
   ))
   useEffect(() => {
@@ -215,23 +220,15 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
     const selected = next.variants.find((item) => item.id === initialVariantId) ?? next.variants[0]
     setCard(next)
     setSelectedVariantId(selected?.id ?? null)
-    setSelectedProfileId(selected?.profiles[0]?.id ?? null)
-  }, [initialVariantId, source])
+    setSelectedProfileKey(selected?.profiles.some((item) => item.profileKey === initialProfileKey) ? initialProfileKey : selected?.profiles[0]?.profileKey ?? null)
+  }, [initialVariantId, initialProfileKey, source])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [changeSummary, setChangeSummary] = useState('')
   const [reviewNotes, setReviewNotes] = useState('')
   const [relationshipReviewNotes, setRelationshipReviewNotes] = useState<Record<string, string>>({})
-  const [mediaScore, setMediaScore] = useState<number | ''>('')
-  const [mediaLinkStatus, setMediaLinkStatus] = useState<'healthy' | 'broken' | 'mismatched' | ''>('')
-  const [mediaExactVariantMatch, setMediaExactVariantMatch] = useState<boolean | null>(null)
-  const [mediaReviewNotes, setMediaReviewNotes] = useState('')
-  const [mediaReviewBasis, setMediaReviewBasis] = useState({
-    playbackReviewed: false,
-    exactVariantCompared: false,
-    linkChecked: false,
-    accessibilityChecked: false,
-  })
+  const [mediaDraft, setMediaDraft] = useState(emptyMediaReviewDraft)
+  const { score: mediaScore, linkStatus: mediaLinkStatus, exactVariantMatch: mediaExactVariantMatch, notes: mediaReviewNotes, basis: mediaReviewBasis } = mediaDraft
   const [duplicateCandidates, setDuplicateCandidates] = useState<Array<{
     id: string
     displayName: string
@@ -269,8 +266,8 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
   const [duplicateAcknowledged, setDuplicateAcknowledged] = useState(false)
   const variant = card.variants.find((item) => item.id === selectedVariantId) ?? card.variants[0] ?? initialVariant()
-  const profile = variant.profiles.find((item) => item.id === selectedProfileId) ?? variant.profiles[0] ?? initialVariant().profiles[0]
-  const editable = ['draft', 'review'].includes(card.status)
+  const profile = variant.profiles.find((item) => item.profileKey === selectedProfileKey) ?? variant.profiles[0] ?? initialVariant().profiles[0]
+  const editable = !readOnly && ['draft', 'review'].includes(card.status)
 
   const updateVariant = (updates: Partial<CanonicalVariant>) => {
     setCard((current) => ({
@@ -306,6 +303,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
 
   const save = async () => {
+    if (readOnly) return
     setSaving(true)
     setError(null)
     try {
@@ -340,6 +338,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
 
   const changeStatus = async (status: CanonicalCardStatus) => {
+    if (readOnly) return
     if (!card.id) return
     setSaving(true)
     setError(null)
@@ -358,6 +357,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
 
   const review = async (decision: 'approve' | 'request_changes') => {
+    if (readOnly) return
     if (!card.id || reviewNotes.trim().length < 20) return
     setSaving(true)
     setError(null)
@@ -378,6 +378,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
 
   const reviewMedia = async () => {
+    if (readOnly) return
     if (!card.id || !card.approvedVideoUrl || typeof mediaScore !== 'number'
       || !mediaLinkStatus || mediaExactVariantMatch == null || mediaReviewNotes.trim().length < 20
       || !Object.values(mediaReviewBasis).every(Boolean)) return
@@ -398,16 +399,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
       const refreshed = await coachFetch<CanonicalCard>(`/api/coach/canonical/cards/${card.id}`)
       setCard(refreshed)
       onSaved(refreshed)
-      setMediaReviewNotes('')
-      setMediaExactVariantMatch(null)
-      setMediaLinkStatus('')
-      setMediaScore('')
-      setMediaReviewBasis({
-        playbackReviewed: false,
-        exactVariantCompared: false,
-        linkChecked: false,
-        accessibilityChecked: false,
-      })
+      setMediaDraft(emptyMediaReviewDraft())
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not record media review.')
     } finally {
@@ -416,6 +408,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
   }
 
   const reviewRelationship = async (relationshipId: string, decision: 'approved' | 'rejected') => {
+    if (readOnly) return
     const notes = String(relationshipReviewNotes[relationshipId] ?? '').trim()
     if (!card.id || notes.length < 20) return
     setSaving(true)
@@ -444,7 +437,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
             <h2 id="canonical-card-title" className="text-lg font-bold text-gray-950">
               {card.id ? card.displayName || 'Canonical card' : 'New canonical card'}
             </h2>
-            <p className="text-xs text-gray-500">Lifecycle: {card.status} · changes are revisioned and publication requires another reviewer.</p>
+            <p className="text-xs text-gray-500">{readOnly ? `Read-only inspection · version ${card.cardVersion ?? 1}` : `Lifecycle: ${card.status} · changes are revisioned and publication requires another reviewer.`}</p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close canonical card editor" className="rounded p-1 text-gray-500 hover:bg-gray-100">
             <X className="h-5 w-5" />
@@ -491,7 +484,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
           </section>
 
           <section aria-labelledby="variant-context-heading" className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
-            <h3 id="variant-context-heading" className="text-sm font-semibold text-indigo-950">Exact-variant editing context</h3>
+            <h3 id="variant-context-heading" className="text-sm font-semibold text-indigo-950">{readOnly ? 'Exact-variant review context' : 'Exact-variant editing context'}</h3>
             <p className="mt-1 text-xs text-indigo-800">All exact variants and their delivery profiles are independently selectable. Review-queue links open the specific variant, not an arbitrary baseline.</p>
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               <label className="text-sm text-indigo-950">Exact variant
@@ -501,7 +494,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
                     const next = card.variants.find((item) => item.id === event.target.value)
                     if (!next) return
                     setSelectedVariantId(next.id ?? null)
-                    setSelectedProfileId(next.profiles[0]?.id ?? null)
+                    setSelectedProfileKey(next.profiles[0]?.profileKey ?? null)
                   }}
                   className="mt-1 w-full rounded border border-indigo-200 bg-white px-3 py-2"
                 >
@@ -510,11 +503,11 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
               </label>
               <label className="text-sm text-indigo-950">Delivery profile
                 <select
-                  value={profile.id ?? ''}
-                  onChange={(event) => setSelectedProfileId(event.target.value || null)}
+                  value={profile.profileKey}
+                  onChange={(event) => setSelectedProfileKey(event.target.value || null)}
                   className="mt-1 w-full rounded border border-indigo-200 bg-white px-3 py-2"
                 >
-                  {variant.profiles.map((item) => <option key={item.id ?? item.profileKey} value={item.id ?? ''}>{item.profileKey} · {item.phaseKey}</option>)}
+                  {variant.profiles.map((item) => <option key={item.profileKey} value={item.profileKey}>{item.profileKey} · {item.phaseKey}</option>)}
                 </select>
               </label>
             </div>
@@ -842,7 +835,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
             <div className="mt-3"><CanonicalProfileInstructions profile={profile} disabled={!editable} onChange={updateProfile} /></div>
           </section>
 
-          {card.id && (
+          {!readOnly && card.id && (
             <section aria-labelledby="governance-heading" className="rounded-lg border border-indigo-200 bg-indigo-50 p-4">
               <h3 id="governance-heading" className="flex items-center gap-2 font-semibold text-indigo-950"><ShieldCheck className="h-4 w-4" />Review and publication</h3>
               {card.readiness?.ready ? (
@@ -854,24 +847,9 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
               )}
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <label className="text-sm">Revision summary<input value={changeSummary} onChange={(event) => setChangeSummary(event.target.value)} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
-                <label className="text-sm">Observed demonstration quality (1–100)<input type="number" min={1} max={100} value={mediaScore} onChange={(event) => setMediaScore(event.target.value === '' ? '' : Number(event.target.value))} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
-                <label className="text-sm">Playback status<select value={mediaLinkStatus} onChange={(event) => setMediaLinkStatus(event.target.value as typeof mediaLinkStatus)} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2"><option value="">Select observed status</option><option value="healthy">Healthy</option><option value="broken">Broken</option><option value="mismatched">Mismatched</option></select></label>
-                <label className="text-sm">Exact card match<select value={mediaExactVariantMatch == null ? '' : mediaExactVariantMatch ? 'yes' : 'no'} onChange={(event) => setMediaExactVariantMatch(event.target.value === '' ? null : event.target.value === 'yes')} className="mt-1 w-full rounded border border-indigo-200 px-3 py-2"><option value="">Select observed match</option><option value="yes">Yes — exact match</option><option value="no">No — not exact</option></select></label>
               </div>
-              <label className="mt-3 block text-sm">Observed review evidence<textarea rows={3} minLength={20} value={mediaReviewNotes} onChange={(event) => setMediaReviewNotes(event.target.value)} placeholder="Document playback behavior, exact task comparison, and any accessibility limitation observed." className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
-              <fieldset className="mt-3 rounded border border-indigo-200 bg-white p-3">
-                <legend className="px-1 text-xs font-semibold text-indigo-950">Manual-review attestations</legend>
-                <p className="mb-2 text-xs text-indigo-900">These record what you personally checked; they do not make a candidate video approved on their own.</p>
-                {([
-                  ['playbackReviewed', 'I watched the current asset through its relevant demonstration.'],
-                  ['exactVariantCompared', 'I compared the demonstrated task with this card’s exact variant.'],
-                  ['linkChecked', 'I checked that the selected URL resolves to the observed asset.'],
-                  ['accessibilityChecked', 'I checked captions, transcript, stills, or other access support that is available.'],
-                ] as const).map(([key, label]) => (
-                  <label key={key} className="mt-1 flex items-start gap-2 text-xs text-gray-800"><input type="checkbox" checked={mediaReviewBasis[key]} onChange={(event) => setMediaReviewBasis((current) => ({ ...current, [key]: event.target.checked }))} />{label}</label>
-                ))}
-              </fieldset>
-              <button type="button" disabled={saving || !card.approvedVideoUrl || typeof mediaScore !== 'number' || mediaScore < 1 || mediaScore > 100 || !mediaLinkStatus || mediaExactVariantMatch == null || mediaReviewNotes.trim().length < 20 || !Object.values(mediaReviewBasis).every(Boolean)} onClick={() => void reviewMedia()} className="mt-2 rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-900 disabled:opacity-50">Record documented media review</button>
+              <div className="mt-3"><CanonicalMediaReviewFields value={mediaDraft} onChange={setMediaDraft} disabled={saving} /></div>
+              <button type="button" disabled={saving || !card.approvedVideoUrl || !mediaReviewDraftComplete(mediaDraft)} onClick={() => void reviewMedia()} className="mt-2 rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-900 disabled:opacity-50">Record documented media review</button>
               {card.status === 'review' && (
                 <div className="mt-4">
                   <label className="text-sm">Reviewer evidence<textarea rows={2} minLength={20} value={reviewNotes} onChange={(event) => setReviewNotes(event.target.value)} placeholder="Document observed evidence and the review decision (20+ characters)." className="mt-1 w-full rounded border border-indigo-200 px-3 py-2" /></label>
@@ -917,7 +895,7 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
                     </div>
                     <p className="mt-2 text-sm text-gray-700">{edge.reason}</p>
                     {edge.dimensions.length > 0 && <p className="mt-1 text-xs text-gray-500">Changes: {edge.dimensions.join(', ')}</p>}
-                    {edge.review_status === 'review' && (
+                    {!readOnly && edge.review_status === 'review' && (
                       <div className="mt-3">
                         <label className="text-xs text-gray-700">Independent relationship review evidence
                           <textarea rows={2} minLength={20} value={relationshipReviewNotes[edge.id] ?? ''} onChange={(event) => setRelationshipReviewNotes((current) => ({ ...current, [edge.id]: event.target.value }))} placeholder="Document why this exact relationship is safe and appropriate (20+ characters)." className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5" />
@@ -937,9 +915,9 @@ export function CanonicalCardEditor({ source, initialVariantId = null, onClose, 
 
         <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-gray-50 px-5 py-4">
           <div className="flex gap-2">
-            {card.status === 'draft' && card.id && <button type="button" disabled={saving} onClick={() => void changeStatus('review')} className="rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-semibold text-indigo-900">Submit for review</button>}
-            {card.status === 'review' && card.id && <button type="button" disabled={saving || !card.readiness?.ready || card.testPacket?.status === 'failed'} onClick={() => void changeStatus('published')} className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Publish</button>}
-            {card.status === 'published' && card.id && <button type="button" disabled={saving} onClick={() => void changeStatus('deprecated')} className="rounded border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-900">Deprecate</button>}
+            {!readOnly && card.status === 'draft' && card.id && <button type="button" disabled={saving} onClick={() => void changeStatus('review')} className="rounded border border-indigo-300 bg-white px-3 py-2 text-sm font-semibold text-indigo-900">Submit for review</button>}
+            {!readOnly && card.status === 'review' && card.id && <button type="button" disabled={saving || !card.readiness?.ready || card.testPacket?.status === 'failed'} onClick={() => void changeStatus('published')} className="rounded bg-emerald-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Publish</button>}
+            {!readOnly && card.status === 'published' && card.id && <button type="button" disabled={saving} onClick={() => void changeStatus('deprecated')} className="rounded border border-amber-300 bg-white px-3 py-2 text-sm font-semibold text-amber-900">Deprecate</button>}
           </div>
           {editable && <button type="button" disabled={saving} onClick={() => void save()} className="inline-flex items-center gap-2 rounded bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}Save revision</button>}
         </footer>

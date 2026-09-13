@@ -1,0 +1,157 @@
+{
+  "n": 10,
+  "label": "Early cue, committed hip turn",
+  "effort": "Select the requested rotational action from an early coach cue, then execute it with the same control as planned work.",
+  "brief": "The added demand is committing the correct support leg/direction before force expression. Familiar movement families reduce unnecessary new mechanics. These are explicitly cue-based variants, not six newly invented movement patterns; each has a different support or launch job.",
+  "marker": "correct-cue AND technically valid E2 attempts out of four per leg. Record wrong-leg choices, anticipations and kick-quality faults separately; no reaction-time or impact-force score is claimed.",
+  "e": [
+    {
+      "name": "Point-cued open-step hip turn",
+      "side": "called turn direction",
+      "grounded": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "Begin square and still. After the coach points left or right, take one short opening step and turn the feet/pelvis toward that line, then hold a kick stance 2 s. Cue is given before any movement; no kick or jump.",
+      "job": "Select the support/turn direction before the leg-driven release.",
+      "gate": "Use an announced direction instead if cue errors dominate; preserve the same physical drill and record a planned version.",
+      "novelty": "Early visual choice added to a short open-step turn; declared perceptual variant, not a novel anatomical motion.",
+      "total_attempts": 4,
+      "modeled_seconds": 268
+    },
+    {
+      "name": "Coach-called-leg low roundhouse",
+      "side": "called kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "Start from a parallel athletic stance. The coach calls the kicking leg before movement; shift to the other leg, pivot with the pelvis and execute one low roundhouse with active recoil. Each round has two calls for each leg in a privately varied order.",
+      "job": "Directly link support-leg selection to the hip-led kick without an extra entry task.",
+      "gate": "Use a preannounced leg instead if the choice causes a rushed plant; cue accuracy never overrides safe mechanics.",
+      "novelty": "Leg selection is externally cued rather than preselected as in Class 6. This is a purposeful decision variant, not a claim of a completely new kick.",
+      "total_attempts": 8,
+      "modeled_seconds": 596
+    },
+    {
+      "name": "Early-point rotational jump to stick",
+      "side": "called turn direction",
+      "bilateral": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "From a still parallel stance, receive the coach direction cue, then use a natural dip and a low two-foot turn up to 90 degrees. Land aligned and hold 2 s. The cue arrives before the dip, never in flight.",
+      "job": "Commit a turn direction before takeoff and preserve landing organization despite a decision demand.",
+      "gate": "Use an announced smaller turn instead if the athlete starts early or cannot land facing the intended line.",
+      "novelty": "Externally selected turn before launch; openly a decision variant of the earlier planned countermovement jump.",
+      "total_attempts": 4,
+      "modeled_seconds": 298
+    },
+    {
+      "name": "Cone-color call to forward plant and chamber",
+      "side": "called chamber leg",
+      "grounded": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "Two cone colors are assigned to left/right chamber legs and remain outside the travel path. On the coach color call, take the corresponding short support-foot entry, turn that foot/pelvis and lift the called low knee chamber. No kick extension; hold 2 s.",
+      "job": "Map a cue to the correct receiving foot before accelerating the free thigh.",
+      "gate": "Use a direct leg-name cue instead if color mapping interferes; shorten entry for any loss of foot/knee alignment.",
+      "novelty": "Choice-to-plant/chamber variant of the forward entry, with no extra extension or flight.",
+      "total_attempts": 4,
+      "modeled_seconds": 298
+    },
+    {
+      "name": "Auditory-go pre-chambered thigh whip",
+      "side": "moving leg",
+      "grounded": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "Set a low bent-knee chamber on the named leg. Wait still for the coach go word, then make one short brisk roundhouse thigh sweep with the knee folded and support foot free to turn; reset fully. Vary the go timing modestly, without long fatiguing holds.",
+      "job": "Release proximal rotation from a prepared leg position without anticipating the start.",
+      "gate": "Use a predictable countdown instead if waiting posture fails; keep the pre-cue hold at or below about 3 s.",
+      "novelty": "Go-timing constraint on the pre-chambered sweep; decision and physical quality are recorded separately.",
+      "total_attempts": 4,
+      "modeled_seconds": 298
+    },
+    {
+      "name": "Direction-call lateral bound to split catch",
+      "side": "called travel direction",
+      "bilateral": 1,
+      "seconds": 7,
+      "rep_rest": 60,
+      "execution": "After an early left/right call, push laterally from the opposite leg and land on two feet in a shallow split stance. Hold 2 s. No airborne turn, midair cue or rebound; flight stays within 1 m.",
+      "job": "Select a lateral push while arriving in a stable base for the next rotational effort.",
+      "gate": "Use an announced direction or shorter bound instead if choice disrupts the two-foot catch.",
+      "novelty": "Externally selected direction for the split-base catch; retained mechanics avoid adding an unfamiliar landing and cue simultaneously.",
+      "total_attempts": 4,
+      "modeled_seconds": 298
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    2,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain the decisive planted push after the correct leg is selected.",
+    "Preserve hip-hinge strength for receiving bodyweight without adding a second hinge round.",
+    "Keep lateral plant force for either selected direction.",
+    "Main strength investment: direct controlled hip-turn torque, kept independent of the cue-speed task.",
+    "Maintain active chamber lift after support-leg selection.",
+    "Keep the flexed-knee ankle base reproducible during quick commitment."
+  ],
+  "s_jobs": "The same easy hip/foot work emphasizes quiet positions after decision drills; it is not another reaction block.",
+  "readiness": "All cues arrive before launch. Coach privately balances direction/leg exposure in each round and may vary attempt order; use 60 s between attempts regardless of side and 90 s between rounds. A direction error counts as an attempt and is not repeated for free. If choices degrade movement, use the announced replacements rather than add more trials.",
+  "strength_reason": "Reallocate Class 9 hinge emphasis [1,2,1,1,1,1] to [1,1,1,2,1,1], 92 working reps. Relative loading stays 2–3 RIR; the extra hip-rotation round replaces the hinge round and does not prescribe heavier resistance.",
+  "exposure_note": "Eight bilateral landings, from the cued turn jumps and split catches. Twenty non-flight efforts include eight kicks. There are twenty-eight planned cue opportunities; correctness is logged separately from physical attempts and no additional no-go trials are hidden in the dose.",
+  "space": "Cones are visual identifiers outside the landing/sweep area, not obstacles. Entries/bounds stay within 1–2 m plus 2 m clear recovery inside a 10 m lane. One active cued athlete at a time unless staffing and separation are actually verified.",
+  "progression": "Class 9 changed movement direction; Class 10 adds an early decision to selected known movement families. This intentionally favors cue-based variants over six unfamiliar landing/kick mechanics. It does not establish reactive improvement or a higher force output.",
+  "audit": "Midair direction changes, late surprise contact and additional no-go tests were rejected. All attempts receive long uniform recovery so varied cue order does not shorten rest or distort per-side timing. Unique task constraints are disclosed as related variants rather than cosmetically relabeled new movement families.",
+  "prescribed_summary": {
+    "bilateral_landings": 8,
+    "unilateral_landings": 0,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 8,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 92,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 5073,
+    "planning_minutes_excluding_existing_preparation": [
+      85,
+      92
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      268,
+      596,
+      298,
+      298,
+      298,
+      298
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      495,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 10 cue and movement observations, then finalize Class 11 as low-volume precision practice with a planned task and no new reactive demand; audit/save before continuing.",
+  "reviewed_previous_at_authoring_sha256": "1132842bc9c3b4c8d2becf855741989d8b27d41f45fd2eea8f90c0924bfc1179",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "064e94056784f3925476d63ed9bbba7d6292c23bbc9ed1ebae27cf0a4038835d",
+  "final_previous_class_sha256": "d1a6570f6f5d407be16d76363f47191326d5e0e0a30a8f883d90111a80c6a81a"
+}

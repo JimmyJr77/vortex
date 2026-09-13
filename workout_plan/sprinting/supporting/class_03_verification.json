@@ -1,0 +1,88 @@
+{
+  "checked_date": "2026-09-13",
+  "checkpoint": "Class 3 finalized; Class 4 next",
+  "status": "PASS",
+  "scope": "Document architecture, references, prior class hashes, workload arithmetic and timing. Exercise relevance, distinct jobs, resistance setup and delivery assumptions are covered in the manual audit; no test proves athlete readiness/execution, group fit or completion of all 12 classes.",
+  "checks": {
+    "class_01_title": true,
+    "class_01_architecture": true,
+    "class_01_counts": true,
+    "class_01_four_columns": true,
+    "class_01_preserved": true,
+    "class_02_title": true,
+    "class_02_architecture": true,
+    "class_02_counts": true,
+    "class_02_four_columns": true,
+    "class_02_preserved": true,
+    "class_03_title": true,
+    "class_03_architecture": true,
+    "class_03_counts": true,
+    "class_03_four_columns": true,
+    "exactly_three_finalized_classes": true,
+    "state_next_4": true,
+    "outcomes_remain_unknown": true,
+    "exact_framework": true,
+    "twelve_map_rows": true,
+    "map_and_ledger_next_4": true,
+    "original_spec_unchanged": true,
+    "distinct_drill_names_plus_manual_role_audit": true,
+    "strength_names_retained": true,
+    "jump_types_math": true,
+    "separate_nonflight_work": true,
+    "primary_math": true,
+    "preparation_math": true,
+    "distance_bounds": true,
+    "timing_math": true,
+    "band_geometry_corrected": true,
+    "readiness_recurrence_explicit": true,
+    "local_links_resolve": true,
+    "all_state_references_exist": true
+  },
+  "row_counts": {
+    "1": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "2": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "3": [
+      0,
+      6,
+      2,
+      6
+    ]
+  },
+  "timing_seconds": {
+    "explosiveness": 1906,
+    "stabilization": 330,
+    "primary": 2203,
+    "total": 4439
+  },
+  "broken_links": [],
+  "sha256": {
+    "athlete_feedback.md": "957f18666ddcf16ea0ca8afe071204ca41859e51804f31d2a88e272ad1eda360",
+    "classes/class_01.md": "9115f04e4a4c8e1973caa6e2d2b9fa5a29177834a6ab8e40b3262cb9ec4da175",
+    "classes/class_02.md": "eaf1ee7bcd192f64da684e44e39073752ef9f4e9406085c89189d50241095d66",
+    "classes/class_03.md": "4a88695b195feb2104b8ec094d6553be3e0ee9196a930923ebb8f9d840dbf286",
+    "curriculum.md": "54c1e97526352a12b3d3294ec37cd75cf0ecdb94d8fb256739647977bc041959",
+    "progress.json": "cb2b97c4174f60f63831b551f73244b63b1530cbba51ff1bc1baec7b58fc0458",
+    "progression_ledger.md": "adeeb1c36a60abe6edaa4175188173f6bc0f0f1d0c9d83a934819b1fa34984b1",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "c5c5903d2d3ae247163749345fed47002114c718ff220d0b8da5abe782422925",
+    "supporting/class_01_verification.json": "3930da6af3877e06453e5873de6090b74993e3d1c60a6dd66fb375f087d863eb",
+    "supporting/class_02_audit.md": "893d1f214f492c45bee2f7839efcc41a1a01048ea765f183ae0f372810700404",
+    "supporting/class_02_sources_and_exercises.md": "ef2b8adaf8f752a19f29685d796ea29cea0c8f78168b41fc3004e25d4964a562",
+    "supporting/class_02_verification.json": "cd1b3b2e727ad0c057167527735330ce578c61167d4271c4a84cd88ae2b8fd95",
+    "supporting/class_03_audit.md": "0ddf2fd4f711476d8a52ea4a5b568bf08ca2ba19593d8826c628fbcad071bfeb",
+    "supporting/class_03_sources_and_exercises.md": "892175ff3ecbe3c4e794f246128fa24ec9fd2e181068b9d9719cd20feac8afed",
+    "supporting/drill_history.md": "fbccc0042c29c5713c0282a1208ffbbf46c0158166012497c9364c80469226b1",
+    "supporting/sources_and_exercises.md": "f159b6a7e9477a0a5edb8bc3a2f8c98c132c51ca2085e587d06ee4ad74cb52b7"
+  },
+  "historical_checkpoint_note": "Archived unchanged checks from Class 3 before Class 4 state updates; shared-file hashes describe that historical checkpoint, not current shared files."
+}

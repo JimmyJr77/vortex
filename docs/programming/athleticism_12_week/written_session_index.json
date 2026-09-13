@@ -194,6 +194,23 @@
         "separate_tumbling_prescription_complete": false
       },
       "sha256": "ec040d4d5d3a1fbd934462e59a7452a6046dafdf9afb30eb92b410bfd210e7b8"
+    },
+    {
+      "id": "OR-12",
+      "product": "instructional",
+      "path": "instructional_on_ramp/week_03/or_12.json",
+      "review": "instructional_on_ramp/week_03/or_12_review.md",
+      "checks": "instructional_on_ramp/week_03/or_12_check_results.json",
+      "anchor_ledger": "instructional_on_ramp/week_03/or_12_anchor_ledger.json",
+      "workload_ledger": "instructional_on_ramp/week_03/or_12_workload_ledger.json",
+      "programming_critique": "instructional_on_ramp/week_03/or_12_programming_critique.md",
+      "release_status": {
+        "athletic_prescription_complete": true,
+        "programming_review_pass": true,
+        "operational_release_verified": false,
+        "separate_tumbling_prescription_complete": false
+      },
+      "sha256": "813dd0723c8451d60ed5bc4a62e6897b0c5e1582ac9fb7abec4478316579b41c"
     }
   ],
   "ledger_files": [
@@ -328,13 +345,25 @@
       "path": "instructional_on_ramp/week_03/or_11_workload_ledger.json",
       "count": 1152,
       "sha256": "ff75894e3e89a27496c6144b1278472ac6ae43160b7ce7835474d74f25b8d4b2"
+    },
+    {
+      "kind": "anchor",
+      "path": "instructional_on_ramp/week_03/or_12_anchor_ledger.json",
+      "count": 8,
+      "sha256": "b502264e63c48d6cf142d5d376c754b8f03152405fa3e3a8e67a40dfd67d3518"
+    },
+    {
+      "kind": "workload",
+      "path": "instructional_on_ramp/week_03/or_12_workload_ledger.json",
+      "count": 1128,
+      "sha256": "982949fbfd43b3fe1c47c110da057b7ce50bbb09484468c96945f51292965bcc"
     }
   ],
   "counts": {
     "main": 1,
-    "instructional": 11,
-    "anchor_rows": 100,
-    "workload_scenarios": 32652
+    "instructional": 12,
+    "anchor_rows": 108,
+    "workload_scenarios": 33780
   },
   "weekly_reviews": [
     {
@@ -369,6 +398,7 @@
   ],
   "active_outline_amendments": "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
   "active_outline_amendment_addenda": [
-    "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json"
+    "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json",
+    "instructional_on_ramp/OR12_OUTLINE_RECONCILIATION.json"
   ]
 }

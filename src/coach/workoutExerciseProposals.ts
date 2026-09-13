@@ -1,6 +1,7 @@
 export type { WorkoutExerciseDemand, WorkoutExerciseGapResearch, WorkoutExerciseGapResearchInput } from '../../backend/platform/workoutExerciseGapResearch.js'
 export type { WorkoutExerciseGapAssessment } from '../../backend/platform/workoutExerciseGapAssessment.js'
 export type { StagedCanonicalEvent, StagedCanonicalRevisionView, StagedCanonicalRevisionChange } from '../../backend/platform/canonicalCardStagedRevision.js'
+export type { StagedCanonicalReviewInput, StagedCanonicalReviewEvidence, StagedMediaObservation } from '../../backend/platform/canonicalStagedReviewEvidence.js'
 export type { ExerciseProposalResult, ExerciseProposalReview, ExerciseProposalPage, AcceptedExerciseProposal,
   QuarantinedExerciseProfile, QuarantinedExerciseProposal } from '../../backend/platform/workoutExerciseProposal.js'
 

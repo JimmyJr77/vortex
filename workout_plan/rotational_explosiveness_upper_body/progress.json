@@ -1,0 +1,497 @@
+{
+  "schema_version": 1,
+  "focus": "Rotational Explosiveness — Upper Body",
+  "framework_category": "Rotational explosiveness",
+  "framework_subcategory": "Upper-body emphasis (rotational throws, punches, and swings)",
+  "target_class_count": 12,
+  "last_finalized_class": 12,
+  "next_class": null,
+  "finalized_class_count": 12,
+  "status": "complete — all 12 conditional class prescriptions finalized and full-sequence audit passed; athlete execution unknown",
+  "updated_at": "2026-09-13",
+  "style_inspiration": "Overtime Athletes public rotational medicine-ball and resisted-rotation principles, adapted to current user specification",
+  "finalized_files": [
+    "classes/class_01.md",
+    "classes/class_02.md",
+    "classes/class_03.md",
+    "classes/class_04.md",
+    "classes/class_05.md",
+    "classes/class_06.md",
+    "classes/class_07.md",
+    "classes/class_08.md",
+    "classes/class_09.md",
+    "classes/class_10.md",
+    "classes/class_11.md",
+    "classes/class_12.md"
+  ],
+  "supporting_files": [
+    "curriculum.md",
+    "progression_ledger.md",
+    "athlete_feedback.md",
+    "supporting/class_01_audit.md",
+    "supporting/sources_and_library.md",
+    "supporting/library_snapshot.json",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md",
+    "supporting/drill_usage.md",
+    "verification.json",
+    "supporting/class_02_audit.md",
+    "supporting/class_records/class_02.json",
+    "supporting/class_03_audit.md",
+    "supporting/class_records/class_03.json",
+    "supporting/class_04_audit.md",
+    "supporting/class_records/class_04.json",
+    "supporting/class_05_audit.md",
+    "supporting/class_records/class_05.json",
+    "supporting/class_06_audit.md",
+    "supporting/class_records/class_06.json",
+    "supporting/class_07_audit.md",
+    "supporting/class_records/class_07.json",
+    "supporting/class_08_audit.md",
+    "supporting/class_records/class_08.json",
+    "supporting/class_09_audit.md",
+    "supporting/class_records/class_09.json",
+    "supporting/class_10_audit.md",
+    "supporting/class_records/class_10.json",
+    "supporting/class_11_audit.md",
+    "supporting/class_records/class_11.json",
+    "supporting/class_12_audit.md",
+    "supporting/class_records/class_12.json",
+    "supporting/class_records/class_01.json",
+    "supporting/workload_summary.json",
+    "supporting/full_sequence_audit.md",
+    "README.md",
+    "coach_manual.md"
+  ],
+  "prescribed": {
+    "class_01": {
+      "E": {
+        "reps": 40,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 26,
+        "bouts": 4,
+        "hold_seconds": 20
+      },
+      "P": {
+        "reps": 88,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "ball_releases": 40,
+      "throws": 34,
+      "slams": 6,
+      "retained_or_unloaded_fast_actions": 0,
+      "received_balls": 0,
+      "primary_preparation_reps": 36,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_02": {
+      "E": {
+        "reps": 42,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 10,
+        "bouts": 3,
+        "hold_seconds": 30
+      },
+      "P": {
+        "reps": 94,
+        "bouts": 15,
+        "hold_seconds": 0
+      },
+      "ball_releases": 12,
+      "throws": 12,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 30,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_03": {
+      "E": {
+        "reps": 42,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 14,
+        "bouts": 3,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 76,
+        "bouts": 12,
+        "hold_seconds": 0
+      },
+      "ball_releases": 24,
+      "throws": 24,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 18,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_04": {
+      "E": {
+        "reps": 42,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 22,
+        "bouts": 4,
+        "hold_seconds": 12
+      },
+      "P": {
+        "reps": 82,
+        "bouts": 13,
+        "hold_seconds": 0
+      },
+      "ball_releases": 24,
+      "throws": 24,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 18,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_05": {
+      "E": {
+        "reps": 32,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 22,
+        "bouts": 4,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 76,
+        "bouts": 12,
+        "hold_seconds": 0
+      },
+      "ball_releases": 16,
+      "throws": 12,
+      "slams": 4,
+      "retained_or_unloaded_fast_actions": 16,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_06": {
+      "E": {
+        "reps": 28,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 28,
+        "bouts": 4,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 70,
+        "bouts": 11,
+        "hold_seconds": 0
+      },
+      "ball_releases": 8,
+      "throws": 8,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 20,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_07": {
+      "E": {
+        "reps": 28,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 20,
+        "bouts": 3,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 70,
+        "bouts": 11,
+        "hold_seconds": 0
+      },
+      "ball_releases": 20,
+      "throws": 16,
+      "slams": 4,
+      "retained_or_unloaded_fast_actions": 8,
+      "received_balls": 20,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_08": {
+      "E": {
+        "reps": 34,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 10,
+        "bouts": 3,
+        "hold_seconds": 20
+      },
+      "P": {
+        "reps": 82,
+        "bouts": 13,
+        "hold_seconds": 0
+      },
+      "ball_releases": 20,
+      "throws": 12,
+      "slams": 8,
+      "retained_or_unloaded_fast_actions": 14,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_09": {
+      "E": {
+        "reps": 28,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 28,
+        "bouts": 4,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 76,
+        "bouts": 12,
+        "hold_seconds": 0
+      },
+      "ball_releases": 20,
+      "throws": 16,
+      "slams": 4,
+      "retained_or_unloaded_fast_actions": 8,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_10": {
+      "E": {
+        "reps": 32,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 24,
+        "bouts": 4,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 82,
+        "bouts": 13,
+        "hold_seconds": 0
+      },
+      "ball_releases": 20,
+      "throws": 20,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 12,
+      "received_balls": 0,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_11": {
+      "E": {
+        "reps": 28,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 18,
+        "bouts": 4,
+        "hold_seconds": 0
+      },
+      "P": {
+        "reps": 70,
+        "bouts": 11,
+        "hold_seconds": 0
+      },
+      "ball_releases": 20,
+      "throws": 20,
+      "slams": 0,
+      "retained_or_unloaded_fast_actions": 8,
+      "received_balls": 16,
+      "primary_preparation_reps": 34,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    },
+    "class_12": {
+      "E": {
+        "reps": 38,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "S": {
+        "reps": 26,
+        "bouts": 4,
+        "hold_seconds": 20
+      },
+      "P": {
+        "reps": 88,
+        "bouts": 14,
+        "hold_seconds": 0
+      },
+      "ball_releases": 28,
+      "throws": 22,
+      "slams": 6,
+      "retained_or_unloaded_fast_actions": 10,
+      "received_balls": 4,
+      "primary_preparation_reps": 36,
+      "primary_preparation_bouts": 11,
+      "human_jump_landings": 0,
+      "sprint_metres": 0
+    }
+  },
+  "observed": {
+    "completed_classes": null,
+    "athlete_sessions": [],
+    "actual_workload": null,
+    "performance": null,
+    "recovery": null,
+    "status": "No actual athlete observations supplied; unknown does not mean zero or nonattendance"
+  },
+  "anchors": [
+    "P1 Landmine Rotation — may recur for strength progression",
+    "P2 Landmine Rotational Press — may recur for strength progression"
+  ],
+  "unresolved_issues": [
+    "Existing Access & Prepare 1 content, duration and overlapping load are unavailable; reference only.",
+    "Athlete rotational experience, readiness, attendance, restrictions, actual completion/loads and recovery are unknown.",
+    "Actual recent/upcoming throwing, batting, swings, sport, gym and separate tumbling are unknown.",
+    "Floor impact permission, ball impact compatibility/rebound and full containment, or a suitable throwing wall, require verification before release work.",
+    "Lane widths, side clearance, group size, staffing and equipment quantities are unconfirmed.",
+    "Band anchor suitability at required heights and manageable minimum landmine/bar/grip setup require confirmation; listed replacements are conditional.",
+    "Whole-class timing is unresolved: class-specific 70–95 minute estimates exclude existing preparation and added group queues. A 60-minute total booking does not fit; 90 minutes total is not verified.",
+    "Repository facility reference says 12 m and uses an older eight-tenet/template/booking framework; current user-supplied 10 m and seven-category 6/2/6 requirements govern this plan.",
+    "Several execution variants are proposed, not verified production library entries; no database IDs assigned."
+  ],
+  "next_class_intended_job": "No additional class is pending. Before actual delivery verify readiness, preparation, setup and booking; record real workload/response and revise downstream prescriptions as needed.",
+  "progression_rule": "Prioritize meaningful drill uniqueness while preserving the daily effort; strength lifts may recur for traceable progression. New drills do not justify higher workload or imply mastery. Observed execution, intended strength reserve and acceptable recovery within the actual schedule must justify increased demand. Hold or reduce demands without evidence. Compare performance only under matched tasks and conditions.",
+  "resume_instruction": "All twelve class prescriptions and the full-sequence audit are complete. Do not generate Class 13 or restart at Class 1. For a subsequent user request, read README.md, curriculum.md, progress.json, the relevant finalized classes, progression/workload ledger, drill usage, full audit and actual feedback. Verify referenced files exist. Distinguish prescribed from observed work. Use new actual feedback to revise only the requested class(es) and affected downstream records, preserving the exact framework and 6/2/6 architecture. No athlete completion or performance improvement has been supplied.",
+  "drill_uniqueness_policy": {
+    "source": "User follow-up: Try to force unique drills; while strength lifts may recur as needed for progressions",
+    "scope": "Across this twelve-class curriculum and within each class",
+    "explosiveness": "Strongly prioritize unused meaningfully distinct tasks; no automatic recurring explosive anchor.",
+    "stabilization_resilience": "Prefer distinct drills; recurrence allowed for an explicit strength progression or consolidation purpose while staying light.",
+    "primary_strength": "Lifts may recur as needed for traceable progression, including a justified hold or regression.",
+    "uniqueness_test": "Changed name, side, load, dose, surface or cosmetic grip/stance/tempo alone is insufficient; require a specific relevant change of task or force/control demand.",
+    "recurrence_exception": "Identify any necessary drill recurrence and explain its concrete relevance/readiness need and alternatives considered. Never use unrelated or needlessly complex work to satisfy novelty.",
+    "usage_file": "supporting/drill_usage.md",
+    "feedback_rule": "New drill does not imply greater demand, mastery, tolerable workload or a comparable performance test."
+  },
+  "class_performance_anchors": {
+    "class_01": "E1 paused Med Ball Rotational Scoop Toss; class-specific reference, no automatic future reuse",
+    "class_02": "Light-band rotational cross",
+    "class_03": "Med Ball Countermovement Rotational Throw — floor target",
+    "class_04": "Step-in rotational medicine-ball shot-put",
+    "class_05": "Med Ball Shuffle-to-Rotation Throw — short floor-target version",
+    "class_06": "Two-hand rotational battle-rope lift pulse",
+    "class_07": "Externally supplied rotational scoop return",
+    "class_08": "Tall-kneeling diagonal medicine-ball side slam",
+    "class_09": "Lateral-step two-hand medicine-ball backhand throw",
+    "class_10": "Single-arm rotational medicine-ball hook throw",
+    "class_11": "Handoff-to-step rotational medicine-ball scoop return",
+    "class_12": "Med Ball Rotational Scoop Toss — paused floor-target start"
+  },
+  "revision_history": [
+    {
+      "date": "2026-09-13",
+      "scope": "Selection preference and next-run guidance only; Class 1 exercises/doses unchanged; no new class finalized.",
+      "change": "Prioritize unique drills, retain strength lifts when needed for progression; remove default future explosive-anchor repeats."
+    },
+    {
+      "date": "2026-09-13",
+      "scope": "Sequential completion of Classes 2–12 plus full-sequence reconciliation",
+      "changes": [
+        "Saved and audited each class before advancing state.",
+        "Recorded Class 7 handoff baseline and optional gentle-feed condition separately.",
+        "Corrected Class 3 narrative primary-rep arithmetic to 76.",
+        "Corrected Class 4 embedded walkout holds to 12 seconds; updated affected ledger and Class 5 review context.",
+        "Matched Class 12 press preparation to Class 1 while distinguishing the supported row.",
+        "Changed historical design handoffs to links to already saved next classes."
+      ]
+    }
+  ],
+  "run_authorization": "User requested: continue to complete all 12 days. Complete each class sequentially, audit/save it and update records before developing the next; continue through Class 12 rather than stopping after one new class.",
+  "prescribed_class_01_original_schema": {
+    "section_counts": {
+      "explosiveness": 6,
+      "stabilization_resilience": 2,
+      "primary_strength": 6
+    },
+    "releases": {
+      "E1": 12,
+      "E2": 6,
+      "E3": 6,
+      "E4": 6,
+      "E5": 4,
+      "E6": 6,
+      "total": 40,
+      "throws": 34,
+      "slams": 6,
+      "per_side": 20,
+      "physical_bouts": 14
+    },
+    "human_jump_hop_bound_reps": 0,
+    "sprint_reps": 0,
+    "sprint_metres": 0,
+    "rebound_catches": 0,
+    "light_strength": {
+      "reps": 26,
+      "included_hold_seconds": 20,
+      "physical_bouts": 4
+    },
+    "primary_strength": {
+      "working_reps": 88,
+      "physical_working_bouts": 14,
+      "written_set_rounds": 8,
+      "minimum_easy_preparation_reps": 36,
+      "minimum_preparation_bouts": 11,
+      "working_plus_minimum_preparation_reps": 124,
+      "working_plus_minimum_preparation_bouts": 25
+    },
+    "time_minutes_excluding_access_prepare_and_extra_queues": [
+      80,
+      90
+    ],
+    "counting_scope": "Prescription only, outside unknown Access & Prepare 1. Extra preparation or incomplete actual delivery must be logged separately."
+  },
+  "curriculum_documentation_complete": true,
+  "full_sequence_audit": "supporting/full_sequence_audit.md",
+  "verification_file": "verification.json",
+  "written_class_count": 12
+}

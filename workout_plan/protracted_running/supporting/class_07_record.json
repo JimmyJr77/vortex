@@ -1,0 +1,411 @@
+{
+  "n": 7,
+  "effort": "Link a few elastic contacts without losing foot placement or pelvic control, keeping every effort recovered.",
+  "brief": "The demand is preserving control through the transition between landing and the next push. E1 offers a repeatable externally paced-by-rope bilateral ankle task, with no prescribed running cadence. The remaining tasks distinguish same-leg forward linkage, same-leg lateral reversal, shared vertical/horizontal linkage and opposite-leg lateral transfer. This is brief elastic practice, not endurance conditioning.",
+  "anchor": "E1",
+  "marker": "Record clean rope-clearance landings in each six-hop set: one rope turn per small two-foot jump, stable height/position and no rhythm loss. A caught rope or extra hop is recorded as an attempt/fault, never erased with more reps. This task's timing is not a running-cadence prescription.",
+  "review": "Classes 1–6 are saved prescriptions with no actual response. Class 6 had 26 landings including ten unilateral events and seven primary rounds. Class 7's very short linked tasks total 29 landings including twelve unilateral events; the increased coupling, not that small numeric change, is the main new demand. Primary work stays at seven rounds with reduced hinge/calf sets compared with early classes.",
+  "sequence": "E1 receives two short sets. Every other row is only one brief set or sequence per stated side. Use links only with current demonstrated control; the isolated replacements below preserve purposeful work without implying earned advancement.",
+  "E": [
+    {
+      "name": "Jump Rope Bounce — two-foot single turns",
+      "identity": "jump_rope_twofoot_bounce",
+      "family": "rope-constrained bilateral ankle rhythm",
+      "library_slug": "jump-rope-bounce",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "jumps",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "t": 1,
+      "job": "Main repeatability task: maintain small ankle contacts while coordinating one external rope cycle per jump.",
+      "cue": "Use a fitted rope in a clear bay, both feet together, low flight and soft knees. Single turns only, no double-unders or alternating-foot jogging. Stop for catches or extra hops; use stationary bilateral pogos instead if the rope prevents a clean six-hop practice dose."
+    },
+    {
+      "name": "Single-Leg Forward Double Hop",
+      "identity": "sl_forward_double_hop",
+      "family": "same-leg horizontal elastic linkage",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "unit": "two-hop sequences per leg",
+      "footfalls": [
+        1,
+        1
+      ],
+      "rest": 120,
+      "t": 4,
+      "job": "Use one same-leg landing to initiate a second short forward push while preserving pelvic position.",
+      "cue": "Two small forward hops on the same foot, at most two foot lengths total; link the first contact without a deliberate pause, hold the second landing 2 s. No starter bounce or extra third hop. Shorten travel if the intermediate contact collapses."
+    },
+    {
+      "name": "Single-Leg Lateral Out-and-Back Hop Pair",
+      "identity": "sl_lateral_return_pair",
+      "family": "same-leg frontal elastic reversal",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "unit": "two-hop sequences per leg",
+      "footfalls": [
+        1,
+        1
+      ],
+      "rest": 120,
+      "t": 4,
+      "job": "Control a small same-leg lateral reversal while staying stacked over the foot.",
+      "cue": "Hop outward a very small distance then return on the same foot in one linked pair; hold the final landing 2 s. Toes/pelvis face forward. Reduce travel for ankle rolling or knee drift; no crossover."
+    },
+    {
+      "name": "Repeated Vertical Jump — three low connected jumps",
+      "identity": "repeated_vertical_three",
+      "family": "bilateral hip-knee elastic linkage",
+      "library_slug": "repeated-vertical-jump",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "unit": "three-jump sequences",
+      "footfalls": [
+        2,
+        2,
+        2
+      ],
+      "rest": 120,
+      "t": 5,
+      "job": "Link shared hip/knee support and push across several low vertical contacts, distinct from ankle-dominant rope work.",
+      "cue": "Three modest two-foot countermovement jumps in place, natural arms, no intentional pause until a 2 s final stick. Allow an appropriate knee/hip bend; do not force a rigid contact or chase height."
+    },
+    {
+      "name": "Repeated Broad Jump — two linked jumps",
+      "identity": "repeated_broad_pair",
+      "family": "bilateral horizontal elastic linkage",
+      "library_slug": "repeated-broad-jump",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "unit": "two-jump sequences",
+      "footfalls": [
+        2,
+        2
+      ],
+      "rest": 120,
+      "t": 4,
+      "job": "Receive a modest shared forward push and redirect into a second, keeping the feet underneath the body.",
+      "cue": "Two short bilateral forward jumps, no starter bounce, link once and stick the second for 2 s. Fit both within 2 m with clear room beyond. Shorten distance for heel reaching or excessive trunk dive."
+    },
+    {
+      "name": "Skater Bound Continuous — four short transfers",
+      "identity": "skater_continuous_four",
+      "family": "opposite-leg frontal elastic linkage",
+      "library_slug": "skater-bound-continuous",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "unit": "four-bound sequences",
+      "footfalls": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "rest": 120,
+      "t": 6,
+      "job": "Link brief opposite-leg support transfers without turning them into a long lateral conditioning drill.",
+      "cue": "Start left, bound right–left–right–left over a small lateral gap, then hold the final landing 2 s. Each foot receives twice. No extra return bound, long reaches or increasing speed after form changes."
+    }
+  ],
+  "S": [
+    {
+      "name": "Tibialis ISO Toe-Up Hold",
+      "identity": "tibialis_toe_up_iso",
+      "library_slug": "tibialis-iso-toe-up-hold",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "seconds, both feet",
+      "rest": 30,
+      "t": 1,
+      "job": "Light dorsiflexor loading for controlled forefoot clearance between elastic contacts.",
+      "cue": "Stable hand support, both heels grounded; hold toes/forefeet raised gently for 10 s without rocking backward. Keep effort easy; sit with heels grounded instead if standing position is difficult."
+    },
+    {
+      "name": "Side-Lying Clamshell",
+      "identity": "side_lying_clamshell",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 4,
+      "job": "Light hip external-rotator strengthening for knee/pelvis alignment through linked receiving contacts.",
+      "cue": "Lie on side, hips/knees modestly bent, heels together; open top knee 2 s and close 2 s without rolling pelvis. Bodyweight only. Reduce range for trunk rotation; no band burn before primary lifting."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Retain the two-set stance-force anchor while elastic tasks change.",
+      "key": "split"
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Keep a smaller hip-extension force dose after the linked-contact block.",
+      "key": "rdl",
+      "decision": "Earlier bilateral RDL 2 × 6 → 1 × 6 for this elastic emphasis; actual response is unknown, so no automatic load rise offsets the set reduction."
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Maintain one controlled bent-knee ankle-force set alongside the linked impact exposure.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Keep one straight-knee calf set per leg with no additional bounce or eccentric finisher.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Restore a familiar knee-flexor role at its established small cycle dose.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Maintain resisted leg recovery under a quiet pelvis without more impacts.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "Use a suitable rope only if six clean low hops are feasible; the E1 stationary-pogo replacement keeps 12 two-foot landings. For E2 use two isolated same-leg forward hops instead of the linked pair, 1 × 2 per leg, 20 s between hops and 120 s after each side. For E3 use isolated outward and return hops instead of its linked pair, same four total landings and rest. For E4 use three isolated low countermovement jumps instead, 20 s between reps and 120 s afterward. E5 may use two isolated short broad jumps instead, same reset/rest. E6 may use four isolated skater bounds instead, two per receiving leg, 20 s between attempts and 120 s afterward. These replace the corresponding linked task, preserve event counts and add roughly 3–5 minutes if all isolated routes are needed; record that elastic linkage was not delivered.",
+  "count_note": "E1 twelve + E2 four + E3 four + E4 three + E5 two + E6 four = 29 landing events: 17 two-foot and twelve single-leg, 46 individual foot contacts. E6 provides two landings per leg. Default linked sequences are exactly the stated length; no run-up, depth drop, approach or extra bounce. The non-rope tasks contain ten internal rebound transitions in total (E2 two, E3 two, E4 two, E5 one, E6 three). Isolated replacements remove their corresponding transitions without removing the scheduled landings.",
+  "novelty": "All six default tasks add a genuine coupling constraint: rope synchronization, same-leg forward double contact, same-leg lateral reversal, bilateral vertical linkage, bilateral horizontal linkage and opposite-leg lateral linkage. These are related progressions of earlier isolated/contact tasks, not new exercise families created by renaming. Reusing known isolated mechanics as replacements is intentional and is not counted as additional work or novelty.",
+  "audit": "Rejected longer hopping ladders and fatigue-based repeatability tests. Limited all non-rope tasks to one short sequence per stated side and primary strength to seven rounds. Because linked contacts can be harder despite a modest event count, every linkage has a fully dosed isolated replacement. The rope task remains bilateral low contact practice, not a disguised run. Contact totals and internal transitions were separately audited.",
+  "progression": "Linked execution is conditional on current controlled receiving and rebound intent at the listed small amplitude; saved earlier classes do not establish that ability. If isolated routes are used, log them and hold linkage for future instruction. Increase no height, distance, load or contact count automatically. Class 8 should emphasize isolated forward weight acceptance to balance this coupling emphasis.",
+  "map_note": "Very short linked practice; isolated replacements retain counts when linkage is unsuitable.",
+  "next_job": "Isolated forward force acceptance and controlled stance receiving, with no externally imposed drop.",
+  "handoff": "Read this class's selected linkage/isolated routes and any actual response before finalizing Class 8; save its audit and state before advancing.",
+  "reviewed_files": {
+    "curriculum.md": "abbd6c04dd81754d709c507cfc001c81bafb53c8dffb9d9eb350e0dd47edfe98",
+    "progress.json": "486cf4eba1d6a51476a31f425fd38f2edb84825f07f79be8158387d42557cc9b",
+    "progression_ledger.md": "3241057292977d8a84c6ba3afb80aa5870b2bb4aaeb883cf9599bb7f40701519",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_06.md": "e6b38e9f38fe386ed9c5e0b279244bcd85187e582c79080d51e11455507cfeec"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 29,
+    "bilateral_landing_events": 17,
+    "single_leg_landing_events": 12,
+    "individual_foot_contacts": 46,
+    "other_explosive": [],
+    "primary_set_rounds": 7,
+    "primary_bouts": 11,
+    "primary_work": {
+      "reps": 66,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 3,
+    "time_seconds": {
+      "explosive": 1333,
+      "stabilization": 238,
+      "primary": 2222,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 67,
+    "time_max": 77,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Tibialis ISO Toe-Up Hold",
+        "sets": 1,
+        "reps_or_seconds_per_side": 10,
+        "sides": 1,
+        "total": 10,
+        "unit": "seconds, both feet"
+      },
+      {
+        "exercise": "Side-Lying Clamshell",
+        "sets": 1,
+        "reps_or_seconds_per_side": 6,
+        "sides": 2,
+        "total": 12,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Jump Rope Bounce — two-foot single turns",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 12,
+        "unit": "jumps",
+        "landing_events": 12,
+        "individual_foot_contacts": 24,
+        "bilateral_landing_events": 12,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Forward Double Hop",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 2,
+        "unit": "two-hop sequences",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Single-Leg Lateral Out-and-Back Hop Pair",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 2,
+        "unit": "two-hop sequences",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Repeated Vertical Jump — three low connected jumps",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 1,
+        "unit": "three-jump sequences",
+        "landing_events": 3,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 3,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Repeated Broad Jump — two linked jumps",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 1,
+        "unit": "two-jump sequences",
+        "landing_events": 2,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 2,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Skater Bound Continuous — four short transfers",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 1,
+        "unit": "four-bound sequences",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      }
+    ],
+    "individual_foot_contacts_per_foot": 23
+  },
+  "status": "finalized_prescription",
+  "final_review": "Reviewed the new coupling demand separately from raw contact count. All five non-rope linked tasks are brief, with fully dosed isolated replacements and additional reset time disclosed. Default 29 landings/46 foot contacts and ten non-rope rebound transitions are arithmetically consistent. Primary strength remains seven rounds, with no implied earned load increase or endurance claim."
+}

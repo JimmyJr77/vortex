@@ -1,0 +1,146 @@
+{
+  "n": 2,
+  "label": "Free the lead leg without an extra gather",
+  "effort": "Shift support onto the rear leg and launch a low lead-leg roundhouse without an extra preparatory step.",
+  "brief": "The limiting demand is unloading the front leg while retaining a usable rear support-foot pivot. The other drills supply stance exchange, forward rotational projection, same-leg lateral support, proximal thigh rotation and a grounded forward plant; none adds a contact target.",
+  "marker": "valid E2 attempts out of four per kicking leg, with no gather step, a coordinated rear support-foot turn and a two-second recovered stance.",
+  "e": [
+    {
+      "name": "Split-stance scissor hop to stance freeze",
+      "side": "starting lead leg",
+      "bilateral": 1,
+      "execution": "From a shallow split stance, make one low jump that exchanges front/rear feet; land in the mirrored split stance and hold 2 s. No rotation or second bounce.",
+      "job": "Practice transferring which leg supports the next kick without a long ground shuffle.",
+      "gate": "Keep the jump low and both knees soft; shorten the stance exchange if the landing crosses the feet or requires another hop.",
+      "novelty": "New fore–aft stance exchange in flight; differs from Class 1 parallel-stance turning jumps.",
+      "total_attempts": 4,
+      "modeled_seconds": 180
+    },
+    {
+      "name": "Lead-leg low roundhouse without a gather step",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "Start with the kicking leg in front. Shift onto the rear support leg, allow its foot to pivot, then execute one low roundhouse with a soft terminal knee, active recoil and a return to the starting stance. Do not shuffle the rear foot forward first.",
+      "job": "Directly train front-leg release while the rear leg supplies the rotational base.",
+      "gate": "Use a lower chamber/shorter extension instead if the athlete needs an extra gather or leans away; do not speed up a trapped rear-foot pivot.",
+      "novelty": "Changes the force/support strategy from Class 1 rear-leg swing to front-leg unloading; not a mirrored side or changed dose.",
+      "total_attempts": 8,
+      "modeled_seconds": 420
+    },
+    {
+      "name": "Rotational Broad Jump to Stick",
+      "side": "turn direction",
+      "bilateral": 1,
+      "execution": "Use a two-foot dip and jump a short distance forward while turning no more than 45 degrees in the air. Land on two feet already aligned with the finish; hold 2 s. Flight fits within 2 m, with 2 m clear beyond.",
+      "job": "Express leg force forward while organizing the pelvis for a changed facing direction.",
+      "gate": "Shorten travel or turn if rotation continues after landing; do not chase maximal distance.",
+      "novelty": "Adds forward projection to the stationary rotational flight in Class 1.",
+      "source": "Kicking library: Rotational Broad Jump to Stick / rotational-broad-jump-to-stick, source-local card 24; class sets a short 45-degree execution.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Lateral support-leg hop to same-leg stick",
+      "side": "stance leg",
+      "unilateral": 1,
+      "execution": "Hop a short distance sideways from one foot and land on that same foot, maintaining the original facing direction. Free knee stays comfortably bent; hold 2 s. Keep displacement within 1 m.",
+      "job": "Keep body mass over the same supporting leg when the opposite leg is unavailable for a catch step.",
+      "gate": "Use a smaller hop instead for pelvic drop or a rescue touchdown; do not add rotation.",
+      "novelty": "Same-leg takeoff/landing rather than Class 1 opposite-leg bound; no airborne turn.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Pre-chambered bent-knee roundhouse whip",
+      "side": "moving leg",
+      "grounded": 1,
+      "execution": "Begin with the free thigh already lifted below hip height and knee folded. Briskly sweep the thigh through a small roundhouse arc as the support foot turns; keep the knee folded throughout, then return the foot to stance.",
+      "job": "Isolate proximal thigh/pelvis acceleration without the initial lifting or knee-extension task.",
+      "gate": "Lower the starting chamber or reduce arc for trunk lean; the standing knee must turn with the foot, not remain trapped.",
+      "novelty": "Raised-thigh start and no terminal knee extension; not the complete kick or the sagittal resisted knee drive used in Class 1.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Forward plant-and-open to kick stance",
+      "side": "receiving leg",
+      "grounded": 1,
+      "execution": "Take one brisk short forward step onto the receiving leg and open the feet/pelvis into a shallow split kick stance, no more than 45 degrees from the initial facing. Keep the step and finish inside 2 m; no kick or run-up.",
+      "job": "Accept forward arrival onto a leg before freeing the other thigh for a kick.",
+      "gate": "Shorten the step if the athlete overstrides, stiffens the knee or drags a planted foot through the turn.",
+      "novelty": "Forward incoming momentum and opening plant, distinct from Class 1 lateral entry and stationary pivot.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    }
+  ],
+  "sets": [
+    2,
+    1,
+    1,
+    1,
+    1,
+    2
+  ],
+  "p_jobs": [
+    "Retain lead-leg push capacity for the support exchange; the planted lift stays square rather than imitating a kick.",
+    "Load the hip hinge that maintains the rear support leg while the front thigh accelerates.",
+    "Supply lateral hip/adductor force to keep the support pelvis organized during lead-leg release.",
+    "Challenge controlled hip-turn torque without adding another whole-body spinning task.",
+    "Load the active lift of the front-leg chamber, independently of its rapid arc.",
+    "Maintain bent-knee ankle drive during the short support shift and pivot."
+  ],
+  "s_jobs": "The supported airplane controls the rear support hip as weight shifts back; short-foot holds keep that foot organized before its heel releases.",
+  "readiness": "Lead-leg release must be possible without hopping or a forced lean. The new same-leg hop uses small amplitude and no turn; if it cannot be controlled, use instead a very small same-leg hop with a light trailing-toe touch at the finish, and record the assisted landing.",
+  "strength_reason": "Retain Class 1 set allocation [2,1,1,1,1,2], 96 working reps and the same load-preparation dose. New front-leg timing, not heavier strength work, is the change.",
+  "exposure_note": "Twelve landings: four scissor exchanges, four bilateral rotational broad jumps and four same-leg hops. The remaining sixteen efforts stay grounded; eight of those are kicks. Scissor landings are bilateral split-stance events, not two jumps.",
+  "space": "Each moving drill stays inside a 2 m work segment plus 2 m clear recovery in one 10 m lane; same-leg hops use at most 1 m. Stage other athletes outside the sweep/landing footprint.",
+  "progression": "Class 1 prescribed rear-leg initiation; this class changes which leg must unload and support the kick. It lowers grounded drill volume while retaining twelve flight events and strength exposure. No improvement or greater tolerance is assumed.",
+  "audit": "A second rear-leg kick variant was rejected in favor of the lead-leg no-gather task. Same-leg lateral hops have no added turn, so only one jump drill combines forward flight with rotation. The pre-chambered whip receives four efforts and omits knee extension to avoid duplicating the full kick.",
+  "prescribed_summary": {
+    "bilateral_landings": 8,
+    "unilateral_landings": 4,
+    "total_landing_events": 12,
+    "grounded_explosive_efforts": 16,
+    "kick_actions": 8,
+    "primary_working_rounds": 8,
+    "primary_working_bouts": 14,
+    "primary_working_reps": 96,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4623,
+    "planning_minutes_excluding_existing_preparation": [
+      78,
+      85
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      180,
+      420,
+      210,
+      210,
+      210,
+      210
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      638,
+      372,
+      372,
+      281,
+      273,
+      234
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 2 and any actual feedback, then design Class 3 around force initiation from a held start; save its audit and records before proceeding.",
+  "reviewed_previous_at_authoring_sha256": "1642da3157b5bccbeb52c81e3277fcecd2397aafc05d6c9ad5f70c97d8bafc61",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "a47f290ef345538f75cf87558a0231ff388d3c2baaa67151ad7638f3cddb6878",
+  "final_previous_class_sha256": "65685c47b8d2b68b381234251e4f0cbeaf7eb9f5d94dcfc93a600f0b7ca4d700"
+}

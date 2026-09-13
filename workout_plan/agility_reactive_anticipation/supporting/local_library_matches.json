@@ -1,0 +1,182 @@
+{
+  "alternate-leg-bound-for-distance": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/367_coaching_alternating_bounds_family_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/184_coaching_jumping_distance_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/379_coaching_score_80_identity_boundaries.sql"
+  ],
+  "backpedal-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/129_coaching_control_resilience_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/211_coaching_cone_drill_exercise_library_cards.sql"
+  ],
+  "broad-jump-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/389_coaching_score_75_identity_boundaries.sql"
+  ],
+  "copenhagen-plank-short-lever": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/203_coaching_exercise_youtube_links_batch2.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/207_coaching_exercise_difficulty_reviewed.sql"
+  ],
+  "cossack-squat": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/457_coaching_lateral_lunge_identity_and_family_completion.sql"
+  ],
+  "countermovement-jump-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/172_coaching_neural_training_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/203_coaching_exercise_youtube_links_batch2.sql"
+  ],
+  "curve-run-around-cone-arc": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/210_coaching_cone_drill_exercise_library_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/211_coaching_cone_drill_exercise_library_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/scripts/data/cone-drill-exercise-cards-all-50.json"
+  ],
+  "distance-jump-straight-leg-bound": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/413_coaching_ankling_straight_leg_research_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/688_coaching_variable_contact_range_profiles.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/184_coaching_jumping_distance_infrastructure_and_seed.sql"
+  ],
+  "dumbbell-step-up": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/149_coaching_loaded_strength_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/203_coaching_exercise_youtube_links_batch2.sql"
+  ],
+  "falling-start-to-10-yard-cone": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/210_coaching_cone_drill_exercise_library_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/211_coaching_cone_drill_exercise_library_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/339_coaching_high_confidence_implement_identity_consolidation.sql"
+  ],
+  "goblet-squat": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/390_coaching_score_75_variant_identity_consolidations.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/122_coaching_capacity_squat_cards.sql"
+  ],
+  "hip-thrust": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/448_coaching_floor_bridge_identity_and_family_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/194_coaching_throwing_athletes_infrastructure_and_seed.sql"
+  ],
+  "kettlebell-swing": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/472_coaching_kettlebell_swing_family_audit_hardening.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/019_coaching_seed_starter_library.sql"
+  ],
+  "lateral-lunge": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/457_coaching_lateral_lunge_identity_and_family_completion.sql"
+  ],
+  "line-pogo-forward-back": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/383_coaching_score_78_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/431_coaching_line_pogo_identity_completion.sql"
+  ],
+  "low-box-jump-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/209_coaching_box_jump_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/393_coaching_score_73_identity_boundaries.sql"
+  ],
+  "med-ball-rotational-scoop-toss": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/200_coaching_rotational_power_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/201_coaching_rotational_power_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/300_coaching_medicine_ball_identity_consolidation.sql"
+  ],
+  "medicine-ball-scoop-toss": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/161_coaching_explosiveness_infrastructure_and_seed.sql"
+  ],
+  "partner-backpedal-turn-and-go-cue": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/189_coaching_pairs_exercise_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/191_coaching_reaction_time_reduction_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/188_coaching_pairs_exercise_infrastructure_and_seed.sql"
+  ],
+  "partner-manual-resistance-hamstring-curl": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/189_coaching_pairs_exercise_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/188_coaching_pairs_exercise_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/256_coaching_missing_exercise_difficulty_profiles.sql"
+  ],
+  "partner-medicine-ball-shot-put-pass": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/189_coaching_pairs_exercise_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/382_coaching_score_79_variant_identity_consolidations.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/188_coaching_pairs_exercise_infrastructure_and_seed.sql"
+  ],
+  "reactive-hop-to-cut": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/387_coaching_score_76_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/358_coaching_score_84_variant_identity_consolidations.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/191_coaching_reaction_time_reduction_cards.sql"
+  ],
+  "reverse-lunge": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql"
+  ],
+  "romanian-deadlift": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/147_coaching_speed_sprinters_quick_release_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql"
+  ],
+  "seated-dumbbell-calf-raise": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/149_coaching_loaded_strength_infrastructure_and_seed.sql"
+  ],
+  "single-leg-calf-raise": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/156_coaching_bodyweight_strength_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/178_coaching_resistance_band_body_resistance_cards.sql"
+  ],
+  "single-leg-forward-hop-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/445_coaching_bilateral_horizontal_jump_foundations_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/437_coaching_single_leg_hop_pogo_identity_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/686_coaching_canonical_jump_stick_standard_profile_completion.sql"
+  ],
+  "single-leg-lateral-hop-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/327_coaching_single_leg_lateral_hop_stick_family_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql"
+  ],
+  "single-leg-pogo": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/147_coaching_speed_sprinters_quick_release_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/425_coaching_ankling_pogo_identity_resolution.sql"
+  ],
+  "single-leg-quarter-turn-hop-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/434_coaching_lateral_low_hurdle_stick_identity_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/733_coaching_single_leg_snap_down_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/438_coaching_single_leg_hop_similarity_and_rebound_quarantine.sql"
+  ],
+  "single-leg-vertical-hop-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/437_coaching_single_leg_hop_pogo_identity_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/686_coaching_canonical_jump_stick_standard_profile_completion.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/438_coaching_single_leg_hop_similarity_and_rebound_quarantine.sql"
+  ],
+  "slam-ball-rotational-slam": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/186_coaching_medicine_balls_slam_balls_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/389_coaching_score_75_identity_boundaries.sql"
+  ],
+  "split-squat": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/381_coaching_score_79_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/385_coaching_score_77_identity_boundaries.sql"
+  ],
+  "split-squat-jump-to-stick": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/393_coaching_score_73_identity_boundaries.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/207_coaching_exercise_difficulty_reviewed.sql"
+  ],
+  "sprint-to-stick-deceleration": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/215_coaching_exercise_difficulty_v2_reviewed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/211_coaching_cone_drill_exercise_library_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/119_coaching_output_reactive_tumbling_cards.sql"
+  ],
+  "u-drill-turn-and-go": [
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/210_coaching_cone_drill_exercise_library_infrastructure_and_seed.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/211_coaching_cone_drill_exercise_library_cards.sql",
+    "/Users/jimmy_mac/Desktop/code/vortex/scripts/data/cone-drill-exercise-cards-all-50.json"
+  ]
+}

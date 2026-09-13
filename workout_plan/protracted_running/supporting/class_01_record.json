@@ -1,0 +1,364 @@
+{
+  "n": 1,
+  "status": "finalized_prescription",
+  "record_type": "reconciled_from_original_class_and_ledger_not_new_prescription",
+  "actual_response": null,
+  "E": [
+    {
+      "name": "Stationary Bilateral Ankle Pogo",
+      "identity": "stationary_bilateral_pogo",
+      "family": "bilateral ankle rebound",
+      "library_slug": "ankle-pogo-in-place",
+      "sets": 2,
+      "reps": 8,
+      "sides": 1,
+      "footfalls": [
+        2
+      ],
+      "unit": "hops/jumps",
+      "job": "Main repeated ankle-spring practice. Hands on hips; make small two-foot bounces in place, with soft knees and ankles moving freely. Record the quality marker. End the set if rhythm/position deteriorates; use lower amplitude instead of chasing height.",
+      "source_dose": "**2 × 8 hops**, bodyweight; **60 s after each set**"
+    },
+    {
+      "name": "Single-Leg Pogo in Place",
+      "identity": "single_leg_pogo_in_place",
+      "family": "single-leg ankle rebound",
+      "library_slug": "single-leg-pogo-in-place",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "footfalls": [
+        1
+      ],
+      "unit": "hops/jumps",
+      "job": "Apply spring-like ankle force while one leg supports the pelvis. Hands on hips; stay over the foot and finish balanced. Reduce amplitude for drift; if needed, use light fingertip support on a stable bench **instead of** unsupported execution, with the same dose. Do not change this to alternating jogging.",
+      "source_dose": "**1 × 4 hops per leg**; **90 s between legs and after the second leg**"
+    },
+    {
+      "name": "Single-Leg Forward Hop to Stick",
+      "identity": "sl_forward_stick",
+      "family": "single-leg forward push and acceptance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "footfalls": [
+        1
+      ],
+      "unit": "hops/jumps",
+      "job": "Quick single-leg push followed by controlled forward weight acceptance. Take off and land on the **same leg** over a short, self-selected distance, no more than one of the athlete's foot lengths today. Hold 2 s, then walk back and reset. Use a shorter distance instead of a farther unstable landing; stop for repeated extra balance steps.",
+      "source_dose": "**1 × 3 per leg**; **12–15 s between reps**, **90 s between legs and afterward**"
+    },
+    {
+      "name": "Squat Jump — paused, hands on hips",
+      "identity": "paused_squat_jump",
+      "family": "bilateral rapid force from stillness",
+      "library_slug": "squat-jump",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "footfalls": [
+        2
+      ],
+      "unit": "hops/jumps",
+      "job": "Express hip/knee extension quickly from stillness, complementing the ankle-dominant anchor. Hold a comfortable quarter-to-half squat for 2 s, jump vertically without another dip, then absorb and hold the two-foot landing for 2 s. Lower jump height for a hard landing; repeated re-dipping ends the task.",
+      "source_dose": "**1 × 3**; **12–15 s between reps**, **90 s afterward**"
+    },
+    {
+      "name": "Split-Squat Jump to Stick — no leg switch",
+      "identity": "split_jump_noswitch",
+      "family": "asymmetric rapid leg extension",
+      "library_slug": "split-squat-jump-to-stick",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "footfalls": [
+        2
+      ],
+      "unit": "hops/jumps",
+      "job": "Produce quick force from an asymmetric stance while keeping the pelvis facing forward. From a comfortable floor split stance, dip shallowly, jump a small height and land in the **same stance**, holding 2 s. Both feet participate: this is not a single-leg landing. Use a shallower dip/lower flight instead of switching legs or losing alignment.",
+      "source_dose": "**1 × 3 per lead leg**; **12–15 s between reps**, **90 s between sides and afterward**"
+    },
+    {
+      "name": "Two-hand Kettlebell Swing",
+      "identity": "two_hand_kb_swing",
+      "family": "bilateral ballistic hip extension",
+      "library_slug": null,
+      "sets": 2,
+      "reps": 5,
+      "sides": 1,
+      "footfalls": [],
+      "unit": "swings",
+      "job": "Rapid hip extension against an external load, with **no additional jump landing**. Hinge, snap hips tall and let the bell float to no higher than chest height; feet stay planted. Park under control after rep five. Reduce the bell load for arm lifting, back extension or slowing; stop if the hinge cannot stay controlled.",
+      "source_dose": "**2 × 5 swings**; light-to-moderate bell selected for crisp speed; **90 s after each set**"
+    }
+  ],
+  "S": [
+    {
+      "name": "Short-Foot Drill",
+      "identity": "standing_short_foot_target",
+      "library_slug": "short-foot-drill",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "five-second holds",
+      "job": "Strengthen active arch control for a stable contact platform. Stand on both feet; gently draw the target forefoot toward its heel without curling toes or raising the heel. Only one foot is targeted at a time. Use seated execution **instead of** standing if toe gripping or cramping appears."
+    },
+    {
+      "name": "Side-lying Hip Abduction",
+      "identity": "side_lying_abduction",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 8,
+      "sides": 2,
+      "unit": "reps",
+      "job": "Light hip-abductor strengthening for pelvic support in single-leg stance. Bottom knee bent, top leg straight and slightly behind the trunk; raise only while the pelvis stays stacked. Reduce the range for rolling/hiking; no band or burnout today."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Knee/hip force during single-leg support.",
+      "key": "split"
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "slug": "romanian-deadlift",
+      "sides": 1,
+      "reps": 6,
+      "sets": 2,
+      "t": 4,
+      "after": 120,
+      "between": 0,
+      "prep": [
+        [
+          5,
+          60
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Soft knees, hips back, DBs close; lower 3 s and rise in 1 s. Stop the descent before back rounding; reduce load/range if the hinge becomes spinal movement.",
+      "job": "Loaded hip extension and hamstring force through the stance hinge.",
+      "key": "rdl"
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 2,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Knee-flexed plantarflexor force for stance support.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Straight-knee plantarflexor force complementing knee-flexed work.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Hamstring force as knee angle changes with the pelvis supported.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Resisted swing-leg recovery under a quiet pelvis.",
+      "key": "hipflex"
+    }
+  ],
+  "totals": {
+    "landing_events": 39,
+    "bilateral_landing_events": 25,
+    "single_leg_landing_events": 14,
+    "individual_foot_contacts": 64,
+    "other_explosive": [
+      {
+        "name": "Two-hand Kettlebell Swing",
+        "amount": 10,
+        "unit": "swings"
+      }
+    ],
+    "primary_set_rounds": 9,
+    "primary_bouts": 13,
+    "primary_work": {
+      "reps": 80,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 11,
+    "preparation_work": {
+      "reps": 43,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_min": 65,
+    "time_max": 75,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Short-Foot Drill",
+        "sets": 1,
+        "reps_or_seconds_per_side": 4,
+        "sides": 2,
+        "total": 8,
+        "unit": "five-second holds"
+      },
+      {
+        "exercise": "Side-lying Hip Abduction",
+        "sets": 1,
+        "reps_or_seconds_per_side": 8,
+        "sides": 2,
+        "total": 16,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Stationary Bilateral Ankle Pogo",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 16,
+        "unit": "hops/jumps",
+        "landing_events": 16,
+        "individual_foot_contacts": 32,
+        "bilateral_landing_events": 16,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Pogo in Place",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "hops/jumps",
+        "landing_events": 8,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 8
+      },
+      {
+        "exercise": "Single-Leg Forward Hop to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "hops/jumps",
+        "landing_events": 6,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 6
+      },
+      {
+        "exercise": "Squat Jump — paused, hands on hips",
+        "set_bouts": 1,
+        "total_reps_or_sequences": 3,
+        "unit": "hops/jumps",
+        "landing_events": 3,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 3,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Squat Jump to Stick — no leg switch",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "hops/jumps",
+        "landing_events": 6,
+        "individual_foot_contacts": 12,
+        "bilateral_landing_events": 6,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Two-hand Kettlebell Swing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 10,
+        "unit": "swings",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 32
+  },
+  "review": "No earlier focus curriculum or actual athlete response existed at the first run.",
+  "novelty": "Initial six default tasks; no prior drill comparison in this curriculum.",
+  "source_class_sha256": "b0f4bd3df4c49c50bb30f84d7a8c3049e342b124c4d20595111be536781a6fe7"
+}

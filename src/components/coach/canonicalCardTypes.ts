@@ -124,6 +124,7 @@ export interface CanonicalVariant {
 
 export interface CanonicalCard {
   id?: string
+  cardVersion?: number
   /** Immutable server-owned origin; ordinary editor saves cannot replace it. */
   provenance?: Record<string, unknown>
   slug: string

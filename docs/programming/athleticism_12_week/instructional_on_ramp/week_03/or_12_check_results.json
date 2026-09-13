@@ -1,0 +1,546 @@
+{
+  "schema_version": 2,
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "session": "OR-12",
+  "checked_at_utc": "2026-09-13T10:32:32.141609+00:00",
+  "scenario_count": 1128,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "report readiness alone grants unknown running",
+      "rejected": true
+    },
+    {
+      "case": "OR08 walking E0 proves whole run",
+      "rejected": true
+    },
+    {
+      "case": "one emerging modest4 grants retention",
+      "rejected": true
+    },
+    {
+      "case": "old easier run grants first modest increase",
+      "rejected": true
+    },
+    {
+      "case": "low recent technical run restored harder in D",
+      "rejected": true
+    },
+    {
+      "case": "short static route grants long upright route",
+      "rejected": true
+    },
+    {
+      "case": "15m easy grants20m technical",
+      "rejected": true
+    },
+    {
+      "case": "L enters long run",
+      "rejected": true
+    },
+    {
+      "case": "unknown count becomes2",
+      "rejected": true
+    },
+    {
+      "case": "knownzero count repaid",
+      "rejected": true
+    },
+    {
+      "case": "older compatible work overrides most recent",
+      "rejected": true
+    },
+    {
+      "case": "walking borrows running component permission",
+      "rejected": true
+    },
+    {
+      "case": "quiet standing grants alternating support",
+      "rejected": true
+    },
+    {
+      "case": "stationary reporting view/hearing unqualified",
+      "rejected": true
+    },
+    {
+      "case": "eligible two opportunities restore unknown two-pair dose",
+      "rejected": true
+    },
+    {
+      "case": "known one-pair lead enlarged to other lead history",
+      "rejected": true
+    },
+    {
+      "case": "known zero lead silently participates in positive march",
+      "rejected": true
+    },
+    {
+      "case": "first loaded knee set supplies familiar handling",
+      "rejected": true
+    },
+    {
+      "case": "newer actual unloaded knee restores older loaded",
+      "rejected": true
+    },
+    {
+      "case": "L loaded knee",
+      "rejected": true
+    },
+    {
+      "case": "unknown actual knee load is acceptable familiarity",
+      "rejected": true
+    },
+    {
+      "case": "missing numeric actual knee load despite claimed familiar context",
+      "rejected": true
+    },
+    {
+      "case": "changed actual knee load disguised as retained",
+      "rejected": true
+    },
+    {
+      "case": "unknown knee count restores reference4",
+      "rejected": true
+    },
+    {
+      "case": "unfamiliar BW knee hidden first instruction",
+      "rejected": true
+    },
+    {
+      "case": "first loaded hip set supplies familiar handling",
+      "rejected": true
+    },
+    {
+      "case": "newer actual unloaded hip restores older loaded",
+      "rejected": true
+    },
+    {
+      "case": "L loaded hip",
+      "rejected": true
+    },
+    {
+      "case": "unknown actual hip load is acceptable familiarity",
+      "rejected": true
+    },
+    {
+      "case": "missing numeric actual hip load despite claimed familiar context",
+      "rejected": true
+    },
+    {
+      "case": "changed actual hip load disguised as retained",
+      "rejected": true
+    },
+    {
+      "case": "unknown hip count restores reference4",
+      "rejected": true
+    },
+    {
+      "case": "unfamiliar BW hip hidden first instruction",
+      "rejected": true
+    },
+    {
+      "case": "knee3 history restores independent hip1",
+      "rejected": true
+    },
+    {
+      "case": "hip3 history restores independent knee1",
+      "rejected": true
+    },
+    {
+      "case": "row borrows hipDB familiarity",
+      "rejected": true
+    },
+    {
+      "case": "rowzero side repaid",
+      "rejected": true
+    },
+    {
+      "case": "breathing borrows unsafe floor transfer",
+      "rejected": true
+    },
+    {
+      "case": "breathing unowned bilateral arm range",
+      "rejected": true
+    },
+    {
+      "case": "report starts before full return",
+      "rejected": true
+    },
+    {
+      "case": "same coach report overlaps next staging",
+      "rejected": true
+    },
+    {
+      "case": "actual global release is denser after delay",
+      "rejected": true
+    },
+    {
+      "case": "same-lane release restored faster",
+      "rejected": true
+    },
+    {
+      "case": "other coach clear not acknowledged",
+      "rejected": true
+    },
+    {
+      "case": "report spills main boundary",
+      "rejected": true
+    },
+    {
+      "case": "first Strength starts1s before main recovery elapsed",
+      "rejected": true
+    },
+    {
+      "case": "delayed set consumes protected20s station reset",
+      "rejected": true
+    },
+    {
+      "case": "incomplete age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all ages"
+      ]
+    },
+    {
+      "case": "missing role purpose",
+      "rejected": true,
+      "sample_findings": [
+        "S2: complete set_purpose"
+      ]
+    },
+    {
+      "case": "added E0 physical orientation",
+      "rejected": true,
+      "sample_findings": [
+        "eight exercise tasks, exactly two target tasks, no extra E0"
+      ]
+    },
+    {
+      "case": "extra P2 running",
+      "rejected": true,
+      "sample_findings": [
+        "P2_routes: actual preparation component run_target_m"
+      ]
+    },
+    {
+      "case": "main reference third effort",
+      "rejected": true,
+      "sample_findings": [
+        "long_easy: first original opportunity and total"
+      ]
+    },
+    {
+      "case": "long rhythm relabeled five-metre acceleration",
+      "rejected": true,
+      "sample_findings": [
+        "long_easy: actual progressive/walking component run_target_m",
+        "long_easy: geometric leg distinct from unknown full return and report"
+      ]
+    },
+    {
+      "case": "actual lower technical intent restored harder",
+      "rejected": true,
+      "sample_findings": [
+        "technical_low_20: actual static target/runoff/intent",
+        "technical_low_20: cap does not change task"
+      ]
+    },
+    {
+      "case": "short recovery borrowed from long route",
+      "rejected": true,
+      "sample_findings": [
+        "easy_15: actual retained source minimum_rest_s",
+        "easy_15: cap does not change task"
+      ]
+    },
+    {
+      "case": "countzero still reports",
+      "rejected": true,
+      "sample_findings": [
+        "stationary_march/cap0: zero has no physical work/report",
+        "march/count intersection: zero has no physical work/report"
+      ]
+    },
+    {
+      "case": "zero hip retains hidden pickup segments",
+      "rejected": true,
+      "sample_findings": [
+        "S2/cap0: zero has no nested handling/phase/pickup/parking"
+      ]
+    },
+    {
+      "case": "zero knee retains pickup",
+      "rejected": true,
+      "sample_findings": [
+        "S1/cap0: zero has no nested handling/phase/pickup/parking"
+      ]
+    },
+    {
+      "case": "march cap doubles its onepair steps",
+      "rejected": true,
+      "sample_findings": [
+        "E1/pair1/12-14/standard_D: bilateral count unit",
+        "E1/pair1/12-14/standard_D: declared active duration versus dose"
+      ]
+    },
+    {
+      "case": "row cap drops original handling",
+      "rejected": true,
+      "sample_findings": [
+        "S4/cap1: complete actual tempo/handling/sidechange"
+      ]
+    },
+    {
+      "case": "asymmetric heelzero side is repaid",
+      "rejected": true,
+      "sample_findings": [
+        "S5: exact side-specific work and no repayment"
+      ]
+    },
+    {
+      "case": "unknown actual history fabricated as1",
+      "rejected": true,
+      "sample_findings": [
+        "unknown/current/zero main dose contract"
+      ]
+    },
+    {
+      "case": "static stance overwrites bilateral squat",
+      "rejected": true,
+      "sample_findings": [
+        "task-specific role recency retained"
+      ]
+    },
+    {
+      "case": "first DB set becomes familiarity",
+      "rejected": true,
+      "sample_findings": [
+        "task-specific role recency retained"
+      ]
+    },
+    {
+      "case": "global main release compressed30s",
+      "rejected": true,
+      "sample_findings": [
+        "unchanged physical density and one main action"
+      ]
+    },
+    {
+      "case": "coach switches corridor to hide transfer",
+      "rejected": true,
+      "sample_findings": [
+        "fixed owner/corridor and numbered releases"
+      ]
+    },
+    {
+      "case": "shared return merge",
+      "rejected": true,
+      "sample_findings": [
+        "conditional separated corridor/return/report geometry"
+      ]
+    },
+    {
+      "case": "stationary report requires hidden relocation",
+      "rejected": true,
+      "sample_findings": [
+        "stationary hearing/view and HOLD/CLEAR fit remain conditional"
+      ]
+    },
+    {
+      "case": "report hard-capped at10s",
+      "rejected": true,
+      "sample_findings": [
+        "report is not forced pace or release authority"
+      ]
+    },
+    {
+      "case": "actual global clear acknowledgement removed",
+      "rejected": true,
+      "sample_findings": [
+        "global clear signal and later-role recovery contract"
+      ]
+    },
+    {
+      "case": "later strength ignores main recovery",
+      "rejected": true,
+      "sample_findings": [
+        "global clear signal and later-role recovery contract"
+      ]
+    },
+    {
+      "case": "third physical target through clock budget",
+      "rejected": true,
+      "sample_findings": [
+        "complete base+exactly180targets and P1 transition",
+        "complete base+exactly180targets and P1 transition"
+      ]
+    },
+    {
+      "case": "compact row old60s waves erase20s reset",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/compressed_D/long_easy/bodyweight/bodyweight/heel/row/S4: complete set/handling/reset fits fixed waves",
+        "9-11/compressed_D/long_easy/bodyweight/bodyweight/heel/row: baseline guarded Strength keeps every original group start"
+      ]
+    },
+    {
+      "case": "five DBs incorrectly support five two-DB hips",
+      "rejected": true,
+      "sample_findings": [
+        "actual retained equipment/staff handling strength_familiar_DB"
+      ]
+    },
+    {
+      "case": "source report drifts before return",
+      "rejected": true,
+      "sample_findings": [
+        "source: long_easy: direct source field routineReportSeconds"
+      ]
+    },
+    {
+      "case": "source long route shortened",
+      "rejected": true,
+      "sample_findings": [
+        "source: long_easy: direct source field runTargetM"
+      ]
+    },
+    {
+      "case": "source approval/identity fabricated",
+      "rejected": true,
+      "sample_findings": [
+        "source: unverified live owner null EASY-BUILD-RUN-TEACH"
+      ]
+    }
+  ],
+  "positive_evidence_checks": {
+    "first report requires owned run but no earlier report mastery": true,
+    "direct repeatable modest4 requires no reconstructed easy3 record": true,
+    "technicalL lower intent can be retained in explicit D low packet": true,
+    "unknown dose current1 retains independently known movement": true,
+    "knownzero omits even without movement evidence": true,
+    "first counted walking route uses own components, not prior whole route": true,
+    "unknown march steps with suitable components choose one pair": true,
+    "main opportunity and perlead step histories intersect independently": true,
+    "unknown knee repetition history with independently familiar actual loaded context uses1": true,
+    "current familiar BW knee unknown dose2": true,
+    "unknown hip repetition history with independently familiar actual loaded context uses1": true,
+    "current familiar BW hip unknown dose2": true,
+    "missing push familiarity preserves known row": true,
+    "missing upper support leaves independent heel available": true,
+    "first counted breathing has independent actual components": true,
+    "guarded longer report delays next own lane": true,
+    "report35s longer postpones same-coach next release": true,
+    "guarded longer action holds other coach release until clear": true,
+    "other coach waits for actual global action end": true,
+    "guarded longer full return delays reporting and lane": true,
+    "guarded longer actual staging shifts release": true,
+    "guarded requested additional wait after report": true,
+    "guarded request cannot fit original next opportunity": true,
+    "extra wait omits next original opportunity": true,
+    "guarded unapproved current response omits original slot": true,
+    "guarded missing other coach clear acknowledgement omits": true,
+    "guarded partial fault consumes its original opportunity": true,
+    "fault adds no replacement slot": true,
+    "heterogeneous owned corridors and smaller actual counts": true,
+    "one-opportunity lesson has no subsequent run opportunity": true,
+    "late main BW fits original group by exact deadline": true,
+    "late main goblet cannot fit and omits only S1": true,
+    "all S1 deferred retains original main recovery into S2": true,
+    "requested wait persists through skipped roles": true,
+    "complete late main trajectory has safe reports and omissions": true,
+    "full late main to BW boundary and later independent roles": true,
+    "full late main to goblet boundary and later independent roles": true
+  },
+  "coverage": {
+    "clock_cohorts": 1128,
+    "factor_packets": 1404,
+    "factor_counts": {
+      "main_count": 360,
+      "march_pair": 48,
+      "preparation_clock": 96,
+      "strength_repetition": 192,
+      "support_scalar": 300,
+      "support_sides": 408
+    },
+    "source_comparisons": {
+      "context_rows": 120,
+      "catalogs": 17,
+      "identities": 17
+    },
+    "hypothetical_delay_cases": 16,
+    "proof": "Every eligible age/mode/main route/knee/hip/brace-pull alternative cohort receives a complete nominal whole-day clock; reference/0/1/2 main prefixes are independently timed. Preparation choices, march-pair intersections and exact lower/zero/asymmetric Strength packets are checked independently at the same assigned starts. Count reductions never enlarge duration; combined reductions cannot worsen later recovery or resource occupancy. The Cartesian product of all reduced histories is not enumerated or claimed. Additional named hypothetical main/report/staging/requested-wait and within-group Strength trajectories exercise delay/omission policies, including one full end-to-end late-main boundary."
+  },
+  "sha256": {
+    "instructional_on_ramp/week_03/or_12.json": "813dd0723c8451d60ed5bc4a62e6897b0c5e1582ac9fb7abec4478316579b41c",
+    "instructional_on_ramp/week_03/or_12.md": "fa5ff26499b7a53bd83211d14787e27d7a99a25a60ab6585d885b0e3572a8057",
+    "prescriptions/author_or_12.py": "fb7931bee98a756963c26e0a33454886046a12d59d7c66e90ae3ad614c3ccf16",
+    "prescriptions/check_or_12.py": "0bffcfcb8e2a101c965a3412062fcd88463f7c17ae7f6ec0d365c2a06924b5cf",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "prescriptions/STANDARD_PREPARATION.md": "1978e5b9db5a0a0c6ce95e100ef2c9c2271bacf58b03e87b5c4b8da61aabbc28",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json": "53cd15be2842935e5c97f340d353edb37252a1b33a983ba4740c84dda8972bd5",
+    "instructional_on_ramp/OR12_OUTLINE_RECONCILIATION.json": "8b3b216d8793739051ae5ee8ad6325b515c822aec5b016b4d40cff1e35bba3be",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "instructional_on_ramp/week_03/or_11.json": "ec040d4d5d3a1fbd934462e59a7452a6046dafdf9afb30eb92b410bfd210e7b8",
+    "planning/OR12_STIMULUS_AND_SOURCE_REVIEW.md": "45ad234acad505d1a37b632e9d3d35c408698e5752b3a5ae8dcb2834a13a5b42",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/or10_library_mapping.json": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08",
+    "prescriptions/or11_library_mapping.json": "459fa0841a00536a9acd203454239d1f5b1b8f777166130ed60da3cee0dee751",
+    "prescriptions/or12_library_mapping.json": "904e9ed7ed60905d869afaa0b4c193f79e51eec47bc46bddba4b1ebbbf48ed04",
+    "prescriptions/OR12_LIBRARY_MAPPING.md": "3914cc6db1aed6fed7c1b96268ce9fc974a63ee1350fe4c3fada0b3b6e428389",
+    "prescriptions/proposals/or08_progressive_run_teaching_candidate.json": "ec2bb7424acb51ac7dfad092d5eb2651c264e491f7c3b7f79630f26853abbe5d"
+  },
+  "limits": [
+    "Written conditional model, not athlete readiness, facility verification, live canonical approval or a cumulative Week3 audit.",
+    "Nominal cohorts and independent selectable factors are envelopes, not one jointly authorized athlete prescription. Actual histories, kg, return paths, contacts, report contents and outcomes remain null.",
+    "First report instruction needs no earlier report mastery; running itself remains an independently repeatable exact current context. One opportunity cannot establish between-effort restart or subsequent-run quality.",
+    "Coach HOLD/CLEAR acknowledgement, stationary hearing/view, two fixed35m corridors, their separate returns/rear bays and third-preparation-lane closure require actual fit. Longer real work/report/setup can delay or remove original slots.",
+    "Hypothetical delay inputs are audit examples. They do not establish safe operating pace or require a concern to fit10s. A requested wait begins after report; physical recovery begins after work AND full return.",
+    "Delayed Strength keeps original role/group/coach assignments and deadlines; a missing role never turns another domain into a prerequisite or adds a replacement set.",
+    "All repeated base preparation, targets, march pairs, walking, running target/runoff, reports, Strength side actions and handling remain separate workload units. Known geometric return leg is not the actual complete path.",
+    "Zero planned jumps/throws/maximal sprint metres are not zero natural foot contacts. Final athletic window adds zero physical sets; separate30-minute tumbling remains an unresolved precise prescription and unknown workload."
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 1128,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "4e95529a61cd0092334222f519cf1d815874f5c6f195ed86202de84dd8adf894",
+    "resolved_scenarios_canonical_sha256": "4e95529a61cd0092334222f519cf1d815874f5c6f195ed86202de84dd8adf894",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 2233269,
+    "unpooled_scenarios_canonical_bytes": 114723107,
+    "pooled_value_count": 2348,
+    "common_field_count": 14,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write",
+    "complete_document_roundtrip": true,
+    "hypothetical_case_storage": {
+      "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+      "schema_version": 2,
+      "resolved_scenario_count": 16,
+      "deep_value_equality": true,
+      "original_scenarios_canonical_sha256": "ca8207b6184c77a6a663396dd3bf264a0d8f2d2e023c8b368ed21c9f351b41a1",
+      "resolved_scenarios_canonical_sha256": "ca8207b6184c77a6a663396dd3bf264a0d8f2d2e023c8b368ed21c9f351b41a1",
+      "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+      "serialized_ledger_bytes": 233262,
+      "unpooled_scenarios_canonical_bytes": 699720,
+      "pooled_value_count": 498,
+      "common_field_count": 1,
+      "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+    },
+    "factor_canonical_sha256": "0d96eeb5dcc405d5906cc9e953f66272c04c1da1af96aff0e89864c9d7c5a97f"
+  }
+}

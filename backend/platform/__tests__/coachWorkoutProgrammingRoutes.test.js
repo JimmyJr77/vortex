@@ -33,6 +33,7 @@ function routes(overrides = {}, pool = {}) {
     loadStagedRevision: async (_pool, context, id) => { calls.push({ type: 'loadStagedRevision', context, id }); return null },
     loadProposalRevision: async (_pool, context, id) => { calls.push({ type: 'loadProposalRevision', context, id }); return null },
     changeStagedRevision: async (_pool, context, id, input) => { calls.push({ type: 'changeStagedRevision', context, id, input }); return { state: 'review' } },
+    reviewStagedRevision: async (_pool, context, id, input) => { calls.push({ type: 'reviewStagedRevision', context, id, input }); return { state: 'review', libraryApprovalGranted: false } },
     ...overrides,
   })
   const invoke = async (key, patch = {}) => {
@@ -48,7 +49,7 @@ function routes(overrides = {}, pool = {}) {
 test('generation uses authenticated scope, server-owned capabilities and bounded budgets', async () => {
   const api = routes()
   const { req, res, result } = await api.invoke('post /api/coach/workout-programming')
-  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', ...Array.from({ length: 11 }, () => ['workouts.manage', 'library.manage']).flat(), ...Array(5).fill('workouts.manage')])
+  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', ...Array.from({ length: 12 }, () => ['workouts.manage', 'library.manage']).flat(), ...Array(5).fill('workouts.manage')])
   assert.equal(result.status, 200)
   const invocation = api.calls.find((entry) => entry.type === 'generate').args
   assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
@@ -58,6 +59,27 @@ test('generation uses authenticated scope, server-owned capabilities and bounded
   assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in', 'canonical_ai_intent'])
   assert.equal(req.listenerCount('aborted'), 0)
   assert.equal(res.listenerCount('close'), 0)
+})
+
+test('staged human review uses library/workout permissions, exact hashes and facility rollout without AI', async () => {
+  const route = 'post /api/coach/workout-programming/staged-card-revisions/:id/reviews'
+  const body = { kind: 'card', decision: 'request_changes', expectedEventHash: 'a'.repeat(64), notes: 'Review the proposed quality gate before approving this revision.' }
+  const api = routes({ registryFactory() { assert.fail('Human review must not invoke an agent') } })
+  assert.equal((await api.invoke(route, { params: { id: 'staged-id' }, body })).result.status, 200)
+  assert.deepEqual(api.calls.find((call) => call.type === 'reviewStagedRevision'), { type: 'reviewStagedRevision', id: 'staged-id', context: { facilityId: '9', userId: '7' }, input: body })
+  assert.deepEqual(api.calls.filter((call) => call.type === 'feature').map((call) => call.feature), ['canonical_generator_coach_opt_in'])
+  for (const patch of [{ body: { ...body, reviewerUserId: '8' } }, { body: { ...body, kind: 'publish' } }, { query: { facilityId: '10' } }]) {
+    assert.equal((await api.invoke(route, { body, ...patch })).result.status, 400)
+  }
+  const disabled = routes({ featureAccess: async () => ({ enabled: false }) })
+  assert.equal((await disabled.invoke(route, { body })).result.status, 404)
+  assert.ok(disabled.calls.every((call) => call.type !== 'reviewStagedRevision'))
+  const absent = routes({ reviewStagedRevision: async () => null })
+  assert.equal((await absent.invoke(route, { body })).result.status, 404)
+  for (const [code, status] of [['canonical_revision_independent_review', 409], ['canonical_revision_not_ready', 422], ['canonical_revision_source_changed', 409]]) {
+    const failed = routes({ reviewStagedRevision: async () => { throw Object.assign(new Error('Review blocked.'), { code }) } })
+    assert.equal((await failed.invoke(route, { body })).result.status, status)
+  }
 })
 
 test('exercise-gap research requires library permission and facility rollout without a model or client authority', async () => {

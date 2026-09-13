@@ -5,6 +5,8 @@ import { libraryScopeId, withCoachingLibrarySnapshot } from './coachingLibraryCo
 import { immutableProgrammingValue, programmingValueHash } from './workoutProgrammingRequest.js'
 import { ProgrammingStaffError } from './programmingStaffRuntime.js'
 import { exerciseCardDraftSchema, canonicalAiDraftOutputContract } from './canonicalAiCardDraftContract.js'
+import { normalizeStagedCanonicalReviewInput, currentStagedReviewEvidence, evaluateStagedCanonicalReview,
+  createStagedCanonicalReviewEvidence, replaceStagedReviewEvidence, assertStagedIndependentReviewer } from './canonicalStagedReviewEvidence.js'
 
 const workflow = 'canonical_card_staged_revision_v1'
 const fail = (code, message) => { throw new ProgrammingStaffError(code, message) }
@@ -94,6 +96,7 @@ function parseEvent(row, scope) {
     || programmingValueHash(content) !== contentHash || programmingValueHash(content.sourceCard) !== content.source.contentHash) {
     fail('canonical_revision_audit_conflict', 'The staged revision does not match its immutable source and event history.')
   }
+  currentStagedReviewEvidence(content)
   return immutableProgrammingValue({ ...row.snapshot_json, revisionNumber: Number(row.revision_number), createdAt: new Date(row.created_at).toISOString() })
 }
 
@@ -137,7 +140,7 @@ export async function stageCanonicalDeliveryProfileInTransaction(client, scope, 
   return appendEvent(client, { schemaVersion: '1.0.0', workflow, stagedRevisionId: id, eventId: id, parentEventId: null,
     definitionId: source.id, facilityId: scope.facilityId, source: { cardVersion: source.cardVersion, contentHash: programmingValueHash(source) }, sourceCard: source,
     target, origin, card, ...reports, state: 'draft', action: 'revision_staged', actorUserId: scope.userId, contributorUserIds: [scope.userId],
-    humanReviewRequired: true, libraryApprovalGranted: false }, source.status, 'Staged a proposed delivery profile for human review; the published card is unchanged.')
+    humanReviewRequired: true, libraryApprovalGranted: false, reviewEvidence: [] }, source.status, 'Staged a proposed delivery profile for human review; the published card is unchanged.')
 }
 
 async function liveSource(client, scope, event) {
@@ -152,8 +155,19 @@ export async function loadStagedCanonicalRevision(pool, context, id) {
     const event = await readStagedCanonicalRevisionInTransaction(client, scope, id)
     if (!event) return null
     const live = await liveSource(client, scope, event)
+    const { card, mediaReview, ...review } = await evaluateStagedCanonicalReview(client, event)
+    let reason = !live.matches ? 'source_changed' : event.state !== 'review' ? 'not_submitted' : null
+    if (!reason) {
+      try { assertStagedIndependentReviewer(event, scope.userId) }
+      catch (error) {
+        if (error.code !== 'canonical_revision_independent_review') throw error
+        reason = 'independent_reviewer_required'
+      }
+    }
     return immutableProgrammingValue({ event, sourceMatches: live.matches,
-      liveSourceVersion: live.source?.cardVersion ?? null, liveSourceStatus: live.source?.status ?? null })
+      liveSourceVersion: live.source?.cardVersion ?? null, liveSourceStatus: live.source?.status ?? null,
+      reviewAccess: { canReview: reason === null, canApprove: reason === null && review.readiness.ready && review.testPacket.status !== 'failed', reason },
+      review: { ...review, approval: live.matches ? review.approval : null } })
   })
 }
 
@@ -191,15 +205,44 @@ export async function changeStagedCanonicalRevision(pool, context, id, rawInput)
     if (!live.matches && input.action !== 'archive') fail('canonical_revision_source_changed', 'The published source changed. Research the current card before revising this proposal.')
     const { contentHash, revisionNumber, createdAt, ...previous } = current
     const card = input.action === 'edit' ? candidateCard(current.sourceCard, current.target, input.profile, scope.userId) : current.card
-    const reports = input.action === 'edit' || input.action === 'submit' ? await evaluateCandidate(client, current.sourceCard, card)
+    const reports = input.action !== 'archive' ? await evaluateCandidate(client, current.sourceCard, card)
       : { readiness: current.readiness, testPacket: current.testPacket }
     const state = input.action === 'archive' ? 'archived' : input.action === 'submit' ? 'review' : 'draft'
     return appendEvent(client, { ...previous, eventId: randomUUID(), parentEventId: current.eventId, card, ...reports, state,
+      reviewEvidence: input.action === 'archive' ? current.reviewEvidence ?? [] : [],
       action: { edit: 'revision_edited', submit: 'revision_submitted', return: 'revision_returned', archive: 'revision_archived' }[input.action],
       actorUserId: scope.userId, contributorUserIds: input.action === 'edit' ? [...new Set([...current.contributorUserIds, scope.userId])] : current.contributorUserIds },
     current.state, input.changeSummary.trim())
   }, { repeatableRead: true }) } catch (error) {
     if (['40001', '23505'].includes(error.code)) fail('canonical_revision_conflict', 'The staged revision changed concurrently. Reopen it before continuing.')
+    throw error
+  }
+}
+
+/** Record independent human evidence without writing a live approval or publishing a card. */
+export async function reviewStagedCanonicalRevision(pool, context, id, rawInput) {
+  uuid(id)
+  const input = normalizeStagedCanonicalReviewInput(rawInput)
+  const scope = { facilityId: libraryScopeId(context.facilityId, 'facilityId'), userId: libraryScopeId(context.userId, 'userId') }
+  try { return await withCanonicalCardTransaction(pool, scope.facilityId, async (client) => {
+    const current = await readStagedCanonicalRevisionInTransaction(client, scope, id)
+    if (!current) return null
+    if (current.contentHash !== input.expectedEventHash) fail('canonical_revision_conflict', 'The staged revision changed. Reopen it before recording review evidence.')
+    if (current.state !== 'review') fail('canonical_revision_transition', 'Submit this staged revision for review before recording evidence.')
+    assertStagedIndependentReviewer(current, scope.userId)
+    const live = await liveSource(client, scope, current)
+    if (!live.matches) fail('canonical_revision_source_changed', 'The published source changed. Research the current card before reviewing this revision.')
+    const now = new Date()
+    const evaluated = await evaluateStagedCanonicalReview(client, current, now)
+    const eventId = randomUUID()
+    const evidence = createStagedCanonicalReviewEvidence(current, input, scope.userId, eventId, evaluated, now)
+    const { contentHash, revisionNumber, createdAt, ...previous } = current
+    const content = { ...previous, eventId, parentEventId: current.eventId, actorUserId: scope.userId, action: 'revision_reviewed',
+      reviewEvidence: replaceStagedReviewEvidence(current.reviewEvidence ?? [], evidence) }
+    const { readiness, testPacket } = await evaluateStagedCanonicalReview(client, content, now)
+    return appendEvent(client, { ...content, readiness, testPacket }, 'review', input.notes)
+  }, { repeatableRead: true }) } catch (error) {
+    if (['40001', '23505'].includes(error.code)) fail('canonical_revision_conflict', 'The staged revision changed concurrently. Reopen it before reviewing.')
     throw error
   }
 }

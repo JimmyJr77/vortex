@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "documentPurpose": "OR12 bounded local mapping for retained running and report/recovery responsibility",
   "checkedOn": "2026-09-13",
-  "planningStatus": "source_identity_core_ready_actual_author_dose_clock_comparison_pending",
+  "planningStatus": "bounded_OR12_source_identity_dose_context_review_PASS_final_author_export_bound",
   "accessBoundary": "No live database/current approval query, app/schema/source edits or frozen artifact changes. Current IDs/approval/media/calibration and actual history/inventory remain unverified.",
   "records": [
     {
@@ -117,11 +117,11 @@
           "kind": "related_RDL_top_range_and_no_floor_reach_instructions"
         }
       ],
-      "OR12ReadinessAndBoundary": "Retain actual compatible known whole route and intent with suitable current response, gradual slowing, return conduct and verified protected geometry. Easy2→3/3 remains easy; modest2→4/4 requires independently repeatable retained same-context4, not an emerging first4 attempt. Do not require reconstruction of older3 for qualified4 retention. OR12 adds no first run or first intent-increase lesson. P2 is narrower and no extra full-corridor orientation is created because a prior OR08 E0 existed.",
+      "OR12ReadinessAndBoundary": "Every running context requires actual repeatable same start/route/target/runoff/intent and currently suitable response. Long easy retains2→3/3; long purposeful retains independently repeatable2→4/4 without reconstructing older3. No first run or first intent increase. Reporting needs no prior mastery; P2 is narrower. First whole main action is E1 opportunity1 inside the same total, with no additional historical E0 orientation.",
       "OR12RunningContexts": {
         "long_easy": {
           "sourceProposalProfileId": "proposal:or08:progressive-run-easy",
-          "selection": "retained actual compatible easy2→3/3 only",
+          "selection": "Actual repeatable retained same-context easy2→3/3; no first running instruction.",
           "buildZoneM": [
             0,
             10
@@ -181,7 +181,7 @@
       "calibratedDifficulty": null,
       "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
       "mechanics": "Comfortable bilateral standing-static start, natural arms, individual release through 5 m target; continue the entire 15 m gradual runoff, then use the separate inspected outside walking return. No staggered two-point start, hard target stop, cut, race or timed test.",
-      "readinessAndBoundary": "Source output profile is provenance, not the exact lower-intent instructional prescription. Require prior actual repeatable same start/5+15 m route/intent/return and current suitability. E0 is the first counted opportunity, E1 only remaining opportunities after suitable E0. technical_low_20 preserves actual 50–60% and at most two starts even in D. A shorter or easier record cannot restore this route.",
+      "readinessAndBoundary": "Source Output profile is provenance, not the exact lower-intent delivery. Require actual repeatable same standing-static start,5 m target+15 m runoff, retained intent and currently suitable response. E1 opportunity1 includes the first counted current task/report rehearsal inside the unchanged total; there is no separate E0. technical_low_20 preserves actual50–60% into D. Every OR12 selected main context has ceiling2 standard/1 compressed before actual cap0/1/2. Shorter/easier history cannot restore a harder route.",
       "sourceReferences": [
         {
           "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
@@ -217,12 +217,12 @@
         }
       ],
       "existingDocumentationKey": "ACC-STATIC",
-      "sourceDefaultBoundary": "85–100% intent, 5–20 m target and 10–30 m runoff, 120–240 s rest are local source Output defaults; OR10 uses its explicit retained teaching context, no high-speed pass.",
+      "sourceDefaultBoundary": "85–100% intent, 5–20 m target and 10–30 m runoff, 120–240 s rest are local source Output defaults; OR10/OR12 uses its explicit retained teaching context, no high-speed pass.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "ACC-TEACH"
       },
-      "OR12Boundary": "Separate retained standing-static acceleration,5 m target+15 m runoff. technical_20 retains actual60–75% D or50–60% L; technical_low_20 preserves actual50–60% and ceiling2 even in D before smaller cap. No percentage-to-RPE conversion, new start,20 m upright-rhythm claim or35 m route credit. OR10 main context180 s recovery after complete work/return remains retained, not long-run90 s."
+      "OR12Boundary": "Separate retained standing-static acceleration,5 m target+15 m runoff. technical_20 retains actual60–75% D or50–60% L; technical_low_20 preserves actual50–60% and ceiling2 even in D before smaller cap. No percentage-to-RPE conversion, new start,20 m upright-rhythm claim or35 m route credit. OR10 main context180 s recovery after complete work/return remains retained, not long-run90 s. All selected OR12 modes now use at most2 standard/1 compressed before actual cap0/1/2; larger prior technical totals are explicitly reduced. Same-lane rest is not inferred from release pitch."
     },
     {
       "mappingKey": "ACC-EASY-TEACH",
@@ -271,7 +271,7 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "ACC-EASY-TEACH"
       },
-      "OR12Boundary": "Separate retained standing-static5 m easy2→3/10 initiation+10 m runoff; D only. Preserve actual15 m geometry/intent and180 s recovery after complete work/return. It is not the technical20 m or long35 m context and contains no first running instruction."
+      "OR12Boundary": "Separate retained standing-static5 m easy2→3/10 initiation+10 m runoff; D only. Preserve actual15 m geometry/intent and180 s recovery after complete work/return. It is not the technical20 m or long35 m context and contains no first running instruction. Actual OR12 ceiling2 standard/1 compressed before cap0/1/2; no first running instruction."
     },
     {
       "mappingKey": "WALK-ROUTE",
@@ -305,7 +305,8 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "WALK-ROUTE"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author."
+      "OR12Boundary": "Selected only for main walking_10: ordinary5 m walk target+5 m walking exit,15 s action+40 s return,180 s minimum recovery under retained OR10 context, then10 s routine report. P2/main15/35 m corridor walking uses WALK-CORRIDOR-TEACH. Complete rear-bay return metres remain unknown; nominal10 m is only the straight parallel leg. No running/acceleration or abrupt terminal-stop pass.",
+      "OR12ReadinessAndBoundary": "Own comfortable walking, ordinary turning and understood conduct components plus actual path/exit/return fit. A first complete walking-route instruction may occur in its counted P2 or E1 opportunity; no prior whole-route success or running mastery is required. This grants only actual walking/report observations, never a running or acceleration pass."
     },
     {
       "mappingKey": "STAND-READY",
@@ -320,7 +321,7 @@
       "liveApprovalVerified": false,
       "approvedMedia": null,
       "calibratedDifficulty": null,
-      "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
+      "mappingStatus": "historical_OR10_alias_provenance_only_not_selected_in_OR12",
       "mechanics": "P1: remain in personal bay, settle 2 s and hold comfortable bilateral ready stance 3 s, relaxed/ready arms, feet still, no launch. Stationary P2/main: 2 s settle, 2 s comfortable quiet bilateral hold with knees unlocked and arms relaxed, 6 s reset; no travel.",
       "readinessAndBoundary": "Independently comfortable standing and basic conduct suffice. These two explicit hold doses are not running, braking, squatting or split-stance passes. Later gather/staging is separately timed, not hidden in P1.",
       "sourceReferences": [
@@ -349,7 +350,7 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "STAND-READY"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author."
+      "OR12Boundary": "Historical OR10 ready/hold context only. All actual OR12 quiet tasks use BILATERAL-STAND-TEACH and its explicit2 s settle+2 s quiet hold+6 s reset envelope. Do not import a different old ready-hold dose from this retained alias entry."
     },
     {
       "mappingKey": "BW-SQUAT-T",
@@ -408,7 +409,7 @@
       "calibratedDifficulty": null,
       "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
       "mechanics": "ONE dumbbell, two-hand center-chest support, controlled pickup, declared bilateral stance, level heels, owned range, controlled dynamic squat and set-down. OR10 fitting context: fixed nonadjustable DB held shaft vertical, both palms under opposite sides of upper head with comfortable fingers around edges, lower head clear of trunk; stable individually fitting elevated cradle supports lower head only during parking. The cradle carries no load during squat reps. Preserve 3 s lower / 1 s gentle pause / 1 s stand; breathe naturally.",
-      "readinessAndBoundary": "OR12 selects only familiar retention: actual most recent compatible repeatable same one-DB/grip/load/stance/range/tempo/count and independently controlled familiar pickup/chest support/squat/parking. One first OR10 goblet lesson is not familiar10 s handling. Actual newer bilateral unloaded squat work blocks older-load restoration; OR11 supported static stance is not that unloading. Unknown or unsuitable grip/parking selects an independently eligible familiar unloaded task before pickup or defers. No first load, increment, reintroduction, replacement set or extra trial.",
+      "readinessAndBoundary": "Familiar retention only: require actual most-recent compatible repeatable same one-DB/grip/load/stance/range/tempo and independently familiar controlled pickup/chest support/squat/parking. Unknown longitudinal count alone uses current cap1 while historical count stays null; exact load/handling/chronology cannot be unknown. One first OR10 lesson is not familiar10 s handling. Actual newer unloaded bilateral squat work blocks older-load restoration; OR11 static supported stance is not bilateral unloading. Choose an independently eligible familiar BW route before pickup or defer when actual fit is unavailable. No first load, increment, reintroduction, replacement or extra trial.",
       "sourceReferences": [
         {
           "path": "backend/migrations/447_coaching_front_loaded_squat_identity_and_family_completion.sql",
@@ -475,7 +476,38 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "GOBLET-OR10"
       },
-      "OR12Boundary": "Retain the actual fixed nonadjustable DB with shaft vertical, palms under the upper head and comfortable edges, lower head clear of trunk, fitting elevated cradle for parking only. These are authored fit choices, not universal source447 requirements. Familiar handling4 s pickup/chest setup+4 s parking+2 s clear; no borrowed20 s first/changed handling or first-set competency inference."
+      "OR12Boundary": "Retain the actual fixed nonadjustable DB with shaft vertical, palms under the upper head and comfortable edges, lower head clear of trunk, fitting elevated cradle for parking only. These are authored fit choices, not universal source447 requirements. Familiar handling4 s pickup/chest setup+4 s parking+2 s clear; no borrowed20 s first/changed handling or first-set competency inference.",
+      "OR12DoseContext": {
+        "sets": 1,
+        "DOnly": true,
+        "repSeconds": 5,
+        "tempo": "3 lower /1 comfortable pause /1 stand",
+        "referenceDRepetitionsByAge": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "handlingSeconds": 10,
+        "handlingPhasesSeconds": {
+          "pickup": 4,
+          "parking": 4,
+          "clear": 2
+        },
+        "separatePreRepTeachingHoldSeconds": 0,
+        "minimumRestSeconds": 90,
+        "minimumRIR": 5,
+        "stations": 5,
+        "simultaneouslySuitableDumbbells": 5,
+        "groupSize": 5,
+        "coachesObserve": [
+          2,
+          3
+        ],
+        "betweenGroupResetSeconds": 20,
+        "unknownLongitudinalCountCurrentCap": 1,
+        "firstOrChangedLoadedInstruction": false,
+        "actualLoadKg": null
+      }
     },
     {
       "mappingKey": "HINGE-BW",
@@ -515,7 +547,7 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "HINGE-BW"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "OR12Boundary": "Actual compatible familiar setup/variation, independently eligible performed contacts/sides, smaller dose and current response govern. Longitudinal unknown count may use only the declared conservative current cap while historical values stay null. No first load/handling, older-load restoration after newer compatible unloading, higher support complexity or repayment. Exact OR12 catalogs and individual delay/omit bounds are bound below.",
       "latestRegisterReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
         "mappingKey": "HINGE-BW",
@@ -537,7 +569,7 @@
       "calibratedDifficulty": null,
       "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
       "mechanics": "TWO dumbbells, one per hand, palms inward and long arms, tall top start near thighs; soft knees, organized trunk, close weight paths and owned hamstring-limited range, no floor-touch quota. Retained elevated parking: 4 s pickup, 3 s lower/1 s stand repetitions, 4 s set-down and 2 s clear.",
-      "readinessAndBoundary": "D only, actual most recent compatible same pair/load/range/count and independently familiar pickup/top-start/hinge/set-down. One first OR06 loaded set does not establish familiar 10 s handling. No first loaded hip instruction or restoration after newer unloading. Five fitting elevated stations/ten suitable DBs and two-coach direct observation must fit.",
+      "readinessAndBoundary": "D only. Require actual most-recent compatible loaded hip chronology, known same pair/load/range/tempo and independently familiar pickup/top-start/hinge/set-down/current response. Longitudinal repetition count may separately be null: use current cap1 while retaining historical null and any actual smaller/zero constraint. One first OR06 loaded set is not familiar10 s handling. No first loaded instruction or older-load restoration after newer compatible unloading. Five fitting elevated stations/ten suitable DBs and direct two-coach observation must fit.",
       "sourceReferences": [
         {
           "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
@@ -580,16 +612,41 @@
           "kind": "local_source"
         }
       ],
-      "sourceDefaultBoundary": "Local capacity-strength source 2–5 sets, 3–10 reps, 90–240 s recovery is not OR10 one-set retained teaching dosage; neutral hand orientation and elevated parking are exact authored setup context.",
+      "sourceDefaultBoundary": "Local capacity-strength source 2–5 sets, 3–10 reps, 90–240 s recovery is not OR10/OR12 one-set retained teaching dosage; neutral hand orientation and elevated parking are exact authored setup context.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "DB-RDL"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "OR12Boundary": "Actual compatible familiar setup/variation, independently eligible performed contacts/sides, smaller dose and current response govern. Longitudinal unknown count may use only the declared conservative current cap while historical values stay null. No first load/handling, older-load restoration after newer compatible unloading, higher support complexity or repayment. Exact OR12 catalogs and individual delay/omit bounds are bound below.",
       "latestRegisterReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
         "mappingKey": "DB-RDL",
         "array": "reusedMappings"
+      },
+      "OR12DoseContext": {
+        "sets": 1,
+        "DOnly": true,
+        "repSeconds": 4,
+        "tempo": "3 lower /1 stand",
+        "referenceDRepetitionsByAge": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "handlingSeconds": 10,
+        "minimumRestSeconds": 90,
+        "minimumRIR": 5,
+        "stations": 5,
+        "simultaneouslySuitableDumbbells": 10,
+        "groupSize": 5,
+        "coachesObserve": [
+          2,
+          3
+        ],
+        "betweenGroupResetSeconds": 20,
+        "unknownLongitudinalCountCurrentCap": 1,
+        "firstLoadedInstruction": false,
+        "actualLoadEachKg": null
       }
     },
     {
@@ -634,12 +691,12 @@
           "kind": "local_source"
         }
       ],
-      "sourceDefaultBoundary": "Source capacity-strength 3 x 8 and 120 s rest/reserve2 are not copied; OR10 retained one small set, 60 s recovery and >=5 RIR are an explicit teaching dose.",
+      "sourceDefaultBoundary": "Source capacity-strength 3 x 8 and 120 s rest/reserve2 are not copied; OR10/OR12 retained one small set, 60 s recovery and >=5 RIR are an explicit teaching dose.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "INCLINE-PUSH"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "OR12Boundary": "Actual compatible familiar setup/variation, independently eligible performed contacts/sides, smaller dose and current response govern. Longitudinal unknown count may use only the declared conservative current cap while historical values stay null. No first load/handling, older-load restoration after newer compatible unloading, higher support complexity or repayment. Exact OR12 catalogs and individual delay/omit bounds are bound below.",
       "latestRegisterReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
         "mappingKey": "INCLINE-PUSH",
@@ -661,7 +718,7 @@
       "calibratedDifficulty": null,
       "mappingStatus": "inspected_local_candidate_OR12_retained_context_pending_release",
       "mechanics": "OPPOSITE hand AND knee on suitable stable bench, other foot planted; one actual familiar DB, pull toward hip/lower rib without intentional torso rotation, 1 s pull/1 s organized top/2 s lower. One set includes both sides, 10 s side change and 10 s total handling.",
-      "readinessAndBoundary": "Familiar actual bench contacts, selected DB grip/handling and both-side control. Source orientation/light first reps are counted listed work, never bonus reps. Independent suspension substitute requires its own familiar anchors/angle/body line; no manual assistance or new loaded row lesson.",
+      "readinessAndBoundary": "Familiar actual opposite-hand-AND-knee bench contacts and controlled selected DB grip/handling are required independently on every performed side. First listed rep observes response, never bonus work. Preserve each eligible side’s actual smaller count/zero; an omitted side is not repaid on the other. Independent suspension requires its own familiar anchors/angle/body line; no manual assistance or new loaded row lesson.",
       "sourceReferences": [
         {
           "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
@@ -688,16 +745,38 @@
           "kind": "local_source"
         }
       ],
-      "sourceDefaultBoundary": "Source 4 x 6 per side/120 s recovery/reserve2 and source transition estimates are defaults, not the one-set OR10 dose or its 10 s side change.",
+      "sourceDefaultBoundary": "Source 4 x 6 per side/120 s recovery/reserve2 and source transition estimates are defaults, not the one-set OR10/OR12 dose or its 10 s side change.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "SUPPORTED-ROW"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "OR12Boundary": "Actual compatible familiar setup/variation, independently eligible performed contacts/sides, smaller dose and current response govern. Longitudinal unknown count may use only the declared conservative current cap while historical values stay null. No first load/handling, older-load restoration after newer compatible unloading, higher support complexity or repayment. Exact OR12 catalogs and individual delay/omit bounds are bound below.",
       "latestRegisterReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
         "mappingKey": "SUPPORTED-ROW",
         "array": "reusedMappings"
+      },
+      "OR12DoseContext": {
+        "sets": 1,
+        "referenceRepsEachSide": {
+          "D": 4,
+          "L": 2
+        },
+        "repSeconds": 4,
+        "sideChangeSeconds": 10,
+        "handlingSeconds": 10,
+        "minimumRestSeconds": 60,
+        "minimumRIR": 5,
+        "maximumSetSeconds": 52,
+        "compressedGroupStartsSeconds": [
+          40,
+          112,
+          184
+        ],
+        "compressedSetupSeconds": 40,
+        "betweenGroupResetSeconds": 20,
+        "zeroSideNotRepaid": true,
+        "unknownLongitudinalCountCurrentCapPerEligibleSide": 1
       }
     },
     {
@@ -746,7 +825,7 @@
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "RING-ROW-ALT"
       },
-      "OR12Boundary": "Actual compatible familiar setup/variation, most recent smaller dose and suitable current response govern independently. No first load/handling or higher support complexity from reporting responsibility; complete OR12 dose/clock binding awaits the author.",
+      "OR12Boundary": "Actual compatible familiar setup/variation, independently eligible performed contacts/sides, smaller dose and current response govern. Longitudinal unknown count may use only the declared conservative current cap while historical values stay null. No first load/handling, older-load restoration after newer compatible unloading, higher support complexity or repayment. Exact OR12 catalogs and individual delay/omit bounds are bound below.",
       "latestRegisterReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
         "mappingKey": "RING-ROW-ALT",
@@ -793,7 +872,7 @@
         "$.cards[0].variants[0]",
         "$.cards[0].variants[0].deliveryProfiles[0]"
       ],
-      "sourceDefaultBoundary": "Local contract 1–3 sets, 3–6 cycles per side, 20–45 s rest and setup20/perSet40/reset20 are not OR10 retained low-dose defaults.",
+      "sourceDefaultBoundary": "Local contract 1–3 sets, 3–6 cycles per side, 20–45 s rest and setup20/perSet40/reset20 are not OR10/OR12 retained low-dose defaults.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "HEEL-TAP"
@@ -839,7 +918,7 @@
           "kind": "local_source"
         }
       ],
-      "sourceDefaultBoundary": "Source one set/four breaths/15 s rest; the OR10 shorter unforced 2/3 cadence is an explicit delivery context. Both arms together is the selected source action.",
+      "sourceDefaultBoundary": "Source one set/four breaths/15 s rest; the OR10/OR12 shorter unforced 2/3 cadence is an explicit delivery context. Both arms together is the selected source action.",
       "registerReference": {
         "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
         "mappingKey": "BREATH-9090-ALT"
@@ -864,7 +943,8 @@
       "approvedMedia": null,
       "calibratedDifficulty": null,
       "mappingStatus": "existing_local_teaching_identity_available_if_explicitly_selected",
-      "OR12Boundary": "In-place no-flight and natural arms; not exact traveling69. OR12 must select and fully count any such preparation/alternative; this is not an extra full-corridor orientation or a whole-running pass."
+      "OR12Boundary": "P1 or explicitly selected stationary E1 only, not P2. Independently suitable standing/support exchange permits counted basic instruction without prior whole march; unknown longitudinal count uses one current pair, known smaller/zero or ineligible lead uses suitable quiet standing/omission. Every E1 opportunity still consumes the same main count; no extra pairs in recovery.",
+      "mechanics": "In-place alternating comfortable walking-height steps, natural reciprocal arms, one supporting foot throughout,2 s per step then2 s settle. Reference2 steps each/4 total=10 s; one-pair reduction1 each/2 total=6 s. No traveling A-march, thigh-height quota, skip or flight."
     },
     {
       "mappingKey": "WALK-CORRIDOR-TEACH",
@@ -879,7 +959,24 @@
       "approvedMedia": null,
       "calibratedDifficulty": null,
       "mappingStatus": "existing_local_teaching_identity_available_if_explicitly_selected",
-      "OR12Boundary": "Count whole route/return, walking only. OR12 must select and fully count any such preparation/alternative; this is not an extra full-corridor orientation or a whole-running pass."
+      "OR12Boundary": "This record supplies ordinary corridor walking only: P2 short15 m18 s action+20 s return; main short15 m20+20 s or long35 m45+40 s. P2’s opening20 s includes adjacent transfer/explanation; no additional whole-corridor rehearsal. Main report10 s follows complete outside return. Actual full rear-bay return distance is unknown, separate from the retained straight parallel leg. WALK-ROUTE independently maps the old5+5 m walking_10 context; no acceleration, abrupt terminal stick or running pass.",
+      "OR12ReadinessAndBoundary": "Own comfortable walking, ordinary turning and understood conduct components plus actual path/exit/return fit. A first complete walking-route instruction may occur in its counted P2 or E1 opportunity; no prior whole-route success or running mastery is required. This grants only actual walking/report observations, never a running or acceleration pass."
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "BILATERAL-STAND-TEACH"
+      },
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "existing_local_orientation_task_with_OR12_context_pending_release",
+      "mechanics": "Independently comfortable bilateral quiet standing, relaxed arms, unlocked knees, no deliberate lowering or travel;2 s settle+2 s quiet hold+6 s reset.",
+      "OR12Boundary": "P1/P2/E1 quiet alternatives stay in their assigned visible personal bay with no central travel or outside return. Report/coach hearing and sightline must fit. No marching, run, stopping, split or floor-brace pass."
     }
   ],
   "reportRecoveryContext": {
@@ -923,24 +1020,3440 @@
         ],
         "reason": "Repeatability under fatigue, not finite fresh technical instruction."
       }
-    ]
+    ],
+    "routineReportSeconds": 10,
+    "reportIsHardTimeCap": false,
+    "reportBeginsAfterCompleteActionAndReturn": true,
+    "requiredRecoveryOrigin": "after complete physical action and full return; quiet report may occupy recovery",
+    "requestedExtraWaitOrigin": "end of current readiness report/decision",
+    "nextStagingSeconds": 5,
+    "fixedMainCorridors": 2,
+    "closedThirdPreparationLane": true,
+    "globalReleasePitchSeconds": 50,
+    "sameLaneReleasePitchSeconds": 100,
+    "maximumConcurrentMainActions": 1,
+    "returnDistanceRule": "Old nominal straight return lengths are return_parallel_leg_m only. The complete rear-bay path, turns and rejoin remain unknown until measured; time allowances require actual fit.",
+    "stationaryReportRule": "Own visible/hearable personal bay, no invented return or central transfer; actual fixed-coach sightline/hearing must fit.",
+    "walkingFirstInstruction": "Own ordinary walking/turn/conduct components may support the first complete counted walking route; it is not first running instruction or extra orientation.",
+    "strengthRecoveryCarryover": "The chosen main task’s minimum90/180/60 s recovery after completed physical action+return, and any requested additional wait, carry into the first actually performed Strength handling/action. Delay only within the same original role/group observation window: finish before the next nominal group minus20 s reset, or before role end for the final group. Otherwise omit that role and preserve other independently eligible roles; no new slot or replacement set."
   },
   "completeCardDecision": {
     "newProposalRequiredFromCurrentDesign": false,
     "existingCompleteProposalPath": "docs/programming/athleticism_12_week/prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
     "rationale": "The original long-running teaching gap already has a complete local OR08 card. OR12 adds no first movement/intent or changed mechanics; report/request/wait behavior is a coach-support/session context. Separate standing-static acceleration and exact retained strength records already exist locally. Human exact owner/profile approval remains unresolved. Reopen only if actual authoring introduces a genuine new action/identity gap.",
     "newProposalPath": null,
-    "approvedSubstituteVerified": false
+    "approvedSubstituteVerified": false,
+    "actualDraftIntroducesNewMovementIdentity": false,
+    "actualDraftDecision": "No new card: same existing long-run teaching proposal and existing acceleration/walking/basic-march/quiet/strength identities. OR12 narrows running to retained repeatable contexts and adds report/coach-release support instructions. Existing incomplete current-approval/media/history gates are preserved, not solved by this choice."
   },
   "sessionBinding": {
-    "status": "waiting_for_actual_OR12_author_export_and_additive_amendment",
+    "status": "final_author_export_and_additive_amendment_bound_source_review_PASS",
+    "sessionPath": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+    "authorPath": "docs/programming/athleticism_12_week/prescriptions/author_or_12.py",
+    "amendmentPath": "docs/programming/athleticism_12_week/instructional_on_ramp/OR12_OUTLINE_RECONCILIATION.json",
+    "taskKeys": [
+      "P1",
+      "P2",
+      "E1",
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5"
+    ],
+    "primaryRouteKeys": [
+      "long_easy",
+      "long_purposeful",
+      "long_walk",
+      "short_walk",
+      "stationary_march",
+      "stationary_stand",
+      "technical_20",
+      "technical_low_20",
+      "easy_15",
+      "walking_10"
+    ],
+    "primaryContextRows": [
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "long_easy",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          3
+        ],
+        "plannedRhythmEffort0To10": 3,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_easy/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 25,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "long_purposeful",
+        "mappingKey": "EASY-BUILD-RUN-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 20,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": [
+          2,
+          4
+        ],
+        "plannedRhythmEffort0To10": 4,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/long_purposeful/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "long_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 45,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 35,
+        "returnParallelLegM": 35,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/long_walk/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "short_walk",
+        "mappingKey": "WALK-CORRIDOR-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 90,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 15,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/short_walk/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "stationary_march",
+        "mappingKey": "BASIC-MARCH-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_march/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "stationary_stand",
+        "mappingKey": "BILATERAL-STAND-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 10,
+        "returnSeconds": 0,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 60,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 0,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/stationary_stand/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          60,
+          75
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "technical_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_20/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "technical_low_20",
+        "mappingKey": "ACC-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 20,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 15,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 20,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": [
+          50,
+          60
+        ],
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/technical_low_20/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 20,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "easy_15",
+        "mappingKey": "ACC-EASY-TEACH",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "activeSeconds": 0,
+        "returnSeconds": 0,
+        "routineReportSeconds": 0,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 5,
+        "runoffM": 10,
+        "walkOutboundM": 0,
+        "returnParallelLegM": 15,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [],
+        "sourceJsonPointer": "/primary_routes/easy_15/age_prescriptions/15-18/compressed_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/9-11/standard_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/9-11/standard_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/9-11/compressed_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/9-11/compressed_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/12-14/standard_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/12-14/standard_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/12-14/compressed_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/12-14/compressed_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/15-18/standard_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0,
+          1
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/15-18/standard_L"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/15-18/compressed_D"
+      },
+      {
+        "routeKey": "walking_10",
+        "mappingKey": "WALK-ROUTE",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "activeSeconds": 15,
+        "returnSeconds": 40,
+        "routineReportSeconds": 10,
+        "minimumRecoverySeconds": 180,
+        "runTargetM": 0,
+        "runoffM": 0,
+        "walkOutboundM": 10,
+        "returnParallelLegM": 10,
+        "actualCompleteReturnM": null,
+        "perceivedIntentPercent": null,
+        "plannedBuildEffort0To10": null,
+        "plannedRhythmEffort0To10": null,
+        "roundIndices": [
+          0
+        ],
+        "sourceJsonPointer": "/primary_routes/walking_10/age_prescriptions/15-18/compressed_L"
+      }
+    ],
     "firstMainRehearsalConsumesExistingTotal": true,
     "noExtraHistoricalE0Walk": true,
     "P2GrantsWholeRun": false,
     "reportOnlyNewResponsibility": true,
-    "newLoadOrFirstHandling": false
+    "newLoadOrFirstHandling": false,
+    "actualMainCountCeilings": {
+      "standard_ceiling": 2,
+      "compressed_ceiling": 1,
+      "unknown_prior_count_current_cap": 1,
+      "unknown_prior_count_recorded_as": null,
+      "known_smaller_or_zero_count_governs": true,
+      "extra_E0_or_repayment": 0,
+      "one_opportunity_restart_observed": false,
+      "missing_attendance_is_completed_zero_count": false
+    },
+    "currentUnknownDoseCaps": {
+      "P1_march_pairs": 1,
+      "E1_march_pairs": 1,
+      "S1_bodyweight_reps": 2,
+      "S1_familiar_goblet_reps": 1,
+      "S2_bodyweight_reps": 2,
+      "S2_familiar_DB_reps": 1,
+      "S3_push_reps": 2,
+      "S4_row_reps_per_eligible_side": 1,
+      "suspension_pull_reps": 2,
+      "S5_heel_reps_per_eligible_side": 1,
+      "supported_breathing_cycles": 1
+    },
+    "delayPolicy": {
+      "preserve_original_slot_identifiers": true,
+      "no_earlier_than_nominal": true,
+      "global_pitch_s": 50,
+      "same_lane_pitch_s": 100,
+      "max_simultaneous_main_actions": 1,
+      "routine_report_s": 10,
+      "next_staging_s": 5,
+      "recovery_clock_origin": "complete physical action AND full outside return",
+      "requested_extra_wait_origin": "end of the current readiness report/decision",
+      "report_duration_is_a_cap": false,
+      "release_requires_coach_current_approval": true,
+      "other_coach_main_action_clear_acknowledgement_required": true,
+      "main_recovery_carries_into_first_performed_strength_action": true,
+      "strength_delay_scope": "within original assigned role/group observation window only",
+      "strength_nonfinal_group_action_deadline": "next nominal group start minus20s reset",
+      "strength_final_group_action_deadline": "role end; following role owns its setup",
+      "strength_cannot_fit_recovery_action_and_reset": "omit this role for this athlete; retain other independently eligible roles",
+      "cannot_fit_action_return_report_before_main_end": "omit original slot; no replacement",
+      "unsafe_or_unavailable_coach_lane_or_current_response": "hold or omit; no self release"
+    },
+    "fixedCorridorAndCoachAssignment": {
+      "group_size": 1,
+      "athlete_offsets_s": [
+        0,
+        50,
+        100,
+        150,
+        200,
+        250,
+        300,
+        350,
+        400,
+        450,
+        500,
+        550,
+        600,
+        650,
+        700
+      ],
+      "coach_assignment_by_athlete": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "lane_assignment_by_athlete": [
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "global_release_pitch_s": 50,
+      "same_lane_release_pitch_s": 100,
+      "routine_report_s": 10,
+      "next_staging_s": 5,
+      "opening_setup_s": 120,
+      "standard": {
+        "block_start_s": 900,
+        "rounds_relative_s": [
+          120,
+          920
+        ],
+        "block_end_s": 2700
+      },
+      "compressed": {
+        "block_start_s": 600,
+        "rounds_relative_s": [
+          120
+        ],
+        "block_end_s": 2100
+      }
+    },
+    "geometry": {
+      "preparation_lanes": 3,
+      "main_lanes": 2,
+      "corridor_length_m": 35,
+      "planning_corridor_width_m": 2,
+      "lane_coach_assignment": "athlete_index_mod_2",
+      "main_routes_prepositioned": true,
+      "third_preparation_lane_closed_during_main": true,
+      "dedicated_returns_and_rear_bays": true,
+      "shared_merge_or_crossing": false,
+      "stationary_location": "assigned personal bay outside active, return and staging paths; same fixed coach can see AND comfortably hear the athlete report from that bay, without athlete or coach relocation",
+      "stationary_reports_in_own_bay": true,
+      "coach_to_coach_hold_clear_acknowledgement_required": true,
+      "actual_coach_signal_and_stationary_conversation_fit_verified": false,
+      "actual_facility_and_sightlines_verified": false,
+      "actual_full_return_path_m": null
+    },
+    "stablePhysicalContextCatalogs": [
+      {
+        "sourceJsonPointer": "/preparation_routes",
+        "sha256CanonicalJson": "7c98d9b10f879b9030609c2e06f3a833b554b27e9d3a1349e5e113a22e7f0b37"
+      },
+      {
+        "sourceJsonPointer": "/P2_routes",
+        "sha256CanonicalJson": "91b658645b7f493fb4fb68de7c01c515e7691ca2d1098f1d9a096af2bcb7f97c"
+      },
+      {
+        "sourceJsonPointer": "/primary_routes",
+        "sha256CanonicalJson": "8b31b1744eb96beb4112d44b1c4d52dc6342019a3be309ea326492d1978613b9"
+      },
+      {
+        "sourceJsonPointer": "/march_pair_caps",
+        "sha256CanonicalJson": "7c57a36e4041d594e9d5448371b8a570e834699979c5ab43b631988e5797cdc9"
+      },
+      {
+        "sourceJsonPointer": "/knee_routes",
+        "sha256CanonicalJson": "12a071406516ccf8dca014cd28e3d57f6a4cc1d02d12f76223272cd41d3d2045"
+      },
+      {
+        "sourceJsonPointer": "/hip_routes",
+        "sha256CanonicalJson": "342dc584ed5c61e49275b1ee97afdf1413cf5cea11c765bd19c8bb0070d0812e"
+      },
+      {
+        "sourceJsonPointer": "/support_dose_levels",
+        "sha256CanonicalJson": "fabff9c69d87ef819bd0de24787327e4b45598da7c1034651322a9ddd3615555"
+      },
+      {
+        "sourceJsonPointer": "/support_repetition_caps",
+        "sha256CanonicalJson": "4e9adf0c35eda2ca985464b7fd630c68b5070a9c92b601eebf8fdf6fd9db5003"
+      },
+      {
+        "sourceJsonPointer": "/support_side_packets",
+        "sha256CanonicalJson": "86d696a58012a5b044d70a73e8b025d1caf687b99660a40906e77e3caf5756ef"
+      },
+      {
+        "sourceJsonPointer": "/alternative_doses",
+        "sha256CanonicalJson": "7a70ea9ccf838e433a8f52080e27fab376dfc117a0900b072e50a9335804769f"
+      },
+      {
+        "sourceJsonPointer": "/timing_model",
+        "sha256CanonicalJson": "248ac9c96d2a81506cee870fe73651497bd453f8457700a076b82d0ce067bcb5"
+      },
+      {
+        "sourceJsonPointer": "/geometry",
+        "sha256CanonicalJson": "78acd0067af8839b8206bcd3df0226a37fd6df5785d29eeed116d86e19884e4b"
+      },
+      {
+        "sourceJsonPointer": "/history_policy",
+        "sha256CanonicalJson": "c3ea71b2da0fdb91512641fb2c56529f3eb4df930caaf92f0683b058758a23e2"
+      },
+      {
+        "sourceJsonPointer": "/main_volume_policy",
+        "sha256CanonicalJson": "f0a8d813c5b82f57effd56688f1d6d89f207c8c62ab36b9920ee502271c751a6"
+      },
+      {
+        "sourceJsonPointer": "/current_unknown_dose_caps",
+        "sha256CanonicalJson": "a8c5deed177701e3fc498f91a47cdd250765089f52f8052c16a45e8f90a025ad"
+      },
+      {
+        "sourceJsonPointer": "/delay_policy",
+        "sha256CanonicalJson": "60b6a076bf19f2506e04329667ecbb2f83b9f642933c658e7b5e79592de6647c"
+      },
+      {
+        "sourceJsonPointer": "/actual_observation_template",
+        "sha256CanonicalJson": "119c9862d74888e2dd9c88a84c069bdc134c8076fb68ccf6a4ccefd5a9c47a86"
+      }
+    ],
+    "sourceSnapshots": [
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+        "sha256AtSourceComparison": "813dd0723c8451d60ed5bc4a62e6897b0c5e1582ac9fb7abec4478316579b41c"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.md",
+        "sha256AtSourceComparison": "fa5ff26499b7a53bd83211d14787e27d7a99a25a60ab6585d885b0e3572a8057"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/author_or_12.py",
+        "sha256AtSourceComparison": "fb7931bee98a756963c26e0a33454886046a12d59d7c66e90ae3ad614c3ccf16"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/OR12_OUTLINE_RECONCILIATION.json",
+        "sha256AtSourceComparison": "8b3b216d8793739051ae5ee8ad6325b515c822aec5b016b4d40cff1e35bba3be"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/planning/OR12_STIMULUS_AND_SOURCE_REVIEW.md",
+        "sha256AtSourceComparison": "45ad234acad505d1a37b632e9d3d35c408698e5752b3a5ae8dcb2834a13a5b42"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or08_library_mapping.json",
+        "sha256AtSourceComparison": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
+        "sha256AtSourceComparison": "ec2bb7424acb51ac7dfad092d5eb2651c264e491f7c3b7f79630f26853abbe5d"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "sha256AtSourceComparison": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or11_library_mapping.json",
+        "sha256AtSourceComparison": "459fa0841a00536a9acd203454239d1f5b1b8f777166130ed60da3cee0dee751"
+      }
+    ],
+    "hashFormat": "Canonical JSON hashes use sorted keys, UTF-8, compact separators and ensure_ascii=False. Full-file snapshots bind the inspected draft; final review-status render can refresh these without changing physical/context catalogs.",
+    "reducedPacketPaths": {
+      "primary": "/primary_routes/{route}/opportunity_caps/{0|1|2}/{age}/{mode}",
+      "march": "/march_pair_caps/{P1|E1}/{1|2}/{age}/{mode}",
+      "knee": "/knee_routes/{bodyweight|goblet_retained}/repetition_caps/{0|1|2|3}/{age}/{mode}",
+      "hip": "/hip_routes/{bodyweight|familiar_DB}/repetition_caps/{0|1|2|3}/{age}/{mode}",
+      "support": "/support_repetition_caps/{role}/{0|1|2|3|4}/{age}/{mode}",
+      "supportSides": "/support_side_packets/{S4|S5}/{left}_{right}/{age}/{mode}"
+    },
+    "finalStatusOnlyBindingRefresh": {
+      "physicalContextCatalogsUnchanged": 17,
+      "sourceSnapshotsBound": 9,
+      "authorReport": "Root confirmed complete JSON unchanged except status_note/review_status/release_status; additive amendment status only. Independently recomputed all17 physical/context catalog hashes unchanged.",
+      "frozenPreviousArtifactsEdited": false
+    }
   },
   "verification": {
-    "status": "source_core_prepared_full_dose_schema_reference_binding_pending"
-  }
+    "status": "PASS_bounded_source_identity_context_and_packet_comparison",
+    "checkedOn": "2026-09-13",
+    "primaryReferenceAndCapPackets": 480,
+    "preparationReferencePackets": 48,
+    "marchPairCapPackets": 48,
+    "kneeHipReferenceAndCapPackets": 240,
+    "supportScalarCapPackets": 300,
+    "supportAsymmetricPackets": 408,
+    "mappedRecords": 17,
+    "selectedMovementKeys": 16,
+    "historicalAliasEntries": 1,
+    "verifiedUniqueLocalLineReferences": 78,
+    "allThreeAgesAndFourModes": true,
+    "zeroHandlingSegmentsVerifiedEmpty": true,
+    "sourceAndActualContextMismatchRemaining": false,
+    "newProposalWritten": false,
+    "currentApprovalVerified": false,
+    "existingOR08CompleteProposalStructuralValidation": {
+      "status": "PASS",
+      "schemaPath": "docs/workout-generator/schemas/exercise-card.schema.json",
+      "method": "Installed Ajv6 applicable structural assertions; draft declaration omitted in memory only because installed validator lacks2020-12 meta-schema. Source card/schema files untouched.",
+      "newIdentityApprovalClaim": false
+    },
+    "pending": "Independent final daily numeric/programming evidence remains separate from this source review. Operational canonical approval, actual history/facility/load/support fit and separate tumbling remain unverified.",
+    "finalAuthorExportBinding": "PASS_9_current_full_file_snapshots_17_unchanged_context_catalogs",
+    "markdownLocalLinksVerified": 18,
+    "localLineReferenceCounting": {
+      "scope": "Every explicit path+lines object recursively, including records.sourceReferences, sourceReferences and reportRecoveryContext.namedMethodExclusions; register/proposal path-only links are excluded.",
+      "listedReferenceEntries": 73,
+      "entriesBySection": {
+        "records": 52,
+        "sourceReferences": 18,
+        "namedMethodExclusions": 3
+      },
+      "uniqueNormalizedPhysicalReferenceGroups": 70,
+      "listedIntervalsAfterSplittingCompoundRanges": 87,
+      "uniqueResolvedPhysicalPathIntervalPairs": 78,
+      "normalization": "Resolve local path; convert [start,end] and single-range strings to the same pair; split semicolon-separated ranges into individual inclusive intervals; deduplicate exact path/start/end pairs without merging overlapping ranges.",
+      "priorCountCorrection": "Previous71 counted raw path+lines representation groups; string/list-equivalent ranges were not normalized and compound groups were mislabeled as ranges. No source content, movement, dose, context or existing binding changed."
+    }
+  },
+  "aliasRegister": {
+    "BASIC-MARCH": {
+      "resolvesTo": "BASIC-MARCH-TEACH",
+      "status": "historical_abbreviation_only_actual_OR12_keys_are_exact"
+    },
+    "STAND-READY": {
+      "relatedExactKey": "BILATERAL-STAND-TEACH",
+      "status": "historical_OR10_ready_context_not_the_selected_OR12_quiet_mapping"
+    }
+  },
+  "sourceReferences": [
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        2565,
+        2565
+      ],
+      "kind": "actual_OR12_preparation_routes"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        3359,
+        3359
+      ],
+      "kind": "actual_OR12_P2_routes"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        4177,
+        4177
+      ],
+      "kind": "actual_OR12_primary_routes"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        25189,
+        25189
+      ],
+      "kind": "actual_OR12_march_pair_caps"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        27015,
+        27015
+      ],
+      "kind": "actual_OR12_knee_routes"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        30399,
+        30399
+      ],
+      "kind": "actual_OR12_hip_routes"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        32639,
+        32639
+      ],
+      "kind": "actual_OR12_support_dose_levels"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        33701,
+        33701
+      ],
+      "kind": "actual_OR12_support_repetition_caps"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        38233,
+        38233
+      ],
+      "kind": "actual_OR12_support_side_packets"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        45855,
+        45855
+      ],
+      "kind": "actual_OR12_alternative_doses"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46573,
+        46573
+      ],
+      "kind": "actual_OR12_timing_model"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46840,
+        46840
+      ],
+      "kind": "actual_OR12_geometry"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46857,
+        46857
+      ],
+      "kind": "actual_OR12_history_policy"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46866,
+        46866
+      ],
+      "kind": "actual_OR12_main_volume_policy"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46876,
+        46876
+      ],
+      "kind": "actual_OR12_current_unknown_dose_caps"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46889,
+        46889
+      ],
+      "kind": "actual_OR12_delay_policy"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_12.json",
+      "lines": [
+        46910,
+        46910
+      ],
+      "kind": "actual_OR12_actual_observation_template"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/OR12_OUTLINE_RECONCILIATION.json",
+      "lines": [
+        1,
+        31
+      ],
+      "kind": "additive_OR12_outline_reconciliation"
+    }
+  ]
 }

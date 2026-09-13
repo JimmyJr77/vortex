@@ -1,0 +1,1728 @@
+{
+  "schema_version": 1,
+  "focus": "Vertical Jumps",
+  "framework_mapping": {
+    "category": "Jumps",
+    "subcategory": "Vertical"
+  },
+  "style_inspiration": "Overtime Athletes; adapt public principles to the stated baseline and exact class architecture",
+  "target_class_count": 12,
+  "status": "complete",
+  "last_finalized_class": 12,
+  "next_class": null,
+  "finalized_file_paths": [
+    "classes/class_01.md",
+    "classes/class_02.md",
+    "classes/class_03.md",
+    "classes/class_04.md",
+    "classes/class_05.md",
+    "classes/class_06.md",
+    "classes/class_07.md",
+    "classes/class_08.md",
+    "classes/class_09.md",
+    "classes/class_10.md",
+    "classes/class_11.md",
+    "classes/class_12.md"
+  ],
+  "path_base": "workout_plan/vertical_jumps",
+  "provisional_map": "curriculum.md",
+  "progression_workload_ledger": "progression_ledger.md",
+  "athlete_feedback_file": "athlete_feedback.md",
+  "design_audit": "class_12_audit.md",
+  "exercise_register": "exercise_register.md",
+  "source_specification": "sources/VORTEX_12_CLASS_CURRICULUM_SPEC.md",
+  "updated_on": "2026-09-13",
+  "run_boundary": "One new class finalized this run: Class 12, followed by the required full-sequence audit. Stop after saving the final handoff. No Class 13.",
+  "prescribed": {
+    "class_count": 12,
+    "class_01": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "jump_landing_events": 31,
+      "bilateral_takeoffs": 27,
+      "unilateral_takeoffs": {
+        "left": 2,
+        "right": 2
+      },
+      "bilateral_landing_events": 31,
+      "throws": 6,
+      "approach_repetitions": 4,
+      "approach_steps": 8,
+      "sprint_repetitions": 0,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_working_repetitions": 86,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        80,
+        90
+      ],
+      "complete_session_minutes": null
+    },
+    "class_02": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "jump_landing_events": 31,
+      "bilateral_takeoffs": 27,
+      "unilateral_takeoffs": {
+        "left": 2,
+        "right": 2
+      },
+      "bilateral_landing_events": 31,
+      "throws": 6,
+      "approach_repetitions": 4,
+      "approach_steps": 8,
+      "sprint_repetitions": 0,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_working_repetitions": 86,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        80,
+        90
+      ],
+      "complete_session_minutes": null,
+      "progression_decision": "Hold physical prescription; use first CMJ set to select at most one observed technique cue for remaining scheduled attempts. No assumed prior completion or preset load increase.",
+      "quality_record": "Valid CMJs per set, selected cue if needed, and recurrence of observed fault within 3 × 3 scheduled attempts."
+    },
+    "class_03": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_performance_exercise": "Seated Box Jump",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        {
+          "slot": "E1",
+          "exercise": "Seated Box Jump",
+          "dose": "3 × 2",
+          "jump_landings": 6
+        },
+        {
+          "slot": "E2",
+          "exercise": "Volleyball Block Jump — stationary, hands initially high",
+          "dose": "2 × 2",
+          "jump_landings": 4
+        },
+        {
+          "slot": "E3",
+          "exercise": "Split-Squat Jump to Stick — same lead leg",
+          "dose": "1 × 2 per lead leg",
+          "jump_landings": 4
+        },
+        {
+          "slot": "E4",
+          "exercise": "Low Hurdle Hop to Stick — forward, two feet",
+          "dose": "1 × 3",
+          "jump_landings": 3
+        },
+        {
+          "slot": "E5",
+          "exercise": "Step-Up — explosive bodyweight knee-drive variant",
+          "dose": "1 × 3 per leg",
+          "jump_landings": 0,
+          "non_flight_rapid_rises": 6
+        },
+        {
+          "slot": "E6",
+          "exercise": "Kettlebell Swing — two-handed, to chest height",
+          "dose": "2 × 4",
+          "jump_landings": 0,
+          "ballistic_hinge_repetitions": 8
+        }
+      ],
+      "jump_landing_events": 17,
+      "bilateral_takeoffs": 17,
+      "asymmetric_two_foot_takeoffs_included": {
+        "left_lead": 2,
+        "right_lead": 2
+      },
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 17,
+      "landing_type_breakdown": {
+        "elevated_parallel_two_foot": 6,
+        "floor_parallel_two_foot": 7,
+        "floor_split_stance_two_foot": 4
+      },
+      "landing_foot_impacts": 34,
+      "controlled_box_jump_step_down_dismounts": 6,
+      "non_flight_power_step_ups": 6,
+      "controlled_step_up_free_foot_returns": 6,
+      "end_of_side_step_offs": 2,
+      "swings": 8,
+      "swing_start_park_sequences": 2,
+      "throws": 0,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_working_repetitions": 86,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5130,
+      "modeled_section_seconds": {
+        "explosiveness": 2142,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2493,
+        "water_recording": 180
+      },
+      "complete_session_minutes": null,
+      "novel_drill_competence": "unknown; first scheduled attempts check execution at controlled intent, with no extra trials or presumed mastery",
+      "actual_variants_and_dose": null,
+      "replacements": {
+        "E1": {
+          "exercise": "Seated Vertical Jump to floor",
+          "dose": "3 × 2",
+          "class_landing_breakdown": {
+            "elevated_parallel_two_foot": 0,
+            "floor_parallel_two_foot": 13,
+            "floor_split_stance_two_foot": 4
+          },
+          "controlled_box_jump_step_down_dismounts": 0,
+          "class_total_jump_landings": 17
+        },
+        "E4": {
+          "exercise": "Two-foot forward hop over virtual line",
+          "dose": "1 × 3",
+          "jump_landing_change": 0
+        },
+        "E5": {
+          "exercise": "Supported Split-Stance Power Rise",
+          "dose": "1 × 3 per lead",
+          "non_flight_efforts": 6,
+          "controlled_shallow_lowerings": 6,
+          "removes_step_up_free_foot_returns": 6,
+          "removes_end_of_side_step_offs": 2
+        },
+        "E6": {
+          "exercise": "Two-handed dumbbell swing",
+          "dose": "2 × 4",
+          "swings": 8,
+          "start_park_sequences": 2
+        }
+      },
+      "progression_decision": "Apply the new unique-drill preference through six distinct explosive formats, continuing supported static initiation with Seated Box Jump. Retain strengthening doses for their specific force/control roles. No assumed completed exposure, mastered new task, earned load increase or matched CMJ retest.",
+      "quality_record": "Valid seated starts and controlled supported landings out of six; seat/box/gap, arm action, rocking/tuck/faults, actual intent and replacements. Record all other drill execution, actual dose and recovery; box height is not jump height."
+    },
+    "class_04": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_performance_exercise": "Box Jump — standing countermovement, step-down reset",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        {
+          "slot": "E1",
+          "exercise": "Box Jump — standing countermovement, step-down reset",
+          "dose": "3 × 2",
+          "jump_landings": 6
+        },
+        {
+          "slot": "E2",
+          "exercise": "Approach Vertical Jump — lateral step-and-gather",
+          "dose": "1 × 2 per entry direction",
+          "jump_landings": 4
+        },
+        {
+          "slot": "E3",
+          "exercise": "Power Skip for Height — isolated step-hop cycle",
+          "dose": "1 × 2 per takeoff leg",
+          "jump_landings": 4
+        },
+        {
+          "slot": "E4",
+          "exercise": "Jump Rope Bounce — low bilateral single passes",
+          "dose": "1 × 8 attempted jumps",
+          "jump_landings": 8
+        },
+        {
+          "slot": "E5",
+          "exercise": "Dumbbell High-Hang Pull — no flight or catch",
+          "dose": "2 × 3",
+          "jump_landings": 0,
+          "rapid_non_flight_pulls": 6
+        },
+        {
+          "slot": "E6",
+          "exercise": "Backward Overhead Medicine-Ball Throw — stationary, no flight",
+          "dose": "2 × 2",
+          "jump_landings": 0,
+          "throws": 4
+        }
+      ],
+      "jump_landing_events": 22,
+      "bilateral_takeoffs": 18,
+      "unilateral_takeoffs": {
+        "left": 2,
+        "right": 2
+      },
+      "bilateral_landing_events": 18,
+      "unilateral_landing_events": {
+        "left": 2,
+        "right": 2
+      },
+      "landing_type_breakdown": {
+        "elevated_bilateral_box": 6,
+        "floor_bilateral_lateral_entry": 4,
+        "floor_same_leg_skip": 4,
+        "floor_low_bilateral_rope": 8
+      },
+      "landing_foot_impacts": 40,
+      "controlled_box_jump_step_down_dismounts": 6,
+      "approach_repetitions": 4,
+      "approach_foot_placements": 8,
+      "maximum_lateral_entry_metres_each": 1,
+      "skip_entry_steps": 4,
+      "skip_exit_steps": 4,
+      "maximum_skip_cycle_metres_including_exit": 2,
+      "rapid_non_flight_pulls": 6,
+      "throws": 4,
+      "sprint_repetitions": 0,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_working_repetitions": 86,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5230,
+      "modeled_section_seconds": {
+        "explosiveness": 2242,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2493,
+        "water_recording": 180
+      },
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "new_demands": "Four same-leg skip landings, lateral-entry direction, rope timing, non-flight dumbbell pull and backward throw execution are not assumed mastered. First scheduled attempts check controlled execution without extra trials; appropriate replacements or termination take precedence over novelty.",
+      "replacements": {
+        "E1": {
+          "exercise": "Countermovement Jump — natural arms, floor stick",
+          "dose": "3 × 2",
+          "class_total_jump_landings": 22,
+          "elevated_landings": 0,
+          "removes_box_dismounts": 6,
+          "repeat_reason": "Unavailable suitable box; preserve dip-to-upward-drive job."
+        },
+        "E2": {
+          "exercise": "Approach Vertical Jump — two walking forward steps",
+          "dose": "1 × 2 per starting lead",
+          "class_total_jump_landings": 22,
+          "approach_foot_placements": 8,
+          "repeat_reason": "Insufficient lateral clearance/control."
+        },
+        "E3": {
+          "exercise": "Single-leg vertical takeoff to two-foot landing",
+          "dose": "1 × 2 per leg",
+          "class_total_jump_landings": 22,
+          "class_bilateral_landings": 22,
+          "class_unilateral_landings": 0,
+          "class_landing_foot_impacts": 44,
+          "removes_skip_entry_steps": 4,
+          "removes_skip_exit_steps": 4,
+          "repeat_reason": "Unsuitable same-leg absorption; no assumed mastery."
+        },
+        "E4": {
+          "exercise": "Stationary Bilateral Ankle Pogo",
+          "dose": "Shares original eight-attempt budget with any already attempted rope jumps",
+          "class_total_jump_landings_if_full_budget_used": 22,
+          "repeat_reason": "Rope fit/coordination obstructs ankle-return job."
+        },
+        "E6": {
+          "exercise": "Non-flight vertical scoop toss",
+          "dose": "2 × 2",
+          "throws": 4,
+          "repeat_reason": "Backward sector unsuitable but upward/forward landing/roll sector verified."
+        }
+      },
+      "progression_decision": "Keep six main-task attempts and strengthening doses. Change seated Box Jump to a standing dip; use distinct supporting formats with explicit mechanical continuity. Separate fourteen non-rope flights/eight low rope bounces and four new same-leg landings, not an earned increase from the contact total. No heavier strength load or athlete completion inferred.",
+      "quality_record": "Valid standing dip/takeoff/whole-foot landing holds out of six; actual box/gap/arm/start conditions. Record side-specific skip/replacement landings, entry drift, rope misses within attempted-contact budget, pull/throw technique and actual recovery. Box height is not jump height."
+    },
+    "class_05": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_performance_exercise": "Single-Leg Takeoff to Two-Foot Box Landing",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        {
+          "slot": "E1",
+          "exercise": "Single-Leg Takeoff to Two-Foot Box Landing",
+          "dose": "1 × 3 per takeoff leg",
+          "jump_landings": 6
+        },
+        {
+          "slot": "E2",
+          "exercise": "Staggered-Stance Vertical Jump to Parallel Landing",
+          "dose": "1 × 2 per lead leg",
+          "jump_landings": 4
+        },
+        {
+          "slot": "E3",
+          "exercise": "Split-Stance Pogo — low, same lead throughout",
+          "dose": "1 × 4 per lead leg",
+          "jump_landings": 8
+        },
+        {
+          "slot": "E4",
+          "exercise": "Half-Kneeling Get-Up to Stand — rapid lead-leg drive",
+          "dose": "1 × 3 per lead leg",
+          "jump_landings": 0,
+          "rapid_non_flight_rises": 6
+        },
+        {
+          "slot": "E5",
+          "exercise": "Staggered-Stance Kettlebell Swing — two-handed, no flight",
+          "dose": "1 × 3 per lead leg",
+          "jump_landings": 0,
+          "swings": 6
+        },
+        {
+          "slot": "E6",
+          "exercise": "Split-Stance Vertical Scoop Toss — no flight",
+          "dose": "1 × 2 per lead leg",
+          "jump_landings": 0,
+          "throws": 4
+        }
+      ],
+      "jump_landing_events": 18,
+      "bilateral_takeoffs": 12,
+      "asymmetric_two_foot_takeoffs_included": 12,
+      "unilateral_takeoffs": {
+        "left": 3,
+        "right": 3
+      },
+      "bilateral_landing_events": 18,
+      "unilateral_landing_events": {
+        "left": 0,
+        "right": 0
+      },
+      "landing_type_breakdown": {
+        "elevated_bilateral": 6,
+        "floor_parallel_bilateral": 4,
+        "floor_low_split_stance_two_foot": 8
+      },
+      "landing_foot_impacts": 36,
+      "controlled_box_jump_step_down_dismounts": 6,
+      "non_flight_half_kneeling_rises": 6,
+      "controlled_half_kneeling_lowerings": 6,
+      "swings": 6,
+      "swing_start_park_sequences": 2,
+      "throws": 4,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "primary_slot_order": [
+        "Split Squat",
+        "Double Front-Rack Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        16,
+        12,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        6,
+        10,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5212,
+      "modeled_section_seconds": {
+        "explosiveness": 2112,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "replacements": {
+        "E1_floor_unilateral": {
+          "exercise": "Single-leg vertical takeoff to two-foot floor landing",
+          "dose": "Shares six-attempt budget, three per side",
+          "class_total_jump_landings": 18,
+          "class_unilateral_takeoffs": 6,
+          "class_elevated_landings": 0,
+          "removes_box_step_downs": 6,
+          "repeat_reason": "No suitable box/target; floor is not presumed lower impact."
+        },
+        "E1_floor_bilateral": {
+          "exercise": "Countermovement Jump — natural arms, floor stick",
+          "dose": "Shares six-attempt budget in two three-attempt blocks",
+          "class_total_jump_landings": 18,
+          "class_unilateral_takeoffs": 0,
+          "class_bilateral_takeoffs": 18,
+          "class_elevated_landings": 0,
+          "removes_box_step_downs": 6,
+          "repeat_reason": "Single-leg takeoff unsuitable; record lost unilateral practice job."
+        },
+        "E2": {
+          "exercise": "Split-Squat Jump to Stick — same lead",
+          "dose": "Shares four-attempt budget, two per lead",
+          "class_total_jump_landings": 18,
+          "changes_parallel_floor_landings_to_split": 4,
+          "repeat_reason": "Cannot control staggered-to-parallel landing transition."
+        },
+        "E3": {
+          "exercise": "Stationary Bilateral Ankle Pogo",
+          "dose": "Shares eight-attempt budget, two four-contact bouts",
+          "class_total_jump_landings": 18,
+          "changes_split_floor_landings_to_parallel": 8,
+          "repeat_reason": "Stagger disrupts low ankle contacts."
+        },
+        "E4": {
+          "exercise": "Supported Split-Stance Power Rise",
+          "dose": "Shares six-rise budget, three per lead",
+          "rapid_non_flight_rises": 6,
+          "controlled_shallow_lowerings": 6,
+          "repeat_reason": "Kneeling surface/range or balance prevents a brisk controlled rise."
+        },
+        "E5": {
+          "exercise": "Kettlebell Swing — bilateral, two-handed",
+          "dose": "Shares six-swing budget in two three-swing bouts",
+          "swings": 6,
+          "start_park_sequences": 2,
+          "repeat_reason": "Stagger limits hinge speed/control."
+        },
+        "E6": {
+          "exercise": "Vertical scoop toss — parallel stance, no flight",
+          "dose": "Shares four-throw budget in two two-throw bouts",
+          "throws": 4,
+          "repeat_reason": "Split base interferes with leg-driven release; sector still must be verified."
+        }
+      },
+      "progression_decision": "Prioritize each leg with six one-foot box takeoffs/two-foot landings and brief distinct asymmetric support jobs. Split Squat moves first from 1 × 6/leg to 2 × 4/leg; Front-Rack Squat moves second from 3 × 6 to 2 × 6; RDL moves third with unchanged dose. Total primary reps 84 versus 86, bouts 13 versus 12. This is changed allocation, not equal tissue load or earned overload; no automatic heavier weight or actual completion is assumed.",
+      "quality_record": "Valid one-foot takeoffs/controlled two-foot elevated landings out of three per side, with actual box/gap/side/dip/arm/intent/faults. Record all actual support/stance changes and side-specific strength response. Box height and valid counts are not isolated-leg force or jump-height measurements."
+    },
+    "class_06": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Split Squat",
+        "Double Front-Rack Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        16,
+        12,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        6,
+        10,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "Approach Box Jump — two-step entry, two-foot takeoff",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Approach Box Jump — two-step entry, two-foot takeoff",
+        "Approach Vertical Jump — one-step single-leg takeoff to two-foot landing",
+        "Two-Foot Forward-Backward Line Pogo — low amplitude",
+        "Step-Up — step-on entry, explosive knee drive",
+        "Dumbbell Push Press — bilateral, no flight",
+        "Step-In Vertical Scoop Toss — no flight"
+      ],
+      "jump_landing_events": 16,
+      "bilateral_takeoffs": 12,
+      "unilateral_takeoffs": {
+        "left": 2,
+        "right": 2
+      },
+      "bilateral_landing_events": 16,
+      "unilateral_landing_events": 0,
+      "landing_type_breakdown": {
+        "elevated_bilateral": 6,
+        "parallel_floor_isolated_bilateral": 4,
+        "low_parallel_floor_bilateral": 6
+      },
+      "landing_foot_impacts": 32,
+      "controlled_box_jump_step_down_dismounts": 6,
+      "approach_repetitions": 10,
+      "approach_steps": 16,
+      "approach_count_scope": "Jump entries only: E1 six two-step, E2 four one-step. Throw entries recorded separately.",
+      "non_flight_moving_step_up_rises": 4,
+      "step_up_lead_foot_placements": 4,
+      "step_up_free_foot_returns": 4,
+      "step_up_leading_foot_step_offs": 4,
+      "non_flight_push_presses": 6,
+      "controlled_push_press_returns": 6,
+      "throws": 4,
+      "throw_approach_repetitions": 4,
+      "throw_approach_steps": 8,
+      "sprint_repetitions": 0,
+      "base_modeled_seconds_outside_access_prepare_1": 5274,
+      "modeled_section_seconds": {
+        "explosiveness": 2174,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "Already attempted work counts against the original slot budget; partial switches use only remaining reps. No full restart.",
+        "E1_floor": {
+          "exercise": "Two-step floor Approach Vertical Jump",
+          "jump_landing_events": 6,
+          "bilateral_floor_landings": 6,
+          "box_dismounts": 0,
+          "entry_foot_placements": 12
+        },
+        "E1_standing": {
+          "exercise": "Standing Box Jump",
+          "jump_landing_events": 6,
+          "elevated_bilateral_landings": 6,
+          "box_dismounts": 6,
+          "entry_foot_placements": 0
+        },
+        "E2": {
+          "exercise": "Stationary single-leg takeoff to two-foot floor landing",
+          "jump_landing_events": 4,
+          "unilateral_takeoffs": 4,
+          "entry_foot_placements": 0
+        },
+        "E3": {
+          "exercise": "Low stationary bilateral ankle pogo",
+          "jump_landing_events": 6,
+          "line_crossings": 0
+        },
+        "E4": {
+          "exercise": "Preplanted explosive Step-Up",
+          "non_flight_rises": 4,
+          "initial_lead_foot_placements": 2,
+          "free_foot_returns": 4,
+          "leading_foot_step_offs": 2
+        },
+        "E5": {
+          "exercise": "Dumbbell High-Hang Pull — no flight/catch",
+          "non_flight_rapid_pulls": 6,
+          "seconds_between_reps_after_reset": 20,
+          "seconds_between_sets_and_before_E6": 90,
+          "full_replacement_added_seconds": 60
+        },
+        "E6": {
+          "exercise": "Stationary parallel-stance vertical scoop toss — no flight",
+          "throws": 4,
+          "entry_foot_placements": 0
+        }
+      },
+      "progression_decision": "Short walking entries change plant-to-upward-drive timing; 16 jump landings versus 18 and four unilateral takeoffs versus six do not prove reduced tissue load. New step-on and overhead tasks need execution checks. Retain all Class 5 primary order/doses/preparation/tempo/rests with no fixed load increase or assumed prior completion.",
+      "quality_record": "Valid E1 attempts out of six, three entries led by each side, with two-step plant, upward projection and two-foot box hold under recorded entry/box/gap/arm/intent conditions. Record all incidental contacts, replacements, actual loads and recovery. No matched prior-jump comparison is claimed."
+    },
+    "class_07": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Split Squat",
+        "Double Front-Rack Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        16,
+        12,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        6,
+        10,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "Countermovement Jump Rebound — one linked rebound",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Countermovement Jump Rebound — one linked rebound",
+        "Countermovement Jump — hands on hips, isolated",
+        "Two-Foot Lateral Line Pogo — low amplitude",
+        "Reverse Lunge to Knee Drive — rapid, no flight",
+        "Kettlebell Swing — one hand, chest-height ceiling, no flight",
+        "Medicine-Ball Thruster Throw — no flight, upward release"
+      ],
+      "primary_two_flight_bouts": 3,
+      "primary_jump_landing_events": 6,
+      "primary_linked_rebound_transitions": 3,
+      "low_pogo_linked_transitions": 5,
+      "jump_landing_events": 16,
+      "bilateral_takeoffs": 16,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 16,
+      "unilateral_landing_events": 0,
+      "landing_type_breakdown": {
+        "floor_first_CMJ_linked_to_rebound": 3,
+        "floor_terminal_after_rebound": 3,
+        "floor_isolated_hands_on_hips": 4,
+        "low_lateral_pogo": 6
+      },
+      "landing_foot_impacts": 32,
+      "controlled_box_jump_step_down_dismounts": 0,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "non_flight_reverse_lunge_rises": 4,
+      "reverse_lunge_backward_stepping_plants": 4,
+      "reverse_lunge_free_foot_returns": 4,
+      "swings": 6,
+      "swings_by_working_arm": {
+        "left": 3,
+        "right": 3
+      },
+      "swing_start_park_sequences": 2,
+      "throws": 4,
+      "base_modeled_seconds_outside_access_prepare_1": 5115,
+      "modeled_section_seconds": {
+        "explosiveness": 2015,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "Already attempted flights/reps count against the original slot budget; partial switches use only remaining work. No full restart after an aborted pair.",
+        "E1": {
+          "exercise": "Natural-arm isolated Countermovement Jump",
+          "full_dose": "3 × 2 single flights",
+          "jump_landing_events": 6,
+          "linked_rebounds": 0,
+          "full_replacement_added_seconds": 69
+        },
+        "E2_natural_arms": {
+          "exercise": "Natural-arm isolated Countermovement Jump",
+          "jump_landing_events": 4,
+          "allowed_only_if": "E1 remains linked; do not duplicate the same isolated CMJ in two slots."
+        },
+        "E2_paused": {
+          "exercise": "Hands-on-hips paused Squat Jump",
+          "jump_landing_events": 4,
+          "start_hold_seconds_per_rep": 2,
+          "full_replacement_added_seconds": 8,
+          "use_when": "E1 uses isolated CMJ and E2 also needs regression, if a paused jump is suitable."
+        },
+        "E3": {
+          "exercise": "Stationary bilateral ankle pogo",
+          "jump_landing_events": 6,
+          "lateral_crossings": 0
+        },
+        "E4": {
+          "exercise": "Supported standing Split-Stance Power Rise",
+          "non_flight_rises": 4,
+          "backward_stepping_plants": 0,
+          "knee_drive_free_foot_return_cycles": 4
+        },
+        "E5": {
+          "exercise": "Two-handed Kettlebell Swing",
+          "swings": 6,
+          "start_park_sequences": 2
+        },
+        "E6": {
+          "exercise": "Parallel-stance vertical scoop toss — no flight",
+          "throws": 4
+        }
+      },
+      "progression_decision": "Keep sixteen jump landings but introduce three larger linked rebound transitions with all takeoffs/landings bilateral; no approach or external drop. Add distinct arm, lateral ankle, lunge-reversal, one-hand grip and chest-release constraints at small doses. Retain Class 6 primary exercise order/doses/preparation/tempo/rests. No prior completion, tolerated load or earned increase is assumed.",
+      "quality_record": "Valid two-flight E1 bouts out of three, actual flights/landings including aborted first jumps, arm policy, first/rebound intent, symmetry, pause/extra dip, drift and final hold. No unverified contact-time or reactive-strength score. Review grip/release/strength execution and recovery."
+    },
+    "class_08": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "No-Arm-Swing Box Jump",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "No-Arm-Swing Box Jump",
+        "Lunge Switch Jump — isolated, opposite-lead landing",
+        "Pulsing Pogo Jump — alternating low/modestly taller",
+        "Explosive Sit-to-Stand — no flight",
+        "Dead-Stop Kettlebell Swing — two hands, no flight",
+        "Vertical Scoop Toss — parallel stance, no flight"
+      ],
+      "new_default_formats": 5,
+      "deliberately_repeated_default_slots": [
+        "E6"
+      ],
+      "repeat_reason": "Retain a direct simple leg-to-arm upward release while the other five task formats change; no claim of novelty, familiarity or matched test.",
+      "jump_landing_events": 14,
+      "bilateral_takeoffs": 14,
+      "asymmetric_two_foot_takeoffs_included": 2,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 14,
+      "unilateral_landing_events": 0,
+      "landing_type_breakdown": {
+        "elevated_bilateral_box": 6,
+        "opposite_lead_split_floor": 2,
+        "low_parallel_pogo": 3,
+        "modestly_taller_parallel_pogo": 3
+      },
+      "landing_foot_impacts": 28,
+      "pogo_linked_transitions_included": 5,
+      "larger_CMJ_linked_transitions": 0,
+      "controlled_box_jump_step_down_dismounts": 6,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "non_flight_sit_to_stands": 6,
+      "controlled_seated_returns": 6,
+      "seated_reset_seconds_per_cycle": 2,
+      "swings": 6,
+      "swing_start_park_sequences": 6,
+      "throws": 4,
+      "primary_slot_order": [
+        "Double Front-Rack Squat",
+        "Split Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        12,
+        16,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        10,
+        6,
+        5,
+        5,
+        8,
+        5
+      ],
+      "estimated_prescribed_work_minutes": [
+        90,
+        100
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5374,
+      "modeled_section_seconds": {
+        "explosiveness": 2274,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "Already attempted flights/reps/handling count against original budgets; partial switches use remaining work and actual time, never a full restart.",
+        "E1_floor": {
+          "exercise": "Hands-on-hips isolated floor Countermovement Jump",
+          "jump_landing_events": 6,
+          "elevated_landings": 0,
+          "box_step_down_cycles": 0
+        },
+        "E1_arms": {
+          "exercise": "Natural-arm standing Box Jump or floor CMJ as declared",
+          "jump_landing_events": 6,
+          "arm_constraint_removed": true
+        },
+        "E2": {
+          "exercise": "Same-lead Split-Squat Jump to Stick",
+          "jump_landing_events": 2,
+          "lead_switches": 0
+        },
+        "E3": {
+          "exercise": "Uniform low stationary bilateral ankle pogo",
+          "jump_landing_events": 6,
+          "taller_pulses": 0
+        },
+        "E4": {
+          "exercise": "Sit-to-Stand — higher fitted seat or free-arm counterbalance",
+          "non_flight_rises": 6,
+          "controlled_returns": 6
+        },
+        "E5": {
+          "exercise": "Continuous two-hand Kettlebell Swing",
+          "swings": 6,
+          "start_park_sequences": 2,
+          "seconds_between_bouts_and_before_E6": 90,
+          "full_replacement_seconds_reduction": 96
+        }
+      },
+      "progression_decision": "Consolidate leg-led projection with five new formats and a deliberate simple-scoop recurrence. Fourteen landings versus sixteen do not prove reduced tissue load; switch/pulse/elevated-target demands change. Move Front-Rack Squat first and Split Squat second while retaining each lift's dose/preparation/tempo/rest/effort. No presumed completed work, suitable prior load or earned increase.",
+      "quality_record": "Valid E1 attempts out of six under recorded box/gap/dip/arm/intent conditions, no extra step/hop, upward projection and whole-foot two-second landing. Box height is not jump height. Record switch/pulse/seat/park/throw and primary-order execution and recovery."
+    },
+    "class_09": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Double Front-Rack Squat",
+        "Split Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        12,
+        16,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        10,
+        6,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        90,
+        100
+      ],
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "Dumbbell Countermovement Jump — arms at sides, isolated",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Dumbbell Countermovement Jump — two initial bodyweight checks, four conditional loaded attempts",
+        "Paused Squat Jump with Natural Arm Swing",
+        "Low Hurdle Pogo Continuous — two linked crossings",
+        "Tall-Start Vertical Scoop Toss — no flight",
+        "Kettlebell Floor Pull — rapid extension, no flight or catch",
+        "Step-Up — preplanted explosive knee drive, no flight"
+      ],
+      "new_formats_relative_to_prior_defaults_and_replacements": 4,
+      "new_format_slots": [
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "revisited_prior_replacement_slots": [
+        "E1"
+      ],
+      "deliberately_repeated_default_slots": [
+        "E6"
+      ],
+      "reuse_reason": "E1 revisits the earlier smooth-dip dumbbell jump for the held-load primary job; E6 retains supported lead-leg force without additional jump impacts. Neither is claimed novel or previously performed.",
+      "jump_landing_events": 14,
+      "bilateral_takeoffs": 14,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 14,
+      "unilateral_landing_events": 0,
+      "landing_foot_impacts": 28,
+      "landing_task_breakdown": {
+        "E1_isolated_floor_CMJ": 6,
+        "E2_paused_natural_arm_floor": 4,
+        "E3_low_hurdle_pogo_floor": 4
+      },
+      "conditional_loading_plan": {
+        "initial_E1_bodyweight_check_jumps_included": 2,
+        "maximum_E1_loaded_attempts_after_check": 4,
+        "bodyweight_landings_if_full_loaded_branch_is_delivered": 10,
+        "loaded_landings_if_full_loaded_branch_is_delivered": 4,
+        "execution_gate_result": null,
+        "actual_loaded_attempts": null,
+        "rule": "Current execution, grip/clearance and readiness govern loading; same light load across sets 2–3, no extra jumps to earn a pass. Unknown is not a passed gate or zero performed work.",
+        "planned_loaded_attempt_range": {
+          "min": 0,
+          "max": 4
+        }
+      },
+      "hurdle_linked_transitions_included": 2,
+      "hurdle_crossings": 4,
+      "controlled_box_jump_step_down_dismounts": 0,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "throws": 4,
+      "non_flight_kettlebell_floor_pulls": 6,
+      "controlled_floor_pull_returns_and_parks": 6,
+      "non_flight_preplanted_step_up_rises": 4,
+      "step_up_free_foot_returns": 4,
+      "step_up_initial_lead_foot_placements": 2,
+      "step_up_leading_foot_step_offs": 2,
+      "base_modeled_seconds_outside_access_prepare_1": 5578,
+      "modeled_section_seconds": {
+        "explosiveness": 2478,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "Already attempted work counts against original budgets; remaining attempts only, no full restart or added check jumps.",
+        "E1": {
+          "exercise": "Bodyweight Countermovement Jump — arms at sides, or natural arms if needed",
+          "total_jump_budget_including_attempted_work": 6,
+          "full_bodyweight_branch_loaded_landings": 0
+        },
+        "E2": {
+          "exercise": "Hands-on-hips paused Squat Jump",
+          "jump_landing_events": 4,
+          "static_start_hold_seconds": 2
+        },
+        "E3": {
+          "exercise": "Low bilateral forward hop to stick over a virtual line",
+          "jump_landing_events": 4,
+          "linked_transitions": 0,
+          "full_replacement_added_seconds": 48
+        },
+        "E4": {
+          "exercise": "Hip-level parallel-stance vertical scoop toss — no flight",
+          "throws": 4
+        },
+        "E5": {
+          "exercise": "Dumbbell High-Hang Pull — no flight/catch",
+          "rapid_pulls": 6,
+          "seconds_between_reps_after_reset": 20,
+          "seconds_between_sets_and_before_E6": 90
+        },
+        "E6": {
+          "exercise": "Supported standing Split-Stance Power Rise",
+          "non_flight_rises": 4,
+          "step_placements": 0,
+          "step_offs": 0
+        }
+      },
+      "progression_decision": "Hold fourteen planned landings while up to four E1 attempts become lightly loaded only after current checks. Two initial bodyweight attempts are inside the six-jump E1 budget. E1 revisits earlier offered work; E6 deliberately repeats. Four other formats change start/arm/clearance/force expression. Retain Class 8 strength order/doses/preparation/tempo/rest. No assumed performed work, tolerated load or earned increase.",
+      "quality_record": "Separate bodyweight and loaded E1 attempt/valid counts, actual load/arm policy, gate decision/reason, bell control, brisk one-dip takeoff and two-second landing. Record actual support tasks, replacements, strength effort and recovery; no matched power/height comparison across loads."
+    },
+    "class_10": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Double Front-Rack Squat",
+        "Split Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_working_reps_by_slot": [
+        12,
+        16,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_preparation_reps_by_slot": [
+        10,
+        6,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_working_repetitions": 84,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "estimated_prescribed_work_minutes": [
+        90,
+        100
+      ],
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "Gather-and-Hold Vertical Jump — two walking placements, tall settle",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Gather-and-Hold Vertical Jump",
+        "Paused Split-Squat Jump to Stick",
+        "Low Alternating Split-Stance Pogo",
+        "Paused Vertical Scoop Toss — no flight",
+        "Split-Stance Dumbbell Push Press — no flight",
+        "Lateral Step-Up — preplanted explosive knee drive, no flight"
+      ],
+      "new_formats_relative_to_prior_defaults_and_replacements": 6,
+      "new_format_slots": [
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6"
+      ],
+      "revisited_prior_replacement_slots": [],
+      "deliberately_repeated_default_slots": [],
+      "jump_landing_events": 14,
+      "bilateral_takeoffs": 14,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 14,
+      "unilateral_landing_events": 0,
+      "landing_foot_impacts": 28,
+      "bodyweight_jump_landings": 14,
+      "loaded_jump_landings": 0,
+      "landing_task_breakdown": {
+        "E1_parallel_gather_settle_CMJ": 6,
+        "E2_same_lead_paused_split": 4,
+        "E3_low_alternating_split_pogo": 4
+      },
+      "split_stance_landings_included": 8,
+      "pogo_linked_transitions_included": 2,
+      "pogo_lead_exchanges": 4,
+      "pogo_landings_by_lead": {
+        "left": 2,
+        "right": 2
+      },
+      "approach_repetitions": 6,
+      "entry_type": "two walking placements followed by two seconds tall stillness before countermovement",
+      "approach_steps": 12,
+      "entry_placements_by_foot": {
+        "left": 6,
+        "right": 6
+      },
+      "maximum_entry_meters_per_rep": 2,
+      "maximum_summed_entry_meters": 12,
+      "tall_settle_seconds_per_entry": 2,
+      "sprint_repetitions": 0,
+      "controlled_box_jump_step_down_dismounts": 0,
+      "elevated_jump_landings": 0,
+      "throws": 4,
+      "non_flight_split_stance_push_presses": 6,
+      "controlled_press_lowerings": 6,
+      "non_flight_lateral_step_up_rises": 4,
+      "step_up_free_foot_returns": 4,
+      "step_up_initial_lead_foot_placements": 2,
+      "step_up_leading_foot_step_offs": 2,
+      "base_modeled_seconds_outside_access_prepare_1": 5406,
+      "modeled_section_seconds": {
+        "explosiveness": 2306,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2605,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "Already attempted work consumes original budgets; no full restart, extra check attempts or compensating work.",
+        "E1": {
+          "exercise": "Stationary natural-arm Countermovement Jump",
+          "jump_landing_events": 6,
+          "entry_placements": 0,
+          "full_replacement_seconds_reduction": 24
+        },
+        "E2": {
+          "exercise": "Parallel Paused Squat Jump with Natural Arm Swing",
+          "jump_landing_events": 4,
+          "split_landings": 0,
+          "seconds_between_two_groups": 60
+        },
+        "E3": {
+          "exercise": "Uniform low parallel Ankle Pogo",
+          "jump_landing_events": 4,
+          "linked_transitions": 2,
+          "lead_exchanges": 0
+        },
+        "E4": {
+          "exercise": "Moving hip-level Vertical Scoop Toss — no flight",
+          "throws": 4
+        },
+        "E5_parallel": {
+          "exercise": "Parallel Dumbbell Push Press — no flight",
+          "presses": 6
+        },
+        "E5_pull": {
+          "exercise": "Dumbbell High-Hang Pull — no flight/catch",
+          "rapid_pulls": 6,
+          "seconds_after_reset_between_reps": 20,
+          "full_replacement_added_seconds": 72
+        },
+        "E6_forward": {
+          "exercise": "Forward-facing preplanted explosive Step-Up",
+          "rises": 4,
+          "lead_placements": 2,
+          "step_offs": 2
+        },
+        "E6_supported": {
+          "exercise": "Supported shallow Split-Stance Power Rise",
+          "rises": 4,
+          "lead_box_placements": 0,
+          "step_offs": 0
+        }
+      },
+      "progression_decision": "Six meaningful entry/start/support constraints integrate a moved-into stable base with vertical drive. Bodyweight fourteen-flight budget and two low links; eight split landings change tissue/technical demand. Hold Class 9 strength order/doses/preparation/tempo/rest. No assumed actual Class 9 load, diagnosed deficit, mastery, response or earned overload; scheduled work checks execution and replacements share budgets.",
+      "quality_record": "Actual valid E1 attempts out of six by starting lead, exact two walking placements, two-second tall settle, no adjustment, one active dip/natural arms and two-second bilateral landing hold. Record entry length/conditions, replacements, split-pause/pogo/ball/press/step execution, actual strength effort and recovery; no matched comparison to changed protocols."
+    },
+    "class_11": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Double Front-Rack Squat",
+        "Split Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_preparation_reps_by_slot": [
+        10,
+        6,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_performance_exercise": "Countermovement Jump — natural arm swing, stick landing",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Countermovement Jump — natural arm swing",
+        "Seated Vertical Jump — hands on hips, floor landing",
+        "Arms-Overhead Ankle Pogo",
+        "Paused Medicine-Ball Thruster Throw — no flight",
+        "One-Hand Dead-Stop Kettlebell Swing — no flight",
+        "Supported Split-Stance Power Rise — grounded feet, no flight"
+      ],
+      "new_formats_relative_to_prior_defaults_and_replacements": 4,
+      "new_format_slots": [
+        "E2",
+        "E3",
+        "E4",
+        "E5"
+      ],
+      "deliberately_repeated_default_slots": [
+        "E1"
+      ],
+      "revisited_prior_replacement_slots": [
+        "E6"
+      ],
+      "primary_working_reps_by_slot": [
+        12,
+        8,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_working_repetitions": 76,
+      "primary_working_set_rounds": 9,
+      "primary_working_set_bouts": 11,
+      "compound_working_bouts": 7,
+      "calf_working_bouts": 4,
+      "jump_landing_events": 13,
+      "bilateral_takeoffs": 13,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 13,
+      "unilateral_landing_events": 0,
+      "landing_foot_impacts": 26,
+      "bodyweight_jump_landings": 13,
+      "loaded_jump_landings": 0,
+      "landing_task_breakdown": {
+        "E1_natural_arm_CMJ": 6,
+        "E2_seated_restricted_arm_floor": 3,
+        "E3_arms_overhead_low_pogo": 4
+      },
+      "assessment_plan": {
+        "protocol_file": "assessment_protocol.md",
+        "total_E1_attempt_budget": 6,
+        "initial_rehearsal_check_slots": 2,
+        "conditional_candidate_slots": 4,
+        "candidate_gate_result": null,
+        "actual_candidate_attempts": null,
+        "actual_valid_candidates": null,
+        "measurement_setup_verified": null,
+        "compatible_observed_baseline": null,
+        "default_without_verified_measurement": "execution-only observation",
+        "rule": "Checks inside six; no added tests or replacement attempts. Pair 1 excluded from candidate mean/best. Actual status/conditions, verified method and included n required; no valid data means unavailable, not zero."
+      },
+      "pogo_linked_transitions_included": 2,
+      "split_stance_landings_included": 0,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "elevated_jump_landings": 0,
+      "controlled_box_jump_step_down_dismounts": 0,
+      "between_rep_walking_reseating_returns": 2,
+      "final_seated_jump_zone_exits": 1,
+      "throws": 3,
+      "one_hand_dead_stop_swings": 4,
+      "swing_start_park_sequences": 4,
+      "non_flight_grounded_split_power_rises": 4,
+      "controlled_grounded_split_lowerings": 4,
+      "knee_drive_free_foot_returns": 0,
+      "step_up_initial_lead_foot_placements": 0,
+      "step_up_leading_foot_step_offs": 0,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5033,
+      "modeled_section_seconds": {
+        "explosiveness": 2175,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2363,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "All already attempted work consumes original budgets; no full restart, extra checks or compensating work.",
+        "E1": {
+          "exercise": "Hands-on-hips Countermovement Jump",
+          "jump_landing_events": 6,
+          "separate_assessment_protocol_required": true
+        },
+        "E2_floor": {
+          "exercise": "Hands-on-hips Paused Squat Jump",
+          "jump_landing_events": 3,
+          "between_rep_seated_returns": 0,
+          "full_replacement_seconds_reduction": 9
+        },
+        "E2_arms": {
+          "exercise": "Natural-arm seated floor jump or standing paused Squat Jump as required",
+          "jump_budget": 3
+        },
+        "E3": {
+          "exercise": "Ordinary low parallel Ankle Pogo",
+          "jump_landing_events": 4,
+          "linked_transitions": 2
+        },
+        "E4": {
+          "exercise": "Moving chest-held Thruster Throw or underhand Vertical Scoop Toss — no flight",
+          "throw_budget": 3
+        },
+        "E5_two_hand": {
+          "exercise": "Two-hand Dead-Stop Kettlebell Swing",
+          "swings": 4,
+          "start_parks": 4
+        },
+        "E5_pull": {
+          "exercise": "Dumbbell High-Hang Pull — no flight/catch",
+          "pulls": 4,
+          "controlled_lowerings": 4,
+          "swing_start_parks": 0,
+          "seconds_between_reps_after_reset": 20
+        },
+        "E6": {
+          "exercise": "Bilateral Squat Power Rise — no flight",
+          "rises": 4,
+          "controlled_lowerings": 4,
+          "split_support": false
+        }
+      },
+      "progression_decision": "Repeat direct standing CMJ to establish a two-check/four-candidate observation protocol; repeat earlier grounded-foot rise for simple force. Four supporting constraints change. Thirteen landings, three throws, four swings and one P2 round reduce written supporting volume without claiming a fatigue state/taper effect. Retain other five strength doses and all preparation/remaining rests/effort targets. No actual baseline, candidate result, measurement setup, load, recovery or earned overload is assumed.",
+      "quality_record": "Every E1 slot status/intent/conditions; two rehearsal checks separate from four conditional candidates. Actual valid/attempted and attempted/scheduled, verified method/units/algorithm if available, n with descriptive mean/best of valid candidates; no numeric summary without suitable data. Record support replacements and actual strength/recovery."
+    },
+    "class_12": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "primary_slot_order": [
+        "Double Front-Rack Squat",
+        "Split Squat",
+        "Romanian Deadlift",
+        "Hip Thrust",
+        "Standing Calf Raise",
+        "Bent-Knee Soleus Raise"
+      ],
+      "primary_preparation_reps_by_slot": [
+        10,
+        6,
+        5,
+        5,
+        8,
+        5
+      ],
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "stabilization_dynamic_repetitions": 10,
+      "stabilization_hold_repetitions": 6,
+      "stabilization_aggregate_foot_hold_seconds": 30,
+      "access_prepare_1_workload": null,
+      "complete_session_minutes": null,
+      "actual_variants_and_dose": null,
+      "primary_working_reps_by_slot": [
+        12,
+        8,
+        12,
+        8,
+        16,
+        20
+      ],
+      "primary_working_repetitions": 76,
+      "primary_working_set_rounds": 9,
+      "primary_working_set_bouts": 11,
+      "compound_working_bouts": 7,
+      "calf_working_bouts": 4,
+      "assessment_plan": {
+        "protocol_file": "assessment_protocol.md",
+        "total_E1_attempt_budget": 6,
+        "initial_rehearsal_check_slots": 2,
+        "conditional_candidate_slots": 4,
+        "candidate_gate_result": null,
+        "actual_candidate_attempts": null,
+        "actual_valid_candidates": null,
+        "measurement_setup_verified": null,
+        "compatible_observed_baseline": null,
+        "default_without_verified_measurement": "execution-only observation",
+        "rule": "Checks inside six; no added tests or replacement attempts. Pair 1 excluded from candidate mean/best. Actual status/conditions, verified method and included n required; no valid data means unavailable, not zero."
+      },
+      "primary_performance_exercise": "Countermovement Jump — natural arm swing, stick landing",
+      "primary_performance_slot": "E1",
+      "default_explosive_drills": [
+        "Countermovement Jump — natural arm swing",
+        "Paused Staggered-Stance Vertical Jump to Parallel Landing",
+        "Low In-Out Ankle Pogo",
+        "Paused Split-Stance Vertical Scoop Toss — no flight",
+        "Staggered-Stance Dead-Stop Kettlebell Swing — two hands, no flight",
+        "Staggered-Stance Explosive Sit-to-Stand — no flight"
+      ],
+      "new_formats_relative_to_prior_defaults_and_replacements": 5,
+      "new_format_slots": [
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6"
+      ],
+      "deliberately_repeated_default_slots": [
+        "E1"
+      ],
+      "revisited_prior_replacement_slots": [],
+      "jump_landing_events": 12,
+      "bilateral_takeoffs": 12,
+      "asymmetric_bilateral_takeoffs_included": 2,
+      "unilateral_takeoffs": {
+        "left": 0,
+        "right": 0
+      },
+      "bilateral_landing_events": 12,
+      "unilateral_landing_events": 0,
+      "landing_foot_impacts": 24,
+      "bodyweight_jump_landings": 12,
+      "loaded_jump_landings": 0,
+      "landing_task_breakdown": {
+        "E1_natural_arm_CMJ": 6,
+        "E2_paused_staggered_to_parallel": 2,
+        "E3_low_in_out_pogo": 4
+      },
+      "pogo_linked_transitions_included": 2,
+      "pogo_width_changing_flights_included": 4,
+      "split_stance_landings_included": 0,
+      "approach_repetitions": 0,
+      "approach_steps": 0,
+      "sprint_repetitions": 0,
+      "elevated_jump_landings": 0,
+      "controlled_box_jump_step_down_dismounts": 0,
+      "throws": 4,
+      "two_hand_staggered_dead_stop_swings": 4,
+      "swing_start_park_sequences": 4,
+      "non_flight_staggered_seated_rises": 4,
+      "controlled_seated_returns": 4,
+      "knee_drive_free_foot_returns": 0,
+      "step_up_initial_lead_foot_placements": 0,
+      "step_up_leading_foot_step_offs": 0,
+      "estimated_prescribed_work_minutes": [
+        85,
+        95
+      ],
+      "base_modeled_seconds_outside_access_prepare_1": 5136,
+      "modeled_section_seconds": {
+        "explosiveness": 2278,
+        "stabilization_resilience": 315,
+        "primary_including_preparation": 2363,
+        "water_recording": 180
+      },
+      "replacements": {
+        "budget_rule": "All already attempted/failed work consumes original budget; no full restart, extra tests or compensating work.",
+        "E1": {
+          "exercise": "Hands-on-hips Countermovement Jump",
+          "jump_landing_events": 6,
+          "separate_assessment_protocol_required": true
+        },
+        "E2": {
+          "exercise": "Parallel Paused Squat Jump with Natural Arm Swing",
+          "jump_landing_events": 2
+        },
+        "E3": {
+          "exercise": "Ordinary low parallel Ankle Pogo",
+          "jump_landing_events": 4,
+          "linked_transitions": 2
+        },
+        "E4": {
+          "exercise": "Parallel paused or moving Vertical Scoop Toss — no flight",
+          "throws": 4
+        },
+        "E5_parallel": {
+          "exercise": "Parallel two-hand Dead-Stop Kettlebell Swing",
+          "swings": 4,
+          "start_parks": 4
+        },
+        "E5_pull": {
+          "exercise": "Dumbbell High-Hang Pull — no flight/catch",
+          "pulls": 4,
+          "controlled_lowerings": 4,
+          "swing_start_parks": 0
+        },
+        "E6_parallel": {
+          "exercise": "Parallel Explosive Sit-to-Stand — no flight",
+          "rises": 4,
+          "controlled_seated_returns": 4
+        },
+        "E6_standing": {
+          "exercise": "Bilateral Squat Power Rise — no flight",
+          "rises": 4,
+          "controlled_standing_lowerings": 4,
+          "controlled_seated_returns": 0,
+          "full_replacement_seconds_reduction": 8
+        }
+      },
+      "progression_decision": "Retain Class 11 E1 observation protocol and all strengthening doses/order/rests. Five support formats change purposeful constraints; twelve landings/four throws/four swings/four rises. Four throws allow two per lead, not an earned overload. Actual baseline, eligibility, measurement, loads and recovery remain unknown.",
+      "quality_record": "Six E1 slots: two rehearsal checks separate from four conditional candidates; actual valid/attempted and attempted/scheduled with reasons/conditions. Verified method/units/algorithm and n for suitable descriptive mean/best; no matched actual data means no gain claim."
+    }
+  },
+  "observed": {
+    "completed_class_count": null,
+    "athlete_sessions": [],
+    "performance_results": null,
+    "recovery_response": null,
+    "status": "unknown; no actual athlete completion or response supplied"
+  },
+  "unresolved_issues": [
+    "Actual Access & Prepare 1 content/time/overlapping workload remain unknown; referenced unchanged.",
+    "Athlete attendance, restrictions, current competence, attempted doses, working loads and recovery remain unknown for all twelve written classes. Conditional prescriptions are complete documents, not delivered or passed sessions.",
+    "Class 9 loaded-jump gate and Classes 11–12 candidate gates remain unknown. No verified device/software/algorithm, valid values, reliability or compatible observed baseline; use execution-only observation as needed and make no unsupported gain claim.",
+    "Three separate 10 m lanes and listed equipment types are confirmed; widths, sizes, quantities, load ranges, device capabilities, group/staff and booking are not. Check floor/overhead zones, closed throwing sectors, bell clearance/parks, stable fitted seats/steps/benches and supports before delivery.",
+    "Per-class estimates are outside Access & Prepare 1 and excess queues; final class model5136 s/85.6 min, allow85–95. No full-session fit is established. Required setup/teaching or recovery extends time, not compresses rests.",
+    "All workload totals are prescriptions. Failed work, partial replacements, extra ramps, incidental contacts and other actual sport/gym/tumbling must be recorded. Default and replacement totals are not added together.",
+    "Useful distinct support formats and declared recurrences are documented; proposed exact variants do not imply live library approval or uniqueness against unknown preparation/unreported athlete history.",
+    "Next training emphasis requires actual protocol, technique, effort and recovery reports; no automatic Class 13, fixed weekly schedule or presumed improvement follows from written completion."
+  ],
+  "next_class_intended_job": null,
+  "resume_instruction": "The requested twelve-class Vertical Jumps curriculum is complete. Verify progress.json hashes and all twelve finalized paths before any requested review or revision. Read curriculum.md, sequence_audit.md, class_12_audit.md, classes/class_12.md, assessment_protocol.md, progression_ledger.md, drill_history.md including replacements, exercise_register.md, athlete_feedback.md and new actual reports. No Class 13 or extra curriculum is authorized automatically. Preserve exact seven-category framework, existing Access & Prepare 1 reference and 6/2/6 architecture when revising. Record new actual attendance/doses/loads/conditions/measurements/recovery only from supplied evidence; do not convert prescriptions into observations. Reconcile delivery time/equipment/staff/readiness before use and select any subsequent requested emphasis from actual evidence.",
+  "file_sha256": {
+    "assessment_protocol.md": "a06f094cc5e394ad7f9059f4091912862a2b4f203828130509f4b8f6214f9205",
+    "athlete_feedback.md": "83f67c2b7032c3ff2b880a84beb4733eb9f48b697c584a2085406df71f38ddc3",
+    "class_01_audit.md": "bba600cde7e05fe1e3f2793f3aa0acbe486baf5ff7c0a39df7d8d3a57eaf49f6",
+    "class_02_audit.md": "d84ae0275bc1a901c69a8b3bac7de411fea83897486c04a706087c8bfd5a4a9b",
+    "class_03_audit.md": "a1a3fa0584359b8238ace381723945b1d89181b57671e3f321b56667f902b3b5",
+    "class_04_audit.md": "8352aef55205817169f3b8e0891c6a1a832752583bea4315b60f42bbaf26f40e",
+    "class_05_audit.md": "7dff8e6b2345f7c41bcd174ac5365a4d4a65cd152ebaf84cfe0f5f0bfae21976",
+    "class_06_audit.md": "c0c6e3f08b45341a94d913f849786af0fc292cbe07a38290518dd8c7107ae898",
+    "class_07_audit.md": "5ca1f71070e5fe478be562934343696c74fa7e670220ec5e965fc2eacede4e0b",
+    "class_08_audit.md": "d8b1a3cb0d1b4143c6b959f16c45461ddd2b7ef9000f40bb55677784a574081c",
+    "class_09_audit.md": "71605f753489e35afa87b35f479825dd7646eb1b5b0bbc50fb40f8696d7fae39",
+    "class_10_audit.md": "7f9792a243f3049d6cf04dc4b3c13b6a24225ae846867d5700ac15a5db31292c",
+    "class_11_audit.md": "24bf3617a59408350029870afa6b2aaf23ffe7a3ddbbf7c85f08844c4444977e",
+    "class_12_audit.md": "d17d93a3a19c6da0b9e5d1f18b2fba300cd241e55ef8dbf99f324b194d4fc141",
+    "classes/class_01.md": "4e8366e6a935a7b38f833566e1c7a46a63f5a384a79066b0071ee2f9cc23b5c3",
+    "classes/class_02.md": "fd995c723d83ff436be3c9a8986603f6dfb60c1bb1f1cda7a4b4f05ae3e8631b",
+    "classes/class_03.md": "e3ccf6e872bdef13f382ea329342b222711e8494fdba59f4e8656d43ddc9396a",
+    "classes/class_04.md": "1999bd9698acadfada0469a752867bbce5838838cd04af018d639407ec73d76f",
+    "classes/class_05.md": "46123192676ee28cc1e4eebbfe3382db46149d043dd61684080845fe6b3cfdab",
+    "classes/class_06.md": "b336a7a24fccb5e306cf49734bc734e7b06a3f63d56d1385cec5df6d994ec5fa",
+    "classes/class_07.md": "bba0a2a79abf0b6cc1afc2c904ea9f83283359f8ac982594f8ff13d4fce04235",
+    "classes/class_08.md": "6702b60fe5613366e497dfafd96879db54983b6cb28190f95aff2050c09e46d0",
+    "classes/class_09.md": "fc93d766af6c608e3a6a7780af95ca13422619eb9d768d7788df8a5e252c4276",
+    "classes/class_10.md": "68f5865a77f2c633c58b5b0564137a68a1f6f2cba4254e22f779b0744881f743",
+    "classes/class_11.md": "d4e9ae8305981168ae5e412e42ffb302cbaf5653fb2e9981f8092420fa5aacd0",
+    "classes/class_12.md": "dba185a97de02a8dc0562eabb83fe61d95f2f83a0c3b3c6f94e246d7f8c7984b",
+    "curriculum.md": "339596633d90e4d817b416dbfed82adf0b72c9eb8ec1b937c1359c7cb2770d9e",
+    "drill_history.md": "e64716e2e5452490fe45d673f22f06244d3b8e7c231bc9a7a8ad382dea8f3a2a",
+    "exercise_register.md": "871a5c3c65556e848bcf700f19e509442bc21552defb68a8a5953427b0f7f3a4",
+    "progression_ledger.md": "5f1b5f718c852ae18aa0fde2ea01c228280cd69aaf9b46b99a2f47972514e485",
+    "sequence_audit.md": "0ba1603054d174764ffad6c682e581a2a67769225e353d2905b1da101c9aa2e3",
+    "sources/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "verification.json": "271f8062cf3aa31bc501f4851803b6d035fab3d2359b3a94fbf8c873e4dc7f2e"
+  },
+  "class_audits": {
+    "1": "class_01_audit.md",
+    "2": "class_02_audit.md",
+    "3": "class_03_audit.md",
+    "4": "class_04_audit.md",
+    "5": "class_05_audit.md",
+    "6": "class_06_audit.md",
+    "7": "class_07_audit.md",
+    "8": "class_08_audit.md",
+    "9": "class_09_audit.md",
+    "10": "class_10_audit.md",
+    "11": "class_11_audit.md",
+    "12": "class_12_audit.md"
+  },
+  "verification_file": "verification.json",
+  "previous_goal_turn_review": {
+    "classification": "progress",
+    "evidence": "Class 11, eleven finalized paths and all thirty saved hashes matched at run start; original/saved specification matched. No actual athlete feedback or measurement baseline supplied."
+  },
+  "drill_history_file": "drill_history.md",
+  "user_preferences": {
+    "unique_drills": "Try to force unique drills; while strength lifts may recur as needed for progressions",
+    "effective_from_class": 3,
+    "implementation": "Prefer explosive defaults distinct from all earlier defaults and relevant offered replacements. Meaningful differences must serve the daily effort. Strength may recur with a traceable reason/progression criterion. Explain necessary repeated regressions or comparison anchors. Historical Classes 1–2 default doses are retained; final audit corrects a replacement label and clarifies its branch budget."
+  },
+  "assessment_protocol": "assessment_protocol.md",
+  "full_sequence_audit": "sequence_audit.md",
+  "completion_scope": "Twelve conditional class documents and required supporting audits/state, not athlete completion or performance results."
+}

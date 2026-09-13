@@ -1,0 +1,568 @@
+{
+  "verified_on": "2026-09-13",
+  "result": "pass",
+  "scope": "All twelve finalized class structures and four-column 6/2/6 tables; exact source/framework and twelve-entry finalized map; parsed per-side primary/preparation and jump/throw doses; all audit time-row sums including full recovery/preparation/setup, final replacement/contact and candidate budgets; local paths/links and final state. All earlier default prescribed records and observed unknowns preserved. Documented Class 1–2 label/budget clarifications; Classes 3–11 and their individual audits unchanged. Qualitative relevance/coverage/variation/progression and unresolved delivery assumptions are reviewed in sequence_audit.md and each class audit. This verifies the written curriculum, not athlete completion, readiness, reliable measurements or real group/booking fit.",
+  "last_finalized_class": 12,
+  "next_class": null,
+  "new_classes_this_run": 1,
+  "classes": [
+    {
+      "class_number": 1,
+      "path": "classes/class_01.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        10,
+        9,
+        4,
+        4,
+        4,
+        6
+      ],
+      "jump_landing_events": 31,
+      "throws": 6,
+      "primary_working_repetitions": 86,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "4e8366e6a935a7b38f833566e1c7a46a63f5a384a79066b0071ee2f9cc23b5c3",
+      "base_seconds_outside_access_prepare_1": 4814
+    },
+    {
+      "class_number": 2,
+      "path": "classes/class_02.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        10,
+        9,
+        4,
+        4,
+        4,
+        6
+      ],
+      "jump_landing_events": 31,
+      "throws": 6,
+      "primary_working_repetitions": 86,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "fd995c723d83ff436be3c9a8986603f6dfb60c1bb1f1cda7a4b4f05ae3e8631b",
+      "base_seconds_outside_access_prepare_1": 4814
+    },
+    {
+      "class_number": 3,
+      "path": "classes/class_03.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        4,
+        3,
+        6,
+        8
+      ],
+      "jump_landing_events": 17,
+      "throws": 0,
+      "primary_working_repetitions": 86,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "e3ccf6e872bdef13f382ea329342b222711e8494fdba59f4e8656d43ddc9396a",
+      "base_seconds_outside_access_prepare_1": 5130
+    },
+    {
+      "class_number": 4,
+      "path": "classes/class_04.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        4,
+        8,
+        6,
+        4
+      ],
+      "jump_landing_events": 22,
+      "throws": 4,
+      "primary_working_repetitions": 86,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 12,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "1999bd9698acadfada0469a752867bbce5838838cd04af018d639407ec73d76f",
+      "base_seconds_outside_access_prepare_1": 5230
+    },
+    {
+      "class_number": 5,
+      "path": "classes/class_05.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        8,
+        6,
+        6,
+        4
+      ],
+      "jump_landing_events": 18,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "46123192676ee28cc1e4eebbfe3382db46149d043dd61684080845fe6b3cfdab",
+      "base_seconds_outside_access_prepare_1": 5212
+    },
+    {
+      "class_number": 6,
+      "path": "classes/class_06.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        6,
+        4,
+        6,
+        4
+      ],
+      "jump_landing_events": 16,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "b336a7a24fccb5e306cf49734bc734e7b06a3f63d56d1385cec5df6d994ec5fa",
+      "base_seconds_outside_access_prepare_1": 5274
+    },
+    {
+      "class_number": 7,
+      "path": "classes/class_07.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        6,
+        4,
+        6,
+        4
+      ],
+      "jump_landing_events": 16,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "bba0a2a79abf0b6cc1afc2c904ea9f83283359f8ac982594f8ff13d4fce04235",
+      "base_seconds_outside_access_prepare_1": 5115
+    },
+    {
+      "class_number": 8,
+      "path": "classes/class_08.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        2,
+        6,
+        6,
+        6,
+        4
+      ],
+      "jump_landing_events": 14,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "6702b60fe5613366e497dfafd96879db54983b6cb28190f95aff2050c09e46d0",
+      "base_seconds_outside_access_prepare_1": 5374
+    },
+    {
+      "class_number": 9,
+      "path": "classes/class_09.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        4,
+        4,
+        6,
+        4
+      ],
+      "jump_landing_events": 14,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "fc93d766af6c608e3a6a7780af95ca13422619eb9d768d7788df8a5e252c4276",
+      "base_seconds_outside_access_prepare_1": 5578
+    },
+    {
+      "class_number": 10,
+      "path": "classes/class_10.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        4,
+        4,
+        4,
+        6,
+        4
+      ],
+      "jump_landing_events": 14,
+      "throws": 4,
+      "primary_working_repetitions": 84,
+      "primary_working_set_rounds": 10,
+      "primary_working_set_bouts": 13,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "68f5865a77f2c633c58b5b0564137a68a1f6f2cba4254e22f779b0744881f743",
+      "base_seconds_outside_access_prepare_1": 5406
+    },
+    {
+      "class_number": 11,
+      "path": "classes/class_11.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        3,
+        4,
+        3,
+        4,
+        4
+      ],
+      "jump_landing_events": 13,
+      "throws": 3,
+      "primary_working_repetitions": 76,
+      "primary_working_set_rounds": 9,
+      "primary_working_set_bouts": 11,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "d4e9ae8305981168ae5e412e42ffb302cbaf5653fb2e9981f8092420fa5aacd0",
+      "base_seconds_outside_access_prepare_1": 5033
+    },
+    {
+      "class_number": 12,
+      "path": "classes/class_12.md",
+      "section_exercise_counts": [
+        0,
+        6,
+        2,
+        6
+      ],
+      "explosive_row_repetition_totals": [
+        6,
+        2,
+        4,
+        4,
+        4,
+        4
+      ],
+      "jump_landing_events": 12,
+      "throws": 4,
+      "primary_working_repetitions": 76,
+      "primary_working_set_rounds": 9,
+      "primary_working_set_bouts": 11,
+      "primary_preparation_repetitions": 39,
+      "primary_preparation_set_rounds": 7,
+      "primary_preparation_set_bouts": 9,
+      "file_sha256": "dba185a97de02a8dc0562eabb83fe61d95f2f83a0c3b3c6f94e246d7f8c7984b",
+      "base_seconds_outside_access_prepare_1": 5136
+    }
+  ],
+  "twelve_document_prescribed_totals": {
+    "jump_landings": 218,
+    "throws": 47,
+    "primary_working_reps": 1000,
+    "primary_preparation_reps": 468
+  },
+  "primary_working_rounds_and_bouts": [
+    118,
+    148
+  ],
+  "primary_preparation_rounds_and_bouts": [
+    84,
+    108
+  ],
+  "all_class_time_models": [
+    {
+      "class_number": 1,
+      "explosive_seconds": 1826,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2493,
+      "water_recording_seconds": 180,
+      "total_seconds": 4814,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 2,
+      "explosive_seconds": 1826,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2493,
+      "water_recording_seconds": 180,
+      "total_seconds": 4814,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": true
+    },
+    {
+      "class_number": 3,
+      "explosive_seconds": 2142,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2493,
+      "water_recording_seconds": 180,
+      "total_seconds": 5130,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 4,
+      "explosive_seconds": 2242,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2493,
+      "water_recording_seconds": 180,
+      "total_seconds": 5230,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 5,
+      "explosive_seconds": 2112,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5212,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 6,
+      "explosive_seconds": 2174,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5274,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 7,
+      "explosive_seconds": 2015,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5115,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 8,
+      "explosive_seconds": 2274,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5374,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 9,
+      "explosive_seconds": 2478,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5578,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 10,
+      "explosive_seconds": 2306,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2605,
+      "water_recording_seconds": 180,
+      "total_seconds": 5406,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 11,
+      "explosive_seconds": 2175,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2363,
+      "water_recording_seconds": 180,
+      "total_seconds": 5033,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    },
+    {
+      "class_number": 12,
+      "explosive_seconds": 2278,
+      "light_seconds": 315,
+      "primary_including_preparation_seconds": 2363,
+      "water_recording_seconds": 180,
+      "total_seconds": 5136,
+      "audit_row_arithmetic": "pass",
+      "Class_2_explicitly_references_Class_1_unchanged_model": false
+    }
+  ],
+  "Class_12_time_seconds": {
+    "rows": [
+      636,
+      254,
+      282,
+      404,
+      364,
+      338,
+      145,
+      170,
+      628,
+      476,
+      443,
+      249,
+      312,
+      255
+    ],
+    "water_recording": 180,
+    "total": 5136,
+    "full_E6_standing_replacement_total": 5128
+  },
+  "Class_12_selection": {
+    "new_support_formats": 5,
+    "new_slots": [
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6"
+    ],
+    "deliberately_repeated": [
+      "E1"
+    ],
+    "replacements_repeat_declared_prior_formats": true
+  },
+  "Class_12_strength_and_E1_rows_identical_to_Class_11": true,
+  "Class_12_assessment_plan": {
+    "protocol_file": "assessment_protocol.md",
+    "total_E1_attempt_budget": 6,
+    "initial_rehearsal_check_slots": 2,
+    "conditional_candidate_slots": 4,
+    "candidate_gate_result": null,
+    "actual_candidate_attempts": null,
+    "actual_valid_candidates": null,
+    "measurement_setup_verified": null,
+    "compatible_observed_baseline": null,
+    "default_without_verified_measurement": "execution-only observation",
+    "rule": "Checks inside six; no added tests or replacement attempts. Pair 1 excluded from candidate mean/best. Actual status/conditions, verified method and included n required; no valid data means unavailable, not zero."
+  },
+  "Class_9_loading_gate_remains_unknown": true,
+  "historical_default_prescribed_records_unchanged": true,
+  "historical_class_file_corrections": [
+    {
+      "path": "classes/class_01.md",
+      "previous_sha256": "e6bc115c606a829e545a5a4543bd384eeb020e686b1b261bf58887b3532ae147",
+      "current_sha256": "4e8366e6a935a7b38f833566e1c7a46a63f5a384a79066b0071ee2f9cc23b5c3",
+      "reason": "Correct smooth-dip replacement label and clarify pre-slot cross-modality/shared remaining attempt budget; no default dose change."
+    },
+    {
+      "path": "class_01_audit.md",
+      "previous_sha256": "d0173cf5b451a2cc7ae196238bfd18b22844d389afce97e1864572a3fed12e7d",
+      "current_sha256": "bba600cde7e05fe1e3f2793f3aa0acbe486baf5ff7c0a39df7d8d3a57eaf49f6",
+      "reason": "Correct smooth-dip replacement label and clarify pre-slot cross-modality/shared remaining attempt budget; no default dose change."
+    },
+    {
+      "path": "classes/class_02.md",
+      "previous_sha256": "280d4fe12d7ae832fbb1e7017dd297f39c49f9e3a02f507dd15aaeb0091bd89a",
+      "current_sha256": "fd995c723d83ff436be3c9a8986603f6dfb60c1bb1f1cda7a4b4f05ae3e8631b",
+      "reason": "Correct smooth-dip replacement label and clarify pre-slot cross-modality/shared remaining attempt budget; no default dose change."
+    },
+    {
+      "path": "class_02_audit.md",
+      "previous_sha256": "1ee137cc604d80b40174ead84ef8dc750d342ec1dace452998380acfd4afa220",
+      "current_sha256": "d84ae0275bc1a901c69a8b3bac7de411fea83897486c04a706087c8bfd5a4a9b",
+      "reason": "Correct smooth-dip replacement label and clarify pre-slot cross-modality/shared remaining attempt budget; no default dose change."
+    }
+  ],
+  "Classes_3_through_11_and_individual_audits_unchanged": true,
+  "source_snapshot_matches_original": true,
+  "local_markdown_links_checked": 74,
+  "observed_state_unchanged": true,
+  "actual_athlete_completion": "unknown",
+  "source_specification_sha256": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+  "full_sequence_audit": "sequence_audit.md",
+  "authoring_completion": "complete",
+  "Class_13_exists": false
+}

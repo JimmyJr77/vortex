@@ -385,6 +385,13 @@ export function evaluateTaxonomyV2Completeness(block, scope, { requireApproved =
   return { complete: issues.length === 0, issues }
 }
 
+export function normalizeTaxonomyV2ReviewInput(body = {}) {
+  const outcome = body.outcome === 'approve' ? 'approved' : body.outcome === 'reject' ? 'rejected' : null
+  const notes = String(body.notes || '').trim()
+  if (!outcome || notes.length < 20) throw new TypeError('Taxonomy review outcome and at least 20 characters of observed evidence are required.')
+  return { outcome, notes }
+}
+
 export function resolveEquipmentV2Key(raw) {
   const normalized = text(raw)
     .toLowerCase()

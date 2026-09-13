@@ -1,0 +1,572 @@
+[
+  {
+    "class": 1,
+    "slot": "E1",
+    "name": "Lateral Line Pogo",
+    "mechanical_identity": "bilateral_lateral_low_line_pogo",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 1,
+    "slot": "E2",
+    "name": "Mirror Shuffle — primary anchor",
+    "mechanical_identity": "live_lateral_shuffle_single_reversal_mirror",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 1,
+    "slot": "E3",
+    "name": "Bilateral Lateral Jump to Stick — paused start",
+    "mechanical_identity": "paused_bilateral_lateral_static_start_jump",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 1,
+    "slot": "E4",
+    "name": "Lateral Skater Bound to Stick",
+    "mechanical_identity": "stationary_contralateral_lateral_bound_stick",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 1,
+    "slot": "E5",
+    "name": "Lateral Shuffle to Stick — rapid entry variant",
+    "mechanical_identity": "planned_lateral_shuffle_terminal_brake",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 1,
+    "slot": "E6",
+    "name": "Crossover Step to Sprint Cone — live pursuit variant",
+    "mechanical_identity": "live_lateral_crossover_standing_pursuit",
+    "source_status": "See original Class 1 source register."
+  },
+  {
+    "class": 2,
+    "slot": "E1",
+    "name": "Forward Release Chase",
+    "mechanical_identity": "live_forward_departure_parallel_chase",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main live read-to-forward-drive task; identify opponent departure rather than memorizing a sound cue."
+  },
+  {
+    "class": 2,
+    "slot": "E2",
+    "name": "Forward–Back Line Hops",
+    "mechanical_identity": "bilateral_anteroposterior_line_rebounds",
+    "source_status": "line-pogo-forward-back; exact bilateral direction verified locally",
+    "job": "Quick fore–aft ankle return supports the first acceleration contacts and the later backward pressure of braking."
+  },
+  {
+    "class": 2,
+    "slot": "E3",
+    "name": "Standing Broad Jump to Stick",
+    "mechanical_identity": "bilateral_countermovement_horizontal_stick",
+    "source_status": "broad-jump-to-stick; local family",
+    "job": "Whole-body forward impulse from a parallel stance, without a perceptual or unilateral landing demand."
+  },
+  {
+    "class": 2,
+    "slot": "E4",
+    "name": "Sprint-to-Stick Deceleration",
+    "mechanical_identity": "planned_forward_3m_acceleration_terminal_brake",
+    "source_status": "sprint-to-stick-deceleration; short-lane execution proposed",
+    "job": "Isolate a known forward braking boundary so the live task is not limited by an absent stopping strategy."
+  },
+  {
+    "class": 2,
+    "slot": "E5",
+    "name": "Split-Stance Broad Jump to Parallel Landing",
+    "mechanical_identity": "staggered_two_foot_takeoff_forward_parallel_landing",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Express forward drive from an asymmetric starting base, then share acceptance across both feet."
+  },
+  {
+    "class": 2,
+    "slot": "E6",
+    "name": "Medicine Ball Scoop Toss — forward",
+    "mechanical_identity": "bilateral_grounded_forward_scoop_release",
+    "source_status": "medicine-ball-scoop-toss; forward grounded execution proposed",
+    "job": "Link hip/knee extension to a forward release while keeping the athlete grounded; supports whole-body forward projection."
+  },
+  {
+    "class": 3,
+    "slot": "E1",
+    "name": "Commit-or-Hold Gate Burst",
+    "mechanical_identity": "lateral_body_feint_go_no_go_gate",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main inhibition task: distinguish a shoulder feint from hip commitment, then produce the correct lateral first step."
+  },
+  {
+    "class": 3,
+    "slot": "E2",
+    "name": "Opponent-Timed Split-Step Pounce",
+    "mechanical_identity": "bilateral_split_step_timed_forward_departure",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Time a small two-foot unweighting so the landing is available for a forward push when the opponent departs."
+  },
+  {
+    "class": 3,
+    "slot": "E3",
+    "name": "Single-Leg Forward Hop to Stick",
+    "mechanical_identity": "single_leg_forward_same_leg_terminal_stick",
+    "source_status": "single-leg-forward-hop-to-stick; local family",
+    "job": "Accept forward momentum over one plant without the shared landing used in Class 2."
+  },
+  {
+    "class": 3,
+    "slot": "E4",
+    "name": "Seated Broad Jump",
+    "mechanical_identity": "seated_supported_dead_start_horizontal_jump",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Produce forward impulse after external seat support removes the standing countermovement, making initiation deliberate."
+  },
+  {
+    "class": 3,
+    "slot": "E5",
+    "name": "Low-Hurdle Lateral Rebound Return",
+    "mechanical_identity": "bilateral_lateral_obstacle_rebound_return",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Reverse lateral force quickly after a small obstacle crossing, instead of the deliberate sticks used earlier."
+  },
+  {
+    "class": 3,
+    "slot": "E6",
+    "name": "Hand-Release Line Intercept",
+    "mechanical_identity": "release_trajectory_alignment_without_ball_contact",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Wait for the actual ball-release line when hand positioning is ambiguous, then move the body into alignment on a separate path."
+  },
+  {
+    "class": 4,
+    "slot": "E1",
+    "name": "Opponent Fork-Cut Read",
+    "mechanical_identity": "controlled_approach_live_y_fork_single_cut",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main live choice of an angled path from a controlled approach."
+  },
+  {
+    "class": 4,
+    "slot": "E2",
+    "name": "45-Degree Cut Bound to Stick",
+    "mechanical_identity": "single_plant_oblique_cut_opposite_leg_bound_stick",
+    "source_status": "45-degree-cut-bound-to-stick; local family, short approach specified",
+    "job": "Practice redirecting an oblique impulse across one outside plant, separately from a reactive running decision."
+  },
+  {
+    "class": 4,
+    "slot": "E3",
+    "name": "Skater Rebound-Return",
+    "mechanical_identity": "contralateral_lateral_bound_elastic_return_pair",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Reverse force from one leg to the other without the terminal landing pause of Class 1’s skater bound."
+  },
+  {
+    "class": 4,
+    "slot": "E4",
+    "name": "Lateral Single-Leg Takeoff to Two-Foot Landing",
+    "mechanical_identity": "unilateral_lateral_takeoff_bilateral_terminal_acceptance",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Share landing acceptance across both feet while preserving a unilateral lateral push; consolidates force production at lower landing asymmetry."
+  },
+  {
+    "class": 4,
+    "slot": "E5",
+    "name": "Backpedal-to-Stick",
+    "mechanical_identity": "planned_backward_locomotion_terminal_brake",
+    "source_status": "backpedal-to-stick; short route proposed",
+    "job": "Own the brake when momentum is travelling backward, supporting the next retreat/reopen exposure."
+  },
+  {
+    "class": 4,
+    "slot": "E6",
+    "name": "Stationary Lateral Medicine-Ball Scoop Heave",
+    "mechanical_identity": "bilateral_grounded_stationary_lateral_scoop_release",
+    "source_status": "med-ball-rotational-scoop-toss; stationary lateral execution proposed",
+    "job": "Transfer leg/hip force sideways into a free release while both feet support the athlete."
+  },
+  {
+    "class": 5,
+    "slot": "E1",
+    "name": "Backpedal Turn-and-Go Read",
+    "mechanical_identity": "retreat_momentum_live_hip_open_exit",
+    "source_status": "partner-backpedal-turn-and-go-cue; short route variant proposed",
+    "job": "Main reorientation from retreat momentum to a live opponent exit."
+  },
+  {
+    "class": 5,
+    "slot": "E2",
+    "name": "Backward Travelling Pogo Hops",
+    "mechanical_identity": "bilateral_unidirectional_rearward_travelling_pogo",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Produce repeated small rearward ankle impulses while preserving an upright torso; unlike reciprocal line hops, every landing travels backward."
+  },
+  {
+    "class": 5,
+    "slot": "E3",
+    "name": "Backward Broad Jump to Stick",
+    "mechanical_identity": "bilateral_rearward_horizontal_jump_terminal_stick",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Accept a small backward displacement over both feet before asking the athlete to redirect from retreat."
+  },
+  {
+    "class": 5,
+    "slot": "E4",
+    "name": "Drop-Step Diagonal Launch",
+    "mechanical_identity": "planned_drop_step_opening_to_diagonal_acceleration",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Practice opening the hip and aligning the first drive step before adding a live retreat cue."
+  },
+  {
+    "class": 5,
+    "slot": "E5",
+    "name": "Split-Squat Jump to Same-Stance Stick",
+    "mechanical_identity": "split_stance_vertical_jump_same_stance_landing",
+    "source_status": "split-squat-jump-to-stick; same-stance contract",
+    "job": "Rapid lead-leg extension with an asymmetric landing base, supporting the push out of an opened hip position."
+  },
+  {
+    "class": 5,
+    "slot": "E6",
+    "name": "Gap-Preservation Retreat",
+    "mechanical_identity": "closing_rate_gap_control_retreat_without_turn",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Read closing rate to preserve a useful defensive gap instead of following only a direction."
+  },
+  {
+    "class": 6,
+    "slot": "E1",
+    "name": "Closeout-to-Exit Denial",
+    "mechanical_identity": "approach_close_space_live_lateral_denial",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main task: absorb an approach while reading where the opponent can leave, then direct the next step."
+  },
+  {
+    "class": 6,
+    "slot": "E2",
+    "name": "Countermovement Jump to Stick",
+    "mechanical_identity": "parallel_stance_vertical_countermovement_terminal_stick",
+    "source_status": "countermovement-jump-to-stick; local family",
+    "job": "Rapid extension followed by bilateral force acceptance, supporting a tall-to-low closeout transition."
+  },
+  {
+    "class": 6,
+    "slot": "E3",
+    "name": "Low-Hurdle Forward Jump to Stick",
+    "mechanical_identity": "bilateral_forward_obstacle_clearance_terminal_stick",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Coordinate forward clearance with deliberate shared-foot braking beyond an external obstacle."
+  },
+  {
+    "class": 6,
+    "slot": "E4",
+    "name": "Single-Leg Forward–Back Rebound",
+    "mechanical_identity": "same_leg_fore_aft_elastic_return_pair",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Reverse a small forward impulse back through the same plant, supporting a closeout that must give ground."
+  },
+  {
+    "class": 6,
+    "slot": "E5",
+    "name": "Step-In Lateral Medicine-Ball Scoop Toss",
+    "mechanical_identity": "step_in_momentum_lateral_scoop_release",
+    "source_status": "med-ball-rotational-scoop-toss; incoming-step execution proposed",
+    "job": "Convert one incoming step into lateral leg/hip impulse; differs from stationary lateral release by accepting approach momentum."
+  },
+  {
+    "class": 6,
+    "slot": "E6",
+    "name": "Rolling-Ball Arrival Intercept",
+    "mechanical_identity": "time_to_arrival_parallel_line_interception",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Judge time to arrival, choosing when to leave so the body reaches a line under control before a slow moving object does."
+  },
+  {
+    "class": 7,
+    "slot": "E1",
+    "name": "Pre-Release Pass-Lane Prediction",
+    "mechanical_identity": "temporally_occluded_pre_release_body_lane_prediction",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main anticipation task: infer an intended pass lane from body preparation before ball flight makes the answer obvious."
+  },
+  {
+    "class": 7,
+    "slot": "E2",
+    "name": "Alternating Forward Bounds",
+    "mechanical_identity": "linked_alternating_forward_opposite_leg_bounds",
+    "source_status": "alternate-leg-bound-for-distance; deliberately short-distance execution",
+    "job": "Transfer forward impulse from leg to leg without the same-leg landing used in earlier forward hops."
+  },
+  {
+    "class": 7,
+    "slot": "E3",
+    "name": "Single-Leg Lateral Hop to Stick",
+    "mechanical_identity": "single_leg_lateral_same_leg_terminal_stick",
+    "source_status": "single-leg-lateral-hop-to-stick; local family",
+    "job": "Own a lateral landing back on the same leg, a different support demand from skater bounds."
+  },
+  {
+    "class": 7,
+    "slot": "E4",
+    "name": "90-Degree Jump Turn to Stick",
+    "mechanical_identity": "bilateral_in_place_quarter_turn_jump_stick",
+    "source_status": "90-degree-jump-turn-to-stick; bilateral contract",
+    "job": "Reorient feet/hips together while airborne, then establish a usable two-foot base toward the chosen lane."
+  },
+  {
+    "class": 7,
+    "slot": "E5",
+    "name": "Single-Leg Vertical Hop to Stick",
+    "mechanical_identity": "single_leg_vertical_same_leg_terminal_stick",
+    "source_status": "single-leg-vertical-hop-to-stick; local family",
+    "job": "Express vertical extension from a single support without a crossing reach, keeping the body available to redirect from an anticipated lane."
+  },
+  {
+    "class": 7,
+    "slot": "E6",
+    "name": "Inside-Arc Acceleration",
+    "mechanical_identity": "planned_continuous_gentle_curve_acceleration",
+    "source_status": "curve-run-around-cone-arc; short gentle arc proposed",
+    "job": "Apply continuous inward force over a gentle curved path rather than a single sharp plant."
+  },
+  {
+    "class": 8,
+    "slot": "E1",
+    "name": "Two-Junction Pursuit Read",
+    "mechanical_identity": "two_junction_running_route_live_second_commitment",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main re-planning task: respond to a new opponent commitment after initiating the first route."
+  },
+  {
+    "class": 8,
+    "slot": "E2",
+    "name": "Split-Switch Jump to Stick",
+    "mechanical_identity": "split_stance_airborne_lead_exchange_terminal_stick",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Exchange lead/trail leg roles rapidly so either leg can receive the next force demand."
+  },
+  {
+    "class": 8,
+    "slot": "E3",
+    "name": "Forward Two-Foot Rebound Pair",
+    "mechanical_identity": "bilateral_successive_forward_rebound_pair",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Re-use a forward landing for another forward push without pausing, supporting a route that continues after the second read."
+  },
+  {
+    "class": 8,
+    "slot": "E4",
+    "name": "Lateral Power Skip",
+    "mechanical_identity": "lateral_travelling_step_hop_skip_coordination",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Coordinate a lateral step into an upward/sideways single-leg impulse while keeping the trunk facing the play."
+  },
+  {
+    "class": 8,
+    "slot": "E5",
+    "name": "Rotational Medicine-Ball Shot-Put",
+    "mechanical_identity": "grounded_pivot_one_arm_shoulder_ball_release",
+    "source_status": "partner-medicine-ball-shot-put-pass; pivot/grounded execution proposed",
+    "job": "Express a pivoting leg/hip drive through a unilateral release, complementing two-handed scoop throws rather than duplicating them."
+  },
+  {
+    "class": 8,
+    "slot": "E6",
+    "name": "Short U-Turn Reacceleration",
+    "mechanical_identity": "grounded_180_degree_run_brake_return",
+    "source_status": "u-drill-turn-and-go; short-lane execution proposed",
+    "job": "Practise a grounded full reversal as one possible recovery when the second route is closed."
+  },
+  {
+    "class": 9,
+    "slot": "E1",
+    "name": "Moving Opponent Tempo Match",
+    "mechanical_identity": "moving_same_direction_velocity_change_gap_match",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main rhythm task: detect acceleration and easing from an already-moving opponent while preserving a useful gap."
+  },
+  {
+    "class": 9,
+    "slot": "E2",
+    "name": "Single-Leg Pogo in Place",
+    "mechanical_identity": "unilateral_in_place_low_amplitude_elastic_contacts",
+    "source_status": "single-leg-pogo; low-amplitude exact support",
+    "job": "Practice small repeated ankle return on one support leg for an unpredictable next step."
+  },
+  {
+    "class": 9,
+    "slot": "E3",
+    "name": "Straight-Leg Bounds — low amplitude",
+    "mechanical_identity": "low_amplitude_alternating_scissor_hip_impulse",
+    "source_status": "distance-jump-straight-leg-bound; low-amplitude execution proposed",
+    "job": "Create a quick alternating hip-driven impulse with little knee lift or flight height, complementing ankle-only pogos."
+  },
+  {
+    "class": 9,
+    "slot": "E4",
+    "name": "Build–Float–Reburst Run",
+    "mechanical_identity": "planned_forward_accelerate_float_reaccelerate",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Physically rehearse changing force output while already moving without adding a directional choice."
+  },
+  {
+    "class": 9,
+    "slot": "E5",
+    "name": "Soft Medicine-Ball Catch-to-Scoop Return",
+    "mechanical_identity": "incoming_underhand_load_hip_yield_immediate_scoop_return",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Accept a small incoming load through the hips/trunk and reverse it promptly into a forward release, supporting tempo changes in force expression."
+  },
+  {
+    "class": 9,
+    "slot": "E6",
+    "name": "Bait-and-Go Timing Window",
+    "mechanical_identity": "offensive_departure_timed_to_defender_weight_commitment",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Read when a defender’s weight commitment creates time to leave, introducing an offensive timing problem."
+  },
+  {
+    "class": 10,
+    "slot": "E1",
+    "name": "Two-Gate Advantage Choice",
+    "mechanical_identity": "offensive_spatial_open_gate_selection_against_coverage",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main affordance task: select the route an opponent cannot currently cover instead of mirroring their direction."
+  },
+  {
+    "class": 10,
+    "slot": "E2",
+    "name": "Single-Leg Quarter-Turn Hop to Stick",
+    "mechanical_identity": "single_leg_in_place_quarter_turn_same_leg_stick",
+    "source_status": "single-leg-quarter-turn-hop-to-stick; local family",
+    "job": "Reorient onto a single-leg base, distinct from Class 7’s shared two-foot quarter-turn landing."
+  },
+  {
+    "class": 10,
+    "slot": "E3",
+    "name": "Low Box Jump to Stick",
+    "mechanical_identity": "bilateral_takeoff_raised_surface_terminal_landing",
+    "source_status": "low-box-jump-to-stick; local family",
+    "job": "Express force toward a raised target while reducing the landing fall distance, preserving quality for route choices."
+  },
+  {
+    "class": 10,
+    "slot": "E4",
+    "name": "90-Degree Run-Through Cut",
+    "mechanical_identity": "planned_grounded_right_angle_cut_reacceleration",
+    "source_status": "90-degree-cut-and-stick; run-through short variant proposed",
+    "job": "Produce a sharper grounded redirection than the earlier oblique cut, using a short controlled approach."
+  },
+  {
+    "class": 10,
+    "slot": "E5",
+    "name": "Slam Ball Rotational Slam — diagonal",
+    "mechanical_identity": "grounded_overhead_to_diagonal_downward_ball_release",
+    "source_status": "slam-ball-rotational-slam; diagonal low-rebound execution proposed",
+    "job": "Rapidly direct trunk/hip force diagonally while feet pivot and the body remains stacked; supports decisive reorientation."
+  },
+  {
+    "class": 10,
+    "slot": "E6",
+    "name": "Inside-Route Interception",
+    "mechanical_identity": "curved_opponent_route_direct_corresponding_gate_intercept",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Use opponent path information to select a shorter intercept line rather than following the entire curved route."
+  },
+  {
+    "class": 11,
+    "slot": "E1",
+    "name": "Passer-to-Receiver Attention Shift",
+    "mechanical_identity": "two_person_passer_receiver_visual_target_handoff",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main target-selection task: transfer attention from the initiating passer to the opponent who now determines the movement response."
+  },
+  {
+    "class": 11,
+    "slot": "E2",
+    "name": "Falling Start to Short Acceleration",
+    "mechanical_identity": "gravity_lean_release_forward_acceleration_start",
+    "source_status": "falling-start-to-10-yard-cone; 3 m variant proposed",
+    "job": "Convert a controlled forward shift of the centre of mass into a prompt first support step."
+  },
+  {
+    "class": 11,
+    "slot": "E3",
+    "name": "Half-Kneeling Rise-and-Run Start",
+    "mechanical_identity": "half_kneeling_to_running_support_transition_start",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Create forward force while changing from knee/foot support to running support, without losing the line of travel."
+  },
+  {
+    "class": 11,
+    "slot": "E4",
+    "name": "Fixed-Lead Lateral Gallop",
+    "mechanical_identity": "fixed_lead_lateral_gallop_flight_contact_sequence",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Keep one leg leading through a short rhythmic lateral burst, a different contact order from alternating skips or non-flight shuffles."
+  },
+  {
+    "class": 11,
+    "slot": "E5",
+    "name": "Half-Kneeling Rotational Scoop Toss",
+    "mechanical_identity": "half_kneeling_supported_pelvis_rotational_scoop_release",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Produce a rapid trunk/hip turn over a fixed supported pelvis, helping keep a stable base when gaze and shoulders change direction."
+  },
+  {
+    "class": 11,
+    "slot": "E6",
+    "name": "Single-Leg Hop-to-Cut Read",
+    "mechanical_identity": "same_leg_hop_acceptance_live_shallow_exit_choice",
+    "source_status": "reactive-hop-to-cut; settled-landing cue version proposed",
+    "job": "Select a direction after unilateral landing acceptance, linking a changing support base to a new exit."
+  },
+  {
+    "class": 12,
+    "slot": "E1",
+    "name": "Three-Intent Opponent Read",
+    "mechanical_identity": "three_intention_approach_retreat_lateral_response_selection",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Main integration: choose whether to give ground, close space or shift laterally from the opponent’s intention."
+  },
+  {
+    "class": 12,
+    "slot": "E2",
+    "name": "Single-Leg Forward-to-Lateral Rebound Hop",
+    "mechanical_identity": "same_leg_forward_to_outward_orthogonal_rebound_pair",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Redirect a small forward landing into an outward lateral push on the same leg, rather than reversing back along the same line."
+  },
+  {
+    "class": 12,
+    "slot": "E3",
+    "name": "Forward Jump to Split-Stance Landing",
+    "mechanical_identity": "parallel_bilateral_forward_takeoff_staggered_terminal_landing",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Accept a two-foot forward impulse in an asymmetric ready base, preparing either leg to own the next step."
+  },
+  {
+    "class": 12,
+    "slot": "E4",
+    "name": "Shuffle-to-Bound Release",
+    "mechanical_identity": "lateral_shuffle_momentum_to_opposite_leg_bound_stick",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Convert incoming lateral travel into one unilateral flight, unlike the stationary skater push or grounded shuffle stop."
+  },
+  {
+    "class": 12,
+    "slot": "E5",
+    "name": "Kettlebell Swing — two-hand",
+    "mechanical_identity": "grounded_repeated_ballistic_hip_hinge_swing",
+    "source_status": "kettlebell-swing; two-hand chest-height execution specified",
+    "job": "Rapid hip extension from a grounded hinge supports repeated acceleration impulses without extra jump landings."
+  },
+  {
+    "class": 12,
+    "slot": "E6",
+    "name": "Late Gate-Closure Escape",
+    "mechanical_identity": "offensive_route_departure_then_late_coverage_replan",
+    "source_status": "Proposed drill/exact execution; no library ID claimed.",
+    "job": "Re-plan an offensive route when the initially available exit is closed after departure."
+  }
+]

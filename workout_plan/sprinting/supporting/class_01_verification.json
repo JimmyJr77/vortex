@@ -1,0 +1,47 @@
+{
+  "checked_date": "2026-09-13",
+  "status": "PASS",
+  "scope": "Document consistency, path checks and workload/timing arithmetic only. Not athlete execution, clinical clearance, or confirmed group capacity.",
+  "checks": {
+    "four_ordered_sections": true,
+    "exact_exercise_counts": true,
+    "four_column_exercise_tables": true,
+    "correct_title": true,
+    "only_one_class_finalized": true,
+    "observations_unknown": true,
+    "spec_snapshot_exact": true,
+    "seven_categories_and_subcategories_exact": true,
+    "twelve_provisional_map_rows": true,
+    "latest_drill_preference_saved": true,
+    "strength_workload_arithmetic": true,
+    "jump_workload_arithmetic": true,
+    "timing_sum_matches_audit": true,
+    "local_markdown_links_resolve": true,
+    "state_references_exist_except_this_report": true
+  },
+  "class_exercise_row_counts": [
+    0,
+    6,
+    2,
+    6
+  ],
+  "timing_model": {
+    "explosiveness_minutes": 30.366666666666667,
+    "stabilization_minutes": 5.5,
+    "primary_minutes": 39.18333333333333,
+    "total_minutes": 75.05
+  },
+  "broken_links": [],
+  "sha256": {
+    "athlete_feedback.md": "6b0beaa649ac31370cbe73e990201c62a35bb0298f74af832af491688eb2f57d",
+    "classes/class_01.md": "9115f04e4a4c8e1973caa6e2d2b9fa5a29177834a6ab8e40b3262cb9ec4da175",
+    "curriculum.md": "56f6d5bda806aff9b8675048eaf68f383aab3e8e3e3de02e02aaf003f56cc013",
+    "progress.json": "31a8068cfb72ec46f5e2e4c6f0db4fa83de4043844d3c8c6de2bf4344fd78084",
+    "progression_ledger.md": "df8ff3a3a1d11f25476e4c505b63788c0400c83a2e507624c29d630b1a7ff1a0",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2",
+    "supporting/class_01_audit.md": "c5c5903d2d3ae247163749345fed47002114c718ff220d0b8da5abe782422925",
+    "supporting/drill_history.md": "ac32f9a760dca8bb872121c5c479c768a40e1081f3b9575fa258baafcd99eb41",
+    "supporting/sources_and_exercises.md": "f159b6a7e9477a0a5edb8bc3a2f8c98c132c51ca2085e587d06ee4ad74cb52b7"
+  },
+  "checkpoint": "Historical Class 1 document verification before Class 2; hashes describe that saved checkpoint, not current shared state."
+}

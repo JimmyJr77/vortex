@@ -1,0 +1,67 @@
+# Class 9 — relevance, progression and delivery audit
+
+**Review date:** 2026-09-13. **Previous goal turn: progress.** Class 8, all eight finalized paths and all twenty-three saved hashes matched; the source snapshot matched the original. Reviewed the exact framework/map, saved Classes 1–8 and relevant earlier loaded-jump/arm/clearance/throw replacements, ledger, drill history, Class 8 audit, identities and feedback. No applicable repository/parent AGENTS.md was found. Available neighboring feedback still contains no actual athlete observations. Only Class 9 is finalized this run; the twelve-class goal remains incomplete.
+
+## Daily stimulus brief
+
+1. **Result:** express rapid upward force against a modest held load with controlled takeoff and landing.
+2. **Demand:** keep a one-dip jump brisk while controlling load position, trunk and foot contact; distinguish actual load-bearing attempts from bodyweight work.
+3. **Primary task:** Dumbbell Countermovement Jump, three sets of two total. The first two scheduled jumps are bodyweight checks; the remaining four may use a light pair only if current execution, handling and readiness support it.
+4. **Supporting jobs:** paused leg force with natural arms; brief low ankle rebounds over clearance; longer ball preload into upward release; a low still-start loaded pull; supported lead-leg drive without more jump landings. Strength retains bilateral and individual-leg force, complementary hip ranges and both knee positions for ankle force; light work supports alignment/foot contact.
+5. **Marker/constraints:** separate valid bodyweight and loaded attempts, actual load/arm policy, brisk dip/drive, bell control and 2 s landings. No prior actual dose/load/recovery is known. No automatic loading, within-session load increase, external drop or jump-volume increase. No test attempts outside E1's six.
+
+## Selection and revision audit
+
+| Slot | Choice / alternative considered | Specific purpose and limit |
+|---|---|---|
+| E1 | Isolated dumbbell CMJ instead of a weight-drop/rebound combination or a loaded box jump | Direct held-load vertical force with a controlled floor landing and full reset. Classes 1–2 already offered the same smooth-dip loaded execution under the label Loaded Squat Jump; revisiting it as the primary task is not novel. Two current bodyweight attempts precede at most four loaded ones. |
+| E2 | Paused Squat Jump with Natural Arm Swing instead of a second CMJ slot | Motionless lower-body start changes initiation while arm assistance differs from earlier hands-on-hips paused jumps. Four bodyweight flights support upward force without multiplying the loaded landing dose. The pause remains even when E1 regresses to bodyweight. |
+| E3 | Two bouts of two low hurdle pogos instead of a long hurdle series or higher rebounds | Two brief ankle-dominant linked transitions under small clearance, four landings total. This differs from Class 3's isolated hurdle hop and prior flat directional pogos. Low hurdles and spacing must permit that ankle strategy; do not force a tuck to clear equipment. |
+| E4 | Tall-start no-flight scoop instead of a loaded drop-to-throw or catching a rebound ball | A controlled longer ball preload is followed by leg-driven release without athlete impact or catch demand. The overhead start changes the earlier hip-level scoop; it is not a new dose of that identical task under another name. Shoulder/ball-path control is a current condition, with a simpler hip-level replacement. |
+| E5 | Light kettlebell floor pull without flight/catch instead of another loaded jump or catch lift | The lower still start provides knee/hip/ankle force against a retained load with a vertical path rather than swing arc. It is one continuous pull, not a deadlift set plus extra calf-raise reps. Exact floor fit is not assumed; the earlier high-hang dumbbell pull is the replacement. |
+| E6 | Recurring preplanted explosive Step-Up instead of another novel landing task | Retain supported lead-leg upward force while E1/clearance/ball/pull conditions change. Four bodyweight rises add no athlete flight. This repeats earlier default/replacement work deliberately; prior familiarity and completion remain unknown. |
+| S1–S2 | Same easy step-down and supported short-foot | Preserve knee/pelvis and active contact control relevant to load acceptance without material pre-fatigue. |
+| P1–P6 | Hold Class 8 order/doses/rests | Class 8 already moved Front-Rack Squat first. Hold that arrangement while the explosive load changes; maintain stable bilateral/individual-leg force, flexed/terminal hip force and both ankle knee positions. Actual load/effort/recovery, not the class index, determines later progression. |
+
+**Overlap:** Three jump slots have fourteen total landings. Four are potentially load-bearing; E1's two entry checks and the eight E2/E3 landings are bodyweight. E3 contains two linked transitions, not extra contacts. E1 loaded knee/hip force and E5 floor-pull force overlap, but one has takeoff/landing after a dip while the other has a lower static start with retained floor contact; the small pull dose is six light efforts. E4 adds four releases, E6 four supported rises. RDL and Hip Thrust overlap with the pull in hip tissues, so retain two controlled RDL sets and one terminal-extension set, with actual effort and recovery governing loads. Four low obstacle contacts do not prove readiness for heavier calf work. Aggregate counts or unchanged primary reps do not establish equal tissue demand.
+
+**Revisions before finalization:** incorporated the bodyweight check into the six main attempts rather than adding test contacts; limited the loaded branch to four jumps at one unchanged light load. Kept fourteen total landings, removed split-switch/pulsing-height demands and prescribed no platform drop or elevated jump landing. Limited the hurdle task to two crossings per bout. Retained the supported step-up rather than adding another novel impact task. Added floor-pull and ball-start regressions and counted every park, return, entry check and replacement rest. Historical identity review caught the earlier loaded-jump replacement; it is recorded as reuse, not claimed new.
+
+## Prescribed workload and conditional branches
+
+- **Default jump budget:** fourteen bilateral floor takeoffs/landings, 28 landing foot impacts if feet are counted individually. E1 six (two initial bodyweight, four conditional loaded); E2 four bodyweight paused jumps; E3 four bodyweight hurdle pogos. No unilateral takeoff/landing. No sprint, approach or elevated jump landing. E3 has two within-bout linked transitions and four hurdle crossings; no turn is jumped.
+- **Loading branch:** if all scheduled loading checks pass and work is delivered, the plan is ten bodyweight/four loaded landings. If loading is unsuitable, remaining E1 attempts stay bodyweight when useful, or the slot ends. Actual loaded attempts may be zero to four; failed attempts and already attempted work count. Do not assume a gate passed, restart six attempts after a switch, or treat no reported load as zero load. E1's two checks are already in fourteen jump contacts and are not part of the 39 primary-preparation reps.
+- **Other power work:** four tall-start throws without athlete flight; six floor pulls with six controlled returns/parks; four step-up rises and four free-foot returns, two initial lead-foot placements and two end-of-side step-offs. These are task counts, not all walking/handling contacts. Incidental flight belongs in actuals.
+- **Strength:** 84 working reps, ten rounds/thirteen bouts: P1 front squat 12, P2 split squat 16, P3 RDL 12, P4 hip thrust 8, P5 standing calf 16, P6 soleus 20. Nine compound/four calf bouts. Preparation 39 reps/seven rounds/nine bouts; light work ten dynamic reps/six five-second holds, 30 aggregate foot-seconds, two rounds/four bouts. Same dose/order/tempo/rest as Class 8; no known working load.
+- **Nine-document sums:** **179 jump landings, 36 throws, 764 primary working reps and 351 primary preparation reps**. The four Class 9 loaded landings are conditional components of that jump budget, not verified performed work; earlier optional loaded replacements are not silently added. Other power efforts remain separated by task.
+
+Full E1 unloaded replacement preserves the six-attempt ceiling but has no loaded landings; partial switches record actual load per attempt. E2 fixed-arm pause keeps four flights and the static-start job. E3 isolated flat-line replacement keeps four landings, removes two linked transitions/raised obstacles and adds 48 s in the full model. E4 hip-level start keeps four throws and removes the tall preload; clearance is still required. E5 high-hang pull keeps six efforts and stated rests with a different start/range and handling. E6 shallow supported split rise keeps four rises but removes two step placements/two step-offs and changes support/range. All use only remaining original budgets; none supplies extra work. Strength alternatives retain prior slots/doses, including simultaneous bilateral short-foot at 15 wall-clock/30 aggregate foot-seconds.
+
+## Clock audit — seconds outside Access & Prepare 1
+
+| Slot | Execution/handling | Recovery | Setup/teaching/loading | Total |
+|---|---|---|---|---|
+| E1 conditional dumbbell CMJ | 6 × 6 = 36, including landing hold/reset | 3 × 30 + 2 × 120 + 120 = 450 | 150, including grip/clearance and bodyweight-to-bell setup | **636** |
+| E2 paused natural-arm jump | 4 × 7 = 28, including 2 s start and landing holds/reset | 2 × 20 + 90 + 90 = 220 | 90 | **338** |
+| E3 two-crossing pogo | 2 × 8 = 16, including final hold/walking return | 90 + 90 = 180 | 120 | **316** |
+| E4 tall-start scoop | 4 × 6 + 4 × 25 settle/retrieval = 124 | 2 × 20 + 90 + 90 = 220 | 120 | **464** |
+| E5 floor pull | 6 × 6 = 36, including setup of each rep, rapid extension, heel return and controlled lowering/park | 4 × 20 + 90 + 90 = 260 | 120 | **416** |
+| E6 preplanted step-up | 4 × 5 rise/hold/free-foot return + 2 × 4 lead-foot on/off handling = 28 | 2 × 20 + 60 + 90 = 190 | 90 | **308** |
+| S1 step-down | 40 | 75 | 30 | **145** |
+| S2 short-foot | 30 | 110 | 30 | **170** |
+| P1 front squat incl. prep | (12 + 10) × 4 = 88 | 60 + 120 prep; 150 work sets + 150 next = 480 | 60 | **628** |
+| P2 split squat incl. prep/sides | (16 + 6) × 4 = 88 | 30 + 90 prep; 2 × 90 sides + 120 rounds + 150 next = 570 | 60 | **718** |
+| P3 RDL incl. prep | 68 | 330 | 45 | **443** |
+| P4 hip thrust incl. prep | 39 | 150 | 60 | **249** |
+| P5 standing calf incl. prep/sides | 72 | 210 | 30 | **312** |
+| P6 soleus incl. prep | 75 | 150 | 30 | **255** |
+
+Explosive **2,478 s**, light strength **315 s**, primary/preparation **2,605 s**, water/recording **180 s** = **5,578 s / 93.0 min**. Allow **90–100 minutes outside Access & Prepare 1**, before excess queues or substantial added instruction/recovery. Full E3 flat-line replacement: 4 × 6 execution + 2 × 20 within-set rests + 90 + 90 between/next + 120 teaching = 364 s, **48 s more**, giving 5,626 s / 93.8 min before other changes. Preserve the load-check allowance when E1 remains bodyweight; actual saved handling time is not extra-work permission.
+
+Execution and 25-second ball retrieval are estimates, not deadlines. Actual secure handling, returns or instruction may take longer. Count side rests and preparation once; waiting supplies recovery only when the real flow permits, with excess queues adding time. Preparation duration, group/staff, two-hurdle fit, load increments and safe floor/ball zones remain unknown. No 60-minute or 90-minute total fit. Roughly 48–72 hours between comparably demanding lower-body exposures is contextual; actual sport, lifting, grip/throwing and separate tumbling plus recovery govern scheduling.
+
+## Evidence, acceptance and handoff
+
+OTA's [vertical-power article](https://blog.overtimeathletes.com/my-top-3-exercises-for-increasing-vertical-power/) supplies loaded-jump and ball-projection examples. Their advanced combined transitions, released dumbbells, platform drops, fixed weights and outcome claims are not adopted. [NSCA's plyometric guidance](https://www.nsca.com/education/articles/kinetic-select/plyometric-exercises/) emphasizes choosing a specific physical job and accounting for other sport exposure; the class uses three brief jump tasks and three non-flight power tasks within the user's six-slot requirement. The [NSCA weightlifting position statement](https://www.nsca.com/globalassets/about/position-statements/weighlifting-for-sports-performance.pdf) supports the general role of pulling derivatives in rapid extension; applying that role to this exact light kettlebell floor pull is a programming inference, not validation of its youth dose. Previously reviewed youth resistance-training guidance remains the basis for supervised, technique-led strength loading. No source validates this entire class or guarantees improvement.
+
+Verified counts, dose/side work, loading branches, specific jobs, explicit recurrence, recovery, setup/handling, proposed identities and clock arithmetic. Class 10 should integrate a suitable standing or short-approach strategy after reviewing actual loading decisions/landings, support-task execution, lift effort and recovery. Changed complexity must answer an observed limitation; missing response does not establish earned progression. Save Class 9 and updated state, then stop.

@@ -1,5 +1,7 @@
 # Programming QA and stage gates
 
+**Current checkpoint: the full60+20 outline is reviewed; Day1 andOR01–12 have complete scoped athletic reviews. Detailed inventory is1main/12instructional sessions,108task rows and33,780daily scenarios. The full goal remains active.**
+
 ## Stage 1 — PASS for philosophy and strategy
 
 Stage 1 is limited to the continuing-block philosophy, source/conflict register, entry/on-ramp relationship, proposed organization and staged plan. It does not satisfy the requirement for complete daily workouts or the complete progression outline.
@@ -208,3 +210,14 @@ Final corrections separate direct retained jogging-exit evidence from first jogg
 Read instructional_on_ramp/week_03/or_11_review.md and its independent critique/results. Day1 plus OR01–11 now yield 100 detailed task rows and 32,652 daily scenarios across 22 daily ledger files. The 1,950 direction plans and 1,602 factors are separate alternatives, not added daily scenarios. Two completed weekly audits remain 103,092 paths/1,023 summaries; Week3 is not yet audited. Current operational/canonical release and precise separate tumbling remain unverified. Full scope still requires 59 main and 9 instructional detailed lessons, later audits, entry pathways and assembly.
 
 **OR12 handoff gate:** planning/OR12_STIMULUS_AND_SOURCE_REVIEW.md now passes bounded source, root and independent programming review, with23 current source fingerprints. Its actual35m running lineage stays distinct from standing-start acceleration; extra rest/reporting never buys extra efforts or a fabricated restart result. Full OR12 prescription and daily audit remain next.
+
+
+## OR-12 — retained running with coached recovery decisions
+
+The complete written lesson, exact source comparison and independent programming/numeric reviews pass. Eight purposeful tasks resolve all three age bands and four modes, complete preparation, independently eligible alternatives and actual smaller/null/zero histories. The primary35 m running lineage retains its actual easy or repeatable modest intent; separate standing-static acceleration keeps its own geometry, effort and180 s recovery. First reporting instruction grants no first-running permission or fabricated subsequent-run result.
+
+The additive OR12 reconciliation implements two fixed main corridors/coaches,50 s global/100 s same-lane release spacing,10 s after-return report and5 s next staging. Actual coach HOLD/CLEAR communication guards longer movement; stationary reports stay in visible/audible personal bays. The preparation transfer is timed explicitly. Compressed row groups40/112/184 s preserve the52 s maximum set and20 s reset. Delayed main recovery and requested wait carry into the first performed Strength action, with bounded delay or omission inside the original group window. Omitted DB packets contain no leftover handling segments.
+
+Numeric evidence covers1,128 complete clock cohorts and1,404 independent factors, with77 rejecting probes,37 positive cases and16 separate hypothetical delay cases. The latter include a validated full late-main trajectory fed directly into the Strength scheduler. The complete2,233,269-byte pooled ledger passes full and nested serialize/parse/resolve equality. Source review checks1,524 dose packets and17 inspected record snapshots; no new card is needed. Actual canonical approval, facility fit, participant histories and precise separate tumbling remain unverified.
+
+Read [the director review](instructional_on_ramp/week_03/or_12_review.md), [independent critique](instructional_on_ramp/week_03/or_12_programming_critique.md), [numeric results](instructional_on_ramp/week_03/or_12_check_results.json) and [source register](prescriptions/OR12_LIBRARY_MAPPING.md). The current index has13 athletic sessions,108task rows and33,780daily scenarios across24daily ledger files. The two completed weekly audits remain103,092paths/1,023summaries; Week3 is not yet complete. Eight instructional and59main detailed lessons, later audits, entry pathways and final assembly remain. OR13 source/stimulus review is the next individual gate.

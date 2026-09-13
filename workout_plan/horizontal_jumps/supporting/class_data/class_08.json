@@ -1,0 +1,245 @@
+{
+  "class_number": 8,
+  "title": "Reapply forward force through the same support leg.",
+  "brief": "The priority is two linked same-leg hops, then a controlled stop. Single-leg hurdle clearance, a motionless single-leg start, a small fore-aft line reversal and a grounded one-leg throw each isolate a contributor. A split-start jump onto a low box rehearses gathering into a supported two-foot finish.",
+  "explosive": [
+    {
+      "name": "Repeated Single-leg Forward Hops — Two Contacts",
+      "job": "Reapply forward impulse from the same receiving leg.",
+      "cue": "Hop twice forward on the same foot without an intentional pause, then hold the second landing 2 s; alternate side bouts.",
+      "regress": "Shorten each hop; stop for a collapsing intermediate knee/hip or an uncontrolled final contact.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 3,
+      "reset": 0,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": "Eight unilateral landings total, four each leg."
+    },
+    {
+      "name": "Single-leg Forward Hurdle Hop to Stick",
+      "job": "Maintain same-leg propulsion and landing around a real clearance constraint.",
+      "cue": "Hop from one foot over a very low hurdle to the same foot and hold 2 s, keeping the receiving knee aligned.",
+      "regress": "Lower/bring the hurdle closer; stop for clipping, reaching or a free-foot touchdown.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Paused Single-leg Broad Jump to Two-foot Landing",
+      "job": "Express a fresh one-leg push without reusing a preceding contact or adding a one-leg finish.",
+      "cue": "Hold a shallow one-leg dip still for 2 s, use the arms and jump forward to two feet; hold 2 s.",
+      "regress": "Shorten travel and make the start shallower; stop if a re-dip replaces the paused push.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "unilateral_to_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Single-leg Forward–Backward Line Hops",
+      "job": "Control a small fore-aft reversal through the same foot.",
+      "cue": "Make one forward and one backward crossing of a flat line on the same foot, then settle; repeat on the other foot.",
+      "regress": "Narrow the crossing and lower height; stop if the knee locks or balance dominates.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "low_unilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Small quick crossings, not distance hops",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Single-leg Forward Medicine Ball Scoop Toss",
+      "job": "Transmit forward force through one planted leg and a controlled pelvis without a landing.",
+      "cue": "Stand on one foot with a very light ball low in front; use a shallow hip/knee dip to scoop forward, keeping the free foot clear and torso facing ahead.",
+      "regress": "Reduce load/dip; stop for hopping, twisting or loss of foot control.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "Comfortable one-leg ball handling; power must not be limited by balance.",
+      "note": ""
+    },
+    {
+      "name": "Split-Squat Jump onto a Low Box",
+      "job": "Gather a lead-leg-biased push into a symmetrical elevated finish.",
+      "cue": "From a shallow fixed split stance on the floor, dip once and jump forward/up onto a low box with both feet; hold 2 s, then step down.",
+      "regress": "Lower/bring the box closer; stop if the rear leg is trapped, the stance twists or feet land partly off the box.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Short-Lever Side Plank",
+      "job": "Lightly support frontal-plane trunk/pelvic control during same-leg contacts.",
+      "cue": "Support on forearm and bent knees, lift hips modestly and hold a straight shoulder–hip–knee line while breathing.",
+      "regress": "Shorten the lever/lower effort; stop if the shoulder or back is uncomfortable.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Hip Flexor March Iso Hold — Hand Supported",
+      "job": "Maintain free-thigh position without tipping the pelvis away from the support leg.",
+      "cue": "Use light hand support, raise one thigh to a comfortable march position and hold with ribs stacked over the planted foot.",
+      "regress": "Lower the thigh and reduce effort; stop if lumbar arching or stance-foot rolling appears.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 12,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    }
+  ],
+  "strength": [
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "slrdl",
+      "name": "Single-Leg Romanian Deadlift — hand-supported, dumbbell",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 2,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 6,
+    "unilateral_landing_events": 16,
+    "throws": 4,
+    "other_ballistic_efforts": 0,
+    "drop_landings": 0,
+    "low_amplitude_landings": 4,
+    "primary_rounds": 7,
+    "primary_bouts": 10,
+    "primary_reps": 60,
+    "primary_cycles": 2,
+    "prep_rounds": 7,
+    "prep_bouts": 10,
+    "prep_reps": 36,
+    "prep_cycles": 1,
+    "stabilization_reps": 0,
+    "stabilization_hold_seconds": 48,
+    "landing_events": 22,
+    "landing_foot_contacts": 28
+  },
+  "duration_after_preparation_seconds": 4610,
+  "decision": "Same-leg links are capped at two per bout; static and elevated two-foot finishes limit additional unilateral receiving demand. The paused unilateral start differs from Class 1's continuous-dip single-leg broad jump; the fore-aft line drill adds an actual reversal rather than more forward distance. Supported single-leg RDL supplies a unilateral hip-strength job without a balance contest. Bilateral squat and walkout remain small; no load or contact progression is earned without actual feedback.",
+  "next_job": "Class 9 will introduce controlled short-entry bilateral projection; assess actual same-leg response and use an appropriate recovery interval first.",
+  "observed": null,
+  "class_sha256": "3cec07f834abe46e914c80d4075466b2774f7fc8974e5ebdbdf609e4df0fb893"
+}

@@ -1,0 +1,417 @@
+{
+  "n": 3,
+  "effort": "Produce and receive force over one stance leg while keeping the pelvis controlled.",
+  "brief": "The limiting demand is stance-leg force with the pelvis stacked over the foot. E1 provides small lateral single-leg push/acceptance practice; E2 separates bilateral takeoff from unilateral receiving, E3 gives a lower-balance frontal push, E4 adds rapid supported elevation, E5 makes hip drive asymmetric, and E6 accelerates the free thigh without trunk lean. Light hip rotation/adduction work supports the same stance objective.",
+  "anchor": "E1",
+  "marker": "Within the three scheduled lateral hops per leg, count landings held for 2 s with the knee aligned to the foot and pelvis controlled, without an extra step. Keep the small distance the same on each attempt; this is not a test of maximum lateral distance.",
+  "review": "Class 2 prescribed 31 two-foot landing events and no single-leg landings, with 9 primary rounds. Class 1 included 14 single-leg events. Neither was reported performed. Class 3 limits its unilateral receiving dose to 10 events and retains all strength roles while changing the bilateral RDL to a supported single-leg hinge with the same 12 total working reps.",
+  "sequence": "Place E1/E2 first while balance and landing quality are fresh; the two-foot E3 is a small complementary dose. E4–E6 have no flight, keeping impact down while adding rapid unilateral force tasks.",
+  "E": [
+    {
+      "name": "Single-Leg Lateral Hop to Stick",
+      "identity": "sl_lateral_stick",
+      "family": "single-leg frontal push and acceptance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "hops per landing leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Primary single-leg stance task: push outward and accept a small sideways displacement without pelvic collapse.",
+      "cue": "From one foot hop outward no more than one own foot length, land on that same foot and hold 2 s. Walk back to reset. Reduce distance for knee drift; stop for repeated balance steps."
+    },
+    {
+      "name": "Two-Foot Vertical Jump to Single-Leg Stick",
+      "identity": "bilateral_vertical_to_sl",
+      "family": "unilateral force acceptance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per receiving leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Focus on one-leg receiving while the takeoff force is shared, separating acceptance from unilateral propulsion.",
+      "cue": "Use a very low two-foot jump, land on the nominated foot directly below the body and hold 2 s. Do not tuck the free knee high or chase height. Reduce flight first; if unilateral receiving is unsuitable, use a two-foot landing instead at 1 × 4 total, same rests between attempts."
+    },
+    {
+      "name": "Two-Foot Lateral Jump to Stick",
+      "identity": "bilateral_lateral_stick",
+      "family": "frontal force expression with shared receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "jumps per direction",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 15,
+      "t": 4,
+      "job": "Express a small frontal push using both legs so hip-force practice does not depend entirely on single-leg balance.",
+      "cue": "Jump a short distance sideways, both feet take off and land together, hold 2 s, walk back. Keep toes facing forward and knees tracking; shorten distance for rotation. No crossover, cutting or approach."
+    },
+    {
+      "name": "Explosive Low Step-Up — no flight",
+      "identity": "fast_stepup_no_flight",
+      "family": "rapid supported stance-leg extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "step-ups",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 5,
+      "t": 3,
+      "job": "Accelerate the body upward through the supported stance leg while reducing the need for a jump landing.",
+      "cue": "One whole foot on a low stable box, working thigh below horizontal. Drive up quickly with that foot staying on the box; free knee lifts modestly, then lower over 2 s. No push-off from the floor foot and no top-foot flight. Reduce box height for pelvic hike."
+    },
+    {
+      "name": "Kickstand Two-Hand Kettlebell Swing",
+      "identity": "kickstand_kb_swing",
+      "family": "asymmetric ballistic hip extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "swings per lead-leg stance",
+      "footfalls": [],
+      "rest": 90,
+      "t": 2,
+      "job": "Bias fast hip extension toward the lead leg while the rear toes provide a stable support base.",
+      "cue": "Short staggered stance, rear toes grounded, light bell in both hands. Hinge and snap tall; bell floats below chest height without rotation, stepping or jumping. Park after four. Use less bell load or less stance offset if pelvis turns."
+    },
+    {
+      "name": "Supported Standing Band Hip Flexion — fast knee drive",
+      "identity": "standing_fast_band_hipflex",
+      "family": "rapid free-leg recovery",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "knee drives",
+      "footfalls": [],
+      "rest": 60,
+      "t": 3,
+      "job": "Accelerate the swing thigh while the other leg supplies quiet support; complements the loaded supine strength task later.",
+      "cue": "Secure loop band around forefeet; stable hand support, stance foot stays planted. Lift only the working thigh quickly, lower over 2 s and reset that foot before the next rep. No alternating jogging, foot switches or trunk lean. Reduce band tension for pelvic tilt."
+    }
+  ],
+  "S": [
+    {
+      "name": "Hip Airplane — Supported",
+      "identity": "supported_hip_airplane",
+      "library_slug": "hip-airplane-supported",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "open-close cycles",
+      "rest": 30,
+      "t": 6,
+      "job": "Lightly load the stance hip while controlling pelvic rotation around a stable femur.",
+      "cue": "Hand support, small single-leg hinge, slowly open the pelvis slightly and return square in 6 s. Knee follows toes; free foot can use a light kickstand instead if rotation/balance is uncontrolled. Stay far from fatigue."
+    },
+    {
+      "name": "Side-Lying Hip Adduction",
+      "identity": "side_lying_adduction",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "reps",
+      "rest": 30,
+      "t": 5,
+      "job": "Light adductor strengthening to support the pelvis over the stance leg during frontal drift.",
+      "cue": "Top leg bent with foot on floor in front; bottom leg straight. Lift the bottom thigh 2 s, hold 1 s, lower 2 s without rolling. Use a smaller lift if groin effort becomes strenuous; bodyweight only."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Keep the main unilateral knee/hip force anchor while the explosive receiving conditions change.",
+      "key": "split"
+    },
+    {
+      "name": "Single-Leg Romanian Deadlift — hand supported, dumbbell",
+      "slug": "single-leg-romanian-deadlift",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "One DB opposite working leg, free hand on stable support. Soft stance knee, free leg travels back, pelvis faces floor; lower 3 s and rise 1 s. Support removes balance as the limiter. Reduce load/range for hip opening or trunk rotation.",
+      "job": "Move the hinge force task onto one supported stance leg without allowing balance to limit resistance.",
+      "key": "slrdl",
+      "decision": "Class 2 bilateral RDL 2 × 6 → supported single-leg RDL 1 × 6 per leg: 12 total working reps preserved, new unilateral force distribution; reduce load substantially as required. Hold this support/range until actual technique and recovery are known."
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 2,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Preserve bent-knee ankle force for the stance leg; no automatic calf-load increase.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Maintain the smaller straight-knee plantarflexor exposure after the limited single-leg landings.",
+      "key": "calf"
+    },
+    {
+      "name": "Glute Bridge Walkout",
+      "slug": "glute-bridge-walkout",
+      "sides": 1,
+      "reps": 4,
+      "sets": 1,
+      "t": 8,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          1,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "cycles",
+      "cue": "Keep a floor bridge while four small alternating heel steps go out and four return; eight steps at about 1 s each = one full cycle. Choose reach so four cycles are challenging with 2–3 whole cycles available. Shorten reach for pelvic sag or cramping; do not add steps or cycles.",
+      "job": "Retain hamstring knee-angle control without another unsupported standing task.",
+      "key": "walkout"
+    },
+    {
+      "name": "Supine Band-resisted Hip Flexion",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 5,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Secure loop band around both forefeet; nonworking leg straight with heel grounded. Flex working hip/knee toward thigh-vertical in 2 s, hold 1 s, return 2 s without arching or moving the anchor heel. Reduce tension/range for pelvic tilt. If a secure loop is unavailable, use seated DB hip flexion instead with hands securing the DB above the knee: same dose/rest, small controlled thigh lift; preparation unloaded.",
+      "job": "Load the hip flexors under supported trunk conditions, distinct from E6's brief standing speed task.",
+      "key": "hipflex"
+    }
+  ],
+  "equipment": "E1–E3 use short marked positions with no obstacles. E4 requires a suitably low stable box; if it is unavailable, use a fast floor split-squat rise to a brief heel lift instead, 1 × 4 per side, back toes and front forefoot remain grounded, 2 s return and the same rest; no flight. E5 requires a competent swing: use bilateral swings instead at 1 × 8 total if asymmetric control fails, retaining no-impact accounting and 90 s afterward. E6 without a secure loop uses an unresisted quick supported knee lift instead, same dose/rest; this remains speed practice. Stable hand-support heights must permit the specified trunk position.",
+  "count_note": "Default: six same-leg lateral landings plus four bilateral-takeoff/single-leg landings = 10 single-leg events; E3 supplies six two-foot events. E4–E6 have no planned flight: eight step-up drives, eight swings and eight thigh drives. E2 bilateral replacement adds four individual foot contacts but no landing events. Grounded step-up descents are not jump landings. No hip-airplane cycle is counted as two exercises.",
+  "novelty": "All six default explosive tasks have new mechanical identities relative to Classes 1–2: lateral same-leg acceptance, two-to-one receiving, shared lateral projection, supported no-flight elevation, kickstand ballistic hip loading and unilateral grounded thigh acceleration. The two hinge styles and hip-flexion tasks overlap by tissues but differ in support, speed and load; dose remains modest. No new drill is counted solely because its load changed.",
+  "audit": "Rejected depth-drop and long bounds for an unknown-response cohort; only 16 total landings remain while unilateral receiving is introduced. Preserved 12 hinge working reps when changing support/laterality. Supine hip flexion stays a strength task while the standing band drive is light and fast; their combined dose is explicit. Added nonflight replacements so equipment or skill gaps do not trigger extra impact.",
+  "progression": "This is a conditional shift in stance demand, not evidence that Class 2 was tolerated. Require control of the nominated receiving leg within the listed low efforts; otherwise use the stated simpler landing/support and record changed contacts. Keep familiar strength anchors at selected technical reserve. Class 4 will emphasize knee-flexed ankle force while consolidating overall demand.",
+  "map_note": "Only 16 landing events; supported unilateral hinge replaces equal total bilateral hinge reps.",
+  "next_job": "Bent-knee ankle force and lower-amplitude spring with restrained unilateral receiving.",
+  "handoff": "Review Class 3 and any new actual feedback, then finalize Class 4; keep later classes unwritten until its audit/save checkpoint.",
+  "reviewed_files": {
+    "curriculum.md": "910a3295ad1cd1287e09c3509b9079749d2403fc84066eba836b942a990d6d48",
+    "progress.json": "424b3f96151e98bcd1e0940f38d99b087eadad2c607e848d9d41342a12c719ab",
+    "progression_ledger.md": "07e9ae0a6a601a8a2d30af6c6e0f850ac0d2080f718dde4b18a4d0b037389e0a",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_02.md": "0b0c877e3615bf331c367f8f1a677ddd67f9b78874b5ffe61ecb6e4a61511530"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 16,
+    "bilateral_landing_events": 6,
+    "single_leg_landing_events": 10,
+    "individual_foot_contacts": 22,
+    "other_explosive": [
+      {
+        "name": "Explosive Low Step-Up — no flight",
+        "amount": 8,
+        "unit": "step-ups"
+      },
+      {
+        "name": "Kickstand Two-Hand Kettlebell Swing",
+        "amount": 8,
+        "unit": "swings"
+      },
+      {
+        "name": "Supported Standing Band Hip Flexion — fast knee drive",
+        "amount": 8,
+        "unit": "knee drives"
+      }
+    ],
+    "primary_set_rounds": 8,
+    "primary_bouts": 13,
+    "primary_work": {
+      "reps": 80,
+      "cycles": 4
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 12,
+    "preparation_work": {
+      "reps": 44,
+      "cycles": 1
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1628,
+      "stabilization": 306,
+      "primary": 2452,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 77,
+    "time_max": 87,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Hip Airplane — Supported",
+        "sets": 1,
+        "reps_or_seconds_per_side": 3,
+        "sides": 2,
+        "total": 6,
+        "unit": "open-close cycles"
+      },
+      {
+        "exercise": "Side-Lying Hip Adduction",
+        "sets": 1,
+        "reps_or_seconds_per_side": 6,
+        "sides": 2,
+        "total": 12,
+        "unit": "reps"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Single-Leg Lateral Hop to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "hops",
+        "landing_events": 6,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 6
+      },
+      {
+        "exercise": "Two-Foot Vertical Jump to Single-Leg Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Two-Foot Lateral Jump to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "jumps",
+        "landing_events": 6,
+        "individual_foot_contacts": 12,
+        "bilateral_landing_events": 6,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Explosive Low Step-Up — no flight",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "step-ups",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Kickstand Two-Hand Kettlebell Swing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "swings",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Supported Standing Band Hip Flexion — fast knee drive",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "knee drives",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 11
+  },
+  "status": "finalized_prescription",
+  "final_review": "Reviewed the six explosive jobs, including rapid no-flight step-up and thigh drive, against single-leg support. Only ten single-leg landings are prescribed; no depth drop or long bound was added. The RDL change keeps total working hinge reps at twelve while reducing set rounds, and all load selection is conditional. Corrected presentation so aggregate swings are eight total, not eight per stance. Timing and alternative landing contacts are explicit."
+}

@@ -1,0 +1,149 @@
+{
+  "n": 5,
+  "label": "Lateral arrival into rotational force",
+  "effort": "Receive a short lateral entry on a usable support leg and turn that arrival into a low roundhouse.",
+  "brief": "The key demand is accepting lateral bodyweight without overstriding or trapping the receiving knee. Support drills distinguish a step-behind push, split-base catch, crossover entry, rapid adduction and an out-and-return plant.",
+  "marker": "valid E2 attempts out of four per kicking leg with one controlled shuffle entry, no extra stutter step, coordinated foot/hip turn and a quiet recovered stance.",
+  "e": [
+    {
+      "name": "Step-Behind Lateral Bound to Stick",
+      "side": "travel direction",
+      "unilateral": 1,
+      "execution": "Use one small step behind to load the outside hip, then push into one short lateral bound onto the opposite leg. Face forward without an airborne turn and hold the landing 2 s. The entry and flight together fit within 2 m.",
+      "job": "Produce lateral force after a compact cross-behind load, before adding a kick task.",
+      "gate": "Keep the crossing step shallow and feet clear; use a shorter step-behind instead for tangling or a heavy landing.",
+      "novelty": "Adds a deliberate rear crossing load before the bound and removes Class 1 airborne turn.",
+      "source": "Kicking library: Step-Behind Lateral Bound to Stick / step-behind-lateral-bound-to-stick, card 23; short no-turn version specified.",
+      "total_attempts": 4,
+      "modeled_seconds": 180
+    },
+    {
+      "name": "Single-shuffle low roundhouse",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "From a kick stance, make one short lateral shuffle toward the support side, settle that foot without an extra stutter and launch the opposite low roundhouse. Recoil and recover the stance. Entry and finish stay within 2 m; no target or continuous shuffling.",
+      "job": "Directly convert arriving lateral mass into support-foot/pelvic rotation.",
+      "gate": "Use a shorter/slower single shuffle instead if the plant overstrides or the knee cannot turn freely; maintain a brisk controlled hip action.",
+      "novelty": "Full kick after a lateral shuffle entry, not stationary initiation or a step-to-stance without a kick. Proposed noncontact adaptation; no exact target-drill identity claimed.",
+      "total_attempts": 8,
+      "modeled_seconds": 428
+    },
+    {
+      "name": "Lateral bound to split-stance catch",
+      "side": "push leg",
+      "bilateral": 1,
+      "execution": "Push laterally from one leg and land on two feet arranged in a shallow split stance, the intended support foot slightly ahead. Hold 2 s; no rotation during flight or rebound.",
+      "job": "Accept lateral impulse in a two-foot base already arranged to transfer into a kick stance.",
+      "gate": "Keep the split small and both knees soft; use a shorter bound instead if the rear foot slaps down late.",
+      "novelty": "Different landing support/shape from opposite-leg stick and Class 3 parallel-foot catch; it prepares a split support base rather than single-leg balance.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Crossover entry to rotational knee chamber",
+      "side": "chambering leg",
+      "grounded": 1,
+      "seconds": 6,
+      "execution": "Take one short crossover travel step and then uncross onto the support foot; rotate with that foot while lifting the free bent knee into a low chamber. Put it down into stance after a 2 s finish. No kick extension or flight; the full entry fits inside 2 m.",
+      "job": "Organize the hip turn after a crossover approach without adding another full kick dose.",
+      "gate": "Use less crossing distance and a lower chamber instead if feet tangle; do not turn while the legs remain crossed.",
+      "novelty": "Crossover-to-chamber footwork, distinct from a shuffle/full-kick or the step-behind airborne bound.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    },
+    {
+      "name": "Side-lying rapid short-lever adduction lift",
+      "side": "lower leg",
+      "grounded": 1,
+      "execution": "Lie on the side with the upper foot planted comfortably in front. Keep the lower knee slightly bent; lift the lower thigh/leg a short distance briskly toward the upper side, then lower slowly. The pelvis stays stacked, no external load or jerking.",
+      "job": "Give the adductors a small fast concentric task that supports drawing the pelvis/leg back over the lateral plant.",
+      "gate": "Use less travel instead if the pelvis rolls; stop for groin discomfort. This is short-range active acceleration, not a fast stretch.",
+      "novelty": "Supported hip-adduction acceleration without a kick arc, standing pivot or extra landing.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Lateral jab-step return to kick stance",
+      "side": "outside plant leg",
+      "grounded": 1,
+      "seconds": 6,
+      "execution": "Make one short lateral jab step onto the outside leg, immediately push back toward the start and settle into a shallow kick stance with feet/pelvis aligned. No kick, jump or second reversal; out-and-return path fits within 2 m.",
+      "job": "Use the lateral receiving leg to redirect bodyweight and restore a rotational launch base.",
+      "gate": "Reduce excursion/speed instead for a stiff or reaching plant; the knee follows the moving foot throughout.",
+      "novelty": "Grounded lateral out-and-return reversal, rather than one-way entry, bound or crossover.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    2,
+    1,
+    1,
+    2
+  ],
+  "p_jobs": [
+    "Maintain the final planted push used after the shuffle with one challenging round.",
+    "Steady the support hip and trunk during incoming lateral momentum.",
+    "Main compound investment: load lateral hip/adductor acceptance and return from the outside plant.",
+    "Maintain direct hip-turn torque once lateral arrival is controlled.",
+    "Keep sufficient active chamber strength without adding a second hip-flexion round after the full kicks.",
+    "Load the bent-knee ankle base that receives and redirects the short lateral entry."
+  ],
+  "s_jobs": "The airplane supplies low-load control over the receiving hip; foot holds keep the outside plant from rolling off its base.",
+  "readiness": "Confirm short shuffle/crossover control before adding the hip turn; initial attempts use the smallest functional entry. The side-lying drill needs a comfortable clean floor area, not an assumed mat or extra equipment. Keep bound distance submaximal.",
+  "strength_reason": "From Class 4 [1,1,1,1,2,1], move emphasis to [1,1,2,1,1,2]: 96 working reps, returning to the earlier Class 1–2 prescription total while shifting the extra compound round to the lateral squat. This is a conditional task allocation, not evidence of recovered capacity or automatic heavier loading.",
+  "exposure_note": "Eight flight/landings: four opposite-leg step-behind bounds and four split-stance bilateral catches. Twenty non-flight efforts include eight kicks. Four jab-step efforts contain one reversal each; do not equate reversals or movement metres with jump contacts.",
+  "space": "Entries, bounds and jab-step out-and-return each fit inside a 2 m work segment plus 2 m recovery area in one 10 m lane. Verify enough width for lateral movement and locate queues outside all swept/landing paths.",
+  "progression": "Class 4 isolated free-leg control; Class 5 adds short planned lateral arrival to the hip turn. Keep entry distance and speed low until actual plants are controlled; if that condition is not met, shorten the same entry rather than assume a harder approach has been earned.",
+  "audit": "A longer run-up and multiple shuffle cycles were rejected to keep the primary effort a clean lateral plant. The two bounds differ in how they create and receive force: cross-behind entry to one leg versus direct push to a split two-foot catch. The adduction speed dose is only four short lifts because the Cossack now receives two working rounds.",
+  "prescribed_summary": {
+    "bilateral_landings": 4,
+    "unilateral_landings": 4,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 8,
+    "primary_working_rounds": 8,
+    "primary_working_bouts": 14,
+    "primary_working_reps": 96,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4639,
+    "planning_minutes_excluding_existing_preparation": [
+      78,
+      85
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      180,
+      428,
+      210,
+      214,
+      210,
+      214
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      630,
+      281,
+      273,
+      234
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 5 and actual lateral hip/adductor response, then finalize Class 6 as a lower-volume consolidation exposure before continuing.",
+  "reviewed_previous_at_authoring_sha256": "81cc017a2d52c539a54cda526d669f592d2ba93890447f2c6579fa8173d6aa02",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "ff25d7ffb575f314d2e15559838c72bb2707532b0cf5c66d6463bcc97c57dee0",
+  "final_previous_class_sha256": "5723ca81aedf3564011623b1729c5b72b0749f844befb2f49c9232e5908d6b0f"
+}

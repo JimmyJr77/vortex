@@ -1,0 +1,245 @@
+{
+  "class_number": 2,
+  "title": "Create forward force from a settled start.",
+  "brief": "The seated forward takeoff is the priority: remove a standing countermovement and coordinate a direct leg push with the arms. The other jobs separate static extension, hip-led release, staggered ankle contact, hip impulse from a parked implement and force from a fixed split position.",
+  "explosive": [
+    {
+      "name": "Seated Broad Jump",
+      "job": "Project forward from a supported motionless start.",
+      "cue": "Sit near the edge, feet flat under or slightly ahead of knees; pause 2 s, swing the arms and jump forward to a two-foot 2 s hold.",
+      "regress": "Reduce distance and choose a seat height allowing feet flat; stop if rocking or loss of landing replaces the task.",
+      "sets": 3,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 120,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Squat Jump",
+      "job": "Supply rapid leg extension from stillness without the forward-landing demand of the main drill.",
+      "cue": "Hold a comfortable partial squat 2 s with hands on hips; jump upward without a new dip and stick on two feet.",
+      "regress": "Use a shallower comfortable start and modest height; stop on a re-dip or unstable landing.",
+      "sets": 2,
+      "reps": 2,
+      "sides": 1,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Tall-Kneeling Forward Medicine Ball Scoop Toss",
+      "job": "Isolate hip-to-arm forward acceleration while removing ankle/knee takeoff.",
+      "cue": "Kneel tall on a comfortable stable surface, ball low; hinge slightly at the hips then extend and scoop forward, keeping knees down and ribs controlled.",
+      "regress": "Use a lighter ball and smaller hinge; no throw if kneeling is uncomfortable or containment is unverified.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "throw",
+      "contacts": 0,
+      "seconds_per_rep": 3,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast release with a light ball; retain the prescribed grounded support",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Split-Stance Pogo",
+      "job": "Organize quick ankle pressure through a staggered base before split-position force work.",
+      "cue": "Keep the chosen staggered stance unchanged; make small two-foot rebounds in place, then settle. Change lead foot for the other bout.",
+      "regress": "Reduce amplitude; stop if feet scissor or contacts become deep knee bends.",
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "kind": "low_bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 2,
+      "reset": 0,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Small quick rebounds, not maximum height",
+      "gate": "",
+      "note": ""
+    },
+    {
+      "name": "Dead-Stop Kettlebell Swing",
+      "job": "Produce a discrete hip impulse from a parked load rather than reuse successive swing momentum.",
+      "cue": "Hike a light bell, snap the hips to float it below chest height, then guide it back to the floor and fully reset; one hike/swing/park is one rep.",
+      "regress": "Use a lighter bell; stop for lumbar extension, arm lifting or loss of safe parking.",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "kind": "swing",
+      "contacts": 0,
+      "seconds_per_rep": 5,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Crisp hip-driven acceleration; feet stay planted and the bell stays controlled",
+      "gate": "Familiar hinge/swing and secure two-hand handling.",
+      "note": ""
+    },
+    {
+      "name": "Static Split-Squat Jump to Same-Stance Landing",
+      "job": "Express rapid force from a fixed asymmetrical base without a midair leg switch.",
+      "cue": "Pause 2 s in a shallow split squat, jump a small amount up/forward, land in the same split stance and hold 2 s.",
+      "regress": "Reduce depth/travel; stop if the stance narrows, knee collapses or landing cannot be held.",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "kind": "bilateral",
+      "contacts": 1,
+      "seconds_per_rep": 6,
+      "reset": 30,
+      "rest": 90,
+      "exit": 90,
+      "intent": "Fast takeoff with controlled travel",
+      "gate": "",
+      "note": ""
+    }
+  ],
+  "control": [
+    {
+      "name": "Split Squat Isometric Hold",
+      "job": "Lightly stabilize the knee/pelvis in the settled push position.",
+      "cue": "Hold a shallow split stance with whole front foot down, rear heel lifted and pelvis level.",
+      "regress": "Use a higher position; stop if it becomes a strain or knee control is lost.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 2,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 15,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    },
+    {
+      "name": "Calf Isometric Hold — Straight-Knee",
+      "job": "Maintain controlled forefoot force with knees nearly straight at the end of the push.",
+      "cue": "Both feet supported, rise modestly onto the forefeet and hold without ankle rolling; light hand support may steady the body.",
+      "regress": "Lower heel height or effort; stop on cramp or shaking.",
+      "sets": 1,
+      "reps": 1,
+      "sides": 1,
+      "kind": "control",
+      "contacts": 0,
+      "seconds_per_rep": 20,
+      "reset": 0,
+      "rest": 30,
+      "exit": 45,
+      "intent": "Bodyweight/light resistance, easy control; at least 5 clean reps in reserve or comparable ease",
+      "hold": true
+    }
+  ],
+  "strength": [
+    {
+      "key": "squat",
+      "name": "Goblet Squat — dumbbell",
+      "sets": 3,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        5,
+        3
+      ]
+    },
+    {
+      "key": "rdl",
+      "name": "Romanian Deadlift — two dumbbells",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "split",
+      "name": "Split Squat — stationary, two dumbbells",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "thrust",
+      "name": "Hip Thrust — pelvic dumbbell, upper back on bench",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "soleus",
+      "name": "Bent-Knee Soleus Raise — seated, dumbbells on thighs",
+      "sets": 1,
+      "reps": 10,
+      "sides": 1,
+      "unit": "rep",
+      "prep_reps": [
+        4
+      ]
+    },
+    {
+      "key": "walkout",
+      "name": "Glute Bridge Walkout",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "unit": "cycle",
+      "prep_reps": [
+        1
+      ]
+    }
+  ],
+  "totals": {
+    "bilateral_landing_events": 22,
+    "unilateral_landing_events": 0,
+    "throws": 6,
+    "other_ballistic_efforts": 6,
+    "drop_landings": 0,
+    "low_amplitude_landings": 8,
+    "primary_rounds": 9,
+    "primary_bouts": 10,
+    "primary_reps": 60,
+    "primary_cycles": 4,
+    "prep_rounds": 7,
+    "prep_bouts": 8,
+    "prep_reps": 28,
+    "prep_cycles": 1,
+    "stabilization_reps": 0,
+    "stabilization_hold_seconds": 50,
+    "landing_events": 22,
+    "landing_foot_contacts": 44
+  },
+  "duration_after_preparation_seconds": 4640,
+  "decision": "The repeated standing jump anchor was removed under the new uniqueness rule. Seated horizontal projection receives six attempts; the small vertical static jump is only a leg-extension support dose, not another distance test. Parked swings differ from Class 1's continuous-swing replacement by requiring a fresh impulse each rep. Soleus working volume is reduced from two sets to one because the class adds staggered rebound exposure; other strength doses are held without assumed performance.",
+  "next_job": "Class 3 will address each leg's forward propulsion and controlled single-leg force acceptance; verify actual single-support competence first.",
+  "observed": null,
+  "class_sha256": "ab60e27650f12b98bb38ac65d6e7034045c3cd06d2add7e2811602c973762cb3"
+}

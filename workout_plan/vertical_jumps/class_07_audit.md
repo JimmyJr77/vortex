@@ -1,0 +1,66 @@
+# Class 7 — relevance, progression and delivery audit
+
+**Review date:** 2026-09-13. **Previous goal turn: progress.** Class 6, all six finalized paths and all nineteen saved hashes matched; the specification snapshot matched the original. Reviewed the exact framework/map, Classes 1–6 and relevant prior rebound/arm/stance/throw replacements, workload/progression ledger, drill history, Class 6 audit, identity register and feedback. No repository or applicable parent AGENTS.md was found; `.agents` is absent. Neighboring feedback records still contain no actual athlete observations. Only Class 7 is finalized this run; the full twelve-class goal remains incomplete.
+
+## Daily stimulus brief
+
+1. **Result:** turn a self-generated landing into an organized second upward takeoff.
+2. **Demand:** coordinate yielding and extension without a pause, extra dip, collapse or horizontal escape. Prompt reversal does not mean locked knees or a fabricated contact-time target.
+3. **Primary task:** three Countermovement Jump Rebound bouts, each one floor CMJ and exactly one linked rebound; six potential flights and three rebound transitions.
+4. **Supporting jobs:** isolated leg-led countermovement with arms fixed; low ankle return with lateral control; lead-leg lunge lowering-to-drive; hip reversal under a one-hand implement; chest-held leg-to-arm upward release. Light work retains knee/pelvis and active foot control. Strength retains stable split/bilateral leg force, hip force through different ranges and both knee positions for ankle force.
+5. **Marker/constraints:** valid two-flight bouts out of three, plus actual flights/landings, first-contact alignment, arm policy, intent and final hold. No prior performance, actual dose, working load or recovery is known. No external drop, approach speed, height target or automatic weight increase. New linked contacts and one-hand grip still require current execution checks.
+
+## Selection and revision audit
+
+| Slot | Selection and alternative considered | Specific reason / limit |
+|---|---|---|
+| E1 | Countermovement Jump Rebound instead of a platform depth jump or a long repeated-jump set | Exactly one rebound follows a self-generated floor jump. This supplies three direct force-reversal opportunities without external drop height or prolonged fatigue. It is a two-flight exercise, not one landing counted twice. Earlier isolated CMJ is the simpler replacement. |
+| E2 | Hands-on-hips isolated CMJ instead of another natural-arm linked jump | Separates leg-led dip reversal from arm assistance and from the E1 landing-entry task. Earlier hands-on-hips Squat Jump was paused; the changed countermovement is material. This does not make arm restriction universally superior or provide a matched previous score. |
+| E3 | Six low lateral line pogos instead of unilateral pogos or higher hurdle rebounds | Small lateral displacement tests control while retaining an ankle-dominant vertical spring. It changes direction from Class 6's forward/back line task, not just the name. Height/distance remain low; no lateral bound is substituted for vertical-force practice. |
+| E4 | Four rapid Reverse Lunge to Knee Drive reps instead of scissor jump landings | The controlled lowering is reversed upward through the lead leg without extra jump impacts. This differs from Class 5's supported kneeling start and Class 6's step-on rise. The brief knee-up finish must not turn it into slow balance practice. |
+| E5 | Six one-hand swings instead of another loaded jump or a complex catch lift | The returning external load supplies a hip-reversal task; one-hand support requires a square trunk and secure grip. Earlier two-hand/staggered swings addressed different support conditions. Unilateral implement loading is not unilateral lower-limb force. Use the earlier two-hand version if this added demand limits productive hip speed. |
+| E6 | Four chest-held upward thruster throws instead of retained overhead presses or another scoop-entry variant | A brief dip drives the ball from the chest into an upward release. The release differs from Class 6's retained dumbbell press; the chest hold/press action differs from prior long-arm scoops. This is direct leg-to-arm extension support, not a generic chest workout. No athlete flight or rebound-ball catch is added. |
+| S1–S2 | Retained light step-down and supported short-foot | Preserve knee/pelvis and foot-contact control with ten dynamic reps and six brief holds. Easy effort keeps them from undermining primary strength. |
+| P1–P6 | Retain Class 6 order/doses/rests rather than force strength overload while adding rebound demands | Split squat addresses each leg's stable force; front squat bilateral extension/trunk control; RDL hip force from flexion; one hip-thrust set terminal extension; standing and seated calf work different knee positions. No actual previous load or response is known. |
+
+**Overlap and recovery:** E1 has six larger flights with three landing-to-rebound transitions; E2 has four isolated flights; E3 six low flights with five within-bout transitions before the final stop. The eight combined transition contacts are not equivalent: three larger CMJ rebounds and five low pogos. All sixteen landings/takeoffs are bilateral; this removes Class 6's four unilateral takeoffs but does not prove lower tissue demand. E4–E6 total four rises, six swings and four throws without intended flight. Lunge/primary split squat overlap is limited to four light rapid rises versus challenging controlled strength. Swing/RDL/hip-thrust overlap is limited through six fast hip reversals, two controlled hinge sets and one terminal-extension set. Ankle rebounds and four calf bouts still share tissue demand; preserve rests and adjust actual load/termination from execution and recovery. No extra drill or conditioning is added.
+
+**Revisions before finalization:** restricted the main task to three two-flight bouts rather than an extended reactive series; removed any drop height and kept all landings bilateral. Kept sixteen total flights but distinguished the new linked transitions. Limited the moving lunge to four rises; retained Class 6 strength instead of changing loads/order again. Specified park-before-hand-switch, no aggressive externally accelerated bell return, and a light no-flight ball release. Added a collision rule for replacements: if E1 uses isolated natural-arm CMJ, E2 cannot simply become an identical CMJ slot; use the earlier paused hands-on-hips Squat Jump only if suitable. Replacements consume original attempted budgets, with added reset/hold time counted.
+
+## Prescribed workload and replacements
+
+- **Default jumps:** sixteen bilateral takeoffs/landings, all on the floor: E1 six (three first landings linked to rebounds plus three terminal holds); E2 four isolated terminal holds; E3 six low landings (five links plus final stop). Thirty-two landing foot impacts if feet are counted individually, without equal-force assumptions. No single-leg landing/takeoff, box dismount, approach or sprint is prescribed.
+- **Other explosive work:** four reverse-lunge rises, four controlled backward stepping plants and four free-foot returns after knee drive; lead feet remain planted. Six one-hand swings (three each arm), plus two start/park sequences; both legs assist. Four no-flight ball throws with controlled heel return and retrieval. Incidental flights/contacts belong in actuals.
+- **Strength:** 84 working reps in ten rounds/thirteen performed bouts: 16 split squat + 12 front squat + 12 RDL + 8 hip thrust + 16 standing calf + 20 seated soleus. Nine compound/four calf bouts. Preparation: 39 reps, seven rounds/nine bouts. Light work: ten dynamic reps and six five-second foot holds, 30 aggregate foot-seconds, two rounds/four side bouts.
+- **Seven-document sums:** 151 jump landings, 28 throws, 596 primary working reps and 273 primary preparation reps. These are document totals, not performed/tolerated workload. Other rapid tasks remain identified separately in the ledger.
+
+Full E1 isolated-CMJ replacement retains six potential flights but removes three linked rebounds and adds separate resets; partially aborted bouts count actual flights already attempted. Full E2 natural-arm replacement retains four flights with different arm policy. If E1 already uses that format, full E2 paused Squat Jump retains four flights but changes to static starts and adds four two-second holds. Do not run identical CMJ prescriptions in two slots. E3 stationary pogo keeps six low contacts but removes lateral displacement. E4 shallow supported split rise removes four backward stepping plants; four knee-up/free-foot return cycles remain, with controlled shallow lowering. E5 two-hand swings retain six swings/two start-parks with different hand loading. E6 underhand scoop retains four throws with a different ball hold/release. Every replacement shares the original attempted budget. Unusable slots are logged, not filled with unsafe or zero-purpose work. Strength equipment/support alternatives retain dose; bilateral short-foot uses three simultaneous holds (15 wall-clock, 30 aggregate foot-seconds).
+
+## Clock audit — seconds outside Access & Prepare 1
+
+| Slot | Execution/handling | Recovery | Setup/teaching | Total |
+|---|---|---|---|---|
+| E1 two-flight rebound | 3 × 7 = 21, including two flights and final 2 s hold/reset | 2 × 120 + 120 = 360 | 120 | **501** |
+| E2 hands-on-hips CMJ | 4 × 5 = 20, including hold/reset | 2 × 20 + 90 + 90 = 220 | 90 | **330** |
+| E3 lateral pogo | 6 × 1 = 6 | 90 | 60 | **156** |
+| E4 reverse-lunge drive | 4 × 6 = 24, including 2 s lowering, drive/hold and free-foot return/reset | 2 × 20 + 60 + 90 = 190 | 90 | **304** |
+| E5 one-hand swing | 6 × 2 + 2 × 4 start/park = 20 | 60 + 90 = 150 | 120 | **290** |
+| E6 thruster throw | 4 × 6 + 4 × 25 settle/retrieval = 124 | 2 × 20 + 90 + 90 = 220 | 90 | **434** |
+| S1 step-down | 40 | 75 | 30 | **145** |
+| S2 short-foot | 30 | 110 | 30 | **170** |
+| P1 split squat incl. prep/sides | (16 + 6) × 4 = 88 | 30 + 90 prep; 2 × 90 sides + 120 rounds + 150 next = 570 | 60 | **718** |
+| P2 front squat incl. prep | (12 + 10) × 4 = 88 | 60 + 120 prep; 150 work sets + 150 next = 480 | 60 | **628** |
+| P3 RDL incl. prep | 68 | 330 | 45 | **443** |
+| P4 hip thrust incl. prep | 39 | 150 | 60 | **249** |
+| P5 standing calf incl. prep/sides | 72 | 210 | 30 | **312** |
+| P6 soleus incl. prep | 75 | 150 | 30 | **255** |
+
+Explosive **2,015 s**, light strength **315 s**, primary/preparation **2,605 s**, water/recording **180 s** = **5,115 s / 85.3 min**. Allow **85–95 minutes outside Access & Prepare 1**, before excess queues or substantial extra instruction/recovery. Full E1 isolated-CMJ replacement takes 6 × 5 + 3 × 20 + 2 × 120 + 120 + 120 = 570 s, **69 s more** than default. Full E2 paused replacement adds **8 s**. Both together give **5,192 s / 86.5 min** before other added time. Partial switches require actual accounting, not a fresh full-dose clock.
+
+Seven-second linked bouts, six-second lunge cycles and 25-second ball settle/retrieval are estimates; extend for actual safe execution. Count all side rests, load preparation and setup once. Waiting supplies rest only when actual rotation timing permits; excess queues add time. Preparation duration, group/staff, equipment dimensions/loads and safe zones remain unconfirmed. No 60-minute total fit or established 90-minute total fit. Roughly 48–72 hours between comparably demanding lower-body exposures is a starting consideration, adjusted to actual sport/gym/tumbling dose and readiness. Review overhead/throwing and grip exposure too.
+
+## Sources, acceptance and handoff
+
+OTA's [bodyweight vertical-jump example](https://blog.overtimeathletes.com/bodyweight-vertical-jump-workout/) supplies the connected-jump/ankle-work style reference; its volume and promotional claims are not adopted. [NSCA Coach 7.3, page 41](https://www.nsca.com/globalassets/education/nsca-coach/nsca-coach-7.3.pdf) describes the chest-held medicine-ball thruster with leg extension preceding release. The accessible indexed passage also cues athlete flight; this class deliberately proposes a light **no-flight** version and does not import its ball weights. That is a task adaptation, not a claim that the source validates this exact protocol. Previously reviewed [NSCA youth resistance-training guidance](https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf) supports supervised technique-led loading and individualized progression. Exact doses and variant choices here are coaching judgments, not proven whole-session outcomes.
+
+Local definitions verify the two-flight CMJ-rebound boundary, explicit lateral-pogo identity and one-hand swing source variant; proposed arm, lunge and throw executions are declared in exercise_register.md. Counts, relevance, side work, replacements, recovery and time were audited. Athlete competence, actual response, full preparation and group fit remain unresolved. Class 8 should consolidate a suitable standing/approach application after reviewing actual Class 7 rebound control, one-hand grip, throw execution, strength effort and recovery. No automatic faster/longer reactive work or load increase. Save Class 7 and supporting records, then stop.

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { coachFetch } from '../../coach/api'
 import type { Taxonomy } from '../../coach/taxonomy'
 import { programmingError } from '../../coach/workoutProgramming'
-import type { ExerciseProposalReview, StagedCanonicalEvent, StagedCanonicalRevisionChange, StagedCanonicalRevisionView } from '../../coach/workoutExerciseProposals'
+import type { ExerciseProposalReview, StagedCanonicalEvent, StagedCanonicalReviewInput, StagedCanonicalRevisionChange, StagedCanonicalRevisionView } from '../../coach/workoutExerciseProposals'
 import { actionClass } from './ProgrammingControls'
 import { ProgrammingStagedProfileForm } from './ProgrammingStagedProfileForm'
+import { ProgrammingStagedRevisionReview } from './ProgrammingStagedRevisionReview'
 
 const base = '/api/coach/workout-programming'
 type Run = (name: string, action: (signal: AbortSignal) => Promise<void>) => Promise<void>
@@ -21,6 +22,9 @@ export function ProgrammingProfileRevision({ review, taxonomy, disabled, run, on
   const [reload, setReload] = useState(0)
   const [confirmed, setConfirmed] = useState(false)
   const [needsReload, setNeedsReload] = useState(false)
+  const [profileDirty, setProfileDirty] = useState(false)
+  const [evidenceDirty, setEvidenceDirty] = useState(false)
+  useEffect(() => { onDirty(profileDirty || evidenceDirty); return () => onDirty(false) }, [profileDirty, evidenceDirty, onDirty])
   useEffect(() => {
     const controller = new AbortController()
     void (async () => {
@@ -55,19 +59,30 @@ export function ProgrammingProfileRevision({ review, taxonomy, disabled, run, on
     setRevision(result.event); setView(null)
     await load(result.event.stagedRevisionId, signal)
   })
-  const change = (input: StagedCanonicalRevisionChange) => void run('Saving staged revision', async (signal) => {
+  const write = (endpoint: 'change' | 'reviews', input: StagedCanonicalRevisionChange | StagedCanonicalReviewInput) => void run(
+    endpoint === 'reviews' ? 'Recording staged review evidence' : 'Saving staged revision', async (signal) => {
     if (!revision) return
+    let saved = false
     try {
-      const event = await coachFetch<StagedCanonicalEvent>(`${base}/staged-card-revisions/${revision.stagedRevisionId}/change`, {
+      const event = await coachFetch<StagedCanonicalEvent>(`${base}/staged-card-revisions/${revision.stagedRevisionId}/${endpoint}`, {
         method: 'POST', signal, body: JSON.stringify(input),
       })
+      saved = true
       if (signal.aborted) return
-      setRevision(event); setView(null)
+      setRevision(event)
       await load(event.stagedRevisionId, signal)
     } catch (error) {
       if (!signal.aborted) {
         if ([403, 404].includes(Number(status(error)))) { setView(null); setRevision(null); setLoaded(false) }
-        if (status(error) === 409) { setNeedsReload(true); setError('The source or staged revision changed. Discard any unsaved edits and refresh before continuing.') }
+        else if (status(error) === 422 && !saved) {
+          try { await load(revision.stagedRevisionId, signal) }
+          catch { if (!signal.aborted) setNeedsReload(true) }
+          if (!signal.aborted) setError('The candidate did not pass the current approval gates. Review the latest readiness findings before trying again.')
+        } else if (status(error) === 409 || saved || !status(error) || Number(status(error)) >= 500) {
+          setNeedsReload(true)
+          setError(status(error) === 409 ? `${programmingError(error)} Discard unsaved changes and refresh the revision before continuing.`
+            : 'The save outcome could not be confirmed. Discard local changes and refresh to check recorded evidence before trying again.')
+        } else setError(programmingError(error))
       }
       throw error
     }
@@ -79,14 +94,16 @@ export function ProgrammingProfileRevision({ review, taxonomy, disabled, run, on
     <h4 className="text-lg font-bold">Delivery profile revision</h4>
     {error && <p role="alert" className="text-sm text-amber-900">{error}</p>}
     {!loaded && !error && <p role="status" className="text-sm">Checking for an existing staged revision…</p>}
-    {!view && (!loaded || revision) && <button type="button" className={actionClass} disabled={disabled} onClick={() => { setError(null); setReload((value) => value + 1) }}>Recover staged revision</button>}
+    {!view && <button type="button" className={actionClass} disabled={disabled} onClick={() => { setError(null); setReload((value) => value + 1) }}>Refresh revision status</button>}
     {loaded && !revision && <div className="space-y-3 text-sm">
       <p>Stage the proposed profile on its existing card for editing and human review. The published version remains available during review.</p>
       <label className="flex items-start gap-2"><input type="checkbox" disabled={disabled} checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
         I reviewed this proposal and want to stage an unapproved revision of the existing card.</label>
       <button type="button" className={actionClass} disabled={disabled || !confirmed} onClick={stage}>Stage profile revision</button>
     </div>}
-    {view && <ProgrammingStagedProfileForm key={view.event.contentHash} view={view} needsReload={needsReload}
-      taxonomy={taxonomy} disabled={disabled} onChange={change} onReload={refresh} onDirty={onDirty} />}
+    {view && <><ProgrammingStagedProfileForm key={`profile:${view.event.contentHash}`} view={view} needsReload={needsReload}
+      taxonomy={taxonomy} disabled={disabled || evidenceDirty} onChange={(input) => write('change', input)} onReload={refresh} onDirty={setProfileDirty} />
+      <ProgrammingStagedRevisionReview key={`review:${view.event.contentHash}`} view={view} needsReload={needsReload}
+        disabled={disabled || profileDirty} onReview={(input) => write('reviews', input)} onDirty={setEvidenceDirty} /></>}
   </section>
 }

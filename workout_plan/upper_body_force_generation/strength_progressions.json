@@ -1,0 +1,2369 @@
+{
+  "status": "prescriptions_only",
+  "entries": [
+    {
+      "class_number": 1,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "key": "Scapular Push-Up — quadruped, dynamic",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Strengthen controlled shoulder-blade travel against light bodyweight so the chest-pass finish and push-up support do not depend on elbow bending or trunk sag.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Apply light shoulder-rotator loading while controlling the upper-arm position used in pressing and rowing.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main loaded horizontal push: develop force through a reproducible floor-limited pressing range with a reproducible lower boundary.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Main loaded horizontal pull: give each arm challenging shoulder-extension and elbow-flexion work while support limits trunk rotation.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the press with shoulder blades free to move and the trunk held as one unit, complementing the floor-supported press.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the backward draw at a wider upper-arm angle, supporting control of the arm-open position preceding a chest pass.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Give elbow extension a small, direct strength dose for the final pressing action without another full pressing compound.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 1,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Give elbow flexors direct loading for completing the draw in rows without another shoulder-extension set.",
+      "allocation_rationale": "Initial prescription; actual response unknown.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Supine Dumbbell Serratus Reach — elbows straight",
+      "key": "Supine Dumbbell Serratus Reach — elbows straight",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Lightly load scapular reach at the press finish while the floor supports trunk position.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "S2",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Band Lat Pulldown — kneeling, two arms",
+      "key": "lat_pulldown",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the downward arm draw needed for assisted pull-up force without another horizontal row set.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P5",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 2,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 1 main Floor Press 2 × 6 and One-Arm Row 2 × 6 per arm → same doses here because no completion or recovery is reported. P3/P5/P6 also retain their direct strength roles and doses; P4 changes from wide-elbow row to 1 × 8 Band Lat Pulldown to support today's overhead draw. This is a redistribution of work, not an earned load increase. Next exposure: hold these strength loads unless actual controlled completion at 2–3 RIR and satisfactory recovery supports one small relevant change.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Dumbbell Wrist Extension — forearm supported",
+      "key": "Dumbbell Wrist Extension — forearm supported",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Lightly load the wrist extensors that hold a neutral grip during rapid pulls.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "key": "Scapular Push-Up — quadruped, dynamic",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "S1",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Lightly load controlled shoulder-blade travel for pushing support and force transfer.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Priority horizontal pulling strength: move the load through the shoulder and elbow while keeping the body still.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "Band Lat Pulldown — kneeling, two arms",
+      "key": "lat_pulldown",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Load the downward arm draw needed for assisted pull-up force without another horizontal row set.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 1,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 3,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P5",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 2 used 2 × 6 Floor Press and 1 × 8 Band Lat Pulldown. Here the press falls to 1 × 6 and the pulldown becomes 2 × 6, retaining eight total primary set rounds while giving the main pulling task more practice; total primary task reps change from 68 to 66. One-Arm Row remains 2 × 6 per arm. This planned redistribution is not evidence of improved capacity. Use familiar manageable loads; hold or reduce the pulldown if actual readiness or first-set technique does not support the extra set. Before later load advancement require reported controlled completion, stated reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Supine Dumbbell Serratus Reach — elbows straight",
+      "key": "Supine Dumbbell Serratus Reach — elbows straight",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "S1",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Lightly load scapular reach at the press finish while the floor supports trunk position.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "S2",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P1",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 2,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Second major press: load force from the bottom while shoulder blades move freely and the trunk remains fixed.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 4,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Band Pull-Apart — low light tension",
+      "key": "Band Pull-Apart — low light tension",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Lightly strengthen scapular retraction after the received-load and arm-draw tasks.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Side-Lying Dumbbell External Rotation",
+      "key": "Side-Lying Dumbbell External Rotation",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Lightly load each shoulder's external-rotation control before the main pressing sets.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P2",
+        "dose": "1 × 6 per arm",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P3",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P5",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 5,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 4 included six paused hand landings and three catch-set passes. This class prescribes at most four hand landings and six gentle feed-return catches, with conservative same-slot versions when the prerequisites are not demonstrated. Class 1/2 Floor Press and Row doses return at 2 × 6 and 2 × 6 per arm, while Push-Up and elbow-extension support drop to 1 × 6 each. Eight working rounds remain; pressing working cycles per arm drop from Class 4's 32 to 24 to make room for receiving/reversal exposure. No load increase is earned by the sequence. Advance only after actual smooth reception, forward line, technical reserve and satisfactory recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "key": "Scapular Push-Up — quadruped, dynamic",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "S2",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Lightly load controlled shoulder-blade travel for pushing support and force transfer.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 4,
+        "slot": "S2",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P3",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 6,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 5,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 5 prescribed 13 throws, four hand landings, six catches and eight primary working rounds. This consolidation prescribes eight throws, zero hand landings/catches and six primary working rounds, with all six lifts still challenging at 2–3 technical RIR. Floor Press and Row decrease from 2 × 6 to 1 × 6 (per arm for Row); the remaining lifts use 1 × 6. No automatic load increase. The four exact drill repeats are explicit low-complexity learning/comparison exceptions, not unique-drill claims. After actual recovery and clean completion, a later class may restore an earlier set dose or introduce a side-specific demand, but not both by default.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Supine Dumbbell Serratus Reach — single arm, light",
+      "key": "Supine Dumbbell Serratus Reach — single arm, light",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Control shoulder-blade reach without trunk roll under a small unilateral load.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "S2",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — one dumbbell, single arm",
+      "key": "single_arm_floor_press",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 2,
+        "reps": 5,
+        "execution_sides": 2,
+        "dose": "2 × 5 per arm"
+      },
+      "reason": "Main unilateral pressing strength while resisting trunk roll.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P2",
+        "dose": "1 × 6 per arm",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Landmine Press — strict single arm",
+      "key": "landmine_strict",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Load the independent forward/upward arm drive with a stable torso.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P4",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 7,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P6",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 6 used one set of six for each primary lift. Here the main press changes to single-arm Floor Press 2 × 5 per arm, with one set of each supporting lift, including Row 1 × 6 per arm and strict Landmine Press 1 × 6 per arm. Seven rounds expand to eleven actual bouts because three lifts are unilateral; 64 task reps must not be mistaken for 64 bilateral cycles. No automatic load escalation: choose loads afresh for unilateral control, and retain a one-set version if readiness does not support the second press set. Before future advancement require both sides to demonstrate the stated control/reserve and reported recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Band Face Pull — light controlled draw",
+      "key": "Band Face Pull — light controlled draw",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Lightly strengthen control of the shoulder-blade and upper-arm position during the high-force draw.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Dumbbell Wrist Flexion — forearm supported",
+      "key": "Dumbbell Wrist Flexion — forearm supported",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Lightly load wrist/forearm control that maintains grip alignment during pulling.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 7,
+        "slot": "P2",
+        "dose": "1 × 6 per arm",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Priority horizontal pulling strength: move the load through the shoulder and elbow while keeping the body still.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "Band Lat Pulldown — kneeling, two arms",
+      "key": "lat_pulldown",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "P2",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Load the downward arm draw needed for assisted pull-up force without another horizontal row set.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 7,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 7,
+        "slot": "P6",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P1",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 8,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 7,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 7 prescribed 64 task reps across eleven unilateral-heavy primary bouts. This class returns to the already written Class 3 pulling allocation: One-Arm Row 2 × 6 per arm, Lat Pulldown 2 × 6, and one set each of rear-delt row, curl, Floor Press and elbow extension. That is eight rounds, ten bouts and 66 task reps. This returns to a known prescription, not an observed successful dose. The body-assisted speed row uses a light load independent of primary-row loading. Hold or regress if first-set mechanics or actual recovery does not support it; later progression requires reported control, reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Light-Band Pallof Press — fixed split stance",
+      "key": "Light-Band Pallof Press — fixed split stance",
+      "previous_same_execution": null,
+      "current": {
+        "sets": 1,
+        "reps": 5,
+        "execution_sides": 2,
+        "dose": "1 × 5 per anchor side"
+      },
+      "reason": "Control unwanted trunk rotation while force passes through a planted lead foot.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 7,
+        "slot": "S2",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 8,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 8,
+        "slot": "P1",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "P3",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 8,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 8,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 9,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 8,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 8 used the pulling-emphasis strength allocation. This class returns to the Class 1/2 balanced eight-round strength prescription, 68 task reps, at familiar demonstrated effort rather than higher weights. The new variable is plant-to-arm coordination; no sprint or jump is added. There are 14 prescribed movement steps: six bilateral-pass steps, four single-arm-throw steps and four rope-draw steps. They are not sprint metres or jump contacts. Without demonstrated plant control, stationary same-slot versions are the default. Future progression needs actual balanced finishes, controlled release line, technical strength reserve and recovery.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "key": "Scapular Push-Up — quadruped, dynamic",
+      "previous_same_execution": {
+        "class_number": 6,
+        "slot": "S1",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Lightly load controlled shoulder-blade travel for pushing support and force transfer.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Dumbbell Wrist Extension — forearm supported",
+      "key": "Dumbbell Wrist Extension — forearm supported",
+      "previous_same_execution": {
+        "class_number": 3,
+        "slot": "S1",
+        "dose": "1 × 6 per arm",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Lightly reinforce wrist alignment at the finish of loaded presses and pulls.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P5",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 10,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 9 balanced strength doses are retained exactly: Floor Press 2 × 6, Row 2 × 6 per arm, and one set of eight for each remaining lift, totaling eight rounds and 68 task reps. The new drill emphasis is force completion, not an automatic strength-load increase. If actual prior full-range sets were controlled at the stated reserve with good recovery, consider the smallest practical increment on only one priority lift; otherwise hold or reduce. Do not shorten range to claim a heavier successful strength set. No class has established that an increment was earned.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Light-Band Pallof Press — fixed split stance",
+      "key": "Light-Band Pallof Press — fixed split stance",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "S1",
+        "dose": "1 × 5 per anchor side",
+        "sets": 1,
+        "reps": 5,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 4,
+        "execution_sides": 2,
+        "dose": "1 × 4 per anchor side"
+      },
+      "reason": "Control unwanted trunk rotation while force passes through a planted lead foot.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Dumbbell Wrist Extension — forearm supported",
+      "key": "Dumbbell Wrist Extension — forearm supported",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "S2",
+        "dose": "1 × 6 per arm",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "1 × 6 per arm"
+      },
+      "reason": "Lightly support wrist alignment for the received ball, grip and hand-support finish.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P3",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P5",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 11,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 10 retained 68 primary task reps. This class retains Floor Press/Row anchor doses but reduces Push-Up and triceps support to 1 × 6 each, giving 64 task reps and eight rounds, as already prescribed in Class 5. The integration task adds four catches and four controlled steps; it is conditional on demonstrated receipt/plant control. No unreported weakness, improvement or earned load increase is assumed. Before final comparison, obtain actual setup/load/quality records if available and match conditions only for the listed comparison tasks.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "S1",
+      "section": "resilience",
+      "exercise": "Scapular Push-Up — quadruped, dynamic",
+      "key": "Scapular Push-Up — quadruped, dynamic",
+      "previous_same_execution": {
+        "class_number": 10,
+        "slot": "S1",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "1 × 6"
+      },
+      "reason": "Lightly load controlled shoulder-blade travel for pushing support and force transfer.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "S2",
+      "section": "resilience",
+      "exercise": "Bilateral Band External Rotation — elbows at sides",
+      "key": "Bilateral Band External Rotation — elbows at sides",
+      "previous_same_execution": {
+        "class_number": 9,
+        "slot": "S2",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Light-strength criterion above; preserve the stated joint position without fatigue.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P1",
+      "section": "primary",
+      "exercise": "Floor Press — two dumbbells, neutral grip",
+      "key": "floor_press",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P1",
+        "dose": "2 × 6",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 1,
+        "dose": "2 × 6"
+      },
+      "reason": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P2",
+      "section": "primary",
+      "exercise": "One-Arm Row — dumbbell, hand and knee on bench",
+      "key": "one_arm_row",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P2",
+        "dose": "2 × 6 per arm",
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2
+      },
+      "current": {
+        "sets": 2,
+        "reps": 6,
+        "execution_sides": 2,
+        "dose": "2 × 6 per arm"
+      },
+      "reason": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P3",
+      "section": "primary",
+      "exercise": "Push-Up — controlled full repetition",
+      "key": "push_up",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P3",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load the press with free shoulder-blade movement and a steady trunk.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P4",
+      "section": "primary",
+      "exercise": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "key": "rear_row",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P4",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P5",
+      "section": "primary",
+      "exercise": "Dumbbell Skull Crusher — floor-supported",
+      "key": "triceps",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P5",
+        "dose": "1 × 6",
+        "sets": 1,
+        "reps": 6,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow extension for the finish of a forceful press.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    },
+    {
+      "class_number": 12,
+      "slot": "P6",
+      "section": "primary",
+      "exercise": "Dumbbell Hammer Curl — simultaneous arms",
+      "key": "curl",
+      "previous_same_execution": {
+        "class_number": 11,
+        "slot": "P6",
+        "dose": "1 × 8",
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1
+      },
+      "current": {
+        "sets": 1,
+        "reps": 8,
+        "execution_sides": 1,
+        "dose": "1 × 8"
+      },
+      "reason": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "allocation_rationale": "Class 11 reduced two pressing supports to six reps. Here the original Class 1 strength prescription is restored: Floor Press 2 × 6, Row 2 × 6 per arm and one set of eight for each other lift, eight rounds and 68 task reps. Use current technically suitable loads at 2–3 RIR; repeat a prior load only if it remains appropriate. Compare actual load/quality records descriptively because preceding explosive exposure and readiness may differ. The exact E1 drill/dose is repeated for a possible matched reference; no athlete completion or improvement has been supplied. The next cycle should target a limitation shown by actual response, not an invented successful outcome.",
+      "next_criterion": "Primary criterion above; preserve the stated arm path, range and trunk control.",
+      "actual_load": null,
+      "actual_response": null
+    }
+  ],
+  "actual_observations": null
+}

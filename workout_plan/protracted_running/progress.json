@@ -1,0 +1,1541 @@
+{
+  "schema_version": 1,
+  "focus": "Protracted Running",
+  "framework_category": "Protracted running",
+  "framework_subcategories": [
+    "Endurance",
+    "sustained pace",
+    "pacing control"
+  ],
+  "scope": "Complementary gym strength and explosiveness only; no running or direct endurance/pacing practice.",
+  "updated_at": "2026-09-13",
+  "target_class_count": 12,
+  "finalized_class_count": 12,
+  "last_finalized_class": 12,
+  "next_class": null,
+  "status": "complete_written_curriculum",
+  "finalized_file_paths": [
+    "classes/class_01.md",
+    "classes/class_02.md",
+    "classes/class_03.md",
+    "classes/class_04.md",
+    "classes/class_05.md",
+    "classes/class_06.md",
+    "classes/class_07.md",
+    "classes/class_08.md",
+    "classes/class_09.md",
+    "classes/class_10.md",
+    "classes/class_11.md",
+    "classes/class_12.md"
+  ],
+  "supporting_file_paths": [
+    "anchor_progression.md",
+    "athlete_feedback.md",
+    "curriculum.md",
+    "exercise_register.md",
+    "progression_ledger.md",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md",
+    "supporting/checkpoint_verification.json",
+    "supporting/class_01_audit.md",
+    "supporting/class_01_design_brief.md",
+    "supporting/class_01_record.json",
+    "supporting/class_01_save_verification.json",
+    "supporting/class_02_audit.md",
+    "supporting/class_02_design_brief.md",
+    "supporting/class_02_record.json",
+    "supporting/class_03_audit.md",
+    "supporting/class_03_design_brief.md",
+    "supporting/class_03_record.json",
+    "supporting/class_04_audit.md",
+    "supporting/class_04_design_brief.md",
+    "supporting/class_04_record.json",
+    "supporting/class_05_audit.md",
+    "supporting/class_05_design_brief.md",
+    "supporting/class_05_record.json",
+    "supporting/class_06_audit.md",
+    "supporting/class_06_design_brief.md",
+    "supporting/class_06_record.json",
+    "supporting/class_07_audit.md",
+    "supporting/class_07_design_brief.md",
+    "supporting/class_07_record.json",
+    "supporting/class_08_audit.md",
+    "supporting/class_08_design_brief.md",
+    "supporting/class_08_record.json",
+    "supporting/class_09_audit.md",
+    "supporting/class_09_design_brief.md",
+    "supporting/class_09_record.json",
+    "supporting/class_10_audit.md",
+    "supporting/class_10_design_brief.md",
+    "supporting/class_10_record.json",
+    "supporting/class_11_audit.md",
+    "supporting/class_11_design_brief.md",
+    "supporting/class_11_record.json",
+    "supporting/class_12_audit.md",
+    "supporting/class_12_design_brief.md",
+    "supporting/class_12_record.json",
+    "supporting/source_and_exercise_register.md",
+    "supporting/verification.json",
+    "supporting/full_sequence_audit.md"
+  ],
+  "prescribed": {
+    "class_01": {
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6,
+        "outside_existing_preparation": 14
+      },
+      "explosive": {
+        "landing_events": 39,
+        "bilateral_landing_events": 25,
+        "single_leg_landing_events": 14,
+        "single_leg_landings_per_leg": 7,
+        "individual_foot_contacts": 64,
+        "individual_foot_contacts_per_foot": 32,
+        "internal_rebound_transitions": 20,
+        "kettlebell_swings": 10,
+        "throws": 0,
+        "running_m": 0,
+        "sprinting_m": 0,
+        "scope": "Default prescription only; preparation and outside work unknown."
+      },
+      "stabilization": {
+        "set_rounds": 2,
+        "set_bouts": 4,
+        "arch_holds": 8,
+        "arch_hold_seconds": 40,
+        "hip_abduction_reps": 16
+      },
+      "primary_strength": {
+        "working_set_rounds": 9,
+        "working_set_bouts": 13,
+        "ordinary_working_reps": 80,
+        "working_walkout_cycles": 4,
+        "working_walkout_heel_steps": 32,
+        "preparation_set_rounds": 7,
+        "preparation_set_bouts": 11,
+        "ordinary_preparation_reps": 43,
+        "shortened_preparation_walkout_cycles": 1,
+        "preparation_walkout_heel_steps": 8,
+        "effort": "About 2–3 technically sound repetitions in reserve; leverage calibrated for whole walkout cycles."
+      },
+      "time_minutes_excluding_existing_preparation": {
+        "estimate_min": 65,
+        "estimate_max": 75,
+        "group_flow_confirmed": false
+      },
+      "access_prepare_1_minutes": null,
+      "full_session_minutes": null,
+      "decision": "Initial prescription baseline; no prior Protracted Running progress or actual response found.",
+      "replacements": "Use only selected options; ledger contains E6 toss and P4 bilateral count changes, and other support/load variants."
+    },
+    "class_02": {
+      "landing_events": 31,
+      "bilateral_landing_events": 31,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 62,
+      "other_explosive": [
+        {
+          "name": "Forward Medicine Ball Scoop Toss",
+          "amount": 6,
+          "unit": "throws"
+        },
+        {
+          "name": "Seated Straight-Knee Band Plantarflexion — fast press",
+          "amount": 12,
+          "unit": "presses"
+        }
+      ],
+      "primary_set_rounds": 9,
+      "primary_bouts": 13,
+      "primary_work": {
+        "reps": 80,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 43,
+        "cycles": 1
+      },
+      "stabilization_bouts": 3,
+      "time_seconds": {
+        "explosive": 1366,
+        "stabilization": 242,
+        "primary": 2488,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 72,
+      "time_max": 82,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Heel-Supported Toe Raise",
+          "sets": 1,
+          "reps_or_seconds_per_side": 10,
+          "sides": 1,
+          "total": 10,
+          "unit": "reps, both feet"
+        },
+        {
+          "exercise": "Step-Down to Hover — low forward reach",
+          "sets": 1,
+          "reps_or_seconds_per_side": 4,
+          "sides": 2,
+          "total": 8,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Line Pogo Forward-Back",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 12,
+          "unit": "hops",
+          "landing_events": 12,
+          "individual_foot_contacts": 24,
+          "bilateral_landing_events": 12,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Pogo",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 10,
+          "unit": "hops",
+          "landing_events": 10,
+          "individual_foot_contacts": 20,
+          "bilateral_landing_events": 10,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Box Jump — low box, step-down reset",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 3,
+          "unit": "jumps",
+          "landing_events": 3,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 3,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Vertical Jump to Two-Foot Landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "jumps",
+          "landing_events": 6,
+          "individual_foot_contacts": 12,
+          "bilateral_landing_events": 6,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Forward Medicine Ball Scoop Toss",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "throws",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Seated Straight-Knee Band Plantarflexion — fast press",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 12,
+          "unit": "presses",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 31
+    },
+    "class_03": {
+      "landing_events": 16,
+      "bilateral_landing_events": 6,
+      "single_leg_landing_events": 10,
+      "individual_foot_contacts": 22,
+      "other_explosive": [
+        {
+          "name": "Explosive Low Step-Up — no flight",
+          "amount": 8,
+          "unit": "step-ups"
+        },
+        {
+          "name": "Kickstand Two-Hand Kettlebell Swing",
+          "amount": 8,
+          "unit": "swings"
+        },
+        {
+          "name": "Supported Standing Band Hip Flexion — fast knee drive",
+          "amount": 8,
+          "unit": "knee drives"
+        }
+      ],
+      "primary_set_rounds": 8,
+      "primary_bouts": 13,
+      "primary_work": {
+        "reps": 80,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 12,
+      "preparation_work": {
+        "reps": 44,
+        "cycles": 1
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1628,
+        "stabilization": 306,
+        "primary": 2452,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 77,
+      "time_max": 87,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Hip Airplane — Supported",
+          "sets": 1,
+          "reps_or_seconds_per_side": 3,
+          "sides": 2,
+          "total": 6,
+          "unit": "open-close cycles"
+        },
+        {
+          "exercise": "Side-Lying Hip Adduction",
+          "sets": 1,
+          "reps_or_seconds_per_side": 6,
+          "sides": 2,
+          "total": 12,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Single-Leg Lateral Hop to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "hops",
+          "landing_events": 6,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 6
+        },
+        {
+          "exercise": "Two-Foot Vertical Jump to Single-Leg Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Two-Foot Lateral Jump to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "jumps",
+          "landing_events": 6,
+          "individual_foot_contacts": 12,
+          "bilateral_landing_events": 6,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Explosive Low Step-Up — no flight",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "step-ups",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Kickstand Two-Hand Kettlebell Swing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "swings",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Supported Standing Band Hip Flexion — fast knee drive",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "knee drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 11
+    },
+    "class_04": {
+      "landing_events": 23,
+      "bilateral_landing_events": 23,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 46,
+      "other_explosive": [
+        {
+          "name": "Seated Bent-Knee Calf Raise — fast concentric",
+          "amount": 6,
+          "unit": "bilateral heel rises"
+        },
+        {
+          "name": "Explosive Floor Glute Bridge",
+          "amount": 5,
+          "unit": "hip drives"
+        }
+      ],
+      "primary_set_rounds": 9,
+      "primary_bouts": 13,
+      "primary_work": {
+        "reps": 80,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 43,
+        "cycles": 1
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1034,
+        "stabilization": 290,
+        "primary": 2488,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 67,
+      "time_max": 77,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Seated Band Ankle Eversion",
+          "sets": 1,
+          "reps_or_seconds_per_side": 6,
+          "sides": 2,
+          "total": 12,
+          "unit": "reps"
+        },
+        {
+          "exercise": "Dead Bug Heel Tap",
+          "sets": 1,
+          "reps_or_seconds_per_side": 4,
+          "sides": 2,
+          "total": 8,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Low Squat Pogo — shallow knee bend",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 10,
+          "unit": "hops",
+          "landing_events": 10,
+          "individual_foot_contacts": 20,
+          "bilateral_landing_events": 10,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Forward-Traveling Low Pogo",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 6,
+          "unit": "hops",
+          "landing_events": 6,
+          "individual_foot_contacts": 12,
+          "bilateral_landing_events": 6,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Low Hurdle Hop Pair — two linked jumps",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 2,
+          "unit": "two-jump sequences",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Seated Squat Jump to Stick",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 3,
+          "unit": "jumps",
+          "landing_events": 3,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 3,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Seated Bent-Knee Calf Raise — fast concentric",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 6,
+          "unit": "bilateral heel rises",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Explosive Floor Glute Bridge",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 5,
+          "unit": "hip drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 23
+    },
+    "class_05": {
+      "landing_events": 12,
+      "bilateral_landing_events": 12,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 24,
+      "other_explosive": [
+        {
+          "name": "One-Arm Kettlebell Swing",
+          "amount": 8,
+          "unit": "swings"
+        },
+        {
+          "name": "Hip-Hinge Medicine Ball Forward Toss",
+          "amount": 3,
+          "unit": "throws"
+        },
+        {
+          "name": "Prone Band Leg Curl — fast concentric",
+          "amount": 8,
+          "unit": "curls"
+        }
+      ],
+      "primary_set_rounds": 8,
+      "primary_bouts": 11,
+      "primary_work": {
+        "reps": 64,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 10,
+      "preparation_work": {
+        "reps": 40,
+        "cycles": 1
+      },
+      "stabilization_bouts": 3,
+      "time_seconds": {
+        "explosive": 1517,
+        "stabilization": 245,
+        "primary": 2232,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 70,
+      "time_max": 80,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Quadruped Bent-Knee Hip Extension",
+          "sets": 1,
+          "reps_or_seconds_per_side": 5,
+          "sides": 2,
+          "total": 10,
+          "unit": "reps"
+        },
+        {
+          "exercise": "Supine Long-Lever Heel-Dig Isometric",
+          "sets": 1,
+          "reps_or_seconds_per_side": 10,
+          "sides": 1,
+          "total": 10,
+          "unit": "seconds, both heels"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Paused Broad Jump to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Forward Jump to Parallel Landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Broad Jump to Two-Foot Landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "One-Arm Kettlebell Swing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "swings",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Hip-Hinge Medicine Ball Forward Toss",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 3,
+          "unit": "throws",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Prone Band Leg Curl — fast concentric",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "curls",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 12
+    },
+    "class_06": {
+      "landing_events": 26,
+      "bilateral_landing_events": 16,
+      "single_leg_landing_events": 10,
+      "individual_foot_contacts": 42,
+      "other_explosive": [
+        {
+          "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+          "amount": 6,
+          "unit": "throws"
+        },
+        {
+          "name": "Explosive Lateral Step-Up — no flight",
+          "amount": 8,
+          "unit": "step-ups"
+        }
+      ],
+      "primary_set_rounds": 7,
+      "primary_bouts": 13,
+      "primary_work": {
+        "reps": 72,
+        "seconds": 30
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 13,
+      "preparation_work": {
+        "reps": 44,
+        "seconds": 10
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1664,
+        "stabilization": 276,
+        "primary": 2422,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 76,
+      "time_max": 86,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Short-Foot Drill — supported single-leg stance",
+          "sets": 1,
+          "reps_or_seconds_per_side": 3,
+          "sides": 2,
+          "total": 6,
+          "unit": "five-second holds"
+        },
+        {
+          "exercise": "Side Plank — knees bent",
+          "sets": 1,
+          "reps_or_seconds_per_side": 12,
+          "sides": 2,
+          "total": 24,
+          "unit": "seconds"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Line Pogo Side-to-Side",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 12,
+          "unit": "hops",
+          "landing_events": 12,
+          "individual_foot_contacts": 24,
+          "bilateral_landing_events": 12,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Diagonal Hop to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "hops",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Skater Bound to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "bounds",
+          "landing_events": 6,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 6
+        },
+        {
+          "exercise": "Lateral Box Jump — two-foot landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Medicine Ball Forward Scoop Toss",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "throws",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Explosive Lateral Step-Up — no flight",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "step-ups",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 21
+    },
+    "class_07": {
+      "landing_events": 29,
+      "bilateral_landing_events": 17,
+      "single_leg_landing_events": 12,
+      "individual_foot_contacts": 46,
+      "other_explosive": [],
+      "primary_set_rounds": 7,
+      "primary_bouts": 11,
+      "primary_work": {
+        "reps": 66,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 43,
+        "cycles": 1
+      },
+      "stabilization_bouts": 3,
+      "time_seconds": {
+        "explosive": 1333,
+        "stabilization": 238,
+        "primary": 2222,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 67,
+      "time_max": 77,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Tibialis ISO Toe-Up Hold",
+          "sets": 1,
+          "reps_or_seconds_per_side": 10,
+          "sides": 1,
+          "total": 10,
+          "unit": "seconds, both feet"
+        },
+        {
+          "exercise": "Side-Lying Clamshell",
+          "sets": 1,
+          "reps_or_seconds_per_side": 6,
+          "sides": 2,
+          "total": 12,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Jump Rope Bounce — two-foot single turns",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 12,
+          "unit": "jumps",
+          "landing_events": 12,
+          "individual_foot_contacts": 24,
+          "bilateral_landing_events": 12,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Forward Double Hop",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 2,
+          "unit": "two-hop sequences",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Single-Leg Lateral Out-and-Back Hop Pair",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 2,
+          "unit": "two-hop sequences",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Repeated Vertical Jump — three low connected jumps",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 1,
+          "unit": "three-jump sequences",
+          "landing_events": 3,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 3,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Repeated Broad Jump — two linked jumps",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 1,
+          "unit": "two-jump sequences",
+          "landing_events": 2,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 2,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Skater Bound Continuous — four short transfers",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 1,
+          "unit": "four-bound sequences",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        }
+      ],
+      "individual_foot_contacts_per_foot": 23
+    },
+    "class_08": {
+      "landing_events": 21,
+      "bilateral_landing_events": 17,
+      "single_leg_landing_events": 4,
+      "individual_foot_contacts": 38,
+      "other_explosive": [],
+      "primary_set_rounds": 7,
+      "primary_bouts": 12,
+      "primary_work": {
+        "reps": 72,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 6,
+      "preparation_bouts": 10,
+      "preparation_work": {
+        "reps": 34,
+        "cycles": 1
+      },
+      "stabilization_bouts": 3,
+      "time_seconds": {
+        "explosive": 1598,
+        "stabilization": 237,
+        "primary": 2252,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 72,
+      "time_max": 82,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Lateral Step-Down — low heel tap",
+          "sets": 1,
+          "reps_or_seconds_per_side": 4,
+          "sides": 2,
+          "total": 8,
+          "unit": "reps"
+        },
+        {
+          "exercise": "Short-Lever Hamstring Bridge Hold",
+          "sets": 1,
+          "reps_or_seconds_per_side": 10,
+          "sides": 1,
+          "total": 10,
+          "unit": "seconds, both heels"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Broad Jump to Stick — countermovement with arms",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Forward Jump to Low Box — two-foot landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Two-Foot Forward Jump to Single-Leg Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Single Low Hurdle Jump to Stick",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 2,
+          "unit": "jumps",
+          "landing_events": 2,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 2,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split Jump Switch to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Grounded Snap-Down to Low Rebound Jump",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 3,
+          "unit": "rebound jumps",
+          "landing_events": 3,
+          "individual_foot_contacts": 6,
+          "bilateral_landing_events": 3,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 19
+    },
+    "class_09": {
+      "landing_events": 4,
+      "bilateral_landing_events": 4,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 8,
+      "other_explosive": [
+        {
+          "name": "Landmine Squat-to-Forefoot Drive — no flight",
+          "amount": 4,
+          "unit": "drives"
+        },
+        {
+          "name": "Split-Stance Landmine Hinge Drive",
+          "amount": 6,
+          "unit": "drives"
+        },
+        {
+          "name": "Explosive Hip Thrust — light dumbbell, bench supported",
+          "amount": 4,
+          "unit": "hip drives"
+        },
+        {
+          "name": "Seated Dumbbell Hip Flexion — fast thigh lift",
+          "amount": 8,
+          "unit": "thigh lifts"
+        },
+        {
+          "name": "Standing Calf Raise — fast concentric, supported single leg",
+          "amount": 8,
+          "unit": "heel rises"
+        }
+      ],
+      "primary_set_rounds": 7,
+      "primary_bouts": 11,
+      "primary_work": {
+        "reps": 66,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 43,
+        "cycles": 1
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1291,
+        "stabilization": 282,
+        "primary": 2222,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 67,
+      "time_max": 77,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Seated Band Ankle Inversion",
+          "sets": 1,
+          "reps_or_seconds_per_side": 6,
+          "sides": 2,
+          "total": 12,
+          "unit": "reps"
+        },
+        {
+          "exercise": "Split-Stance Suitcase Hold — light dumbbell",
+          "sets": 1,
+          "reps_or_seconds_per_side": 12,
+          "sides": 2,
+          "total": 24,
+          "unit": "seconds per loaded arm"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Loaded Squat Jump — light dumbbells",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Landmine Squat-to-Forefoot Drive — no flight",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 4,
+          "unit": "drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Landmine Hinge Drive",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Explosive Hip Thrust — light dumbbell, bench supported",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 4,
+          "unit": "hip drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Seated Dumbbell Hip Flexion — fast thigh lift",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "thigh lifts",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Standing Calf Raise — fast concentric, supported single leg",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "heel rises",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 4
+    },
+    "class_10": {
+      "landing_events": 24,
+      "bilateral_landing_events": 12,
+      "single_leg_landing_events": 12,
+      "individual_foot_contacts": 36,
+      "other_explosive": [
+        {
+          "name": "Dead-Stop Two-Hand Kettlebell Swing",
+          "amount": 6,
+          "unit": "single swings"
+        },
+        {
+          "name": "Explosive Single-Leg Floor Bridge",
+          "amount": 8,
+          "unit": "hip drives"
+        }
+      ],
+      "primary_set_rounds": 6,
+      "primary_bouts": 9,
+      "primary_work": {
+        "reps": 54,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 6,
+      "preparation_bouts": 9,
+      "preparation_work": {
+        "reps": 33,
+        "cycles": 1
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1908,
+        "stabilization": 292,
+        "primary": 1916,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 72,
+      "time_max": 82,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Short-Foot Drill — seated target-foot holds",
+          "sets": 1,
+          "reps_or_seconds_per_side": 3,
+          "sides": 2,
+          "total": 6,
+          "unit": "five-second holds"
+        },
+        {
+          "exercise": "Supported Hip Hike — low step",
+          "sets": 1,
+          "reps_or_seconds_per_side": 5,
+          "sides": 2,
+          "total": 10,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Single-Leg Ankle Hop to Stick — full reset",
+          "set_bouts": 4,
+          "total_reps_or_sequences": 8,
+          "unit": "hops",
+          "landing_events": 8,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 8
+        },
+        {
+          "exercise": "Split-Stance Forward Pogo",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "hops",
+          "landing_events": 8,
+          "individual_foot_contacts": 16,
+          "bilateral_landing_events": 8,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Two-Foot Diagonal Jump to Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Vertical Jump to Low Box — same-leg landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 4,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 4
+        },
+        {
+          "exercise": "Dead-Stop Two-Hand Kettlebell Swing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "single swings",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Explosive Single-Leg Floor Bridge",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "hip drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 18
+    },
+    "class_11": {
+      "landing_events": 0,
+      "bilateral_landing_events": 0,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 0,
+      "other_explosive": [
+        {
+          "name": "Supported Single-Leg Bent-Knee Calf Rise — fast concentric",
+          "amount": 12,
+          "unit": "heel rises"
+        },
+        {
+          "name": "Long-Lever Heel-Bridge Drive — fast concentric",
+          "amount": 4,
+          "unit": "hip drives"
+        },
+        {
+          "name": "Split-Stance Held-Ball Hip Drive — no release",
+          "amount": 6,
+          "unit": "drives"
+        },
+        {
+          "name": "Supported Band Hip Extension — fast back drive",
+          "amount": 8,
+          "unit": "back drives"
+        },
+        {
+          "name": "Seated Band Dorsiflexion — fast toe-up",
+          "amount": 8,
+          "unit": "toe lifts"
+        },
+        {
+          "name": "Supported Band Hip Abduction — quick lateral lift",
+          "amount": 8,
+          "unit": "lateral lifts"
+        }
+      ],
+      "primary_set_rounds": 6,
+      "primary_bouts": 9,
+      "primary_work": {
+        "reps": 62
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 48
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1418,
+        "stabilization": 302,
+        "primary": 2018,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 66,
+      "time_max": 76,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Short-Foot Drill — bilateral supported stance",
+          "sets": 1,
+          "reps_or_seconds_per_side": 3,
+          "sides": 2,
+          "total": 6,
+          "unit": "five-second holds"
+        },
+        {
+          "exercise": "Side-Lying Hip Adduction",
+          "sets": 1,
+          "reps_or_seconds_per_side": 5,
+          "sides": 2,
+          "total": 10,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Supported Single-Leg Bent-Knee Calf Rise — fast concentric",
+          "set_bouts": 4,
+          "total_reps_or_sequences": 12,
+          "unit": "heel rises",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Long-Lever Heel-Bridge Drive — fast concentric",
+          "set_bouts": 1,
+          "total_reps_or_sequences": 4,
+          "unit": "hip drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Held-Ball Hip Drive — no release",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Supported Band Hip Extension — fast back drive",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "back drives",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Seated Band Dorsiflexion — fast toe-up",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "toe lifts",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Supported Band Hip Abduction — quick lateral lift",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 8,
+          "unit": "lateral lifts",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 0
+    },
+    "class_12": {
+      "landing_events": 28,
+      "bilateral_landing_events": 28,
+      "single_leg_landing_events": 0,
+      "individual_foot_contacts": 56,
+      "other_explosive": [
+        {
+          "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+          "amount": 6,
+          "unit": "throws"
+        },
+        {
+          "name": "Two-Hand Kettlebell Swing",
+          "amount": 10,
+          "unit": "swings"
+        }
+      ],
+      "primary_set_rounds": 6,
+      "primary_bouts": 9,
+      "primary_work": {
+        "reps": 54,
+        "cycles": 4
+      },
+      "preparation_set_rounds": 7,
+      "preparation_bouts": 11,
+      "preparation_work": {
+        "reps": 43,
+        "cycles": 1
+      },
+      "stabilization_bouts": 4,
+      "time_seconds": {
+        "explosive": 1650,
+        "stabilization": 348,
+        "primary": 2006,
+        "shared_briefing_and_notes": 180
+      },
+      "time_min": 70,
+      "time_max": 80,
+      "running_m": 0,
+      "sprinting_m": 0,
+      "stabilization_work": [
+        {
+          "exercise": "Short-Foot Drill",
+          "sets": 1,
+          "reps_or_seconds_per_side": 4,
+          "sides": 2,
+          "total": 8,
+          "unit": "five-second holds"
+        },
+        {
+          "exercise": "Side-Lying Hip Abduction",
+          "sets": 1,
+          "reps_or_seconds_per_side": 8,
+          "sides": 2,
+          "total": 16,
+          "unit": "reps"
+        }
+      ],
+      "explosive_exposure_by_exercise": [
+        {
+          "exercise": "Stationary Bilateral Ankle Pogo",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 16,
+          "unit": "hops",
+          "landing_events": 16,
+          "individual_foot_contacts": 32,
+          "bilateral_landing_events": 16,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Two-Foot Forward Jump to Split-Stance Stick",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Single-Leg Lateral Jump to Two-Foot Landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Paused Single-Leg Squat Jump to Two-Foot Landing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 4,
+          "unit": "jumps",
+          "landing_events": 4,
+          "individual_foot_contacts": 8,
+          "bilateral_landing_events": 4,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Split-Stance Medicine Ball Forward Scoop Toss",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 6,
+          "unit": "throws",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        },
+        {
+          "exercise": "Two-Hand Kettlebell Swing",
+          "set_bouts": 2,
+          "total_reps_or_sequences": 10,
+          "unit": "swings",
+          "landing_events": 0,
+          "individual_foot_contacts": 0,
+          "bilateral_landing_events": 0,
+          "single_leg_landing_events": 0
+        }
+      ],
+      "individual_foot_contacts_per_foot": 28
+    }
+  },
+  "observed": {
+    "completed_class_count": null,
+    "attendance": null,
+    "attempts_and_loads": null,
+    "performance": null,
+    "symptoms_and_recovery": null,
+    "athlete_sessions": [],
+    "status": "No actual observations supplied or found in reviewed local programming records. Unknown is not zero, completion, success or intolerance."
+  },
+  "next_class_intended_job": null,
+  "progression_gates": {
+    "advance": "Reported actual quality at intended effort, suitable subsequent recovery, a specific need and compatible full schedule; change one justified variable.",
+    "hold": "Missing/incomplete feedback, uncertain recovery or inconsistent execution; conditional prescription with readiness visible.",
+    "regress": "Observed deterioration, inappropriate effort or problematic symptoms: lower suitable load/range/amplitude/dose, extend rest or reschedule; record actual modifications."
+  },
+  "unresolved_issues": [
+    "Actual athlete identity, attendance, technique, load, effort and recovery are unknown.",
+    "Actual recent/upcoming running, races, sport, gym, other Vortex classes and tumbling workload is unknown.",
+    "Existing Access & Prepare 1 content, duration, load and no-running compatibility are unknown; reference only, no redesign.",
+    "Booked duration, group size and qualified staff coverage are unconfirmed; individual class estimates span about 65–87 minutes beyond existing preparation, before unabsorbed queues or additional instruction.",
+    "Equipment counts, suitable DB/KB loads, secure loop-band form, bench fit/stability, working width and queue layout require onsite confirmation.",
+    "Older facility reference states 12 m lanes and older framework/bookings; this plan follows the current supplied 10 m seven-category specification.",
+    "Exact canonical bindings for proposed exercises are unverified; no identifiers fabricated or exercise records changed.",
+    "Gym-only support does not directly provide or measure endurance, sustained running pace or pacing control."
+  ],
+  "resume_instruction": "The twelve-class written curriculum is complete. Do not generate Class 13 or infer athlete completion. Before delivery or revision, read curriculum.md, the selected class, progression_ledger.md, anchor_progression.md, exercise_register.md, athlete_feedback.md, supporting/full_sequence_audit.md and current verification. Review actual readiness/schedule, existing Access & Prepare 1 no-running compatibility, equipment and booking. Add only reported observations, choose stated replacements or revise the affected class, update records and verify consistency.",
+  "continuation_authorization": {
+    "instruction": "Continue to finish all 12 classes. Try to force unique drills; strength lifts may recur as needed for progression.",
+    "effect": "Overrides the former one-class stop and default repeated-drill preference; finish each class individually, audit/save before the next. Purposeful exceptions to drill novelty are documented. No actual completion or readiness is inferred."
+  },
+  "full_sequence_prescribed_totals": {
+    "landing_events": 253,
+    "individual_foot_contacts": 444,
+    "primary_working_rounds": 89,
+    "primary_working_bouts": 137
+  },
+  "novelty_summary": {
+    "explosive_slots": 72,
+    "named_execution_profiles_including_related_variants": 69,
+    "deliberate_default_repeat_slots": 3,
+    "caution": "Named execution profiles are not unrelated exercise families. Contingency use may reduce novelty; actual usage is unknown."
+  },
+  "completion_audit_file": "supporting/full_sequence_audit.md",
+  "verification_file": "supporting/verification.json",
+  "full_sequence_audit_status": "passed_for_written_prescriptions"
+}

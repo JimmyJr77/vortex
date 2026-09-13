@@ -1,0 +1,419 @@
+{
+  "n": 6,
+  "effort": "Keep the pelvis supported over the foot during small frontal and diagonal force demands.",
+  "brief": "This consolidation exposure addresses unwanted side-to-side pelvic motion in stance, not sport cutting. E1 supplies a small lateral rhythm marker; E2/E3 use limited single-leg acceptance in diagonal and lateral vectors. Raised two-foot receiving, split-stance forward release and a grounded lateral step-up express force with different support conditions. Light arch and trunk work set up targeted hip/adductor strength.",
+  "anchor": "E1",
+  "marker": "Count centred contacts in each six-hop lateral set while pelvis and feet face forward, without crossing feet or increasing travel. Keep the same small gap. Lateral-hop rhythm cannot be compared numerically with fore-aft or stationary pogo performance.",
+  "review": "Class 5 prescribed twelve bilateral landings and eight primary rounds emphasizing hips/hamstrings. No actual response is known. Class 6 reintroduces ten single-leg receiving events, matching the written Class 3 count rather than increasing that exposure; primary volume falls to seven rounds while frontal strength roles replace some posterior-chain work.",
+  "sequence": "The bilateral lateral ankle task comes first, then the short single-leg tasks before fatigue. Raised bilateral receiving and two planted/supporting-force tasks complete the explosive block without a long bound circuit.",
+  "E": [
+    {
+      "name": "Line Pogo Side-to-Side",
+      "identity": "line_pogo_lateral",
+      "family": "bilateral lateral ankle return",
+      "library_slug": "line-pogo-side-to-side",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "hops",
+      "footfalls": [
+        2
+      ],
+      "rest": 60,
+      "t": 1,
+      "job": "Main frontal foot-return task with a small repeatable displacement.",
+      "cue": "Both feet together, hop sideways across a seam or imaginary line marked by cones outside the area; less than one foot length of travel. Keep toes/pelvis forward and knees soft. Shorten travel for rolling ankles or hip sway."
+    },
+    {
+      "name": "Single-Leg Diagonal Hop to Stick",
+      "identity": "sl_diagonal_forward_stick",
+      "family": "combined forward-frontal single-leg acceptance",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "hops per receiving leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Accept a small combined forward/lateral push over one leg, controlling the pelvis across two directions.",
+      "cue": "Hop forward and slightly outward on the same leg over no more than one own foot length; hold 2 s. Walk back. Keep the diagonal consistent and modest; reduce distance for knee drift or hip rotation."
+    },
+    {
+      "name": "Skater Bound to Stick",
+      "identity": "skater_bound_stick",
+      "family": "lateral opposite-leg transfer",
+      "library_slug": "skater-bound-to-stick",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "bounds per receiving leg",
+      "footfalls": [
+        1
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Transfer body mass from one leg to the other through a short lateral push and stable receiving stance.",
+      "cue": "Start on the opposite foot, push a short distance sideways, land on the named leg and hold 2 s. Reset by walking before another attempt to that side. No long-distance reach, crossover sweep or repeated alternating sequence; shorten distance for extra steps."
+    },
+    {
+      "name": "Lateral Box Jump — two-foot landing",
+      "identity": "lateral_low_box_jump",
+      "family": "frontal projection to raised receiving",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "jumps per direction",
+      "footfalls": [
+        2
+      ],
+      "rest": 90,
+      "gap": 20,
+      "t": 4,
+      "job": "Express a frontal push with shared receiving at a low raised surface, reducing dependence on single-leg landing skill.",
+      "cue": "Stand beside a suitably low stable box; small two-foot jump sideways onto it, face forward, hold 2 s and step down. No turn or knee tuck. Reduce height/sideways gap for twisting or cramped landing space."
+    },
+    {
+      "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+      "identity": "split_stance_forward_scoop",
+      "family": "asymmetric hip drive with pelvic control",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "throws per lead-leg stance",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 20,
+      "t": 2,
+      "job": "Direct hip/leg force forward while the split base resists unwanted pelvic rotation.",
+      "cue": "Small stationary split stance, light ball low, shallow dip and fast forward scoop. Both feet remain planted, pelvis faces forward, no twist or catch. Reduce ball mass/stance offset if the rear foot pivots or the back arches."
+    },
+    {
+      "name": "Explosive Lateral Step-Up — no flight",
+      "identity": "fast_lateral_stepup_no_flight",
+      "family": "rapid frontal supported leg extension",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 4,
+      "sides": 2,
+      "unit": "step-ups",
+      "footfalls": [],
+      "rest": 90,
+      "gap": 5,
+      "t": 3,
+      "job": "Accelerate the body over a laterally positioned stance foot while keeping the pelvis level, without another jump landing.",
+      "cue": "Working foot flat on a low box beside the body. Drive up quickly using that leg; foot remains on the box and free knee lifts slightly, then lower over 2 s. No push or jump from the floor foot; lower box height for hip hike."
+    }
+  ],
+  "S": [
+    {
+      "name": "Short-Foot Drill — supported single-leg stance",
+      "identity": "supported_sl_short_foot",
+      "library_slug": "short-foot-drill",
+      "sets": 1,
+      "reps": 3,
+      "sides": 2,
+      "unit": "five-second holds",
+      "rest": 30,
+      "t": 5,
+      "gap": 3,
+      "job": "Light arch strengthening under one-leg support to maintain a stable contact platform during frontal drift.",
+      "cue": "Use hand support, soft knee and long toes; hold the target arch gently without clawing. Release fully between holds. Use two feet supported instead at the same target-foot holds if single-leg loading causes gripping or cramping."
+    },
+    {
+      "name": "Side Plank — knees bent",
+      "identity": "short_lever_side_plank",
+      "library_slug": null,
+      "sets": 1,
+      "reps": 12,
+      "sides": 2,
+      "unit": "seconds",
+      "rest": 30,
+      "t": 1,
+      "job": "Light lateral-trunk strengthening to resist pelvic drop while the lower limb changes support.",
+      "cue": "Forearm under shoulder, knees bent, lift into a shoulder–hip–knee line and breathe easily. Keep the upper hip stacked; shorten hold or lower hips slightly for shaking. This remains easy before the challenging adductor task."
+    }
+  ],
+  "P": [
+    {
+      "name": "Split Squat — two dumbbells at sides",
+      "slug": "split-squat",
+      "sides": 2,
+      "reps": 6,
+      "sets": 2,
+      "t": 3,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          6,
+          30
+        ],
+        [
+          3,
+          90
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Floor split stance, front foot planted, pelvis square; lower 2 s and rise firmly for 1 s. Reduce load/range for collapse or balance loss. Use one DB with stable hand support instead of two unsupported DBs if needed; counts stay the same.",
+      "job": "Retain the main stance-leg knee/hip force anchor with a stable base.",
+      "key": "split"
+    },
+    {
+      "name": "Goblet Lateral Lunge",
+      "slug": null,
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "Hold one DB securely at chest. Step sideways, sit into the stepping hip with full foot planted, return to centre without jumping; 3 s out/down, 1 s return. Keep knee with toes and pelvis square. Shorten step/range or reduce DB for inward knee collapse.",
+      "job": "Add direct frontal hip/knee force for accepting small lateral displacement.",
+      "key": "latlunge",
+      "decision": "New 1 × 6 per side replaces a posterior-chain accessory role for this frontal emphasis. Load only through observed control; do not chase depth or add a second set automatically."
+    },
+    {
+      "name": "Single-Leg Romanian Deadlift — hand supported, dumbbell",
+      "slug": "single-leg-romanian-deadlift",
+      "sides": 2,
+      "reps": 6,
+      "sets": 1,
+      "t": 4,
+      "after": 120,
+      "between": 60,
+      "prep": [
+        [
+          3,
+          60
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "reps",
+      "cue": "One DB opposite working leg, free hand on stable support. Soft stance knee, free leg travels back, pelvis faces floor; lower 3 s and rise 1 s. Support removes balance as the limiter. Reduce load/range for hip opening or trunk rotation.",
+      "job": "Retain supported single-leg hip force while keeping the pelvis square.",
+      "key": "slrdl",
+      "decision": "Return to Class 3's supported 1 × 6 per leg; that written prescription is a reference, not evidence of performed load or tolerance."
+    },
+    {
+      "name": "Bent-Knee Soleus Raise — seated dumbbells",
+      "slug": "bent-knee-soleus-raise",
+      "sides": 1,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 0,
+      "prep": [
+        [
+          6,
+          45
+        ]
+      ],
+      "prep_between": 0,
+      "unit": "reps",
+      "cue": "Both legs together, knees near 90°, heels start on floor, hands secure DBs on lower thighs above knees. Rise 1 s, hold 1 s, lower 2 s. Reduce load for bounce/lost heel height. If bench fit is unsuitable, use supported standing bent-knee calf raises instead, same reps/rest, and log changed knee angle.",
+      "job": "Maintain a small knee-flexed ankle-force set while frontal control tasks change.",
+      "key": "soleus"
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — supported single leg",
+      "slug": "standing-dumbbell-calf-raise",
+      "sides": 2,
+      "reps": 8,
+      "sets": 1,
+      "t": 4,
+      "after": 90,
+      "between": 60,
+      "prep": [
+        [
+          4,
+          45
+        ]
+      ],
+      "prep_between": 30,
+      "unit": "reps",
+      "cue": "Work from floor, near-straight soft knee, one DB and stable hand support. Rise 1 s, hold 1 s, lower 2 s. Reduce load or use bodyweight for lost range; use 1 × 8 bilateral instead of per-leg work if even unilateral bodyweight is too demanding, with 1 × 4 bilateral preparation.",
+      "job": "Return to the established single straight-knee calf set per leg for ankle-force coverage.",
+      "key": "calf",
+      "decision": "Class 4's 1 × 8 per leg returns after a hip-focused class omitted it. This is role coverage, not accumulated tolerance."
+    },
+    {
+      "name": "Copenhagen Plank — Short Lever",
+      "slug": "copenhagen-plank-short-lever",
+      "sides": 2,
+      "reps": 15,
+      "sets": 1,
+      "t": 1,
+      "after": 90,
+      "between": 45,
+      "prep": [
+        [
+          5,
+          45
+        ]
+      ],
+      "prep_between": 20,
+      "unit": "seconds",
+      "cue": "Top knee on a suitable stable bench, forearm under shoulder, bottom leg clear; hold a straight shoulder–pelvis–knee line while breathing. Select support so 15 s is challenging with about 5 s clean hold available. If support/lever is unsuitable, use side-lying hip adduction instead: 1 × 8 per side, 2 s up/1 s hold/2 s down, light 1 × 3 preparation, same side/round rests; add a hand-secured DB above the lower knee only if needed for the strength effort.",
+      "job": "Challenge adductor force for pelvic support over the stance leg.",
+      "key": "copenhagen",
+      "decision": "New short-lever 15 s per side; choose a manageable support/lever with about five clean seconds available. Use the stated dynamic replacement when bench or lever does not fit."
+    }
+  ],
+  "equipment": "Boxes for E4/E6 must be low, stable and wide enough; if E4 is unsuitable, use a two-foot lateral jump to floor stick instead, 1 × 2 per direction, same rest, four two-foot landings. For E6 without a suitable low box, use a fast shallow lateral-lunge return to a stable two-foot stand instead, 1 × 4 per direction at the same rest, no flight. E5 needs contained throwing clearance; use a split-stance held-ball hip drive without release instead, same 1 × 3 per lead side and resets/rest, replacing six throws with six held-ball accelerations. P6 requires an appropriate stable knee support or its side-lying adduction replacement.",
+  "count_note": "Twelve lateral pogo contacts + four diagonal single-leg hops + six opposite-leg bounds + four lateral box landings = 26 events: 16 two-foot and ten single-leg, 42 foot contacts. E4 includes four grounded step-down descents. E5 adds six throws; E6 eight grounded drives. Primary holds total 30 s across both sides, not 30 reps. P6 dynamic replacement changes that 30 s hold exposure to 16 working adduction reps plus six light preparation reps; record the route instead of combining both.",
+  "novelty": "Six explosive executions differ from prior defaults through lateral rhythm, a diagonal same-leg vector, opposite-leg transfer, raised lateral receiving, split-stance forward release and grounded lateral elevation. The box/step-up/toss choices are related variants with explicit vector/support jobs. The supported single-leg short-foot task deliberately revisits arch control under a changed support condition; it is not claimed as a new exercise family.",
+  "audit": "Held unilateral receiving to the earlier written ten-event dose and avoided long/skater-continuous bounds in this consolidation class. Reduced primary rounds to seven while replacing hip-thrust/walkout/hip-flexion emphasis with lateral and adductor roles. P6 remains challenging short-lever strength, while S2 is deliberately easy. Checked that step-downs, held seconds and replacement throws are counted separately.",
+  "progression": "Do not interpret the middle class as proof of adaptation. Use the same recorded split-squat and supported-hinge conditions only when actual data exists; otherwise calibrate anew. The next class may introduce very short linked contacts only with demonstrated current control; no linked sequence is earned by writing Classes 1–6.",
+  "map_note": "Frontal-control consolidation; ten single-leg landings and seven primary rounds.",
+  "next_job": "Very short linked elastic contacts with strict current-readiness conditions and no conditioning goal.",
+  "handoff": "Review Classes 1–6 and any actual feedback, then finalize Class 7 with explicit readiness/replacement criteria before continuing.",
+  "reviewed_files": {
+    "curriculum.md": "fb4b99189fe02d7108a265f99071fe7f7d443976accc3dec66098e7628fd8445",
+    "progress.json": "b90e8401ad5cebfcea9ecdcf45b78522422a449deaa0410e948bb5615f63c8ed",
+    "progression_ledger.md": "a1f1558fcfeb67b5bccc8685e682123fbaf8bb55f9c70454e3830f00ad125788",
+    "athlete_feedback.md": "7726e3559c3b1efa2a0a1e656eaa21a4b5a2c59d80a9de2bebf56b820b15c021",
+    "classes/class_05.md": "4b6b797e4313052673d8ab156991ac113063b5ce8b2e8de5a61b17b067fe1e9f"
+  },
+  "actual_response": null,
+  "totals": {
+    "landing_events": 26,
+    "bilateral_landing_events": 16,
+    "single_leg_landing_events": 10,
+    "individual_foot_contacts": 42,
+    "other_explosive": [
+      {
+        "name": "Split-Stance Medicine Ball Forward Scoop Toss",
+        "amount": 6,
+        "unit": "throws"
+      },
+      {
+        "name": "Explosive Lateral Step-Up — no flight",
+        "amount": 8,
+        "unit": "step-ups"
+      }
+    ],
+    "primary_set_rounds": 7,
+    "primary_bouts": 13,
+    "primary_work": {
+      "reps": 72,
+      "seconds": 30
+    },
+    "preparation_set_rounds": 7,
+    "preparation_bouts": 13,
+    "preparation_work": {
+      "reps": 44,
+      "seconds": 10
+    },
+    "stabilization_bouts": 4,
+    "time_seconds": {
+      "explosive": 1664,
+      "stabilization": 276,
+      "primary": 2422,
+      "shared_briefing_and_notes": 180
+    },
+    "time_min": 76,
+    "time_max": 86,
+    "running_m": 0,
+    "sprinting_m": 0,
+    "stabilization_work": [
+      {
+        "exercise": "Short-Foot Drill — supported single-leg stance",
+        "sets": 1,
+        "reps_or_seconds_per_side": 3,
+        "sides": 2,
+        "total": 6,
+        "unit": "five-second holds"
+      },
+      {
+        "exercise": "Side Plank — knees bent",
+        "sets": 1,
+        "reps_or_seconds_per_side": 12,
+        "sides": 2,
+        "total": 24,
+        "unit": "seconds"
+      }
+    ],
+    "explosive_exposure_by_exercise": [
+      {
+        "exercise": "Line Pogo Side-to-Side",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 12,
+        "unit": "hops",
+        "landing_events": 12,
+        "individual_foot_contacts": 24,
+        "bilateral_landing_events": 12,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Single-Leg Diagonal Hop to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "hops",
+        "landing_events": 4,
+        "individual_foot_contacts": 4,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 4
+      },
+      {
+        "exercise": "Skater Bound to Stick",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "bounds",
+        "landing_events": 6,
+        "individual_foot_contacts": 6,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 6
+      },
+      {
+        "exercise": "Lateral Box Jump — two-foot landing",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 4,
+        "unit": "jumps",
+        "landing_events": 4,
+        "individual_foot_contacts": 8,
+        "bilateral_landing_events": 4,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Split-Stance Medicine Ball Forward Scoop Toss",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 6,
+        "unit": "throws",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      },
+      {
+        "exercise": "Explosive Lateral Step-Up — no flight",
+        "set_bouts": 2,
+        "total_reps_or_sequences": 8,
+        "unit": "step-ups",
+        "landing_events": 0,
+        "individual_foot_contacts": 0,
+        "bilateral_landing_events": 0,
+        "single_leg_landing_events": 0
+      }
+    ],
+    "individual_foot_contacts_per_foot": 21
+  },
+  "status": "finalized_prescription",
+  "final_review": "Midpoint review: six distinct frontal/diagonal drill executions have specific stance-support jobs; related box/toss/step variants are disclosed. Ten unilateral receiving events match the earlier prescribed count, with no claim they were completed. Seven primary rounds include a challenging short-lever adductor task and explicit dynamic replacement. Held seconds, box descents and no-flight step-ups are separately accounted."
+}

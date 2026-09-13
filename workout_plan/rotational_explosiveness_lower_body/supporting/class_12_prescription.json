@@ -1,0 +1,159 @@
+{
+  "n": 12,
+  "label": "Matched baseline and controlled application",
+  "effort": "Reproduce the original stationary rotational-kick conditions, then sample short entry and recovery applications without maximal testing.",
+  "brief": "The first three drills intentionally reproduce Class 1 physical tasks and prescribed recovery so a reported earlier result can be compared meaningfully. They remain three of the six slots. The final three are brief application probes, not evidence of mastered skills or a demand to increase force.",
+  "marker": "E2 valid attempts out of six per kicking leg using the original stance, kick height, extension/recoil, coach criteria and rest. Compare only with an actual Class 1 record under matched conditions; otherwise record the first known baseline.",
+  "e": [
+    {
+      "name": "Split-stance explosive hip pivot",
+      "side": "turn direction",
+      "grounded": 1,
+      "side_rest": 20,
+      "execution": "Repeat the Class 1 short split stance and comfortable approximately 45-degree grounded hip/foot turn. Both forefeet stay down as heels may release; finish still 2 s. Mirror the stance and keep 20 s between all four attempts.",
+      "job": "Match the modest pre-anchor rotational initiation dose used before the original kick assessment.",
+      "gate": "Use the original qualified arc if recorded; reduce it for foot sticking or knee twist and record the changed condition.",
+      "novelty": "Intentional Class 1 repetition to preserve the work preceding the benchmark, rather than a cosmetic new label.",
+      "repeat_reason": "Match the pre-anchor dose and recovery so the comparison is less confounded.",
+      "total_attempts": 4,
+      "modeled_seconds": 140
+    },
+    {
+      "name": "Standing low roundhouse shadow kick",
+      "side": "kicking leg",
+      "sets": 3,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "Repeat the Class 1 rear-leg short fighting stance, low kick line and controlled partial extension. Turn the support foot with the pelvis, accelerate the free thigh, actively recoil and return to the same stance with a 2 s hold. Foot remains below hip height.",
+      "job": "Provide the matched direct-task comparison within the prescribed workout.",
+      "gate": "Use only the original qualified height/arc if available. A necessary regression becomes a new condition, not a directly comparable score; never force the old version for a test.",
+      "novelty": "Intentional Class 1 direct-task repeat; the user uniqueness preference allows a justified assessment exception inside the six slots.",
+      "repeat_reason": "A different kick cannot substantiate a before/after result for the original stationary task.",
+      "total_attempts": 12,
+      "modeled_seconds": 630
+    },
+    {
+      "name": "90-Degree Hop to Stick",
+      "side": "turn direction",
+      "sets": 2,
+      "bilateral": 1,
+      "execution": "Repeat the Class 1 two-foot countermovement takeoff, freely moving arms, turn angle and two-foot 2 s stick. Use the original recorded angle if it was smaller than 90 degrees; no approach or rebound.",
+      "job": "Provide a second matched lower-body rotational-output observation with a simple bilateral base.",
+      "gate": "Use a smaller turn instead if control requires it, but record it as a changed condition. Do not add height, distance or retries to chase a score.",
+      "novelty": "Intentional Class 1 matched jump repeat; neither a renamed drill nor a maximal test.",
+      "repeat_reason": "Retain comparable takeoff, arm use, landing, angle and dose for the sequence review.",
+      "source": "Rotational library: 90-Degree Hop to Stick / 90-degree-hop-to-stick, card 47; Class 1 bilateral execution repeated.",
+      "total_attempts": 8,
+      "modeled_seconds": 420
+    },
+    {
+      "name": "Step-behind gathered low roundhouse",
+      "side": "kicking leg",
+      "reps": 1,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "Use one short step-behind gather to load the kicking-side hip, then uncross onto the support foot before delivering one low roundhouse and recovering. The gather plus kick stays inside 2 m; no turn while the legs remain crossed.",
+      "job": "Sample how a compact step-behind load can feed the known hip-led kick.",
+      "gate": "Use a very small non-crossing gather instead if foot clearance is doubtful; log that replacement. One attempt per leg is a probe, not a mastery claim.",
+      "novelty": "Full kick after a step-behind gather; earlier step-behind work ended in a lateral bound, not a kick.",
+      "total_attempts": 2,
+      "modeled_seconds": 162
+    },
+    {
+      "name": "Angle-out step to the original low kick line",
+      "side": "kicking leg",
+      "reps": 1,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "Make one short outward-diagonal support-foot step off the original centerline, then direct the low rear-leg roundhouse back toward the original empty line. Recoil with aligned feet; total travel stays within 2 m, no target contact.",
+      "job": "Keep the rotational kick line organized when the body has moved slightly off that line.",
+      "gate": "Use a smaller off-line step instead if aiming back traps the support knee; the foot must pivot freely.",
+      "novelty": "Changes the spatial relationship between body position and a fixed kick line, rather than merely turning farther during the same entry.",
+      "total_attempts": 2,
+      "modeled_seconds": 162
+    },
+    {
+      "name": "Low roundhouse with lateral recovery placement",
+      "side": "kicking leg",
+      "reps": 1,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "From a stationary rear-leg stance, deliver one low roundhouse, fold the knee and place the returning foot into a short lateral recovery stance instead of its original rear footprint. Finish with the pelvis/feet aligned and no follow-on shuffle or kick.",
+      "job": "Control the return leg when restoring a base slightly off the original line after rotational output.",
+      "gate": "Use a smaller kick arc and recovery width instead if the foot crosses behind the support knee or the athlete keeps spinning.",
+      "novelty": "Lateral terminal foot placement, distinct from the prior original-base, suspended-chamber and forward step-down finishes.",
+      "total_attempts": 2,
+      "modeled_seconds": 160
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain a challenging planted push after the matched output observations, without increasing the final-class dose.",
+    "Keep hip-hinge support strength traceable against earlier prescriptions.",
+    "Maintain lateral/adductor force for the off-line and recovery placements.",
+    "Retain the direct hip-torque strength anchor at its established technical range.",
+    "Maintain active chamber lifting and lowering after the brief application kicks.",
+    "Keep a reproducible bent-knee calf strength condition rather than adding a final burnout."
+  ],
+  "s_jobs": "The same easy hip and foot strengthening preserves continuity before primary strength; it does not add another performance assessment.",
+  "readiness": "Prior attendance and response are unknown. Repeat a baseline only when its original condition is currently appropriate; otherwise record the changed version. Use all prescribed kicks below hip height with active recoil. The three application probes have only one attempt per leg and remain optional in execution if control or recovery is inadequate; record omitted work rather than fabricate completion.",
+  "strength_reason": "Retain Class 11 one-round allocation [1,1,1,1,1,1], 76 working reps. No final-day maximum load, extra sets or assumed improvement is added. A later program should use actual load/RIR/recovery records to decide progression.",
+  "exposure_note": "Eight bilateral landings come only from the matched jump. Twenty-two grounded efforts include eighteen kick actions: twelve matched stationary kicks plus six application probes. This is six more kicks than Class 1, but fewer total drill attempts; the extra hip/knee-swing exposure must be assessed explicitly, not called equivalent to removed jump/step work.",
+  "space": "The first three drills use their original cleared setup where available. Application entries stay within 2 m plus 2 m clear recovery in a 10 m lane, with the original visual kick line unobstructed and all cones outside the sweep.",
+  "progression": "Three repeats are deliberate measurement exceptions: same tasks, dose, order and recovery as the Class 1 prefix. Preparation content, actual coach criteria and original execution must also match before comparing. The final probes transfer the known hip-turn objective to different entry/return geometry; their novelty is not a performance outcome.",
+  "audit": "Replacing the baseline with different drills would invalidate a direct before/after claim, so E1–E3 keep their original names and conditions. Application doses are one attempt per leg to limit extra kick exposure. Primary strength remains at the lower 76-rep allocation, and no bonus tests or conditioning are added.",
+  "prescribed_summary": {
+    "bilateral_landings": 8,
+    "unilateral_landings": 0,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 22,
+    "kick_actions": 18,
+    "primary_working_rounds": 6,
+    "primary_working_bouts": 11,
+    "primary_working_reps": 76,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4477,
+    "planning_minutes_excluding_existing_preparation": [
+      75,
+      82
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      140,
+      630,
+      420,
+      162,
+      162,
+      160
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "All twelve class prescriptions are now written. Complete the full-sequence continuity, uniqueness, workload, source, timing and state audit; then stop with the saved curriculum and a coach-feedback handoff. Do not create Class 13.",
+  "reviewed_previous_at_authoring_sha256": "79eb20cc0eea4d7bd7ecabd72f47555c57efbbc7d3104fabc37effda6fa43684",
+  "current_handoff": "All twelve prescriptions are complete; use actual observations to adapt a separately requested next block.",
+  "final_class_sha256": "e351cd7e841f9e4fd3a64ecaebc16e6d99b8184f93558774b844126fe6ea389c",
+  "final_previous_class_sha256": "7742be4eda3f4b01e877ca1a09bf5daa6b6f1427a9806a25261ac1de52810149"
+}

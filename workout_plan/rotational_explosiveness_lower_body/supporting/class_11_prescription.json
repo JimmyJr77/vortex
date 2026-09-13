@@ -1,0 +1,148 @@
+{
+  "n": 11,
+  "label": "Precise low-kick line with restrained workload",
+  "effort": "Express a crisp low rotational kick along a preselected empty line and finish in a repeatable support position.",
+  "brief": "The demand is controlling direction and stopping the leg without reducing every attempt to slow rehearsal. Supporting jobs cover a marked bilateral finish, a qualified single-leg turn, drop-step loading, a precise chamber stop and a crossover-to-base recovery. These are planned tasks, not additional reactive trials.",
+  "marker": "valid E2 attempts out of four per leg that pass through the coach-defined empty directional window with a soft knee, active recoil and a two-second finish in the chosen stance.",
+  "e": [
+    {
+      "name": "Rotational jump to an offset stance gate",
+      "side": "turn direction",
+      "bilateral": 1,
+      "execution": "Cones outside the landing area define a comfortable shallow split-stance finish, not an obstacle. From parallel feet, use one low rotational jump up to 45 degrees and land with the chosen support foot slightly ahead inside that gate. Hold 2 s.",
+      "job": "Control the final two-foot arrangement after rotational force rather than simply completing an angle.",
+      "gate": "Use a larger gate or smaller turn instead if targeting disrupts landing; never land on or jump toward a cone.",
+      "novelty": "Planned spatial target and asymmetric landing base, unlike earlier unconstrained parallel rotational catches.",
+      "total_attempts": 4,
+      "modeled_seconds": 180
+    },
+    {
+      "name": "Low roundhouse through an empty direction gate",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "The coach identifies an empty low kick line with cones placed outside the sweep and a visual height reference from outside reach. From a stationary rear-leg stance, kick through that line below hip height, keep the knee soft, recoil and recover. Nothing is struck.",
+      "job": "Directly preserve hip-led acceleration while controlling the kick direction and recovery endpoint.",
+      "gate": "Use a wider visual window or shorter arc instead if accuracy causes knee lockout or leaning; target accuracy alone is not a valid rep.",
+      "novelty": "Accuracy-constrained full kick with a fixed empty window; a declared task variant, not measured impact practice.",
+      "total_attempts": 8,
+      "modeled_seconds": 420
+    },
+    {
+      "name": "Small single-leg turn hop to same-leg stick",
+      "side": "support leg",
+      "unilateral": 1,
+      "execution": "From the named leg, make one low hop with a small in-air turn, no more than 30 degrees, and land on that same foot already aligned with the pelvis. Hold 2 s. No travel goal or rebound.",
+      "job": "Qualify control of rotational force on the leg that must remain the kick support.",
+      "gate": "Only use the single-leg version after a controlled small unturned hop is known. Otherwise use instead a single-leg takeoff to a two-foot turning catch, same four flights; record four bilateral instead of unilateral landings.",
+      "novelty": "Same-leg rotational flight/landing; earlier same-leg hops did not turn, and earlier turning flights landed on two feet.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Short drop-step lead-leg roundhouse",
+      "side": "kicking leg",
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "The kicking leg begins in front. Take one small rear-foot drop step to load the support hip, turn that foot freely and deliver a low lead-leg roundhouse without another gather. Recoil into a comfortable split stance; stay within 2 m.",
+      "job": "Use a compact rear-hip load to free the lead leg while retaining the planned kick line.",
+      "gate": "Use a shallower drop step instead if the lead leg drags or the support knee twists; do not add speed and step length together.",
+      "novelty": "Rear support-foot drop step precedes front-leg release; differs from the Class 2 no-step lead kick and the Class 9 retreat onto a new receiving leg.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    },
+    {
+      "name": "Supported fast chamber lift to a fixed stop",
+      "side": "lifting leg",
+      "grounded": 1,
+      "execution": "With fingertip support and the foot initially beneath the hip, accelerate the folded knee into a coach-selected low chamber height and stop it there for 2 s without overshooting. Lower slowly; no kick arc or band.",
+      "job": "Practice cutting off free-thigh acceleration at the selected chamber, supporting a consistent low kick trajectory.",
+      "gate": "Use a lower stop point instead if the pelvis tips or the leg overshoots; do not force end-range holds.",
+      "novelty": "Endpoint-control constraint on a supported chamber lift, rather than maximizing lift speed or using a backward hover start; declared related variant.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Crossover recovery to a marked kick base",
+      "side": "initial crossing leg",
+      "grounded": 1,
+      "seconds": 6,
+      "execution": "From a slightly open stance, take one short crossover recovery step, then uncross the feet as the pelvis turns into a premarked comfortable kick base. Stop for 2 s with both feet supporting. No knee lift, kick or jump; path stays within 2 m.",
+      "job": "Recover an exact useful two-foot base after reorientation, instead of leaving the feet crossed or too narrow.",
+      "gate": "Use less crossover distance and a wider base instead if foot placement is inconsistent; do not force a fast turn while crossed.",
+      "novelty": "Crossover recovery ending at a spatially defined two-foot base, not the earlier traveling crossover-to-chamber.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    }
+  ],
+  "sets": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Maintain the main planted push while reserving attention for accurate explosive finishes.",
+    "Keep posterior-chain control without a second hinge round.",
+    "Maintain lateral/adductor support for the kick line and crossover recovery.",
+    "Preserve direct hip-turn strength with one controlled round after the precision drills.",
+    "Maintain active chamber strength at a reproducible height without adding a second round.",
+    "Keep ankle force and full heel travel with one challenging set."
+  ],
+  "s_jobs": "Easy hip/foot strengthening reinforces repeatable alignment after the precision tasks; no extra balance challenge is added.",
+  "readiness": "Precision is subordinate to a free support-foot turn and controlled knee. Do not assume single-leg rotation is earned by earlier written hops; use the two-foot catch unless that control is actually known. Cones and coach references stay outside all leg/landing paths.",
+  "strength_reason": "Reduce Class 10 [1,1,1,2,1,1] to [1,1,1,1,1,1]: 76 working reps in 11 bouts. Keep the same challenging relative effort rather than chase fatigue before the final comparison class.",
+  "exposure_note": "Eight landings by default: four bilateral gated catches plus four qualified same-leg turn landings. If E3 uses its two-foot catch, all eight landings are bilateral. Twenty grounded efforts include twelve kicks. Spatial misses remain attempts; there are no bonus target attempts.",
+  "space": "Each stationary drill has full swept-leg clearance; moving footwork stays within 2 m plus 2 m recovery in one 10 m lane. Cones mark safe external boundaries and must not occupy landing spots. Bench fit and actual cone quantity remain practical checks.",
+  "progression": "Class 10 introduced an early cue; Class 11 removes cue uncertainty and lowers strength volume while adding planned endpoint constraints. New precision conditions are separate tests, not proof of increased power or a license for narrower unsafe targets.",
+  "audit": "Small targets that would force knee lockout or landing near cones were rejected. The single-leg turn is explicitly conditional with a same-dose two-foot catch. Precision variants are labeled honestly; they are not advertised as unrelated new movement families.",
+  "prescribed_summary": {
+    "bilateral_landings": 4,
+    "unilateral_landings": 4,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 12,
+    "primary_working_rounds": 6,
+    "primary_working_bouts": 11,
+    "primary_working_reps": 76,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4251,
+    "planning_minutes_excluding_existing_preparation": [
+      71,
+      78
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      180,
+      420,
+      210,
+      214,
+      210,
+      214
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      380,
+      372,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 11 and actual feedback, then finalize Class 12 with matched baseline comparisons only where useful, and complete the full-sequence audit before declaring the written curriculum complete.",
+  "reviewed_previous_at_authoring_sha256": "b06af26b717af7e998c07b412100ac2717f06f3cbfbe9e0ca2b91c4a2577e938",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "7742be4eda3f4b01e877ca1a09bf5daa6b6f1427a9806a25261ac1de52810149",
+  "final_previous_class_sha256": "064e94056784f3925476d63ed9bbba7d6292c23bbc9ed1ebae27cf0a4038835d"
+}

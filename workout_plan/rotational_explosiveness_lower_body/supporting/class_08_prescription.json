@@ -1,0 +1,149 @@
+{
+  "n": 8,
+  "label": "Forward entry and a usable rotational plant",
+  "effort": "Turn a short forward entry into a low hip-led roundhouse while controlling forward drift.",
+  "brief": "The limiting demand is receiving forward momentum without a reaching, locked support knee. Supporting tasks connect a short approach to rotation, unilateral forward acceptance, the plant-to-chamber link, rear-leg propulsion and a controlled forward finish.",
+  "marker": "valid E2 attempts out of four per leg with one support-foot entry step, no extra brake step, free foot/pelvic rotation and a finish inside the marked segment.",
+  "e": [
+    {
+      "name": "Two-step approach quarter-turn jump to stick",
+      "side": "turn direction",
+      "bilateral": 1,
+      "seconds": 6,
+      "execution": "Take exactly two short controlled approach steps, gather onto two feet and jump through a turn of no more than 45 degrees. Land aligned on two feet and hold 2 s. The approach plus flight fits within 2 m, with 2 m recovery clear.",
+      "job": "Convert small forward arrival into leg-driven rotation before the direct kick task.",
+      "gate": "Use shorter approach steps and less turn instead if the gather stalls or landing drifts beyond the boundary.",
+      "novelty": "A counted two-step approach/gather feeds the turn; earlier rotational broad jumps started still.",
+      "total_attempts": 4,
+      "modeled_seconds": 184
+    },
+    {
+      "name": "Forward step-in low roundhouse",
+      "side": "kicking leg",
+      "sets": 2,
+      "grounded": 1,
+      "kicks": 1,
+      "seconds": 6,
+      "execution": "With the kicking leg initially rear, step the support foot a short distance forward, accept weight with a soft knee, let that foot turn and launch the low rear-leg roundhouse. Recoil and recover within the same 2 m work segment. No run-up or pad.",
+      "job": "Directly translate controlled forward arrival into pelvic rotation and free-leg acceleration.",
+      "gate": "Use a shorter/slower step instead for overstriding or extra braking steps; preserve controlled brisk kick intent after the qualified plant.",
+      "novelty": "Full kick after a forward receiving step rather than stationary, parallel, lateral-shuffle or bounce initiation.",
+      "total_attempts": 8,
+      "modeled_seconds": 428
+    },
+    {
+      "name": "Forward bound to opposite-leg stick",
+      "side": "takeoff leg",
+      "unilateral": 1,
+      "execution": "From a short stationary split stance, push forward from one leg into one modest bound and land on the opposite leg. Stay facing forward and hold 2 s; no turn or second bound. Flight fits within 1.5 m.",
+      "job": "Prepare the receiving leg for forward bodyweight without simultaneously demanding a rotating landing.",
+      "gate": "Use a shorter bound or light free-toe assist at the finish instead if the receiving knee stiffens or another hop is needed.",
+      "novelty": "Unilateral forward projection to the opposite support leg; previous opposite-leg bounds were lateral.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Forward plant to low rotational chamber",
+      "side": "chambering leg",
+      "grounded": 1,
+      "seconds": 6,
+      "execution": "Make one short forward receiving step onto the support foot, turn that foot/pelvis together and lift the free folded knee into a low rotational chamber. Hold 2 s, then set the foot down. Do not extend the lower leg.",
+      "job": "Isolate acceptance-to-free-thigh timing inside the forward-entry kick without another full extension dose.",
+      "gate": "Shorten the step/chamber instead if the athlete rises onto a rigid knee or has to hop.",
+      "novelty": "Grounded forward plant feeds a held rotational chamber; distinct from Class 2 plant-to-stance and Class 5 lateral crossover chamber.",
+      "total_attempts": 4,
+      "modeled_seconds": 214
+    },
+    {
+      "name": "Rear-leg power step to opposite-leg plant",
+      "side": "push leg",
+      "grounded": 1,
+      "execution": "Start in a compact split stance with the named leg rear. Drive from that rear hip/forefoot into one brisk forward step onto the other leg, keeping at least one foot grounded; finish with a soft receiving knee and pelvis facing the original line. No turn or kick; distance at most 1 m.",
+      "job": "Supply forward propulsion before the support leg redirects it into rotation, separating the incoming push from the kick mechanics.",
+      "gate": "Use a shorter step instead if the athlete unintentionally bounds; log any actual flight rather than treating it as grounded.",
+      "novelty": "Rear-leg propulsion into a forward receiving plant, without the jump or hip turn used in other entries.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    },
+    {
+      "name": "Low roundhouse with forward step-down finish",
+      "side": "kicking leg",
+      "grounded": 1,
+      "kicks": 1,
+      "execution": "From a stationary rear-leg stance, execute a low controlled roundhouse and fold the knee, then place that foot into a short forward split stance instead of returning it to the original rear position. Arrest the pelvis with both feet aligned; no spinning through or second kick.",
+      "job": "Control residual forward/rotational momentum when the kicking leg becomes the next lead foot.",
+      "gate": "Use less kick arc and a shorter step-down instead if the athlete over-rotates or lands across the support foot.",
+      "novelty": "Forward stance-changing recovery rather than the previous return-to-original-base or suspended-chamber finish.",
+      "total_attempts": 4,
+      "modeled_seconds": 210
+    }
+  ],
+  "sets": [
+    2,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "p_jobs": [
+    "Main strength investment is the forward receiving leg and its drive into the turn.",
+    "Control the support hip as forward momentum is arrested.",
+    "Preserve lateral/adductor strength to keep the plant from spilling sideways during rotation.",
+    "Maintain direct hip torque after a controlled sagittal arrival.",
+    "Supply active chamber lift once the forward support leg has accepted weight.",
+    "Maintain the bent-knee ankle contribution to the forward plant and heel release."
+  ],
+  "s_jobs": "The supported airplane reinforces pelvic control over the receiving hip; short-foot work supports the forward plant without more impact.",
+  "readiness": "Forward entry stays short and planned. The athlete must show a soft receiving knee and enough room to stop; no ability is inferred from the preceding linked-contact prescription. Use shorter paths rather than faster approaches.",
+  "strength_reason": "Retain Class 7 [2,1,1,1,1,1], 88 working reps, with current qualified loads. Same main split-squat investment supports a different force-entry condition; no extra strength volume or predetermined load increase.",
+  "exposure_note": "Eight landings: four bilateral approach-turn jumps and four opposite-leg forward bounds. Twenty grounded efforts include twelve kicks. E1 has eight approach steps total before its four flights; other entry/recovery contacts are recorded from actual execution rather than inferred as jumps.",
+  "space": "Limit each complete approach/entry plus action to 2 m, with a separate 2 m recovery area inside one 10 m lane. Forward bounds stay within 1.5 m; the power step stays within 1 m. No joined runway or additional run-off is assumed.",
+  "progression": "Class 7 offered conditional reactive coupling. This class instead uses short preplanned forward arrivals and fewer landings, without requiring a prior reactive pass. Its forward step-down is a different recovery condition, not evidence of better kick power.",
+  "audit": "Long accelerations and rotating single-leg landings were rejected. The forward bound stays unturned, while the two-foot approach jump handles rotation. The chamber-only entry limits additional kick extension, and the terminal step-down has a separate momentum-control job.",
+  "prescribed_summary": {
+    "bilateral_landings": 4,
+    "unilateral_landings": 4,
+    "total_landing_events": 8,
+    "grounded_explosive_efforts": 20,
+    "kick_actions": 12,
+    "primary_working_rounds": 7,
+    "primary_working_bouts": 13,
+    "primary_working_reps": 88,
+    "primary_preparation_reps": 39,
+    "stabilization_dynamic_reps": 8,
+    "stabilization_hold_foot_seconds": 30,
+    "modeled_seconds_excluding_existing_preparation": 4517,
+    "planning_minutes_excluding_existing_preparation": [
+      76,
+      83
+    ],
+    "full_session_duration_minutes": null
+  },
+  "timing_seconds": {
+    "explosive": [
+      184,
+      428,
+      210,
+      214,
+      210,
+      210
+    ],
+    "stabilization": 233,
+    "primary_with_preparation": [
+      638,
+      372,
+      372,
+      281,
+      273,
+      112
+    ],
+    "delivery_allowance": 780
+  },
+  "observed_work": null,
+  "authoring_handoff": "Review Class 8 and real plant/recoil observations, then finalize Class 9 around changing direction and recovering a useful rotational stance; save/audit before continuing.",
+  "reviewed_previous_at_authoring_sha256": "9d29ba369b6252f3d356dc8f8bae07287b56b3ceaa25b10a404e9f941650f20f",
+  "current_handoff": "Record actual delivery/response and review the next saved class against readiness.",
+  "final_class_sha256": "b47d7c624c93bb48d7d78fbc679dda6890ee66595b628dc0f00f70a0642c725a",
+  "final_previous_class_sha256": "40d4296e94950dc3238689b1ace6e28fcbe69d399024ad1f7c78e2fe62ced456"
+}

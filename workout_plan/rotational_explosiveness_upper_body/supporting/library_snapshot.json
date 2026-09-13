@@ -1,0 +1,751 @@
+{
+  "review_date": "2026-09-13",
+  "status": "Local authoring records only; not current production IDs. Related cable-row and bilateral floor-press records are not IDs for proposed variants. Class adaptations override generic source prescriptions only within this plan.",
+  "records": [
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "med-ball-rotational-scoop-toss",
+      "name": "Med Ball Rotational Scoop Toss",
+      "description": "Perform Med Ball Rotational Scoop Toss with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Med Ball Rotational Scoop Toss with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Use a solid wall and stand far enough away that the ball rebound or release is safe.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "half-kneeling-rotational-med-ball-throw",
+      "name": "Half-Kneeling Rotational Med Ball Throw",
+      "description": "Perform Half-Kneeling Rotational Med Ball Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        },
+        {
+          "key": "mat",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Half-Kneeling Rotational Med Ball Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Use a solid wall and stand far enough away that the ball rebound or release is safe.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "med-ball-countermovement-rotational-throw",
+      "name": "Med Ball Countermovement Rotational Throw",
+      "description": "Perform Med Ball Countermovement Rotational Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Med Ball Countermovement Rotational Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Use a solid wall and stand far enough away that the ball rebound or release is safe.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "med-ball-shot-put-throw",
+      "name": "Med Ball Shot-Put Throw",
+      "description": "Perform Med Ball Shot-Put Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Med Ball Shot-Put Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Use a solid wall and stand far enough away that the ball rebound or release is safe.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "med-ball-step-behind-rotational-throw",
+      "name": "Med Ball Step-Behind Rotational Throw",
+      "description": "Perform Med Ball Step-Behind Rotational Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        },
+        {
+          "key": "wall",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Med Ball Step-Behind Rotational Throw with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Use a solid wall and stand far enough away that the ball rebound or release is safe.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "med-ball-overhead-to-side-slam",
+      "name": "Med Ball Overhead to Side Slam",
+      "description": "Perform Med Ball Overhead to Side Slam with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+      "equipment": [
+        {
+          "key": "medicine_ball",
+          "weight": 5
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Med Ball Overhead to Side Slam with a light-to-moderate medicine ball. Load the body through the feet and hips, rotate with a stacked trunk, release or catch cleanly, and reset before the next throw.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Choose a medicine ball light enough to move fast without changing posture or release path.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Start in the prescribed stance and create quiet tension through feet, hips, and trunk.",
+          "Load or reorient under control, then express the throw, jump, cut, or sprint with high intent.",
+          "Stick, catch, release, or finish cleanly; reset fully before the next attempt."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Fast intent, low volume.",
+          "Throw or move through the target, not through your low back."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Too many reps turn power into conditioning.",
+          "Throw or cut accuracy drops but the set continues anyway.",
+          "Ball is too heavy, making the throw slow or arm-dominant."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The attempt counts only if speed or throw intent is high, the rotation is sequenced from the ground up, the landing/finish is controlled, and the athlete can reset without rushing.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset.",
+          "Throw speed, jump/contact quality, cut angle, or acceleration intent drops noticeably."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "split-stance-pallof-press",
+      "name": "Split-Stance Pallof Press",
+      "description": "Perform Split-Stance Pallof Press as a control drill. Create or resist rotational force while breathing, keeping ribs and pelvis organized, and stopping before compensation appears.",
+      "equipment": [
+        {
+          "key": "band",
+          "weight": 5
+        },
+        {
+          "key": "cable",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Split-Stance Pallof Press as a control drill. Create or resist rotational force while breathing, keeping ribs and pelvis organized, and stopping before compensation appears.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Set band or cable height to match the intended line of pull and keep tension controllable.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Create the starting position and breathe before tension begins.",
+          "Press, hold, row, reach, carry, or resist while preventing unwanted trunk or pelvis rotation.",
+          "Reset posture and breathing after each rep or hold; stop when control degrades."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Do not let the band or load turn you.",
+          "Breathe behind the brace."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The rep counts only if the athlete keeps foot pressure, rib-pelvis organization, clean rotational path, safe finish, and a reset that could be repeated.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "landmine-rotation",
+      "name": "Landmine Rotation",
+      "description": "Perform Landmine Rotation as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+      "equipment": [
+        {
+          "key": "landmine",
+          "weight": 5
+        },
+        {
+          "key": "barbell",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Landmine Rotation as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Select a load the athlete can control without lumbar twisting, breath holding, or loss of stance.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Set stance, grip, and rib-pelvis position before moving the load.",
+          "Move through the planned range while the hips and trunk share the rotational or diagonal force demand.",
+          "Return under control and stop the set before load path, brace, or posture changes."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Load the hips, not the spine.",
+          "Control the return as much as the drive."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Load is progressed before the athlete controls the rotational path."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The rep counts only if the athlete keeps foot pressure, rib-pelvis organization, clean rotational path, safe finish, and a reset that could be repeated.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "landmine-rotational-press",
+      "name": "Landmine Rotational Press",
+      "description": "Perform Landmine Rotational Press as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+      "equipment": [
+        {
+          "key": "landmine",
+          "weight": 5
+        },
+        {
+          "key": "barbell",
+          "weight": 3
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Landmine Rotational Press as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Select a load the athlete can control without lumbar twisting, breath holding, or loss of stance.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Set stance, grip, and rib-pelvis position before moving the load.",
+          "Move through the planned range while the hips and trunk share the rotational or diagonal force demand.",
+          "Return under control and stop the set before load path, brace, or posture changes."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Load the hips, not the spine.",
+          "Control the return as much as the drive."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Load is progressed before the athlete controls the rotational path."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The rep counts only if the athlete keeps foot pressure, rib-pelvis organization, clean rotational path, safe finish, and a reset that could be repeated.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/rotational-power-exercise-library-all-50.json",
+      "source_sha256": "4d6d4f33dbabc456795b0bc389242f2f6921ef00f7d8fbffe7d50bcc4e9c56d4",
+      "slug": "rotational-cable-row",
+      "name": "Rotational Cable Row",
+      "description": "Perform Rotational Cable Row as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+      "equipment": [
+        {
+          "key": "cable",
+          "weight": 5
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Perform Rotational Cable Row as controlled loaded strength work. Use load, stance, and range that allow clean bracing, hip contribution, and repeatable rotational force transfer.",
+        "setup": [
+          "Clear the training area and define the athlete's start position, finish position, and stop command.",
+          "Set band or cable height to match the intended line of pull and keep tension controllable.",
+          "Coach one clean practice rep before adding load, speed, partner input, or decision demand."
+        ],
+        "execution_steps": [
+          "Set stance, grip, and rib-pelvis position before moving the load.",
+          "Move through the planned range while the hips and trunk share the rotational or diagonal force demand.",
+          "Return under control and stop the set before load path, brace, or posture changes."
+        ],
+        "coach_cues": [
+          "Rotate from the ground up.",
+          "Ribs and pelvis travel as a team.",
+          "Own the finish before the next rep.",
+          "Load the hips, not the spine.",
+          "Control the return as much as the drive."
+        ],
+        "common_faults": [
+          "Low back becomes the main rotation point.",
+          "Feet lose pressure or the athlete spins on the toes without a controlled base.",
+          "Ribs flare, shoulders shrug, or pelvis dumps forward during the turn.",
+          "Load is progressed before the athlete controls the rotational path."
+        ],
+        "breathing_cues": [
+          "Exhale through effort or release.",
+          "Do not hold breath to force rotation.",
+          "Recover breathing before the next high-intent rep."
+        ],
+        "quality_gate": "The rep counts only if the athlete keeps foot pressure, rib-pelvis organization, clean rotational path, safe finish, and a reset that could be repeated.",
+        "stop_signs": [
+          "Sharp pain, joint pinch, numbness, tingling, dizziness, or symptom increase.",
+          "Lumbar spine becomes the main source of rotation instead of hips, pelvis, thoracic spine, and shoulders.",
+          "The athlete loses foot pressure, trunk stack, safe landing, throw accuracy, or controlled reset."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/core-body-control-all-cards.json",
+      "source_sha256": "fe938db5fb4082c37a068b569b711c45af7f5376e08f8ad6f9831dd4cea2e41b",
+      "slug": "cable-band-chop",
+      "name": "Cable / Band Chop",
+      "description": "Stand, kneel, or half-kneel and move the band or cable on a diagonal chop path with deliberate control.",
+      "equipment": [
+        {
+          "key": "bands",
+          "weight": 5
+        },
+        {
+          "key": "cable_machine_optional",
+          "weight": 2
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Stand, kneel, or half-kneel and move the band or cable on a diagonal chop path with deliberate control.",
+        "setup": [
+          "Clear the floor or training lane and choose the easiest variation the athlete can control.",
+          "Stand, kneel, or half-kneel and move the band or cable on a diagonal chop path with deliberate control.",
+          "Set ribs over pelvis, establish quiet breathing, and define the stop rule before the first rep."
+        ],
+        "execution_steps": [
+          "Begin Cable / Band Chop from the coached start position.",
+          "Move slowly enough that the trunk, pelvis, shoulder, and hip positions remain organized.",
+          "Breathe behind the brace instead of holding air or grinding.",
+          "Pause briefly at the hardest point, then return under control.",
+          "Stop the set when the athlete cannot repeat the same position."
+        ],
+        "coach_cues": [
+          "Ribs over pelvis.",
+          "Breathe behind the brace.",
+          "Move only through the range you own.",
+          "Quiet hips, quiet ribs.",
+          "Stop before the position changes."
+        ],
+        "breathing_cues": [
+          "Exhale without crunching.",
+          "Use a brace you can breathe through.",
+          "Reset if breath-holding becomes the strategy."
+        ],
+        "common_faults": [
+          "Rib flare or low-back arching.",
+          "Breath-holding or neck tension.",
+          "Hip shift, pelvis rotation, or shoulder collapse.",
+          "Using speed, momentum, or fatigue to hide poor control."
+        ],
+        "quality_gate": [
+          "Athlete can breathe while maintaining the target shape.",
+          "Left and right sides look similar enough for the intended level.",
+          "No pain, pinching, dizziness, or uncontrolled pressure symptoms.",
+          "Reps remain repeatable without coach constantly rescuing the position."
+        ],
+        "stop_signs": [
+          "Back pain, neck symptoms, dizziness, or sharp joint pain.",
+          "Visible rib flare, lumbar sag, or pelvic shift that cannot be corrected.",
+          "Athlete cannot continue breathing behind the brace.",
+          "The drill turns into a conditioning challenge instead of control practice."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/core-body-control-all-cards.json",
+      "source_sha256": "fe938db5fb4082c37a068b569b711c45af7f5376e08f8ad6f9831dd4cea2e41b",
+      "slug": "cable-band-lift",
+      "name": "Cable / Band Lift",
+      "description": "Stand, kneel, or half-kneel and move the band or cable from low to high without rib flare or uncontrolled rotation.",
+      "equipment": [
+        {
+          "key": "bands",
+          "weight": 5
+        },
+        {
+          "key": "cable_machine_optional",
+          "weight": 2
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Stand, kneel, or half-kneel and move the band or cable from low to high without rib flare or uncontrolled rotation.",
+        "setup": [
+          "Clear the floor or training lane and choose the easiest variation the athlete can control.",
+          "Stand, kneel, or half-kneel and move the band or cable from low to high without rib flare or uncontrolled rotation.",
+          "Set ribs over pelvis, establish quiet breathing, and define the stop rule before the first rep."
+        ],
+        "execution_steps": [
+          "Begin Cable / Band Lift from the coached start position.",
+          "Move slowly enough that the trunk, pelvis, shoulder, and hip positions remain organized.",
+          "Breathe behind the brace instead of holding air or grinding.",
+          "Pause briefly at the hardest point, then return under control.",
+          "Stop the set when the athlete cannot repeat the same position."
+        ],
+        "coach_cues": [
+          "Ribs over pelvis.",
+          "Breathe behind the brace.",
+          "Move only through the range you own.",
+          "Quiet hips, quiet ribs.",
+          "Stop before the position changes."
+        ],
+        "breathing_cues": [
+          "Exhale without crunching.",
+          "Use a brace you can breathe through.",
+          "Reset if breath-holding becomes the strategy."
+        ],
+        "common_faults": [
+          "Rib flare or low-back arching.",
+          "Breath-holding or neck tension.",
+          "Hip shift, pelvis rotation, or shoulder collapse.",
+          "Using speed, momentum, or fatigue to hide poor control."
+        ],
+        "quality_gate": [
+          "Athlete can breathe while maintaining the target shape.",
+          "Left and right sides look similar enough for the intended level.",
+          "No pain, pinching, dizziness, or uncontrolled pressure symptoms.",
+          "Reps remain repeatable without coach constantly rescuing the position."
+        ],
+        "stop_signs": [
+          "Back pain, neck symptoms, dizziness, or sharp joint pain.",
+          "Visible rib flare, lumbar sag, or pelvic shift that cannot be corrected.",
+          "Athlete cannot continue breathing behind the brace.",
+          "The drill turns into a conditioning challenge instead of control practice."
+        ]
+      }
+    },
+    {
+      "authoring_source": "scripts/data/loaded-strength-all-cards.json",
+      "source_sha256": "f3bfd36bd1d4ab60c8f8466a9563da5dd17a94b85986e2937b618d0f388b4ea9",
+      "slug": "dumbbell-floor-press",
+      "name": "Dumbbell Floor Press",
+      "description": "Dumbbell Floor Press is a dumbbell-loaded strength exercise for upper-body pressing force. Load, range, tempo, and rest should support force production rather than metabolic fatigue.",
+      "equipment": [
+        {
+          "key": "dumbbell",
+          "weight": 5
+        }
+      ],
+      "coachingExecution": {
+        "movement_description": "Dumbbell Floor Press: Horizontal pressing pattern with a floor stop that builds chest and triceps strength with shoulder range control. Use load that lets the athlete control the entire rep and finish with the same alignment they started with.",
+        "setup": [
+          "Select dumbbells that can be pressed without joint compensation for Dumbbell Floor Press.",
+          "Set the shoulder blades and grip before the first rep.",
+          "Brace ribs over pelvis; avoid flaring to create false range.",
+          "Begin from a stable floor, bench, kneeling, seated, or standing setup as the variation requires."
+        ],
+        "execution_steps": [
+          "Press the dumbbells through the prescribed path without shrugging or rib flare.",
+          "Control the lowering phase and keep elbows tracking naturally.",
+          "Finish each rep with joints stacked and shoulders stable.",
+          "Pause or reset when speed or line changes."
+        ],
+        "coach_cues": [
+          "Own the setup before the rep.",
+          "Brace, then move the dumbbell.",
+          "Control down; drive up without losing shape.",
+          "Stop before strength turns into survival."
+        ],
+        "athlete_cues": [
+          "Set your body first.",
+          "Move the weight, not your joints.",
+          "Strong and smooth.",
+          "Leave one clean rep in reserve."
+        ],
+        "breathing_cues": [
+          "Inhale before the lowering or reset.",
+          "Brace through the hard portion.",
+          "Exhale without collapsing posture."
+        ],
+        "common_faults": [
+          "Chasing load before position is repeatable.",
+          "Holding the breath for the entire set instead of bracing and breathing.",
+          "Rushing the eccentric or bouncing out of the bottom.",
+          "Ribs flare or shoulders shrug to finish the press."
+        ],
+        "quality_gate": [
+          "No pain.",
+          "Start and finish positions match.",
+          "Load path is repeatable.",
+          "Final rep looks close to the first rep."
+        ],
+        "stop_signs": [
+          "Pain appears or increases during the set.",
+          "Technique changes more than one rep in a row.",
+          "Breathing becomes dizziness, bracing panic, or uncontrolled breath holding.",
+          "Grip, shoulder, spine, hip, knee, or ankle position becomes unsafe."
+        ]
+      }
+    }
+  ]
+}

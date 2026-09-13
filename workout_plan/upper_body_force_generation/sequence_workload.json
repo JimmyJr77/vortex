@@ -1,0 +1,327 @@
+{
+  "status": "planned_base_prescriptions_only",
+  "counting_conventions": "Do not sum different events into a joint-load score. Throws count attempts; catches are separate receiving events. Bilateral cycles count once. Unilateral reps count both arms; lead-foot repetitions count both lead conditions. Paired push-up landings count each reception. Resets/backtracking are not extra explosive steps. Replacements, stopped work and additional preparation change actual totals.",
+  "classes": [
+    {
+      "class_number": 1,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 16,
+      "forward_releases": 16,
+      "downward_slam_releases": 0,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 3,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 68,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 14,
+      "estimated_post_prepare_minutes": [
+        65,
+        75
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 2,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 6,
+      "forward_releases": 6,
+      "downward_slam_releases": 0,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 68,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 16,
+      "estimated_post_prepare_minutes": [
+        60,
+        69
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 3,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 9,
+      "forward_releases": 3,
+      "downward_slam_releases": 6,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 66,
+      "primary_preparation_task_repetitions": 35,
+      "light_strength_task_repetitions": 18,
+      "estimated_post_prepare_minutes": [
+        60,
+        69
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 4,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 3,
+      "forward_releases": 3,
+      "downward_slam_releases": 0,
+      "catch_events": 3,
+      "bilateral_hand_landing_events": 6,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 9,
+      "primary_working_task_repetitions": 60,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 16,
+      "estimated_post_prepare_minutes": [
+        59,
+        68
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 5,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 13,
+      "forward_releases": 13,
+      "downward_slam_releases": 0,
+      "catch_events": 6,
+      "bilateral_hand_landing_events": 4,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 64,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 20,
+      "estimated_post_prepare_minutes": [
+        62,
+        71
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 6,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 8,
+      "forward_releases": 8,
+      "downward_slam_releases": 0,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 6,
+      "primary_working_set_bouts": 7,
+      "primary_working_task_repetitions": 42,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 12,
+      "estimated_post_prepare_minutes": [
+        52,
+        61
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 7,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 8,
+      "forward_releases": 8,
+      "downward_slam_releases": 0,
+      "catch_events": 6,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 7,
+      "primary_working_set_bouts": 11,
+      "primary_working_task_repetitions": 64,
+      "primary_preparation_task_repetitions": 51,
+      "light_strength_task_repetitions": 20,
+      "estimated_post_prepare_minutes": [
+        66,
+        75
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 8,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 7,
+      "forward_releases": 3,
+      "downward_slam_releases": 4,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 66,
+      "primary_preparation_task_repetitions": 35,
+      "light_strength_task_repetitions": 20,
+      "estimated_post_prepare_minutes": [
+        59,
+        68
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 9,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 10,
+      "forward_releases": 10,
+      "downward_slam_releases": 0,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 14,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 68,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 18,
+      "estimated_post_prepare_minutes": [
+        62,
+        71
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 10,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 3,
+      "forward_releases": 3,
+      "downward_slam_releases": 0,
+      "catch_events": 3,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 68,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 18,
+      "estimated_post_prepare_minutes": [
+        60,
+        69
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 11,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 7,
+      "forward_releases": 7,
+      "downward_slam_releases": 0,
+      "catch_events": 4,
+      "bilateral_hand_landing_events": 3,
+      "movement_steps": 4,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 64,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 20,
+      "estimated_post_prepare_minutes": [
+        61,
+        70
+      ],
+      "observed_workload": null
+    },
+    {
+      "class_number": 12,
+      "exercise_counts": {
+        "explosiveness": 6,
+        "stabilization_resilience": 2,
+        "primary_strength": 6
+      },
+      "throws": 13,
+      "forward_releases": 13,
+      "downward_slam_releases": 0,
+      "catch_events": 0,
+      "bilateral_hand_landing_events": 0,
+      "movement_steps": 0,
+      "primary_working_set_rounds": 8,
+      "primary_working_set_bouts": 10,
+      "primary_working_task_repetitions": 68,
+      "primary_preparation_task_repetitions": 37,
+      "light_strength_task_repetitions": 14,
+      "estimated_post_prepare_minutes": [
+        65,
+        74
+      ],
+      "observed_workload": null
+    }
+  ],
+  "totals_descriptive_only": {
+    "throws": 103,
+    "forward_releases": 93,
+    "downward_slam_releases": 10,
+    "catch_events": 22,
+    "bilateral_hand_landing_events": 16,
+    "movement_steps": 18,
+    "primary_working_set_rounds": 93,
+    "primary_working_set_bouts": 117,
+    "primary_working_task_repetitions": 766,
+    "primary_preparation_task_repetitions": 454,
+    "light_strength_task_repetitions": 206,
+    "individual_hand_contacts": 32,
+    "lower_body_jump_hop_bound_repetitions": 0,
+    "lower_body_landing_events": 0,
+    "sprint_repetitions": 0,
+    "sprint_distance_m": 0,
+    "rotational_throws": 0
+  },
+  "drill_review": {
+    "prescribed_slots": 72,
+    "distinct_exact_execution_labels": 50,
+    "classification_counts": {
+      "initial": 6,
+      "related_variant": 26,
+      "new_task": 18,
+      "repeat": 22
+    },
+    "limitation": "Distinct labels include related variants; this is not 72 or 50 unrelated drill families. Repeat slots have specific reasons in per-class audits."
+  },
+  "actual_workload": null,
+  "complete_session_minutes": null,
+  "access_prepare_1_minutes": null
+}

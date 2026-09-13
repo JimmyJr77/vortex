@@ -7,7 +7,8 @@ import {
   evaluateCanonicalCardReadiness,
   findPotentialCanonicalDuplicates,
   hasVerifiedMediaReviewBasis,
-  normalizeMediaReviewBasis,
+  normalizeCanonicalMediaReviewInput,
+  CANONICAL_MEDIA_REVIEW_DAYS,
   validateCanonicalCardDraft,
   validateCanonicalRelationship,
 } from './canonicalCardAuthoring.js'
@@ -704,7 +705,8 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
     )
     id = created.rows[0].id
   }
-  await writeVariantsAndProfiles(client, id, card, 'draft')
+  await replaceTaxonomyV2Block(client, 'definition', id, card.taxonomyV2, actorUserId)
+  await writeVariantsAndProfiles(client, id, card, 'draft', actorUserId)
   if (definitionId) {
     await client.query(
       `UPDATE coaching.exercise_media_review_v1
@@ -1177,20 +1179,12 @@ export async function recordCanonicalMediaReview(pool, facilityId, definitionId,
   const card = await loadCanonicalCard(pool, facilityId, definitionId)
   if (!card) throw Object.assign(new Error('Canonical card not found.'), { status: 404 })
   assertIndependentReviewer(card.createdBy, reviewerUserId, 'media')
-  const url = String(body.url || '').trim()
-  if (!url || url !== card.approvedVideoUrl) throw new TypeError('Media review URL must match the card approved video.')
-  const score = Number(body.demonstrationQualityScore)
-  if (!Number.isInteger(score) || score < 1 || score > 100) throw new RangeError('Media quality must be an integer from 1 to 100.')
-  const linkStatus = ['healthy', 'broken', 'mismatched'].includes(body.linkStatus) ? body.linkStatus : null
-  if (!linkStatus) throw new TypeError('A valid media link status is required.')
-  const notes = String(body.notes || '').trim()
-  if (notes.length < 20) throw new TypeError('Media review notes must document at least 20 characters of observed evidence.')
-  const reviewBasis = normalizeMediaReviewBasis(body.reviewBasis ?? body.review_basis)
+  const { url, demonstrationQualityScore: score, linkStatus, notes, exactVariantMatch, reviewBasis } = normalizeCanonicalMediaReviewInput(card, body)
   const result = await pool.query(
     `INSERT INTO coaching.exercise_media_review_v1 (
        definition_id, url, exact_variant_match, reviewed_card_version, demonstration_quality_score,
        link_status, reviewer_user_id, reviewed_at, next_review_at, notes, review_basis_json
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,now(),now() + interval '180 days',$8,$9::jsonb)
+     ) VALUES ($1,$2,$3,$4,$5,$6,$7,now(),now() + interval '${CANONICAL_MEDIA_REVIEW_DAYS} days',$8,$9::jsonb)
      ON CONFLICT (definition_id, url) DO UPDATE SET
        exact_variant_match=EXCLUDED.exact_variant_match,
        reviewed_card_version=EXCLUDED.reviewed_card_version,
@@ -1200,7 +1194,7 @@ export async function recordCanonicalMediaReview(pool, facilityId, definitionId,
        review_basis_json=EXCLUDED.review_basis_json, updated_at=now()
      RETURNING *`,
     [
-      definitionId, url, body.exactVariantMatch === true, card.cardVersion, score,
+      definitionId, url, exactVariantMatch, card.cardVersion, score,
       linkStatus, reviewerUserId, notes, JSON.stringify(reviewBasis),
     ],
   )

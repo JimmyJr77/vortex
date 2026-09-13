@@ -99,6 +99,7 @@ test('human acceptance uses the existing canonical authoring DDL and immutable A
       const variant = (await database.query('SELECT * FROM coaching.exercise_variant_v1 WHERE definition_id=$1', [card.id])).rows[0]
       assert.equal(variant.status, 'draft')
       assert.equal(variant.structured_profile_review_status, 'suggested')
+      assert.equal(variant.structured_profile_created_by, '8')
       assert.equal(variant.structured_profile_reviewed_by, null)
       assert.equal((await database.query('SELECT status FROM coaching.exercise_delivery_profile_v1 WHERE variant_id=$1', [variant.id])).rows[0].status, 'draft')
       assert.equal((await database.query('SELECT count(*)::int AS count FROM coaching.exercise_card_review_v1')).rows[0].count, 0)

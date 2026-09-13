@@ -1,0 +1,75 @@
+{
+  "verified_on": "2026-09-13",
+  "scope": "Horizontal Jumps Class 1 prescription and one-run handoff only; not athlete execution or complete twelve-class delivery",
+  "result": "pass_for_saved_prescription",
+  "document_sha256": {
+    "athlete_feedback.md": "70705878feebdd05239bbc7380ab679514a23c0872b3faed59bece0662f72e9b",
+    "class_01_audit.md": "1d54cca6274581dd19e7d272fb205a515106d0ba0b50155f029d3910fe488ff5",
+    "classes/class_01.md": "d47ad3a08fa99841f49c91414d2c0391da5df7b37c0df2c882c5eb8b75e18f0f",
+    "curriculum.md": "1d6d382c244d799ad05822fedec9492801b1172dca72f3ca3489e864f033c75f",
+    "exercise_register.md": "85a1bf6bbbc03f9188f6309125ba06bf3d4520672855abda5ee527db85f10a9d",
+    "progress.json": "e92f03fad748d107efbc6c0fd98cf945b37437c2643f2fe88446e52044ba0a56",
+    "progression_ledger.md": "a62f8f20d30c39c384c8ae316f0e1be04fc02eec97a2a8ede056fe6d2e59c852",
+    "supporting/VORTEX_12_CLASS_CURRICULUM_SPEC.md": "26a6747fd409f0d18040aa652bbda9fd00d6dff90396fd4d67dfab2faa4fc3e2"
+  },
+  "checks": {
+    "full_supplied_spec_read_and_exact_copy_saved": true,
+    "current_request_framework_precedence_documented": true,
+    "exact_seven_category_headings_and_all_subcategories_match_spec": true,
+    "only_class_01_exists_in_this_focus_classes_directory": true,
+    "preparation_referenced_only_no_content_or_duration_created": true,
+    "four_ordered_sections": [
+      "1. Access & Prepare 1",
+      "2. Explosiveness — Exactly 6 Exercises",
+      "3. Strength (Stabilization/Resilience) — Exactly 2 Exercises",
+      "4. Strength (Primary) — Exactly 6 Exercises"
+    ],
+    "exercise_table_row_counts": [
+      0,
+      6,
+      2,
+      6
+    ],
+    "four_required_table_columns": true,
+    "all_primary_rows_prescribe_nonzero_challenging_work": true,
+    "submaximal_stabilization_and_explosive_intent_distinguished": true,
+    "specific_jobs_recovery_dose_cues_and_regression_criteria_reviewed": true,
+    "replacement_work_removes_original_slot": true,
+    "workload_and_per_side_arithmetic_reconciled": true,
+    "reference_clock_includes_work_rests_ramps_handling_transitions": true,
+    "unknown_full_duration_and_delivery_assumptions_disclosed": true,
+    "prior_local_prescriptions_and_available_feedback_reviewed": true,
+    "actual_athlete_work_remains_unknown": true,
+    "canonical_local_names_and_proposed_variants_distinguished": true,
+    "state_last_finalized_1_next_2": true,
+    "provisional_map_12_entries_no_later_workout_tables": true,
+    "no_unrelated_code_database_or_neighbor_curriculum_modified_by_this_run": true,
+    "saved_references_and_local_markdown_links_checked": true
+  },
+  "timing_reference": {
+    "explosive_seconds": [
+      90,
+      516,
+      324,
+      234,
+      250,
+      363
+    ],
+    "stabilization_seconds": [
+      127,
+      180
+    ],
+    "primary_with_preparation_seconds": [
+      689,
+      394,
+      357,
+      243,
+      355,
+      130
+    ],
+    "section_changes_water_final_recording_seconds": 180,
+    "total_after_access_prepare_1_seconds": 4432
+  },
+  "operational_limitations": "No observed execution, no verified full-session time, no verified group/staff/equipment layout. See progress.json unresolved_issues; these remain explicit conditions of delivery.",
+  "resume": "Review saved state and actual feedback, finalize Class 2 only, audit/save updated records, then stop."
+}

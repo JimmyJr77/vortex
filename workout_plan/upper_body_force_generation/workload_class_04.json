@@ -1,0 +1,425 @@
+{
+  "class_number": 4,
+  "effort": "Express a fast forward press from a settled start and control the finish.",
+  "reviewed_files": [
+    "classes/class_03.md",
+    "curriculum.md",
+    "progression_ledger.md",
+    "drill_usage.md",
+    "athlete_feedback.md"
+  ],
+  "explosive": [
+    {
+      "name": "Plyo Push-Up — paused bottom start, hands elevated",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "job": "Primary fast push from a still loaded position rather than an immediate lowering-to-push rebound.",
+      "cue": "On a stable elevated support, lower to a controlled bottom, hold 2 s without relaxing, then push into a small hand flight and soft return. Reset fully; no clap.",
+      "replacement": "a fast non-flight incline push-up from the same controlled pause when hand reception is unsuitable; record zero hand landings",
+      "kind": "hand_landing_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 5,
+      "reset_seconds": 12,
+      "identity": "plyo-push-up parent; paused-start execution proposed",
+      "novelty": "related_variant",
+      "uniqueness_reason": "Related to Class 1 E3 but removes the immediate eccentric-to-concentric reversal. The still loaded start is today's force problem; height or load changes alone are not counted as novelty.",
+      "prep": null,
+      "key": "Plyo Push-Up — paused bottom start, hands elevated"
+    },
+    {
+      "name": "Band Triceps Pressdown — rapid elbow extension",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "job": "Isolate quick elbow extension for the finish of the pressing action.",
+      "cue": "Band on an inspected rated overhead attachment; elbows stay at ribs. Extend quickly without slamming lockout, return 2 s and keep shoulders still.",
+      "replacement": "a very light floor-supported dumbbell elbow extension with decisive controlled ascent if the band anchor is unavailable",
+      "kind": "rapid_press_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 3,
+      "reset_seconds": 4,
+      "identity": "Proposed exact execution; no verified canonical identifier",
+      "novelty": "new_task",
+      "uniqueness_reason": "First isolated rapid elbow-extension task; different from a full shoulder-and-elbow press. One small set supports the finish without another large pressing drill.",
+      "prep": null,
+      "key": "Band Triceps Pressdown — rapid elbow extension"
+    },
+    {
+      "name": "Medicine Ball Catch-Set Chest Pass — gentle coach feed",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "job": "Accept a small incoming load, stabilize it, then create forward force from a settled chest position.",
+      "cue": "A coach gives a soft two-hand feed at chest height from a short inspected distance. Receive with yielding elbows, hold still 1 s, then pass forward; no immediate rebound chain. Use only a ball the athlete can comfortably receive.",
+      "replacement": "a self-started stationary chest pass if feed control or receiving readiness is absent; record zero catches, and use a self-anchored band press if release containment also fails",
+      "kind": "throw_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 5,
+      "reset_seconds": 20,
+      "identity": "medicine-ball-chest-pass parent; coach-fed catch-set execution proposed",
+      "novelty": "new_task",
+      "uniqueness_reason": "First external load acceptance followed by a static release. A faster rebound pass was rejected because it adds reversal demand before receiving quality has been observed.",
+      "prep": null,
+      "key": "Medicine Ball Catch-Set Chest Pass — gentle coach feed",
+      "catch": true
+    },
+    {
+      "name": "Floor Press — light dumbbells, fast concentric from floor contact",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "job": "Accelerate an external load from a reproducible still start while the trunk is supported.",
+      "cue": "Lower 2 s, settle upper arms gently for 1 s without losing tension, press quickly; keep grip throughout and decelerate before elbow lock.",
+      "replacement": "a light self-anchored Band Chest Press if dumbbell handling cannot remain controlled",
+      "kind": "rapid_press_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 4,
+      "identity": "Floor Press; migration 451; rapid light-load delivery proposed",
+      "novelty": "related_variant",
+      "uniqueness_reason": "First rapid floor-press prescription; related to the existing primary lift and other presses, not a wholly new family. Open-chain acceleration differs from E1 moving the body off a support; only four light reps precede strength.",
+      "prep": null,
+      "key": "Floor Press — light dumbbells, fast concentric from floor contact"
+    },
+    {
+      "name": "Band Chest Press — one arm presses while opposite arm holds",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "job": "Create a forward pulse with one arm while the other maintains a steady press position.",
+      "cue": "Self-anchored band across upper back, securely held; perform two pulses with one arm while the other stays comfortably extended during each pulse. Release both arms during resets; change working arm after the side rest. Keep ribs and shoulders facing forward.",
+      "replacement": "a self-anchored single-arm band speed press with the nonworking hand securing the tail at the torso if the opposite-arm hold causes fatigue",
+      "kind": "rapid_press_unilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 5,
+      "identity": "band-chest-press parent; pressing/contralateral-hold task proposed",
+      "novelty": "related_variant",
+      "uniqueness_reason": "Introduces simultaneous steady and rapid arm roles rather than another bilateral press. Related to Class 2 band pressing; the hold must stay light and brief, with only two pulses per arm.",
+      "prep": null,
+      "key": "Band Chest Press — one arm presses while opposite arm holds",
+      "contralateral_support_seconds_per_arm": 8
+    },
+    {
+      "name": "Two-Hand Landmine Bent-Over Row — fast pull from a pause",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "job": "Retain one low-volume backward force task so the pressing day still includes deliberate pulling.",
+      "cue": "Light load; still hinge, pull sleeve toward lower ribs quickly, lower 2 s, pause extended arms without hip drive.",
+      "replacement": "a light two-hand kettlebell paused row if the landmine cannot be handled quickly",
+      "kind": "rapid_pull_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 4,
+      "identity": "two-hand-landmine-bent-over-row; local landmine library",
+      "novelty": "repeat",
+      "uniqueness_reason": "Explicit Class 1 repeat at half its sets. A new rope-transfer or vertical-pull task would add grip/skill demands beside the first receiving task; three familiar arm-driven pulls preserve direct pulling with minimal added instruction.",
+      "prep": null,
+      "key": "Two-Hand Landmine Bent-Over Row — fast pull from a pause"
+    }
+  ],
+  "resilience": [
+    {
+      "name": "Supine Dumbbell Serratus Reach — elbows straight",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "job": "Lightly load scapular reach at the press finish while the floor supports trunk position.",
+      "cue": "Very light paired dumbbells above chest; keep elbows straight, reach shoulder blades slightly off floor 2 s, hold 1 s, return 2 s without rolling the trunk.",
+      "replacement": "an unloaded supine reach through the same comfortable range",
+      "kind": "light_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 5,
+      "reset_seconds": 0,
+      "identity": "Proposed exact execution; no verified canonical identifier",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": null,
+      "key": "Supine Dumbbell Serratus Reach — elbows straight"
+    },
+    {
+      "name": "Bilateral Band External Rotation — elbows at sides",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "job": "Light shoulder-rotator strengthening to control upper-arm position during the day's press and pull.",
+      "cue": "Unanchored band between hands, elbows at ribs; rotate outward 2 s, hold 1 s, return 2 s without shrugging.",
+      "replacement": "a lower-tension band and shorter comfortable range",
+      "kind": "light_bilateral",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 5,
+      "reset_seconds": 0,
+      "identity": "band-external-rotation; canonical-research/generated/bilateral-band-external-rotation/band-external-rotation.v1.json",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": null,
+      "key": "Bilateral Band External Rotation — elbows at sides"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Floor Press — two dumbbells, neutral grip",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "job": "Main horizontal pressing force with a reproducible floor-limited range.",
+      "cue": "Lower 2 s, touch upper arms gently, pause 1 s, then press decisively; feet stay down. Coach supervises pickup/set-down.",
+      "replacement": "a lighter floor press through controlled comfortable range",
+      "kind": "bilateral_strength",
+      "rest": 150,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "Floor Press; backend/migrations/451_coaching_floor_press_family_completion.sql",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        6,
+        3
+      ],
+      "key": "floor_press"
+    },
+    {
+      "name": "One-Arm Row — dumbbell, hand and knee on bench",
+      "sets": 1,
+      "reps": 6,
+      "sides": 2,
+      "job": "Load the arm-driven backward draw while support prevents torso rotation.",
+      "cue": "Draw elbow toward hip, hold 1 s, lower 2 s; stop before the shoulder rolls forward or the trunk turns.",
+      "replacement": "a thigh-supported dumbbell row with the same arm path if a bench does not fit",
+      "kind": "unilateral_strength",
+      "rest": 120,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "One-Arm Row / one-arm-dumbbell-row; migration 453",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        5
+      ],
+      "key": "one_arm_row"
+    },
+    {
+      "name": "Push-Up — controlled full repetition",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "job": "Second major press: load force from the bottom while shoulder blades move freely and the trunk remains fixed.",
+      "cue": "Lower 2 s, push decisively, finish tall through shoulders for 1 s; no hand flight. Adjust leverage or band resistance to reach 2–3 RIR.",
+      "replacement": "a hands-elevated push-up on an inspected immovable support",
+      "kind": "bilateral_strength",
+      "rest": 120,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "Push-Up / push-up; migration 455",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        3
+      ],
+      "key": "push_up"
+    },
+    {
+      "name": "Dumbbell Rear-Delt Row — bilateral, hinged",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "job": "Strengthen the wider-elbow backward draw that controls the arm-open position.",
+      "cue": "Hold a still hinge; elbows about 60 degrees from torso, pull to upper ribs, hold 1 s, lower 2 s.",
+      "replacement": "a chest-supported version only on an inspected bench with adequate arm clearance",
+      "kind": "bilateral_strength",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "dumbbell-rear-delt-row; loaded-strength-all-cards.json; migrations 150/393",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        5
+      ],
+      "key": "rear_row"
+    },
+    {
+      "name": "Dumbbell Skull Crusher — floor-supported",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "job": "Load elbow extension for the finish of a forceful press.",
+      "cue": "Neutral grips, upper arms near vertical; lower 2 s beside the ears, extend under control without shoulder swing.",
+      "replacement": "a lighter floor-supported elbow extension through comfortable range",
+      "kind": "bilateral_strength",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "dumbbell-skull-crusher; loaded-strength-all-cards.json; floor execution proposed",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        5
+      ],
+      "key": "triceps"
+    },
+    {
+      "name": "Dumbbell Hammer Curl — simultaneous arms",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "job": "Load elbow flexors for finishing the backward draw without another shoulder-extension set.",
+      "cue": "Upper arms stay at ribs; lift 1 s, hold 1 s, lower 2 s, without hip swing or wrist collapse.",
+      "replacement": "a lighter neutral-grip curl without body movement",
+      "kind": "bilateral_strength",
+      "rest": 90,
+      "side_rest": 60,
+      "active_seconds": 4,
+      "reset_seconds": 0,
+      "identity": "dumbbell-hammer-curl; loaded-strength-all-cards.json",
+      "novelty": null,
+      "uniqueness_reason": null,
+      "prep": [
+        5
+      ],
+      "key": "curl"
+    }
+  ],
+  "primary_preparation": [
+    {
+      "slot": "P1",
+      "reps_by_set": [
+        6,
+        3
+      ],
+      "sides": 1,
+      "task_repetitions": 9,
+      "rounds": 2,
+      "bouts": 2
+    },
+    {
+      "slot": "P2",
+      "reps_by_set": [
+        5
+      ],
+      "sides": 2,
+      "task_repetitions": 10,
+      "rounds": 1,
+      "bouts": 2
+    },
+    {
+      "slot": "P3",
+      "reps_by_set": [
+        3
+      ],
+      "sides": 1,
+      "task_repetitions": 3,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P4",
+      "reps_by_set": [
+        5
+      ],
+      "sides": 1,
+      "task_repetitions": 5,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P5",
+      "reps_by_set": [
+        5
+      ],
+      "sides": 1,
+      "task_repetitions": 5,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P6",
+      "reps_by_set": [
+        5
+      ],
+      "sides": 1,
+      "task_repetitions": 5,
+      "rounds": 1,
+      "bouts": 1
+    }
+  ],
+  "summary": {
+    "exercise_counts": {
+      "explosiveness": 6,
+      "stabilization_resilience": 2,
+      "primary_strength": 6
+    },
+    "explosive_exposures_by_type": {
+      "hand_landing_bilateral": 6,
+      "rapid_press_bilateral": 8,
+      "throw_bilateral": 3,
+      "rapid_press_unilateral": 4,
+      "rapid_pull_bilateral": 3
+    },
+    "explosive_task_repetitions_descriptive_only": 24,
+    "throws": 3,
+    "hand_landing_events": 6,
+    "catch_repetitions": 3,
+    "lower_body_jump_hop_bound_repetitions": 0,
+    "sprint_repetitions": 0,
+    "rotational_throws": 0,
+    "stabilization_task_repetitions": 16,
+    "stabilization_rounds": 2,
+    "stabilization_bouts": 2,
+    "primary_working_set_rounds": 8,
+    "primary_working_set_bouts": 9,
+    "primary_working_task_repetitions": 60,
+    "primary_working_cycles_per_arm": 54,
+    "primary_preparation_task_repetitions": 37,
+    "primary_preparation_set_rounds": 7,
+    "primary_preparation_set_bouts": 8,
+    "estimated_prescribed_work_minutes": [
+      59,
+      68
+    ],
+    "complete_session_minutes": null,
+    "access_prepare_1_workload": null,
+    "observed_workload": null,
+    "access_prepare_1_minutes": null,
+    "additional_group_queue_minutes": null,
+    "primary_load_kg": null,
+    "primary_working_technical_reps_in_reserve": [
+      2,
+      3
+    ],
+    "stabilization_minimum_technical_reps_in_reserve": 5,
+    "individual_hand_contacts": 12,
+    "sprint_distance_m": 0,
+    "lower_body_landing_events": 0,
+    "movement_steps": 0
+  },
+  "timing": {
+    "explosive_seconds_before_extra_instruction": 831,
+    "resilience_seconds_before_extra_instruction": 125,
+    "strength_seconds_including_preparation_before_extra_instruction": 1731,
+    "between_section_seconds": 150,
+    "extra_instruction_setup_minutes": [
+      12,
+      20
+    ]
+  },
+  "progression": "Class 3 emphasized pulling with Floor Press 1 × 6 and two main pulling lifts. Here Floor Press returns to its already prescribed Class 1/2 dose of 2 × 6, One-Arm Row drops to 1 × 6 per arm, and controlled Push-Up receives 2 × 6 instead of Class 2's 1 × 8. Eight primary rounds are retained, with 60 task reps rather than Class 3's 66. This is focus-based redistribution, not an earned increase. Hold loads at demonstrated 2–3 RIR; the added receiving/hand-flight demands can require same-slot regression or stopped work. Next progression needs actual controlled completion and recovery.",
+  "audit_findings": "Main hand flights capped at six; all other pressing supports have four or fewer reps except the three gentle catch-set releases. Only three catches are prescribed, with a non-catching replacement if readiness is unconfirmed. The light speed floor press and challenging primary floor press are separately performed with different jobs/loads and are not double-counted. The later controlled push-up is not hand-flight work. Two new tasks, three related variants and one explicit repeat are recorded; no claim of six new movement families.",
+  "next_job": "Class 5 should explore a small preload into a straight-ahead release, using receiving or reversal demands only when actual first-attempt control permits them. Review Class 4 hand/wrist and pressing exposure before selecting it.",
+  "actual_observations": null
+}

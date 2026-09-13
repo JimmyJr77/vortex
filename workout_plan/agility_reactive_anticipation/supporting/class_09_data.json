@@ -1,0 +1,304 @@
+{
+  "class_number": 9,
+  "effort": "Read an opponent’s rhythm change and use the brief moment when movement becomes available.",
+  "brief": "Consolidate Class 8’s decision load by limiting direction choices and emphasizing timing. E1 starts with both people already moving so the athlete reads a change of pace, not another stationary go cue. Low unilateral ankle return, short scissor impulse, controlled reburst, catch-to-release reversal and an offensive timing window supply distinct support jobs.",
+  "anchor_protocol": "Coach and athlete move slowly forward on parallel paths, athlete about half a step behind, both within a 2–6 m work strip. During a ≤4 s bout the coach makes one clear acceleration then one clear easing/stopping action, with no direction change. Athlete matches the pace change without closing the marked longitudinal gap, stops within 2 m beyond the strip. Four bouts. If response history is unknown, make the pace change broad and slow; do not increase duration. Record whether acceleration and braking were read separately.",
+  "quality_marker": "E1: correct response to both pace changes, preserved gap and a controlled stop. Record the coach’s sequence and speed description; no claim of speed improvement from a different drill or different cue rhythm.",
+  "layout": "Use parallel 10 m lanes with verified ≥2 m lateral separation. E1 total athlete travel ≤4 m per bout plus ≤2 m stopping. E4 starts at 1 m, builds for 2 m, floats for 1 m, rebursts for 1 m and stops by 7 m. E5 coach and athlete face each other about 2 m apart in an isolated, verified catch zone; use a ball light enough for soft underhand delivery and controlled fast return, not a hard chest-height projectile. E6 uses protected parallel attacker/defender paths and a marked 2 m athlete gate route; there is no body contact.",
+  "progression": "Previous: Class 8 prescribed two-direction decisions with twelve mixed landings. Current: timing without directional branching, six low-amplitude single-leg pogo contacts plus two controlled scissor-bound contacts, and only six primary set rounds. This is an intentional reduction of supporting demand, not a response to invented fatigue. Hold actual strength loads and cue pace unless executed reps/RIR and recovery show readiness; the next progression would narrow a timing window, not simultaneously add contacts.",
+  "audit": "Pace matching, planned reburst and an offensive opportunity window have different decision/control jobs. Six low ankle contacts and two low bounds are recorded separately from earlier larger hops. Catch-to-return uses soft delivery and a controlled hip yield; it is rapid force reversal, not ordinary catching counted as strength. One challenging set in each primary slot maintains the six-exercise structure while reducing total demand. Next class addresses route choice with clear boundaries.",
+  "explosive": [
+    {
+      "name": "Moving Opponent Tempo Match",
+      "dose": "1 × 4 bouts, ≤4 s each",
+      "job": "Main rhythm task: detect acceleration and easing from an already-moving opponent while preserving a useful gap.",
+      "execution": "Begin at a slow shared pace, respond to one pace increase and one stop/easing, travel ≤4 m, stop in ≤2 m. Rest 75 s between bouts and 90 s before E2. Widen the pace contrast if either event is missed.",
+      "identity": "moving_same_direction_velocity_change_gap_match",
+      "account": {
+        "locomotor_attempts": 4,
+        "movement_metres_max": 16,
+        "stopping_metres_max": 8,
+        "decision_opportunities_max": 8
+      },
+      "seconds": 399,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Single-Leg Pogo in Place",
+      "dose": "1 × 3 contacts/leg = 6 landings",
+      "job": "Practice small repeated ankle return on one support leg for an unpredictable next step.",
+      "execution": "Three low hops in place on one foot, stop after the third; repeat opposite after 60 s. Rest 60 s before E3. Soft knee, tall torso; reduce amplitude for heel slap or lateral drift.",
+      "identity": "unilateral_in_place_low_amplitude_elastic_contacts",
+      "account": {
+        "unilateral_landings": 6
+      },
+      "seconds": 190,
+      "source": "single-leg-pogo; low-amplitude exact support"
+    },
+    {
+      "name": "Straight-Leg Bounds — low amplitude",
+      "dose": "1 × 2 linked contacts, one landing/leg",
+      "job": "Create a quick alternating hip-driven impulse with little knee lift or flight height, complementing ankle-only pogos.",
+      "execution": "Take two short forward straight-leg-style bounds with softly unlocked knees, alternating feet; low height and no reaching for distance. End controlled. Rest 90 s before E4. Shorten stride for hamstring tension or braking on a locked leg.",
+      "identity": "low_amplitude_alternating_scissor_hip_impulse",
+      "account": {
+        "unilateral_landings": 2
+      },
+      "seconds": 158,
+      "source": "distance-jump-straight-leg-bound; low-amplitude execution proposed"
+    },
+    {
+      "name": "Build–Float–Reburst Run",
+      "dose": "1 × 3 repetitions of 2 m build + 1 m float + 1 m reburst",
+      "job": "Physically rehearse changing force output while already moving without adding a directional choice.",
+      "execution": "Use marked segments at controlled speed, then stop within 2 m. Float is reduced drive, not walking or an abrupt brake. Rest 75 s between reps and 60 s before E5. Reduce overall speed if the reburst causes overstriding.",
+      "identity": "planned_forward_accelerate_float_reaccelerate",
+      "account": {
+        "locomotor_attempts": 3,
+        "acceleration_metres": 9,
+        "controlled_float_metres": 3,
+        "stopping_metres_max": 6
+      },
+      "seconds": 294,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Soft Medicine-Ball Catch-to-Scoop Return",
+      "dose": "1 × 4 catch-return releases",
+      "job": "Accept a small incoming load through the hips/trunk and reverse it promptly into a forward release, supporting tempo changes in force expression.",
+      "execution": "Coach sends a soft low underhand pass; receive with two hands near the waist, yield slightly through hips/knees and immediately return underhand without a jump. No hard throw or deep squat. Rest 30 s between releases and 60 s before E6. Reduce load/delivery for collapsing posture or slow arm-only returns.",
+      "identity": "incoming_underhand_load_hip_yield_immediate_scoop_return",
+      "account": {
+        "throws": 4,
+        "ball_receptions": 4
+      },
+      "seconds": 234,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    },
+    {
+      "name": "Bait-and-Go Timing Window",
+      "dose": "1 × 4 bouts, ≤4 s each",
+      "job": "Read when a defender’s weight commitment creates time to leave, introducing an offensive timing problem.",
+      "execution": "Coach guards a corresponding gate on a separate parallel path, then makes one visible weight commitment away from it. Athlete may make a small nontravelling shoulder feint, but bursts 2 m only when the window opens; stop within 2 m. Rest 75 s between bouts, 90 s before strength. Make the opening longer for premature or missed departures.",
+      "identity": "offensive_departure_timed_to_defender_weight_commitment",
+      "account": {
+        "locomotor_attempts": 4,
+        "rapid_metres": 8,
+        "stopping_metres_max": 8,
+        "decision_opportunities_max": 4
+      },
+      "seconds": 399,
+      "source": "Proposed drill/exact execution; no library ID claimed."
+    }
+  ],
+  "stabilization": [
+    {
+      "name": "Short-Foot Drill — both feet supported",
+      "dose": "1 × 3 holds × 5 s/foot",
+      "job": "Low-fatigue foot control after unilateral ankle contacts.",
+      "execution": "Keep both feet supported and work one target foot at a time: maintain heel and metatarsal contact while gently raising the arch, with long toes. Relax 5 s between holds; use seated support instead if toes curl. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 0,
+        "hold_seconds": 30,
+        "bouts": 2
+      },
+      "seconds": 180,
+      "identity": "foot"
+    },
+    {
+      "name": "Heel-Dig Bridge Hold — light bilateral",
+      "dose": "2 × 10 s",
+      "job": "Easy heel-driven posterior-chain tension before a reduced-volume strength block.",
+      "execution": "On a comfortable floor surface, heels down and knees bent; lift hips only to a stacked trunk and gently pull heels toward the hips without moving them. Keep easy and breathe; lower height for cramp or back extension. Rest 30 s between sides/holds and 30 s before the next exercise. Stay at RPE 3–4/10, at least five clean reps or ample hold time in reserve.",
+      "account": {
+        "dynamic_reps": 0,
+        "hold_seconds": 20,
+        "bouts": 2
+      },
+      "seconds": 150,
+      "identity": "bridge"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Goblet Squat",
+      "dose": "1 × 6 bilateral",
+      "job": "Retain knee/hip force with one quality set during timing consolidation.",
+      "execution": "Hold one dumbbell at the chest; sit between the hips with whole-foot pressure and rise smoothly. Use an owned depth; reduce load/range for heel lift or trunk collapse. Rest 120 s before the next exercise.",
+      "identity": "squat",
+      "source": "goblet-squat",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 6,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 284
+    },
+    {
+      "name": "Reverse Lunge — dumbbells",
+      "dose": "1 × 6/side",
+      "job": "Single-leg acceptance and return from the ready stance without adding another compound round.",
+      "execution": "Step one foot backward, lower under control, then use the front leg to return to standing. Keep the front heel down; shorten the step/load for wobble or push-off from the rear toes. Rest 90 s between sides; 120 s before the next exercise.",
+      "identity": "reverse",
+      "source": "reverse-lunge",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 12,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 432
+    },
+    {
+      "name": "Hip Thrust — sandbag",
+      "dose": "1 × 8 bilateral",
+      "job": "Hip extension for the reburst after a period of reduced drive.",
+      "execution": "Support upper back on a stable bench, secure the sandbag across the hip crease, drive through both feet and finish with ribs stacked. No lumbar arch; reduce load for pelvic loss. If bench fit fails, use a floor glute bridge instead, same dose, recording the shorter range. Rest 120 s before the next exercise.",
+      "identity": "thrust",
+      "source": "hip-thrust",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 8,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 60 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 292
+    },
+    {
+      "name": "Partner Manual-Resistance Hamstring Curl",
+      "dose": "1 × 8/side",
+      "job": "Controlled knee-flexor force during alternating running contacts.",
+      "execution": "Lie prone on a comfortable floor surface; coach applies smooth resistance above the heel while the athlete bends and straightens the knee through an owned range. Keep hips down; no sudden pushes. Match resistance to 2–3 RIR, not a contest. If prone support/contact is unsuitable, use Seated Band Hamstring Curl instead, same sets/reps per side: sit on a stable bench, secure a light band at the heel with a coach holding steady forward tension, then pull the heel beneath the bench without moving the thigh. Qualify band/bench fit; no sudden release. This replaces only this slot and preserves totals. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "curl",
+      "source": "partner-manual-resistance-hamstring-curl",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Single-Leg Calf Raise — supported standing, dumbbell",
+      "dose": "1 × 8/side",
+      "job": "Maintain ankle push capacity with unchanged support and heel range.",
+      "execution": "Stand on flat floor with a nearly straight knee and light hand support; raise the heel, pause briefly and lower for 2 seconds. No bounce or ankle roll. Reduce load when heel height declines. Rest 60 s between sides; 60 s before the next exercise.",
+      "identity": "calf",
+      "source": "single-leg-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 2,
+        "dynamic_reps": 16,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 3/side easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 6,
+        "hold_seconds": 0,
+        "bouts": 2
+      },
+      "seconds": 343
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bilateral, bent-knee",
+      "dose": "1 × 10 bilateral",
+      "job": "Maintain bent-knee force for the braking response to an easing opponent.",
+      "execution": "Use a stable bench, knees near right angles, secure dumbbells on distal thighs above knees. Lower heels for 2 seconds to the floor, pause, then rise. Reduce load for bouncing or shortened range. Rest 60 s before the next exercise.",
+      "identity": "soleus",
+      "source": "seated-dumbbell-calf-raise",
+      "account": {
+        "rounds": 1,
+        "bouts": 1,
+        "dynamic_reps": 10,
+        "hold_seconds": 0
+      },
+      "preparation": {
+        "dose": "1 × 5 bilateral easy; 30 s between sides where applicable, then 45 s before working sets.",
+        "dynamic_reps": 5,
+        "hold_seconds": 0,
+        "bouts": 1
+      },
+      "seconds": 225
+    }
+  ],
+  "totals": {
+    "explosive": {
+      "locomotor_attempts": 11,
+      "movement_metres_max": 16,
+      "stopping_metres_max": 22,
+      "decision_opportunities_max": 12,
+      "unilateral_landings": 8,
+      "acceleration_metres": 9,
+      "controlled_float_metres": 3,
+      "throws": 4,
+      "ball_receptions": 4,
+      "rapid_metres": 8
+    },
+    "stabilization": {
+      "dynamic_reps": 0,
+      "hold_seconds": 50,
+      "bouts": 4
+    },
+    "primary": {
+      "rounds": 6,
+      "bouts": 9,
+      "dynamic_reps": 68,
+      "hold_seconds": 0
+    },
+    "preparation": {
+      "dynamic_reps": 33,
+      "hold_seconds": 0,
+      "bouts": 9
+    }
+  },
+  "time": {
+    "section_minutes": [
+      27.9,
+      5.5,
+      32.0
+    ],
+    "booking_excluding_Access_Prepare_1": [
+      75,
+      90
+    ]
+  },
+  "observed_work": null,
+  "reviewed_before_design": {
+    "classes/class_08.md": "3743251c2a18cf28bfe72672dedd584606272f813d2858cf32325c6c938d3ab0",
+    "progression_ledger.md": "961220e7a06e6a42d29c745b3fe2432c9a4796dbef62762e9b3d71b5c25dfba5",
+    "athlete_feedback.md": "27b4ee2723ee08a45a58624ee8f32607f267c2ee18478008d64f092adde4c0e1",
+    "progress.json": "6792eeb743c5c782fa38db1c184bd87ba0a611b36c1121a65d27d5b1c24e11f9",
+    "curriculum.md": "a9e50bcb54193707b45bdf2c05d58d016381045c9066fafd28d18552db3f9003"
+  },
+  "post_sequence_audit": {
+    "drill_identity_review": "manual comparison of support, contraction, trajectory and decision rule; names alone are not the uniqueness evidence",
+    "geometry_review": "straight/parallel route with stated stopping buffers",
+    "replacement_review": "no substitution duplicates an existing primary slot; holds and dynamic alternatives accounted separately"
+  }
+}
