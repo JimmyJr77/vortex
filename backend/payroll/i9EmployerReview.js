@@ -4,6 +4,7 @@ import {preparerRoster} from './i9Preparers.js'
 import {encryptDocument,decryptDocument} from './onboarding.js'
 import {renderI9Section2Preview} from './i9Section2Pdf.js'
 import {i9Section2Input} from './i9Section2.js'
+import {I9_EMPLOYER_ATTESTATION} from './i9Examination.js'
 import {i9DocumentEntries} from './i9DocumentEntries.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const hash=value=>createHash('sha256').update(value).digest('hex')
@@ -47,7 +48,9 @@ export async function previewI9Employer(db,ctx,taskId,body){
  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,body.onboardingCycle,current.submissionId,current.draft.revision,current.draft.basisHash,current.roster.fingerprint,supplements.map(s=>s.documentId),ctx.admin,encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,taskId,body.onboardingCycle)),previewSha256])).rows[0]
  for(const entry of i9DocumentEntries(answers))await db.query('INSERT INTO payroll_i9_review_document_entry(review_id,row_key,document_fingerprint) VALUES($1,$2,$3)',[row.id,entry.key,entry.fingerprint])
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_EMPLOYER_PREVIEW_CREATED','i9_employer_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,taskId,onboardingCycle:body.onboardingCycle,submissionId:current.submissionId,draftRevision:current.draft.revision,previewSha256,preparerDocumentIds:supplements.map(s=>s.documentId)}])
- return {reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:retained.pdfBase64,pageCount:4,supplements}
+ const context=(await db.query('SELECT hire_date::text AS "hireDate",(clock_timestamp() AT TIME ZONE s.timezone)::date::text AS today FROM payroll_employee e JOIN payroll_settings s ON s.facility_id=e.facility_id WHERE e.id=$1 AND e.facility_id=$2',[ctx.employee,ctx.facility])).rows[0]
+ const hiring=(await db.query('SELECT e_verify AS "eVerify",offer_accepted_on::text AS "offerAcceptedOn" FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 ORDER BY revision DESC LIMIT 1',[current.employeeTask.id,body.onboardingCycle])).rows[0]
+ return {attestation:I9_EMPLOYER_ATTESTATION,examinationContext:{...context,...hiring,examinationMethod:answers.examinationMethod,documentChoice:answers.documentChoice,representativeNameAndTitle:answers.representativeNameAndTitle},reviewId:row.id,expiresAt:row.expires_at,previewSha256,pdfBase64:retained.pdfBase64,pageCount:4,supplements}
 }
 export async function currentI9EmployerReview(db,ctx,taskId,body){
  const current=await basis(db,ctx,taskId,body.onboardingCycle)

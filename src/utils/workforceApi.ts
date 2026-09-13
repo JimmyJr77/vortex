@@ -43,7 +43,7 @@ export type SavedAcknowledgment={id:number;cycle:number;kind:'HANDBOOK'|'WAGE_NO
 export type I9EmployerDocument={title:string;issuingAuthority:string;number:string;expiresOn:string}
 export type I9EmployerDraft={documentChoice:'LIST_A'|'LIST_B_C'|null;listA:I9EmployerDocument[];listB:I9EmployerDocument|null;listC:I9EmployerDocument|null;additionalInformation:string;examinationMethod:'PHYSICAL'|'ALTERNATIVE'|null;firstDayEmployed:string;representativeNameAndTitle:string;businessName:string;businessAddress:string}
 export type I9EmployerDraftState={revision:number;basisHash:string;submissionId:string|number|null;draft:I9EmployerDraft|null;savedAt:string|null;invalidated:boolean}
-export type I9EmployerPreview={reviewId:string|number;expiresAt:string;previewSha256:string;pdfBase64:string;pageCount:number;supplements:Array<{documentKey:string;documentId:string|number;sha256:string;pdfBase64:string;pageCount:number}>}
+export type I9EmployerPreview={attestation:string;examinationContext:{today:string;hireDate:string;offerAcceptedOn:string;eVerify:boolean;examinationMethod:string;documentChoice:string;representativeNameAndTitle:string};reviewId:string|number;expiresAt:string;previewSha256:string;pdfBase64:string;pageCount:number;supplements:Array<{documentKey:string;documentId:string|number;sha256:string;pdfBase64:string;pageCount:number}>}
 export type I9CopyList={documents:Array<{key:string;label:string;copies:Array<{id:string|number;documentId:string|number;pageCount:number;filename:string;mime:string;createdAt:string}>}>}
 export type I9CopyView={copyId:string|number;contentBase64:string;mime:string;pageCount:number;filename:string}
 export const workforceApi = {
@@ -56,6 +56,7 @@ export const workforceApi = {
  viewI9EmployerCopy:(employeeId:number,taskId:number,body:unknown)=>request<I9CopyView>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copy-view`,true,body),
  recordI9CopyPage:(employeeId:number,taskId:number,body:unknown)=>request<{recorded:boolean}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copy-page`,true,body),
  previewI9Employer:(employeeId:number,taskId:number,body:unknown)=>request<I9EmployerPreview>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-preview`,true,body),
+ signI9Employer:(employeeId:number,taskId:number,body:unknown)=>request<{signatureId:string|number;documentId:string|number;signedAt:string;status:string}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-sign`,true,body),
  recordI9EmployerPage:(employeeId:number,taskId:number,body:unknown)=>request<{recorded:boolean}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-page`,true,body),
  i9EmployerDraft:(employeeId:number,taskId:number,cycle:number)=>request<I9EmployerDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft?onboardingCycle=${cycle}`,true),
  saveI9EmployerDraft:(employeeId:number,taskId:number,body:unknown)=>request<{revision:number;basisHash:string;savedAt:string}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft`,true,body),

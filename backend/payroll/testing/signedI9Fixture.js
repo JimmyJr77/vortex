@@ -1,8 +1,8 @@
 import {randomUUID} from 'node:crypto'
 import {monthlyBenefitsFixture} from './monthlyBenefitsFixture.js'
-export async function signedI9Fixture(h,{assisted=true}={}){
+export async function signedI9Fixture(h,{assisted=true,eVerify=false}={}){
  const {api,employee}=await monthlyBenefitsFixture(h),task=(await api('/onboarding',undefined,'GET',200,true)).tasks.find(t=>t.task_key==='I9'),path=`/onboarding/${task.id}/i9`
- await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:false,evidence:'Synthetic accepted offer and hiring-site participation reviewed.'})
+ await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify,evidence:'Synthetic accepted offer and hiring-site participation reviewed.'})
  const initial=await api(path+'/draft?onboardingCycle=1',undefined,'GET',200,true)
  const draft={lastName:'Żółć',firstName:'Łukasz',address:'100 Example Street',city:'Bowie',state:'MD',postalCode:'20715',dateOfBirth:'2000-01-01',ssn:'123456789',attestationKind:'CITIZEN',ssnPending:false,preparerAssisted:assisted}
  const saved=await api(path+'/draft',{draft,expectedRevision:0,baseResponseHash:initial.baseResponseHash,onboardingCycle:1,requestKey:randomUUID()},'POST',200,true)

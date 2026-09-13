@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useRef,useState} from 'react'
 import {workforceApi,type I9EmployerDocument,type I9EmployerDraft as Draft,type I9EmployerDraftState,type I9EmployerPreview} from '../../utils/workforceApi'
 import W4PdfReview from './W4PdfReview'
+import I9EmployerExamination from './I9EmployerExamination'
 import I9EmployerCopies from './I9EmployerCopies'
 import instructionsUrl from '../../../backend/payroll/forms/uscis-i9-instructions-012025.pdf?url'
 const emptyRow=():I9EmployerDocument=>({title:'',issuingAuthority:'',number:'',expiresOn:''})
@@ -16,7 +17,7 @@ function ReviewDocument({employeeId,taskId,cycle,preview,documentKey,pdfBase64,p
  const displayed=useCallback(async(page:number)=>{await workforceApi.recordI9EmployerPage(employeeId,taskId,{onboardingCycle:cycle,reviewId,previewSha256,documentKey,page,displayed:true})},[employeeId,taskId,cycle,reviewId,previewSha256,documentKey])
  return <W4PdfReview pdfBase64={pdfBase64} pageCount={pageCount} formName={label} editionLabel="01/20/25" reviewTitle={documentKey==='main'?'Review Section 2 before employer certification':'Review the retained preparer certification'} onDisplayed={displayed}/>
 }
-export default function I9EmployerDraft({employeeId,taskId,cycle,editable}:{employeeId:number;taskId:number;cycle:number;editable:boolean}){
+export default function I9EmployerDraft({employeeId,taskId,cycle,editable,onSigned}:{employeeId:number;taskId:number;cycle:number;editable:boolean;onSigned:()=>Promise<void>}){
  const [state,setState]=useState<I9EmployerDraftState|null>(null),[draft,setDraft]=useState<Draft>(empty),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[reload,setReload]=useState(0)
  const pending=useRef<{payload:string;requestKey:string}|null>(null)
  const [preview,setPreview]=useState<I9EmployerPreview|null>(null),[instructions,setInstructions]=useState(false)
@@ -55,6 +56,6 @@ export default function I9EmployerDraft({employeeId,taskId,cycle,editable}:{empl
   {state?.savedAt?<p className="text-sm">Saved {state.savedAt} · revision {state.revision}</p>:null}
   <button type="button" disabled={busy||dirty||!state?.draft||!editable} className="rounded border border-slate-400 px-3 py-2 font-bold disabled:opacity-40" onClick={()=>void prepare()}>Prepare employer I-9 preview</button>
   {dirty?<p className="text-sm">Save your changes before preparing the official form.</p>:null}
-  {preview?<div className="space-y-4"><p className="text-sm">The employee signature is retained. Section 2 is unsigned. Review all four pages and each preparer certificate; examination evidence and your employer certification remain required.</p><ReviewDocument key={`${preview.reviewId}-main`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey="main" pdfBase64={preview.pdfBase64} pageCount={4} label="I-9 employer preview"/>{preview.supplements.map((s,index)=><ReviewDocument key={`${preview.reviewId}-${s.documentKey}`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey={s.documentKey} pdfBase64={s.pdfBase64} pageCount={1} label={`I-9 preparer certificate ${index+1}`}/>)}<I9EmployerCopies key={preview.reviewId} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview}/></div>:null}
+  {preview?<div className="space-y-4"><p className="text-sm">The employee signature is retained. Section 2 is unsigned. Review all four pages and each preparer certificate; examination evidence and your employer certification remain required.</p><ReviewDocument key={`${preview.reviewId}-main`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey="main" pdfBase64={preview.pdfBase64} pageCount={4} label="I-9 employer preview"/>{preview.supplements.map((s,index)=><ReviewDocument key={`${preview.reviewId}-${s.documentKey}`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} documentKey={s.documentKey} pdfBase64={s.pdfBase64} pageCount={1} label={`I-9 preparer certificate ${index+1}`}/>)}<I9EmployerCopies key={preview.reviewId} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview}/><I9EmployerExamination key={`examination-${preview.reviewId}`} employeeId={employeeId} taskId={taskId} cycle={cycle} preview={preview} onSigned={onSigned}/></div>:null}
  </section>
 }
