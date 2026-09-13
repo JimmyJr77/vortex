@@ -7,7 +7,7 @@
   "stage_status": "in_progress",
   "previous_goal_turn": {
     "classification": "progress",
-    "evidence": "OR-09 was finalized/reviewed/indexed and its OR-10 source brief saved. The intervening Git request created a local checkpoint and verified all220 evidence hashes; the broad push was rejected and remains pending explicit approval. No OR-10 workout existed at the start of this programming work unit."
+    "evidence": "OR-10 was individually reviewed and indexed; the Week2 source review and an incomplete numeric-audit draft were saved at the intervening checkpoint. No full Week2 PASS or OR11 detail existed when this work unit began."
   },
   "scope": {
     "main_weeks": 12,
@@ -44,10 +44,10 @@
     "detailed_workload_scenarios": 31500,
     "operationally_released_sessions": 0,
     "inspected_local_mapping_records_total": 53,
-    "on_ramp_weeks_audited_complete": 1,
+    "on_ramp_weeks_audited_complete": 2,
     "main_weeks_audited_complete": 0,
-    "on_ramp_weekly_attendance_history_paths": 18744,
-    "on_ramp_weekly_summary_rows": 186
+    "on_ramp_weekly_attendance_history_paths": 103092,
+    "on_ramp_weekly_summary_rows": 1023
   },
   "artifacts": {
     "strategy": "BLOCK_STRATEGY.md",
@@ -185,7 +185,14 @@
     "or10_checker": "prescriptions/check_or_10.py",
     "or10_mapping": "prescriptions/OR10_LIBRARY_MAPPING.md",
     "or10_mapping_data": "prescriptions/or10_library_mapping.json",
-    "week02_audit_brief": "planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md"
+    "week02_audit_brief": "planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md",
+    "on_ramp_week2_review": "instructional_on_ramp/week_02/week_02_review.md",
+    "on_ramp_week2_source_review": "instructional_on_ramp/week_02/week_02_source_review.md",
+    "on_ramp_week2_programming_critique": "instructional_on_ramp/week_02/week_02_programming_critique.md",
+    "on_ramp_week2_checks": "instructional_on_ramp/week_02/week_02_check_results.json",
+    "on_ramp_week2_workload_ledger": "instructional_on_ramp/week_02/week_02_attendance_workload_ledger.json",
+    "on_ramp_week2_checker": "planning/check_on_ramp_week_02.py",
+    "or11_stimulus_source_review": "planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md"
   },
   "source_snapshot": {
     "spec": {
@@ -536,13 +543,61 @@
       "status": "completed",
       "result": "PASS complete written design after lower-intent carryover, personal-bay P1, familiar support gates, fixed station fit and active amendment corrections. Week2audit brief reviewed separately.",
       "evidence": "instructional_on_ramp/week_02/or_10_review.md"
+    },
+    {
+      "stage": 4,
+      "week": 2,
+      "product": "instructional",
+      "agent": "library_review",
+      "role": "Exercise/programming librarian",
+      "status": "completed",
+      "result": "PASS: exact source/first-instruction/entry boundaries and source490 reconciliation; no live approval claimed.",
+      "evidence": "instructional_on_ramp/week_02/week_02_source_review.md"
+    },
+    {
+      "stage": 4,
+      "week": 2,
+      "product": "instructional",
+      "agent": "public_principles",
+      "role": "Instructional specialist and independent numeric verifier",
+      "status": "completed",
+      "result": "PASS:84348paths/337500transitions/46rejecting/24positive checks and complete dose/provenance overlays.",
+      "evidence": "instructional_on_ramp/week_02/week_02_check_results.json"
+    },
+    {
+      "stage": 4,
+      "week": 2,
+      "product": "instructional",
+      "agent": "strategy_critic",
+      "role": "Independent programming critic",
+      "status": "completed",
+      "result": "PASS: substantive written weekly integration after independent role-state and counting corrections; actual recovery/delivery/tumbling excluded.",
+      "evidence": "instructional_on_ramp/week_02/week_02_programming_critique.md"
+    },
+    {
+      "stage": 4,
+      "work_unit": "OR-11 source/stimulus brief",
+      "agent": "library_review",
+      "role": "Exercise/programming librarian",
+      "status": "completed",
+      "result": "PASS after exact source155 first-versus-retained1s entry and single-main-fan clarifications;14current source fingerprints. No inspected completed exact reduced-positive-pause profile or live approval claimed.",
+      "evidence": "planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md"
+    },
+    {
+      "stage": 4,
+      "work_unit": "OR-11 source/stimulus brief",
+      "agent": "strategy_critic",
+      "role": "Independent programming critic",
+      "status": "completed",
+      "result": "PASS pre-authoring stimulus: first1s vs directretained1s, genuine stopped timing, countedE0, one main fan and static knee role. Full workout/doses/clock/amendment remain unwritten.",
+      "evidence": "planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md"
     }
   ],
-  "next_work_unit": "Stage4: complete the FULL written Week2 OR06–10 curriculum/attendance/workload audit before OR11. Read planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md, current individually reviewed lessons/mappings/checks and resolved pooled daily ledgers. Enumerate31 attendance subsets/all3ages/all mixed standard-compressed/D-L assignments under bounded explicit hypothetical Week1 carry-in states; preserve actual smaller counts, first-vs-familiar handling, hip unloading, reasoned knee reintroduction, low technical intent and task-specific recency. Static stance does not overwrite bilateral squat history. Distinguish actual completion from plans and missing visits. Keep movement-specific flight/exit/throw gates, E0/cue/direction prefixes, full prep, upper/lower handling and unknown separate tumbling. Independently review/correct the week, save weekly checker/results/attendance-workload ledger/review, refresh only justified evidence, and then write OR11 source/stimulus brief. No OR11 detailed workout before Week2PASS, no bulk generation or mainDay2–60 before on-ramp completion.",
+  "next_work_unit": "Stage4: individually author and review OR-11 from planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md and the completed Week2 audit. Resolve the outline’s known-plant/pause-removal wording through an explicit amendment; retain actual corresponding approach, direction, ordinary opening-step walking exit and separate finish. Define the selected pause change precisely, preserve first-instruction and hold/terminal alternatives, exact recent independent Strength/setup/count histories and existing clocks. Search/map exact library contexts before proposing any complete schema addition; no immediate-cut identity or reactive clearance by name. Write all3age/all4mode prescriptions, full preparation plus2 targets, actual E0/count/traffic/recovery logic, every set purpose and prior/current/next links. Independently audit before OR12; no bulk generation or mainDay2–60 before on-ramp completion.",
   "detailed_prescription_gate": {
-    "state": "OR10_complete_full_Week2_audit_required_before_OR11",
-    "evidence": "OR10 independent source/written/numeric PASS; shared-amendment OR06–09/Week1 reruns PASS; bounded Week2audit brief reviewed.",
-    "limit": "Daily PASS does not complete the weekly audit, future lessons, actual competency, operational release or separate tumbling."
+    "state": "Week2_written_audit_complete_OR11_source_brief_reviewed",
+    "evidence": "Current Week2 source review, deterministic results/attendance ledger, substantive weekly review and independent critique; planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md.",
+    "limit": "Written curriculum review is not actual competency, operational approval, exact separate tumbling or completion of the remaining lessons."
   },
   "future_state_artifacts": {
     "progression_outline": "complete_stage2",
@@ -550,8 +605,8 @@
     "prescription_template": "version1.1_written_athletic_exemplars_reviewed",
     "standardized_warmup_prescriptions": "complete_explicit_candidates_with_operational_review_open",
     "anchor_progression_ledger": "Stage2 map plus92 detailed task rows across indexed ledgers; actual evidence unknown",
-    "workload_exposure_ledger": "Stage2 map plus31500 daily scenarios; factored reductions are separate from scenario counts. Week1 remains18744paths/186summaries; Week2audit pending.",
-    "outline_revision_log": "Stage2 snapshot retained; OR05–10 amendments individually implemented; OR15/19 remain future authoring."
+    "workload_exposure_ledger": "Stage2 map plus31500 daily scenarios; weekly aggregates separate. Week1:18744paths/186summaries; Week2:84348paths/837summaries under9bounded carry-ins. Actual athlete values remain unknown.",
+    "outline_revision_log": "Stage2 map retained; OR05–10 amendments implemented and Week2 reviewed. OR11 source/stimulus context is resolved for later individual authoring/amendment; OR15/19 remain future authoring."
   },
   "unresolved_dependencies": [
     "Current approved facility/release exercise, variant, delivery-profile and programming-method records before final selections.",
@@ -565,7 +620,7 @@
     "stage1_has_no_daily_workout_files": "Historical Stage1 check passed; Stage3 now has2detailed athletic exemplars",
     "template_arithmetic": "90+30=120;60+30=90",
     "prescription_timing": "PASS31500 indexed daily scenarios across Day1 and OR01–10; actual facilities unverified",
-    "full_goal_completion": "not_achieved:59main+10instructional detailed sessions remain, plus Week2/later weekly-phase-full audits, entry pathways, assembly and truthful mapping/facility/tumbling status",
+    "full_goal_completion": "not_achieved:59main+10instructional detailed lessons remain, plus later weekly/phase/full audits, practical entry pathways, assembly and truthful mapping/facility/tumbling status",
     "independent_stage1_critique": "PASS",
     "template_clock_parsed_from_strategy": "PASS: contiguous 0–90 and 0–60 athletic windows",
     "stage2_counts": "PASS:60main+20OR",
@@ -626,7 +681,12 @@
     "or10_independent_programming": "PASS complete written athletic design with task-specific history and no new running alongside knee loading",
     "or10_check_command": "python3 -B docs/programming/athleticism_12_week/prescriptions/check_or_10.py",
     "or10_ledger_storage": "PASS schema2 exact serialize/parse/resolve equality;3888scenarios; all dose choices retained",
-    "or10_continuity": "Actual low technical intent persists intoD; E0insideexistingtotal; first goblet handling is counted and noncircular; newest compatible squat/hip records govern. OR14changesprompting/flow; OR18comparesactualconditions."
+    "or10_continuity": "Actual low technical intent persists intoD; E0insideexistingtotal; first goblet handling is counted and noncircular; newest compatible squat/hip records govern. OR14changesprompting/flow; OR18comparesactualconditions.",
+    "on_ramp_week2_numeric": "PASS:84348paths/337500transitions/837summaries/46rejecting/24positive checks; current daily canonical digests/bindings and weekly serialize/parse equality.",
+    "on_ramp_week2_programming": "PASS: written curriculum, independent source and programming reviews; readiness/release/facility/tumbling excluded.",
+    "on_ramp_week2_check_command": "python3 -B docs/programming/athleticism_12_week/planning/check_on_ramp_week_02.py",
+    "or11_source_stimulus_brief": "PASS source and independent programming review: first1s from corresponding repeatable2s, retained1s from direct repeatable same-context1s, one shared main fan, E0 inside count and static knee role. Fourteen source fingerprints verified; full workout/amendment/timing remain unwritten.",
+    "week2_final_evidence_integrity": "PASS:334saved evidence bindings across13groups,3source snapshots,20indexed daily ledger files,96current new-review links and29embedded fingerprint rows. Earlier daily/source snapshots unchanged; full goal active."
   },
   "next_stage": 4,
   "outline_version": "2.0",
@@ -638,7 +698,7 @@
   },
   "this_goal_turn": {
     "classification": "progress",
-    "evidence": "Individually authored, corrected and independently reviewed OR-10. Source review verifies13 mapping records,144 knee selections,216 main selections and48 preparation rows. Numeric PASS covers3888 cohorts,390 reduction packets,497664 factored choices,2777 mixed traffic sequences,52 rejecting probes and12 positive evidence-stage checks with exact pooled-ledger equality. Lower technical intent after L-to-D, first-counted goblet handling, actual repetition caps and task-specific recency are explicit. Prior OR06–09/Week1 amendment provenance is refreshed without physical dose/digest changes. A critic-reviewed fullWeek2audit brief is saved; the full80session goal remains active."
+    "evidence": "Completed the full written OR06–10 weekly source, curriculum, attendance and workload audit. The final deterministic model covers 84348 bounded hypothetical attendance/history paths, 337500 transitions, 837 summaries, 46 rejecting and 24 positive checks. Weekly-model corrections preserve independent movement/handling readiness, exact counted preparation, unknown versus completed dose provenance and quiet versus split-stance units. Earlier daily prescriptions and their digests are unchanged. Independent programming review passes; OR11 source/stimulus brief is reviewed. Full60+20 scope remains active."
   },
   "detailed_session_count_scope": "Written athletic prescriptions and scoped independent design review; does not imply live release approval, actual completion, or complete separate tumbling.",
   "exemplar_evidence_sha256": {
@@ -908,5 +968,91 @@
     "instructional_on_ramp/week_02/or_10_workload_ledger.json": "46b003ee56bb97ba227caac2a962010475d3caa50889a96a8d8efc3dce507d1e",
     "planning/OR10_STIMULUS_AND_SOURCE_REVIEW.md": "3e785368c0e30574b32021b74cada39d5fdc847bbc87402c60c71e41ec1e7a10",
     "planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md": "d8fdf23df6daa2721a2ced09fedae32284cf00c41fd5c915a1fc272a7537effe"
+  },
+  "or_week02_evidence_sha256": {
+    "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
+    "instructional_on_ramp/week_02/or_06.md": "d4ece85f55266c7c569de08a5bac61d12966ead39da2cb4d8d8294b517fe0fbe",
+    "prescriptions/author_or_06.py": "993ded7142c674f414eaca99d109dfdc7429e00e1d80467e1714b32a2bf85bff",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "prescriptions/proposals/or06_first_flight_teaching_candidate.json": "fb3a2074184095172d05b07f3c2372d3e7e1f847485afac260d3e77256267023",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/OR06_LIBRARY_MAPPING.md": "cfaf976628d29c9b9f1716b3282fbdc4613e0337e50a5a66a09a65b0e133b701",
+    "instructional_on_ramp/week_02/or_06_workload_ledger.json": "f73e8025cd491977b34be808bff04e0c7a9cca0942ac0bfb5ac496ea355fbe97",
+    "instructional_on_ramp/week_02/or_06_check_results.json": "6b86ebbe70d3fc77d735d0967efbf0f1225256e9ed3da33e8362ec33bf10c28c",
+    "instructional_on_ramp/week_02/or_06_anchor_ledger.json": "0126a4445944076ca2d847a4ea83cc40248f2ed6879e5eaf77b394be8541450e",
+    "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",
+    "instructional_on_ramp/week_02/or_07.md": "eef27f40ff7cc8af9d0eaaccd57edde48425598fead182f7a1b50d80fd19159c",
+    "prescriptions/author_or_07.py": "b3081e6a4eb2452e2548667a078ae2e670341326123519a1cdb532158884e628",
+    "prescriptions/check_or_07.py": "d307a91781afe458fde23ed88034fc793835cc561b342278dee0b6198820cc40",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "prescriptions/proposals/or07_paused_exit_teaching_candidate.json": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/OR07_LIBRARY_MAPPING.md": "8676c489bef8e48a662424654b939d4afaaac24ef38e07fbf38197fbf01e1467",
+    "instructional_on_ramp/week_02/or_07_workload_ledger.json": "620e0126f65e88c61d4095f74e5700eaf954dd6bb1d454f5ce1e3d14a8464b81",
+    "instructional_on_ramp/week_02/or_07_check_results.json": "691bc4793d4ec81da939d368cfcc42b6c6d17e412e434e62e32fcdd340f98319",
+    "instructional_on_ramp/week_02/or_07_anchor_ledger.json": "3fc6726094fc17d9056a712dde39b6ca43168cfdcefe07833a6684693c4c0ae3",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "instructional_on_ramp/week_02/or_08.md": "36570387b56535bb480ff808a6eb5387e66a7f17e49e07477f35cc401d003c48",
+    "prescriptions/author_or_08.py": "c9e0c8e6e1a1eccce2f716c2bd903854394c9bac9aab44758aab0dea2fe835a9",
+    "prescriptions/check_or_08.py": "a39357f7c333559f5f74d3ffd0d644db3974ca88541a66d39b6c0ec72139db33",
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "prescriptions/proposals/or08_progressive_run_teaching_candidate.json": "ec2bb7424acb51ac7dfad092d5eb2651c264e491f7c3b7f79630f26853abbe5d",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/OR08_LIBRARY_MAPPING.md": "39c1e95f1ba93418b606229346241db6dc93d58ca6c17a967801eb228f33da8e",
+    "instructional_on_ramp/week_02/or_08_workload_ledger.json": "441d20f8e5adf0ecca18411833efedb3b045ed0c7275f680c8d3b2d7eb786114",
+    "instructional_on_ramp/week_02/or_08_check_results.json": "a78e627e83d824adc9dcc83674ace466aed378cfcb978d3f3043da5c478f5205",
+    "instructional_on_ramp/week_02/or_08_anchor_ledger.json": "8a727c0b9717663b4146ac4cb8cc5fb9212c2e4481b0b8020045a35126fa910f",
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "instructional_on_ramp/week_02/or_09.md": "b79b1e298c4e64116cb17d2833f0450880f44af348b616ec154437ca7a5e0779",
+    "prescriptions/author_or_09.py": "01c06079280adbdc7fdad34161971c308c50e88cb191cb42a282c87564b6a783",
+    "prescriptions/check_or_09.py": "485fa52a7289e38e4fae197bae4f4c2f11ec79417c9241115434a2afac9c8696",
+    "prescriptions/proposals/or09_chest_projection_teaching_candidate.json": "7966188553ddd118c69570bfaedfbc70ea13f4dd759e46d0554c580030212e9f",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/OR09_LIBRARY_MAPPING.md": "85beabacc6f1a22c69d404f6bd2387f11d489d83771634c7e8ae40043b481420",
+    "instructional_on_ramp/week_02/or_09_workload_ledger.json": "413fe512216d00538a21f56ce46011de64e6e4136612021d5479ba0216e038e2",
+    "instructional_on_ramp/week_02/or_09_check_results.json": "d41ed93d8c9a89a812b83a6df2581e254fb0814b7c4e31eb2f3a58c25eb09b12",
+    "instructional_on_ramp/week_02/or_09_anchor_ledger.json": "e13b02093e63bf41196068786bb1e8d196e38c04cccfe903a304fadc21b6beed",
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "instructional_on_ramp/week_02/or_10.md": "c338329313c13bec0412e7febbd48d1151b8aabab9582109cc7088c27a47cf24",
+    "prescriptions/author_or_10.py": "61c1c50f5306f541c0c46cf8577f133e3650bf930fa7b9bd6d71a4e34dd68cd5",
+    "prescriptions/check_or_10.py": "3c93877e59615eb4aa3cd66a63ac597a8d72e1a1ef254699e63c9ae6706698f5",
+    "instructional_on_ramp/week_01/or_01.json": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30",
+    "prescriptions/or10_library_mapping.json": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08",
+    "prescriptions/OR10_LIBRARY_MAPPING.md": "aa5516459fb7e61cb540541793f604cf30d93ea0a51da153bf418ebbea079f21",
+    "instructional_on_ramp/week_02/or_10_workload_ledger.json": "46b003ee56bb97ba227caac2a962010475d3caa50889a96a8d8efc3dce507d1e",
+    "instructional_on_ramp/week_02/or_10_check_results.json": "a65d8fbcc667ea1159700a306b9fc0bbc15b6bb9a902d7b3e7d735bb991dcba1",
+    "instructional_on_ramp/week_02/or_10_anchor_ledger.json": "55cac032fddbdf7a6866249d5cf6ca39ebde022d5a0957e9db3bb9bb9468c684",
+    "planning/check_on_ramp_week_02.py": "f4e8281d88a0d7f024ebba1d5209fa78ec3bb02b0a50fd50149823f82aff44c5",
+    "planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md": "d8fdf23df6daa2721a2ced09fedae32284cf00c41fd5c915a1fc272a7537effe",
+    "instructional_on_ramp/week_01/week_01_review.md": "341e5fc3094355d500a5465a25f589395a010314d1e45e3bc287afe9665b13e4",
+    "instructional_on_ramp/week_01/week_01_check_results.json": "d751b5f7f8e8764cf5ad968683d803e653c5669f618f28f65ecf0ce826ee1fb1",
+    "instructional_on_ramp/week_01/week_01_attendance_workload_ledger.json": "3f75e1766accbb7cb647b8b0b60fc124615b831e30c2f4ec8ce44ef2bd951787",
+    "instructional_on_ramp/week_02/week_02_review.md": "d0cb3a230620c2bf4c08ca71a77560702c7428400dbc0e7347e032b59721be2f",
+    "instructional_on_ramp/week_02/week_02_programming_critique.md": "56fdaf648fa8647efc23ef0e6b31d51a472ef5ee45e591888a874f410db6394d",
+    "instructional_on_ramp/week_02/week_02_source_review.md": "b02ef8da352a7edf7674cd7bb0942b9561b5172d6fdfde1ae72e9f570d6ff983",
+    "instructional_on_ramp/week_02/week_02_check_results.json": "c97c2c9da3fe060645fb2b11034d588d1b44a34cfe1b5b0c1f5bf3df9eee59da",
+    "instructional_on_ramp/week_02/week_02_attendance_workload_ledger.json": "9681f9779c787a63e0771b8e54e1a89331506d4b874af446655f3f5604f4007d",
+    "planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md": "51f8a1e8d66842c84762cf925f8908ba12ff02703a7cbaf23da208161e6585e3",
+    "BLOCK_STRATEGY.md": "c01d7101f63958404907fa4c943176b7f72b7cde797406cf3210b26fd6ece49e",
+    "SOURCE_REGISTER.md": "a630a6308abd0509cfa365f7e9e23633d5ab16c65dbcac6e1fcd025462c7a93b",
+    "../../VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md": "42752dd131b45ed5d44e76927a8da6c3677f64773da625cad4de444cfab93cb3",
+    "../../../scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json": "682b004f71d22ca6617abe55330b7d7e07f55201adecd76aed32dad1ba3a2ef6",
+    "../../../scripts/data/canonical-research/contracts/45-degree-cut-and-reaccelerate.v1.json": "884b2b5dcd9275909e9bf101dcd4b5a79757db7db4e42db1350976d45c980ed5",
+    "../../../scripts/data/cone-drill-exercise-cards-all-50.json": "f49fd95d101a9dbb4d64d1ac628d7d8b96791caae9ac01922447e768bf8b54c8",
+    "../../../backend/migrations/352_coaching_static_control_family_completion.sql": "4017b49d5c3d8aefa7918b89a078216ee6c9819dae7665b81f5c1286f85b2f40",
+    "../../../backend/migrations/370_coaching_split_squat_family_completion.sql": "a5abc23a8e0986b69951aad2cb01a39e0ae6f0f2975c35ea30510aef7c40df5c",
+    "../../../scripts/data/programming-methods-top50.mjs": "eba876960b55bdd492115f09c89bf3b239cb354b2b20af2d87c546428ebd8c64"
   }
 }

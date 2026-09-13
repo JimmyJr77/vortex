@@ -107,3 +107,9 @@ Actual technical 20 m, lower-intent technical 20 m and easy 15 m routes remain s
 Standard Strength uses knee/hip/push/pull/brace windows of 10/5/4/6/5 minutes; compressed uses 7/3/2/4/4. Eight pair turns give each active knee athlete one coach. The tightest reference turn contains up to 40 seconds of counted work/handling plus 5 seconds incoming staging; required DB or parking-height changes delay/omit later work instead of being hidden. Complements require actual familiar setup. All timings and independent entry conditions passed the OR-10 reviews.
 
 OR-06–09 and Week 1 evidence was refreshed solely for the shared-amendment change; their physical prescriptions and scenario digests remain unchanged. Full Week 2 audit is the next gate before OR-11. The reviewed audit brief adds bounded Week 1 carry-in states, task-specific recency, representative cross-week attendance, actual smaller-dose carryover and explicit Week 3 links. No future lesson or athlete pass is granted by this amendment.
+
+## Week 2 audit reconciliation and OR-11 source handoff
+
+The full OR-06–10 written weekly audit now passes. Corrections affect the new weekly selector/accounting/provenance model, not the individually reviewed daily physical prescriptions. The preserved map, all 60 main and 20 on-ramp outline entries and existing daily resolved digests remain unchanged; no prior evidence was rehashed to conceal a source change.
+
+`planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md` records the next source/stimulus decision after the weekly gate. OR-11 must reconcile “known plant”/“removal” against the actual OR-07 stopped opening-step walking exit, define its conditional pause change, retain corresponding approach/direction and independent Strength records, and avoid importing immediate cutting or fatigue-method identity. Its explicit amendment and detailed prescription remain next work. OR-12–15 objectives and the existing OR-15/19 first-flight carryover remain required.

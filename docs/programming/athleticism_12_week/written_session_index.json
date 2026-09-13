@@ -320,6 +320,22 @@
       "summary_rows": 186,
       "weekly_derived_OR01_walking_choices": 72,
       "counts_separate_from_daily_ledgers": true
+    },
+    {
+      "product": "instructional",
+      "week": 2,
+      "status": "PASS_written_scope",
+      "review": "instructional_on_ramp/week_02/week_02_review.md",
+      "source_review": "instructional_on_ramp/week_02/week_02_source_review.md",
+      "programming_critique": "instructional_on_ramp/week_02/week_02_programming_critique.md",
+      "checks": "instructional_on_ramp/week_02/week_02_check_results.json",
+      "attendance_workload_ledger": "instructional_on_ramp/week_02/week_02_attendance_workload_ledger.json",
+      "attendance_patterns": 31,
+      "hypothetical_carry_in_profiles": 9,
+      "mixed_booking_mode_history_paths": 84348,
+      "checked_transitions": 337500,
+      "summary_rows": 837,
+      "counts_separate_from_daily_ledgers": true
     }
   ],
   "active_outline_amendments": "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json"
