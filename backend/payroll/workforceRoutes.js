@@ -1,3 +1,4 @@
+import {readI9Qualification,saveI9Qualification} from './i9Qualification.js'
 import {readI9DifferentSupplementDraft,saveI9DifferentSupplementDraft} from './i9DifferentSupplementDraft.js'
 import {signI9DifferentSupplement} from './i9DifferentSupplementSigning.js'
 import {listI9DifferentSupplementCopies,uploadI9DifferentSupplementCopy,viewI9DifferentSupplementCopy,recordI9DifferentSupplementCopyPage} from './i9DifferentSupplementCopies.js'
@@ -136,6 +137,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.post('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/copies',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>uploadI9DifferentSupplementCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/copy',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9DifferentSupplementCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9DifferentSupplementCopyPage(db,context(req),req.params.taskId,req.body||{}))})
+ app.get('/api/admin/payroll/i9/qualification',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9Qualification(db,context(req)))})
+ app.post('/api/admin/payroll/i9/qualification',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9Qualification(db,context(req),req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9DifferentSupplement(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9DifferentSupplementDraft(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/different-supplement/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9DifferentSupplementDraft(db,context(req),req.params.taskId,req.body||{}))})

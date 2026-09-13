@@ -6333,3 +6333,22 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_different_supplement_draft ON payroll_i9_different_supplement_draft;
 CREATE TRIGGER payroll_guard_i9_different_supplement_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_supplement_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_supplement_draft();
+
+-- Current employer/site observations are separate from immutable hiring context.
+CREATE TABLE IF NOT EXISTS payroll_i9_qualification (
+ facility_id BIGINT NOT NULL REFERENCES payroll_settings(facility_id),revision INTEGER NOT NULL CHECK(revision>0),
+ findings JSONB NOT NULL CHECK(jsonb_typeof(findings)='object'),actor_user_id BIGINT NOT NULL,
+ request_key UUID NOT NULL,request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),recorded_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+ PRIMARY KEY(facility_id,revision),UNIQUE(facility_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_qualification() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Employer qualification history is immutable.' USING ERRCODE='23514'; END IF;
+ PERFORM facility_id FROM payroll_settings WHERE facility_id=NEW.facility_id FOR UPDATE;
+ IF NEW.revision<>COALESCE((SELECT MAX(revision) FROM payroll_i9_qualification WHERE facility_id=NEW.facility_id),0)+1 THEN RAISE EXCEPTION 'Advance employer qualification revision once.' USING ERRCODE='23514'; END IF;
+ IF NOT (NEW.findings ?& ARRAY['siteName','eVerifyEnrolled','goodStanding','allSitesEnrolled','trainingComplete','consistentProcedure','observedOn','evidence']) OR EXISTS(SELECT 1 FROM jsonb_each(NEW.findings) f WHERE f.key NOT IN ('siteName','eVerifyEnrolled','goodStanding','allSitesEnrolled','trainingComplete','consistentProcedure','observedOn','evidence')) THEN RAISE EXCEPTION 'Retain complete employer qualification findings.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM unnest(ARRAY['eVerifyEnrolled','goodStanding','allSitesEnrolled','trainingComplete','consistentProcedure']) k WHERE jsonb_typeof(NEW.findings->k)<>'boolean') THEN RAISE EXCEPTION 'Retain explicit qualification decisions.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_qualification ON payroll_i9_qualification;
+CREATE TRIGGER payroll_guard_i9_qualification BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_qualification FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_qualification();
