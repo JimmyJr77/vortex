@@ -37,12 +37,12 @@ export function i9CompletionDueOn(firstDay,businessDays,closedDates,shortEmploym
  for(let count=0;count<400;count++){day.setUTCDate(day.getUTCDate()+1);const value=day.toISOString().slice(0,10);if(businessDays.includes(day.getUTCDay())&&!closedDates.includes(value)&&!--remaining)return value}
  throw fail('The employer calendar does not provide three business days.')
 }
-export function validateI9Examination(exam,answers,context){
+export function validateI9Examination(exam,answers,context,{completionDueOn}={}){
  const today=date(context.today,'current signing date'),offer=date(context.offerAcceptedOn,'offer acceptance'),hire=date(context.hireDate,'employee hire date')
  if(answers.firstDayEmployed!==hire)throw fail('Correct the hire date or employer form so the first employment date matches the payroll record.')
  if(exam.examinedOn<offer||exam.examinedOn>today)throw fail('The actual examination date must follow offer acceptance and cannot be in the future.')
  if(exam.identityEvidence.length<12)throw fail('Record the basis for the examiner’s identity and authority.')
- const dueOn=i9CompletionDueOn(hire,exam.businessDays,exam.closedDates,exam.shortEmployment)
+ const dueOn=completionDueOn===undefined?i9CompletionDueOn(hire,exam.businessDays,exam.closedDates,exam.shortEmployment):date(completionDueOn,'replacement completion deadline')
  if(today>dueOn&&exam.lateReason.length<12)throw fail('Record why completion is late; the signature will retain today’s actual date.')
  if(answers.examinationMethod==='PHYSICAL'){
   if(!exam.physicalPresence||exam.alternative)throw fail('Confirm physical examination of the original documents in the employee’s presence.')
