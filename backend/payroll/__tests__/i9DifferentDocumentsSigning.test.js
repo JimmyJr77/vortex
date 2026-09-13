@@ -56,5 +56,29 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
  if(authorizedWorker){
   const next=await i9SupplementBBasis(h.pool,ctx,followups[0].compliance_task_id)
   assert.equal(next.previousReceiptAmendments.find(p=>p.documentKey===`different:${result.signatureId}`).documentId,result.documentId)
+  const nextPath=`/employees/${employee.id}/i9/supplement/${followups[0].compliance_task_id}`
+  const supplement=await api(nextPath+'/preview',{signatureId:signed.signatureId,answers:{edition:'01/20/25',document:{list:'A',title:'Synthetic authorization document',number:'SYNTHETIC-NEW',expiresOn:'2032-01-01'},representativeName:'Reviewer Alice',additionalInformation:'',examinationMethod:'PHYSICAL'}})
+  const page={reviewId:supplement.reviewId,previewSha256:supplement.previewSha256,displayed:true}
+  const copy=await api(nextPath+'/copies',{...page,requestKey:randomUUID(),filename:'synthetic.pdf',contentBase64:pdf.toString('base64')})
+  for(let n=1;n<=4;n++)await api(nextPath+'/page',{...page,documentKey:'source',page:n})
+  await api(nextPath+'/page',{...page,documentKey:'supplement',page:1})
+  for(let n=1;n<=2;n++)await api(nextPath+'/copy-page',{...page,copyId:copy.id,page:n})
+  const subsequent={...page,signature:'Reviewer Alice',requestKey:randomUUID(),attestation:supplement.attestation,attestationRead:true,signingAsExaminer:true,reviewedAllPages:true,representativeIdentityConfirmed:true,examination:{examinedOn:review.recordedOn,examinerInitials:'RA',identityEvidence:'Authenticated examiner reviewed the new authorization document.',reverificationRequired:true,requirementSource:'https://www.uscis.gov/i-9-central',requirementEvidence:'Employee has finite employment authorization requiring reverification.',employeeChoseDocuments:true,currentAuthorizationReviewed:true,documentsGenuineAndRelated:true,copiesComplete:true,copyIds:[copy.id],physicalPresence:true,acceptance:'STANDARD',acceptanceSource:'https://www.uscis.gov/i-9-central',acceptanceEvidence:'Examiner verified current original authorization documentation.',validUntil:'2032-01-01',authorizationIndefinite:false,authorizationThrough:'2032-01-01',followUpKind:'REVERIFICATION',followUpOn:'2032-01-01',noFurtherReverificationRequired:false}}
+  await api(nextPath+'/sign',subsequent,'POST',409)
+  const previous=supplement.previousReceiptAmendments.find(p=>p.documentKey===`different:${result.signatureId}`)
+  for(let n=1;n<=previous.pageCount;n++)await api(nextPath+'/page',{...page,documentKey:previous.documentKey,page:n})
+  await api(nextPath+'/page',{...page,documentKey:previous.documentKey,page:previous.pageCount+1},'POST',400)
+  await api(nextPath+'/sign',{...subsequent,examination:{...subsequent.examination,examinedOn:'2026-09-02'}},'POST',400)
+  const completed=await api(nextPath+'/sign',subsequent)
+  assert.equal(completed.status,'COMPLETE')
+  assert.equal(completed.nextFollowup.due_on,'2032-01-01')
+  const record=(await h.pool.query('SELECT * FROM payroll_i9_supplement_signature WHERE id=$1',[completed.signatureId])).rows[0]
+  const evidence=JSON.parse(decryptDocument(record.encrypted_evidence,`i9-supplement-signature:1:${employee.id}:${record.compliance_task_id}:99`).toString())
+  assert.deepEqual(evidence.priorReceiptAmendmentIds,[])
+  assert.deepEqual(evidence.priorDifferentCertificationIds,[result.signatureId])
+  assert.equal(evidence.reviewedReceiptHistory[0].documentKey,`different:${result.signatureId}`)
+  assert.equal(evidence.reviewedReceiptHistory[0].documentId,result.documentId)
+  assert.deepEqual(await api(nextPath+'/sign',subsequent),completed)
+
  }
 })
