@@ -24,6 +24,9 @@ function routes(overrides = {}, pool = {}) {
     interpret: async (args) => { calls.push({ type: 'interpret', args }); return { status: 'READY_FOR_REVIEW', workoutGenerated: false } },
     gapResearch: async (_pool, context, input) => { calls.push({ type: 'gapResearch', context, input }); return { exerciseGap: null, creatorAuthorized: false } },
     gapAssessment: async (args) => { calls.push({ type: 'gapAssessment', args }); return { status: 'NEEDS_COACH_REVIEW', exerciseGap: null, creatorAuthorized: false } },
+    proposeExercise: async (args) => { calls.push({ type: 'proposeExercise', args }); return { state: 'AI_PROPOSED', canonicalDraftId: null, libraryApprovalGranted: false } },
+    loadExerciseProposal: async (_pool, context, id) => { calls.push({ type: 'loadExerciseProposal', context, id }); return null },
+    acceptExerciseProposal: async (_pool, context, id, input) => { calls.push({ type: 'acceptExerciseProposal', context, id, input }); return { canonicalCardId: 'saved-draft', libraryApprovalGranted: false } },
     ...overrides,
   })
   const invoke = async (key, patch = {}) => {
@@ -39,7 +42,7 @@ function routes(overrides = {}, pool = {}) {
 test('generation uses authenticated scope, server-owned capabilities and bounded budgets', async () => {
   const api = routes()
   const { req, res, result } = await api.invoke('post /api/coach/workout-programming')
-  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', 'library.manage', 'library.manage', ...Array(5).fill('workouts.manage')])
+  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', ...Array.from({ length: 5 }, () => ['workouts.manage', 'library.manage']).flat(), ...Array(5).fill('workouts.manage')])
   assert.equal(result.status, 200)
   const invocation = api.calls.find((entry) => entry.type === 'generate').args
   assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
@@ -274,4 +277,88 @@ test('disconnecting exercise gap assessment cancels its provider and clears list
   assert.equal(completed.result, undefined)
   assert.equal(req.listenerCount('aborted'), 0)
   assert.equal(completed.res.listenerCount('close'), 0)
+})
+
+test('exercise proposals use one shared two-call budget and an authenticated read-only audit lookup', async () => {
+  const { assumptions, ...request } = compositionFixtures().request
+  const body = { request, componentKey: 'strength', need: { canonicalName: 'Proposed movement', aliases: [], familyKey: null,
+    description: 'A specific movement demand that needs canonical coverage research.', movementPatterns: ['hinge'], bodyRegions: ['lower_body'], requiredEquipment: [] } }
+  const key = 'post /api/coach/workout-programming/exercise-gap/propose'
+  const api = routes()
+  const response = await api.invoke(key, { body })
+  assert.equal(response.result.status, 200)
+  const call = api.calls.find((entry) => entry.type === 'proposeExercise').args
+  assert.deepEqual(call.context, { facilityId: '9', userId: '7' })
+  assert.equal(call.runOptions.maxCalls, 2)
+  assert.equal(call.runOptions.maxOutputTokens, 16000)
+  assert.equal(call.runOptions.timeoutMs, 120000)
+  assert.equal(response.req.listenerCount('aborted'), 0)
+  assert.equal(response.res.listenerCount('close'), 0)
+  for (const patch of [{ exerciseGap: {} }, { proposal: {} }, { approved: true }, { scope: { facilityId: '10' } }, { runOptions: {} }]) {
+    const invalid = routes()
+    assert.equal((await invalid.invoke(key, { body: { ...body, ...patch } })).result.status, 400)
+    assert.ok(invalid.calls.every((entry) => entry.type !== 'proposeExercise'))
+  }
+  assert.equal((await routes({ featureAccess: async () => ({ enabled: false }) }).invoke(key, { body })).result.status, 404)
+  assert.equal((await routes({ registryFactory: () => ({ list: () => [] }) }).invoke(key, { body })).result.status, 503)
+  for (const code of ['exercise_gap_sources_changed', 'exercise_proposal_duplicate', 'exercise_proposal_search_incomplete']) {
+    const conflict = routes({ proposeExercise: async () => { throw Object.assign(new Error('Proposal conflict'), { code }) } })
+    assert.equal((await conflict.invoke(key, { body })).result.status, 409)
+  }
+  const reader = routes({ registryFactory() { throw new Error('Opening a proposal must not invoke AI') } })
+  const readKey = 'get /api/coach/workout-programming/exercise-proposals/:id'
+  const missing = await reader.invoke(readKey, { params: { id: 'an-audit-id' } })
+  assert.equal(missing.result.status, 404)
+  assert.deepEqual(reader.calls.find((entry) => entry.type === 'loadExerciseProposal').context, { facilityId: '9', userId: '7' })
+  assert.equal((await reader.invoke(readKey, { params: { id: 'an-audit-id' }, query: { facilityId: '10' } })).result.status, 400)
+})
+
+test('disconnecting the proposal workflow aborts its shared budget and clears response listeners', async () => {
+  let entered
+  const started = new Promise((resolve) => { entered = resolve })
+  let signal
+  const api = routes({ proposeExercise: async (args) => {
+    signal = args.runOptions.signal; entered()
+    await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+    return { state: 'NEEDS_COACH_REVIEW' }
+  } })
+  const { assumptions, ...request } = compositionFixtures().request
+  const body = { request, componentKey: 'strength', need: { canonicalName: 'Proposed movement', aliases: [], familyKey: null,
+    description: 'A specific movement demand that needs canonical coverage research.', movementPatterns: ['hinge'], bodyRegions: ['lower_body'], requiredEquipment: [] } }
+  const req = new EventEmitter()
+  const pending = api.invoke('post /api/coach/workout-programming/exercise-gap/propose', { body, on: req.on.bind(req), off: req.off.bind(req) })
+  await started
+  req.emit('aborted')
+  const completed = await pending
+  assert.equal(signal.aborted, true)
+  assert.equal(completed.result, undefined)
+  assert.equal(req.listenerCount('aborted'), 0)
+  assert.equal(completed.res.listenerCount('close'), 0)
+})
+
+test('human proposal acceptance uses authenticated scope and facility access without calling a model', async () => {
+  const key = 'post /api/coach/workout-programming/exercise-proposals/:id/accept'
+  const body = { expectedProposalHash: 'a'.repeat(64) }
+  const api = routes({ registryFactory() { throw new Error('Acceptance must not invoke AI') } })
+  const { result } = await api.invoke(key, { body, params: { id: 'an-audit-id' } })
+  assert.equal(result.status, 200)
+  assert.equal(result.data.libraryApprovalGranted, false)
+  assert.deepEqual(api.calls.find((entry) => entry.type === 'acceptExerciseProposal'), {
+    type: 'acceptExerciseProposal', context: { facilityId: '9', userId: '7' }, id: 'an-audit-id', input: body,
+  })
+  assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in'])
+  for (const patch of [{ draft: {} }, { approved: true }, { context: { facilityId: '10' } }, { sourceProvenance: {} }]) {
+    const invalid = routes()
+    assert.equal((await invalid.invoke(key, { body: { ...body, ...patch } })).result.status, 400)
+    assert.ok(invalid.calls.every((entry) => entry.type !== 'acceptExerciseProposal'))
+  }
+  assert.equal((await api.invoke(key, { body, query: { approved: true } })).result.status, 400)
+  const disabled = routes({ featureAccess: async () => ({ enabled: false }) })
+  assert.equal((await disabled.invoke(key, { body })).result.status, 404)
+  assert.ok(disabled.calls.every((entry) => entry.type !== 'acceptExerciseProposal'))
+  assert.equal((await routes({ acceptExerciseProposal: async () => null }).invoke(key, { body })).result.status, 404)
+  for (const code of ['exercise_proposal_not_applicable', 'exercise_proposal_revision_required', 'exercise_proposal_audit_conflict', 'exercise_gap_sources_changed']) {
+    const conflict = routes({ acceptExerciseProposal: async () => { throw Object.assign(new Error('Acceptance conflict'), { code }) } })
+    assert.equal((await conflict.invoke(key, { body })).result.status, 409)
+  }
 })

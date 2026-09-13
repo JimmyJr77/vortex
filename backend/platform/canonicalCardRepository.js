@@ -118,6 +118,7 @@ function rowToCard(definition, variants, profiles, taxonomyAssignments = [], tax
     supportOperations: definition.support_operations_json ?? {},
     anatomy: definition.anatomy_json ?? {},
     approvedVideoUrl: definition.approved_video_url,
+    provenance: definition.provenance_json ?? {},
     taxonomyV2: taxonomyBlock('definition', definition.id),
     createdBy: definition.created_by == null ? null : Number(definition.created_by),
     reviewedBy: definition.reviewed_by == null ? null : Number(definition.reviewed_by),
@@ -605,19 +606,20 @@ function validatedCanonicalCardDraft(raw) {
   return draftValidation.normalized
 }
 
-export async function withCanonicalCardTransaction(pool, facilityId, operation) {
+export async function withCanonicalCardTransaction(pool, facilityId, operation, { repeatableRead = false } = {}) {
   const client = await pool.connect()
+  let discardError
   try {
-    await client.query('BEGIN')
+    await client.query(repeatableRead ? 'BEGIN ISOLATION LEVEL REPEATABLE READ' : 'BEGIN')
     await client.query(`SELECT pg_advisory_xact_lock(hashtext('canonical-card:' || $1::text))`, [facilityId])
     const result = await operation(client)
     await client.query('COMMIT')
     return result
   } catch (error) {
-    await client.query('ROLLBACK')
+    try { await client.query('ROLLBACK') } catch (rollbackError) { discardError = rollbackError }
     throw error
   } finally {
-    client.release()
+    client.release(discardError)
   }
 }
 
@@ -634,6 +636,8 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
   }
   let id = definitionId
   let fromStatus = null
+  // Server-owned creation metadata. Existing provenance cannot be replaced by edits.
+  let provenance = options.sourceProvenance ?? { source: 'canonical_authoring' }
   if (definitionId) {
     const existing = await client.query(
       `SELECT * FROM coaching.exercise_definition_v1
@@ -642,6 +646,7 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
     )
     if (existing.rows.length === 0) throw Object.assign(new Error('Canonical card not found.'), { status: 404 })
     const row = existing.rows[0]
+    provenance = row.provenance_json ?? {}
     fromStatus = row.status
     if (!['draft', 'review'].includes(row.status)) {
       throw new RangeError('Published, deprecated, and archived cards are immutable; create a reviewed revision instead.')
@@ -684,7 +689,7 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
          support_operations_json, approved_video_url, provenance_json, created_by
        ) VALUES ($1,$2,$3,$4,$5,$6,$7,'draft',$8,$9,$10,$11,$12,$13,$14,
                  $15::jsonb,$16::jsonb,$17::jsonb,$18::jsonb,$19::jsonb,$20::jsonb,
-                 $21,'{"source":"canonical_authoring"}'::jsonb,$22)
+                 $21,$23::jsonb,$22)
        RETURNING id`,
       [
         facilityId, card.slug, card.canonicalName, card.displayName, card.aliases,
@@ -694,7 +699,7 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
         JSON.stringify(card.environment), JSON.stringify(card.population),
         JSON.stringify(card.anatomy), JSON.stringify(card.athleteSupport),
         JSON.stringify(card.coachSupport), JSON.stringify(card.supportOperations),
-        card.approvedVideoUrl, actorUserId,
+        card.approvedVideoUrl, actorUserId, JSON.stringify(provenance),
       ],
     )
     id = created.rows[0].id
@@ -711,7 +716,7 @@ async function persistCanonicalCardDraft(client, facilityId, actorUserId, card, 
   await insertRevision(
     client, facilityId, id, actorUserId,
     definitionId && fromStatus === 'review' ? 'returned_to_draft' : definitionId ? 'updated' : 'created',
-    fromStatus, 'draft', card, options.changeSummary,
+    fromStatus, 'draft', { ...card, provenance }, options.changeSummary,
   )
   return id
 }

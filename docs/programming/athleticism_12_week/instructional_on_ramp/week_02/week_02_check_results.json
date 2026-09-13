@@ -1,0 +1,490 @@
+{
+  "schema_version": 1,
+  "status": "PASS_BOUNDED_WRITTEN_WEEK2_AUDIT",
+  "checked_at_utc": "2026-09-13T08:29:24.014537+00:00",
+  "sha256": {
+    "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
+    "instructional_on_ramp/week_02/or_06.md": "d4ece85f55266c7c569de08a5bac61d12966ead39da2cb4d8d8294b517fe0fbe",
+    "prescriptions/author_or_06.py": "993ded7142c674f414eaca99d109dfdc7429e00e1d80467e1714b32a2bf85bff",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "prescriptions/proposals/or06_first_flight_teaching_candidate.json": "fb3a2074184095172d05b07f3c2372d3e7e1f847485afac260d3e77256267023",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/OR06_LIBRARY_MAPPING.md": "cfaf976628d29c9b9f1716b3282fbdc4613e0337e50a5a66a09a65b0e133b701",
+    "instructional_on_ramp/week_02/or_06_workload_ledger.json": "f73e8025cd491977b34be808bff04e0c7a9cca0942ac0bfb5ac496ea355fbe97",
+    "instructional_on_ramp/week_02/or_06_check_results.json": "6b86ebbe70d3fc77d735d0967efbf0f1225256e9ed3da33e8362ec33bf10c28c",
+    "instructional_on_ramp/week_02/or_06_anchor_ledger.json": "0126a4445944076ca2d847a4ea83cc40248f2ed6879e5eaf77b394be8541450e",
+    "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",
+    "instructional_on_ramp/week_02/or_07.md": "eef27f40ff7cc8af9d0eaaccd57edde48425598fead182f7a1b50d80fd19159c",
+    "prescriptions/author_or_07.py": "b3081e6a4eb2452e2548667a078ae2e670341326123519a1cdb532158884e628",
+    "prescriptions/check_or_07.py": "d307a91781afe458fde23ed88034fc793835cc561b342278dee0b6198820cc40",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "prescriptions/proposals/or07_paused_exit_teaching_candidate.json": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/OR07_LIBRARY_MAPPING.md": "8676c489bef8e48a662424654b939d4afaaac24ef38e07fbf38197fbf01e1467",
+    "instructional_on_ramp/week_02/or_07_workload_ledger.json": "620e0126f65e88c61d4095f74e5700eaf954dd6bb1d454f5ce1e3d14a8464b81",
+    "instructional_on_ramp/week_02/or_07_check_results.json": "691bc4793d4ec81da939d368cfcc42b6c6d17e412e434e62e32fcdd340f98319",
+    "instructional_on_ramp/week_02/or_07_anchor_ledger.json": "3fc6726094fc17d9056a712dde39b6ca43168cfdcefe07833a6684693c4c0ae3",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "instructional_on_ramp/week_02/or_08.md": "36570387b56535bb480ff808a6eb5387e66a7f17e49e07477f35cc401d003c48",
+    "prescriptions/author_or_08.py": "c9e0c8e6e1a1eccce2f716c2bd903854394c9bac9aab44758aab0dea2fe835a9",
+    "prescriptions/check_or_08.py": "a39357f7c333559f5f74d3ffd0d644db3974ca88541a66d39b6c0ec72139db33",
+    "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
+    "prescriptions/proposals/or08_progressive_run_teaching_candidate.json": "ec2bb7424acb51ac7dfad092d5eb2651c264e491f7c3b7f79630f26853abbe5d",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/OR08_LIBRARY_MAPPING.md": "39c1e95f1ba93418b606229346241db6dc93d58ca6c17a967801eb228f33da8e",
+    "instructional_on_ramp/week_02/or_08_workload_ledger.json": "441d20f8e5adf0ecca18411833efedb3b045ed0c7275f680c8d3b2d7eb786114",
+    "instructional_on_ramp/week_02/or_08_check_results.json": "a78e627e83d824adc9dcc83674ace466aed378cfcb978d3f3043da5c478f5205",
+    "instructional_on_ramp/week_02/or_08_anchor_ledger.json": "8a727c0b9717663b4146ac4cb8cc5fb9212c2e4481b0b8020045a35126fa910f",
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "instructional_on_ramp/week_02/or_09.md": "b79b1e298c4e64116cb17d2833f0450880f44af348b616ec154437ca7a5e0779",
+    "prescriptions/author_or_09.py": "01c06079280adbdc7fdad34161971c308c50e88cb191cb42a282c87564b6a783",
+    "prescriptions/check_or_09.py": "485fa52a7289e38e4fae197bae4f4c2f11ec79417c9241115434a2afac9c8696",
+    "prescriptions/proposals/or09_chest_projection_teaching_candidate.json": "7966188553ddd118c69570bfaedfbc70ea13f4dd759e46d0554c580030212e9f",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/OR09_LIBRARY_MAPPING.md": "85beabacc6f1a22c69d404f6bd2387f11d489d83771634c7e8ae40043b481420",
+    "instructional_on_ramp/week_02/or_09_workload_ledger.json": "413fe512216d00538a21f56ce46011de64e6e4136612021d5479ba0216e038e2",
+    "instructional_on_ramp/week_02/or_09_check_results.json": "d41ed93d8c9a89a812b83a6df2581e254fb0814b7c4e31eb2f3a58c25eb09b12",
+    "instructional_on_ramp/week_02/or_09_anchor_ledger.json": "e13b02093e63bf41196068786bb1e8d196e38c04cccfe903a304fadc21b6beed",
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "instructional_on_ramp/week_02/or_10.md": "c338329313c13bec0412e7febbd48d1151b8aabab9582109cc7088c27a47cf24",
+    "prescriptions/author_or_10.py": "61c1c50f5306f541c0c46cf8577f133e3650bf930fa7b9bd6d71a4e34dd68cd5",
+    "prescriptions/check_or_10.py": "3c93877e59615eb4aa3cd66a63ac597a8d72e1a1ef254699e63c9ae6706698f5",
+    "instructional_on_ramp/week_01/or_01.json": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30",
+    "prescriptions/or10_library_mapping.json": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08",
+    "prescriptions/OR10_LIBRARY_MAPPING.md": "aa5516459fb7e61cb540541793f604cf30d93ea0a51da153bf418ebbea079f21",
+    "instructional_on_ramp/week_02/or_10_workload_ledger.json": "46b003ee56bb97ba227caac2a962010475d3caa50889a96a8d8efc3dce507d1e",
+    "instructional_on_ramp/week_02/or_10_check_results.json": "a65d8fbcc667ea1159700a306b9fc0bbc15b6bb9a902d7b3e7d735bb991dcba1",
+    "instructional_on_ramp/week_02/or_10_anchor_ledger.json": "55cac032fddbdf7a6866249d5cf6ca39ebde022d5a0957e9db3bb9bb9468c684",
+    "planning/check_on_ramp_week_02.py": "f4e8281d88a0d7f024ebba1d5209fa78ec3bb02b0a50fd50149823f82aff44c5",
+    "planning/ON_RAMP_WEEK_02_AUDIT_BRIEF.md": "d8fdf23df6daa2721a2ced09fedae32284cf00c41fd5c915a1fc272a7537effe",
+    "instructional_on_ramp/week_01/week_01_review.md": "341e5fc3094355d500a5465a25f589395a010314d1e45e3bc287afe9665b13e4",
+    "instructional_on_ramp/week_01/week_01_check_results.json": "d751b5f7f8e8764cf5ad968683d803e653c5669f618f28f65ecf0ce826ee1fb1",
+    "instructional_on_ramp/week_01/week_01_attendance_workload_ledger.json": "3f75e1766accbb7cb647b8b0b60fc124615b831e30c2f4ec8ce44ef2bd951787"
+  },
+  "actual_athlete_results": null,
+  "errors": [],
+  "attendance_subsets": 31,
+  "ages": [
+    "9-11",
+    "12-14",
+    "15-18"
+  ],
+  "modes": [
+    "standard_D",
+    "standard_L",
+    "compressed_D",
+    "compressed_L"
+  ],
+  "hypothetical_carry_in_profiles": 9,
+  "enumerated_paths": 84348,
+  "checked_transitions": 337500,
+  "attendance_summary_rows": 837,
+  "daily_cohort_checks": [
+    {
+      "session": "OR-06",
+      "cohorts": 6480,
+      "component_option_evaluations": 6480,
+      "canonical_sha256": "c921dd1090b3186c2bf1ca57d9d3dacdc956708bf502854c4ef27cc8476357cd",
+      "resolver_comparison": "first and last complete rows equal documented resolver",
+      "all_source_bindings_current": true
+    },
+    {
+      "session": "OR-07",
+      "cohorts": 4320,
+      "component_option_evaluations": 38880,
+      "canonical_sha256": "4283f2fc1d10f9fb96731eed90d196cea86189558e55e0a1dd2b2d6689d877bd",
+      "resolver_comparison": "first and last complete rows equal documented resolver",
+      "all_source_bindings_current": true
+    },
+    {
+      "session": "OR-08",
+      "cohorts": 6528,
+      "component_option_evaluations": 71808,
+      "canonical_sha256": "11cbda8ffc08675bc9bb64c2e3200362d76237324324a778a9516a4be353fcc8",
+      "resolver_comparison": "first and last complete rows equal documented resolver",
+      "all_source_bindings_current": true
+    },
+    {
+      "session": "OR-09",
+      "cohorts": 7776,
+      "component_option_evaluations": 85536,
+      "canonical_sha256": "0d2d2df40686242f05f34fa41aff38075467246931fae0e63aa685caaf394997",
+      "resolver_comparison": "first and last complete rows equal documented resolver",
+      "all_source_bindings_current": true
+    },
+    {
+      "session": "OR-10",
+      "cohorts": 3888,
+      "component_option_evaluations": 58320,
+      "canonical_sha256": "1e8040430a339694ed12366689194cec5738e2d3eee24eca7c84eb790a76b1d4",
+      "resolver_comparison": "first and last complete rows equal documented resolver",
+      "all_source_bindings_current": true
+    }
+  ],
+  "daily_current_hash_entries_verified": 220,
+  "unique_current_fingerprints": 69,
+  "selection_coverage": {
+    "OR06_main": [
+      "first_flight",
+      "jump_short",
+      "slow_position"
+    ],
+    "OR06_hip": [
+      "bw_initial",
+      "bw_low_hold",
+      "db_first_setup",
+      "db_retained"
+    ],
+    "OR07_main": [
+      "jog_exit",
+      "standing",
+      "walk_exit"
+    ],
+    "OR07_hip": [
+      "bodyweight"
+    ],
+    "OR08_main": [
+      "long_purposeful",
+      "long_walk",
+      "stationary_stand"
+    ],
+    "OR08_hip": [
+      "bodyweight",
+      "familiar_DB"
+    ],
+    "OR09_main": [
+      "choice",
+      "known",
+      "reach"
+    ],
+    "OR09_hip": [
+      "bodyweight",
+      "familiar_DB"
+    ],
+    "OR10_main": [
+      "easy_15",
+      "technical_20",
+      "technical_low_20",
+      "walking_10"
+    ],
+    "OR10_hip": [
+      "bodyweight",
+      "familiar_DB"
+    ],
+    "OR10_knee": [
+      "bodyweight",
+      "goblet_first",
+      "goblet_load_step",
+      "goblet_reintroduce",
+      "goblet_retained"
+    ]
+  },
+  "negative_probes": [
+    {
+      "case": "missing OR09 session",
+      "rejected": true
+    },
+    {
+      "case": "missing age packet",
+      "rejected": true
+    },
+    {
+      "case": "missing compressed L packet",
+      "rejected": true
+    },
+    {
+      "case": "unearned advanced preparation",
+      "rejected": true
+    },
+    {
+      "case": "bundled completed tumbling",
+      "rejected": true
+    },
+    {
+      "case": "extra target task",
+      "rejected": true
+    },
+    {
+      "case": "wrong next-session identity",
+      "rejected": true
+    },
+    {
+      "case": "first flight requires old flight",
+      "rejected": true
+    },
+    {
+      "case": "first exit requires completed old exit",
+      "rejected": true
+    },
+    {
+      "case": "first throw E0 manufactures repeatability",
+      "rejected": true
+    },
+    {
+      "case": "static stance overwrites squat",
+      "rejected": true
+    },
+    {
+      "case": "stale daily source binding",
+      "rejected": true
+    },
+    {
+      "case": "nonlocal pooled pointer",
+      "rejected": true
+    },
+    {
+      "case": "performed unloading ignored on next D",
+      "rejected": true
+    },
+    {
+      "case": "first 20s DB handling automatically familiar 10s",
+      "rejected": true
+    },
+    {
+      "case": "first flight missing comfortable intended arm swing",
+      "rejected": true
+    },
+    {
+      "case": "first flight missing actual grounded control",
+      "rejected": true
+    },
+    {
+      "case": "walk stop credited as jog stop",
+      "rejected": true
+    },
+    {
+      "case": "emerging known E0 creates old repeatability",
+      "rejected": true
+    },
+    {
+      "case": "loaded reps before selected-implement support",
+      "rejected": true
+    },
+    {
+      "case": "grounded_one_first_flight: restore knee repetition count",
+      "rejected": true
+    },
+    {
+      "case": "grounded_two_first_DB: restore knee repetition count",
+      "rejected": true
+    },
+    {
+      "case": "familiar_DB_three: restore knee repetition count",
+      "rejected": true
+    },
+    {
+      "case": "older_goblet_recent_BW_two: restore knee repetition count",
+      "rejected": true
+    },
+    {
+      "case": "retained_goblet_three: restore knee repetition count",
+      "rejected": true
+    },
+    {
+      "case": "reintroduction borrows retained handling",
+      "rejected": true
+    },
+    {
+      "case": "older loaded knee over newer bilateral unload called retention",
+      "rejected": true
+    },
+    {
+      "case": "lower actual technical intent restored in D",
+      "rejected": true
+    },
+    {
+      "case": "E0 added outside total",
+      "rejected": true
+    },
+    {
+      "case": "fabricated actual person outcome",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW']",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW', 'HOLD']",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW', 'HOLD', 'THROW']",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW']",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW', 'THROW']",
+      "rejected": true
+    },
+    {
+      "case": "cue quota repayment ['THROW', 'THROW', 'HOLD']",
+      "rejected": true
+    },
+    {
+      "case": "low support loses second side",
+      "rejected": true
+    },
+    {
+      "case": "hip or ball handling confers bench-row handling",
+      "rejected": true
+    },
+    {
+      "case": "one-rep preparation check silently reduces three-rep compatible Strength history",
+      "rejected": true
+    },
+    {
+      "case": "quiet bilateral control credited as a split lead entry",
+      "rejected": true
+    },
+    {
+      "case": "unknown instruction labeled previously performed",
+      "rejected": true
+    },
+    {
+      "case": "current reintroduction decision missing reintroduction_reason",
+      "rejected": true
+    },
+    {
+      "case": "current reintroduction decision missing reintroduced_load_no_higher_than_older",
+      "rejected": true
+    },
+    {
+      "case": "current reintroduction decision missing compatible_BW_repeatable",
+      "rejected": true
+    },
+    {
+      "case": "current reintroduction decision missing selected_implement_and_elevated_cradle_fit",
+      "rejected": true
+    },
+    {
+      "case": "most-recent goblet alone authorizes an increment",
+      "rejected": true
+    }
+  ],
+  "positive_chronology_checks": [
+    {
+      "case": "missed OR07 adds no exposure, unloading, observations or debt",
+      "passed": true
+    },
+    {
+      "case": "OR07 static stance preserves actual compatible loaded bilateral squat; hip unload is separate",
+      "passed": true
+    },
+    {
+      "case": "newer performed bilateral BW squat changes later knee to justified reintroduction at recent count",
+      "passed": true
+    },
+    {
+      "case": "P2/control observation does not overwrite compatible Strength dose/load",
+      "passed": true
+    },
+    {
+      "case": "grounded OR02 component control can enter counted OR06 first flight without previous flight",
+      "passed": true
+    },
+    {
+      "case": "OR03 controlled walking stop can enter counted OR07 exit without old whole exit",
+      "passed": true
+    },
+    {
+      "case": "prior repeatable OR05 known throw, no prior choice: E0 allowed first; remaining choice only after suitable actual E0",
+      "passed": true
+    },
+    {
+      "case": "first DB/goblet handling is permitted without prior loaded task; counted actual pickup/support must precede loaded reps",
+      "passed": true
+    },
+    {
+      "case": "both cue prefixes retain E0, false HOLD release consumes actual opportunity/retrieval exposure, later work cancels without repayment",
+      "passed": true
+    },
+    {
+      "case": "left-first one-opportunity exit gives only that direction an observation; no appended other-side attempt",
+      "passed": true
+    },
+    {
+      "case": "right-first one-opportunity exit gives only that direction an observation; no appended other-side attempt",
+      "passed": true
+    },
+    {
+      "case": "complete same-actual low support survives D/booking changes with both sides and all handling/rest",
+      "passed": true
+    },
+    {
+      "case": "independent compatible knee1/hip3 Strength limits retained in OR06/08/09/10",
+      "passed": true
+    },
+    {
+      "case": "independent compatible knee3/hip1 Strength limits retained in OR06/08/09/10",
+      "passed": true
+    },
+    {
+      "case": "known BW -> first20s DB emerging -> OR07 BW unload -> OR08/09/10 retained BW, without familiar DB claim",
+      "passed": true
+    },
+    {
+      "case": "independently suitable current BW components permit OR08/09 counted small instruction despite unfamiliar movement history",
+      "passed": true
+    },
+    {
+      "case": "OR10 independently suitable knee can proceed while unfamiliar HIP/push/pull defer and independently familiar brace remains",
+      "passed": true
+    },
+    {
+      "case": "OR09/10 missing loaded-row handling defers row; independently familiar row remains despite unrelated missing hip/push evidence",
+      "passed": true
+    },
+    {
+      "case": "OR07 bilateral P1 has zero split entries; later S1 lead entries derive actual lead fields, not sets alone",
+      "passed": true
+    },
+    {
+      "case": "all3 ages/all4 modes OR08/09/10 retain distinct low bilateral suspension and supported-breath complete packets; no bench/heel pass inferred",
+      "passed": true
+    },
+    {
+      "case": "OR06 one-rep history uses exact existing smaller_hold P1 packet; no fallback silently picks default",
+      "passed": true
+    },
+    {
+      "case": "unknown-dose counted instruction has null prior record and complete selected dose, not fabricated history",
+      "passed": true
+    },
+    {
+      "case": "first DB1/2/3 caps come from saved daily20s-handling cohorts; prior BW count never becomes prior loaded handling",
+      "passed": true
+    },
+    {
+      "case": "reintroduction needs independent current reason, compatible repeatable BW and older-or-lower load; a step needs separately verified smallest increment/reserve, beyond recency",
+      "passed": true
+    }
+  ],
+  "complete_retention_overlays": 167,
+  "state_selection_cache_entries": 5203,
+  "path_stream_canonical_sha256": "2a0d581124497dbadc232b8d04ca8e9110f0bf8c8b46f39131877ff77c1b5dd8",
+  "storage_verification": {
+    "status": "PASS_SERIALIZE_PARSE_VALUE_EQUALITY",
+    "ledger_bytes": 7559545,
+    "value_equality": true
+  },
+  "actual_readiness_verified": false,
+  "operational_library_release_verified": false,
+  "separate_tumbling_complete": false,
+  "next_gate": "Weekly written review must complete before full OR11 individual authoring; this numeric result is not the remaining20-session or60-session block completion."
+}

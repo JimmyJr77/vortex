@@ -77,6 +77,7 @@ function rankResearchDefinitions(rows, need, phaseKeys, materials, eligibility) 
  * Empty, truncated, unapproved or context-ineligible results cannot activate Creator.
  */
 export async function researchWorkoutExerciseGap(pool, context, rawInput) {
+  normalizeWorkoutExerciseGapResearchInput(rawInput)
   return withCoachingLibrarySnapshot(pool, context, (client, scope) => researchWorkoutExerciseGapInSnapshot(client, scope, rawInput))
 }
 

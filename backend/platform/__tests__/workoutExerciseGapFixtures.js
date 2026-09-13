@@ -5,7 +5,7 @@ import { SCOPE } from './workoutProgrammingLibrarianFixtures.js'
 export function exerciseGapResearchFixtures({ extra = [], patch = {} } = {}) {
   const state = compositionFixtures()
   const rows = state.options.cards.flatMap((card) => card.deliveryProfiles.map((profile) => ({
-    definition_id: card.id, canonical_name: card.canonicalName, display_name: card.displayName, aliases: [],
+    definition_id: card.id, slug: card.slug, canonical_name: card.canonicalName, display_name: card.displayName, aliases: [],
     family_key: card.familyId, description: 'Synthetic canonical content for gap research.', card_version: card.cardVersion,
     definition_status: 'published', movement_patterns: card.movementPatterns, body_regions: card.bodyRegions,
     required_equipment: card.equipment.required, definition_updated_at: '2026-01-01T00:00:00Z',

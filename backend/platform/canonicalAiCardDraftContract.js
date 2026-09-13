@@ -33,7 +33,7 @@ function authoringSchemaParser(schema) {
   } else throw new TypeError('Unsupported AI authoring schema type')
   if (schema.enum) {
     if (!schema.enum.length) throw new TypeError('AI authoring requires a populated canonical taxonomy')
-    rule = rule.valid(...schema.enum)
+    rule = rule.custom((value, helpers) => schema.enum.includes(value) ? value : helpers.error('any.only'))
   }
   if (types.includes('null')) rule = rule.allow(null)
   return rule

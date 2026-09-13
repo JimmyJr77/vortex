@@ -12,7 +12,7 @@ export async function loadCanonicalExerciseResearchCatalog(client, facilityId) {
   for (let page = 0; page < 20; page += 1) {
     const result = await client.query(
       `SELECT /* canonical_exercise_gap_research */
-         d.id AS definition_id, d.canonical_name, d.display_name, d.aliases,
+         d.id AS definition_id, d.slug, d.canonical_name, d.display_name, d.aliases,
          d.family_key, d.description, d.card_version, d.status AS definition_status,
          d.movement_patterns, d.body_regions, d.required_equipment,
          d.updated_at AS definition_updated_at,
