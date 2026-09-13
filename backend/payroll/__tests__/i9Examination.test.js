@@ -54,3 +54,20 @@ test('a finite-authorization hire can use a receipt without dropping the authori
  assert.throws(()=>validate({...value,documents:[{...value.documents[0],followUpKind:'OTHER'}]},form,worker),/receipt replacement/)
  assert.throws(()=>validate({...value,documents:[{...value.documents[0],acceptance:'OTHER_ACCEPTABLE'}]},form,worker),/authorization date/)
 })
+test('List B extensions and receipt dates cannot extend or replace work-authorization review',()=>{
+ const notation='RA 09/02/2026 Identity document extension reviewed.'
+ const form={documentChoice:'LIST_B_C',listB:{title:'State ID',issuingAuthority:'State agency',number:'SYNTHETIC-B',expiresOn:'2026-08-01'},listC:{title:'Employment authorization document',issuingAuthority:'DHS',number:'SYNTHETIC-C',expiresOn:'2026-10-01'},firstDayEmployed:answers.firstDayEmployed,additionalInformation:notation,examinationMethod:'PHYSICAL'}
+ const common={copyIds:['1'],copiesComplete:true,accepted:true,ruleSource:'https://www.uscis.gov/i-9-central',ruleEvidence:'The examiner retained document-specific acceptance evidence.'}
+ const b={...common,rowKey:'B',acceptance:'EXTENSION',validUntil:'2030-01-01',formNotation:notation,followUpKind:'OTHER',followUpOn:'2026-09-30'}
+ const c={...common,rowKey:'C',acceptance:'STANDARD',followUpKind:'REVERIFICATION',followUpOn:'2026-09-30'}
+ const value={...input(),documents:[b,c]},worker={...context,attestationKind:'AUTHORIZED_WORKER',authorizationExpiresOn:'2026-10-01'}
+ assert.equal(validate(value,form,worker).late,false)
+ assert.equal(validate({...value,documents:[{...b,followUpKind:'NONE',followUpOn:'',noFollowUpConfirmed:true},c]},form,worker).late,false)
+ assert.throws(()=>validate(value,form,{...worker,authorizationExpiresOn:'2026-09-01'}),/expired employment authorization/)
+ assert.throws(()=>validate({...value,documents:[{...b,followUpKind:'REVERIFICATION'},c]},form,worker),/List B identity/)
+ const receipt={...b,acceptance:'RECEIPT',followUpKind:'RECEIPT_REPLACEMENT',validUntil:'2026-11-30'}
+ assert.throws(()=>validate({...value,documents:[receipt,{...c,followUpKind:'NONE',followUpOn:'',noFollowUpConfirmed:true}]},form,worker),/authorization date/)
+ // A qualifying List C extension still participates in authorization review.
+ const extendedC={...c,acceptance:'EXTENSION',validUntil:'2027-01-01',formNotation:notation,followUpOn:'2027-01-01'}
+ assert.equal(validate({...value,documents:[b,extendedC]},form,{...worker,authorizationExpiresOn:'2026-09-01'}).late,false)
+})
