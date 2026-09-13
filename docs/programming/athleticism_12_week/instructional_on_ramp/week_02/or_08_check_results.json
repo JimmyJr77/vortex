@@ -1,6 +1,6 @@
 {
   "status": "PASS_WRITTEN_NUMERIC_MODEL",
-  "checked_at_utc": "2026-09-13T06:47:06.558401+00:00",
+  "checked_at_utc": "2026-09-13T07:43:21.654916+00:00",
   "session": "OR-08",
   "scenario_count": 6528,
   "errors": [],
@@ -295,7 +295,7 @@
     "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
     "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
     "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
-    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
     "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
     "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
     "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",

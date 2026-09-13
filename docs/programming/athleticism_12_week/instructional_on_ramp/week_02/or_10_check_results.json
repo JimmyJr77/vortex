@@ -1,0 +1,512 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "session": "OR-10",
+  "checked_at_utc": "2026-09-13T07:45:49.374711+00:00",
+  "scenario_count": 3888,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages"
+      ]
+    },
+    {
+      "case": "missing purpose",
+      "rejected": true,
+      "sample_findings": [
+        "S1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "hidden P2 run",
+      "rejected": true,
+      "sample_findings": [
+        "P2 cannot add a running/ball/flight trial",
+        "default P2 resolves to its explicit packet"
+      ]
+    },
+    {
+      "case": "E0 extra rehearsal",
+      "rejected": true,
+      "sample_findings": [
+        "technical_20: E0 included and caps only truncate scheduled prefix",
+        "E0: default route packet exact"
+      ]
+    },
+    {
+      "case": "lower-intent D restored harder",
+      "rejected": true,
+      "sample_findings": [
+        "technical_low_20: retains exact lower/reference perceived intent",
+        "technical_low_20: source target/runoff/return/intent/contact agreement"
+      ]
+    },
+    {
+      "case": "L count indices compressed to consecutive",
+      "rejected": true,
+      "sample_findings": [
+        "technical_low_20: E0 included and caps only truncate scheduled prefix",
+        "technical_low_20: source counted first and exact remaining prefix"
+      ]
+    },
+    {
+      "case": "main cap replaces E0",
+      "rejected": true,
+      "sample_findings": [
+        "technical_20: E0 included and caps only truncate scheduled prefix",
+        "technical_20: source counted first and exact remaining prefix"
+      ]
+    },
+    {
+      "case": "shortened runway",
+      "rejected": true,
+      "sample_findings": [
+        "technical_20: run versus walk distance units",
+        "E0: default route packet exact"
+      ]
+    },
+    {
+      "case": "running first instruction",
+      "rejected": true,
+      "sample_findings": [
+        "technical_20: independent retained running versus counted current observation"
+      ]
+    },
+    {
+      "case": "future E0 needed before E0",
+      "rejected": true,
+      "sample_findings": [
+        "technical_20: independent retained running versus counted current observation"
+      ]
+    },
+    {
+      "case": "first goblet requires prior loaded squat",
+      "rejected": true,
+      "sample_findings": [
+        "goblet_first: independent entry/history contract",
+        "goblet_first: source exact identity and noncircular entry"
+      ]
+    },
+    {
+      "case": "first handling reduced to familiar",
+      "rejected": true,
+      "sample_findings": [
+        "goblet_first: one exact tempo/count/full handling/rest set",
+        "goblet_first: cap changes repetitions alone"
+      ]
+    },
+    {
+      "case": "cap loses first handling",
+      "rejected": true,
+      "sample_findings": [
+        "goblet_first: one exact tempo/count/full handling/rest set",
+        "goblet_first: cap changes repetitions alone"
+      ]
+    },
+    {
+      "case": "chest hold omitted",
+      "rejected": true,
+      "sample_findings": [
+        "knee pickup/hold/rep/setdown counts distinct",
+        "goblet_first: source exact dose, phases, handling and conservative reserve"
+      ]
+    },
+    {
+      "case": "second calibration set",
+      "rejected": true,
+      "sample_findings": [
+        "goblet_first: one exact tempo/count/full handling/rest set",
+        "goblet_first: cap changes repetitions alone"
+      ]
+    },
+    {
+      "case": "knee L loaded",
+      "rejected": true,
+      "sample_findings": [
+        "forbidden cross-grant L_loaded_knee"
+      ]
+    },
+    {
+      "case": "automatic old load restoration",
+      "rejected": true,
+      "sample_findings": [
+        "forbidden history shortcut older_load_restored_automatically",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "shared main returns",
+      "rejected": true,
+      "sample_findings": [
+        "separate unmerged return paths",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "main release inside active lane",
+      "rejected": true,
+      "sample_findings": [
+        "main full lane action and headway",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "zero-time load swap",
+      "rejected": true,
+      "sample_findings": [
+        "actual equipment fit/staging; no zero-time swaps or uncounted pickup",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "next pair staging omitted",
+      "rejected": true,
+      "sample_findings": [
+        "actual equipment fit/staging; no zero-time swaps or uncounted pickup",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "one coach watches two first-load athletes",
+      "rejected": true,
+      "sample_findings": [
+        "eight directly observed pair turns and one coach per active athlete",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "fixed DB fit not established",
+      "rejected": true,
+      "sample_findings": [
+        "actual equipment fit/staging; no zero-time swaps or uncounted pickup",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "five DBs for five hip pairs",
+      "rejected": true,
+      "sample_findings": [
+        "familiar hip equipment and complete reset model",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "hip20s reset omitted",
+      "rejected": true,
+      "sample_findings": [
+        "familiar hip equipment and complete reset model",
+        "source full group timing and actual-history contracts agree"
+      ]
+    },
+    {
+      "case": "low row second side removed",
+      "rejected": true,
+      "sample_findings": [
+        "low/S4/12-14/compressed_D: both-side arithmetic",
+        "low: exact retained count/tempo/side/handling/rest"
+      ]
+    },
+    {
+      "case": "first loaded reps before actual counted support",
+      "rejected": true
+    },
+    {
+      "case": "first load without repeatable BW",
+      "rejected": true
+    },
+    {
+      "case": "unknown count automatically loaded",
+      "rejected": true
+    },
+    {
+      "case": "restored old repetitions",
+      "rejected": true
+    },
+    {
+      "case": "infinite selected kg rejected",
+      "rejected": true
+    },
+    {
+      "case": "nan selected kg rejected",
+      "rejected": true
+    },
+    {
+      "case": "negative selected kg rejected",
+      "rejected": true
+    },
+    {
+      "case": "zero selected kg rejected",
+      "rejected": true
+    },
+    {
+      "case": "boolean selected kg rejected",
+      "rejected": true
+    },
+    {
+      "case": "L cannot enter loaded knee handling",
+      "rejected": true
+    },
+    {
+      "case": "retention after more recent unload",
+      "rejected": true
+    },
+    {
+      "case": "step skips smallest available increment",
+      "rejected": true
+    },
+    {
+      "case": "step lacks credible reserve",
+      "rejected": true
+    },
+    {
+      "case": "static stance alone cannot justify squat reintroduction",
+      "rejected": true
+    },
+    {
+      "case": "reintroduction lacks current reason",
+      "rejected": true
+    },
+    {
+      "case": "reintroduction exceeds older load",
+      "rejected": true
+    },
+    {
+      "case": "E1 before actual current E0 response",
+      "rejected": true
+    },
+    {
+      "case": "older harder running restored",
+      "rejected": true
+    },
+    {
+      "case": "first unknown running allowed",
+      "rejected": true
+    },
+    {
+      "case": "unknown hip count implies novice control",
+      "rejected": true
+    },
+    {
+      "case": "L DB hip",
+      "rejected": true
+    },
+    {
+      "case": "old DB hip after newer unloading",
+      "rejected": true
+    },
+    {
+      "case": "earlier compact push wave violates same-athlete DB-hip recovery",
+      "rejected": true,
+      "calculated_recovery_s": 69,
+      "required_s": 90
+    },
+    {
+      "case": "fabricated current goblet owner",
+      "rejected": true,
+      "sample_findings": [
+        "GOBLET-OR10: source live identity and release unknown"
+      ]
+    },
+    {
+      "case": "source cap drifts above current one-rep packet",
+      "rejected": true,
+      "sample_findings": [
+        "goblet_first: source every actual smaller repetition cap"
+      ]
+    },
+    {
+      "case": "source lower-intent retention drifts harder",
+      "rejected": true,
+      "sample_findings": [
+        "technical_low_20: source target/runoff/return/intent/contact agreement",
+        "technical_low_20: source target/runoff/return/intent/contact agreement"
+      ]
+    }
+  ],
+  "positive_evidence_checks": {
+    "first_counted_handling_with_no_prior_loaded_squat": true,
+    "first_loaded_reps_only_after_actual_counted_support": true,
+    "actual_familiar_retention": true,
+    "one_credible_smallest_increment": true,
+    "finite_decimal_increment_not_rejected_by_binary_roundoff": true,
+    "static_stance_does_not_overwrite_compatible_squat": true,
+    "reasoned_lower_load_reintroduction_at_recent_count": true,
+    "lower_intent_retention_in_D_before_E0": true,
+    "E1_after_actual_E0": true,
+    "actual_familiar_hip_small_history": true,
+    "unknown_hip_count_with_actual_familiar_control": true,
+    "unknown_suitable_BW_knee": true
+  },
+  "positive_case_scope": "All selected kg values in helper tests are hypothetical arithmetic inputs, not prescriptions or athlete records.",
+  "sha256": {
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "instructional_on_ramp/week_02/or_10.md": "c338329313c13bec0412e7febbd48d1151b8aabab9582109cc7088c27a47cf24",
+    "prescriptions/author_or_10.py": "61c1c50f5306f541c0c46cf8577f133e3650bf930fa7b9bd6d71a4e34dd68cd5",
+    "prescriptions/check_or_10.py": "3c93877e59615eb4aa3cd66a63ac597a8d72e1a1ef254699e63c9ae6706698f5",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/week_01/or_01.json": "530acdbc1a44397fe5d52c48511014efa063c6717241e528462609a0982fcf30",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/or10_library_mapping.json": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08",
+    "prescriptions/OR10_LIBRARY_MAPPING.md": "aa5516459fb7e61cb540541793f604cf30d93ea0a51da153bf418ebbea079f21"
+  },
+  "mixed_traffic_checks": [
+    {
+      "phase": "P2",
+      "distinct_active_return_pairs": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          18,
+          20
+        ]
+      ],
+      "sequences_checked": 243,
+      "maximum_returners_per_path": 2,
+      "maximum_pair_overlap_s": 3,
+      "actual_spacing_sightlines_verified": false
+    },
+    {
+      "phase": "main/standard_D",
+      "distinct_active_return_pairs": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          15,
+          40
+        ],
+        [
+          20,
+          40
+        ]
+      ],
+      "sequences_checked": 1024,
+      "maximum_returners_per_path": 2,
+      "maximum_pair_overlap_s": 20,
+      "actual_spacing_sightlines_verified": false
+    },
+    {
+      "phase": "main/standard_L",
+      "distinct_active_return_pairs": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          40
+        ],
+        [
+          20,
+          40
+        ]
+      ],
+      "sequences_checked": 243,
+      "maximum_returners_per_path": 2,
+      "maximum_pair_overlap_s": 20,
+      "actual_spacing_sightlines_verified": false
+    },
+    {
+      "phase": "main/compressed_D",
+      "distinct_active_return_pairs": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          15,
+          40
+        ],
+        [
+          20,
+          40
+        ]
+      ],
+      "sequences_checked": 1024,
+      "maximum_returners_per_path": 2,
+      "maximum_pair_overlap_s": 20,
+      "actual_spacing_sightlines_verified": false
+    },
+    {
+      "phase": "main/compressed_L",
+      "distinct_active_return_pairs": [
+        [
+          10,
+          0
+        ],
+        [
+          15,
+          40
+        ],
+        [
+          20,
+          40
+        ]
+      ],
+      "sequences_checked": 243,
+      "maximum_returners_per_path": 2,
+      "maximum_pair_overlap_s": 20,
+      "actual_spacing_sightlines_verified": false
+    }
+  ],
+  "coverage": {
+    "enumerated_clock_cohorts": 3888,
+    "independently_checked_reduction_packets": 390,
+    "factor_choices_per_cohort": 128,
+    "factorized_named_choices_covered": 497664,
+    "proof": "Each of four main reference/cap prefixes is timed per athlete and retains E0. Knee/hip reference-or1/2/3 and two support levels are compared at unchanged fixed role starts. Main prefix removal and strength duration reductions cannot worsen transition, same-athlete recovery, equipment occupancy or staging.128 Cartesian choices per cohort are covered by these independent bounds, not128 separately expanded whole-day timelines."
+  },
+  "limits": [
+    "Actual prior/current readiness, counts, implement kg and handling outcomes remain null",
+    "First pickup/chest support must be confirmed inside the counted set before loaded reps; failure can mean zero loaded reps without a replacement set",
+    "Compressed first/changed knee40s plus5s incoming staging leaves no unallocated load-swap time: reference depends on preselected fitting station equipment; extra changes delay/omit",
+    "Natural running/walking contacts and actual completed distances are not inferred from planned metres",
+    "No operational, current-source, participant or separate-tumbling approval is claimed; Week2 cumulative audit remains separate"
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 3888,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "1e8040430a339694ed12366689194cec5738e2d3eee24eca7c84eb790a76b1d4",
+    "resolved_scenarios_canonical_sha256": "1e8040430a339694ed12366689194cec5738e2d3eee24eca7c84eb790a76b1d4",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 6935013,
+    "unpooled_scenarios_canonical_bytes": 189911221,
+    "pooled_value_count": 3918,
+    "common_field_count": 26,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+  }
+}

@@ -5,6 +5,7 @@ import {randomUUID} from 'node:crypto'
 import {PDFDocument} from 'pdf-lib'
 import {createHarness} from '../testing/harness.js'
 import {receiptFixture} from '../testing/receiptFixture.js'
+import {signI9DifferentDocuments} from '../i9DifferentDocumentsSigning.js'
 import {i9DifferentDocumentsBasis} from '../i9DifferentDocumentsBasis.js'
 import {i9SupplementBBasis} from '../i9SupplementBReview.js'
 import {i9EmployerRecords} from '../i9EmployerRecords.js'
@@ -31,6 +32,16 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
  await api(path+'/sign',body,'POST',409)
  for(const d of documents)for(let page=1;page<=2;page++)await api(path+'/copy-page',{...key,rowKey:d.rowKey,copyId:d.copyIds[0],page,displayed:true})
  await api(path+'/sign',{...body,signature:'Other Reviewer'},'POST',400)
+ // A later employment range must not let an old certification establish its hiring context.
+ const changed=await h.pool.connect()
+ try{
+  await changed.query('BEGIN')
+  await changed.query("UPDATE payroll_employment_period SET ended_on='2026-09-01' WHERE employee_id=$1",[employee.id])
+  await changed.query("UPDATE payroll_employee SET hire_date='2026-09-02' WHERE id=$1",[employee.id])
+  await assert.rejects(()=>i9DifferentDocumentsBasis(changed,ctx,task),e=>e.status===409&&/current hiring information/.test(e.message))
+  await assert.rejects(()=>signI9DifferentDocuments(changed,ctx,task,body),e=>e.status===409&&/current hiring information/.test(e.message))
+  assert.equal((await changed.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
+ }finally{await changed.query('ROLLBACK');changed.release()}
  await h.pool.query(`CREATE FUNCTION reject_different_sign_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_DIFFERENT_SIGNED' THEN RAISE EXCEPTION 'Synthetic signing audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_different_sign_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_different_sign_audit()`)
  await api(path+'/sign',body,'POST',500)
  assert.equal((await h.pool.query('SELECT * FROM payroll_i9_different_signature')).rowCount,0)
@@ -51,6 +62,11 @@ for(const authorizedWorker of [false,true])test(`replacement signing retains evi
  assert.deepEqual(decryptDocument(original.encrypted_content,`1:${employee.id}:${original.task_id}`),current.bytes)
  const history=await i9EmployerRecords(h.pool,ctx)
  assert.equal(history.records[0].differentCertifications[0].document.id,result.documentId)
+ const signatureRow=(await h.pool.query('SELECT * FROM payroll_i9_different_signature WHERE id=$1',[result.signatureId])).rows[0]
+ const currentEvidence=JSON.parse(decryptDocument(signatureRow.encrypted_evidence,`i9-different-signature:1:${employee.id}:${task}:99`).toString())
+ assert.equal(currentEvidence.context.hireDate,'2026-09-01')
+ assert.equal(currentEvidence.context.revision,current.currentHiringContext.revision)
+ assert.equal(currentEvidence.context.signedHiringRevision,current.currentHiringContext.signedHiringRevision)
  const followups=(await h.pool.query("SELECT * FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT:%'")).rows
  assert.equal(followups.length,authorizedWorker?1:0)
  if(authorizedWorker){

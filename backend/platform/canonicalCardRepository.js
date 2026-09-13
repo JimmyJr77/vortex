@@ -154,17 +154,20 @@ function rowToCard(definition, variants, profiles, taxonomyAssignments = [], tax
   }
 }
 
-async function controlledTaxonomyIssues(client, card) {
+/** Existing canonical authoring vocabulary, shared by drafts and gap proposals. */
+export async function loadCanonicalAuthoringTaxonomy(client) {
   const [patterns, regions, equipment] = await Promise.all([
     client.query(`SELECT key FROM coaching.movement_pattern`),
     client.query(`SELECT key FROM coaching.body_region`),
     client.query(`SELECT key FROM coaching.equipment`),
   ])
-  const allowed = {
-    movementPatterns: new Set(patterns.rows.map((row) => row.key)),
-    bodyRegions: new Set(regions.rows.map((row) => row.key)),
-    equipment: new Set(equipment.rows.map((row) => row.key)),
-  }
+  return { movementPatterns: patterns.rows.map((row) => row.key).sort(), bodyRegions: regions.rows.map((row) => row.key).sort(), equipment: equipment.rows.map((row) => row.key).sort() }
+}
+
+/** Shared authoring vocabulary check; matching names never grants taxonomy approval. */
+export async function canonicalCardControlledTaxonomyIssues(client, card) {
+  const taxonomy = await loadCanonicalAuthoringTaxonomy(client)
+  const allowed = Object.fromEntries(Object.entries(taxonomy).map(([key, values]) => [key, new Set(values)]))
   const invalid = {
     movementPatterns: card.movementPatterns.filter((key) => !allowed.movementPatterns.has(key)),
     bodyRegions: card.bodyRegions.filter((key) => !allowed.bodyRegions.has(key)),
@@ -180,7 +183,7 @@ async function controlledTaxonomyIssues(client, card) {
 }
 
 async function assertControlledTaxonomies(client, card) {
-  const invalid = await controlledTaxonomyIssues(client, card)
+  const invalid = await canonicalCardControlledTaxonomyIssues(client, card)
   if (Object.values(invalid).some((values) => values.length > 0)) {
     throw Object.assign(new TypeError('Canonical card contains uncontrolled taxonomy keys.'), {
       details: { invalid },
@@ -356,7 +359,7 @@ export async function loadCanonicalCard(pool, facilityId, definitionId, client =
   }
   const [duplicates, invalidTaxonomy] = await Promise.all([
     duplicateCandidates(client, facilityId, card, definitionId),
-    controlledTaxonomyIssues(client, card),
+    canonicalCardControlledTaxonomyIssues(client, card),
   ])
   const activeMediaReview = card.mediaReview?.reviewedCardVersion === card.cardVersion
     ? card.mediaReview

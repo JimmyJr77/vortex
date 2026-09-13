@@ -257,8 +257,8 @@ alternatives['suspension_pull']['support_dose_levels'] = {
 session = dict(
     schema_version='1.0', id='OR-10', week=2, offering_day=5, phase='instructional_W2',
     title='Retain the start and explain the knee-load choice',
-    stage_label='Separate instructional session · Week 2, Day 5 · individually authored; review pending',
-    status_note='Complete written athletic draft for independent source, programming and numeric review. Actual histories, facilities, exact live canonical release and precise separate tumbling remain unverified.',
+    stage_label='Separate instructional session · Week 2, Day 5 · individually authored · written athletic design reviewed',
+    status_note='Independent source, written programming and numeric reviews passed. Companion review/check files record the tested scope and current fingerprints. Actual histories, facilities, exact live canonical release and precise separate tumbling remain unverified.',
     brief='Retain the athlete’s actual short start and recovered route, then teach or retain a transparent knee-resistance decision. The whole known main rehearsal consumes E0 within the existing opportunity ceiling. One directly coached knee set distinguishes bodyweight, first goblet loading, familiar retention, one justified load step and deliberate reintroduction after unloading. Familiar hip, push, pull and brace work preserve full-body exposure without competing new skills.',
     quality_target='The athlete reproduces the declared start/runoff, accepts the individually chosen knee load or hold, keeps the owned squat range/tempo and communicates when grip, effort or control changes. Record actual observations without calling a first loaded set proof of repeatability.',
     continuity='Actual OR-01/direct start and knee evidence, OR-06/direct loading/handling context and most recent OR-09/direct reduced support records → retain running while making one justified knee decision → OR-14 changes prompting/group-flow responsibility at retained demand → OR-18 observes the actual comparable entry. Named sessions are evidence opportunities, not compulsory attendance.',
@@ -273,7 +273,7 @@ session = dict(
     exercises=[P1, P2, E0, E1] + strength,
     mapping_refs={'P1': 'STAND-READY', 'P2': 'WALK-ROUTE', 'E0': 'ACC-TEACH', 'E1': 'ACC-TEACH', 'S1': 'BW-SQUAT-T', 'S2': recent['mapping_refs']['S4'], 'S3': recent['mapping_refs']['S1'], 'S4': recent['mapping_refs']['S2'], 'S5': recent['mapping_refs']['S5']},
     outline_ref='instructional_on_ramp/instructional_map.json#OR-10',
-    outline_reconciliation='Proposed OR-10 amendment: full base knee check + P1 start hold + P2 short orientation; the whole known start/runoff rehearsal is counted E0 within the main ceiling. Actual more recent OR-08 easy route is an explicit distinct retention option. First/changed knee loading uses eight coached pair turns, with shorter familiar support windows and preserved recovery. Week 2 audit remains required after daily review.',
+    outline_reconciliation='Implemented OR-10 amendment: full base knee check + P1 start hold + P2 short orientation; the whole known start/runoff rehearsal is counted E0 within the main ceiling. Actual more recent OR-08 easy route and lower technical intent are explicit distinct retention options. First/changed knee loading uses eight coached pair turns, with shorter familiar support windows and preserved recovery. Full Week 2 audit remains required before Week 3 detail.',
     preparation_routes=preparation_routes, primary_routes=primary_routes, knee_routes=knee_routes,
     hip_routes=hip_routes, support_dose_levels=support, alternative_doses=alternatives, timing_model=timing,
     history_policy=dict(most_recent_actual_demand_governs=True, attendance_creates_competency=False,
@@ -289,9 +289,9 @@ session = dict(
         prior_same_goblet_required_for_first_instruction=False, exact_counted_grip_support_before_reps=True,
         first_new_loaded_hip_or_support=False, L_loaded_knee=False,
         running_gap_blocks_independently_suitable_knee=False, first_set_is_repeatability_pass=False),
-    release_status=dict(athletic_prescription_complete=True, programming_review_pass=False,
+    release_status=dict(athletic_prescription_complete=True, programming_review_pass=True,
         operational_release_verified=False, separate_tumbling_prescription_complete=False),
-    review_status='Independent source, numeric and programming reviews pending. No daily PASS, Week 2 PASS, actual outcome or operational release is implied.',
+    review_status='Independent source and complete written programming PASS; numeric PASS for the documented conditional cohorts, smaller-dose choices, mixed traffic and evidence-stage checks. See or_10_review.md, or_10_check_results.json and prescriptions/OR10_LIBRARY_MAPPING.md for scope and current fingerprints. No Week 2 PASS, actual athlete outcome, live canonical approval, precise separate tumbling or operational release is implied.',
 )
 
 session['timing_narrative'] = '''**Full preparation plus exactly 180 s targets.** P1 spends 15 s positioning and 10 s reminder, then groups of five start at 25/30/35 s; each has 2 s settle and a 3 s hold, last ends at 40 s. P2 spends 20 s gather/demo including first-triad staging, then triads start at 20/40/60/80/100 s within its 140 s budget. Walk10 takes 15 s action + 20 s outside return; walk15 takes 18 + 20 s. Last long walk returns by 138 s. A mixed short/long sequence may briefly have two returning athletes per outside path; no shared merge/crossing is assumed. Stationary takes 10 s in the visible own bay and has no return. Slower real travel delays/omits; the short walk does not stand in for complete running eligibility.

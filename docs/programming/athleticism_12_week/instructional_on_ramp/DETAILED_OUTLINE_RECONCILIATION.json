@@ -229,7 +229,7 @@
     },
     {
       "id": "OR-10",
-      "state": "individually_authored_pending_review",
+      "state": "implemented_and_individually_reviewed",
       "affected_fields": [
         "preparation.targeted_drill_purposes",
         "progression_decision",
@@ -328,7 +328,7 @@
     "OR-10": "Retain actual start/runoff and independently map/teach front-held load pickup/set-down before a goblet progression; bodyweight squat alone is not implement-handling evidence."
   },
   "not_completed": [
-    "OR-10 independent daily review and full Week 2 audit; OR-11 through OR-20 detailed workouts",
+    "OR-11 through OR-20 detailed workouts; full Week 2 audit",
     "actual athlete outcomes",
     "current canonical or facility approvals",
     "precise separate tumbling content"

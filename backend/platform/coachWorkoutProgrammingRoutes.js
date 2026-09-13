@@ -7,12 +7,14 @@ import { loadWorkoutProgrammingChoices } from './workoutProgrammingChoices.js'
 import { loadWorkoutAthleteEvidenceChoices } from './workoutAthleteEvidence.js'
 import { withCoachingLibrarySnapshot } from './coachingLibraryContext.js'
 import { interpretWorkoutProgrammingRevision, normalizeProgrammingInterpretationInput } from './workoutProgrammingInterpretation.js'
+import { researchWorkoutExerciseGap, normalizeWorkoutExerciseGapResearchInput } from './workoutExerciseGapResearch.js'
+import { assessWorkoutExerciseGap } from './workoutExerciseGapAssessment.js'
 
 /** Existing coach permissions and facility rollout gates remain authoritative. No endpoint accepts a model/QA artifact. */
 export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
   featureAccess = canonicalFacilityFeatureAccess, registryFactory = configuredProgrammingStaffRegistry,
   generate = generateAndPersistWorkoutProgramming, load = loadWorkoutProgrammingRun, list = listWorkoutProgrammingRuns, revalidate = revalidateWorkoutProgrammingRun,
-  choices = loadWorkoutProgrammingChoices, interpret = interpretWorkoutProgrammingRevision }) {
+  choices = loadWorkoutProgrammingChoices, interpret = interpretWorkoutProgrammingRevision, gapResearch = researchWorkoutExerciseGap, gapAssessment = assessWorkoutExerciseGap }) {
   const context = (req) => ({ facilityId: req.platformAuth.user.facility_id, userId: req.platformAuth.user.id })
   const allowed = async (req, res, ai = false) => {
     for (const feature of ['canonical_generator_coach_opt_in', ...(ai ? ['canonical_ai_intent'] : [])]) {
@@ -23,7 +25,7 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
   }
   const failure = (res, error) => {
     const status = error.code === 'programming_snapshot_forbidden' ? 403
-      : ['programming_snapshot_conflict', 'foreign_session_intent', 'stale_library_release', 'source_workout_adapter_required', 'source_workout_revision_conflict', 'source_workout_incomplete', 'interpretation_sources_changed'].includes(error.code) ? 409
+      : ['programming_snapshot_conflict', 'foreign_session_intent', 'stale_library_release', 'source_workout_adapter_required', 'source_workout_revision_conflict', 'source_workout_incomplete', 'interpretation_sources_changed', 'exercise_gap_sources_changed'].includes(error.code) ? 409
       : error.code === 'source_workout_unavailable' ? 404
       : error.code === 'invalid_modification_controls' ? 400
       : ['canceled', 'deadline_exceeded'].includes(error.code) ? 408
@@ -51,6 +53,30 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
       if (!await allowed(req, res)) return
       ok(res, await choices(pool, context(req), req.body))
     } catch (error) { failure(res, error) }
+  })
+  // Unreleased and archived identities use the existing canonical-authoring permission.
+  app.post('/api/coach/workout-programming/exercise-gap/research', ...can('library.manage'), async (req, res) => {
+    try {
+      if (!await allowed(req, res)) return
+      normalizeWorkoutExerciseGapResearchInput(req.body)
+      ok(res, await gapResearch(pool, context(req), req.body))
+    } catch (error) { failure(res, error) }
+  })
+  app.post('/api/coach/workout-programming/exercise-gap/assess', ...can('library.manage'), async (req, res) => {
+    const controller = new AbortController()
+    const abort = () => controller.abort()
+    const close = () => { if (!res.writableEnded) abort() }
+    req.on('aborted', abort); res.on('close', close)
+    try {
+      if (!await allowed(req, res, true)) return
+      normalizeWorkoutExerciseGapResearchInput(req.body)
+      const registry = registryFactory()
+      if (!registry.list().length) return bad(res, 'Configure the application AI provider before assessing an exercise gap.', 503, { code: 'programming_model_unavailable' })
+      const result = await gapAssessment({ pool, context: context(req), registry, rawInput: req.body,
+        runOptions: { signal: controller.signal, maxCalls: 1, timeoutMs: 60000, perCallTimeoutMs: 20000, maxOutputTokens: 8000, perCallOutputTokens: 8000 } })
+      if (!controller.signal.aborted) ok(res, result)
+    } catch (error) { if (!controller.signal.aborted) failure(res, error) }
+    finally { req.off('aborted', abort); res.off('close', close) }
   })
   app.post('/api/coach/workout-programming/interpret', ...can('workouts.manage'), async (req, res) => {
     const controller = new AbortController()

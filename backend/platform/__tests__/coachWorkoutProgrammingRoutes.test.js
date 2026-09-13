@@ -22,6 +22,8 @@ function routes(overrides = {}, pool = {}) {
     revalidate: async (_pool, context, id) => { calls.push({ type: 'revalidate', context, id }); return { status: 'QA_PASSED' } },
     choices: async (_pool, context, request) => { calls.push({ type: 'choices', context, request }); return { components: [] } },
     interpret: async (args) => { calls.push({ type: 'interpret', args }); return { status: 'READY_FOR_REVIEW', workoutGenerated: false } },
+    gapResearch: async (_pool, context, input) => { calls.push({ type: 'gapResearch', context, input }); return { exerciseGap: null, creatorAuthorized: false } },
+    gapAssessment: async (args) => { calls.push({ type: 'gapAssessment', args }); return { status: 'NEEDS_COACH_REVIEW', exerciseGap: null, creatorAuthorized: false } },
     ...overrides,
   })
   const invoke = async (key, patch = {}) => {
@@ -37,7 +39,7 @@ function routes(overrides = {}, pool = {}) {
 test('generation uses authenticated scope, server-owned capabilities and bounded budgets', async () => {
   const api = routes()
   const { req, res, result } = await api.invoke('post /api/coach/workout-programming')
-  assert.deepEqual(api.permissions, Array(7).fill('workouts.manage'))
+  assert.deepEqual(api.permissions, ['workouts.manage', 'workouts.manage', 'library.manage', 'library.manage', ...Array(5).fill('workouts.manage')])
   assert.equal(result.status, 200)
   const invocation = api.calls.find((entry) => entry.type === 'generate').args
   assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
@@ -47,6 +49,29 @@ test('generation uses authenticated scope, server-owned capabilities and bounded
   assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in', 'canonical_ai_intent'])
   assert.equal(req.listenerCount('aborted'), 0)
   assert.equal(res.listenerCount('close'), 0)
+})
+
+test('exercise-gap research requires library permission and facility rollout without a model or client authority', async () => {
+  const { assumptions, ...request } = compositionFixtures().request
+  const body = { request, componentKey: 'strength', need: { canonicalName: 'Proposed movement', aliases: [], familyKey: null,
+    description: 'A specific movement demand that needs canonical coverage research.', movementPatterns: ['hinge'], bodyRegions: ['lower_body'], requiredEquipment: [] } }
+  const api = routes({ registryFactory() { throw new Error('Research must not invoke a model') } })
+  const response = await api.invoke('post /api/coach/workout-programming/exercise-gap/research', { body })
+  assert.equal(response.result.status, 200)
+  assert.ok(api.permissions.includes('library.manage'))
+  const call = api.calls.find((entry) => entry.type === 'gapResearch')
+  assert.deepEqual(call.context, { facilityId: '9', userId: '7' })
+  assert.deepEqual(call.input, body)
+  assert.equal(response.result.data.creatorAuthorized, false)
+  assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in'])
+  const disabled = routes({ featureAccess: async () => ({ enabled: false }) })
+  assert.equal((await disabled.invoke('post /api/coach/workout-programming/exercise-gap/research', { body })).result.status, 404)
+  assert.ok(disabled.calls.every((entry) => entry.type !== 'gapResearch'))
+  for (const patch of [{ facilityId: '10' }, { exerciseGap: {} }, { creatorAuthorized: true }, { research: {} }]) {
+    const invalid = routes()
+    assert.equal((await invalid.invoke('post /api/coach/workout-programming/exercise-gap/research', { body: { ...body, ...patch } })).result.status, 400)
+    assert.ok(invalid.calls.every((entry) => entry.type !== 'gapResearch'))
+  }
 })
 
 test('client artifacts, scope overrides and model budgets are rejected before generation', async () => {
@@ -192,6 +217,56 @@ test('disconnecting revision interpretation aborts its shared signal and release
   // Capture the request emitter without replacing the production handler or its abort wiring.
   const req = new EventEmitter()
   const pending = api.invoke('post /api/coach/workout-programming/interpret', { body: { request, instruction: 'Use three lanes.' }, on: req.on.bind(req), off: req.off.bind(req) })
+  await entered
+  req.emit('aborted')
+  const completed = await pending
+  assert.equal(signal.aborted, true)
+  assert.equal(completed.result, undefined)
+  assert.equal(req.listenerCount('aborted'), 0)
+  assert.equal(completed.res.listenerCount('close'), 0)
+})
+
+test('exercise gap assessment binds scope, provider limits and rollout without accepting client research or gap claims', async () => {
+  const { assumptions, ...request } = compositionFixtures().request
+  const body = { request, componentKey: 'strength', need: { canonicalName: 'Proposed movement', aliases: [], familyKey: null,
+    description: 'A specific movement demand that needs canonical coverage research.', movementPatterns: ['hinge'], bodyRegions: ['lower_body'], requiredEquipment: [] } }
+  const key = 'post /api/coach/workout-programming/exercise-gap/assess'
+  const api = routes()
+  const response = await api.invoke(key, { body })
+  assert.equal(response.result.status, 200)
+  const invocation = api.calls.find((entry) => entry.type === 'gapAssessment').args
+  assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
+  assert.equal(invocation.runOptions.maxCalls, 1)
+  assert.equal(invocation.runOptions.maxOutputTokens, 8000)
+  assert.equal(invocation.runOptions.timeoutMs, 60000)
+  assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in', 'canonical_ai_intent'])
+  assert.equal(response.req.listenerCount('aborted'), 0)
+  assert.equal(response.res.listenerCount('close'), 0)
+  for (const patch of [{ research: {} }, { exerciseGap: {} }, { creatorAuthorized: true }, { runOptions: { maxCalls: 100 } }, { facilityId: '10' }]) {
+    const invalid = routes()
+    assert.equal((await invalid.invoke(key, { body: { ...body, ...patch } })).result.status, 400)
+    assert.ok(invalid.calls.every((entry) => entry.type !== 'gapAssessment'))
+  }
+  assert.equal((await routes({ featureAccess: async () => ({ enabled: false }) }).invoke(key, { body })).result.status, 404)
+  assert.equal((await routes({ registryFactory: () => ({ list: () => [] }) }).invoke(key, { body })).result.status, 503)
+  const changed = routes({ gapAssessment: async () => { throw Object.assign(new Error('Sources changed'), { code: 'exercise_gap_sources_changed' }) } })
+  assert.equal((await changed.invoke(key, { body })).result.status, 409)
+})
+
+test('disconnecting exercise gap assessment cancels its provider and clears listeners', async () => {
+  let started
+  const entered = new Promise((resolve) => { started = resolve })
+  let signal
+  const api = routes({ gapAssessment: async (args) => {
+    signal = args.runOptions.signal; started()
+    await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+    return { status: 'NEEDS_COACH_REVIEW' }
+  } })
+  const { assumptions, ...request } = compositionFixtures().request
+  const body = { request, componentKey: 'strength', need: { canonicalName: 'Proposed movement', aliases: [], familyKey: null,
+    description: 'A specific movement demand that needs canonical coverage research.', movementPatterns: ['hinge'], bodyRegions: ['lower_body'], requiredEquipment: [] } }
+  const req = new EventEmitter()
+  const pending = api.invoke('post /api/coach/workout-programming/exercise-gap/assess', { body, on: req.on.bind(req), off: req.off.bind(req) })
   await entered
   req.emit('aborted')
   const completed = await pending

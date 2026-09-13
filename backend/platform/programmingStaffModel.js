@@ -9,6 +9,11 @@ const COMMON_INSTRUCTIONS =
   + 'Capacity must preserve readiness for later tumbling. Movement intelligence, mobility, balance and coordination are integrated into the components.'
 
 export const PROGRAMMING_ROLE_INSTRUCTIONS = Object.freeze({
+  exercise_creator: 'Act as the Vortex Exercise Creator for a verified content gap. Produce only the requested quarantined proposal in the supplied canonical authoring schema. '
+    + 'Retain the exact gap identity, target variant, delivery phase and declared equipment. Use only supplied taxonomy. '
+    + 'For a missing delivery profile, return only that profile and do not invent a new movement, variant or source-card revision. '
+    + 'Provide coach instructions, athlete instructions, quality gates, stop rules and provisional dose ranges. State assumptions and uncertainties. '
+    + 'Do not invent approval, publication, reviewed classifications, media, readiness, source evidence or clinical suitability. Human review is mandatory.',
   director: 'Act as the Vortex Director of Performance. Resolve session intent and complementary component purposes. '
     + 'Recommend only candidate IDs supplied for that component. Honor fixed budgets and locks. Consultant advice is optional and subordinate to Vortex. '
     + 'For Modify Existing, use the verified parent context to interpret the coaching instruction within the revised structured controls. Preserve earlier work and account for downstream effects. '
@@ -50,12 +55,23 @@ const INTERPRETATION_INSTRUCTIONS = 'Act as the Vortex Director of Performance f
   + 'Respect the total booking: athletic and tumbling minutes are distinct. If their allocation is unclear, ask rather than invent a split. '
   + 'Use only supplied canonical choices. This output proposes controls; it cannot create or validate a workout, approve library content or waive a rule.'
 
+const GAP_ASSESSMENT_INSTRUCTIONS = 'Act as the Vortex Director of Performance for task assess_exercise_gap. '
+  + 'Judge whether the requested movement stimulus is missing after the supplied complete canonical and programming research. '
+  + 'Account for every alternative exactly once, with its current definition ID and version and a concise content-based rationale. '
+  + 'Reuse an eligible existing alternative when it meets the demand. Missing approval, incomplete classification, unavailable equipment, '
+  + 'readiness restrictions, impossible logistics, dose or time requirements are review problems, never proof of missing exercise content. '
+  + 'Only classify different_movement for a material movement or stimulus difference. If the evidence cannot establish that difference, use insufficient_evidence. '
+  + 'A missing delivery profile targets an existing exact variant and phase; it must not create a duplicate movement card. '
+  + 'Assess developmental appropriateness and whether the request can be achieved within the coach controls; ask questions for uncertainty. '
+  + 'Use only supplied published programming methods and phases. This judgment cannot create, approve or publish a library record.'
+
 /** Uses the existing application's chosen model; no provider/model migration here. */
 export function createProgrammingStaffModelInvoker({ model, role, modelVersion = null, Agent = ToolLoopAgent, sourceReferences = [] }) {
   if (!model || !PROGRAMMING_ROLE_INSTRUCTIONS[role]) throw new TypeError('A configured model and supported staff role are required')
   return async (input, { signal, maxOutputTokens, outputSchema }) => {
     const agent = new Agent({
-      id: `vortex-${role}`, model, instructions: `${COMMON_INSTRUCTIONS} ${role === 'director' && input?.task === 'interpret_revision_controls' ? INTERPRETATION_INSTRUCTIONS : PROGRAMMING_ROLE_INSTRUCTIONS[role]}`,
+      id: `vortex-${role}`, model, instructions: `${COMMON_INSTRUCTIONS} ${role === 'director' && input?.task === 'interpret_revision_controls' ? INTERPRETATION_INSTRUCTIONS
+        : role === 'director' && input?.task === 'assess_exercise_gap' ? GAP_ASSESSMENT_INSTRUCTIONS : PROGRAMMING_ROLE_INSTRUCTIONS[role]}`,
       output: Output.object({ name: `vortex_${role}`, schema: jsonSchema(outputSchema) }),
       stopWhen: stepCountIs(1), maxRetries: 0, maxOutputTokens,
     })

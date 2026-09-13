@@ -9,6 +9,7 @@ import copy
 import hashlib
 import itertools
 import json
+import math
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -44,6 +45,15 @@ def max_overlap(intervals):
     return max([max(0,min(b,d)-max(a,c))for i,(a,b)in enumerate(intervals)for c,d in intervals[i+1:]]or[0])
 
 
+def per_athlete_role_recovery(tasks,doses,athletes=15):
+    starts={};ends={}
+    for t in tasks:
+        key=t['key'];group=t['group_size'];offsets=t['group_starts_by_set_s'][0]
+        starts[key]=[t['start_s']+offsets[i//group]for i in range(athletes)]
+        ends[key]=[start+seconds(doses[key])for start in starts[key]]
+    return {left['key']+'_to_'+right['key']:min(starts[right['key']][i]-ends[left['key']][i]for i in range(athletes))for left,right in zip(tasks,tasks[1:])}
+
+
 def mappings():
     result={}
     for file in MAPS:
@@ -58,25 +68,31 @@ def latest_bilateral_squat(records):
     return next((r for r in reversed(records)if r.get('pattern')=='bilateral_squat'),None)
 
 
-def knee_entry(route,e,prior_reps,selected_reps,old_kg=None,new_kg=None,smallest_available_increment=None,before_loaded_reps=False):
+def finite_positive_number(value):
+    return isinstance(value,(int,float))and not isinstance(value,bool)and math.isfinite(value)and value>0
+
+
+def knee_entry(mode,route,e,prior_reps,selected_reps,old_kg=None,new_kg=None,smallest_available_increment=None,before_loaded_reps=False):
     """Staged first handling is counted instruction, not prior whole-task proof."""
+    if mode not in MODES or route!='bodyweight'and mode not in D_MODES:return False
     common=('current_response_suitable','actual_same_stance_range_tempo','actual_knee_suitability')
     if not all(e.get(k)is True for k in common):return False
+    if not isinstance(selected_reps,int)or isinstance(selected_reps,bool)or selected_reps<1:return False
     if prior_reps is None:
         if route!='bodyweight'or selected_reps>2:return False
-    elif selected_reps>prior_reps:return False
+    elif not isinstance(prior_reps,(int,float))or not math.isfinite(prior_reps)or selected_reps>prior_reps:return False
     if route=='bodyweight':return True
     req=['actual_fixed_DB_grip_geometry_and_cradle_fit','selected_credible_load_before_set','actual_pair_coach_and_rear_staging_fit']
     if route in ('goblet_first','goblet_reintroduce'):req+=['actual_repeatable_current_bodyweight_squat']
     if route in ('goblet_retained','goblet_load_step'):req+=['actual_repeatable_most_recent_compatible_goblet']
-    if not all(e.get(k)is True for k in req)or not isinstance(new_kg,(int,float))or new_kg<=0:return False
+    if not all(e.get(k)is True for k in req)or not finite_positive_number(new_kg):return False
     if route in ('goblet_retained','goblet_load_step')and e.get('newer_unloaded_bilateral_squat')is not False:return False
     if route=='goblet_retained':
-        if new_kg!=old_kg or e.get('actual_familiar_ten_second_handling')is not True or e.get('actual_same_DB_identity_grip')is not True:return False
+        if not finite_positive_number(old_kg)or not math.isclose(new_kg,old_kg,rel_tol=0,abs_tol=1e-9)or e.get('actual_familiar_ten_second_handling')is not True or e.get('actual_same_DB_identity_grip')is not True:return False
     if route=='goblet_load_step':
-        if not isinstance(old_kg,(int,float))or not isinstance(smallest_available_increment,(int,float))or smallest_available_increment<=0 or new_kg-old_kg!=smallest_available_increment or e.get('actual_prior_reserve_at_least_five')is not True or e.get('credible_selected_step_preserves_reserve')is not True:return False
+        if not finite_positive_number(old_kg)or not finite_positive_number(smallest_available_increment)or not math.isclose(new_kg-old_kg,smallest_available_increment,rel_tol=0,abs_tol=1e-9)or e.get('actual_prior_reserve_at_least_five')is not True or e.get('credible_selected_step_preserves_reserve')is not True:return False
     if route=='goblet_reintroduce':
-        if e.get('newer_unloaded_bilateral_squat')is not True or e.get('actual_older_compatible_goblet')is not True or e.get('current_reason_unloading_no_longer_governs')is not True or not isinstance(old_kg,(int,float))or new_kg>old_kg:return False
+        if e.get('newer_unloaded_bilateral_squat')is not True or e.get('actual_older_compatible_goblet')is not True or e.get('current_reason_unloading_no_longer_governs')is not True or not finite_positive_number(old_kg)or new_kg>old_kg:return False
     if before_loaded_reps and e.get('actual_counted_selected_DB_pickup_support_valid')is not True:return False
     return True
 
@@ -139,6 +155,7 @@ def validate(s,prep,source,source_doc,prior,recent,old08,outline,amendment,enume
     for k,e in ex.items():
         packet(e['age_prescriptions'],k,zero=k=='E1',hold=k=='P1')
         for f in ('set_purpose','execution','cues','errors','rationale','metadata','competency','progression','continuity'):ck(bool(e.get(f)),k+': missing '+f)
+    if errors:return errors,rows,reductions,mixed
     ps=s['preparation_routes'];pr=s['primary_routes'];knees=s['knee_routes'];hips=s['hip_routes'];levels=s['support_dose_levels'];alts=s['alternative_doses'];tm=s['timing_model'];hp=s['history_policy'];rp=s['route_policy'];refs=set(s['mapping_refs'].values())
     ck(set(ps)=={'walk10','walk15','stationary'}and set(pr)==set(ROUTE_MAP),'all independent preparation and main routes')
     for a,m in itertools.product(AGES,MODES):
@@ -260,10 +277,46 @@ def validate(s,prep,source,source_doc,prior,recent,old08,outline,amendment,enume
     if source is not None:
         for key in refs:
             ck(key in source,key+': source record exists')
-            if key in source:ck(all(source[key]['record'].get(f)is None for f in ('liveCanonicalDefinitionId','liveCanonicalVariantId','liveCanonicalProfileId'))and source[key]['record'].get('liveApprovalVerified')is False,key+': source live identity and release unknown')
+            if key in source:ck(all(source[key]['record'].get(f)is None for f in ('liveCanonicalDefinitionId','liveCanonicalVariantId','liveCanonicalProfileId','currentDefinitionId','currentVariantId','currentDeliveryProfileId'))and source[key]['record'].get('liveApprovalVerified')is False,key+': source live identity and release unknown')
     if source_doc:
         ck(set(source_doc['kneeContexts'])==set(knees),'source covers all five knee decisions')
         ck(set(source_doc['primaryContexts'])==set(pr),'source covers all actual main routes')
+        gr=source['GOBLET-OR10']['record']
+        ck(gr['sourceSlug']=='goblet-squat'and gr['localCandidateVariantKey']=='dumbbell-goblet'and gr['localCandidateProfileKey']=='capacity-strength','later exact one-DB dynamic goblet source/profile')
+        ck(source_doc['completeCardDecision']['newExerciseProposalRequiredForThisDraft']is False and source_doc['completeCardDecision']['noNewCanonicalVariantOrProfileCreated']is True,'existing local source with explicit session override, no invented proposal')
+        ck(source_doc['timingContext']==tm and source_doc['historyContext']==hp,'source full group timing and actual-history contracts agree')
+        inherited=source_doc['inheritedStrengthContext']
+        ck(inherited['roleRemapFromOR09']==REUSE and inherited['hipRoutes']==hips and inherited['supportDoseLevels']==levels and inherited['alternativeDoses']==alts,'source complete retained hip/support and low substitution packets')
+        for route,context in source_doc['kneeContexts'].items():
+            v=knees[route];allowed=v['allowed_modes'];indexed={(r['ageBand'],r['mode']):r for r in context['ageModeRows']}
+            ck(set(indexed)==set(itertools.product(AGES,allowed))and len(indexed)==len(context['ageModeRows']),route+': source all unique age/mode rows')
+            ck(context['mappingKey']==v['mapping_ref']and set(context['allowedModes'])==set(allowed)and context['requiresPriorWholeLoadedSquat']is v['requires_prior_whole_loaded_squat'],route+': source exact identity and noncircular entry')
+            segments=kt['first_or_changed_handling_segments']if v['first_or_changed_load_handling']else kt['familiar_handling_segments']if route=='goblet_retained'else[dict(name='setup_exit',seconds=5)]
+            ck(context['handlingSegments']==segments and context['handlingSeconds']==sum(x['seconds']for x in segments),route+': source complete handling phases')
+            for (a,m),row in indexed.items():
+                d=v['age_prescriptions'][a][m]
+                binding={'sets':'sets','referenceRepetitions':'repetitions_per_set','tempoSeconds':'tempo_s_per_repetition','minimumRecoverySeconds':'minimum_rest_s','handlingSeconds':'handling_s_per_set','pickups':'pickup_count','setdowns':'setdown_count','preRepSupportSeconds':'pre_rep_chest_hold_s','actualLoadKg':'actual_load_kg'}
+                ck(all(row[f]==d[k]for f,k in binding.items())and row['tempoPhasesSeconds']==dict(lower=3,gentlePause=1,stand=1)and sum(row['tempoPhasesSeconds'].values())==d['tempo_s_per_repetition']and row['minimumGoodRepetitionsInReserve']==5,route+': source exact dose, phases, handling and conservative reserve')
+                ck(set(row['repetitionCaps'])==set(v['repetition_caps'])and all(row['repetitionCaps'][cap]==p[a][m]['repetitions_per_set']for cap,p in v['repetition_caps'].items()),route+': source every actual smaller repetition cap')
+            if route=='bodyweight':ck(context['unknownSuitableObservationCap']==2,'source unknown suitable BW instruction ceiling')
+        for route,context in source_doc['primaryContexts'].items():
+            v=pr[route];indexed={(r['ageBand'],r['mode']):r for r in context['ageModeRows']}
+            ck(set(indexed)==set(itertools.product(AGES,v['allowed_modes']))and len(indexed)==len(context['ageModeRows']),route+': source complete unique main mode/age grid')
+            ck(context['mappingKey']==v['mapping_ref']and set(context['allowedModes'])==set(v['allowed_modes'])and context['firstRunningInstruction']is False and context['requiresActualPriorSameRunningRoute']is v['requires_actual_prior_same_running_route']and context['requiresCurrentE0ResponseBeforeE1']is True and context['E0RequiresItsOwnFutureResult']is False,route+': source independent retained-running E0/E1 gate')
+            for (a,m),row in indexed.items():
+                ck(set(row['doseSelections'])=={'reference','1','2','3'},route+': source all main caps')
+                for cap,selection in row['doseSelections'].items():
+                    ds=v['age_prescriptions'][a][m]if cap=='reference'else v['opportunity_caps'][cap][a][m];d=ds['E0']
+                    ck(selection['total']==d['total_main_opportunity_ceiling']and selection['E0RoundIndices']==d['round_indices']and selection['E1RoundIndices']==ds['E1']['round_indices']and selection['allRoundIndices']==d['all_main_round_indices'],route+': source counted first and exact remaining prefix')
+                    binding={'targetMetres':'target_m','runoffOrWalkingExitMetres':'exit_m','returnWalkMetres':'return_walk_m_per_set','activeSeconds':'active_s','returnSeconds':'return_s','minimumRecoverySeconds':'minimum_rest_s','perceivedIntentPercent':'perceived_intent_percent','highIntentSprintMetres':'high_intent_sprint_m_per_set','actualFootContacts':'actual_foot_contacts'}
+                    ck(all(row[f]==d[k]for f,k in binding.items()),route+': source target/runoff/return/intent/contact agreement')
+                    if route=='easy_15':ck(row['easyIntentRPE']==[2,3]and '2 to 3/10'in d['effort_load'],'source actual easy intended-effort boundary')
+        preparation=source_doc['preparationContexts'];p1=preparation['P1']
+        ck(p1['holdSeconds']==3 and p1['settleSeconds']==2 and p1['activeSeconds']==5 and p1['sets']==1 and p1['personalBayOnly']is True and p1['noLaunch']is True and p1['minimumRecoverySeconds']==20,'source full P1 personal-bay hold')
+        ck(set(preparation['P2'])==set(ps),'source all independent P2 options')
+        for route,v in preparation['P2'].items():
+            d=ps[route]['age_prescriptions']['12-14']['standard_D'];binding={'sets':'sets','activeSeconds':'active_s','returnSeconds':'return_s','outboundWalkingMetres':'walking_route_m','returnWalkingMetres':'return_walk_m','minimumRecoverySeconds':'minimum_rest_s'}
+            ck(all(v[f]==d[k]for f,k in binding.items())and set(v['allAgeBands'])==set(AGES)and set(v['allModes'])==set(MODES)and v['grantsRunningOrLoadedSquatPermission']is False,'source P2 physical dose and no cross-permission')
     ck(amendment['id']=='OR-10','explicit OR10 amendment exists')
     ak=amendment['knee_contract'];ad=amendment['delivery_contract']
     ck(set(ak['contexts'])==set(knees)and ak['first_loading_requires_prior_whole_goblet']is False and ak['first_loading_requires_actual_repeatable_bodyweight_and_current_suitability']is True and ak['counted_exact_grip_pickup_chest_support_before_loaded_reps']is True and ak['new_or_changed_handling_s']==kt['new_handling_s']and ak['familiar_handling_s']==kt['familiar_handling_s']and ak['actual_recent_count_caps']==[1,2,3]and ak['older_load_restored_automatically']is False and ak['newer_unload_reintroduction_is_explicit_progression']is True and ak['failed_pickup_consumes_set']is True and ak['make_up_sets']==0 and ak['age_based_kg']is False and set(ak['loaded_modes'])==set(D_MODES),'amendment exact staged knee/load/history contract')
@@ -307,7 +360,7 @@ def validate(s,prep,source,source_doc,prior,recent,old08,outline,amendment,enume
                         own_ends[i]=clear;events.append(dict(athlete=i,lane=i%3,round_index=ri,action_start_s=start,action_end_s=end,outside_return_end_s=clear))
                 last=max(own_ends);ck(last<=block['block_end_s'],tag+': final complete return fits main')
                 ck(peak([(e['action_start_s'],e['action_end_s'])for e in events])<=3,tag+': three lanes, no fourth active athlete')
-                totals={f:len(indices)*ds['E0'][f]for f in ('running_target_m_per_set','running_runoff_m_per_set','walking_route_m_per_set','return_walk_m_per_set')}
+                totals={f.removesuffix('_per_set'):len(indices)*ds['E0'][f]for f in ('running_target_m_per_set','running_runoff_m_per_set','walking_route_m_per_set','return_walk_m_per_set')}
                 main_options[cap]=dict(total_opportunities=len(indices),E0_opportunities=1,E1_opportunities=len(indices)-1,round_indices=indices,events=events,last_return_by_athlete_s=own_ends,last_return_s=last,minimum_recovery_including_first_s=min(recoveries),movement_totals=totals)
             cursor=strength['block_start_s'];starts_by={};ends_by={};clock=[]
             for t in strength['tasks']:
@@ -320,7 +373,8 @@ def validate(s,prep,source,source_doc,prior,recent,old08,outline,amendment,enume
                     ck(size*kt['coaches_per_active_athlete']<=tm['coaches_assumed'],tag+': one direct coach for each active knee athlete')
                 slack=[y-x-dur-max(quiet,reset,stage)for x,y in zip(starts,starts[1:])]
                 clock.append(dict(task=k,block_start_s=cursor,block_end_s=cursor+t['budget_s'],group_size=size,group_starts_relative_s=starts,reference_active_s=dur,between_group_reset_s=reset,incoming_pair_staging_s=stage,post_active_quiet_s=quiet,additional_change_slack_s=slack,actual_additional_equipment_change_s=None));cursor+=t['budget_s']
-            recovery={k+'_to_'+n:min(starts_by[n][i]-ends_by[k][i]for i in range(15))for k,n in zip(KEYS[4:],KEYS[5:])}
+            recovery=per_athlete_role_recovery(strength['tasks'],d)
+            ck(recovery=={k+'_to_'+n:min(starts_by[n][i]-ends_by[k][i]for i in range(15))for k,n in zip(KEYS[4:],KEYS[5:])},tag+': independently derived pair/group transition arrays agree')
             ck(all(recovery[k+'_to_'+n]>=d[k]['minimum_rest_s']for k,n in zip(KEYS[4:],KEYS[5:])),tag+': actual pair-to-group and later per-athlete recovery')
             for cap,mc in main_options.items():
                 ck(all(starts_by['S1'][i]-mc['last_return_by_athlete_s'][i]>=180 for i in range(15)),tag+': main complete return to knee recovery under every cap')
@@ -355,19 +409,26 @@ def main():
     for name,mutate in mutations:
         x=copy.deepcopy(s);mutate(x);bad,_,_,_=validate(x,prep,source,source_doc,prior,recent,old08,outline,amendment,False);probes.append(dict(case=name,rejected=bool(bad),sample_findings=bad[:2]))
     e=dict(current_response_suitable=True,actual_same_stance_range_tempo=True,actual_knee_suitability=True,actual_fixed_DB_grip_geometry_and_cradle_fit=True,selected_credible_load_before_set=True,actual_pair_coach_and_rear_staging_fit=True,actual_repeatable_current_bodyweight_squat=True,actual_counted_selected_DB_pickup_support_valid=None,actual_prior_whole_loaded_squat=None)
-    first_entry=knee_entry('goblet_first',e,2,2,new_kg=4);first_reps=knee_entry('goblet_first',dict(e,actual_counted_selected_DB_pickup_support_valid=True),2,2,new_kg=4,before_loaded_reps=True)
-    probes.append(dict(case='first loaded reps before actual counted support',rejected=not knee_entry('goblet_first',e,2,2,new_kg=4,before_loaded_reps=True)))
-    probes.append(dict(case='first load without repeatable BW',rejected=not knee_entry('goblet_first',dict(e,actual_repeatable_current_bodyweight_squat=None),2,2,new_kg=4)))
-    probes.append(dict(case='unknown count automatically loaded',rejected=not knee_entry('goblet_first',e,None,2,new_kg=4)))
-    probes.append(dict(case='restored old repetitions',rejected=not knee_entry('goblet_first',e,1,4,new_kg=4)))
+    first_entry=knee_entry('standard_D','goblet_first',e,2,2,new_kg=4);first_reps=knee_entry('standard_D','goblet_first',dict(e,actual_counted_selected_DB_pickup_support_valid=True),2,2,new_kg=4,before_loaded_reps=True)
+    probes.append(dict(case='first loaded reps before actual counted support',rejected=not knee_entry('standard_D','goblet_first',e,2,2,new_kg=4,before_loaded_reps=True)))
+    probes.append(dict(case='first load without repeatable BW',rejected=not knee_entry('standard_D','goblet_first',dict(e,actual_repeatable_current_bodyweight_squat=None),2,2,new_kg=4)))
+    probes.append(dict(case='unknown count automatically loaded',rejected=not knee_entry('standard_D','goblet_first',e,None,2,new_kg=4)))
+    probes.append(dict(case='restored old repetitions',rejected=not knee_entry('standard_D','goblet_first',e,1,4,new_kg=4)))
     retained=dict(e,actual_repeatable_most_recent_compatible_goblet=True,newer_unloaded_bilateral_squat=False,actual_familiar_ten_second_handling=True,actual_same_DB_identity_grip=True,actual_prior_reserve_at_least_five=True,credible_selected_step_preserves_reserve=True)
-    retain_ok=knee_entry('goblet_retained',retained,1,1,old_kg=4,new_kg=4);step_ok=knee_entry('goblet_load_step',retained,1,1,old_kg=4,new_kg=5,smallest_available_increment=1)
-    probes.append(dict(case='retention after more recent unload',rejected=not knee_entry('goblet_retained',dict(retained,newer_unloaded_bilateral_squat=True),1,1,old_kg=4,new_kg=4)))
-    probes.append(dict(case='step skips smallest available increment',rejected=not knee_entry('goblet_load_step',retained,1,1,old_kg=4,new_kg=6,smallest_available_increment=1)))
-    probes.append(dict(case='step lacks credible reserve',rejected=not knee_entry('goblet_load_step',dict(retained,credible_selected_step_preserves_reserve=None),1,1,old_kg=4,new_kg=5,smallest_available_increment=1)))
-    reintro=dict(e,newer_unloaded_bilateral_squat=True,actual_older_compatible_goblet=True,current_reason_unloading_no_longer_governs=True);reintro_ok=knee_entry('goblet_reintroduce',reintro,1,1,old_kg=4,new_kg=3)
-    probes.append(dict(case='reintroduction lacks current reason',rejected=not knee_entry('goblet_reintroduce',dict(reintro,current_reason_unloading_no_longer_governs=None),1,1,old_kg=4,new_kg=3)))
-    probes.append(dict(case='reintroduction exceeds older load',rejected=not knee_entry('goblet_reintroduce',reintro,1,1,old_kg=4,new_kg=5)))
+    retain_ok=knee_entry('standard_D','goblet_retained',retained,1,1,old_kg=4,new_kg=4);step_ok=knee_entry('standard_D','goblet_load_step',retained,1,1,old_kg=4,new_kg=5,smallest_available_increment=1)
+    decimal_step_ok=knee_entry('standard_D','goblet_load_step',retained,1,1,old_kg=2.1,new_kg=2.3,smallest_available_increment=0.2)
+    for label,value in [('infinite',float('inf')),('nan',float('nan')),('negative',-1),('zero',0),('boolean',True)]:
+        probes.append(dict(case=label+' selected kg rejected',rejected=not knee_entry('standard_D','goblet_first',e,1,1,new_kg=value)))
+    probes.append(dict(case='L cannot enter loaded knee handling',rejected=not knee_entry('standard_L','goblet_first',e,1,1,new_kg=4)))
+    probes.append(dict(case='retention after more recent unload',rejected=not knee_entry('standard_D','goblet_retained',dict(retained,newer_unloaded_bilateral_squat=True),1,1,old_kg=4,new_kg=4)))
+    probes.append(dict(case='step skips smallest available increment',rejected=not knee_entry('standard_D','goblet_load_step',retained,1,1,old_kg=4,new_kg=6,smallest_available_increment=1)))
+    probes.append(dict(case='step lacks credible reserve',rejected=not knee_entry('standard_D','goblet_load_step',dict(retained,credible_selected_step_preserves_reserve=None),1,1,old_kg=4,new_kg=5,smallest_available_increment=1)))
+    reintro=dict(e,newer_unloaded_bilateral_squat=True,actual_older_compatible_goblet=True,current_reason_unloading_no_longer_governs=True);reintro_ok=knee_entry('standard_D','goblet_reintroduce',reintro,1,1,old_kg=4,new_kg=3)
+    ordered=[dict(pattern='bilateral_squat',identity='goblet',reps=1,kg=4),dict(pattern='supported_static_split_stance',identity='unloaded',hold_s=3)]
+    latest=latest_bilateral_squat(ordered);static_does_not_unload=latest==ordered[0]and knee_entry('standard_D','goblet_retained',retained,latest['reps'],1,old_kg=latest['kg'],new_kg=4)
+    probes.append(dict(case='static stance alone cannot justify squat reintroduction',rejected=not knee_entry('standard_D','goblet_reintroduce',dict(reintro,newer_unloaded_bilateral_squat=latest['identity']=='bodyweight'),1,1,old_kg=4,new_kg=3)))
+    probes.append(dict(case='reintroduction lacks current reason',rejected=not knee_entry('standard_D','goblet_reintroduce',dict(reintro,current_reason_unloading_no_longer_governs=None),1,1,old_kg=4,new_kg=3)))
+    probes.append(dict(case='reintroduction exceeds older load',rejected=not knee_entry('standard_D','goblet_reintroduce',reintro,1,1,old_kg=4,new_kg=5)))
     run=dict(current_response_suitable=True,actual_current_route_geometry_and_supervision=True,understood_release_stop_return=True,actual_repeatable_same_running_start_route_intent=True,matches_most_recent_running_demand=True,actual_suitable_counted_E0_response=None,actual_comfortable_walking_and_return=True,actual_comfortable_standing_and_visible_bay=True)
     run_E0=running_entry('technical_low_20','standard_D',run,2,2);run_E1=running_entry('technical_low_20','standard_D',dict(run,actual_suitable_counted_E0_response=True),2,2,True)
     probes.append(dict(case='E1 before actual current E0 response',rejected=not running_entry('technical_20','standard_D',run,2,2,True)))
@@ -378,7 +439,19 @@ def main():
     probes.append(dict(case='unknown hip count implies novice control',rejected=not hip_entry('bodyweight','standard_D',dict(h,actual_familiar_current_hip_control=None),2,None)))
     probes.append(dict(case='L DB hip',rejected=not hip_entry('familiar_DB','standard_L',h,1,1)))
     probes.append(dict(case='old DB hip after newer unloading',rejected=not hip_entry('familiar_DB','standard_D',dict(h,newer_unloaded_hip=True),1,1)))
-    positive=dict(first_counted_handling_with_no_prior_loaded_squat=first_entry,first_loaded_reps_only_after_actual_counted_support=first_reps,actual_familiar_retention=retain_ok,one_credible_smallest_increment=step_ok,reasoned_lower_load_reintroduction_at_recent_count=reintro_ok,lower_intent_retention_in_D_before_E0=run_E0,E1_after_actual_E0=run_E1,actual_familiar_hip_small_history=hip_ok,unknown_hip_count_with_actual_familiar_control=unknown_hip_ok,unknown_suitable_BW_knee=knee_entry('bodyweight',e,None,2))
+    shifted_tasks=copy.deepcopy(s['timing_model']['strength']['compressed']['tasks'])
+    push=next(t for t in shifted_tasks if t['key']=='S3');push['setup_s']=0;push['group_starts_by_set_s']=[[0,30,60]]
+    timing_doses={ex['key']:copy.deepcopy(ex['age_prescriptions']['12-14']['compressed_D'])for ex in s['exercises']}
+    timing_doses['S2']=s['hip_routes']['familiar_DB']['age_prescriptions']['12-14']['compressed_D']
+    shifted_gaps=per_athlete_role_recovery(shifted_tasks,timing_doses)
+    probes.append(dict(case='earlier compact push wave violates same-athlete DB-hip recovery',rejected=shifted_gaps['S2_to_S3']<timing_doses['S2']['minimum_rest_s'],calculated_recovery_s=shifted_gaps['S2_to_S3'],required_s=timing_doses['S2']['minimum_rest_s']))
+    drift=copy.deepcopy(source);drift['GOBLET-OR10']['record']['currentDefinitionId']='invented-current-owner'
+    bad,_,_,_=validate(s,prep,drift,source_doc,prior,recent,old08,outline,amendment,False);probes.append(dict(case='fabricated current goblet owner',rejected=bool(bad),sample_findings=bad[:2]))
+    changed_source=copy.deepcopy(source_doc);changed_source['kneeContexts']['goblet_first']['ageModeRows'][0]['repetitionCaps']['1']=2
+    bad,_,_,_=validate(s,prep,source,changed_source,prior,recent,old08,outline,amendment,False);probes.append(dict(case='source cap drifts above current one-rep packet',rejected=bool(bad),sample_findings=bad[:2]))
+    changed_source=copy.deepcopy(source_doc);changed_source['primaryContexts']['technical_low_20']['ageModeRows'][0]['perceivedIntentPercent']=[60,75]
+    bad,_,_,_=validate(s,prep,source,changed_source,prior,recent,old08,outline,amendment,False);probes.append(dict(case='source lower-intent retention drifts harder',rejected=bool(bad),sample_findings=bad[:2]))
+    positive=dict(first_counted_handling_with_no_prior_loaded_squat=first_entry,first_loaded_reps_only_after_actual_counted_support=first_reps,actual_familiar_retention=retain_ok,one_credible_smallest_increment=step_ok,finite_decimal_increment_not_rejected_by_binary_roundoff=decimal_step_ok,static_stance_does_not_overwrite_compatible_squat=static_does_not_unload,reasoned_lower_load_reintroduction_at_recent_count=reintro_ok,lower_intent_retention_in_D_before_E0=run_E0,E1_after_actual_E0=run_E1,actual_familiar_hip_small_history=hip_ok,unknown_hip_count_with_actual_familiar_control=unknown_hip_ok,unknown_suitable_BW_knee=knee_entry('standard_D','bodyweight',e,None,2))
     if not all(positive.values()):errors.append('a valid independent staged/history example was rejected')
     if not all(p['rejected']for p in probes):errors.append('one or more adverse cases were not rejected')
     hashes={f:hashlib.sha256((ROOT/f).read_bytes()).hexdigest()for f in files}
