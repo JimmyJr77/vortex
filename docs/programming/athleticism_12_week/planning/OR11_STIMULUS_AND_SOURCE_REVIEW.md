@@ -65,3 +65,23 @@ Write the OR-11 amendment, complete author/export/mapping, daily anchor/workload
 ## Review record
 
 The exercise/programming librarian inspected the actual OR-11 map, OR-03/07 records and related terminal-stop, immediate-cut, static/dynamic stance and method sources during the completed Week 2 handoff review. It found no inspected completed exact reduced-positive-pause context. Independent review of this saved brief is pending; no full OR-11 authoring should begin before that brief review is recorded.
+
+## Inspected source fingerprints
+
+These bind the pre-authoring evidence; they do not establish current canonical release or a completed OR-11 prescription.
+
+| Evidence | SHA256 |
+|---|---|
+| [VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md](/Users/jimmy_mac/Desktop/code/vortex/docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md) | `42752dd131b45ed5d44e76927a8da6c3677f64773da625cad4de444cfab93cb3` |
+| [instructional_map.json](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json) | `2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867` |
+| [week_02_review.md](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/instructional_on_ramp/week_02/week_02_review.md) | `d0cb3a230620c2bf4c08ca71a77560702c7428400dbc0e7347e032b59721be2f` |
+| [week_02_programming_critique.md](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/instructional_on_ramp/week_02/week_02_programming_critique.md) | `56fdaf648fa8647efc23ef0e6b31d51a472ef5ee45e591888a874f410db6394d` |
+| [week_02_check_results.json](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/instructional_on_ramp/week_02/week_02_check_results.json) | `c97c2c9da3fe060645fb2b11034d588d1b44a34cfe1b5b0c1f5bf3df9eee59da` |
+| [or07_paused_exit_teaching_candidate.json](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/prescriptions/proposals/or07_paused_exit_teaching_candidate.json) | `487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82` |
+| [OR07_LIBRARY_MAPPING.md](/Users/jimmy_mac/Desktop/code/vortex/docs/programming/athleticism_12_week/prescriptions/OR07_LIBRARY_MAPPING.md) | `8676c489bef8e48a662424654b939d4afaaac24ef38e07fbf38197fbf01e1467` |
+| [jog-to-stick-linear-deceleration.v1.json](/Users/jimmy_mac/Desktop/code/vortex/scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json) | `682b004f71d22ca6617abe55330b7d7e07f55201adecd76aed32dad1ba3a2ef6` |
+| [45-degree-cut-and-reaccelerate.v1.json](/Users/jimmy_mac/Desktop/code/vortex/scripts/data/canonical-research/contracts/45-degree-cut-and-reaccelerate.v1.json) | `884b2b5dcd9275909e9bf101dcd4b5a79757db7db4e42db1350976d45c980ed5` |
+| [cone-drill-exercise-cards-all-50.json](/Users/jimmy_mac/Desktop/code/vortex/scripts/data/cone-drill-exercise-cards-all-50.json) | `f49fd95d101a9dbb4d64d1ac628d7d8b96791caae9ac01922447e768bf8b54c8` |
+| [352_coaching_static_control_family_completion.sql](/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/352_coaching_static_control_family_completion.sql) | `4017b49d5c3d8aefa7918b89a078216ee6c9819dae7665b81f5c1286f85b2f40` |
+| [370_coaching_split_squat_family_completion.sql](/Users/jimmy_mac/Desktop/code/vortex/backend/migrations/370_coaching_split_squat_family_completion.sql) | `a5abc23a8e0986b69951aad2cb01a39e0ae6f0f2975c35ea30510aef7c40df5c` |
+| [programming-methods-top50.mjs](/Users/jimmy_mac/Desktop/code/vortex/scripts/data/programming-methods-top50.mjs) | `eba876960b55bdd492115f09c89bf3b239cb354b2b20af2d87c546428ebd8c64` |
