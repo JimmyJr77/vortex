@@ -43,7 +43,10 @@ export type SavedAcknowledgment={id:number;cycle:number;kind:'HANDBOOK'|'WAGE_NO
 export type I9EmployerDocument={title:string;issuingAuthority:string;number:string;expiresOn:string}
 export type I9EmployerDraft={documentChoice:'LIST_A'|'LIST_B_C'|null;listA:I9EmployerDocument[];listB:I9EmployerDocument|null;listC:I9EmployerDocument|null;additionalInformation:string;examinationMethod:'PHYSICAL'|'ALTERNATIVE'|null;firstDayEmployed:string;representativeNameAndTitle:string;businessName:string;businessAddress:string}
 export type I9EmployerDraftState={revision:number;basisHash:string;submissionId:string|number|null;draft:I9EmployerDraft|null;savedAt:string|null;invalidated:boolean}
+export type I9EmployerPreview={reviewId:string|number;expiresAt:string;previewSha256:string;pdfBase64:string;pageCount:number;supplements:Array<{documentKey:string;documentId:string|number;sha256:string;pdfBase64:string;pageCount:number}>}
 export const workforceApi = {
+ previewI9Employer:(employeeId:number,taskId:number,body:unknown)=>request<I9EmployerPreview>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-preview`,true,body),
+ recordI9EmployerPage:(employeeId:number,taskId:number,body:unknown)=>request<{recorded:boolean}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-page`,true,body),
  i9EmployerDraft:(employeeId:number,taskId:number,cycle:number)=>request<I9EmployerDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft?onboardingCycle=${cycle}`,true),
  saveI9EmployerDraft:(employeeId:number,taskId:number,body:unknown)=>request<{revision:number;basisHash:string;savedAt:string}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft`,true,body),
  benefitContributions:(start:string,end:string)=>request<{contributions:EmployeeBenefitContribution[]}>(`/benefit-contributions?${new URLSearchParams({start,end})}`,false),

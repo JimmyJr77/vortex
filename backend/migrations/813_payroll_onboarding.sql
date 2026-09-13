@@ -5682,3 +5682,39 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_employer_draft ON payroll_i9_employer_draft;
 CREATE TRIGGER payroll_guard_i9_employer_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_draft();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_employer_review (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),submission_id BIGINT NOT NULL REFERENCES payroll_i9_submission(id),draft_revision integer NOT NULL CHECK(draft_revision>0),
+ basis_hash text NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'),preparer_fingerprint text NOT NULL CHECK(preparer_fingerprint ~ '^[a-f0-9]{64}$'),preparer_document_ids BIGINT[] NOT NULL,
+ actor_user_id BIGINT NOT NULL,encrypted_review bytea NOT NULL CHECK(octet_length(encrypted_review)>28),preview_sha256 text NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ created_at timestamptz NOT NULL DEFAULT clock_timestamp(),expires_at timestamptz NOT NULL DEFAULT clock_timestamp()+interval '30 minutes'
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_employer_review() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE expected_documents BIGINT[];
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Employer review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_draft d JOIN payroll_onboarding_task t ON t.id=d.task_id JOIN payroll_i9_submission s ON s.id=d.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id JOIN payroll_i9_review v ON v.id=s.review_id WHERE d.facility_id=NEW.facility_id AND d.employee_id=NEW.employee_id AND d.task_id=NEW.task_id AND d.onboarding_cycle=NEW.onboarding_cycle AND d.submission_id=NEW.submission_id AND d.revision=NEW.draft_revision AND d.basis_hash=NEW.basis_hash AND t.onboarding_cycle=d.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND e.onboarding_cycle=s.onboarding_cycle AND e.status='COMPLETE' AND e.response->>'i9SubmissionId'=s.id::text AND v.hiring_revision=(SELECT MAX(revision) FROM payroll_i9_hiring_context WHERE task_id=e.id AND onboarding_cycle=e.onboarding_cycle)) THEN RAISE EXCEPTION 'Employer review requires the current draft and approved employee signature.' USING ERRCODE='23514'; END IF;
+ IF EXISTS(SELECT 1 FROM payroll_i9_preparer_request r LEFT JOIN payroll_i9_preparer_signature s ON s.request_id=r.id WHERE r.submission_id=NEW.submission_id AND r.cancelled_at IS NULL AND s.id IS NULL) THEN RAISE EXCEPTION 'Employer review requires all current preparer certificates.' USING ERRCODE='23514'; END IF;
+ SELECT COALESCE(array_agg(s.document_id ORDER BY r.id),ARRAY[]::BIGINT[]) INTO expected_documents FROM payroll_i9_preparer_request r JOIN payroll_i9_preparer_signature s ON s.request_id=r.id WHERE r.submission_id=NEW.submission_id AND r.cancelled_at IS NULL;
+ IF NEW.preparer_document_ids IS DISTINCT FROM expected_documents OR (cardinality(expected_documents)=0 AND EXISTS(SELECT 1 FROM payroll_i9_submission WHERE id=NEW.submission_id AND preparer_required)) THEN RAISE EXCEPTION 'Employer review must retain every current preparer document.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_employer_review ON payroll_i9_employer_review;
+CREATE TRIGGER payroll_guard_i9_employer_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_review();
+CREATE TABLE IF NOT EXISTS payroll_i9_employer_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_employer_review(id),document_key text NOT NULL,page_number integer NOT NULL CHECK(page_number BETWEEN 1 AND 4),
+ displayed_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(review_id,document_key,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_employer_page() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE review payroll_i9_employer_review%ROWTYPE;
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Employer page review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ SELECT * INTO review FROM payroll_i9_employer_review WHERE id=NEW.review_id AND expires_at>clock_timestamp();
+ IF NOT FOUND OR review.id<>(SELECT MAX(id) FROM payroll_i9_employer_review WHERE task_id=review.task_id AND onboarding_cycle=review.onboarding_cycle) THEN RAISE EXCEPTION 'Display the latest unexpired employer review.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_draft d JOIN payroll_onboarding_task t ON t.id=d.task_id JOIN payroll_i9_submission s ON s.id=review.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id JOIN payroll_i9_review v ON v.id=s.review_id WHERE d.task_id=review.task_id AND d.onboarding_cycle=review.onboarding_cycle AND d.revision=review.draft_revision AND d.basis_hash=review.basis_hash AND d.submission_id=review.submission_id AND t.onboarding_cycle=d.onboarding_cycle AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND e.onboarding_cycle=s.onboarding_cycle AND e.status='COMPLETE' AND e.response->>'i9SubmissionId'=s.id::text AND (NOT s.preparer_required OR e.response->'i9PreparerReview'->>'fingerprint'=review.preparer_fingerprint) AND v.hiring_revision=(SELECT MAX(revision) FROM payroll_i9_hiring_context WHERE task_id=e.id AND onboarding_cycle=e.onboarding_cycle)) THEN RAISE EXCEPTION 'Employer page review requires current draft and employee evidence.' USING ERRCODE='23514'; END IF;
+ IF NEW.document_key<>'main' AND (NEW.page_number<>1 OR NOT NEW.document_key=ANY(review.preparer_document_ids::text[])) THEN RAISE EXCEPTION 'Display a page in the retained employer packet.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_employer_page ON payroll_i9_employer_page_visit;
+CREATE TRIGGER payroll_guard_i9_employer_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_page();

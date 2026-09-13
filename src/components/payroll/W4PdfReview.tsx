@@ -5,6 +5,7 @@ import officialFormUrl from '../../../backend/payroll/forms/irs-w4-2026.pdf?url'
 
 export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCount=5,sourceUrl=officialFormUrl,editionLabel='2026',reviewTitle}:{pdfBase64?:string;onDisplayed?:(page:number)=>Promise<void>;formName?:string;pageCount?:number;sourceUrl?:string;editionLabel?:string;reviewTitle?:string}){
  const [pdf,setPdf]=useState<PDFDocumentProxy|null>(null),[page,setPage]=useState(1),[attempt,setAttempt]=useState(0),[ready,setReady]=useState(0),[error,setError]=useState(''),[text,setText]=useState(''),[zoom,setZoom]=useState(1)
+ const [fields,setFields]=useState<Array<{id:string;label:string;value:string}>>([])
  const canvas=useRef<HTMLCanvasElement>(null)
  useEffect(()=>{
   let live=true,dispose:(()=>void)|undefined
@@ -32,15 +33,22 @@ export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCo
    const rendering=sheet.render({canvas:target,canvasContext:context,viewport})
    cancel=()=>rendering.cancel()
    await rendering.promise
-   const content=await sheet.getTextContent()
+   const [content,annotations]=await Promise.all([sheet.getTextContent(),sheet.getAnnotations({intent:'display'}) as Promise<Array<Record<string,unknown>>>])
    if(!live)return
    setText(content.items.map(item=>'str' in item?item.str:'').join(' '))
+   setFields(annotations.flatMap(field=>{
+    if(field.subtype!=='Widget')return []
+    const label=typeof field.alternativeText==='string'&&field.alternativeText?field.alternativeText:typeof field.fieldName==='string'?field.fieldName:''
+    const selected=field.checkBox?field.fieldValue===field.exportValue:field.radioButton?field.fieldValue===field.buttonValue:false
+    const value=field.fieldType==='Btn'?(selected?'Selected':''):Array.isArray(field.fieldValue)?field.fieldValue.filter(v=>typeof v==='string').join(', '):typeof field.fieldValue==='string'?field.fieldValue:''
+    return label&&value?[{id:String(field.id),label,value}]:[]
+   }))
    await onDisplayed?.(page)
    if(live)setReady(page)
   })().catch(()=>{if(live)setError('This page could not be displayed or its review saved. Reopen the page to retry.')})
   return()=>{live=false;cancel?.()}
  },[pdf,page,onDisplayed,attempt])
- const select=(value:number)=>{setReady(0);setError('');setText('');setPage(value);setAttempt(current=>current+1)}
+ const select=(value:number)=>{setReady(0);setError('');setText('');setFields([]);setPage(value);setAttempt(current=>current+1)}
  return <section aria-label={`Official ${formName} page review`} className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-3">
   <p className="font-bold">{pdfBase64?(reviewTitle||`Review your completed ${formName}`):`Official ${editionLabel} ${formName}, instructions and worksheets`}</p>
   <nav aria-label={`${formName} pages`} className="flex flex-wrap gap-2">{Array.from({length:pageCount},(_,index)=>index+1).map(n=><button type="button" key={n} aria-current={page===n?'page':undefined} className={`rounded-lg border px-3 py-2 text-sm ${page===n?'bg-slate-950 text-white':'bg-white'}`} onClick={()=>select(n)}>Page {n}</button>)}</nav>
@@ -48,6 +56,6 @@ export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCo
   {error?<p role="alert" className="text-sm text-red-800">{error}</p>:null}
   <label className="block text-sm">Page zoom<select value={zoom} onChange={e=>setZoom(Number(e.target.value))} className="ml-2 rounded border bg-white p-2"><option value={1}>Fit width</option><option value={1.5}>150%</option><option value={2}>200%</option><option value={3}>300%</option></select></label>
   <div tabIndex={0} role="region" aria-label={`${formName} page image; scroll horizontally when zoomed`} className="overflow-auto rounded border bg-white"><canvas ref={canvas} aria-label={`Official ${formName} page ${page}`} style={{width:`${zoom*100}%`,maxWidth:'none',height:'auto'}} /></div>
-  {text?<details><summary className="cursor-pointer text-sm font-semibold">Read page {page} text</summary><p className="mt-2 whitespace-pre-wrap text-sm leading-6">{text}</p></details>:null}
+  {text?<details><summary className="cursor-pointer text-sm font-semibold">Read page {page} text</summary><p className="mt-2 whitespace-pre-wrap text-sm leading-6">{text}</p>{fields.length?<div className="mt-3"><p className="font-semibold">Entered form values</p><dl className="space-y-2 text-sm">{fields.map(field=><div key={field.id}><dt className="font-semibold break-words">{field.label}</dt><dd className="whitespace-pre-wrap break-words">{field.value}</dd></div>)}</dl></div>:null}</details>:null}
  </section>
 }
