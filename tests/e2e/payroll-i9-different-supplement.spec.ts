@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {supplementReceiptFixture} from '../../backend/payroll/testing/supplementReceiptFixture.js'
-test('admin completes a different-document Supplement B replacement',async({page})=>{
+for(const extension of [false,true])test(`admin completes a different-document Supplement B replacement (${extension?'List A extension and name change':'List C'})`,async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(120000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='98'.repeat(32)
  const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
@@ -15,9 +15,11 @@ test('admin completes a different-document Supplement B replacement',async({page
  const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true});await records.locator('summary').filter({hasText:'Current certification'}).click()
  await records.getByRole('button',{name:'Replace receipt with different Supplement B documents',exact:true}).click()
  const work=page.getByRole('region',{name:'I-9 replacement Supplement B workspace',exact:true})
- await work.getByLabel('Document list',{exact:true}).selectOption('C')
- for(const [label,value] of [['Reason for different replacement documents','Employee selected a different acceptable authorization document.'],['Examiner initials on replacement explanation','RA'],['Document title','Synthetic replacement authorization'],['Document number (if any)','SYNTHETIC-C'],['Document expiration (if any)','2032-01-01'],['Examiner name on Supplement B','Reviewer Alice']])await work.getByLabel(label,{exact:true}).fill(value)
+ await work.getByLabel('Document list',{exact:true}).selectOption(extension?'A':'C')
+ for(const [label,value] of [['Reason for different replacement documents','Employee selected a different acceptable authorization document.'],['Examiner initials on replacement explanation','RA'],['Document title','Synthetic replacement authorization'],['Document number (if any)','SYNTHETIC-C'],['Document expiration (if any)',extension?'2026-09-01':'2032-01-01'],['Examiner name on Supplement B','Reviewer Alice']])await work.getByLabel(label,{exact:true}).fill(value)
  await work.getByLabel('Examination method',{exact:true}).selectOption('PHYSICAL')
+ const notation=`RA ${today.slice(5,7)}/${today.slice(8,10)}/${today.slice(0,4)}: Synthetic extension valid through January 1, 2030.`
+ if(extension){await work.getByLabel('Initialed and dated form notation (if needed)',{exact:true}).fill(notation);await work.getByLabel('New first name (if changed)',{exact:true}).fill('Taylor');await work.getByLabel('New last name (if changed)',{exact:true}).fill('Updated')}
  await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
  await expect(work.getByRole('alert')).toContainText('Synthetic draft response lost.')
  await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
@@ -44,7 +46,8 @@ test('admin completes a different-document Supplement B replacement',async({page
  for(let n=1;n<=2;n++){await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(viewer.getByRole('status')).toContainText(`Page ${n} of 2 displayed and review visit saved.`,{timeout:30000})}
  await copies.getByLabel('Use replacement copy 1',{exact:true}).check()
  for(const [label,value] of [['Actual examination date',today],['Examiner identity and authority evidence','Reviewer Alice examined the original document.'],['Official reverification rule URL','https://www.uscis.gov/i-9-central'],['Employee-specific reason reverification is required','Synthetic finite authorization requires review.'],['Different-document replacement evidence','Employee chose different acceptable documentation.'],['Official document-acceptance rule URL','https://www.uscis.gov/i-9-central'],['Document acceptance and future-review evidence','Synthetic acceptance and current authorization review.'],['Current authorization expiration (unless indefinite)','2031-01-01'],['Next follow-up date (if required)','2031-01-01']])await work.getByLabel(label,{exact:true}).fill(value)
- await work.getByLabel('Document acceptance',{exact:true}).selectOption('STANDARD');await work.getByLabel('Is current authorization indefinite?',{exact:true}).selectOption('no');await work.getByLabel('Required next follow-up',{exact:true}).selectOption('REVERIFICATION')
+ await work.getByLabel('Document acceptance',{exact:true}).selectOption(extension?'EXTENSION':'STANDARD');await work.getByLabel('Is current authorization indefinite?',{exact:true}).selectOption('no');await work.getByLabel('Required next follow-up',{exact:true}).selectOption('REVERIFICATION')
+ if(extension){await work.getByLabel('Document validity through (if applicable)',{exact:true}).fill('2030-01-01');await work.getByLabel('Exact exception notation on the reviewed form',{exact:true}).fill(notation);await work.getByLabel('Next follow-up date (if required)',{exact:true}).fill('2030-01-01');await work.getByLabel('Name-change evidence (if applicable)',{exact:true}).fill('Employee reported their updated name with reviewed supporting evidence.')}
  await work.getByLabel('I read and affirm the Supplement B certification.',{exact:true}).check()
  await work.getByLabel('Your examiner signature',{exact:true}).fill('Unsaved signature')
  await work.getByRole('button',{name:'Save unfinished supplement replacement',exact:true}).click()
@@ -56,6 +59,7 @@ test('admin completes a different-document Supplement B replacement',async({page
  await expect(work.getByLabel('Examiner identity and authority evidence',{exact:true})).toHaveValue('Reviewer Alice examined the original document.')
  await expect(work.getByLabel('I read and affirm the Supplement B certification.',{exact:true})).not.toBeChecked()
  await expect(work.getByLabel('Your examiner signature',{exact:true})).toHaveValue('')
+ if(extension){await expect(work.getByLabel('Exact exception notation on the reviewed form',{exact:true})).toHaveValue(notation);await expect(work.getByLabel('New last name (if changed)',{exact:true})).toHaveValue('Updated');await expect(work.getByLabel('Name-change evidence (if applicable)',{exact:true})).toHaveValue('Employee reported their updated name with reviewed supporting evidence.')}
  await expect(copies.getByLabel('Use replacement copy 1',{exact:true})).not.toBeChecked()
  for(const [key,count] of Object.entries(counts)){
  const title=key==='replacement'?'Replacement Supplement B to sign':`Retained I-9 record ${key}`,part=work.getByRole('region',{name:`Official ${title} page review`,exact:true})
@@ -73,6 +77,8 @@ test('admin completes a different-document Supplement B replacement',async({page
  await records.locator('summary').filter({hasText:'Signed replacement Supplement B'}).click()
  const download=page.waitForEvent('download');await records.getByRole('button',{name:'Download signed replacement Supplement B',exact:true}).click();await (await download).saveAs('/tmp/payroll-different-supplement-browser-signed.pdf')
  expect(Number((await h.pool.query('SELECT count(*) FROM payroll_i9_different_supplement_signature')).rows[0].count)).toBe(1)
+ const next=(await h.pool.query("SELECT due_on::text FROM payroll_i9_signature_followup WHERE row_key LIKE 'DIFFERENT_SUPPLEMENT:%'")).rows
+ expect(next).toEqual([{due_on:extension?'2030-01-01':'2031-01-01'}])
  expect(errors).toEqual([])
  }finally{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}
 })
