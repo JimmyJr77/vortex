@@ -44,5 +44,25 @@ without leaving checked-out clients or blocked API queries.
 All 32 modified scheduler modules parsed successfully, and all 45 timer
 callbacks were checked for queue wiring. `git diff --check` passed.
 
-Production verification must be recorded after deployment; local passing tests
-alone do not establish recovery of the live onboarding flow.
+## Production verification
+
+Render deployed `e79909f6d1c3f3f285af4d0a7b479a391584bb3e` successfully
+at approximately 19:46 UTC. From 19:47:00 through 19:53:06 UTC:
+
+- 13 consecutive health responses returned 200, the expected release commit,
+  `dbConnected: true`, and the correct allowed origin.
+- All 39 preflight requests across the three affected endpoints returned 204
+  with `Access-Control-Allow-Origin: https://vortexathletics.com`.
+- Read-only unauthenticated GETs to all three endpoints returned normal JSON
+  401 responses with the correct CORS header.
+- Stale scheduler-lock connections from the prior deployment cleared. Render
+  showed no failure events after the fixed deployment when checked.
+
+The production observation passed for 365 uninterrupted seconds, exceeding the
+previous recurring four-minute failure window. Raw observations are retained
+locally at `/tmp/payroll-production-availability-verification.jsonl`.
+
+A proposed unauthenticated employee-creation POST test was rejected by automatic
+approval review as a production write risk and was not executed. No actual hire
+was created to verify this availability fix; authenticated onboarding remains
+separate from the successful network/preflight and scheduler regression checks.
