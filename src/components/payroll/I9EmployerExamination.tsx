@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from 'react'
-import {workforceApi,type I9CopyList,type I9EmployerPreview} from '../../utils/workforceApi'
+import {workforceApi,type I9CopyList,type I9EmployerPreview,type I9ExaminationDraftState} from '../../utils/workforceApi'
 const input='mt-1 block w-full min-w-0 rounded border border-slate-300 p-2'
 type Decision={copyIds:string[];copiesComplete:boolean;accepted:boolean;acceptance:string;ruleSource:string;ruleEvidence:string;validUntil:string;formNotation:string;followUpKind:string;followUpOn:string;noFollowUpConfirmed:boolean}
 const emptyDecision=():Decision=>({copyIds:[],copiesComplete:false,accepted:false,acceptance:'',ruleSource:'',ruleEvidence:'',validUntil:'',formNotation:'',followUpKind:'',followUpOn:'',noFollowUpConfirmed:false})
@@ -7,9 +7,21 @@ function Check({label,value,change}:{label:string;value:boolean;change:(value:bo
 export default function I9EmployerExamination({employeeId,taskId,cycle,preview,onSigned}:{employeeId:number;taskId:number;cycle:number;preview:I9EmployerPreview;onSigned:()=>Promise<void>}){
  const [copies,setCopies]=useState<I9CopyList|null>(null),[reload,setReload]=useState(0),[decisions,setDecisions]=useState<Record<string,Decision>>({}),[busy,setBusy]=useState(false),[error,setError]=useState(''),[receipt,setReceipt]=useState('')
  const [examinedOn,setExaminedOn]=useState(''),[initials,setInitials]=useState(''),[identity,setIdentity]=useState(''),[days,setDays]=useState<number[]>([]),[closures,setClosures]=useState(''),[short,setShort]=useState(''),[late,setLate]=useState(''),[signature,setSignature]=useState(''),[checks,setChecks]=useState<Record<string,boolean>>({}),[qualification,setQualification]=useState(''),[video,setVideo]=useState('')
+ const [saved,setSaved]=useState<I9ExaminationDraftState|null>(null),[draftReload,setDraftReload]=useState(0),[draftNotice,setDraftNotice]=useState('')
+ const saveRequest=useRef<{payload:string;key:string}|null>(null)
  const pending=useRef<{payload:string;key:string}|null>(null)
  const {reviewId,previewSha256,examinationContext:context}=preview
  useEffect(()=>{let live=true;void workforceApi.i9EmployerCopies(employeeId,taskId,{onboardingCycle:cycle,reviewId,previewSha256}).then(value=>{if(live)setCopies(value)}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[employeeId,taskId,cycle,reviewId,previewSha256,reload])
+ useEffect(()=>{let live=true;void workforceApi.i9ExaminationDraft(employeeId,taskId,{onboardingCycle:cycle,reviewId,previewSha256}).then(value=>{if(!live)return;setSaved(value);const d=value.draft;setExaminedOn(d?.examinedOn||'');setInitials(d?.initials||'');setIdentity(d?.identity||'');setDays(d?.days||[]);setClosures(d?.closures||'');setShort(d?.short||'');setLate(d?.late||'');setQualification(d?.qualification||'');setVideo(d?.video||'');setDecisions(Object.fromEntries(Object.entries(d?.decisions||{}).map(([key,decision])=>[key,{...emptyDecision(),...decision}])));setChecks({});setSignature('');saveRequest.current=null;pending.current=null}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[employeeId,taskId,cycle,reviewId,previewSha256,draftReload])
+ const saveDraft=async()=>{
+  if(!saved)return
+  const draft={examinedOn,initials,identity,days,closures,short,late,qualification,video,decisions:Object.fromEntries(Object.entries(decisions).map(([key,d])=>[key,{copyIds:d.copyIds,acceptance:d.acceptance,ruleSource:d.ruleSource,ruleEvidence:d.ruleEvidence,validUntil:d.validUntil,formNotation:d.formNotation,followUpKind:d.followUpKind,followUpOn:d.followUpOn}]))},body={onboardingCycle:cycle,reviewId,previewSha256,expectedRevision:saved.revision,draft},payload=JSON.stringify(body)
+  if(saveRequest.current?.payload!==payload)saveRequest.current={payload,key:crypto.randomUUID()}
+  setBusy(true);setError('');setDraftNotice('')
+  try{setSaved(await workforceApi.saveI9ExaminationDraft(employeeId,taskId,{...body,requestKey:saveRequest.current.key}));saveRequest.current=null;setDraftNotice('Examination findings saved securely for your admin account. Signing confirmations are not saved.')}
+  catch(e){setError(e instanceof Error?e.message:'Unable to save examination findings. Retry unchanged or reload.')}
+  finally{setBusy(false)}
+ }
  const check=(key:string,label:string)=><Check key={key} label={label} value={!!checks[key]} change={value=>setChecks(old=>({...old,[key]:value}))}/>
  const update=(key:string,change:Partial<Decision>)=>setDecisions(old=>({...old,[key]:{...(old[key]||emptyDecision()),...change}}))
  const sign=async()=>{
@@ -26,9 +38,14 @@ export default function I9EmployerExamination({employeeId,taskId,cycle,preview,o
  return <section aria-label="Employer examination and signature" className="min-w-0 space-y-3 rounded-xl border p-4">
   <h3 className="font-bold">Examine documents and certify Section 2</h3>
   <p className="text-sm">Named representative: {context.representativeNameAndTitle}. Hire date: {context.hireDate}. Offer accepted: {context.offerAcceptedOn}. The signature uses the actual server date (currently {context.today}).</p>
-  <p className="text-sm">Complete this as the representative who performed the examination. Editing the employer draft requires a new preview and page review. Examination entries below are not saved until signing; keep this page open while completing them.</p>
+  <p className="text-sm">Complete this as the representative who performed the examination. Editing the employer draft requires a new preview and page review. Save unfinished findings before leaving. Resume under your own admin account; review pages and confirm every certification again before signing.</p>
   {error?<p role="alert">{error}</p>:null}
-  <form onSubmit={e=>{e.preventDefault();void sign()}}><fieldset disabled={busy} className="min-w-0 space-y-4">
+  {draftNotice?<p role="status">{draftNotice}</p>:null}
+  {saved?.savedAt?<p className="text-sm">Examination findings saved {saved.savedAt} · revision {saved.revision}</p>:null}
+  {saved?.invalidated?<p role="status">The employee or employer evidence changed. Previous examination findings are no longer current; enter findings for this version.</p>:null}
+  <button type="button" disabled={busy} className="underline" onClick={()=>{setSaved(null);setError('');setDraftNotice('');setDraftReload(n=>n+1)}}>Reload my examination findings (replaces unsaved entries)</button>
+  <button type="button" disabled={busy||!saved} className="block rounded border px-3 py-2 font-semibold disabled:opacity-40" onClick={()=>void saveDraft()}>Save unfinished examination findings</button>
+  <form onSubmit={e=>{e.preventDefault();void sign()}}><fieldset disabled={busy||!saved} className="min-w-0 space-y-4">
    <label className="block">Actual examination date<input required type="date" className={input} value={examinedOn} min={context.offerAcceptedOn} max={context.today} onChange={e=>setExaminedOn(e.target.value)}/></label>
    <label className="block">Examiner initials<input required maxLength={20} className={input} value={initials} onChange={e=>setInitials(e.target.value)}/></label>
    <label className="block">Examiner identity and authority evidence<textarea required minLength={12} maxLength={2000} className={input} value={identity} onChange={e=>setIdentity(e.target.value)}/></label>

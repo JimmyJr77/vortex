@@ -46,7 +46,11 @@ export type I9EmployerDraftState={revision:number;basisHash:string;submissionId:
 export type I9EmployerPreview={attestation:string;examinationContext:{today:string;hireDate:string;offerAcceptedOn:string;eVerify:boolean;examinationMethod:string;documentChoice:string;representativeNameAndTitle:string};reviewId:string|number;expiresAt:string;previewSha256:string;pdfBase64:string;pageCount:number;supplements:Array<{documentKey:string;documentId:string|number;sha256:string;pdfBase64:string;pageCount:number}>}
 export type I9CopyList={documents:Array<{key:string;label:string;copies:Array<{id:string|number;documentId:string|number;pageCount:number;filename:string;mime:string;createdAt:string}>}>}
 export type I9CopyView={copyId:string|number;contentBase64:string;mime:string;pageCount:number;filename:string}
+export type I9ExaminationDraftData={examinedOn:string;initials:string;identity:string;days:number[];closures:string;short:string;late:string;qualification:string;video:string;decisions:Record<string,{copyIds:string[];acceptance:string;ruleSource:string;ruleEvidence:string;validUntil:string;formNotation:string;followUpKind:string;followUpOn:string}>}
+export type I9ExaminationDraftState={revision:number;draft:I9ExaminationDraftData|null;savedAt:string|null;invalidated:boolean}
 export const workforceApi = {
+ i9ExaminationDraft:(employeeId:number,taskId:number,body:Record<string,string|number>)=>request<I9ExaminationDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/examination-draft?${new URLSearchParams(Object.fromEntries(Object.entries(body).map(([key,value])=>[key,String(value)])))}`,true),
+ saveI9ExaminationDraft:(employeeId:number,taskId:number,body:unknown)=>request<I9ExaminationDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/examination-draft`,true,body),
  i9EmployerCopies:(employeeId:number,taskId:number,body:Record<string,string|number>)=>request<I9CopyList>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-copies?${new URLSearchParams(Object.fromEntries(Object.entries(body).map(([key,value])=>[key,String(value)])))}`,true),
  async uploadI9EmployerCopy(employeeId:number,taskId:number,body:Record<string,unknown>,file:File){
   if(file.size>5*1024*1024)throw new Error('Choose a file up to 5 MB.')

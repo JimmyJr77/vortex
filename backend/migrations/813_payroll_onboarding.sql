@@ -5800,3 +5800,18 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_native_i9_employer_completion ON payroll_onboarding_task;
 CREATE TRIGGER payroll_guard_native_i9_employer_completion BEFORE INSERT OR UPDATE ON payroll_onboarding_task FOR EACH ROW EXECUTE FUNCTION payroll_guard_native_i9_employer_completion();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_examination_draft (
+ facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),actor_user_id BIGINT NOT NULL,
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_employer_review(id),basis_hash text NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'),revision integer NOT NULL CHECK(revision>0),encrypted_draft bytea NOT NULL CHECK(octet_length(encrypted_draft)>28),request_key UUID NOT NULL,request_hash text NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'),updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(task_id,onboarding_cycle,actor_user_id)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_examination_draft() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Examination draft scope cannot be deleted.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND ((NEW.facility_id,NEW.employee_id,NEW.task_id,NEW.onboarding_cycle,NEW.actor_user_id) IS DISTINCT FROM (OLD.facility_id,OLD.employee_id,OLD.task_id,OLD.onboarding_cycle,OLD.actor_user_id) OR NEW.revision<>OLD.revision+1) THEN RAISE EXCEPTION 'Examination draft scope is immutable and revision must advance once.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='INSERT' AND NEW.revision<>1 AND NOT EXISTS(SELECT 1 FROM payroll_i9_examination_draft WHERE task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle AND actor_user_id=NEW.actor_user_id) THEN RAISE EXCEPTION 'Examination draft starts at revision one.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_employer_review r JOIN payroll_onboarding_task t ON t.id=r.task_id JOIN payroll_i9_employer_draft d ON d.task_id=t.id AND d.onboarding_cycle=t.onboarding_cycle JOIN payroll_i9_submission s ON s.id=r.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id WHERE r.id=NEW.review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.task_id=NEW.task_id AND r.onboarding_cycle=NEW.onboarding_cycle AND r.actor_user_id=NEW.actor_user_id AND r.expires_at>clock_timestamp() AND r.id=(SELECT MAX(id) FROM payroll_i9_employer_review WHERE task_id=t.id AND onboarding_cycle=t.onboarding_cycle) AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND d.revision=r.draft_revision AND d.basis_hash=r.basis_hash AND e.status='COMPLETE' AND e.onboarding_cycle=r.onboarding_cycle AND e.response->>'i9SubmissionId'=r.submission_id::text AND (NOT s.preparer_required OR e.response->'i9PreparerReview'->>'fingerprint'=r.preparer_fingerprint) AND (SELECT hiring_revision FROM payroll_i9_review WHERE id=s.review_id)=(SELECT MAX(revision) FROM payroll_i9_hiring_context WHERE task_id=e.id AND onboarding_cycle=e.onboarding_cycle)) THEN RAISE EXCEPTION 'Examination draft requires the current scoped employer review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_examination_draft ON payroll_i9_examination_draft;
+CREATE TRIGGER payroll_guard_i9_examination_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_examination_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_examination_draft();
