@@ -1,0 +1,3601 @@
+{
+  "schema_version": 1,
+  "status": "planned_instruction_actual_evidence_unknown",
+  "source_sha256": {
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "instructional_on_ramp/week_02/or_09.md": "b79b1e298c4e64116cb17d2833f0450880f44af348b616ec154437ca7a5e0779",
+    "prescriptions/author_or_09.py": "01c06079280adbdc7fdad34161971c308c50e88cb191cb42a282c87564b6a783",
+    "prescriptions/check_or_09.py": "485fa52a7289e38e4fae197bae4f4c2f11ec79417c9241115434a2afac9c8696",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "prescriptions/proposals/or09_chest_projection_teaching_candidate.json": "7966188553ddd118c69570bfaedfbc70ea13f4dd759e46d0554c580030212e9f",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/OR09_LIBRARY_MAPPING.md": "85beabacc6f1a22c69d404f6bd2387f11d489d83771634c7e8ae40043b481420"
+  },
+  "entries": [
+    {
+      "key": "OR-09::P1",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One unloaded reach-and-return rehearses the retained arm path and organized standing without spending a throwing opportunity. Quiet standing replaces it only under its own comfort gate.",
+      "prior_current_next": "Actual OR-05/direct arm-path control → one retained OR-09 position rehearsal → counted E0 known task, then only independently eligible E1 cue instruction.",
+      "advance_hold_reduce": "Retain one listed action with the actual suitable ball/range where applicable. No added throw, fit trial or second handling attempt. A partial or failed action is counted and may require deferral; changing age is not a progression.",
+      "default_mapping_ref": "CHEST-REACH-TEACH",
+      "conditional_mapping_refs": [
+        "BILATERAL-STAND-TEACH",
+        "CHEST-REACH-TEACH"
+      ],
+      "source_json_records": {
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "CHEST-REACH-TEACH": {
+          "mapping_key": "CHEST-REACH-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Unloaded Chest-Start Reach and Return — stationary bilateral teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Unloaded, easy 1–2/10; one comfortable bilateral forward reach and return. Both feet stay planted, no dip, arch, step, jump or forced end range.",
+            "minimum_rest_s": 20,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 10,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 1,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 0,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 0,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "chest_start",
+                "seconds": 2
+              },
+              {
+                "name": "comfortable_forward_reach",
+                "seconds": 2
+              },
+              {
+                "name": "return_to_chest",
+                "seconds": 2
+              },
+              {
+                "name": "relax_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::P2",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One counted floor pickup, 5 s chest hold, 2 m out-and-back carry, floor set-down and exit rehearses equipment control. It has zero throws and observes no cue inhibition.",
+      "prior_current_next": "Actual OR-05/direct floor handling and current comfort → one counted handling rehearsal or eligible unloaded/standing replacement → known E0 with its own gates. Neither P2 handling nor a first E0 release alone qualifies the new cue choice.",
+      "advance_hold_reduce": "Retain one listed action with the actual suitable ball/range where applicable. No added throw, fit trial or second handling attempt. A partial or failed action is counted and may require deferral; changing age is not a progression.",
+      "default_mapping_ref": "BALL-HOLD-TEACH",
+      "conditional_mapping_refs": [
+        "BALL-HOLD-TEACH",
+        "BILATERAL-STAND-TEACH",
+        "CHEST-REACH-TEACH"
+      ],
+      "source_json_records": {
+        "BALL-HOLD-TEACH": {
+          "mapping_key": "BALL-HOLD-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "CHEST-REACH-TEACH": {
+          "mapping_key": "CHEST-REACH-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "standard_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_D": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          },
+          "compressed_L": {
+            "variant": "Ball Chest-Start Hold and Floor Handling — no-release teaching task",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 24,
+            "effort_load": "Very light soft low-rebound medicine ball, easy 1–2/10. Planning reference 0.5 kg and 18 cm diameter, only if comfortable handling and actual behavior fit. Record actual type, kg, diameter and rebound; no age-based heavier ball.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One whole counted action per set. Phase times are coaching envelopes, not a demand to rush. P2 never releases a ball; E1 attempts, including faults, use their listed opportunity. No bonus trials.",
+            "active_s": 24,
+            "throws_per_set": 0,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 1,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 1,
+            "loaded_carry_m_model": 2,
+            "hold_duration_s": 5,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 0,
+            "execution_segments": [
+              {
+                "name": "floor_pickup_to_chest",
+                "seconds": 5
+              },
+              {
+                "name": "comfortable_chest_hold",
+                "seconds": 5
+              },
+              {
+                "name": "carry_one_metre_out_and_back",
+                "seconds": 4
+              },
+              {
+                "name": "controlled_floor_setdown",
+                "seconds": 6
+              },
+              {
+                "name": "exit_queue_reset",
+                "seconds": 4
+              }
+            ]
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::E0",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "Use the first existing main opportunity to rehearse the exact known throw on an early individual THROW cue and observe current retrieval conduct. This is one of the total 3/2/2/1 opportunities, not an extra preparation release. Known-cue instruction or a separate no-release task remains available when throwing is emerging or unavailable.",
+      "prior_current_next": "Actual OR-05/direct known task → first counted E0 rehearsal today → only remaining eligible E1 opportunities; no additional rehearsal precedes them.",
+      "advance_hold_reduce": "Keep the actual implement, feet, no-preload start, direction, easy intent and full recovery. Cap1 and compressed L use E0 only. A fault consumes E0; it is not replaced or ignored to access E1.",
+      "default_mapping_ref": "CHEST-PASS-TEACH",
+      "conditional_mapping_refs": [
+        "BALL-HOLD-TEACH",
+        "BILATERAL-STAND-TEACH",
+        "CHEST-PASS-TEACH",
+        "CHEST-REACH-TEACH"
+      ],
+      "source_json_records": {
+        "BALL-HOLD-TEACH": {
+          "mapping_key": "BALL-HOLD-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "CHEST-PASS-TEACH": {
+          "mapping_key": "CHEST-PASS-TEACH",
+          "source_json": "prescriptions/or09_library_mapping.json",
+          "json_pointer": "/records/0"
+        },
+        "CHEST-REACH-TEACH": {
+          "mapping_key": "CHEST-REACH-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Pass to Open Contained Lane — proposed teaching variation",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 10,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 10,
+            "throws_per_set": 1,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": 0,
+            "floor_pickups_per_set": 1,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": 6,
+            "hold_duration_s": 0,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": 15,
+            "execution_segments": [
+              {
+                "name": "rack_pickup_chest_setup",
+                "seconds": 2
+              },
+              {
+                "name": "ready_and_known_permission",
+                "seconds": 2
+              },
+              {
+                "name": "single_forward_release",
+                "seconds": 1
+              },
+              {
+                "name": "stable_followthrough",
+                "seconds": 3
+              },
+              {
+                "name": "wait_at_line",
+                "seconds": 2
+              }
+            ],
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 1,
+            "choice_opportunities": 0,
+            "cue_order": null,
+            "cue_sequence": [
+              "THROW"
+            ],
+            "no_go_opportunities": 0,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::E1",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "Each remaining opportunity teaches one early cue interpretation while preserving the actual throw and movement demand. THROW produces one owned release; HOLD retains the ball for 3 s, parks it and waits. Both are counted. Known-cue, hold, unloaded and standing routes have their separate maintenance/instruction jobs and do not earn unobserved choice results.",
+      "prior_current_next": "Actual OR-05/direct stable throw and known-release/retrieval, plus current E0 → first or retained early choice in remaining OR-09 opportunities → OR-13 uses only its independently qualified movement/cue branch → OR-17 observes the actual retained rule with reduced prompting, not faster cues.",
+      "advance_hold_reduce": "Retain the total actual main opportunity ceiling, ball, stance, direction, intent and recovery. Default E0+E1 totals standard D3/L2, compressed D2/L1. E1 after E0 is respectively2/1/1/0, before smaller cap1/2. Select HOLD→THROW or THROW→HOLD and take only the remaining prefix; never add a cue to complete both rules. Reduce or end remaining opportunities if attention or movement deteriorates. Do not count NO-GO as a missing throw owed later.",
+      "default_mapping_ref": "CHEST-PASS-TEACH",
+      "conditional_mapping_refs": [
+        "BALL-HOLD-TEACH",
+        "BILATERAL-STAND-TEACH",
+        "CHEST-PASS-TEACH",
+        "CHEST-REACH-TEACH"
+      ],
+      "source_json_records": {
+        "BALL-HOLD-TEACH": {
+          "mapping_key": "BALL-HOLD-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "BILATERAL-STAND-TEACH": {
+          "mapping_key": "BILATERAL-STAND-TEACH",
+          "source_json": "prescriptions/or03_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "CHEST-PASS-TEACH": {
+          "mapping_key": "CHEST-PASS-TEACH",
+          "source_json": "prescriptions/or09_library_mapping.json",
+          "json_pointer": "/records/0"
+        },
+        "CHEST-REACH-TEACH": {
+          "mapping_key": "CHEST-REACH-TEACH",
+          "source_json": "prescriptions/or05_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 2,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD",
+              "THROW"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 0,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 0,
+            "cue_order": "hold_first",
+            "cue_sequence": [],
+            "no_go_opportunities": 0,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 2,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD",
+              "THROW"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 0,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 0,
+            "cue_order": "hold_first",
+            "cue_sequence": [],
+            "no_go_opportunities": 0,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 2,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 3,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 2,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD",
+              "THROW"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 1,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 1,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "standard_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_D": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 1,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 2,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 1,
+            "cue_order": "hold_first",
+            "cue_sequence": [
+              "HOLD"
+            ],
+            "no_go_opportunities": 1,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          },
+          "compressed_L": {
+            "variant": "Stationary Two-Hand Chest Projection — early THROW/HOLD choice, proposed context",
+            "sets": 0,
+            "repetitions_per_set": 1,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 15,
+            "effort_load": "Retain the actual fitted soft low-rebound ball, stance, direction and smooth quick easy release near 3/10. Planning reference 0.5 kg / 18 cm requires individual fit and inspected containment; it is not a compulsory age load. No maximal throw, distance score, new heavier ball, preload or catch. HOLD uses only comfortable support near 1–2/10.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 0,
+            "notes": "One assigned action per set, including faults. E0 uses the first total main opportunity; E1 uses only the remaining prefix. No extra familiarization throw, test pickup or replacement response. Complete cue-specific action, waiting, retrieval and reset are detailed below. Seconds are allowances, not reaction deadlines or forced movement pace.",
+            "active_s": 15,
+            "throws_per_set": null,
+            "unloaded_reach_cycles_per_set": 0,
+            "ball_holds_per_set": null,
+            "floor_pickups_per_set": null,
+            "floor_setdowns_per_set": 0,
+            "loaded_carry_m_model": null,
+            "hold_duration_s": null,
+            "intentional_jumps_per_set": 0,
+            "running_target_m": 0,
+            "retrieval_window_s": null,
+            "execution_segments": null,
+            "total_main_opportunity_ceiling": 1,
+            "known_cue_opportunities": 0,
+            "choice_opportunities": 0,
+            "cue_order": "hold_first",
+            "cue_sequence": [],
+            "no_go_opportunities": 0,
+            "go_opportunities": 0,
+            "rack_pickups_per_action": 1,
+            "actual_releases": null,
+            "actual_cues_presented": null,
+            "actual_valid_responses": null,
+            "valid_response_quota": null,
+            "opportunities_repaid": false,
+            "intended_releases": 0,
+            "response_contract_ref": "cue_response_contract",
+            "variable_counts": "Resolve cue sequence: THROW has one intended release and own-ball retrieval; HOLD has one 3 s post-cue hold and rack set-down, zero intended release/retrieval. A false release is still actual throwing workload and consumes this opportunity."
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::S1",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One push set retains actual setup, range and manageable effort while the cue choice receives teaching attention. Preserve recent smaller counts; it supplies the push role without another throwing or decision task.",
+      "prior_current_next": "Actual OR-08 or more recent/direct equivalent push record, including smaller counts and unloading → one explicit compatible push set in OR-09 → OR-13/17 retain that actual demand while their independently eligible cue branch changes or is observed. Attendance and throwing success do not restore work.",
+      "advance_hold_reduce": "Retain the most recent compatible actual variation, support, load, range, count and response. Choose explicit smaller packets when indicated; no load, stance or support-complexity increase accompanies the first cue choice. Count a first low-demand observation within its listed set if independently suitable; unfamiliar loaded handling is deferred. Symptoms or unowned control end the affected role, without an added replacement set.",
+      "default_mapping_ref": "INCLINE-PUSH",
+      "conditional_mapping_refs": [
+        "INCLINE-PUSH"
+      ],
+      "source_json_records": {
+        "INCLINE-PUSH": {
+          "mapping_key": "INCLINE-PUSH",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/3"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "standard_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_D": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          },
+          "compressed_L": {
+            "variant": "Incline Push-Up — individually verified stable high support",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 3,
+            "effort_load": "Bodyweight;2s lower/1s press, at least5 good reps in reserve.90cm is a planning reference only; retain the qualified actual support height and foot position or select a suitable high surface for instruction.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": "Record actual support height. Older age does not lower the surface or add repetitions."
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::S2",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One pull set retains actual setup, range and manageable effort while the cue choice receives teaching attention. Preserve recent smaller counts; it supplies the pull role without another throwing or decision task.",
+      "prior_current_next": "Actual OR-08 or more recent/direct equivalent pull record, including smaller counts and unloading → one explicit compatible pull set in OR-09 → OR-13/17 retain that actual demand while their independently eligible cue branch changes or is observed. Attendance and throwing success do not restore work.",
+      "advance_hold_reduce": "Retain the most recent compatible actual variation, support, load, range, count and response. Choose explicit smaller packets when indicated; no load, stance or support-complexity increase accompanies the first cue choice. Count a first low-demand observation within its listed set if independently suitable; unfamiliar loaded handling is deferred. Symptoms or unowned control end the affected role, without an added replacement set.",
+      "default_mapping_ref": "SUPPORTED-ROW",
+      "conditional_mapping_refs": [
+        "RING-ROW-ALT",
+        "SUPPORTED-ROW"
+      ],
+      "source_json_records": {
+        "RING-ROW-ALT": {
+          "mapping_key": "RING-ROW-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/5"
+        },
+        "SUPPORTED-ROW": {
+          "mapping_key": "SUPPORTED-ROW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/4"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "standard_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_D": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 8,
+            "repetitions_per_side": 4,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          },
+          "compressed_L": {
+            "variant": "One-Arm Row — opposite hand AND knee on bench",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "One manageable dumbbell: retain a qualified light prior load, or select a very light load for first instruction; at least5 good reps in reserve.1s pull/1s top/2s lower. Record actual kg.",
+            "minimum_rest_s": 60,
+            "side_change_s": 10,
+            "handling_s_per_set": 10,
+            "notes": "One set includes both sides.10s side change plus10s total pickup/set-down; first listed rep is the observation, never an extra test rep."
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::S3",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One knee set retains actual setup, range and manageable effort while the cue choice receives teaching attention. Preserve recent smaller counts; it supplies the knee role without another throwing or decision task.",
+      "prior_current_next": "Actual OR-08 or more recent/direct equivalent knee record, including smaller counts and unloading → one explicit compatible knee set in OR-09 → OR-13/17 retain that actual demand while their independently eligible cue branch changes or is observed. Attendance and throwing success do not restore work.",
+      "advance_hold_reduce": "Retain the most recent compatible actual variation, support, load, range, count and response. Choose explicit smaller packets when indicated; no load, stance or support-complexity increase accompanies the first cue choice. Count a first low-demand observation within its listed set if independently suitable; unfamiliar loaded handling is deferred. Symptoms or unowned control end the affected role, without an added replacement set.",
+      "default_mapping_ref": "SQUAT-BW",
+      "conditional_mapping_refs": [
+        "SQUAT-BW"
+      ],
+      "source_json_records": {
+        "SQUAT-BW": {
+          "mapping_key": "SQUAT-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/11"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "standard_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_D": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          },
+          "compressed_L": {
+            "variant": "Tempo Bodyweight Squat — comfortable bilateral stance/range",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 5,
+            "effort_load": "Bodyweight only;3s lower/1s gentle pause/1s stand, at least5 controlled reps in reserve. Keep the documented OR-01 range when applicable.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": ""
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::S4",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One hip set retains actual setup, range and manageable effort while the cue choice receives teaching attention. Preserve recent smaller counts; it supplies the hip role without another throwing or decision task.",
+      "prior_current_next": "Actual OR-08 or more recent/direct equivalent hip record, including smaller counts and unloading → one explicit compatible hip set in OR-09 → OR-13/17 retain that actual demand while their independently eligible cue branch changes or is observed. Attendance and throwing success do not restore work.",
+      "advance_hold_reduce": "Retain the most recent compatible actual variation, support, load, range, count and response. Choose explicit smaller packets when indicated; no load, stance or support-complexity increase accompanies the first cue choice. Count a first low-demand observation within its listed set if independently suitable; unfamiliar loaded handling is deferred. Symptoms or unowned control end the affected role, without an added replacement set.",
+      "default_mapping_ref": "HINGE-BW",
+      "conditional_mapping_refs": [
+        "DB-RDL",
+        "HINGE-BW"
+      ],
+      "source_json_records": {
+        "DB-RDL": {
+          "mapping_key": "DB-RDL",
+          "source_json": "prescriptions/or06_library_mapping.json",
+          "json_pointer": "/records/4"
+        },
+        "HINGE-BW": {
+          "mapping_key": "HINGE-BW",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/8"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "standard_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_D": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          },
+          "compressed_L": {
+            "variant": "Bodyweight Hip Hinge Good Morning — arms crossed at chest",
+            "sets": 1,
+            "repetitions_per_set": 3,
+            "repetitions_per_side": null,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight;3s hips back/1s stand, at least5 good reps in reserve. Retain the actual comfortable range and arm position.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 5,
+            "notes": " OR08 uses the most recent actual hip record, not the latest older DB record. If actual OR07 unloaded the hinge, retain its unloaded variant/count; renewed DBs are not called retention. One first-DB teaching set alone does not establish the familiar10s handling profile."
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    },
+    {
+      "key": "OR-09::S5",
+      "session": "OR-09",
+      "outline_ref": "instructional_on_ramp/instructional_map.json#OR-09",
+      "set_purpose": "One brace set retains actual setup, range and manageable effort while the cue choice receives teaching attention. Preserve recent smaller counts; it supplies the brace role without another throwing or decision task.",
+      "prior_current_next": "Actual OR-08 or more recent/direct equivalent brace record, including smaller counts and unloading → one explicit compatible brace set in OR-09 → OR-13/17 retain that actual demand while their independently eligible cue branch changes or is observed. Attendance and throwing success do not restore work.",
+      "advance_hold_reduce": "Retain the most recent compatible actual variation, support, load, range, count and response. Choose explicit smaller packets when indicated; no load, stance or support-complexity increase accompanies the first cue choice. Count a first low-demand observation within its listed set if independently suitable; unfamiliar loaded handling is deferred. Symptoms or unowned control end the affected role, without an added replacement set.",
+      "default_mapping_ref": "HEEL-TAP",
+      "conditional_mapping_refs": [
+        "BREATH-9090-ALT",
+        "HEEL-TAP"
+      ],
+      "source_json_records": {
+        "BREATH-9090-ALT": {
+          "mapping_key": "BREATH-9090-ALT",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/12"
+        },
+        "HEEL-TAP": {
+          "mapping_key": "HEEL-TAP",
+          "source_json": "prescriptions/exemplar_library_mapping.json",
+          "json_pointer": "/records/6"
+        }
+      },
+      "default_age_mode_doses": {
+        "9-11": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "12-14": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        },
+        "15-18": {
+          "standard_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "standard_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_D": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 4,
+            "repetitions_per_side": 2,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          },
+          "compressed_L": {
+            "variant": "Dead Bug Heel Tap — fixed vertical arms, alternating bent-leg heel contact and return",
+            "sets": 1,
+            "repetitions_per_set": 2,
+            "repetitions_per_side": 1,
+            "distance_m_per_effort": null,
+            "hold_s": null,
+            "tempo_s_per_repetition": 4,
+            "effort_load": "Bodyweight, low-load control;2s lower/2s return, natural breathing. Retain a comfortable declared heel target/range without trunk movement.",
+            "minimum_rest_s": 60,
+            "side_change_s": 0,
+            "handling_s_per_set": 10,
+            "notes": "Tabletop is checked during setup; the first listed heel contact is the counted moving-limb observation. Strength placement is an explicit adaptation of the local preparation profile."
+          }
+        }
+      },
+      "all_route_doses_ref": "or_09_workload_ledger.json#/scenarios",
+      "workload_resolution": "Resolve schema2 with check_or_09.resolve_workload_scenarios. clock_reference_doses establish upper timing; dose_options requires actual-history selection. planned_main_actions resolves cue-specific release/hold/retrieval counts; actual outcomes stay null.",
+      "actual_prior_exposure": null,
+      "actual_completed_dose": null,
+      "actual_response": null,
+      "live_canonical_definition_id": null
+    }
+  ]
+}

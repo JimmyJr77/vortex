@@ -7,7 +7,7 @@
   "stage_status": "in_progress",
   "previous_goal_turn": {
     "classification": "progress",
-    "evidence": "OR-07 was finalized, independently reviewed and indexed. Its 4,320 timing scenarios, 252 reduction packets, 69,120 factor choices and 44 rejecting probes passed; the OR-08 source/stimulus brief was saved before detailed authoring."
+    "evidence": "OR-08 was finalized, reviewed and indexed with 6,528 timing scenarios, 144 reduction packets, 208,896 factor choices, 550 mixed P2 timing sequences and 45 rejecting probes. Its shared-amendment provenance and OR-09 source/stimulus brief were verified before this turn."
   },
   "scope": {
     "main_weeks": 12,
@@ -34,16 +34,16 @@
     "main_outline_entries": 60,
     "on_ramp_outline_entries": 20,
     "main_detailed_sessions": 1,
-    "on_ramp_detailed_sessions": 8,
+    "on_ramp_detailed_sessions": 9,
     "finalized_canonical_exercise_mappings": 0,
     "linked_approved_tumbling_sessions": 0,
     "planned_anchor_ledger_rows": 420,
     "planned_main_workload_rows": 60,
     "inspected_local_exemplar_mapping_records": 13,
-    "detailed_anchor_rows": 74,
-    "detailed_workload_scenarios": 19836,
+    "detailed_anchor_rows": 83,
+    "detailed_workload_scenarios": 27612,
     "operationally_released_sessions": 0,
-    "inspected_local_mapping_records_total": 39,
+    "inspected_local_mapping_records_total": 40,
     "on_ramp_weeks_audited_complete": 1,
     "main_weeks_audited_complete": 0,
     "on_ramp_weekly_attendance_history_paths": 18744,
@@ -162,7 +162,19 @@
     "or08_mapping": "prescriptions/OR08_LIBRARY_MAPPING.md",
     "or08_mapping_data": "prescriptions/or08_library_mapping.json",
     "or08_progressive_run_proposal": "prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
-    "or09_stimulus_source_review": "planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md"
+    "or09_stimulus_source_review": "planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md",
+    "or09_session": "instructional_on_ramp/week_02/or_09.md",
+    "or09_data": "instructional_on_ramp/week_02/or_09.json",
+    "or09_review": "instructional_on_ramp/week_02/or_09_review.md",
+    "or09_checks": "instructional_on_ramp/week_02/or_09_check_results.json",
+    "or09_anchor_ledger": "instructional_on_ramp/week_02/or_09_anchor_ledger.json",
+    "or09_workload_ledger": "instructional_on_ramp/week_02/or_09_workload_ledger.json",
+    "or09_author": "prescriptions/author_or_09.py",
+    "or09_checker": "prescriptions/check_or_09.py",
+    "or09_mapping": "prescriptions/OR09_LIBRARY_MAPPING.md",
+    "or09_mapping_data": "prescriptions/or09_library_mapping.json",
+    "or09_chest_projection_proposal": "prescriptions/proposals/or09_chest_projection_teaching_candidate.json",
+    "or10_stimulus_source_review": "planning/OR10_STIMULUS_AND_SOURCE_REVIEW.md"
   },
   "source_snapshot": {
     "spec": {
@@ -459,22 +471,49 @@
       "status": "completed",
       "result": "PASS complete written design after first-increase versus retained-modest evidence and self-contained DB setup/range corrections. Independent P2, counted E0, actual history, stationary bays and full group flow reviewed.",
       "evidence": "instructional_on_ramp/week_02/or_08_review.md"
+    },
+    {
+      "stage": 4,
+      "session": "OR-09",
+      "agent": "library_review",
+      "role": "Exercise/programming librarian",
+      "status": "completed",
+      "result": "PASS complete proposed known-release/GO-NO-GO card, 17 reference groups, 11 reused keys, 15 links, 108 age/mode/cap/order selections and inherited strength packets. Human canonical identity resolution/current release remain unverified.",
+      "evidence": "prescriptions/OR09_LIBRARY_MAPPING.md"
+    },
+    {
+      "stage": 4,
+      "session": "OR-09",
+      "agent": "public_principles",
+      "role": "Instructional specialist and independent numeric verifier",
+      "status": "completed",
+      "result": "PASS 7,776 clock cohorts, 144 reduction packets, 248,832 factor choices, 216 mixed triads, 52 rejecting probes, six positive staged-entry checks and exact pooled-ledger equality.",
+      "evidence": "instructional_on_ramp/week_02/or_09_check_results.json"
+    },
+    {
+      "stage": 4,
+      "session": "OR-09",
+      "agent": "strategy_critic",
+      "role": "Independent programming critic",
+      "status": "completed",
+      "result": "PASS complete written design after explicit serial incoming staging, mixed-owner retrieval, self-contained first-known gates and S4 metadata corrections; actual dose history and OR-13/17 permissions verified.",
+      "evidence": "instructional_on_ramp/week_02/or_09_review.md"
     }
   ],
-  "next_work_unit": "Stage 4: individually author OR-09 after reading planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md, the full OR-05 lesson, reviewed OR-08 history rules and active map/amendments. Teach one clear GO/NO-GO choice only with actual retained known-release throwing/retrieval; retain known-cue learning when that task is still emerging. Do not require prior mastery of the whole new choice to teach its first counted opportunity. Keep actual implement, stance, target, intent and strength doses stable. Resolve the preparation throw purpose explicitly against its clock; OR-05 P2 floor handling had zero releases. Count all cue opportunities, releases, faults, held/set-down NO-GO actions, retrieval and reset without catch-up attempts or a pass quota. Verify the existing open-lane chest-pass complete-card/current-release gap and exact source-context boundaries; a cue change alone does not automatically require a new identity. Give every task three age bands, four modes, explicit doses/effort/rest/cues/gates, set purposes and prior/current/next decisions. Calculate both full clocks and mixed group flow; independently review, correct and save OR-09 before OR-10. Complete Week 2 audit only after OR-10. No bulk fill or main Day 2–60 before completing the on-ramp stage.",
+  "next_work_unit": "Stage 4: individually author OR-10 after reading planning/OR10_STIMULUS_AND_SOURCE_REVIEW.md, actual OR-01 short-start and OR-06/09 strength histories, and the active map/amendments. Retain the actual standing-static target/runoff/intent/opportunities while making one justified knee-load, hold or reduction decision. Use the later migration447 goblet owner/implement-specific candidate and inspect exact current related records; the old legacy-only GOBLET snapshot is historical. Distinguish first counted loaded handling from genuinely familiar retention, without requiring prior whole loaded-squat mastery for first instruction or automatically adding load/reps. Preserve recent knee/hip caps, support counts and any unloading; a DB hinge or ball hold is not a goblet-grip pass. Resolve the outline progressive-start preparation against its full runoff/return clock or explicitly amend and count a main rehearsal within total work. Every task needs three ages/four modes, exact dose/effort/rest/cues/gates, set purpose and prior/current/next links, with both full clocks and all handling/supervision calculated. Independently review/correct/save OR-10, then audit the complete written Week 2 (OR-06–10) including mixed attendance/history and Week 3 carryover. OR-14 retains acceleration/knee with changed prompting/group-flow responsibility; OR-18 observes the actual retained strength branch. No bulk fill or main Day 2–60 before completing the on-ramp stage.",
   "detailed_prescription_gate": {
-    "state": "open_for_sequential_OR09_after_reviewed_OR08",
-    "evidence": "OR-08 independent source/written/numeric PASS; affected OR-06, OR-07 and Week 1 reruns pass; reviewed OR-09 source/stimulus brief saved.",
-    "limit": "Each future lesson needs its own complete prescription, source/competency/clock review and ledgers. These records do not complete a future workout, actual outcome, operational release or precise separate tumbling."
+    "state": "open_for_sequential_OR10_after_reviewed_OR09",
+    "evidence": "OR-09 independent source/written/numeric PASS; affected OR-06/07/08 and Week 1 reruns pass; OR-10 source/stimulus brief independently reviewed.",
+    "limit": "Each future lesson needs its own complete prescription, source/competency/clock review and ledgers. Week 2 audit waits for OR-10. These records do not complete a future workout, actual outcome, operational release or precise separate tumbling."
   },
   "future_state_artifacts": {
     "progression_outline": "complete_stage2",
     "instructional_map": "complete_stage2",
     "prescription_template": "version1.1_written_athletic_exemplars_reviewed",
     "standardized_warmup_prescriptions": "complete_explicit_candidates_with_operational_review_open",
-    "anchor_progression_ledger": "Stage 2 map plus 74 detailed task rows across indexed ledgers; actual evidence unknown",
-    "workload_exposure_ledger": "Stage 2 map plus 19,836 daily timing/scenario choices; OR-07/08 reduction combinations covered separately without inflating scenario counts; separate Week 1 audit 18,744 paths/186 summaries; actual evidence unknown",
-    "outline_revision_log": "Stage 2 snapshot retained; active OR-05/06/07/08 amendments implemented; OR-15/19 carryover remains future authoring"
+    "anchor_progression_ledger": "Stage 2 map plus 83 detailed task rows across indexed ledgers; actual evidence unknown",
+    "workload_exposure_ledger": "Stage 2 map plus 27,612 daily timing/scenario choices; OR-07/08/09 reduction combinations covered separately without inflating scenario counts; separate Week 1 audit 18,744 paths/186 summaries; actual evidence unknown",
+    "outline_revision_log": "Stage 2 snapshot retained; active OR-05/06/07/08/09 amendments implemented; OR-15/19 carryover remains future authoring"
   },
   "unresolved_dependencies": [
     "Current approved facility/release exercise, variant, delivery-profile and programming-method records before final selections.",
@@ -487,8 +526,8 @@
     "vortex_facing_branding": "pass",
     "stage1_has_no_daily_workout_files": "Historical Stage1 check passed; Stage3 now has2detailed athletic exemplars",
     "template_arithmetic": "90+30=120;60+30=90",
-    "prescription_timing": "PASS 132 exemplar + 240 OR-02 + 504 OR-03 + 480 OR-04 + 1,152 OR-05 + 6,480 OR-06 + 4,320 OR-07 + 6,528 OR-08 scenarios; physical facilities unverified",
-    "full_goal_completion": "not_achieved: 59 main and 12 instructional detailed sessions remain, plus later weekly/phase/full audits, entry pathways, assembly and transparent mapping/facility/tumbling status",
+    "prescription_timing": "PASS 132 exemplar + 240 OR-02 + 504 OR-03 + 480 OR-04 + 1,152 OR-05 + 6,480 OR-06 + 4,320 OR-07 + 6,528 OR-08 + 7,776 OR-09 scenarios; physical facilities unverified",
+    "full_goal_completion": "not_achieved: 59 main and 11 instructional detailed sessions remain, plus Week 2 and later weekly/phase/full audits, entry pathways, assembly and transparent mapping/facility/tumbling status",
     "independent_stage1_critique": "PASS",
     "template_clock_parsed_from_strategy": "PASS: contiguous 0–90 and 0–60 athletic windows",
     "stage2_counts": "PASS:60main+20OR",
@@ -523,7 +562,7 @@
     "on_ramp_week1_audit": "PASS:31 attendance subsets,18744 mixed booking/mode/age/hypothetical hip-history paths,186 summaries,7 rejecting probes; written scope only",
     "on_ramp_week1_check_command": "python3 -B docs/programming/athleticism_12_week/planning/check_on_ramp_week_01.py",
     "on_ramp_week1_corrections": "OR01 walking supplement and25s lane/segregated-return model corrected; OR06 first-flight acquisition branch required by active amendment; no automatic main entry",
-    "reviewed_fingerprint_change": "OR-08 newly reviewed; shared active amendment refreshed through passing OR-06, OR-07 and Week 1 reruns. Their physical doses and resolved daily digests remain unchanged, as do Stage 2, philosophy and preparation snapshots.",
+    "reviewed_fingerprint_change": "OR-09 newly reviewed; shared active amendment refreshed through passing OR-06, OR-07, OR-08 and Week 1 reruns. Their physical doses and resolved daily digests remain unchanged, as do Stage 2, philosophy and preparation snapshots.",
     "or06_numeric_model": "PASS6480 conditional scenarios and43 rejecting probes",
     "or06_independent_programming": "PASS complete written athletic design",
     "or06_check_command": "python3 -B docs/programming/athleticism_12_week/prescriptions/check_or_06.py",
@@ -538,7 +577,12 @@
     "or08_independent_programming": "PASS complete written athletic design with two running-evidence entry paths and self-contained familiar DB execution",
     "or08_check_command": "python3 -B docs/programming/athleticism_12_week/prescriptions/check_or_08.py",
     "or08_ledger_storage": "PASS schema 2 exact serialize/parse/resolve equality for 6,528 scenarios; all selectable dose options retained; 10.3 MB",
-    "or08_continuity": "First easy-to-modest increase or direct repeatable modest retention; independent short/stationary P2 and counted whole-route E0; most recent actual hip/repetition history governs; OR-12/16 retain the actual running task"
+    "or08_continuity": "First easy-to-modest increase or direct repeatable modest retention; independent short/stationary P2 and counted whole-route E0; most recent actual hip/repetition history governs; OR-12/16 retain the actual running task",
+    "or09_numeric_model": "PASS 7,776 timing scenarios, 144 reduction packets, 248,832 factor choices, 216 mixed triad patterns, 52 rejecting probes and six positive evidence-stage checks",
+    "or09_independent_programming": "PASS complete written design including serial incoming staging and noncircular first-known/choice entry",
+    "or09_check_command": "python3 -B docs/programming/athleticism_12_week/prescriptions/check_or_09.py",
+    "or09_ledger_storage": "PASS schema2 exact serialize/parse/resolve equality for 7,776 scenarios; all selectable doses and cue-specific action counts retained; 12.5 MB",
+    "or09_continuity": "Known E0 consumes first total opportunity; E1 takes only remaining selected cue prefix. Current E0 result gates later choice, not E0 entry. Actual recent strength history governs; OR-13/17 permissions stay movement/rule-specific."
   },
   "next_stage": 4,
   "outline_version": "2.0",
@@ -550,7 +594,7 @@
   },
   "this_goal_turn": {
     "classification": "progress",
-    "evidence": "Revalidated all nine prior evidence groups, individually authored OR-08, resolved written/source findings and completed independent review. All 6,528 timing scenarios, 144 reduction packets, 208,896 factor choices, 550 mixed P2 timing sequences and 45 rejecting probes pass. Nine progression rows and a lossless workload ledger are indexed. The active amendment and earlier OR-06/07/Week 1 provenance are synchronized; the reviewed OR-09 source/stimulus brief is saved. The full 80-session goal remains active."
+    "evidence": "Revalidated all ten prior evidence groups; individually authored, corrected and independently reviewed OR-09. All 7,776 timing scenarios, 144 reduction packets, 248,832 factor choices, 216 mixed triad patterns, 52 rejecting probes and six positive staged-entry checks pass. Nine progression rows and a lossless workload ledger are indexed. The active amendment and OR-06/07/08/Week 1 provenance are synchronized. Reviewed OR-10 source brief identifies later exact goblet candidates and correct OR-14 continuity. The full 80-session goal remains active."
   },
   "detailed_session_count_scope": "Written athletic prescriptions and scoped independent design review; does not imply live release approval, actual completion, or complete separate tumbling.",
   "exemplar_evidence_sha256": {
@@ -664,11 +708,11 @@
     "instructional_on_ramp/week_01/or_03_workload_ledger.json": "f8d14db5f8450d2a77869d89c137cf9a7c9d2c99ee7d859b3b57e76d3d520dc2",
     "instructional_on_ramp/week_01/or_04_workload_ledger.json": "178855f016fd860fad50ddf835b1a2237fb8c7288b22ab968c4eadcd158ac194",
     "instructional_on_ramp/week_01/or_05_workload_ledger.json": "37d050bad90a024935b5830c43d5d0c465ed78ddd3450319b2484acd62b3c1e7",
-    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "f490d974adf5256996c88420c76acc10f097177c948394da4b0f720ad4f61769",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
     "planning/check_on_ramp_week_01.py": "e5d200ef88184d48f671ace07cf603bbaf3aaaf3ec2a86e385859b9438008233",
     "instructional_on_ramp/week_01/WEEK_01_REVIEW.md": "341e5fc3094355d500a5465a25f589395a010314d1e45e3bc287afe9665b13e4",
-    "instructional_on_ramp/week_01/week_01_check_results.json": "62c347be443afac41309fb4e6c444197390001a02b2aab0d23f1b6759a0c91ee",
-    "instructional_on_ramp/week_01/week_01_attendance_workload_ledger.json": "7e8b24980d4b064970aaf67a091dd30f59adb7f8ac60a0432fd527bc664432ed",
+    "instructional_on_ramp/week_01/week_01_check_results.json": "6bf86270ad559e3095049ba1b8381fe6d2d1489f336f73a7839393451e99984b",
+    "instructional_on_ramp/week_01/week_01_attendance_workload_ledger.json": "b7d16f7bfc9154059aa9bd9720c69f25ec34c823e9fb5568a0d7390e7ce14229",
     "instructional_on_ramp/week_01/or_05_review.md": "60719b65421a801f9d8f975d264ddf0343012ad09ce9e5efefaccbe6a9d3cf90",
     "prescriptions/OR05_LIBRARY_MAPPING.md": "a5d2aacdc6c427f5a7490ace8bb0dcd741f9ff2c33dac871246a53961911910c"
   },
@@ -681,7 +725,7 @@
     "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
     "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
     "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
-    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "f490d974adf5256996c88420c76acc10f097177c948394da4b0f720ad4f61769",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
     "instructional_on_ramp/week_01/or_02.json": "3c944acef8592f478e8496205dd0fab67f40a88e1e6e7fe968eaf135845366fd",
     "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
     "prescriptions/proposals/or06_first_flight_teaching_candidate.json": "fb3a2074184095172d05b07f3c2372d3e7e1f847485afac260d3e77256267023",
@@ -693,9 +737,9 @@
     "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
     "prescriptions/OR06_LIBRARY_MAPPING.md": "cfaf976628d29c9b9f1716b3282fbdc4613e0337e50a5a66a09a65b0e133b701",
     "instructional_on_ramp/week_02/or_06_review.md": "8534b2d05e74a673d9de0d2acb4076b2b8f989680003fd1c5b608f2a8bd0853a",
-    "instructional_on_ramp/week_02/or_06_check_results.json": "0b9c81796a7010dc6b7ae25b29d56ddac8c59d5af41db30ed1c93bc2779d98fa",
-    "instructional_on_ramp/week_02/or_06_anchor_ledger.json": "9cca7e3512ff7c76b7c6e725c56267ceec5c3d49b20bb8b2ac8c411b46ac2a76",
-    "instructional_on_ramp/week_02/or_06_workload_ledger.json": "7a6352642cac214fa4ebbabe597662afe65aa22f3a1660a6394f16376a9b09fd",
+    "instructional_on_ramp/week_02/or_06_check_results.json": "92b7630d38930b127a4e37b28a8e58470fe6acdc5c1bf13267e233e6ac24468b",
+    "instructional_on_ramp/week_02/or_06_anchor_ledger.json": "226662698e9cb741fe9a4e960a3291c33673c18555005e955a63cf063c07ce10",
+    "instructional_on_ramp/week_02/or_06_workload_ledger.json": "093a996dfebe7c0f1364754fa18621376abd92ca7143a0ada665225032860e96",
     "planning/OR07_STIMULUS_AND_SOURCE_REVIEW.md": "389ea3894107aa057645dfad453ce4855051265ae6a0c4ee400d4fbd279ab3ae"
   },
   "or07_evidence_sha256": {
@@ -708,7 +752,7 @@
     "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
     "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
     "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
-    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "f490d974adf5256996c88420c76acc10f097177c948394da4b0f720ad4f61769",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
     "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
     "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
     "prescriptions/proposals/or07_paused_exit_teaching_candidate.json": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82",
@@ -721,9 +765,9 @@
     "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
     "prescriptions/OR07_LIBRARY_MAPPING.md": "8676c489bef8e48a662424654b939d4afaaac24ef38e07fbf38197fbf01e1467",
     "instructional_on_ramp/week_02/or_07_review.md": "a0038dfcb40efc9965e48264ade1730cdfe931fc70be4730eb4865c44b66f993",
-    "instructional_on_ramp/week_02/or_07_check_results.json": "a16a54021c6920bf47e2839e80318846a5871b6ef125afb456bb0994680f8c16",
-    "instructional_on_ramp/week_02/or_07_anchor_ledger.json": "74129b90433e044ba2e5686da0ad0bf5ec145ad0aebe2239d4c1caea98ee20ce",
-    "instructional_on_ramp/week_02/or_07_workload_ledger.json": "0e7ca89c9f57220615c2a254f34e7ddce58d8d18df83aa7fbd9a91d841ebede0",
+    "instructional_on_ramp/week_02/or_07_check_results.json": "cdf0a5bf4ae56ad7c78cb285c9cb08b8b07d3db20571a70343dbd22de46aaa09",
+    "instructional_on_ramp/week_02/or_07_anchor_ledger.json": "2019124c2cb58f836994afcac83aea597e795ecc5addc3c286b1e82739825376",
+    "instructional_on_ramp/week_02/or_07_workload_ledger.json": "899ab9e1c186d293ecbb34c1968ecb7962c070d0e092cbd59126cd78213880cc",
     "planning/OR07_STIMULUS_AND_SOURCE_REVIEW.md": "389ea3894107aa057645dfad453ce4855051265ae6a0c4ee400d4fbd279ab3ae",
     "planning/OR08_STIMULUS_AND_SOURCE_REVIEW.md": "862f27a1531f3a630b9aaa69a6ece678359d2a388db13fa424cf15beedef266e"
   },
@@ -737,7 +781,7 @@
     "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
     "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
     "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
-    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "f490d974adf5256996c88420c76acc10f097177c948394da4b0f720ad4f61769",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
     "instructional_on_ramp/week_01/or_04.json": "b3cea45716dd575a7ba6bd47b3192e6e3218cdee42f8665dc6c6fc996f25db22",
     "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
     "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",
@@ -752,10 +796,41 @@
     "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
     "prescriptions/OR08_LIBRARY_MAPPING.md": "39c1e95f1ba93418b606229346241db6dc93d58ca6c17a967801eb228f33da8e",
     "instructional_on_ramp/week_02/or_08_review.md": "86c8e599e51e774ed7fea566cf50cd67405f4245e4b18d1d935209144fc547bc",
-    "instructional_on_ramp/week_02/or_08_check_results.json": "60434e04e51cdd6aac71c653cc8beeadfb5dc74ce7fb1c37715c4764e518b251",
-    "instructional_on_ramp/week_02/or_08_anchor_ledger.json": "8668af9fc9087bc71f5da895933bdc065f8836bb3010001c39e5d9d7c9d33d23",
-    "instructional_on_ramp/week_02/or_08_workload_ledger.json": "edcc62f732cab0eaaa2780e1052ef7debb222c6e55ff79c34d7f88eb299590ab",
+    "instructional_on_ramp/week_02/or_08_check_results.json": "da1819b908c7e435d0017e9bb0fb987edbec3c501fdebc177008b14ddf059b7f",
+    "instructional_on_ramp/week_02/or_08_anchor_ledger.json": "0968c98f13fc4b3ec4179023586cf3d59ed4e2eddbe75b52362813db8eefde7a",
+    "instructional_on_ramp/week_02/or_08_workload_ledger.json": "d1c8610b04d4ac483680c37b9c74bf66ab6f2f62dedf8347bbe8c764350cea7b",
     "planning/OR08_STIMULUS_AND_SOURCE_REVIEW.md": "862f27a1531f3a630b9aaa69a6ece678359d2a388db13fa424cf15beedef266e",
     "planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md": "877d6582e68cf2d26471349c31ea9790d1e1e98f2c307986f1ac364aae6226a5"
+  },
+  "or09_evidence_sha256": {
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "instructional_on_ramp/week_02/or_09.md": "b79b1e298c4e64116cb17d2833f0450880f44af348b616ec154437ca7a5e0779",
+    "prescriptions/author_or_09.py": "01c06079280adbdc7fdad34161971c308c50e88cb191cb42a282c87564b6a783",
+    "prescriptions/check_or_09.py": "485fa52a7289e38e4fae197bae4f4c2f11ec79417c9241115434a2afac9c8696",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "prescriptions/proposals/or09_chest_projection_teaching_candidate.json": "7966188553ddd118c69570bfaedfbc70ea13f4dd759e46d0554c580030212e9f",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/OR09_LIBRARY_MAPPING.md": "85beabacc6f1a22c69d404f6bd2387f11d489d83771634c7e8ae40043b481420",
+    "instructional_on_ramp/week_02/or_09_review.md": "9800087f7ae12dc81cd01ef8b7b44e9fd5118b4fd850409a942497782c856077",
+    "instructional_on_ramp/week_02/or_09_check_results.json": "bec6eda4e65bb3d8ab5c462bff3a6237bb71cdb85a4e6f015f5999fba5254b8e",
+    "instructional_on_ramp/week_02/or_09_anchor_ledger.json": "9fcaf348e317dacba061083712353e13c81a30911f7227b940046dc39fb4b95f",
+    "instructional_on_ramp/week_02/or_09_workload_ledger.json": "7204ea9f6039fbb46626c91aa017dcc8426ada2a21f4fb723a8c86260dcee581",
+    "planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md": "877d6582e68cf2d26471349c31ea9790d1e1e98f2c307986f1ac364aae6226a5",
+    "planning/OR10_STIMULUS_AND_SOURCE_REVIEW.md": "3e785368c0e30574b32021b74cada39d5fdc847bbc87402c60c71e41ec1e7a10"
   }
 }

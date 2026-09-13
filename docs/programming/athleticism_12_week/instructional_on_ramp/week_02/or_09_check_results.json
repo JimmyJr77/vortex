@@ -1,0 +1,3047 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "session": "OR-09",
+  "checked_at_utc": "2026-09-13T06:53:16.481539+00:00",
+  "scenario_count": 7776,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages",
+        "P1: default packet exact prior"
+      ]
+    },
+    {
+      "case": "missing purpose",
+      "rejected": true,
+      "sample_findings": [
+        "E1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "E0 extra familiarization",
+      "rejected": true,
+      "sample_findings": [
+        "choice: E0 included and actual total capped",
+        "E0: default exercise resolves to declared choice packet"
+      ]
+    },
+    {
+      "case": "compressedL phantom choice",
+      "rejected": true,
+      "sample_findings": [
+        "choice: E0 included and actual total capped",
+        "E1: default exercise resolves to declared choice packet"
+      ]
+    },
+    {
+      "case": "HOLD becomes intended throw",
+      "rejected": true,
+      "sample_findings": [
+        "cue-specific release/hold/pickup/retrieval units",
+        "choice: resolved whole-action count"
+      ]
+    },
+    {
+      "case": "HOLD retrieves",
+      "rejected": true,
+      "sample_findings": [
+        "cue-specific release/hold/pickup/retrieval units",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "unconditional choice retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "choice: variable action resolved only by cue contract",
+        "E1: default exercise resolves to declared choice packet"
+      ]
+    },
+    {
+      "case": "shortened HOLD setdown",
+      "rejected": true,
+      "sample_findings": [
+        "complete HOLD phases",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "order prefix appends missing cue",
+      "rejected": true,
+      "sample_findings": [
+        "hold_first/cap1: exact choice prefix versus known cues",
+        "source exact cue prefix/go/hold/intended release agreement"
+      ]
+    },
+    {
+      "case": "HOLD debt repaid",
+      "rejected": true,
+      "sample_findings": [
+        "unobserved order and no repayment",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "canceled cue observed",
+      "rejected": true,
+      "sample_findings": [
+        "forbidden cue shortcut unpresented_cancelled_cues_are_observed",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "false release excluded",
+      "rejected": true,
+      "sample_findings": [
+        "required cue rule wrong_release_counts_as_actual_throw",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "single choice proves both",
+      "rejected": true,
+      "sample_findings": [
+        "forbidden cue shortcut one_choice_proves_both_rules",
+        "source and session exact cue response contract"
+      ]
+    },
+    {
+      "case": "circular prior choice required",
+      "rejected": true,
+      "sample_findings": [
+        "choice: no circular or automatic requires_prior_successful_go_no_go"
+      ]
+    },
+    {
+      "case": "first E0 supplies prior repeatability",
+      "rejected": true,
+      "sample_findings": [
+        "choice: no circular or automatic E0_first_throw_alone_grants_choice"
+      ]
+    },
+    {
+      "case": "current E0 gate missing",
+      "rejected": true,
+      "sample_findings": [
+        "choice: separate choice requires_current_E0_response_before_choice"
+      ]
+    },
+    {
+      "case": "known route requires past whole throw",
+      "rejected": true,
+      "sample_findings": [
+        "known: separate choice requires_prior_repeatable_same_throw"
+      ]
+    },
+    {
+      "case": "P2 grants choice",
+      "rejected": true,
+      "sample_findings": [
+        "forbidden shortcut P2_grants_throw_or_choice"
+      ]
+    },
+    {
+      "case": "reactive cut credit",
+      "rejected": true,
+      "sample_findings": [
+        "choice: no circular or automatic grants_reactive_cut"
+      ]
+    },
+    {
+      "case": "simultaneous releases",
+      "rejected": true,
+      "sample_findings": [
+        "only addressed individual acts, no-go never retrieves"
+      ]
+    },
+    {
+      "case": "throw during retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "retained throw geometry throwing_during_retrieval"
+      ]
+    },
+    {
+      "case": "early retrieval",
+      "rejected": true,
+      "sample_findings": [
+        "source full triad action/retrieval/staging contract",
+        "source full triad action/retrieval/staging contract"
+      ]
+    },
+    {
+      "case": "missing incoming staging",
+      "rejected": true,
+      "sample_findings": [
+        "source full triad action/retrieval/staging contract",
+        "source full triad action/retrieval/staging contract"
+      ]
+    },
+    {
+      "case": "HOLD ball unparked at all-clear",
+      "rejected": true,
+      "sample_findings": [
+        "required main control all_held_balls_parked_before_retrieval"
+      ]
+    },
+    {
+      "case": "next triad before staging",
+      "rejected": true,
+      "sample_findings": [
+        "source full triad action/retrieval/staging contract",
+        "source full triad action/retrieval/staging contract"
+      ]
+    },
+    {
+      "case": "pickup time omitted",
+      "rejected": true,
+      "sample_findings": [
+        "complete retained6+3+6 retrieval and5+5 rack/clearance",
+        "walking pickup/carry/rack windows include full operations"
+      ]
+    },
+    {
+      "case": "ball age load mandatory",
+      "rejected": true,
+      "sample_findings": [
+        "retained throw geometry ball_reference_is_mandatory"
+      ]
+    },
+    {
+      "case": "stationary unseen",
+      "rejected": true,
+      "sample_findings": [
+        "stationary/no-go remain in directly visible separate locations"
+      ]
+    },
+    {
+      "case": "old DB restored after unloading",
+      "rejected": true,
+      "sample_findings": [
+        "retained history restores_older_DB_after_unloaded"
+      ]
+    },
+    {
+      "case": "first DB treated familiar",
+      "rejected": true,
+      "sample_findings": [
+        "familiar_DB: exact recent hip identity, gates and all cap packets"
+      ]
+    },
+    {
+      "case": "five DBs for five pairs",
+      "rejected": true,
+      "sample_findings": [
+        "five actual suitable DB pairs required"
+      ]
+    },
+    {
+      "case": "hip cap loses handling",
+      "rejected": true,
+      "sample_findings": [
+        "familiar_DB: exact recent hip identity, gates and all cap packets",
+        "familiar_DB: cap removes only repetitions"
+      ]
+    },
+    {
+      "case": "low row omits second side",
+      "rejected": true,
+      "sample_findings": [
+        "low/S2/12-14/compressed_D: both-side count",
+        "low: exact prior support packet"
+      ]
+    },
+    {
+      "case": "DB reset omitted",
+      "rejected": true,
+      "sample_findings": [
+        "retained DB between_group_reset_allowance_s"
+      ]
+    },
+    {
+      "case": "unknown prior repeatable throw",
+      "rejected": true
+    },
+    {
+      "case": "known retrieval not repeatable",
+      "rejected": true
+    },
+    {
+      "case": "current E0 unsuitable",
+      "rejected": true
+    },
+    {
+      "case": "signals not both understood",
+      "rejected": true
+    },
+    {
+      "case": "missing actual ball fit",
+      "rejected": true
+    },
+    {
+      "case": "floor handling unknown",
+      "rejected": true
+    },
+    {
+      "case": "unloaded arm path unknown",
+      "rejected": true
+    },
+    {
+      "case": "rack fit unknown",
+      "rejected": true
+    },
+    {
+      "case": "prior smaller main cap restored",
+      "rejected": true
+    },
+    {
+      "case": "prior smaller knee restored",
+      "rejected": true
+    },
+    {
+      "case": "newer unloading",
+      "rejected": true
+    },
+    {
+      "case": "unknown familiar handling",
+      "rejected": true
+    },
+    {
+      "case": "missing ten DBs",
+      "rejected": true
+    },
+    {
+      "case": "L loaded hip forbidden",
+      "rejected": true
+    },
+    {
+      "case": "first P2 loading before actual floor access",
+      "rejected": true
+    },
+    {
+      "case": "first P2 entry without controlled safe lowering/exit",
+      "rejected": true
+    },
+    {
+      "case": "source HOLD-only prefix gains release",
+      "rejected": true,
+      "sample_findings": [
+        "mapping and full source proposal retain complete identical contexts",
+        "source exact cue prefix/go/hold/intended release agreement"
+      ]
+    },
+    {
+      "case": "fabricated current cue profile ID",
+      "rejected": true,
+      "sample_findings": [
+        "CHEST-PASS-TEACH: live source unverified"
+      ]
+    }
+  ],
+  "positive_evidence_checks": {
+    "first_choice_without_previous_choice_success": true,
+    "first_known_release_with_no_prior_whole_task_record": true,
+    "E0_does_not_require_its_future_result": true,
+    "first_P2_entry_without_prior_complete_loaded_handling": true,
+    "first_P2_load_after_actual_counted_floor_access_confirmation": true,
+    "actual_familiar_DB_small_history": true
+  },
+  "hypothetical_response_count_checks": {
+    "correct_hold": {
+      "observed_cues": 1,
+      "actual_releases": 0,
+      "valid_responses": 1,
+      "consumed_opportunities": 1,
+      "replacement_opportunities": 0,
+      "immediate_shutdown": false,
+      "released_ball_owner_retrieval_required": false
+    },
+    "false_hold_release": {
+      "observed_cues": 1,
+      "actual_releases": 1,
+      "valid_responses": 0,
+      "consumed_opportunities": 1,
+      "replacement_opportunities": 0,
+      "immediate_shutdown": true,
+      "released_ball_owner_retrieval_required": true
+    },
+    "withheld_on_THROW": {
+      "observed_cues": 1,
+      "actual_releases": 0,
+      "valid_responses": 0,
+      "consumed_opportunities": 1,
+      "replacement_opportunities": 0,
+      "immediate_shutdown": false,
+      "released_ball_owner_retrieval_required": false
+    },
+    "premature_before_cue": {
+      "observed_cues": 0,
+      "actual_releases": 1,
+      "valid_responses": 0,
+      "consumed_opportunities": 1,
+      "replacement_opportunities": 0,
+      "immediate_shutdown": true,
+      "released_ball_owner_retrieval_required": true
+    },
+    "no_release_but_uncontrolled_hold": {
+      "observed_cues": 1,
+      "actual_releases": 0,
+      "valid_responses": 0,
+      "consumed_opportunities": 1,
+      "replacement_opportunities": 0,
+      "immediate_shutdown": false,
+      "released_ball_owner_retrieval_required": false
+    }
+  },
+  "sha256": {
+    "instructional_on_ramp/week_02/or_09.json": "1875f66902ae383e30e477b8b61806863014d0cecb38adcbb6770f9303906d97",
+    "instructional_on_ramp/week_02/or_09.md": "b79b1e298c4e64116cb17d2833f0450880f44af348b616ec154437ca7a5e0779",
+    "prescriptions/author_or_09.py": "01c06079280adbdc7fdad34161971c308c50e88cb191cb42a282c87564b6a783",
+    "prescriptions/check_or_09.py": "485fa52a7289e38e4fae197bae4f4c2f11ec79417c9241115434a2afac9c8696",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "476e5fff420c80e6bdcc454d57fdde8f15cb4c3ceb94913aa0a1840103c05dde",
+    "instructional_on_ramp/week_01/or_05.json": "c1d39861d5a28e34498e96e7d77b114818e78cf30fca11b7db14062d2620480d",
+    "instructional_on_ramp/week_02/or_08.json": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822",
+    "prescriptions/proposals/or09_chest_projection_teaching_candidate.json": "7966188553ddd118c69570bfaedfbc70ea13f4dd759e46d0554c580030212e9f",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/OR09_LIBRARY_MAPPING.md": "85beabacc6f1a22c69d404f6bd2387f11d489d83771634c7e8ae40043b481420"
+  },
+  "mixed_triad_checks": [
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 3,
+      "released_owner_retrievers": 3,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "THROW",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "HOLD",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "hold",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "reach",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "standing",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 2,
+      "released_owner_retrievers": 2,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "THROW",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "HOLD",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "hold",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "reach",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "standing",
+        "omitted"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "THROW"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 1,
+      "released_owner_retrievers": 1,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "HOLD"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "hold"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "reach"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "standing"
+      ],
+      "maximum_active": 1,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    },
+    {
+      "actions": [
+        "omitted",
+        "omitted",
+        "omitted"
+      ],
+      "maximum_active": 0,
+      "intended_releases": 0,
+      "released_owner_retrievers": 0,
+      "all_owners_clear_s": 75,
+      "incoming_staging_ends_s": 90
+    }
+  ],
+  "coverage": {
+    "enumerated_clock_cohorts": 7776,
+    "independently_checked_reduction_packets": 144,
+    "unavailable_L_DB_zero_packets": 18,
+    "reduction_pairings_per_cohort": 32,
+    "factorized_named_choices_covered": 248832,
+    "proof": "Every knee/hip reference-or1/2/3 and reference/low support pairing is compared against its unchanged fixed-start reference cohort. Reductions preserve one set, handling, both sides and rest, so cannot worsen cohort timing/recovery. 32 selections per cohort are factor comparisons, not separately expanded timelines. Mixed valid main action types and omitted slots are separately exhaustively tested within a triad; faults require shutdown/delay/omission rather than an asserted90s completion."
+  },
+  "limits": [
+    "Current athlete competence, actual selected cue/history/caps and response remain null",
+    "Planned intended releases are not actual releases; faults consume opportunities and may cancel unpresented cues",
+    "Ball properties, every assigned lane/rack fit, personal-bay view, incoming rear staging and ordinary retrieval pace require actual verification",
+    "Reference strength packets are clock upper bounds; actual smaller history governs",
+    "No source approval, participant result, complete separate tumbling or operational release is claimed"
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 7776,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "0d2d2df40686242f05f34fa41aff38075467246931fae0e63aa685caaf394997",
+    "resolved_scenarios_canonical_sha256": "0d2d2df40686242f05f34fa41aff38075467246931fae0e63aa685caaf394997",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 12458527,
+    "unpooled_scenarios_canonical_bytes": 331550137,
+    "pooled_value_count": 3819,
+    "common_field_count": 25,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+  }
+}

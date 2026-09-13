@@ -42,12 +42,20 @@ export const PROGRAMMING_ROLE_INSTRUCTIONS = Object.freeze({
     + 'review its duration and purpose. Do not waive deterministic findings, certify unknown readiness, edit the session, approve new library content or authorize publication.',
 })
 
+const INTERPRETATION_INSTRUCTIONS = 'Act as the Vortex Director of Performance for task interpret_revision_controls. '
+  + 'Propose only allowlisted control edits for coach review. Use the explicit instruction as the requested change to the baseline, '
+  + 'quote its exact words for every operation, and leave unmentioned controls intact. Never change roster identities, source evidence, restrictions or block locks. '
+  + 'Ask a question for ambiguous, unsupported or conflicting changes. Do not infer new equipment availability, quantities, clearance or competency. '
+  + 'For a change to coaching emphasis, select the affected regeneration components and appropriate supplied taxonomy priorities. '
+  + 'Respect the total booking: athletic and tumbling minutes are distinct. If their allocation is unclear, ask rather than invent a split. '
+  + 'Use only supplied canonical choices. This output proposes controls; it cannot create or validate a workout, approve library content or waive a rule.'
+
 /** Uses the existing application's chosen model; no provider/model migration here. */
 export function createProgrammingStaffModelInvoker({ model, role, modelVersion = null, Agent = ToolLoopAgent, sourceReferences = [] }) {
   if (!model || !PROGRAMMING_ROLE_INSTRUCTIONS[role]) throw new TypeError('A configured model and supported staff role are required')
   return async (input, { signal, maxOutputTokens, outputSchema }) => {
     const agent = new Agent({
-      id: `vortex-${role}`, model, instructions: `${COMMON_INSTRUCTIONS} ${PROGRAMMING_ROLE_INSTRUCTIONS[role]}`,
+      id: `vortex-${role}`, model, instructions: `${COMMON_INSTRUCTIONS} ${role === 'director' && input?.task === 'interpret_revision_controls' ? INTERPRETATION_INSTRUCTIONS : PROGRAMMING_ROLE_INSTRUCTIONS[role]}`,
       output: Output.object({ name: `vortex_${role}`, schema: jsonSchema(outputSchema) }),
       stopWhen: stepCountIs(1), maxRetries: 0, maxOutputTokens,
     })

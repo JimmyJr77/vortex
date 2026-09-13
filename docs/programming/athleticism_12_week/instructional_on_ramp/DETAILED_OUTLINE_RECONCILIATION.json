@@ -149,6 +149,85 @@
       "detailed_evidence": "instructional_on_ramp/week_02/or_08.json"
     },
     {
+      "id": "OR-09",
+      "state": "implemented_and_individually_reviewed",
+      "affected_fields": [
+        "preparation.targeted_drill_purposes",
+        "provisional_anchors_methods",
+        "workload_recovery",
+        "full_body_strength_emphasis"
+      ],
+      "reason": "The full familiar throw and global retrieval cannot be assumed to fit a140 s preparation target. Give that rehearsal its complete counted main clock while preserving total actual opportunities before adding choice.",
+      "current_decision": "Keep the full base plus40 s P1 unloaded arm-path rehearsal and140 s P2 no-release floor handling. First main opportunity E0 rehearses the known task on one early individual cue with complete shutdown/retrieval. E1 uses only remaining opportunities for the selected THROW/HOLD prefix or an independently eligible known/no-release route. Total main reference3/2/2/1 (standard D/L,compressed D/L) includes E0; cap1/2 preserves actual smaller totals. No uncounted rehearsal or repayment throw.",
+      "preparation_contract": {
+        "base_unchanged": true,
+        "target_total_s": 180,
+        "P1_s": 40,
+        "P2_s": 140,
+        "P1_throws": 0,
+        "P2_throws": 0,
+        "familiar_release_rehearsal_is_counted_E0": true,
+        "E0_consumes_first_main_opportunity": true
+      },
+      "cue_contract": {
+        "signals": [
+          "THROW",
+          "HOLD"
+        ],
+        "same_throw_implement_stance_direction_intent": true,
+        "prior_repeatable_throw_and_known_retrieval_required_for_choice": true,
+        "prior_successful_whole_choice_required_for_first_instruction": false,
+        "current_E0_response_required": true,
+        "first_E0_throw_alone_grants_choice": false,
+        "choice_orders": {
+          "hold_first": [
+            "HOLD",
+            "THROW"
+          ],
+          "throw_first": [
+            "THROW",
+            "HOLD"
+          ]
+        },
+        "one_choice_proves_both": false,
+        "all_actual_releases_including_faults_counted": true,
+        "replaced_faults": 0
+      },
+      "group_clock_contract": {
+        "main_triad_s": 90,
+        "individual_slot_s": 15,
+        "GO_active_s": 10,
+        "HOLD_active_s": 15,
+        "HOLD_post_cue_hold_s": 3,
+        "HOLD_rack_setdown_s": 5,
+        "shutdown_check": [
+          45,
+          50
+        ],
+        "released_owner_retrieval": [
+          50,
+          65
+        ],
+        "rack_queue_reset": [
+          65,
+          75
+        ],
+        "immediate_fault_shutdown": true,
+        "no_go_retrieves": false,
+        "round_spacing_s": 540,
+        "incoming_next_triad_staging": [
+          75,
+          90
+        ],
+        "first_triad_staged_in_opening_setup": true,
+        "next_round_first_triad_stages_before_start_s": 15
+      },
+      "strength_contract": "Five familiar roles, one set each, ordered push/pull/knee/hip/brace with6 min standard or4 min compressed each. Retain actual recent OR08/direct setup/load/range and smaller knee/hip/support packets. Familiar DB hip is D-only, requires independent10 s handling, five fitting stations/ten suitable DBs and20 s between-wave reset with90 s recovery. Newer unloading governs over older loaded history; no automatic loading/count restoration or first loaded setup with new cue learning.",
+      "next_evidence_rule": "OR13 retains an independently passed movement/cue branch; OR17 observes the actual retained rule with reduced prompting. Early-release REACT-T permission can remain while HOLD is emerging, if that rule and throw/retrieval are separately passed. No reactive-cut or landing result is inferred.",
+      "local_unapproved_teaching_proposal": "prescriptions/proposals/or09_chest_projection_teaching_candidate.json",
+      "detailed_evidence": "instructional_on_ramp/week_02/or_09.json"
+    },
+    {
       "id": "OR-15",
       "state": "required_for_future_individual_authoring_not_yet_prescribed",
       "affected_fields": [
@@ -178,7 +257,7 @@
     "OR-10": "Retain actual start/runoff and independently map/teach front-held load pickup/set-down before a goblet progression; bodyweight squat alone is not implement-handling evidence."
   },
   "not_completed": [
-    "OR-09 through OR-20 detailed workouts",
+    "OR-10 through OR-20 detailed workouts",
     "actual athlete outcomes",
     "current canonical or facility approvals",
     "precise separate tumbling content"

@@ -3,12 +3,14 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 import { normalizeCoachWorkoutRequest } from '../backend/platform/workoutProgrammingRequest.js'
+import { compileWorkoutProgrammingModification } from '../backend/platform/workoutProgrammingModification.js'
+import { modificationFixtures } from '../backend/platform/__tests__/workoutProgrammingModificationFixtures.js'
 
 // Compile the browser-only, type-import-only adapter without pulling server modules into its runtime.
 const { outputText } = ts.transpileModule(readFileSync(new URL('../src/coach/workoutProgramming.ts', import.meta.url), 'utf8'), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
 })
-const { newProgrammingRequest, programmingRequestForSubmit, requestFromSaved } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
+const { newProgrammingRequest, programmingRequestForSubmit, requestFromSaved, revisionRequestFromSaved, activeProgrammingComponents } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`)
 
 test('default coach controls submit a valid athletic session and retain inactive Body Control preferences', () => {
   const request = newProgrammingRequest()
@@ -37,4 +39,46 @@ test('reusing saved controls creates a fresh valid request and restores equipmen
   restored.logistics.tumblingMinutes = 30
   restored.logistics.totalBookedMinutes = 90
   assert.equal(normalizeCoachWorkoutRequest(programmingRequestForSubmit(restored)).components[4].budgetSeconds, 1800)
+})
+
+test('revision controls bind to the actual saved parent without widening an unchanged selected-component request', async () => {
+  const { saved } = await modificationFixtures()
+  const original = structuredClone(saved)
+  const request = revisionRequestFromSaved(saved)
+  assert.equal(request.mode, 'modify_existing')
+  assert.match(request.instruction, /updated controls/)
+  assert.deepEqual(request.modification.regenerateComponentKeys, ['prepare_and_access', 'explosiveness', 'strength', 'capacity_competition'])
+  request.modification.regenerateComponentKeys = ['strength']
+  const normalized = normalizeCoachWorkoutRequest(programmingRequestForSubmit(request))
+  const plan = compileWorkoutProgrammingModification(normalized, saved)
+  assert.equal(plan.context.globalControlsChanged, false)
+  assert.deepEqual(plan.context.preservedComponentKeys, ['explosiveness'])
+  assert.deepEqual(plan.context.mutableComponentKeys, ['strength', 'capacity_competition'])
+  assert.notEqual(normalized.requestId, saved.workout.intent.requestId)
+  assert.notEqual(normalized.revision, saved.workout.revision)
+  assert.equal(normalized.modification.expectedRevision, saved.workout.revision)
+  assert.deepEqual(saved, original)
+})
+
+test('omitted revision components leave the regeneration scope but never silently discard block edits or locks', async () => {
+  const { saved } = await modificationFixtures()
+  const request = revisionRequestFromSaved(saved)
+  const capacity = request.components.find((entry) => entry.key === 'capacity_competition')
+  const blockId = saved.workout.workflow.draft.activities.find((entry) => entry.componentKey === capacity.key).activityId
+  capacity.budgetSeconds = 0
+  capacity.lockedBlocks = [{ blockId, fields: ['dose'] }]
+  request.modification.blockEdits = [{ blockId, programmingMethodId: '9' }]
+  const submitted = programmingRequestForSubmit(request)
+  assert.equal(activeProgrammingComponents(request).includes(capacity.key), false)
+  assert.equal(submitted.modification.regenerateComponentKeys.includes(capacity.key), false)
+  assert.deepEqual(submitted.modification.blockEdits, request.modification.blockEdits)
+  assert.deepEqual(submitted.components.find((entry) => entry.key === capacity.key).lockedBlocks, capacity.lockedBlocks)
+  assert.throws(() => normalizeCoachWorkoutRequest(submitted), /omitted Capacity component cannot contain locked work/)
+  capacity.lockedBlocks = []
+  assert.throws(() => compileWorkoutProgrammingModification(normalizeCoachWorkoutRequest(programmingRequestForSubmit(request)), saved), { code: 'invalid_modification_controls' })
+  request.modification.blockEdits = []
+  request.components.find((entry) => entry.key === 'body_control').lockedBlocks = [{ blockId: 'body_control:1', fields: ['dose'] }]
+  const withBodyLock = programmingRequestForSubmit(request)
+  assert.equal(withBodyLock.components.find((entry) => entry.key === 'body_control').lockedBlocks.length, 1)
+  assert.throws(() => normalizeCoachWorkoutRequest(withBodyLock), /Body Control must be explicitly included/)
 })

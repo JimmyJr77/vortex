@@ -151,7 +151,7 @@ export function WorkoutProgrammingPanel() {
             <option value="strength_priority">Strength</option><option value="agility_priority">Agility</option><option value="mobility_control_priority">Mobility / control</option><option value="fitness_priority">Conditioning</option><option value="recovery_low_intensity">Recovery / low intensity</option>
           </select></Field>
         </div>
-        <Field label="Coaching intent"><textarea className={controlClass} rows={3} maxLength={4000} value={request.instruction} onChange={(event) => update({ instruction: event.target.value })}
+        <Field label="Coaching intent"><textarea className={controlClass} rows={3} maxLength={4000} required={request.mode === 'modify_existing'} value={request.instruction} onChange={(event) => update({ instruction: event.target.value })}
           placeholder="What should these athletes develop today? Include coaching preferences and relevant context." /></Field>
         {request.mode === 'modify_existing' && <p className="text-sm text-gray-600">Describe your coaching adjustments here. Use the athlete, time and equipment controls below to set those changes explicitly.</p>}
         {request.mode === 'coach_directed' && <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">Choose preferred or locked exercises and methods for every scheduled component. AI stays within those choices; all sessions still undergo complete validation.</p>}

@@ -53,14 +53,26 @@ The explicit OR-07 amendment is implemented and individually reviewed. It preser
 
 OR-08's bounded source/stimulus review in `planning/OR08_STIMULUS_AND_SOURCE_REVIEW.md` preceded its individual prescription. Its completed daily evidence follows; no Week 2 review is completed by either daily lesson.
 
-## OR-08 written lesson and current inventory
+## OR-08 written lesson checkpoint
 
 OR-08 adds nine task rows in `instructional_on_ramp/week_02/or_08_anchor_ledger.json` and 6,528 enumerated timing scenarios in `or_08_workload_ledger.json`. Its independent checker validates 144 reduction packets, including 18 explicitly unavailable L-mode DB packets, and all 32 knee/hip/support selections within each scenario. The resulting 208,896 named factor choices are covered by a fixed-start reduction proof and are not added to the scenario total. All 550 mixed P2 timing sequences and 45 adverse probes pass.
 
-The current detailed inventory is **74 task rows and 19,836 daily scenario choices across nine written athletic sessions: Day 1 and OR-01–08**, held in 16 distinct daily ledger files. One additional inspected mapping record under the existing easy-run teaching key brings the mapping-record total to 39. This is a complete proposed card with easy and modest-effort profiles; current canonical approval remains unverified. The separate Week 1 audit retains 18,744 attendance/history paths and 186 summaries.
+At the OR-08 checkpoint, the detailed inventory was **74 task rows and 19,836 daily scenario choices across nine written athletic sessions: Day 1 and OR-01–08**, held in 16 distinct daily ledger files. One additional inspected mapping record under the existing easy-run teaching key brings the mapping-record total to 39. This is a complete proposed card with easy and modest-effort profiles; current canonical approval remains unverified. The separate Week 1 audit retains 18,744 attendance/history paths and 186 summaries.
 
 Use `prescriptions/check_or_08.py`'s `resolve_workload_scenarios` function to resolve the schema-2 workload ledger. Exact serialize/parse/resolve equality passes for all 6,528 scenarios. Select a compatible dose from the saved options using actual history; `clock_reference_doses` are upper timing allowances. Count the whole-route E0 walk, independent P2 task, main running targets, runoff, returns, handling and strength separately. Actual contacts, load and response remain unknown.
 
 The active OR-08 amendment is implemented and individually reviewed. First modest running uses repeatable easy-route evidence; retained modest running uses repeatable direct evidence without reconstructing an older easy record. Both require current response and runoff suitability. The lesson preserves recent smaller doses and any more recent actual hip unloading. OR-06, OR-07 and Week 1 were rechecked after the shared amendment changed; their physical prescriptions, scenario counts and resolved daily scenario digests remain unchanged.
 
-OR-09 is the next individual lesson. Read `planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md` with actual OR-05 throwing/retrieval and OR-08 strength history before authoring its first GO/NO-GO choice. That brief is a reviewed source and design decision record, not an OR-09 workout. Complete the Week 2 audit after OR-10.
+OR-09 was individually authored after its reviewed source/stimulus brief. Its current daily evidence follows; the complete Week 2 audit still follows OR-10.
+
+## OR-09 written lesson and current inventory
+
+OR-09 adds nine task rows in `instructional_on_ramp/week_02/or_09_anchor_ledger.json` and 7,776 enumerated timing scenarios in `or_09_workload_ledger.json`. The independent checker validates 144 reduction packets (18 unavailable L-DB zero packets), all 32 knee/hip/support selections within every cohort and all 216 mixed triad patterns. The resulting 248,832 named factor choices are not added to the scenario inventory. All 52 adverse probes and six positive evidence-stage checks pass.
+
+The current detailed inventory is **83 task rows and 27,612 daily scenario choices across ten written athletic sessions: Day 1 and OR-01–09**, in 18 distinct daily ledger files. One additional inspected record under the existing chest-projection teaching key brings the mapping-record total to 40. Its complete proposed known-release/GO-NO-GO card passed source/schema review; human canonical identity resolution and current release remain unverified. The separate Week 1 audit retains 18,744 attendance/history paths and 186 summaries.
+
+Resolve the 12.5 MB schema-2 workload ledger with `prescriptions/check_or_09.py`'s `resolve_workload_scenarios` function. Exact serialize/parse/resolve equality passes for all 7,776 scenarios. The ledger separates E0's known-cue rehearsal, remaining E1 cue prefixes, intended releases, HOLD, handling and actual unknown outcomes. Timing-reference strength packets do not override smaller actual-history options. Its evidence chronology distinguishes first counted floor-access/handling instruction, entry to E0 and current E0 suitability before later choice work.
+
+The active OR-09 amendment is implemented and individually reviewed: full base plus 40/140-second targets; zero preparation throws; one counted E0 within total main opportunities; only remaining E1 choices; explicit 90-second triads and serial incoming staging. OR-06, OR-07, OR-08 and Week 1 were rechecked after the shared amendment changed. Their physical prescriptions, scenario counts and resolved daily scenario digests remain unchanged.
+
+OR-10 is next, using `planning/OR10_STIMULUS_AND_SOURCE_REVIEW.md`. That reviewed brief identifies the later exact goblet-squat candidates in migration 447 and preserves actual short-start and recent knee/hip/support history. It creates no OR-10 workout or approved card. Complete the full Week 2 review after OR-10 before extending the curriculum into Week 3.

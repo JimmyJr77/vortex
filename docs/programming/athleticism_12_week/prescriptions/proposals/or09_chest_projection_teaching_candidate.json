@@ -1,0 +1,2665 @@
+{
+  "id": "proposal:or09:chest-projection-teach",
+  "slug": "or09-stationary-chest-projection-teaching-candidate",
+  "canonicalName": "Stationary Bilateral Chest Projection to Open Contained Lane — teaching candidate",
+  "displayName": "Stationary chest projection: known release or THROW/HOLD",
+  "aliases": [
+    "CHEST-PASS-TEACH",
+    "stationary no-preload chest projection",
+    "fixed-target early release or go/no-go teaching"
+  ],
+  "cardVersion": 1,
+  "schemaVersion": "1.0.0",
+  "status": "draft",
+  "familyId": "proposal:bilateral-chest-projection",
+  "variantId": "proposal:or09:stationary-open-contained-no-preload",
+  "proposalGovernance": {
+    "documentationKey": "CHEST-PASS-TEACH",
+    "schemaPath": "docs/workout-generator/schemas/exercise-card.schema.json",
+    "completeCardContentReference": "docs/EXERCISE_CARD_SPEC.md:9",
+    "localIdsAreProposals": true,
+    "sourceSlug": null,
+    "legacySourceId": null,
+    "liveCanonicalDefinitionId": null,
+    "liveCanonicalVariantId": null,
+    "liveCanonicalProfileId": null,
+    "currentApprovalVerified": false,
+    "humanApprovalRequired": true,
+    "reviewedBy": null,
+    "approvedBy": null,
+    "approvedVideoUrl": null,
+    "calibratedDifficultyApproved": false,
+    "publishReady": false,
+    "importReady": false,
+    "identityResolution": {
+      "documentationKey": "CHEST-PASS-TEACH",
+      "decision": "One complete local document with two explicit response contexts under shared unchanged stationary projection mechanics; provisional author organization only.",
+      "notMerelyDose": "GO/NO-GO adds withholding, an alternate physical endpoint and distinct error/accounting rules; it is not merely a changed repetition count.",
+      "canonicalResolution": "Human owner review must resolve whether cue contexts remain profiles/variants under an existing owner or require separate exercise identities. Schema permits the organization but does not adjudicate identity. Migration391 must be considered; do not merge live-target selection into this fixed-target lesson.",
+      "spec9Gate": "Exact current record approval/media and an approved exact substitute remain unverified. Complete proposal is reviewable documentation, not operational release."
+    },
+    "scope": "New local complete proposal for OR05 gap and OR09 cue contexts. No old card, app, schema, database or approval edits."
+  },
+  "description": "Retained stationary bilateral chest projection without preload, step, jump, catch or wall/partner target. One known-release context can teach the first whole release under actual component gates. A separate fixed-target early THROW/HOLD context requires repeatable stable same-demand throwing and known-release/retrieval, understood signals and suitable current counted E0; no prior complete choice mastery is demanded. E0 consumes the first total main opportunity; E1 uses only the remaining selected cue prefix.",
+  "familyKey": "proposed_stationary_bilateral_forward_chest_projection",
+  "programmingKind": "low_volume_instruction_and_cue_observation",
+  "contentConfidence": null,
+  "scoringConfidence": null,
+  "mediaConfidence": null,
+  "difficulty": {
+    "technicalComplexity": null,
+    "absoluteLoadDemand": null,
+    "supervisionDemand": null,
+    "failureConsequence": null,
+    "impact": null,
+    "baseOverallDifficulty": null
+  },
+  "difficultyReview": {
+    "status": "unscored_pending_independent_calibration",
+    "phaseFit": "70 is authorized provisional author fit required by schema, not live approval, calibration or child competency."
+  },
+  "movementPatterns": [
+    "bilateral_forward_chest_projection",
+    "stationary_bilateral_support",
+    "cue_specific_release_or_withholding"
+  ],
+  "bodyRegions": [
+    "upper_limbs",
+    "trunk",
+    "lower_limbs_support"
+  ],
+  "movementRequirements": {
+    "commonPrerequisites": [
+      "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+      "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+      "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+      "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected."
+    ],
+    "contextSpecificPrerequisites": {
+      "known-release": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Known-release may teach its first whole release without prior successful throwing when the actual component gates fit. Observe control in that counted E0; a first or emerging throw cannot establish prior repeatability or add the choice context in this session."
+      ],
+      "go-no-go": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Before first GO/NO-GO instruction, actual repeatable same-implement/stance/direction/intent stationary throwing and repeatable known-release/whole retrieval conduct are established from actual compatible history or direct equivalent, not attendance or one emerging E0 attempt.",
+        "Both word meanings are understood before handling. No prior complete GO/NO-GO mastery is required for first counted instruction. Retained choice uses actual compatible movement/cue behavior without requiring a named prior visit; instruction is not automatic competency.",
+        "Today's counted E0 known rehearsal remains suitable before any E1 choice. E0 consumes the first total opportunity; insufficient remaining dose supplies no choice observation. Current poor response, traffic or handling prevents continuation despite past competence."
+      ]
+    },
+    "instructionVsCompetency": "Component entry permits counted known instruction; repeatable prior throw enables first choice instruction. Neither instruction nor attendance is a passed rule.",
+    "primaryJointActions": [
+      "bilateral_arm_forward_projection_and_elbow_extension",
+      "controlled_trunk_and_foot_position",
+      "grip_and_release_or_retention"
+    ],
+    "ballHoldingIsNotThrowing": true,
+    "priorWholeThrowRequiredForFirstKnownInstruction": false,
+    "priorRepeatableThrowRequiredForFirstChoice": true,
+    "priorWholeChoicePassRequiredForFirstChoice": false
+  },
+  "equipment": {
+    "type": "actual inspected soft low-rebound medicine ball",
+    "referenceMassKg": 0.5,
+    "referenceDiameterCm": 18,
+    "actualTypeMassDiameterGripRebound": null,
+    "referenceIsAgePrescription": false,
+    "actualRackHeight": null,
+    "plannedBalls": 3,
+    "plannedRacks": 3,
+    "fixedLaneAssignmentRequiresAllAssignedFit": true,
+    "surfaces": "inspected traction, suitable natural-landing containment and safe floor/rack access",
+    "silentReplacementOrSlamBallEquivalence": false
+  },
+  "environment": {
+    "actual_verified": false,
+    "planning_lane_width_m": 3,
+    "planning_protected_length_m": 6,
+    "side_buffer_m": 1,
+    "first_landing_reference_m": [
+      1,
+      3
+    ],
+    "distance_is_score": false,
+    "requires_actual_ball_containment_inspection": true,
+    "target_people": false,
+    "wall_return": false,
+    "catching": false,
+    "retrieval_max_outbound_m_model": 6,
+    "retrieval_max_return_m_model": 6,
+    "retrieval_walk_and_pickup_budget_s": 15,
+    "throwing_during_retrieval": false,
+    "coach_sightlines_verified": false,
+    "planning_ball_mass_kg": 0.5,
+    "planning_ball_diameter_cm": 18,
+    "ball_reference_is_mandatory": false,
+    "actual_ball_properties": null,
+    "familiar_DB_stations": 5,
+    "familiar_DB_implements": 10,
+    "actual_three_fitting_ball_sets_verified": false,
+    "parked_held_balls_before_all_clear": true,
+    "no_go_rack_setdown_s": 5,
+    "no_go_active_s": 15,
+    "main_triad_s": 90,
+    "separate_rear_rack_and_queue_paths_required": true,
+    "planning_lanes": 3,
+    "planning_racks": 3,
+    "planning_balls": 3,
+    "qualified_coaches_assumed": 2,
+    "athletes_assumed": 15,
+    "actual_rack_heights": null,
+    "actual_return_paths": null,
+    "actual_combined_lane_bay_sightlines_verified": false,
+    "fitRule": "Each assigned lane ball/rack must fit every athlete using it; no hidden zero-time swapping. Actual pace/fit/sightlines may delay or omit work. Dimensions do not guarantee containment or safety.",
+    "incoming_triad_rear_staging_s": 15,
+    "actual_incoming_and_outgoing_rear_paths_verified": false
+  },
+  "population": {
+    "exerciseDoesNotAssignSkillByAge": true,
+    "ageBands": [
+      "9-11",
+      "12-14",
+      "15-18"
+    ],
+    "commonPrerequisites": [
+      "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+      "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+      "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+      "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected."
+    ],
+    "contextSpecificPrerequisites": {
+      "known-release": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Known-release may teach its first whole release without prior successful throwing when the actual component gates fit. Observe control in that counted E0; a first or emerging throw cannot establish prior repeatability or add the choice context in this session."
+      ],
+      "go-no-go": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Before first GO/NO-GO instruction, actual repeatable same-implement/stance/direction/intent stationary throwing and repeatable known-release/whole retrieval conduct are established from actual compatible history or direct equivalent, not attendance or one emerging E0 attempt.",
+        "Both word meanings are understood before handling. No prior complete GO/NO-GO mastery is required for first counted instruction. Retained choice uses actual compatible movement/cue behavior without requiring a named prior visit; instruction is not automatic competency.",
+        "Today's counted E0 known rehearsal remains suitable before any E1 choice. E0 consumes the first total opportunity; insufficient remaining dose supplies no choice observation. Current poor response, traffic or handling prevents continuation despite past competence."
+      ]
+    },
+    "currentReadinessInputRequired": true,
+    "attendanceCreatesNoHistory": true,
+    "cueEntryNotPass": true
+  },
+  "anatomy": {
+    "description": "Authored unscored mechanics: arm projection and grip with maintained trunk/foot position; actual pickup/carry/set-down occur in separately counted handling phases.",
+    "ballisticDemand": "Only actual releases; HOLD has no intended release.",
+    "tissueLoadScores": null
+  },
+  "whyLayer": {
+    "purpose": "Teach or retain the specified release and complete handling conduct, then add one early interpretation only to an already repeatable throw.",
+    "placement": "Counted main Movement Intelligence after full base and two no-release preparation targets; familiar strength follows.",
+    "scope": "No reaction-speed, power, sport-transfer or clinical outcome is inferred from this lesson.",
+    "misuse": [
+      "catch-up cues",
+      "valid-response quotas hiding faults",
+      "holding substituted for throwing qualification",
+      "maximal/conditioning defaults",
+      "age or attendance used as readiness"
+    ]
+  },
+  "coachingExecution": {
+    "exactMechanics": {
+      "start": "Stationary comfortable bilateral stance, unlocked knees, organized ribs/pelvis. One inspected fitting ball at chest with both palms/finger pads on rear-side surfaces, thumbs comfortably behind, fingers comfortably spread, wrists comfortable, elbows below shoulders; no forced hand shape or throat pressure.",
+      "preload": "No deliberate dip/squat, step, jump, rotation, overhead action or loaded push-out.",
+      "THROW": "After one early individual THROW permission, smoothly project forward from chest with two hands at retained easy intent near3/10. Retain planted feet and balanced finish; ball follows a natural forward arc to the inspected contained landing area. No downward slam target, distance quota, catch, partner or wall return.",
+      "HOLD": "After one early individual HOLD cue, retain the same secure two-hand chest position and planted feet for3s, park on own fitting rack over5s, settle behind the line over3s. No forward fake throw, press or release; ball stays parked until future permission.",
+      "cue": "Coach selects and records hold_first or throw_first prefix before delivery. Explain both meanings, but do not preannounce the next choice. Address one athlete, allow pickup, confirm readiness, say exactly THROW or HOLD once. No startle, rapid barrage, reaction deadline, color-only rule or speed score.",
+      "retrieval": "After all actions stop, every released ball settles and every retained ball is parked, coach confirms all lanes/queues/paths clear. Only actual released-ball owners walk out, pick up, carry back and rack. No throw while anyone retrieves. HOLD/non-release athletes do not enter targets or perform duplicate set-downs.",
+      "wordingBoundary": "Detailed hand contacts and3/10 intent, HOLD logic and global group clock are authored context. Local legacy/completed wall sources do not verify this exact stationary open-lane cue profile."
+    },
+    "setup": [
+      "Inspect actual ball/rack/lane and all assigned-athlete fit. Select route, count cap and cue-order prefix before delivery.",
+      "Explain words and stop conduct; athletes get no extra trial. Confirm actual component and context gates.",
+      "Use numbered triads and addressed release; waiting balls parked."
+    ],
+    "executionSteps": [
+      "Use one counted E0 known action within the total ceiling and fully complete shutdown/retrieval/reset.",
+      "Only after appropriate prior evidence and suitable E0, present the selected E1 choice prefix without adding another rehearsal.",
+      "THROW uses the10s release sequence and quiet remaining slot. HOLD uses15s with3s post-cue hold and5s rack parking.",
+      "After all actions stop and released/held balls are safe, owners alone retrieve and everyone uses the declared reset."
+    ],
+    "coachCues": [
+      "Your name first.",
+      "Listen: THROW or HOLD.",
+      "Keep your feet and chest position.",
+      "Wait until all-clear."
+    ],
+    "faultResponse": "Immediately shut all lanes; cancel subsequent actions until safe. Count the cue if actually presented and every release including a premature one. Coach manages any uncontained ball; only released-ball owners retrieve after explicit all-clear when safe. No replacement cue or throw is owed.",
+    "withheldTHROW": "Record the actual cue and no release. Keep the ball secure, park under coach direction in the remaining action allowance or delay shutdown. This consumes the opportunity; do not issue another THROW.",
+    "stopSigns": [
+      "Stop for symptoms, discomfort, apprehension/decline, restriction conflict, insecure grip, uncontrolled position/release or unsuitable ball, surface, containment, rack or traffic.",
+      "An unexpected release, uncontained ball or intrusion immediately shuts all lanes and cancels future actions until safe. Count every actual release and actually presented cue; canceled cues remain unobserved.",
+      "No correction cue, replacement throw, added pickup or faster retrieval repays an error. Coach manages a failed/uncontained implement; safe parking/clearance may delay or omit later work.",
+      "End the affected progression for unplanned dip, step, jump, rotation, loss of foot contact/torso control, changed target/ball or misunderstood cue. Use only an independently eligible named alternative."
+    ]
+  },
+  "athleteSupport": {
+    "whyItMatters": "Practice the familiar movement and waiting choice without changing your throw.",
+    "primaryCue": "Listen to your word; throw or keep it, then wait.",
+    "expectedSensations": [
+      "comfortable secure grip",
+      "easy brief arm effort or quiet hold",
+      "steady feet and breathing"
+    ],
+    "unexpectedSensations": [
+      "pain or insecure grip",
+      "feeling unsafe or unable to hold/park",
+      "uncontrolled ball or loss of balance"
+    ],
+    "painGuidance": "Tell the coach and stop; no replacement throw is owed.",
+    "selfChecks": [
+      "I heard my own cue.",
+      "I kept the same start.",
+      "I threw or held as asked.",
+      "I waited for safe collection/reset."
+    ],
+    "accessibility": {
+      "unknownChoice": "Use only the independently eligible known rule, with no inferred inhibition pass.",
+      "unknownThrow": "Known instruction only when actual component gates fit; otherwise separately eligible hold/reach/standing or defer.",
+      "communication": "Confirm each word meaning clearly; no color-only or surprise rule.",
+      "handlingUnavailable": "Do not select HOLD just because it has no release; its actual handling/rack gates still apply."
+    },
+    "mediaAlternatives": [
+      "Complete written steps and qualified coach demonstration; no verified exact video."
+    ]
+  },
+  "coachSupport": {
+    "observationChecklist": [
+      "actual entry evidence and present E0 response",
+      "addressed cue/order/count",
+      "grip/feet/torso and same target/intent",
+      "actual release or3s withholding/5s parking",
+      "held balls parked and released balls settled",
+      "global shutdown/retrieval and all actual exposures",
+      "retained strength history"
+    ],
+    "faultCorrections": {
+      "emergingThrow": "Keep known instruction; do not use one E0 success as prior repeatability.",
+      "falseRelease": "Immediately shut all lanes; cancel subsequent actions until safe. Count the cue if actually presented and every release including a premature one. Coach manages any uncontained ball; only released-ball owners retrieve after explicit all-clear when safe. No replacement cue or throw is owed.",
+      "withheldTHROW": "Record the actual cue and no release. Keep the ball secure, park under coach direction in the remaining action allowance or delay shutdown. This consumes the opportunity; do not issue another THROW.",
+      "unknownHandling": "Only independently fitting alternative, not automatic HOLD.",
+      "clockOrFit": "Delay/omit; no rushed pickup, parking or extra cue."
+    },
+    "demonstrationPlan": "Coach explains and demonstrates without athlete screening reps; first main known action and later choices are all counted.",
+    "groupManagement": "Three planned lanes, one active athlete across lanes, two qualified coaches;90s triads with15s incoming rear staging after outgoing clearance, all lanes closed before released-owner collection. Stationary bays visible outside traffic; actual fit/sightlines unverified.",
+    "modificationDecisionTree": [
+      "Select known instruction/retention under component gates; actual prior repeatability is required before first choice.",
+      "Observe current counted E0; unsuitable current response prevents E1 choice.",
+      "Use only remaining recorded prefix; one choice is one rule and canceled cues unobserved.",
+      "Independently eligible no-release/unloaded/standing or defer; no new load/support/speed task."
+    ],
+    "doNotUseWhen": [
+      "unsafe ball/rack/lane/traffic or inadequate sightlines",
+      "unavailable context gates or participant decline",
+      "restriction/symptom/control conflict",
+      "maximal, target-selection, catch, late-cue, relocation or conditioning task"
+    ]
+  },
+  "supportOperations": {
+    "issueCategories": [
+      "identity_profile_review",
+      "equipment_traffic_or_handling",
+      "cue_understanding",
+      "movement_or_symptom",
+      "dose_or_history",
+      "missing_exact_media"
+    ],
+    "supportEscalation": "Stop affected work, coach manages safe clearance and records actual/partial exposure; seek the responsible human exercise/programming reviewer for identity or approval questions. No automatic escalation grants clearance.",
+    "retentionPolicy": "Keep actual compatible task and rule evidence, body response and smaller dose; missing attendance is not missing competence or invented history.",
+    "changeImpactPolicy": "Changes to cue meaning, response endpoint, target, stance, load, pickup/return or count require specific review; labels and schema validity do not create canonical approval."
+  },
+  "loadProfile": {
+    "externalLoad": "actual declared medicine-ball mass",
+    "actualMassKg": null,
+    "actualThrows": null,
+    "actualCues": null,
+    "actualGripHoldSeconds": null,
+    "actualFloorPickups": null,
+    "actualRackPickups": null,
+    "actualRackSetdowns": null,
+    "actualLoadedCarryMetres": null,
+    "actualBallLandings": null,
+    "intentionalAthleteJumpOrFlightEvents": 0,
+    "contactRule": "Grounded projection has no prescribed athlete jump; ball releases/landings and all handling/carry remain actual exposures. False releases count regardless of score; HOLD is not zero physical work."
+  },
+  "fatigueProfile": {
+    "status": "qualitative_unscored",
+    "exposures": [
+      "actual arm/grip/trunk work",
+      "ball handling/carry",
+      "attention and waiting",
+      "most recent sport/strength/tumbling"
+    ],
+    "recoveryHours": null,
+    "automaticAgeOrDailyClearance": false
+  },
+  "pairingLogic": {
+    "pairsAfter": [
+      "full base and counted position/floor-handling targets"
+    ],
+    "pairsBefore": [
+      "familiar full-body supporting roles after recovery"
+    ],
+    "avoid": [
+      "fatigue-heavy cue barrage",
+      "new ball/load/support or first loaded strength while teaching choice"
+    ],
+    "restUse": "Quiet waiting, explanation and observation; no hidden practice.",
+    "retainedStrengthContext": {
+      "status": "final_author_context_pending_operational_verification",
+      "mostRecentActualRecordGoverns": true,
+      "familiarTwoDBGate": "Actual most recent compatible TWO-dumbbell record at the same pair/load/range/count with independently controlled pickup, top start, hinge repetitions and set-down, plus suitable current response. A single first OR06 loaded lesson or attendance does not establish familiarity. Actual OR07 unloading or a newer smaller record is not silently reversed; absent OR07 is not fictitious unloading history.",
+      "firstLoadedInstructionAvailable": false,
+      "restoreOlderDBDuringNewIntent": false,
+      "DB": {
+        "allowedModes": [
+          "standard_D",
+          "compressed_D"
+        ],
+        "sets": 1,
+        "referenceRepetitionsByAge": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "repetitionCaps": [
+          1,
+          2,
+          3
+        ],
+        "capRule": "min(reference, actual smaller selected cap)",
+        "tempoSeconds": {
+          "lower": 3,
+          "stand": 1
+        },
+        "handlingSeconds": {
+          "pickup": 4,
+          "setDown": 4,
+          "clear": 2
+        },
+        "minimumRecoverySeconds": 90,
+        "technicalRIRAtLeast": 5,
+        "kgPerDBActual": null,
+        "totalLoadActual": null,
+        "parkingHeightActual": null,
+        "setup": "Five individually fitting elevated pickup/parking stations with TEN simultaneously suitable DBs at actual retained pairs/loads. One DB in each hand, palms facing inward, long arms and tall top stand with weights near thighs. Soft knees and organized trunk; move hips back with the DBs close through the actual owned hamstring-limited range. No floor-touch target or new range/handling test.",
+        "stationCount": 5,
+        "simultaneouslySuitableDBs": 10,
+        "coachesObserve": [
+          2,
+          3
+        ],
+        "groupSize": 5,
+        "betweenGroupResetSeconds": 20,
+        "resetOnlyAfterAllImplementsParkedAndActiveAthletesCleared": true,
+        "maximumReferenceSetSeconds": 26,
+        "sourceVsAuthorContext": "Source331 verifies dumbbell-standard-tempo with TWO dumbbells on close independent paths and declared owned hamstring-limited range; related legacy RDL instructions explain hip-height start, soft knees, keeping load close and stopping before spinal compensation rather than reaching the floor. Palms-in/long-arm wording, fitting elevated pickup, handling clock and this small dose are explicitly declared OR08 session context, not a newly verified mandatory source profile.",
+        "implementReuse": "Push/pull precede hip today. Any suitable row implement reuse into later fitting DB pairs occurs only after row work is parked/cleared within declared setup; no hidden athlete carrying or incompatible pair substitution."
+      },
+      "BW": {
+        "sets": 1,
+        "referenceRepetitionsByAge": {
+          "9-11": {
+            "D": 3,
+            "L": 2
+          },
+          "12-14": {
+            "D": 4,
+            "L": 3
+          },
+          "15-18": {
+            "D": 4,
+            "L": 3
+          }
+        },
+        "repetitionCaps": [
+          1,
+          2,
+          3
+        ],
+        "unknownHistoryRepetitions": 2,
+        "capRule": "min(reference, actual smaller selected cap); unknown uses explicit small counted instruction, no extra trial",
+        "tempoSeconds": {
+          "hipsBack": 3,
+          "stand": 1
+        },
+        "handlingSetupExitSeconds": 5,
+        "minimumRecoverySeconds": 60,
+        "technicalRIRAtLeast": 5,
+        "arms": "crossed at chest",
+        "range": "actual comfortable owned hip-back range; no wall or new target"
+      },
+      "roleClock": {
+        "standardBudgetSeconds": 360,
+        "standardGroupStartsSeconds": [
+          90,
+          165,
+          240
+        ],
+        "compressedBudgetSeconds": 240,
+        "compressedGroupStartsSeconds": [
+          60,
+          120,
+          180
+        ],
+        "maximumDBWorkPlusResetSeconds": 46,
+        "compressedStartPitchSeconds": 60,
+        "scope": "Each of five sequential roles gets360s standard or240s compressed with the stated starts, not a circuit. Familiar DB maximum26s plus20s all-clear reset fits60s compact pitch; recovery verified in session transitions."
+      },
+      "fallback": "If actual pairs/stations/readiness/sightlines do not fit, deliberately choose a compatible unloaded set or defer BEFORE pickup. A post-pickup fault consumes partial work and ends the set; no replacement trial/set.",
+      "otherRoles": "Retain actual OR08 or more recent/direct equivalent one-set knee/hip counts and support level. Incline push uses stable fitting support; row has opposite hand AND knee on bench, both-side accounting; fixed-arm heel tap needs tabletop/contact-return control. Supported breathing and suspension row retain independent exact gates. No source or age automatically restores load, removes support or upgrades cue permission.",
+      "roleOrder": {
+        "S1": "push",
+        "S2": "pull",
+        "S3": "knee",
+        "S4": "hip",
+        "S5": "brace"
+      },
+      "sessionHistoryPolicy": {
+        "strength_sets_per_role": 1,
+        "most_recent_hip_record_governs": true,
+        "restores_older_DB_after_unloaded": false,
+        "first_DB_lesson_proves_familiar_handling": false,
+        "knee_and_hip_caps": [
+          1,
+          2,
+          3
+        ],
+        "unknown_knee_hip_reps": 2,
+        "support_levels": [
+          "reference",
+          "low"
+        ],
+        "actual_history": null,
+        "main_opportunity_ceiling": {
+          "standard_D": 3,
+          "standard_L": 2,
+          "compressed_D": 2,
+          "compressed_L": 1
+        },
+        "main_caps": [
+          1,
+          2
+        ],
+        "E0_consumes_first_main_opportunity": true,
+        "missing_attendance_creates_history": false,
+        "new_cue_restores_old_strength": false,
+        "actual_recent_throw_opportunities": null,
+        "actual_recent_throw_and_cue_rule": null,
+        "actual_selected_knee_cap": null,
+        "actual_selected_hip_cap": null,
+        "actual_selected_support_level": null
+      }
+    }
+  },
+  "cueResponseContract": {
+    "signals": {
+      "THROW": "One owned forward chest projection to the unchanged contained lane.",
+      "HOLD": "Retain the ball at chest, keep both feet planted, then park on the own fitting rack without a release."
+    },
+    "cue_delivery": "Address the individual athlete, authorize only that athlete to pick up, confirm readiness, then say exactly THROW or HOLD once. The athlete knows both meanings but not the next choice. No rapid cue, startle, color-only rule or response-speed score.",
+    "choice_order_options": {
+      "hold_first": [
+        "HOLD",
+        "THROW"
+      ],
+      "throw_first": [
+        "THROW",
+        "HOLD"
+      ]
+    },
+    "actual_selected_order": null,
+    "each_choice_slot_contains_one_signal": true,
+    "THROW": {
+      "active_s": 10,
+      "execution_segments": [
+        {
+          "name": "rack_pickup_chest_setup",
+          "seconds": 2
+        },
+        {
+          "name": "ready_and_individual_THROW_signal",
+          "seconds": 2
+        },
+        {
+          "name": "single_forward_release",
+          "seconds": 1
+        },
+        {
+          "name": "stable_followthrough",
+          "seconds": 3
+        },
+        {
+          "name": "wait_at_line",
+          "seconds": 2
+        }
+      ],
+      "intended_releases": 1,
+      "post_cue_hold_s": 0,
+      "rack_pickups": 1,
+      "rack_setdowns_after_retrieval": 1,
+      "floor_pickups_after_all_clear": 1,
+      "loaded_return_m_model_cap": 6,
+      "retrieval_window_s": 15
+    },
+    "HOLD": {
+      "active_s": 15,
+      "execution_segments": [
+        {
+          "name": "rack_pickup_to_chest",
+          "seconds": 2
+        },
+        {
+          "name": "ready_and_HOLD_signal",
+          "seconds": 2
+        },
+        {
+          "name": "comfortable_chest_hold",
+          "seconds": 3
+        },
+        {
+          "name": "controlled_own_rack_setdown",
+          "seconds": 5
+        },
+        {
+          "name": "settle_in_own_behind_line_waiting_mark",
+          "seconds": 3
+        }
+      ],
+      "intended_releases": 0,
+      "post_cue_hold_s": 3,
+      "rack_pickups": 1,
+      "rack_setdowns_in_action": 1,
+      "floor_pickups": 0,
+      "loaded_carry_m": 0,
+      "retrieval_window_s": 0,
+      "after_action": "Ball remains parked. Athlete waits behind own line until the scheduled rear reset; no walk into a target lane and no second set-down."
+    },
+    "all_action_slots_s": 15,
+    "response_time_is_score": false,
+    "action_seconds_force_pace": false,
+    "wrong_release_counts_as_actual_throw": true,
+    "fault_consumes_opportunity": true,
+    "repayment_opportunities": 0,
+    "unpresented_cancelled_cues_are_observed": false,
+    "one_choice_proves_both_rules": false,
+    "false_release_rule": "Immediately shut all lanes; cancel subsequent actions until safe. Count the cue if actually presented and every release including a premature one. Coach manages any uncontained ball; only released-ball owners retrieve after explicit all-clear when safe. No replacement cue or throw is owed.",
+    "withheld_on_THROW_rule": "Record the actual cue and no release. Keep the ball secure, park under coach direction in the remaining action allowance or delay shutdown. This consumes the opportunity; do not issue another THROW.",
+    "all_clear": "Before collection, every action has stopped, every released ball is settled and all held balls are securely parked. Coach confirms the entire retrieval area and queues are clear. No throw while anyone retrieves."
+  },
+  "sessionPreparationContext": {
+    "P1": {
+      "mappingKey": "CHEST-REACH-TEACH",
+      "budgetSeconds": 40,
+      "groups": {
+        "size": 5,
+        "startsSeconds": [
+          10,
+          20,
+          30
+        ],
+        "demoSeconds": 10
+      },
+      "perAthlete": "2s chest start +2s reach +2s return +4s relax =10s; palms comfortably forward/fingers upward, owned range, no ball or release."
+    },
+    "P2": {
+      "mappingKey": "BALL-HOLD-TEACH",
+      "budgetSeconds": 140,
+      "groups": {
+        "size": 3,
+        "startsSeconds": [
+          20,
+          44,
+          68,
+          92,
+          116
+        ],
+        "gatherSeconds": 10,
+        "demoSeconds": 10
+      },
+      "perAthlete": "5s floor pickup +5s chest hold +4s1m out/1m back carry (2s walking+2s turns) +6s original-floor set-down +4s exit =24s. Zero releases.",
+      "entry": "Comfortable standing/ordinary walking/turning and unloaded chest start. Coach selects plausible inspected ball and demonstrates. Unloaded floor access is known or observed in initial reach of SAME counted pickup before load; if unavailable, no lift, coach manages ball, partial observation recorded, no extra screen.",
+      "physicalAccounting": {
+        "floorPickups": 1,
+        "postPickupChestHoldSeconds": 5,
+        "loadedCarryM": 2,
+        "floorSetdowns": 1,
+        "intendedReleases": 0
+      }
+    },
+    "mainPlacement": "Explicit active amendment retains40/140s preparation and assigns one known-cue rehearsal to E0 INSIDE the existing main opportunity total. No hidden preparation throw.",
+    "independence": "A smaller P1/P2 branch neither grants nor revokes separately established main evidence; current handling/response still must fit. Quiet standing gives no arm/handling pass."
+  },
+  "deliveryProfiles": [
+    {
+      "id": "proposal:or09:chest-projection-known-release",
+      "documentationContextKey": "known-release",
+      "phaseKey": "movement_intelligence",
+      "role": "conditional",
+      "phaseSuitability": 70,
+      "phaseSuitabilityStatus": "explicit_root_authorized_provisional_author_fit_not_calibrated_or_participant_probability",
+      "purpose": "Known-release stationary chest projection; keep movement/equipment/direction/intent while observing the specified task.",
+      "selectionPrerequisites": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Known-release may teach its first whole release without prior successful throwing when the actual component gates fit. Observe control in that counted E0; a first or emerging throw cannot establish prior repeatability or add the choice context in this session."
+      ],
+      "qualityGate": "Comfortable secure handling, controlled bilateral stationary release on the known cue, stable finish, waiting and complete global-all-clear own-ball retrieval. First instruction may be observed here under component gates; it does not prove repeatable choice readiness.",
+      "stopRules": [
+        "Stop for symptoms, discomfort, apprehension/decline, restriction conflict, insecure grip, uncontrolled position/release or unsuitable ball, surface, containment, rack or traffic.",
+        "An unexpected release, uncontained ball or intrusion immediately shuts all lanes and cancels future actions until safe. Count every actual release and actually presented cue; canceled cues remain unobserved.",
+        "No correction cue, replacement throw, added pickup or faster retrieval repays an error. Coach manages a failed/uncontained implement; safe parking/clearance may delay or omit later work.",
+        "End the affected progression for unplanned dip, step, jump, rotation, loss of foot contact/torso control, changed target/ball or misunderstood cue. Use only an independently eligible named alternative."
+      ],
+      "dosage": {
+        "status": "authored_low_dose_instruction_not_source_Output_or_reaction_defaults",
+        "ageModeRows": [
+          {
+            "ageBand": "9-11",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW",
+                  "THROW"
+                ],
+                "E1IntendedReleases": 2,
+                "totalIntendedReleasesIncludingE0": 3
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW",
+                  "THROW"
+                ],
+                "E1IntendedReleases": 2,
+                "totalIntendedReleasesIncludingE0": 3
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW",
+                  "THROW"
+                ],
+                "E1IntendedReleases": 2,
+                "totalIntendedReleasesIncludingE0": 3
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [
+                  "THROW"
+                ],
+                "E1IntendedReleases": 1,
+                "totalIntendedReleasesIncludingE0": 2
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "E1CueSequence": [],
+                "E1IntendedReleases": 0,
+                "totalIntendedReleasesIncludingE0": 1
+              }
+            }
+          }
+        ],
+        "cueResponseContractRef": "#/cueResponseContract",
+        "E0": "One known-cue rehearsal uses the first total opportunity; same10s THROW action and global retrieval. E0 is described by the known-release profile even on the choice route.",
+        "E1": "Only remaining opportunities repeat the known THROW task; no choice added from first E0 success.",
+        "countRule": "Bounded opportunities are not valid-response quotas. Every presented cue and every physical action/release/fault is recorded; no completed opportunity is replaced.",
+        "THROWActiveSeconds": 10,
+        "HOLDActiveSeconds": null,
+        "minimumRecoverySeconds": 60,
+        "referenceReleaseEffortRPE": 3,
+        "HOLDComfortEffortRPE": null,
+        "referenceBallMassKg": 0.5,
+        "referenceBallDiameterCm": 18,
+        "actualBallFitRequired": true,
+        "ageDoesNotChooseLoad": true,
+        "zeroChoiceRule": "Cap1 and compressedL provide E0 only. With one E1 opportunity, only its single chosen prefix rule is observed."
+      },
+      "timeModel": {
+        "slotSeconds": 15,
+        "triadSeconds": 90,
+        "triadPhasesSeconds": {
+          "individualActions": [
+            0,
+            45
+          ],
+          "closedCheck": [
+            45,
+            50
+          ],
+          "releasedOwnersRetrieve": [
+            50,
+            65
+          ],
+          "rackRearReset": [
+            65,
+            75
+          ],
+          "incomingRearStaging": [
+            75,
+            90
+          ]
+        },
+        "triadStartsWithinRoundSeconds": [
+          0,
+          90,
+          180,
+          270,
+          360
+        ],
+        "roundSeconds": 450,
+        "E0MainRelativeStartSeconds": 240,
+        "E1MainRelativeStartsByMode": {
+          "standard_D": [
+            780,
+            1320
+          ],
+          "standard_L": [
+            780
+          ],
+          "compressed_D": [
+            780
+          ],
+          "compressed_L": []
+        },
+        "referenceRoundSpacingSeconds": 540,
+        "recoveryAfterFullTriadSeconds": 450,
+        "minimumRecoverySeconds": 60,
+        "singleOpportunityRule": "No between-repeat interval when E0 alone; minimum required recovery before later demand still applies.",
+        "planningClockNotForcedPace": true,
+        "overrun": "Delay/omit later action or choose an independently eligible task; never rush set-down, return or clearance.",
+        "recoveryIsConservative": true,
+        "firstTriadStaging": "First E0 triad stages in opening setup; each next round's first triad stages in the final15s of the90s interround gap. Subsequent triads stage75–90s only after outgoing clearance.",
+        "finalReferenceRoundEndSessionSeconds": {
+          "standard_D": 2670,
+          "compressed_D": 1830
+        }
+      },
+      "doseScaling": {
+        "retain": "Actual most recent compatible ball/stance/intent/target/handling/count and support levels. Select reference or smaller1/2 cap, never restore old volume.",
+        "reduce": "Remove later prefix opportunities or use independently eligible known/no-release route. No throw-inhibition pass from a held ball without the rule.",
+        "advance": "Only the specifically qualified cue interpretation changes; no heavier/faster/multiple-target/wall/catch/redirect variation."
+      },
+      "measurement": {
+        "unit": "presented_cue_opportunity_and_all_actual_physical_work",
+        "record": [
+          "actual prior stable throw and known-release/retrieval evidence",
+          "current E0 response",
+          "selected route and cue order/cap",
+          "actual cues presented versus canceled",
+          "actual releases including false/premature releases",
+          "correct withholding, holds, pickup/set-down, carry and retrieval",
+          "movement/foot/target control, symptoms and recovery",
+          "exact passed cue rule and missing observations"
+        ],
+        "actualCues": null,
+        "actualReleases": null,
+        "actualValidResponses": null,
+        "reactionSpeedScore": null,
+        "validQuota": null,
+        "oneChoiceProvesBothRules": false
+      },
+      "supportPrompts": {
+        "athlete": "Listen for your word; throw or keep it, then wait.",
+        "coach": "One addressed cue; separate correct choice, actual movement and all-clear conduct."
+      }
+    },
+    {
+      "id": "proposal:or09:chest-projection-go-no-go",
+      "documentationContextKey": "go-no-go",
+      "phaseKey": "movement_intelligence",
+      "role": "conditional",
+      "phaseSuitability": 70,
+      "phaseSuitabilityStatus": "explicit_root_authorized_provisional_author_fit_not_calibrated_or_participant_probability",
+      "purpose": "Stationary chest projection with early THROW/HOLD choice; keep movement/equipment/direction/intent while observing the specified task.",
+      "selectionPrerequisites": [
+        "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+        "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+        "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+        "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected.",
+        "Before first GO/NO-GO instruction, actual repeatable same-implement/stance/direction/intent stationary throwing and repeatable known-release/whole retrieval conduct are established from actual compatible history or direct equivalent, not attendance or one emerging E0 attempt.",
+        "Both word meanings are understood before handling. No prior complete GO/NO-GO mastery is required for first counted instruction. Retained choice uses actual compatible movement/cue behavior without requiring a named prior visit; instruction is not automatic competency.",
+        "Today's counted E0 known rehearsal remains suitable before any E1 choice. E0 consumes the first total opportunity; insufficient remaining dose supplies no choice observation. Current poor response, traffic or handling prevents continuation despite past competence."
+      ],
+      "qualityGate": "Comfortable controlled stationary chest projection and complete waiting/retrieval when THROW is presented; secure retained chest position, no release and controlled rack parking for HOLD. Record the actual rule and result separately. One observed rule is not both rules or repeatability.",
+      "stopRules": [
+        "Stop for symptoms, discomfort, apprehension/decline, restriction conflict, insecure grip, uncontrolled position/release or unsuitable ball, surface, containment, rack or traffic.",
+        "An unexpected release, uncontained ball or intrusion immediately shuts all lanes and cancels future actions until safe. Count every actual release and actually presented cue; canceled cues remain unobserved.",
+        "No correction cue, replacement throw, added pickup or faster retrieval repays an error. Coach manages a failed/uncontained implement; safe parking/clearance may delay or omit later work.",
+        "End the affected progression for unplanned dip, step, jump, rotation, loss of foot contact/torso control, changed target/ball or misunderstood cue. Use only an independently eligible named alternative."
+      ],
+      "dosage": {
+        "status": "authored_low_dose_instruction_not_source_Output_or_reaction_defaults",
+        "ageModeRows": [
+          {
+            "ageBand": "9-11",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD",
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW",
+                      "HOLD"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "9-11",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD",
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW",
+                      "HOLD"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "12-14",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 3,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 2,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD",
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW",
+                      "HOLD"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "standard_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_D",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 2,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 1,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [
+                      "HOLD"
+                    ],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 1,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [
+                      "THROW"
+                    ],
+                    "goOpportunities": 1,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 1,
+                    "totalIntendedReleasesIncludingE0": 2,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "ageBand": "15-18",
+            "mode": "compressed_L",
+            "doseSelections": {
+              "reference": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "1": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              },
+              "2": {
+                "totalMainOpportunities": 1,
+                "E0KnownOpportunities": 1,
+                "E1Opportunities": 0,
+                "E0IntendedReleases": 1,
+                "minimumRecoverySeconds": 60,
+                "E0CountsTowardTotal": true,
+                "cuePrefixes": {
+                  "hold_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  },
+                  "throw_first": {
+                    "sequence": [],
+                    "goOpportunities": 0,
+                    "holdOpportunities": 0,
+                    "E1IntendedReleases": 0,
+                    "totalIntendedReleasesIncludingE0": 1,
+                    "bothRulesObservedAutomatically": false
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "cueResponseContractRef": "#/cueResponseContract",
+        "E0": "One known-cue rehearsal uses the first total opportunity; same10s THROW action and global retrieval. E0 is described by the known-release profile even on the choice route.",
+        "E1": "Only remaining opportunities use the selected two-cue prefix; no missing-cue repayment.",
+        "countRule": "Bounded opportunities are not valid-response quotas. Every presented cue and every physical action/release/fault is recorded; no completed opportunity is replaced.",
+        "THROWActiveSeconds": 10,
+        "HOLDActiveSeconds": 15,
+        "minimumRecoverySeconds": 60,
+        "referenceReleaseEffortRPE": 3,
+        "HOLDComfortEffortRPE": [
+          1,
+          2
+        ],
+        "referenceBallMassKg": 0.5,
+        "referenceBallDiameterCm": 18,
+        "actualBallFitRequired": true,
+        "ageDoesNotChooseLoad": true,
+        "zeroChoiceRule": "Cap1 and compressedL provide E0 only. With one E1 opportunity, only its single chosen prefix rule is observed."
+      },
+      "timeModel": {
+        "slotSeconds": 15,
+        "triadSeconds": 90,
+        "triadPhasesSeconds": {
+          "individualActions": [
+            0,
+            45
+          ],
+          "closedCheck": [
+            45,
+            50
+          ],
+          "releasedOwnersRetrieve": [
+            50,
+            65
+          ],
+          "rackRearReset": [
+            65,
+            75
+          ],
+          "incomingRearStaging": [
+            75,
+            90
+          ]
+        },
+        "triadStartsWithinRoundSeconds": [
+          0,
+          90,
+          180,
+          270,
+          360
+        ],
+        "roundSeconds": 450,
+        "E0MainRelativeStartSeconds": 240,
+        "E1MainRelativeStartsByMode": {
+          "standard_D": [
+            780,
+            1320
+          ],
+          "standard_L": [
+            780
+          ],
+          "compressed_D": [
+            780
+          ],
+          "compressed_L": []
+        },
+        "referenceRoundSpacingSeconds": 540,
+        "recoveryAfterFullTriadSeconds": 450,
+        "minimumRecoverySeconds": 60,
+        "singleOpportunityRule": "No between-repeat interval when E0 alone; minimum required recovery before later demand still applies.",
+        "planningClockNotForcedPace": true,
+        "overrun": "Delay/omit later action or choose an independently eligible task; never rush set-down, return or clearance.",
+        "recoveryIsConservative": true,
+        "firstTriadStaging": "First E0 triad stages in opening setup; each next round's first triad stages in the final15s of the90s interround gap. Subsequent triads stage75–90s only after outgoing clearance.",
+        "finalReferenceRoundEndSessionSeconds": {
+          "standard_D": 2670,
+          "compressed_D": 1830
+        }
+      },
+      "doseScaling": {
+        "retain": "Actual most recent compatible ball/stance/intent/target/handling/count and support levels. Select reference or smaller1/2 cap, never restore old volume.",
+        "reduce": "Remove later prefix opportunities or use independently eligible known/no-release route. No throw-inhibition pass from a held ball without the rule.",
+        "advance": "Only the specifically qualified cue interpretation changes; no heavier/faster/multiple-target/wall/catch/redirect variation."
+      },
+      "measurement": {
+        "unit": "presented_cue_opportunity_and_all_actual_physical_work",
+        "record": [
+          "actual prior stable throw and known-release/retrieval evidence",
+          "current E0 response",
+          "selected route and cue order/cap",
+          "actual cues presented versus canceled",
+          "actual releases including false/premature releases",
+          "correct withholding, holds, pickup/set-down, carry and retrieval",
+          "movement/foot/target control, symptoms and recovery",
+          "exact passed cue rule and missing observations"
+        ],
+        "actualCues": null,
+        "actualReleases": null,
+        "actualValidResponses": null,
+        "reactionSpeedScore": null,
+        "validQuota": null,
+        "oneChoiceProvesBothRules": false
+      },
+      "supportPrompts": {
+        "athlete": "Listen for your word; throw or keep it, then wait.",
+        "coach": "One addressed cue; separate correct choice, actual movement and all-clear conduct."
+      }
+    }
+  ],
+  "safety": {
+    "riskLevel": null,
+    "impactRating": null,
+    "ratingStatus": "pending_independent_calibration",
+    "qualifiedSupervisionRequired": true,
+    "readinessChecks": [
+      "Independently comfortable stationary bilateral stance and unloaded chest-start/forward arm path; current symptoms, restrictions, attention and whole upper-body/sport/tumbling exposure fit.",
+      "Comfortable ACTUAL ball grip/chest position and floor pickup, carry and set-down, observed in counted P2 or a direct equivalent. Rack-only holding or partial-range hinge/squat does not prove floor handling. Actual fitting rack access/handling is independently appropriate; no uncounted pickup test.",
+      "Understood addressed release, no-catch/no-chase, wait, immediate stop and whole-group all-clear conduct. The complete first known-release/retrieval sequence may be observed in counted E0 under the known context; handling alone is not that sequence.",
+      "Actual ball type/mass/diameter/grip/rebound, same-demand contained open lane, safe floor/rack/return/queue and qualified supervision fit. Planned dimensions and reference implement are unverified until inspected."
+    ],
+    "stopRules": [
+      "Stop for symptoms, discomfort, apprehension/decline, restriction conflict, insecure grip, uncontrolled position/release or unsuitable ball, surface, containment, rack or traffic.",
+      "An unexpected release, uncontained ball or intrusion immediately shuts all lanes and cancels future actions until safe. Count every actual release and actually presented cue; canceled cues remain unobserved.",
+      "No correction cue, replacement throw, added pickup or faster retrieval repays an error. Coach manages a failed/uncontained implement; safe parking/clearance may delay or omit later work.",
+      "End the affected progression for unplanned dip, step, jump, rotation, loss of foot contact/torso control, changed target/ball or misunderstood cue. Use only an independently eligible named alternative."
+    ],
+    "substitutionPolicy": "Named independent alternatives remain proposed/local unless exact current approval is verified; no unapproved substitution silently clears release."
+  },
+  "media": {
+    "candidates": [],
+    "verificationPerformed": false,
+    "reviewStatus": "missing_exact_open_lane_known_or_go_no_go_video",
+    "fabricatedMedia": false,
+    "internalNotes": [
+      "Do not portray existing wall, partner or live-target footage as an exact demonstration."
+    ]
+  },
+  "sourceReferences": [
+    {
+      "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+      "lines": "305-315",
+      "kind": "search_complete_proposal_and_approval_policy"
+    },
+    {
+      "path": "docs/workout-generator/schemas/exercise-card.schema.json",
+      "lines": "1-76",
+      "kind": "existing_local_complete_card_schema"
+    },
+    {
+      "path": "docs/EXERCISE_CARD_SPEC.md",
+      "lines": "9-27",
+      "kind": "complete_card_content_anatomy"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/planning/OR09_STIMULUS_AND_SOURCE_REVIEW.md",
+      "lines": "1-34",
+      "kind": "bounded_pre_authoring_decisions_not_canonical_approval"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/prescriptions/OR05_LIBRARY_MAPPING.md",
+      "lines": "18-50;56-84",
+      "kind": "audited_original_teaching_gap_and_component_gates"
+    },
+    {
+      "path": "scripts/data/output-jump-power-cards-28-38.mjs",
+      "lines": "1051-1063;1111-1139",
+      "kind": "related_legacy_chest_projection_and_defaults"
+    },
+    {
+      "path": "backend/migrations/342_coaching_researched_identity_boundary_card_completion.sql",
+      "lines": "721-790;1503-1517;1552-1567;1570-1584",
+      "kind": "completed_wall_preload_candidates_not_exact_open_lane"
+    },
+    {
+      "path": "backend/migrations/343_coaching_chest_pass_variant_consolidation_and_tuck_boundary.sql",
+      "lines": "219-245;320-350",
+      "kind": "generic_quarantine_and_review_survivor"
+    },
+    {
+      "path": "backend/migrations/191_coaching_reaction_time_reduction_cards.sql",
+      "lines": "2401-2422",
+      "kind": "legacy_live_target_cue_not_exact_go_no_go"
+    },
+    {
+      "path": "backend/migrations/385_coaching_score_77_identity_boundaries.sql",
+      "lines": "272-277",
+      "kind": "partner_target_vs_squat_wall_target_boundary"
+    },
+    {
+      "path": "backend/migrations/391_coaching_score_74_identity_boundaries.sql",
+      "lines": "336-342",
+      "kind": "preselected_chest_vs_live_target_selection_distinct_identity"
+    },
+    {
+      "path": "backend/migrations/395_coaching_score_72_identity_boundaries.sql",
+      "lines": "93",
+      "kind": "live_target_pass_vs_relocate_receive_distinct_identity"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json",
+      "lines": "782-835;1004-1058;1227-1281",
+      "kind": "OR09_OR13_OR17_separate_branch_permissions"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+      "lines": "152-221",
+      "kind": "OR09_active_E0_counted_rehearsal_amendment"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/prescriptions/author_or_09.py",
+      "lines": "13-115;133-164;184-227",
+      "kind": "authored_dose_cue_and_clock_context"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_01/or_05.json",
+      "lines": "11-12;7922-7975;8129-8159",
+      "kind": "actual_prior_containment_global_retrieval_and_history"
+    },
+    {
+      "path": "docs/programming/athleticism_12_week/prescriptions/OR08_LIBRARY_MAPPING.md",
+      "lines": "49-65",
+      "kind": "retained_strength_history_mechanics_and_loading"
+    }
+  ],
+  "relatedIdentityBoundaries": [
+    {
+      "sourceSlug": "medicine-ball-chest-pass",
+      "exactStationaryOpenLaneProfileVerified": false,
+      "sourceGenericStatus": "migration343_generic_baselines_archived",
+      "completedLocalVariants": [
+        "shallow-countermovement-wall-pass",
+        "squat-countermovement-wall-pass"
+      ],
+      "completedProfileKey": "output-quality",
+      "boundary": "Bilateral preload, wall target and maximal/crisp Output intent differ. The broad survivor naming stationary variants does not instantiate an exact stationary open-lane record.",
+      "currentApprovalVerified": false
+    },
+    {
+      "sourceSlug": "reactive-med-ball-target-pass",
+      "legacySourceId": null,
+      "boundary": "Migration191 live partner/visual/number-selected target at unpredictable timing with generic catching/braking/rehearsal language. Migration385 separates squat-to-wall target calling;391 separates preselected chest projection from live target selection;395 separates throw-relocate-receive. None supplies exact fixed-target THROW/HOLD parking/retrieval mechanics.",
+      "currentApprovalVerified": false
+    }
+  ],
+  "testPacket": {
+    "status": "bounded_local_source_schema_and_selected_saved_session_comparison_passed",
+    "mustReject": [
+      "existing medicine-ball or reactive-target IDs assigned to this exact proposal",
+      "GO/NO-GO called an approved existing profile or mere dose change",
+      "prior whole throw required for first known instruction",
+      "one first/emerging E0 throw supplies choice repeatability",
+      "prior successful whole GO/NO-GO demanded for first instruction",
+      "E0 added outside total3/2/2/1 or cap1/2",
+      "one choice credited as both rules",
+      "missing cue type repaid",
+      "HOLD mistaken for no-load/no-handling fallback",
+      "false release omitted from workload",
+      "unpresented canceled cue counted as observed",
+      "all-clear waits for three nonexistent releases in a mixed triad",
+      "HOLD set-down shortened from5s or performed again during reset",
+      "maximal source dose/80–90% threshold or video approval imported",
+      "more recent unloading or smaller strength dose restored",
+      "incoming triad staging is missing or overlaps outgoing clearance"
+    ],
+    "actualVerificationOrApproval": false
+  }
+}

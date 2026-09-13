@@ -21,6 +21,7 @@ function routes(overrides = {}, pool = {}) {
     list: async (_pool, context, options) => { calls.push({ type: 'list', context, options }); return { items: [], nextCursor: null } },
     revalidate: async (_pool, context, id) => { calls.push({ type: 'revalidate', context, id }); return { status: 'QA_PASSED' } },
     choices: async (_pool, context, request) => { calls.push({ type: 'choices', context, request }); return { components: [] } },
+    interpret: async (args) => { calls.push({ type: 'interpret', args }); return { status: 'READY_FOR_REVIEW', workoutGenerated: false } },
     ...overrides,
   })
   const invoke = async (key, patch = {}) => {
@@ -36,7 +37,7 @@ function routes(overrides = {}, pool = {}) {
 test('generation uses authenticated scope, server-owned capabilities and bounded budgets', async () => {
   const api = routes()
   const { req, res, result } = await api.invoke('post /api/coach/workout-programming')
-  assert.deepEqual(api.permissions, Array(6).fill('workouts.manage'))
+  assert.deepEqual(api.permissions, Array(7).fill('workouts.manage'))
   assert.equal(result.status, 200)
   const invocation = api.calls.find((entry) => entry.type === 'generate').args
   assert.deepEqual(invocation.context, { facilityId: '9', userId: '7' })
@@ -143,4 +144,59 @@ test('Modify Existing accepts bounded coach edits but never a client-supplied pa
     const failed = routes({ generate: async () => { throw Object.assign(new Error('Source revision requires review'), { code }) } })
     assert.equal((await failed.invoke('post /api/coach/workout-programming', { body })).result.status, status)
   }
+})
+
+test('revision interpretation uses one bounded Director capability and never accepts client authority or writes a workout', async () => {
+  const { assumptions, ...request } = compositionFixtures().request
+  request.mode = 'modify_existing'; request.instruction = 'Review the selected changes.'
+  request.modification = { workoutId: '00000000-0000-0000-0000-000000000001', expectedRevision: 'source-revision' }
+  const body = { request, instruction: 'Make this appropriate for ages 9–11.' }
+  const api = routes()
+  const key = 'post /api/coach/workout-programming/interpret'
+  const { result, req, res } = await api.invoke(key, { body })
+  assert.equal(result.status, 200)
+  assert.equal(result.data.workoutGenerated, false)
+  const call = api.calls.find((entry) => entry.type === 'interpret').args
+  assert.deepEqual(call.context, { facilityId: '9', userId: '7' })
+  assert.equal(call.runOptions.maxCalls, 1)
+  assert.equal(call.runOptions.perCallTimeoutMs, 20000)
+  assert.equal(call.runOptions.maxOutputTokens, 6000)
+  assert.ok(api.calls.every((entry) => entry.type !== 'generate'))
+  assert.deepEqual(api.calls.filter((entry) => entry.type === 'feature').map((entry) => entry.feature), ['canonical_generator_coach_opt_in', 'canonical_ai_intent'])
+  assert.equal(req.listenerCount('aborted'), 0)
+  assert.equal(res.listenerCount('close'), 0)
+  for (const patch of [{ sourceSnapshot: {} }, { proposedRequest: request }, { maxCalls: 30 }, { instruction: '' }, { request: { ...request, mode: 'guided', modification: null } }]) {
+    assert.equal((await api.invoke(key, { body: { ...body, ...patch } })).result.status, 400)
+  }
+  assert.equal(api.calls.filter((entry) => entry.type === 'interpret').length, 1)
+  const disabled = routes({ featureAccess: async () => ({ enabled: false }) })
+  assert.equal((await disabled.invoke(key, { body })).result.status, 404)
+  const noModel = routes({ registryFactory: () => ({ list: () => [] }) })
+  assert.equal((await noModel.invoke(key, { body })).result.status, 503)
+  const changed = routes({ interpret: async () => { throw Object.assign(new Error('The active taxonomy changed during interpretation.'), { code: 'interpretation_sources_changed' }) } })
+  assert.equal((await changed.invoke(key, { body })).result.status, 409)
+})
+
+test('disconnecting revision interpretation aborts its shared signal and releases event listeners', async () => {
+  let started
+  const entered = new Promise((resolve) => { started = resolve })
+  let signal
+  const api = routes({ interpret: async (args) => {
+    signal = args.runOptions.signal; started()
+    await new Promise((resolve) => signal.addEventListener('abort', resolve, { once: true }))
+    return { status: 'NEEDS_COACH_INPUT' }
+  } })
+  const { assumptions, ...request } = compositionFixtures().request
+  request.mode = 'modify_existing'; request.instruction = 'Review changes.'
+  request.modification = { workoutId: '00000000-0000-0000-0000-000000000001', expectedRevision: 'source-revision' }
+  // Capture the request emitter without replacing the production handler or its abort wiring.
+  const req = new EventEmitter()
+  const pending = api.invoke('post /api/coach/workout-programming/interpret', { body: { request, instruction: 'Use three lanes.' }, on: req.on.bind(req), off: req.off.bind(req) })
+  await entered
+  req.emit('aborted')
+  const completed = await pending
+  assert.equal(signal.aborted, true)
+  assert.equal(completed.result, undefined)
+  assert.equal(req.listenerCount('aborted'), 0)
+  assert.equal(completed.res.listenerCount('close'), 0)
 })

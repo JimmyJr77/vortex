@@ -1,0 +1,44 @@
+import {test,expect} from '@playwright/test'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {receiptFixture} from '../../backend/payroll/testing/receiptFixture.js'
+test('admin prepares and reviews different replacement documents',async({page})=>{
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(180000)
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='96'.repeat(32)
+ const h=await createHarness(),errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
+ try{
+  await receiptFixture(h)
+  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`,maxRetries:route.request().method()==='GET'?2:0})})})
+  await page.setViewportSize({width:1100,height:950})
+  await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click()
+  const records=page.getByRole('region',{name:'Retained employer I-9 evidence',exact:true});await records.locator('summary').filter({hasText:'Current certification'}).click()
+  await records.getByRole('button',{name:'Prepare different replacement documents',exact:true}).click()
+  const work=page.getByRole('region',{name:'Different-document replacement workspace',exact:true})
+  await expect(work.getByLabel('Employer business name',{exact:true})).not.toHaveValue('')
+  await expect(work.getByLabel('Replacement examiner name and title',{exact:true})).toHaveValue('')
+  await work.getByLabel('Replacement document combination',{exact:true}).selectOption('LIST_B_C')
+  for(const row of ['B','C'])for(const [label,value] of [['Document title','Synthetic document'],['Issuing authority','Synthetic issuer'],['Document number',`SYNTHETIC-${row}`],['Expiration (if any)','2030-01-01']])await work.getByLabel(`List ${row} document — ${label}`,{exact:true}).fill(value)
+  await work.getByLabel('Replacement examination method',{exact:true}).selectOption('PHYSICAL')
+  await work.getByLabel('Replacement examiner name and title',{exact:true}).fill('Reviewer Alice, Hiring Administrator')
+  await work.getByLabel('Reason for different replacement documents',{exact:true}).fill('Employee selected different acceptable documents after the original receipt.')
+  await work.getByLabel('Replacement examiner initials',{exact:true}).fill('RA')
+  await work.getByRole('button',{name:'Prepare replacement certification',exact:true}).click()
+  for(const [title,count] of [['Review new replacement certification',2],['Review original employer I-9',4],['Review original employee I-9',4]] as const){
+   const viewer=work.getByRole('region',{name:`Official ${title} page review`,exact:true})
+   for(let n=1;n<=count;n++){
+    await viewer.getByRole('button',{name:`Page ${n}`,exact:true}).click()
+    await expect(viewer.getByRole('status')).toContainText(`Page ${n} of ${count} displayed and review visit saved.`,{timeout:30000})
+   }
+  }
+  expect((await h.pool.query('SELECT * FROM payroll_i9_different_page_visit')).rowCount).toBe(10)
+  await page.screenshot({path:'/tmp/payroll-different-workspace-desktop.png',fullPage:true})
+  await page.setViewportSize({width:390,height:844})
+  expect(await work.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true)
+  await work.screenshot({path:'/tmp/payroll-different-workspace-mobile.png'})
+  await work.getByLabel('List B document — Document number',{exact:true}).fill('CHANGED')
+  await expect(work.getByRole('region',{name:'Official Review new replacement certification page review',exact:true})).toHaveCount(0)
+  expect(errors).toEqual([])
+ }finally{
+  await page.unrouteAll({behavior:'wait'});await page.close();await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old
+ }
+})

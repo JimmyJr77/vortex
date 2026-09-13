@@ -45,7 +45,8 @@ export function requestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRe
 }
 export function programmingRequestForSubmit(request: CoachWorkoutRequest): CoachWorkoutRequest {
   const active = activeProgrammingComponents(request)
-  return { ...request, components: request.components?.filter((component) => component.key !== 'body_control' || (request.logistics.tumblingMinutes ?? 0) > 0),
+  return { ...request, components: request.components?.filter((component) => component.key !== 'body_control' || (request.logistics.tumblingMinutes ?? 0) > 0
+    || !!request.modification && !!component.lockedBlocks?.length),
     ...(request.modification ? { modification: { ...request.modification,
       regenerateComponentKeys: request.modification.regenerateComponentKeys?.filter((key) => active.includes(key)) ?? null,
     } } : {}),
@@ -59,10 +60,12 @@ export function activeProgrammingComponents(request: CoachWorkoutRequest): Sessi
 }
 export function revisionRequestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRequest {
   const request = requestFromSaved(saved)
-  return { ...request, mode: 'modify_existing', instruction: '', modification: {
+  return { ...request, mode: 'modify_existing', instruction: 'Revise the selected components using my updated controls and retain all block locks.', modification: {
     workoutId: saved.persistedWorkoutId, expectedRevision: saved.workout.revision,
     regenerateComponentKeys: activeProgrammingComponents(request), blockEdits: [],
-  } }
+  }, components: request.components?.map((component) => ({ ...component,
+    lockedBlocks: structuredClone(saved.workout.intent.components.find((entry) => entry.key === component.key)?.lockedBlocks ?? []),
+  })) }
 }
 export const durationLabel = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`
 export function programmingError(error: unknown): string {

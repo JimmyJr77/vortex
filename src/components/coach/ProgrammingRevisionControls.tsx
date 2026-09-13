@@ -11,7 +11,7 @@ function RevisionBlock({ activity, edit, fields, choices, onEdit, onLock }: {
   activity: Activity; edit: ProgrammingBlockEdit | undefined; fields: readonly LockField[]; choices: Choices | undefined;
   onEdit: (edit: ProgrammingBlockEdit | null) => void; onLock: (fields: LockField[]) => void
 }) {
-  const original = { exerciseCardId: activity.card.id, variantId: activity.card.variantId,
+  const original = activity.card.cardVersion == null ? null : { exerciseCardId: activity.card.id, variantId: activity.card.variantId,
     deliveryProfileId: activity.profile.id, cardVersion: activity.card.cardVersion }
   const patch = (change: Partial<ProgrammingBlockEdit>) => {
     const next = { ...edit, blockId: activity.activityId, ...change }
@@ -24,20 +24,21 @@ function RevisionBlock({ activity, edit, fields, choices, onEdit, onLock }: {
   const changes = [edit?.exercise && 'exercise', edit?.programmingMethodId && 'method', edit?.dose && 'dose'].filter(Boolean)
   return <details className="rounded-lg border border-gray-200 bg-white p-3">
     <summary className="cursor-pointer text-sm font-semibold text-gray-900">{activity.card.displayName ?? activity.card.canonicalName}
-      {(changes.length > 0 || fields.length > 0) && <span className="ml-2 font-normal text-vortex-red">{changes.length} edits · {fields.length} locks</span>}</summary>
+      {(changes.length > 0 || fields.length > 0) && <span className="ml-2 font-normal text-vortex-red">{changes.length} {changes.length === 1 ? 'edit' : 'edits'} · {fields.length} {fields.length === 1 ? 'lock' : 'locks'}</span>}</summary>
     <fieldset aria-label={`Revise ${activity.card.displayName ?? activity.card.canonicalName}`} className="mt-3 min-w-0 space-y-3">
       <p className="text-sm text-gray-600">Source: {activity.dose.sets} sets{activity.dose.reps != null ? ` × ${activity.dose.reps} reps` : ''} · {activity.dose.workSeconds}s work / {activity.dose.restSeconds}s rest · {activity.method.name}</p>
       <div className="grid gap-3 md:grid-cols-2">
-        <Field label="Exercise replacement"><select className={controlClass} disabled={fields.includes('exercises')} value={exercise?.deliveryProfileId ?? ''}
-          onChange={(event) => patch({ exercise: event.target.value === original.deliveryProfileId ? original : exerciseOptions.find((entry) => entry.ref.deliveryProfileId === event.target.value)?.ref })}>
+        <Field label="Exercise replacement"><select className={controlClass} disabled={fields.includes('exercises')} value={fields.includes('exercises') ? activity.profile.id : exercise?.deliveryProfileId ?? ''}
+          onChange={(event) => patch({ exercise: exerciseOptions.find((entry) => entry.ref.deliveryProfileId === event.target.value)?.ref
+            ?? (original && event.target.value === original.deliveryProfileId ? original : undefined) })}>
           <option value="">Let the coach AI choose</option>
-          {!exerciseOptions.some((entry) => entry.ref.deliveryProfileId === original.deliveryProfileId) && <option value={original.deliveryProfileId}>Keep source exercise · recheck eligibility</option>}
-          {exercise && exercise.deliveryProfileId !== original.deliveryProfileId && !exerciseOptions.some((entry) => entry.ref.deliveryProfileId === exercise.deliveryProfileId)
+          {!exerciseOptions.some((entry) => entry.ref.deliveryProfileId === activity.profile.id) && <option value={activity.profile.id} disabled={!original}>Keep source exercise · recheck eligibility</option>}
+          {exercise && exercise.deliveryProfileId !== original?.deliveryProfileId && !exerciseOptions.some((entry) => entry.ref.deliveryProfileId === exercise.deliveryProfileId)
             && <option value={exercise.deliveryProfileId}>Selected replacement · refresh choices</option>}
           {exerciseOptions.map((entry) => <option key={entry.ref.deliveryProfileId} value={entry.ref.deliveryProfileId} disabled={entry.eligibility === 'INELIGIBLE'}>
             {entry.name}{entry.eligibility === 'ELIGIBLE' ? '' : ' · needs evidence / review'}</option>)}
         </select></Field>
-        <Field label="Programming method"><select className={controlClass} disabled={fields.includes('method')} value={edit?.programmingMethodId ?? ''}
+        <Field label="Programming method"><select className={controlClass} disabled={fields.includes('method')} value={fields.includes('method') ? String(activity.method.id) : edit?.programmingMethodId ?? ''}
           onChange={(event) => patch({ programmingMethodId: event.target.value || undefined })}>
           <option value="">Let the coach AI choose</option>
           {!methods.some((entry) => entry.id === String(activity.method.id)) && <option value={String(activity.method.id)}>{activity.method.name} · recheck compatibility</option>}
@@ -97,13 +98,18 @@ export function ProgrammingRevisionControls({ source, request, choices, onChange
       const activities = source.workout.workflow.draft.activities.filter((activity) => activity.componentKey === component.key)
       const enabled = active.includes(component.key)
       const hasChanges = activities.some((activity) => edits.some((entry) => entry.blockId === activity.activityId)) || !!controls?.lockedBlocks?.length
+      const missingLocks = controls?.lockedBlocks?.filter((lock) => !activities.some((activity) => activity.activityId === lock.blockId)) ?? []
       return <details key={component.key} className="rounded-lg border border-gray-200 p-3">
-        <summary className="cursor-pointer text-sm font-semibold text-gray-800">{COMPONENT_LABELS[component.key]} · {durationLabel(component.budgetSeconds)} source window{enabled ? '' : ' · omitted'}</summary>
-        <div className="mt-3 space-y-3">{!enabled && <p className="text-sm text-amber-800">This component is omitted from the revised session. Clear its block edits and locks before saving.{hasChanges && <button type="button" className="ml-2 underline" onClick={() => onChange({ ...request,
+        <summary className="cursor-pointer text-sm font-semibold text-gray-800">{COMPONENT_LABELS[component.key]} · {durationLabel(component.endSeconds - component.startSeconds)} source window{enabled ? '' : ' · omitted'}</summary>
+        <div className="mt-3 space-y-3">{!enabled && <p className="text-sm text-amber-800">This component is omitted from the revised session.{hasChanges && ' Clear its block edits and locks before saving.'}{hasChanges && <button type="button" className="ml-2 underline" onClick={() => onChange({ ...request,
           components: request.components?.map((entry) => entry.key === component.key ? { ...entry, lockedBlocks: [] } : entry),
           modification: { ...modification, blockEdits: edits.filter((edit) => !activities.some((activity) => activity.activityId === edit.blockId)) },
         })}>Clear omitted component changes</button>}</p>}
           {!activities.length && <p className="text-sm text-amber-800">This source component is incomplete. Include it in regeneration.</p>}
+          {enabled && missingLocks.length > 0 && <p className="text-sm text-amber-800">{missingLocks.length} saved locks refer to blocks missing from this source.
+            <button type="button" className="ml-2 underline" onClick={() => onChange({ ...request, components: request.components?.map((entry) => entry.key !== component.key ? entry : {
+              ...entry, lockedBlocks: entry.lockedBlocks?.filter((lock) => !missingLocks.some((missing) => missing.blockId === lock.blockId)),
+            }) })}>Clear unavailable block locks</button></p>}
           <fieldset disabled={!enabled} className="min-w-0 space-y-3">{activities.map((activity) => <RevisionBlock key={activity.activityId} activity={activity}
             edit={edits.find((entry) => entry.blockId === activity.activityId)} fields={controls?.lockedBlocks?.find((entry) => entry.blockId === activity.activityId)?.fields ?? []}
             choices={choices?.components.find((entry) => entry.key === component.key)} onEdit={(edit) => updateEdit(activity.activityId, edit)} onLock={(fields) => updateLock(activity, fields)} />)}</fieldset>
