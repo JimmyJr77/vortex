@@ -12,6 +12,8 @@ import { SESSION_COMPONENT_ORDER } from './sessionComponentContract.js'
 import { evaluateProgrammingMethodRules } from './programmingMethodRules.js'
 import { evaluateCanonicalProgrammingRules } from './canonicalProgrammingRules.js'
 import { libraryScopeId } from './coachingLibraryContext.js'
+import { loadWorkoutProgrammingModification, modificationResourceSearches, modificationCapabilityContext, modificationProposalContract,
+  validateWorkoutProgrammingModification } from './workoutProgrammingModification.js'
 
 export const PROGRAMMING_QA_VERSION = '1.0.0'
 export const PROGRAMMING_QA_AREAS = Object.freeze(['impact_volume', 'development_readiness', 'redundancy', 'sequencing', 'cumulative_fatigue',
@@ -73,11 +75,12 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
     || !same(draft.request, request) || draft.requestHash !== sessionIntent.requestHash || draft.intentId !== sessionIntent.intentId) {
     throw new ProgrammingStaffError('stale_request', 'Draft does not match server-owned coach intent')
   }
-  if (request.mode === 'modify_existing') throw new ProgrammingStaffError('source_workout_adapter_required', 'Modify Existing requires a verified persisted source workout')
+  const modification = await loadWorkoutProgrammingModification({ pool, context, request, expectedContext: sessionIntent.modification ?? null, snapshotClient })
+  canceled()
   const componentPlan = programmingComponentPlan(request)
   if (!same(componentPlan, draft.componentPlan) || !same(componentPlan, sessionIntent.componentPlan)) throw new ProgrammingStaffError('constraint_override', 'Draft changed immutable component controls')
   // Selected references survive shortlist limits, but pins never waive eligibility or scope.
-  const searches = programmingResourceRequests(request, 100).map((search) => {
+  const searches = modificationResourceSearches(programmingResourceRequests(request, 100), modification).map((search) => {
     const selected = draft.activities.filter((activity) => activity.componentKey === search.componentKey)
     return { ...search, pinnedExercises: [...search.pinnedExercises, ...selected.map(ref)],
       pinnedProgrammingMethodIds: [...new Set([...search.pinnedProgrammingMethodIds, ...selected.map((entry) => entry.method.id)])] }
@@ -101,7 +104,7 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
     findings.push(finding('stale_director_proposal', 'Director selections no longer satisfy current resources and coach controls.', 'director'))
   }
   let builderProposal = null
-  try { builderProposal = builderCapabilityContract(request, groups.filter((group) => group.key !== 'prepare_and_access')).parseOutput(draft.builderProposal) } catch {
+  try { builderProposal = modificationProposalContract(builderCapabilityContract(request, groups.filter((group) => group.key !== 'prepare_and_access')), modification).parseOutput(draft.builderProposal) } catch {
     findings.push(finding('invalid_builder_proposal', 'Builder selections no longer satisfy their canonical contract.', 'session_builder'))
   }
   const activities = []
@@ -131,8 +134,8 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
   if (!same(demand, draft.preparationDemand)) findings.push(finding('stale_preparation_demand', 'Preparation must be regenerated for the current downstream prescriptions and metadata.', 'prepare_access'))
   let preparationProposal = null
   try {
-    preparationProposal = preparationCapabilityContract({ request, demand,
-      candidates: groups.find((group) => group.key === 'prepare_and_access').candidates }).parseOutput(draft.preparationProposal)
+    preparationProposal = modificationProposalContract(preparationCapabilityContract({ request, demand,
+      candidates: groups.find((group) => group.key === 'prepare_and_access').candidates }), modification, { preparation: true }).parseOutput(draft.preparationProposal)
   } catch { findings.push(finding('invalid_preparation_proposal', 'Preparation no longer satisfies the Vortex framework and current downstream demand.', 'prepare_access')) }
   for (const components of [builderProposal?.components, preparationProposal ? [{ key: 'prepare_and_access', selections: preparationProposal.selections }] : null]) {
     if (!components) continue
@@ -149,6 +152,8 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
     if (schedule.status !== 'SCHEDULED') findings.push(finding('schedule_requires_composition', 'The reconstructed session does not completely allocate its booked windows.'))
     for (const issue of schedule.resourceValidation.issues) findings.push(executionFinding(issue, 'Reconstructed resource schedule requires correction.', activities))
   } catch (error) { findings.push(finding(error.code ?? 'invalid_schedule', 'Reviewed work and resources cannot reconstruct the stored schedule.')) }
+  for (const issue of validateWorkoutProgrammingModification(modification, { activities, schedule,
+    builderProposal: builderProposal ?? { components: [] }, preparationProposal })) findings.push(executionFinding(issue, issue.detail, activities, 'coach'))
   const exerciseRules = activities.map((activity) => evaluateCanonicalProgrammingRules({ activity, request, activities, athleteEvidence }))
   for (const result of exerciseRules) for (const issue of result.findings) findings.push(finding(issue.code, issue.message, issue.route,
     activities.find((entry) => entry.activityId === result.activityId), { evidence: issue }))
@@ -166,6 +171,7 @@ export async function validateWorkoutProgrammingDraft({ pool, context, sessionIn
   if (draft.status !== 'READY_FOR_CRITIC' || draft.builderSource !== 'session_builder') findings.push(finding('incomplete_staff_draft', 'A complete staff composition is required before Critic review.', 'director'))
   canceled()
   const target = { qaVersion: PROGRAMMING_QA_VERSION, draftId: draft.draftId, intentId: sessionIntent.intentId, scope: sessionIntent.scope, request, componentPlan, release,
+    ...(modification ? { modification: modification.context, modificationSource: modificationCapabilityContext(modification) } : {}),
     director: sessionIntent.proposal, athleteAdvice: sessionIntent.athleteAdvice, consultantAdvice: sessionIntent.consultantAdvice,
     activities, builderProposal, preparationProposal, demand, schedule, load, coverage, methodRules, exerciseRules, athleteEvidence }
   return immutableProgrammingValue({ schemaVersion: PROGRAMMING_QA_VERSION, draftId: draft.draftId,

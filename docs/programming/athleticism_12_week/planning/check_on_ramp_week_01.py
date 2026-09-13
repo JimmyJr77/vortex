@@ -196,7 +196,11 @@ def main():
     amendments=read('instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json')
     assert amendments['base_outline_sha256']==sha(ROOT/amendments['base_outline'])
     amended={x['id']:x for x in amendments['amendments']}
-    assert set(amended)=={'OR-05','OR-06','OR-15','OR-19'}
+    # Keep the required Week 1 carryover contracts while allowing later daily
+    # amendments. This audit does not approve those later prescriptions.
+    assert {'OR-05','OR-06','OR-15','OR-19'} <= set(amended)
+    assert set(amended) <= {s['id'] for s in im['sessions']}
+    assert len(amended)==len(amendments['amendments'])
     ff=amended['OR-06']['first_flight_contract']
     assert ff['requires_prior_successful_flight'] is False
     assert ff['first_takeoff_is_counted_instruction'] is True

@@ -8,6 +8,7 @@ export type { ProgrammingEvidenceChoice } from '../../backend/platform/workoutAt
 export type { SavedProgrammingWorkout, ProgrammingWorkoutListItem, ProgrammingWorkoutCursor } from '../../backend/platform/workoutProgrammingRepository.js'
 export type { SessionComponentKey } from '../../backend/platform/sessionComponentContract.js'
 export type ProgrammingRevalidation = NonNullable<Awaited<ReturnType<typeof revalidateWorkoutProgrammingRun>>>
+export type ProgrammingBlockEdit = NonNullable<NonNullable<CoachWorkoutRequest['modification']>['blockEdits']>[number]
 export const COMPONENT_LABELS = {
   prepare_and_access: 'Prepare & Access', explosiveness: 'Explosiveness', strength: 'Strength',
   capacity_competition: 'Capacity / Competition', body_control: 'Body Control / Tumbling',
@@ -31,21 +32,37 @@ export function newProgrammingRequest(): CoachWorkoutRequest {
 }
 export function requestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRequest {
   const { assumptions: _assumptions, ...request } = saved.workout.intent
+  void _assumptions // A new request must recompute server-owned conclusions from current sources.
   const equipmentKeys = (keys: readonly string[] | undefined) => keys?.map((key) => key === 'none' ? 'bodyweight' : key)
   return { ...structuredClone(request), requestId: crypto.randomUUID(), revision: crypto.randomUUID(),
     mode: request.mode === 'modify_existing' ? 'guided' : request.mode, modification: null,
     equipment: { ...request.equipment, available: equipmentKeys(request.equipment.available) ?? [],
       preferred: equipmentKeys(request.equipment.preferred), required: equipmentKeys(request.equipment.required), excluded: equipmentKeys(request.equipment.excluded) },
     components: COMPONENT_KEYS.map((key) => request.components.find((component) => component.key === key)
-      ?? { key, selection: 'auto' as const, budgetSeconds: null, priorities: [], equipment: { allowed: [], preferred: [], excluded: [] } }).map((component) => ({ ...component, lockedBlocks: [], equipment: {
+      ?? { key, selection: 'auto' as const, budgetSeconds: null, priorities: [], equipment: { allowed: undefined, preferred: [], excluded: [] } }).map((component) => ({ ...component, lockedBlocks: [], equipment: {
       allowed: equipmentKeys(component.equipment.allowed), preferred: equipmentKeys(component.equipment.preferred), excluded: equipmentKeys(component.equipment.excluded),
     } })) }
 }
 export function programmingRequestForSubmit(request: CoachWorkoutRequest): CoachWorkoutRequest {
+  const active = activeProgrammingComponents(request)
   return { ...request, components: request.components?.filter((component) => component.key !== 'body_control' || (request.logistics.tumblingMinutes ?? 0) > 0),
+    ...(request.modification ? { modification: { ...request.modification,
+      regenerateComponentKeys: request.modification.regenerateComponentKeys?.filter((key) => active.includes(key)) ?? null,
+    } } : {}),
     athletes: request.athletes.map((cohort) => ({ ...cohort,
     limitations: [...new Set((cohort.limitations ?? []).map((value) => value.trim()).filter(Boolean))],
   })) }
+}
+export function activeProgrammingComponents(request: CoachWorkoutRequest): SessionComponentKey[] {
+  return COMPONENT_KEYS.filter((key) => (key !== 'body_control' || (request.logistics.tumblingMinutes ?? 0) > 0)
+    && (key !== 'capacity_competition' || request.components?.find((component) => component.key === key)?.budgetSeconds !== 0))
+}
+export function revisionRequestFromSaved(saved: SavedProgrammingWorkout): CoachWorkoutRequest {
+  const request = requestFromSaved(saved)
+  return { ...request, mode: 'modify_existing', instruction: '', modification: {
+    workoutId: saved.persistedWorkoutId, expectedRevision: saved.workout.revision,
+    regenerateComponentKeys: activeProgrammingComponents(request), blockEdits: [],
+  } }
 }
 export const durationLabel = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.round(seconds % 60)).padStart(2, '0')}`
 export function programmingError(error: unknown): string {

@@ -102,7 +102,14 @@ const requestSchema = Joi.object({
   preferredProgrammingMethodIds: ids(), excludedProgrammingMethodIds: ids(),
   preferredExercises: references(), excludedExerciseCardIds: uuidList(),
   consultants: Joi.array().items(Joi.string().pattern(/^[a-z0-9][a-z0-9_/-]{0,79}$/)).max(3).unique().default([]),
-  modification: Joi.object({ workoutId: CANONICAL_UUID_SCHEMA.required(), expectedRevision: text(120).required() }).allow(null).default(null),
+  modification: Joi.object({ workoutId: CANONICAL_UUID_SCHEMA.required(), expectedRevision: text(120).required(),
+    regenerateComponentKeys: Joi.array().items(Joi.string().valid(...SESSION_COMPONENT_ORDER)).min(1).max(5).unique().allow(null).default(null),
+    blockEdits: Joi.array().max(52).unique('blockId').items(Joi.object({ blockId: text(120).required(),
+      exercise: EXERCISE_REFERENCE_SCHEMA, programmingMethodId: id,
+      dose: Joi.object({ sets: Joi.number().integer().min(1).max(100), reps: Joi.number().integer().min(1).max(1000).allow(null),
+        workSeconds: Joi.number().integer().min(1).max(3600), restSeconds: Joi.number().integer().min(0).max(3600) }).min(1),
+    }).or('exercise', 'programmingMethodId', 'dose')).default([]),
+  }).allow(null).default(null),
   randomSeed: text(120).default('vortex-staff'),
 })
 

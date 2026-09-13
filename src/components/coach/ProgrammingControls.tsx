@@ -3,10 +3,10 @@ import type { TaxonomyV2Catalog } from '../../coach/taxonomy'
 import { CANONICAL_EQUIPMENT_OPTIONS } from '../../coach/canonicalEquipmentOptions'
 import { PRIORITY_FACETS, type CoachWorkoutRequest, type ProgrammingComponentControls, type ProgrammingPriority, type WorkoutProgrammingChoices } from '../../coach/workoutProgramming'
 
-export const controlClass = 'mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 disabled:bg-gray-100'
+export const controlClass = 'mt-1 min-w-0 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 disabled:bg-gray-100'
 export const actionClass = 'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-800 hover:border-vortex-red disabled:opacity-50'
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
-  return <label className="block text-sm font-medium text-gray-700">{label}{children}{hint && <span className="mt-1 block text-xs font-normal text-gray-500">{hint}</span>}</label>
+  return <label className="block min-w-0 text-sm font-medium text-gray-700">{label}{children}{hint && <span className="mt-1 block text-xs font-normal text-gray-500">{hint}</span>}</label>
 }
 export function NumberField({ label, value, onChange, min = 0, max, optional = false }: {
   label: string; value: number | null | undefined; onChange: (value: number | null) => void; min?: number; max?: number; optional?: boolean
@@ -55,7 +55,7 @@ export function PriorityControls({ label, values = [], taxonomy, onChange }: { l
 
 export function EquipmentControls({ value, onChange }: { value: CoachWorkoutRequest['equipment']; onChange: (value: CoachWorkoutRequest['equipment']) => void }) {
   const toggle = (key: string, selected: boolean, field: 'available' | 'excluded') => {
-    const next = { ...value, [field]: selected ? [...value[field] ?? [], key] : (value[field] ?? []).filter((item) => item !== key) }
+    const next = { ...value, [field]: selected ? [...(value[field] ?? []), key] : (value[field] ?? []).filter((item) => item !== key) }
     if (selected) {
       const opposite = field === 'available' ? 'excluded' : 'available'
       next[opposite] = (value[opposite] ?? []).filter((item) => item !== key)
@@ -68,7 +68,7 @@ export function EquipmentControls({ value, onChange }: { value: CoachWorkoutRequ
   }
   return <fieldset><legend className="font-semibold text-gray-900">Equipment and quantities</legend>
     <p className="mb-3 mt-1 text-sm text-gray-500">Confirm available equipment. Leave quantities blank when they have not been checked.</p>
-    <div className="grid gap-2 lg:grid-cols-2">{CANONICAL_EQUIPMENT_OPTIONS.map(([key, name]) => <div key={key} className="grid grid-cols-[1fr_68px_100px_auto] items-center gap-2 rounded-lg border border-gray-200 p-2">
+    <div className="grid gap-2 lg:grid-cols-2">{CANONICAL_EQUIPMENT_OPTIONS.map(([key, name]) => <div key={key} className="grid grid-cols-[minmax(0,1fr)_76px] items-center gap-2 rounded-lg border border-gray-200 p-2 sm:grid-cols-[minmax(0,1fr)_68px_100px_auto]">
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={value.available.includes(key)} onChange={(event) => toggle(key, event.target.checked, 'available')} />{name.replace(' (none)', '')}</label>
       <input type="number" aria-label={`${name} quantity`} className="w-full rounded border border-gray-300 p-1 text-sm" min={0} max={1000} placeholder="Qty"
         disabled={!value.available.includes(key) || key === 'bodyweight'} value={value.quantities?.[key] ?? ''}
@@ -79,7 +79,7 @@ export function EquipmentControls({ value, onChange }: { value: CoachWorkoutRequ
           required: [...(value.required ?? []).filter((item) => item !== key), ...(event.target.value === 'required' ? [key] : [])] })}>
         <option value="">Any use</option><option value="preferred">Prefer</option><option value="required">Require</option>
       </select>
-      <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={value.excluded?.includes(key) ?? false} onChange={(event) => toggle(key, event.target.checked, 'excluded')} />Avoid</label>
+      <label className="flex items-center gap-1 text-xs"><input type="checkbox" aria-label={`Avoid ${name.replace(' (none)', '')}`} checked={value.excluded?.includes(key) ?? false} onChange={(event) => toggle(key, event.target.checked, 'excluded')} />Avoid</label>
     </div>)}</div>
   </fieldset>
 }

@@ -4,6 +4,7 @@ import { directWorkoutProgramming } from '../workoutProgrammingDirector.js'
 import { createProgrammingStaffRegistry } from '../programmingStaffRuntime.js'
 import { coachRequest, staffPool, validDirector, validAthlete, directorDecision } from './workoutProgrammingStaffFixtures.js'
 import { libraryCard, SCOPE, uuid } from './workoutProgrammingLibrarianFixtures.js'
+import { memoryStorageDatabase } from './workoutProgrammingStorageFixtures.js'
 
 const registry = (definitions = [validDirector, validAthlete]) => createProgrammingStaffRegistry(definitions)
 const direct = (patch = {}) => directWorkoutProgramming({ pool: staffPool(), context: SCOPE, rawRequest: coachRequest(), registry: registry(), ...patch })
@@ -118,10 +119,10 @@ test('absent providers or releases remain reviewable drafts, with cancellation a
   assert.ok(noRelease.resources.every((resource) => resource.exerciseGap === null))
   const controller = new AbortController()
   controller.abort()
-  const pool = { async connect() { assert.fail('canceled or unsupported request opened database') } }
+  const pool = { async connect() { assert.fail('canceled request opened database') } }
   await assert.rejects(direct({ pool, runOptions: { signal: controller.signal } }), { code: 'canceled' })
-  await assert.rejects(direct({ pool, rawRequest: coachRequest({ mode: 'modify_existing', instruction: 'Reduce contacts.', modification: { workoutId: uuid(90), expectedRevision: 'v1' } }) }),
-    { code: 'source_workout_adapter_required' })
+  await assert.rejects(direct({ pool: memoryStorageDatabase(), rawRequest: coachRequest({ mode: 'modify_existing', instruction: 'Reduce contacts.', modification: { workoutId: uuid(90), expectedRevision: 'v1' } }) }),
+    { code: 'source_workout_unavailable' })
 })
 
 test('omitted capacity and explicit reserve preserve booked time without adding work', async () => {

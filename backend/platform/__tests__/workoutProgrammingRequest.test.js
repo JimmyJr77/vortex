@@ -49,7 +49,7 @@ test('all autonomy modes preserve controls; Modify Existing requires revision an
   const modification = { workoutId: uuid(40), expectedRevision: 'saved-revision' }
   const request = normalizeCoachWorkoutRequest(coachRequest({ mode: 'modify_existing', modification, instruction: 'Reduce impact and preserve strength dose.',
     components: [{ key: 'strength', lockedBlocks: [{ blockId: 'strength-a', fields: ['dose'] }] }] }))
-  assert.deepEqual(request.modification, modification)
+  assert.deepEqual(request.modification, { ...modification, regenerateComponentKeys: null, blockEdits: [] })
   for (const patch of [{ mode: 'modify_existing' }, { mode: 'modify_existing', modification }, { modification }]) {
     assert.throws(() => normalizeCoachWorkoutRequest(coachRequest(patch)))
   }

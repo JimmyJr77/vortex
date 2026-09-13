@@ -113,6 +113,38 @@
         "separate_tumbling_prescription_complete": false
       },
       "sha256": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1"
+    },
+    {
+      "id": "OR-07",
+      "product": "instructional",
+      "path": "instructional_on_ramp/week_02/or_07.json",
+      "review": "instructional_on_ramp/week_02/or_07_review.md",
+      "checks": "instructional_on_ramp/week_02/or_07_check_results.json",
+      "anchor_ledger": "instructional_on_ramp/week_02/or_07_anchor_ledger.json",
+      "workload_ledger": "instructional_on_ramp/week_02/or_07_workload_ledger.json",
+      "release_status": {
+        "athletic_prescription_complete": true,
+        "programming_review_pass": true,
+        "operational_release_verified": false,
+        "separate_tumbling_prescription_complete": false
+      },
+      "sha256": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047"
+    },
+    {
+      "id": "OR-08",
+      "product": "instructional",
+      "path": "instructional_on_ramp/week_02/or_08.json",
+      "review": "instructional_on_ramp/week_02/or_08_review.md",
+      "checks": "instructional_on_ramp/week_02/or_08_check_results.json",
+      "anchor_ledger": "instructional_on_ramp/week_02/or_08_anchor_ledger.json",
+      "workload_ledger": "instructional_on_ramp/week_02/or_08_workload_ledger.json",
+      "release_status": {
+        "athletic_prescription_complete": true,
+        "programming_review_pass": true,
+        "operational_release_verified": false,
+        "separate_tumbling_prescription_complete": false
+      },
+      "sha256": "8b5f96944cafc798d5302337f66d88f20a8adb93a1beb377e3015b4137231822"
     }
   ],
   "ledger_files": [
@@ -180,20 +212,44 @@
       "kind": "anchor",
       "path": "instructional_on_ramp/week_02/or_06_anchor_ledger.json",
       "count": 8,
-      "sha256": "2c5a3e60ca17fffcaac5e809c888584ab2450a391f1d7484ed4d692e702fd464"
+      "sha256": "9cca7e3512ff7c76b7c6e725c56267ceec5c3d49b20bb8b2ac8c411b46ac2a76"
     },
     {
       "kind": "workload",
       "path": "instructional_on_ramp/week_02/or_06_workload_ledger.json",
       "count": 6480,
-      "sha256": "7b217fa2c12c52d91165f940618ef0998888294b540dfc04032ba9c7c719e10b"
+      "sha256": "7a6352642cac214fa4ebbabe597662afe65aa22f3a1660a6394f16376a9b09fd"
+    },
+    {
+      "kind": "anchor",
+      "path": "instructional_on_ramp/week_02/or_07_anchor_ledger.json",
+      "count": 8,
+      "sha256": "74129b90433e044ba2e5686da0ad0bf5ec145ad0aebe2239d4c1caea98ee20ce"
+    },
+    {
+      "kind": "workload",
+      "path": "instructional_on_ramp/week_02/or_07_workload_ledger.json",
+      "count": 4320,
+      "sha256": "0e7ca89c9f57220615c2a254f34e7ddce58d8d18df83aa7fbd9a91d841ebede0"
+    },
+    {
+      "kind": "anchor",
+      "path": "instructional_on_ramp/week_02/or_08_anchor_ledger.json",
+      "count": 9,
+      "sha256": "8668af9fc9087bc71f5da895933bdc065f8836bb3010001c39e5d9d7c9d33d23"
+    },
+    {
+      "kind": "workload",
+      "path": "instructional_on_ramp/week_02/or_08_workload_ledger.json",
+      "count": 6528,
+      "sha256": "edcc62f732cab0eaaa2780e1052ef7debb222c6e55ff79c34d7f88eb299590ab"
     }
   ],
   "counts": {
     "main": 1,
-    "instructional": 6,
-    "anchor_rows": 57,
-    "workload_scenarios": 8988
+    "instructional": 8,
+    "anchor_rows": 74,
+    "workload_scenarios": 19836
   },
   "weekly_reviews": [
     {

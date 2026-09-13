@@ -22,7 +22,9 @@ export function registerWorkoutProgrammingRoutes(app, pool, { can, ok, bad,
   }
   const failure = (res, error) => {
     const status = error.code === 'programming_snapshot_forbidden' ? 403
-      : ['programming_snapshot_conflict', 'foreign_session_intent', 'stale_library_release', 'source_workout_adapter_required'].includes(error.code) ? 409
+      : ['programming_snapshot_conflict', 'foreign_session_intent', 'stale_library_release', 'source_workout_adapter_required', 'source_workout_revision_conflict', 'source_workout_incomplete'].includes(error.code) ? 409
+      : error.code === 'source_workout_unavailable' ? 404
+      : error.code === 'invalid_modification_controls' ? 400
       : ['canceled', 'deadline_exceeded'].includes(error.code) ? 408
       : error instanceof TypeError || error instanceof RangeError ? 400 : 500
     bad(res, status === 500 ? 'Workout programming could not be completed.' : error.message, status, { code: error.code ?? 'programming_failed' })

@@ -12,6 +12,8 @@ import { createProgrammingStaffRun, ProgrammingStaffError } from './programmingS
 import { deriveProgrammingPreparationDemand, preparationCapabilityContract, VORTEX_PREPARATION_CAPABILITY_CONTEXT } from './workoutPreparation.js'
 import { filterProgrammingCandidateEligibility } from './workoutProgrammingEligibility.js'
 import { libraryScopeId } from './coachingLibraryContext.js'
+import { loadWorkoutProgrammingModification, modificationResourceSearches, modificationCapabilityContext, modificationProposalContract,
+  modificationDoseProposal, modificationActivityId, validateModificationDose, validateWorkoutProgrammingModification } from './workoutProgrammingModification.js'
 
 export const PROGRAMMING_BUILDER_VERSION = '1.0.0'
 const reserveSchema = Joi.object({ purpose: Joi.string().valid('recovery', 'coaching', 'readiness_check').required(), rationale: Joi.string().max(1000).required() })
@@ -30,11 +32,12 @@ export function programmingCandidateMaterials(materials) {
   }) }))
 }
 
-function boundedCandidateGroups(groups, request, director, previousDraft = null) {
+function boundedCandidateGroups(groups, request, director, previousDraft = null, modification = null) {
   return groups.map((group) => {
     const control = request.components.find((entry) => entry.key === group.key)
     const preferred = new Set([...(director.components.find((entry) => entry.key === group.key)?.preferredExerciseProfileIds ?? []),
       ...(previousDraft?.activities.filter((entry) => entry.componentKey === group.key).map((entry) => entry.profile.id) ?? []),
+      ...(modification?.blocks.filter((entry) => entry.componentKey === group.key).map((entry) => (entry.edit?.exercise ?? entry.ref).deliveryProfileId) ?? []),
       ...[...request.preferredExercises, ...control.preferredExercises, ...control.lockedExercises].map((ref) => ref.deliveryProfileId)])
     const required = [...request.priorities, ...control.priorities].filter((entry) => entry.strength === 'required')
     for (const priority of required) {
@@ -126,7 +129,7 @@ function fallbackBuilderProposal(request, director, groups) {
   }
 }
 
-function realizeSelections({ request, componentPlan, groups, methods, proposal, prior = [], preservedActivities = [], maxAttempts = 500 }) {
+function realizeSelections({ request, componentPlan, groups, methods, proposal, prior = [], preservedActivities = [], modification = null, maxAttempts = 500 }) {
   const activities = []
   const issues = []
   const repairs = []
@@ -147,13 +150,14 @@ function realizeSelections({ request, componentPlan, groups, methods, proposal, 
         issues.push({ code: error.code ?? 'invalid_method_clock', componentKey: component.key, programmingMethodId: String(method.id), detail: error.message }); continue
       }
       const preserved = preservedActivities.find((entry) => entry.componentKey === component.key && entry.profile.id === profile.id)
+      const coachDose = modificationDoseProposal(modification, selection.sourceBlockId)
       const sourceHash = programmingValueHash({ card, profile, method })
       if (preserved && (sourceHash !== preserved.sourceHash || String(preserved.method.id) !== String(method.id))) {
         issues.push({ code: 'stale_preserved_activity', componentKey: component.key, deliveryProfileId: profile.id }); continue
       }
-      const minimum = preserved?.dose.sets ?? methodClock.targetSets ?? profile.dosage?.setsMin ?? profile.dosage?.sets
+      const minimum = preserved?.dose.sets ?? coachDose.sets ?? methodClock.targetSets ?? profile.dosage?.setsMin ?? profile.dosage?.sets
       const maximum = profile.dosage?.setsMax ?? profile.dosage?.sets
-      const preferredSets = preserved?.dose.sets ?? methodClock.targetSets ?? Math.min(profile.dosage?.sets, maximum)
+      const preferredSets = preserved?.dose.sets ?? coachDose.sets ?? methodClock.targetSets ?? Math.min(profile.dosage?.sets, maximum)
       let selected = null
       let rejection = null
       if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(preferredSets) || !Number.isSafeInteger(maximum)
@@ -165,9 +169,11 @@ function realizeSelections({ request, componentPlan, groups, methods, proposal, 
         attempts += 1
         try {
           const dose = resolveCanonicalProgrammingDose({ card, profile, method, request, componentKey: component.key,
-            proposal: preserved ? { sets, reps: preserved.dose.reps, workSeconds: preserved.dose.workSeconds, restSeconds: preserved.dose.restSeconds } : { sets } })
+            proposal: preserved ? { sets, reps: preserved.dose.reps, workSeconds: preserved.dose.workSeconds, restSeconds: preserved.dose.restSeconds } : { ...coachDose, sets } })
           if (preserved && programmingValueHash(dose) !== programmingValueHash(preserved.dose)) throw new ProgrammingPrescriptionError('stale_preserved_dose', 'Repair cannot alter a preserved activity dose')
-          const activity = { activityId: preserved?.activityId ?? `${component.key}:${index + 1}`, componentKey: component.key, card, profile, method, dose,
+          validateModificationDose(modification, selection.sourceBlockId, dose)
+          const activity = { activityId: preserved?.activityId ?? (modification
+            ? modificationActivityId(modification, component.key, index, selection.sourceBlockId) : `${component.key}:${index + 1}`), componentKey: component.key, card, profile, method, dose,
             rationale: selection.rationale, sourceHash }
           const schedule = scheduleCanonicalExercise({ ...activity, request, component: { ...control, budgetSeconds: control.budgetSeconds - elapsedSeconds } })
           const ordered = [...prior, ...activities, activity].sort((a, b) => componentPlan.components.findIndex((entry) => entry.key === a.componentKey)
@@ -266,14 +272,15 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
   const { assumptions: _assumptions, ...coachInput } = sessionIntent.request ?? {}
   const request = normalizeCoachWorkoutRequest(coachInput)
   if (programmingValueHash(request) !== sessionIntent.requestHash || programmingValueHash(request) !== programmingValueHash(sessionIntent.request)) throw new ProgrammingStaffError('stale_request', 'Session intent does not match immutable coach truth')
-  if (request.mode === 'modify_existing') throw new ProgrammingStaffError('source_workout_adapter_required', 'Modify Existing requires a verified persisted source workout')
   const componentPlan = programmingComponentPlan(request)
   if (programmingValueHash(componentPlan) !== programmingValueHash(sessionIntent.componentPlan)) throw new ProgrammingStaffError('constraint_override', 'Session intent changed coach clocks or equipment')
   const repair = validateRevision(request, sessionIntent, revision)
   const run = staffRun ?? createProgrammingStaffRun(registry, { maxCalls: 4, maxOutputTokens: 12000, perCallOutputTokens: 3000, ...runOptions })
   const canceled = () => { run.assertActive(); if (runOptions.signal?.aborted) throw new ProgrammingStaffError('canceled', 'Programming composition was canceled') }
   canceled()
-  const searches = programmingResourceRequests(request, 100).map((search) => {
+  const modification = await loadWorkoutProgrammingModification({ pool, context, request, expectedContext: sessionIntent.modification ?? null })
+  canceled()
+  const searches = modificationResourceSearches(programmingResourceRequests(request, 100), modification).map((search) => {
     const previous = repair?.previousDraft.activities.filter((entry) => entry.componentKey === search.componentKey) ?? []
     return { ...search, pinnedExercises: [...search.pinnedExercises, ...previous.map((entry) => ({ exerciseCardId: entry.card.id,
       variantId: entry.card.variantId, deliveryProfileId: entry.profile.id, cardVersion: entry.card.cardVersion }))],
@@ -287,13 +294,15 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
   }
   const director = validateProgrammingDirectorProposal(request, materials.resources, sessionIntent.proposal)
   const eligibility = filterProgrammingCandidateEligibility({ groups: programmingCandidateMaterials(materials), request, athleteEvidence: materials.athleteEvidence })
-  const groups = boundedCandidateGroups(eligibility.groups, request, director, repair?.previousDraft)
+  const groups = boundedCandidateGroups(eligibility.groups, request, director, repair?.previousDraft, modification)
   const downstream = groups.filter((entry) => entry.key !== 'prepare_and_access')
   const issues = [...(sessionIntent.issues ?? [])]
   for (const group of groups) {
     const control = request.components.find((entry) => entry.key === group.key)
     const unavailable = eligibility.reports.filter((entry) => entry.componentKey === group.key && entry.status !== 'ELIGIBLE')
     const locked = unavailable.filter((entry) => control.lockedExercises.some((ref) => ref.deliveryProfileId === entry.deliveryProfileId)
+      || modification?.blocks.some((block) => block.componentKey === group.key && (block.lockedFields.includes('exercises') || block.edit?.exercise)
+        && (block.edit?.exercise ?? block.ref).deliveryProfileId === entry.deliveryProfileId)
       || repair?.previousDraft.activities.some((activity) => activity.componentKey === group.key && activity.profile.id === entry.deliveryProfileId
         && group.key !== 'prepare_and_access' && !repair.mutableComponentKeys.includes(group.key)))
     if (locked.length || group.candidates.length < (group.key === 'prepare_and_access' ? 3 : 1)) issues.push({
@@ -309,13 +318,15 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
   if (!materials.programmingSearchComplete) issues.push({ code: 'incomplete_programming_search' })
   const input = { request, componentPlan, director, athleteAdvice: sessionIntent.athleteAdvice, consultantAdvice: sessionIntent.consultantAdvice,
     athleteEvidence: materials.athleteEvidence,
+    ...(modification ? { modification: modificationCapabilityContext(modification) } : {}),
     components: candidateSummaries(downstream, materials), ...(repair ? { revision: { mutableComponentKeys: repair.mutableComponentKeys,
       previousProposal: repair.previousDraft.builderProposal, feedback: repair.feedback,
       previousActivities: repair.previousDraft.activities.map((entry) => ({ activityId: entry.activityId, componentKey: entry.componentKey,
         deliveryProfileId: entry.profile.id, programmingMethodId: String(entry.method.id), dose: entry.dose })), previousLoad: repair.previousDraft.load } } : {}) }
-  const baseContract = builderCapabilityContract(request, downstream)
+  const baseContract = modificationProposalContract(builderCapabilityContract(request, downstream), modification)
   const contract = repair ? revisionContract(baseContract, repair.previousDraft.builderProposal, repair.mutableComponentKeys) : baseContract
-  const prepareOnly = repair && repair.mutableComponentKeys.length === 0
+  const prepareOnly = repair ? repair.mutableComponentKeys.length === 0
+    : modification?.context.sourceBuilderReviewed && modification.context.mutableComponentKeys.length === 0
   const preservedActivities = repair?.previousDraft.activities.filter((entry) => entry.componentKey !== 'prepare_and_access' && !repair.mutableComponentKeys.includes(entry.componentKey)) ?? []
   const call = async (capabilityId, role, contract, input) => {
     if (evidenceBlocked || issues.some((entry) => entry.code === 'candidate_eligibility_review_required')) return null
@@ -325,15 +336,15 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
       return null
     }
   }
-  let builderProposal = prepareOnly ? contract.parseOutput(repair.previousDraft.builderProposal)
+  let builderProposal = prepareOnly ? contract.parseOutput(repair?.previousDraft.builderProposal ?? modification.previousProposal)
     : downstream.every((entry) => entry.candidates.some((candidate) => candidate.methodIds.length))
       ? await call(builderCapabilityId, 'session_builder', contract, input) : null
   const builderSource = builderProposal ? 'session_builder' : 'deterministic_review_draft'
   if (!builderProposal) {
     issues.push({ code: 'builder_review_required' })
-    builderProposal = repair?.previousDraft.builderProposal ?? fallbackBuilderProposal(request, director, downstream)
+    builderProposal = repair?.previousDraft.builderProposal ?? modification?.previousProposal ?? fallbackBuilderProposal(request, director, downstream)
   }
-  let realized = realizeSelections({ request, componentPlan, groups: downstream, methods: materials.methods, proposal: builderProposal, preservedActivities })
+  let realized = realizeSelections({ request, componentPlan, groups: downstream, methods: materials.methods, proposal: builderProposal, preservedActivities, modification })
   let compositionAttempts = realized.attempts
   const revisions = []
   if (realized.issues.length && builderSource === 'session_builder' && !prepareOnly) {
@@ -341,7 +352,7 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
     if (revisionProposal) {
       revisions.push({ role: 'session_builder', findings: realized.issues })
       builderProposal = revisionProposal
-      realized = realizeSelections({ request, componentPlan, groups: downstream, methods: materials.methods, proposal: builderProposal, preservedActivities })
+      realized = realizeSelections({ request, componentPlan, groups: downstream, methods: materials.methods, proposal: builderProposal, preservedActivities, modification })
       compositionAttempts += realized.attempts
     }
   }
@@ -352,14 +363,15 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
   let preparationProposal = null
   let preparation = { activities: [], issues: [], repairs: [], attempts: 0 }
   if (demand.exposures.some((entry) => entry.componentKey === 'explosiveness') && prepareCandidates.length >= 3) {
-    preparationProposal = await call(prepareCapabilityId, 'prepare_access', preparationCapabilityContract({ request, demand, candidates: prepareCandidates }), {
+    preparationProposal = await call(prepareCapabilityId, 'prepare_access', modificationProposalContract(preparationCapabilityContract({ request, demand, candidates: prepareCandidates }), modification, { preparation: true }), {
       request, framework: VORTEX_PREPARATION_CAPABILITY_CONTEXT, demand, athleteEvidence: materials.athleteEvidence,
+      ...(modification ? { modification: modificationCapabilityContext(modification) } : {}),
       ...(repair ? { revision: { previousProposal: repair.previousDraft.preparationProposal, feedback: repair.feedback,
         previousDownstreamHash: repair.previousDraft.preparationDemand.downstreamHash } } : {}),
       components: candidateSummaries([prepareGroup], materials), remainingLoad: evaluateProgrammingLoadSequence({ request, activities: realized.activities }).entries.at(-1)?.remaining ?? null,
     })
     if (preparationProposal) preparation = realizeSelections({ request, componentPlan, groups: [prepareGroup], methods: materials.methods, prior: realized.activities,
-      proposal: { components: [{ key: 'prepare_and_access', selections: preparationProposal.selections }] } })
+      proposal: { components: [{ key: 'prepare_and_access', selections: preparationProposal.selections }] }, modification })
   }
   if (!preparationProposal) issues.push({ code: 'preparation_requires_review', detail: 'Demand-driven Vortex preparation is incomplete; no exercise creation is authorized.' })
   issues.push(...preparation.issues)
@@ -367,6 +379,7 @@ export async function buildWorkoutProgrammingDraft({ pool, context, sessionInten
   const coverage = validateProgrammingCoverage(request, activities)
   const load = evaluateProgrammingLoadSequence({ request, activities })
   const schedule = scheduleProgrammingDraft({ request, componentPlan, activities, builderProposal, preparationProposal })
+  issues.push(...validateWorkoutProgrammingModification(modification, { activities, schedule, builderProposal, preparationProposal }))
   issues.push(...coverage.issues, ...load.issues, ...schedule.resourceValidation.issues)
   if (schedule.status !== 'SCHEDULED') issues.push({ code: 'schedule_requires_composition' })
   canceled()

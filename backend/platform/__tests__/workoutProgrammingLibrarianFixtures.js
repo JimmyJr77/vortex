@@ -50,7 +50,7 @@ function cardRows(cards) {
 }
 
 export function libraryPool({ cards = [libraryCard()], releaseIds = cards.map((card) => card.id), noRelease = false,
-  methods = [], profiles = [], prescriptions = [], methodStopRules = [], methodValidatorRules = [], methodCompatibilityRows = [], methodQualityStandards = [], programmingRuleReviews = [], failQuery = null, rollbackFailure = null } = {}) {
+  methods = [], profiles = [], prescriptions = [], methodStopRules = [], methodValidatorRules = [], methodCompatibilityRows = [], methodQualityStandards = [], programmingRuleReviews = [], failQuery = null, rollbackFailure = null, userId = '7' } = {}) {
   const calls = []
   const client = {
     async query(sql, params = []) {
@@ -72,7 +72,7 @@ export function libraryPool({ cards = [libraryCard()], releaseIds = cards.map((c
         return { rows: cardRows(cards) }
       }
       if (sql.includes('SELECT pm.*')) {
-        assert.deepEqual(params.slice(0, 2), ['9', '7'])
+        assert.deepEqual(params.slice(0, 2), ['9', userId])
         const [limit, offset] = params.slice(-2)
         return { rows: methods.slice(offset, offset + limit) }
       }

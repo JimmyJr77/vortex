@@ -1,0 +1,1197 @@
+{
+  "schemaVersion": "1.0",
+  "documentPurpose": "OR08 mapping and complete original easy-run teaching-gap proposal with easy and independently qualified modest-intent contexts.",
+  "checkedOn": "2026-09-13",
+  "planningStatus": "reviewable_proposal_pending_final_context_comparison_release",
+  "recordIdsAre": "Mapping and proposal: labels are documentation only; related source identities are not this card's IDs.",
+  "accessBoundary": {
+    "newDatabaseQueries": false,
+    "appSourceEdits": false,
+    "approvalsCreated": false,
+    "unavailableDoesNotMeanEmpty": true
+  },
+  "searchCoverage": {
+    "roots": [
+      "local contracts/research",
+      "source scripts/migrations",
+      "OR04 saved mapping/prescription",
+      "OR06/07 history"
+    ],
+    "synonyms": [
+      "build-up",
+      "stride-out",
+      "strideout",
+      "progressive easy run",
+      "20-20-20",
+      "three-point build-up",
+      "flying sprint",
+      "A-March",
+      "short acceleration"
+    ],
+    "result": "No completed exact easy canonical profile verified.127 archived;128/69 later review candidates remain distinct."
+  },
+  "records": [
+    {
+      "mappingKey": "EASY-BUILD-RUN-TEACH",
+      "name": "Easy Progressive Build and Upright Rhythm Run — Teaching Proposal",
+      "sourceSlug": null,
+      "legacySourceId": null,
+      "relatedLegacySourceId": 127,
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "sourceAuthoredVariantUuid": null,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null,
+      "liveApprovalVerified": false,
+      "mappingStatus": "complete_local_proposal_original_gap_two_authored_contexts_pending_owner_approval",
+      "proposalRecord": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
+        "documentationId": "proposal:or08:easy-build-run-teach"
+      },
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json",
+          "lines": "727-777",
+          "kind": "OR08_intent_only_objective"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/planning/OR08_STIMULUS_AND_SOURCE_REVIEW.md",
+          "lines": "1-67",
+          "kind": "bounded_source_review"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_01/or_04.json",
+          "lines": "15-17;50-61;436-447;855-866;1250-1261;10777-10821",
+          "kind": "prior_authored_route_instruction_and_history"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR04_LIBRARY_MAPPING.md",
+          "lines": "21-78",
+          "kind": "prior_identity_readiness_and_approval_boundaries"
+        },
+        {
+          "path": "scripts/data/output-max-velocity-cards-11-18.mjs",
+          "lines": "42-53;92-118;142-171",
+          "kind": "related127_legacy_maximal_task_not_easy_profile"
+        },
+        {
+          "path": "backend/migrations/599_coaching_speed_exposure_sources_127_128_130_contract_quarantine.sql",
+          "lines": "1-13",
+          "kind": "127_archived_quarantine"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/flying-sprint.v1.json",
+          "lines": "2-20;33-53;79-92",
+          "kind": "later128_distinct_maximal_fly_review_candidate"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/a-march.v1.json",
+          "lines": "12-24;29-38",
+          "kind": "traveling_A_march_not_stationary_teaching"
+        },
+        {
+          "path": "backend/migrations/420_coaching_short_acceleration_research_completion.sql",
+          "lines": "292-307;373-395",
+          "kind": "short_static_acceleration_variants"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": "461-464;624-680;707-718;772-774",
+          "kind": "two_dumbbell_RDL_identity"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR06_LIBRARY_MAPPING.md",
+          "lines": "53-76",
+          "kind": "first_loaded_handling_and_familiar_history"
+        },
+        {
+          "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+          "lines": "305-315",
+          "kind": "proposal_and_dose_identity_policy"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+          "lines": "92-149",
+          "kind": "active_OR08_amendment_independent_P2_two_modest_entry_paths_and_history"
+        },
+        {
+          "path": "scripts/data/capacity-hinge-cards-11-18.mjs",
+          "lines": "239-284",
+          "kind": "related_RDL_top_range_and_no_floor_reach_instructions"
+        }
+      ],
+      "exactProposedMechanics": {
+        "start": "Still comfortable bilateral standing start with relaxed natural arms and a known straight route. No rolling, three-point, falling or reactive start is added.",
+        "build": "Build smoothly over 0–10 m: easy context about 2/10 toward 3/10; independently qualified modest-intent context about 2/10 toward 4/10. No maximal start or forced early upright posture.",
+        "rhythm": "Retain relaxed selected effort over 10–20 m: about 3/10 easy or 4/10 in the qualified context. Natural coordinated running and arms; no fly threshold, timed result or maximal second half.",
+        "runoff": "Reduce speed gradually through 20–35 m. Do not force an abrupt stop at 35 m or shorten runoff for the clock. If actual effort no longer fits the retained protected route, hold/reduce, explicitly reconfigure or defer.",
+        "exitReturn": "Exit by the declared protected path, then use the separate one-way outside return and full recovery. Return turns and staging are logistics, not extra technical or cutting repetitions.",
+        "contactRule": "Count every attempt, including partial/faulted work. Record actual build/rhythm/runoff/exit/return, intended/reported effort, contacts, distance, time and response. Zero prescribed jump-drill repetitions is not zero cyclic running flight, contacts or impact; actual contact totals remain null until observed.",
+        "excluded": [
+          "maximal or flying sprint",
+          "timed speed quota",
+          "forced stride/cadence or thigh height",
+          "late/reactive cue or cut",
+          "assistance/resistance/external load",
+          "obstacle or jump sequence",
+          "extra trial or make-up attempt"
+        ]
+      },
+      "commonEntryRequirements": [
+        "Actual comfortable easy jogging, coordinated contacts and controlled gradual slowing at the assigned lower-demand context; current symptoms/restrictions, recovery and total running/landing/strength/tumbling exposure fit.",
+        "Comfortable independent walking and understood release/markers/stop/exit/return/waiting. Whole-corridor conduct is observed in counted E0 or an actual equivalent; walking or short P2 acceleration alone does not establish running/slowing competence.",
+        "Actual protected 35 m corridor with 0/10/20/35 m markers, sufficient runoff for the athlete/demand, suitable surface/footwear, separate return/queues and qualified full-route sightlines. Planned dimensions are not verified clearance.",
+        "Only when selecting modest intent: the first increase uses actual repeatable prior easy whole-route history; retained4 may use its actual repeatable compatible4 record. No prior perfect4 attempt is required for first instruction, and no older3 record is reconstructed for qualified retention. No uncounted trial or maximal test supplies either entry. This does not add a previous whole-run gate to first easy instruction."
+      ],
+      "contextPrerequisites": {
+        "easy": [
+          "Actual comfortable easy jogging, coordinated contacts and controlled gradual slowing at the assigned lower-demand context; current symptoms/restrictions, recovery and total running/landing/strength/tumbling exposure fit.",
+          "Comfortable independent walking and understood release/markers/stop/exit/return/waiting. Whole-corridor conduct is observed in counted E0 or an actual equivalent; walking or short P2 acceleration alone does not establish running/slowing competence.",
+          "Actual protected 35 m corridor with 0/10/20/35 m markers, sufficient runoff for the athlete/demand, suitable surface/footwear, separate return/queues and qualified full-route sightlines. Planned dimensions are not verified clearance.",
+          "Only when selecting modest intent: the first increase uses actual repeatable prior easy whole-route history; retained4 may use its actual repeatable compatible4 record. No prior perfect4 attempt is required for first instruction, and no older3 record is reconstructed for qualified retention. No uncounted trial or maximal test supplies either entry. This does not add a previous whole-run gate to first easy instruction.",
+          "First/retained easy instruction requires established easy-jog/slowing components and observed route conduct; it does not demand a prior completed whole long run merely to teach the first listed easy attempt. Retain 2→3/3 intent; no automatic higher-intent pass."
+        ],
+        "modest-intent": [
+          "Actual comfortable easy jogging, coordinated contacts and controlled gradual slowing at the assigned lower-demand context; current symptoms/restrictions, recovery and total running/landing/strength/tumbling exposure fit.",
+          "Comfortable independent walking and understood release/markers/stop/exit/return/waiting. Whole-corridor conduct is observed in counted E0 or an actual equivalent; walking or short P2 acceleration alone does not establish running/slowing competence.",
+          "Actual protected 35 m corridor with 0/10/20/35 m markers, sufficient runoff for the athlete/demand, suitable surface/footwear, separate return/queues and qualified full-route sightlines. Planned dimensions are not verified clearance.",
+          "Only when selecting modest intent: the first increase uses actual repeatable prior easy whole-route history; retained4 may use its actual repeatable compatible4 record. No prior perfect4 attempt is required for first instruction, and no older3 record is reconstructed for qualified retention. No uncounted trial or maximal test supplies either entry. This does not add a previous whole-run gate to first easy instruction.",
+          "Select exactly one documented basis: first_increase from actual repeatable whole same-route2→3/3; or retention of actual repeatable most recent compatible whole2→4/4. Both require current response/runoff fit. No attendance, age, short start, walk/march, terminal stop or single emerging attempt establishes repeatability."
+        ]
+      },
+      "deliveryContexts": [
+        {
+          "id": "proposal:or08:progressive-run-easy",
+          "documentationContextKey": "easy",
+          "phaseKey": "movement_intelligence",
+          "role": "conditional",
+          "phaseSuitability": 70,
+          "phaseSuitabilityStatus": "explicit_provisional_author_fit_only_not_reviewed_calibration_or_participant_probability",
+          "purpose": "First or Retained Easy Build and Rhythm on retained 35 m geometry.",
+          "selectionPrerequisites": [
+            "Actual comfortable easy jogging, coordinated contacts and controlled gradual slowing at the assigned lower-demand context; current symptoms/restrictions, recovery and total running/landing/strength/tumbling exposure fit.",
+            "Comfortable independent walking and understood release/markers/stop/exit/return/waiting. Whole-corridor conduct is observed in counted E0 or an actual equivalent; walking or short P2 acceleration alone does not establish running/slowing competence.",
+            "Actual protected 35 m corridor with 0/10/20/35 m markers, sufficient runoff for the athlete/demand, suitable surface/footwear, separate return/queues and qualified full-route sightlines. Planned dimensions are not verified clearance.",
+            "Only when selecting modest intent: the first increase uses actual repeatable prior easy whole-route history; retained4 may use its actual repeatable compatible4 record. No prior perfect4 attempt is required for first instruction, and no older3 record is reconstructed for qualified retention. No uncounted trial or maximal test supplies either entry. This does not add a previous whole-run gate to first easy instruction.",
+            "First/retained easy instruction requires established easy-jog/slowing components and observed route conduct; it does not demand a prior completed whole long run merely to teach the first listed easy attempt. Retain 2→3/3 intent; no automatic higher-intent pass."
+          ],
+          "qualityGate": "Still start, smooth 0–10 m build, relaxed 10–20 m selected-effort rhythm, coordinated contacts, gradual 20–35 m runoff and protected exit/return remain comfortable. Instruction entry is separate from actual valid result.",
+          "stopRules": [
+            "Stop for pain, symptoms, acute tightness/pull sensation, limp, apprehension/participant request, stumble, unsafe surface/traffic, misunderstood conduct or restriction conflict.",
+            "End the affected attempt or intent progression for lost coordination, uncontrolled contacts, forced posture/overstride, maximal racing or inability to slow gradually within sufficient protected space.",
+            "Record all actual/partial work. No extra attempt, faster return or shortened rest repairs a fault. Use remaining time for safe clearance, explanation or recovery.",
+            "If actual route, runoff, sightline, return or pace no longer fits, delay/omit or hold/reduce. No forced stopping deadline or silent corridor extension."
+          ],
+          "dosage": {
+            "status": "author_proposed_not127_or128_defaults_or_approved_prescription",
+            "ageModeRows": [
+              {
+                "ageBand": "9-11",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              }
+            ],
+            "countRule": "D 2 standard/1 compressed, actual smaller cap1; faults consume attempts. L walking is separately mapped.",
+            "activeExitSeconds": 25,
+            "executionSegmentsSeconds": {
+              "smooth10mBuild": 5,
+              "relaxed10mRhythm": 5,
+              "gradual15mRunoff": 12,
+              "exit": 3
+            },
+            "returnSeconds": 40,
+            "minimumRecoverySeconds": 90,
+            "clockRule": "Planning allowances are not prescribed pace/cadence. Delay/omit later work if actual instruction, slowing, return or traffic needs more time; recovery is outside active and return work.",
+            "effortInterpretation": "RPE is an authored subjective intended-effort cue, not velocity, physiological percentage, heart-rate target or an outcome.",
+            "buildIntendedEffortRPE": [
+              2,
+              3
+            ],
+            "rhythmIntendedEffortRPE": 3
+          },
+          "timeModel": {
+            "activeExitAllowanceSeconds": 25,
+            "returnAllowanceSeconds": 40,
+            "minimumRecoverySeconds": 90,
+            "forcedPace": false,
+            "globalClockOwnedBy": "OR08 session author",
+            "standardE1RoundStartsMinutes": [
+              26,
+              34.5
+            ],
+            "compressedE1RoundStartsMinutes": [
+              21
+            ],
+            "betweenStandardRoundStartsSeconds": 510,
+            "plannedRecoveryAfter25sActiveAnd40sReturnSeconds": 445,
+            "singleOpportunityRule": "No between-repeat interval with one run; retain required90s recovery before later physical demand, verified in final role transitions."
+          },
+          "doseScaling": {
+            "retain": "Actual route/start/arms/count cap and familiar strength; change only justified intent.",
+            "reduce": "Hold easy intent or remove later opportunities; separately eligible alternative changes purpose.",
+            "L": "Separate walking identity; no running.",
+            "advance": "No automatic maximal/flying, shorter runoff, less rest, greater load or preparation complexity."
+          },
+          "measurement": {
+            "record": [
+              "actual selected entry basis and evidence: easy running/slowing components for first easy; repeatable easy3 for first increase; or repeatable compatible retained4 for retention",
+              "selected context/intended and reported effort",
+              "actual route/start and every attempt",
+              "build/rhythm/runoff/exit/return quality",
+              "actual travel/contacts/time",
+              "cue needs/symptoms",
+              "recovery and strength history"
+            ],
+            "timedSpeedTest": false,
+            "exactContacts": null
+          },
+          "supportPrompts": {
+            "athlete": "Build smoothly, stay comfortable, slow gradually.",
+            "coach": "Separate contexts; no manufactured previous-run competence or speed result."
+          }
+        },
+        {
+          "id": "proposal:or08:progressive-run-modest-intent",
+          "documentationContextKey": "modest-intent",
+          "phaseKey": "movement_intelligence",
+          "role": "conditional",
+          "phaseSuitability": 70,
+          "phaseSuitabilityStatus": "explicit_provisional_author_fit_only_not_reviewed_calibration_or_participant_probability",
+          "purpose": "Qualified Modest-Intent Build and Rhythm on retained 35 m geometry.",
+          "selectionPrerequisites": [
+            "Actual comfortable easy jogging, coordinated contacts and controlled gradual slowing at the assigned lower-demand context; current symptoms/restrictions, recovery and total running/landing/strength/tumbling exposure fit.",
+            "Comfortable independent walking and understood release/markers/stop/exit/return/waiting. Whole-corridor conduct is observed in counted E0 or an actual equivalent; walking or short P2 acceleration alone does not establish running/slowing competence.",
+            "Actual protected 35 m corridor with 0/10/20/35 m markers, sufficient runoff for the athlete/demand, suitable surface/footwear, separate return/queues and qualified full-route sightlines. Planned dimensions are not verified clearance.",
+            "Only when selecting modest intent: the first increase uses actual repeatable prior easy whole-route history; retained4 may use its actual repeatable compatible4 record. No prior perfect4 attempt is required for first instruction, and no older3 record is reconstructed for qualified retention. No uncounted trial or maximal test supplies either entry. This does not add a previous whole-run gate to first easy instruction.",
+            "Select exactly one documented basis: first_increase from actual repeatable whole same-route2→3/3; or retention of actual repeatable most recent compatible whole2→4/4. Both require current response/runoff fit. No attendance, age, short start, walk/march, terminal stop or single emerging attempt establishes repeatability."
+          ],
+          "qualityGate": "Still start, smooth 0–10 m build, relaxed 10–20 m selected-effort rhythm, coordinated contacts, gradual 20–35 m runoff and protected exit/return remain comfortable. Instruction entry is separate from actual valid result.",
+          "stopRules": [
+            "Stop for pain, symptoms, acute tightness/pull sensation, limp, apprehension/participant request, stumble, unsafe surface/traffic, misunderstood conduct or restriction conflict.",
+            "End the affected attempt or intent progression for lost coordination, uncontrolled contacts, forced posture/overstride, maximal racing or inability to slow gradually within sufficient protected space.",
+            "Record all actual/partial work. No extra attempt, faster return or shortened rest repairs a fault. Use remaining time for safe clearance, explanation or recovery.",
+            "If actual route, runoff, sightline, return or pace no longer fits, delay/omit or hold/reduce. No forced stopping deadline or silent corridor extension."
+          ],
+          "dosage": {
+            "status": "author_proposed_not127_or128_defaults_or_approved_prescription",
+            "ageModeRows": [
+              {
+                "ageBand": "9-11",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_D",
+                "runningOpportunityCeiling": 2,
+                "sets": 2,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_D",
+                "runningOpportunityCeiling": 1,
+                "sets": 1,
+                "repetitionsPerSet": 1,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 20,
+                "runoffM": 15,
+                "activeExitAllowanceSeconds": 25,
+                "returnAllowanceSeconds": 40,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_L",
+                "runningOpportunityCeiling": 0,
+                "sets": 0,
+                "repetitionsPerSet": 0,
+                "capOneRule": "min(reference running ceiling,1)",
+                "runTargetM": 0,
+                "runoffM": 0,
+                "activeExitAllowanceSeconds": 0,
+                "returnAllowanceSeconds": 0,
+                "minimumRecoverySeconds": 90,
+                "LIdentity": "Separate counted E0 full walk plus standard-L one follow-up walk or compressed-L zero follow-up; no running under this card."
+              }
+            ],
+            "countRule": "D 2 standard/1 compressed, actual smaller cap1; faults consume attempts. L walking is separately mapped.",
+            "activeExitSeconds": 25,
+            "executionSegmentsSeconds": {
+              "smooth10mBuild": 5,
+              "relaxed10mRhythm": 5,
+              "gradual15mRunoff": 12,
+              "exit": 3
+            },
+            "returnSeconds": 40,
+            "minimumRecoverySeconds": 90,
+            "clockRule": "Planning allowances are not prescribed pace/cadence. Delay/omit later work if actual instruction, slowing, return or traffic needs more time; recovery is outside active and return work.",
+            "effortInterpretation": "RPE is an authored subjective intended-effort cue, not velocity, physiological percentage, heart-rate target or an outcome.",
+            "buildIntendedEffortRPE": [
+              2,
+              4
+            ],
+            "rhythmIntendedEffortRPE": 4
+          },
+          "timeModel": {
+            "activeExitAllowanceSeconds": 25,
+            "returnAllowanceSeconds": 40,
+            "minimumRecoverySeconds": 90,
+            "forcedPace": false,
+            "globalClockOwnedBy": "OR08 session author",
+            "standardE1RoundStartsMinutes": [
+              26,
+              34.5
+            ],
+            "compressedE1RoundStartsMinutes": [
+              21
+            ],
+            "betweenStandardRoundStartsSeconds": 510,
+            "plannedRecoveryAfter25sActiveAnd40sReturnSeconds": 445,
+            "singleOpportunityRule": "No between-repeat interval with one run; retain required90s recovery before later physical demand, verified in final role transitions."
+          },
+          "doseScaling": {
+            "retain": "Actual route/start/arms/count cap and familiar strength; change only justified intent.",
+            "reduce": "Hold easy intent or remove later opportunities; separately eligible alternative changes purpose.",
+            "L": "Separate walking identity; no running.",
+            "advance": "No automatic maximal/flying, shorter runoff, less rest, greater load or preparation complexity."
+          },
+          "measurement": {
+            "record": [
+              "actual selected entry basis and evidence: easy running/slowing components for first easy; repeatable easy3 for first increase; or repeatable compatible retained4 for retention",
+              "selected context/intended and reported effort",
+              "actual route/start and every attempt",
+              "build/rhythm/runoff/exit/return quality",
+              "actual travel/contacts/time",
+              "cue needs/symptoms",
+              "recovery and strength history"
+            ],
+            "timedSpeedTest": false,
+            "exactContacts": null
+          },
+          "supportPrompts": {
+            "athlete": "Build smoothly, stay comfortable, slow gradually.",
+            "coach": "Separate contexts; no manufactured previous-run competence or speed result."
+          },
+          "modestEntryPolicy": {
+            "first_increase": "Actual repeatable whole same-route easy2→3/3 running, current response and runoff fit. No prior successful whole4/10 attempt is needed to teach its first counted opportunity.",
+            "retention": "Actual repeatable most recent compatible same-route2→4/4 running may support holding4 without reconstructing an older easy3 record. Record retention, not a new increase.",
+            "both": "Current independently evaluated response, coordinated running/gradual slowing, route/conduct and selected-demand runoff fit; a single emerging attempt is not repeatability. Unknown evidence for both paths means easy instruction or another independently eligible route."
+          }
+        }
+      ],
+      "geometry": {
+        "status": "retained_OR04_planning_model_unverified",
+        "protectedCorridorM": 35,
+        "buildZoneM": [
+          0,
+          10
+        ],
+        "rhythmZoneM": [
+          10,
+          20
+        ],
+        "runoffZoneM": [
+          20,
+          35
+        ],
+        "runTargetM": 20,
+        "planningLanes": 3,
+        "planningWidthMPerLane": 2,
+        "dedicatedOneWayOutsideReturnPerLane": true,
+        "sharedReturnMerge": false,
+        "actualReturnMetres": null,
+        "returnTurnRejoinCounted": true,
+        "qualifiedCoachesAssumed": 2,
+        "actualVerified": false,
+        "actualSightlinesVerified": false,
+        "inspection": [
+          "full build/rhythm/runoff/exit",
+          "actual body/arm/fall space and surface",
+          "return/waiting/staging separation",
+          "qualified whole-route sightlines",
+          "actual pace and simultaneous traffic"
+        ],
+        "boundary": "Retains OR04 planning geometry, not OR07 diagonal fan; short5+10m P2/acceleration remains a separate task. Saved OR08 releases/traffic compared locally; actual facility and operating fit remain unverified.",
+        "mainReleasePitchSeconds": 30,
+        "athleteOffsetsSeconds": [
+          0,
+          30,
+          60,
+          90,
+          120,
+          150,
+          180,
+          210,
+          240,
+          270,
+          300,
+          330,
+          360,
+          390,
+          420
+        ],
+        "coachAssignmentByAthlete": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coachAssignedStartSpacingSeconds": 60,
+        "maximumActiveWalkingObservationSeconds": 45,
+        "minimumGapAfterLongestActiveObservationSeconds": 15,
+        "sameLaneStartSpacingSeconds": 90,
+        "markersPrepositioned": true,
+        "eachLaneOwnReturnAndRearWaiting": true,
+        "crossLaneReturnOrSharedMerge": false,
+        "stationaryPersonalBaysOutsideTraffic": true,
+        "actualStationarySightlinesVerified": false,
+        "stationaryTransferDuringMainSetupSeconds": [
+          0,
+          120
+        ],
+        "geometryRule": "Inspect actual return/staging distances and unforced walking time; no metres inferred from timers. Stationary athletes stay in visible personal bays in the assigned slot. If corridor and bay cannot both be observed from a safe coach position, omit/defer that combination. No coach shadows35m and rushes back."
+      },
+      "preparationContext": {
+        "P1": "Retain OR04 basic no-flight in-place rhythm or independently eligible quiet standing; no travel/high-knee/skip upgrade.",
+        "P2": "Retain actual short still-standing 5 m easy initiation plus 10 m runout only when independently eligible; otherwise its walking/stationary task. No new intent or full-route running credit.",
+        "E0": "Count full selected-corridor walking orientation and dedicated return. Walking does not prove jogging/slowing. No full-route walk is hidden in short P2.",
+        "firstRun": "First whole easy run or first qualified modest-intent attempt occurs in counted E1; no extra athlete trial/test.",
+        "targetBudgetSeconds": 180,
+        "outlineReconciliation": "Active OR08 amendment explicitly keeps40s P1/140s independent short P2; whole-route E0 and first intent instruction are counted in main. P2 changes no intent and grants no long-running permission.",
+        "P1BudgetSeconds": 40,
+        "P2BudgetSeconds": 140,
+        "P1Groups": {
+          "size": 5,
+          "startsSeconds": [
+            10,
+            20,
+            30
+          ],
+          "demoSeconds": 10
+        },
+        "P2Groups": {
+          "size": 3,
+          "startsSeconds": [
+            20,
+            40,
+            60,
+            80,
+            100
+          ],
+          "demoSeconds": 20
+        },
+        "P2ChoiceIndependentOfMainPermission": true,
+        "P2Choices": [
+          "short_start",
+          "short_walk",
+          "stationary_march",
+          "stationary_stand"
+        ],
+        "E0Groups": {
+          "size": 3,
+          "mainRelativeStartsSeconds": [
+            120,
+            210,
+            300,
+            390,
+            480
+          ]
+        },
+        "E0LongWalkActiveSeconds": 45,
+        "E0LongWalkReturnSeconds": 40
+      },
+      "retainedStrengthContext": {
+        "status": "final_author_context_pending_operational_verification",
+        "mostRecentActualRecordGoverns": true,
+        "familiarTwoDBGate": "Actual most recent compatible TWO-dumbbell record at the same pair/load/range/count with independently controlled pickup, top start, hinge repetitions and set-down, plus suitable current response. A single first OR06 loaded lesson or attendance does not establish familiarity. Actual OR07 unloading or a newer smaller record is not silently reversed; absent OR07 is not fictitious unloading history.",
+        "firstLoadedInstructionAvailable": false,
+        "restoreOlderDBDuringNewIntent": false,
+        "DB": {
+          "allowedModes": [
+            "standard_D",
+            "compressed_D"
+          ],
+          "sets": 1,
+          "referenceRepetitionsByAge": {
+            "9-11": 3,
+            "12-14": 4,
+            "15-18": 4
+          },
+          "repetitionCaps": [
+            1,
+            2,
+            3
+          ],
+          "capRule": "min(reference, actual smaller selected cap)",
+          "tempoSeconds": {
+            "lower": 3,
+            "stand": 1
+          },
+          "handlingSeconds": {
+            "pickup": 4,
+            "setDown": 4,
+            "clear": 2
+          },
+          "minimumRecoverySeconds": 90,
+          "technicalRIRAtLeast": 5,
+          "kgPerDBActual": null,
+          "totalLoadActual": null,
+          "parkingHeightActual": null,
+          "setup": "Five individually fitting elevated pickup/parking stations with TEN simultaneously suitable DBs at actual retained pairs/loads. One DB in each hand, palms facing inward, long arms and tall top stand with weights near thighs. Soft knees and organized trunk; move hips back with the DBs close through the actual owned hamstring-limited range. No floor-touch target or new range/handling test.",
+          "stationCount": 5,
+          "simultaneouslySuitableDBs": 10,
+          "coachesObserve": [
+            2,
+            3
+          ],
+          "groupSize": 5,
+          "betweenGroupResetSeconds": 20,
+          "resetOnlyAfterAllImplementsParkedAndActiveAthletesCleared": true,
+          "maximumReferenceSetSeconds": 26,
+          "nextRowReuse": "Only after all hip work is parked/cleared during later row setup; actual suitable loads still required.",
+          "sourceVsAuthorContext": "Source331 verifies dumbbell-standard-tempo with TWO dumbbells on close independent paths and declared owned hamstring-limited range; related legacy RDL instructions explain hip-height start, soft knees, keeping load close and stopping before spinal compensation rather than reaching the floor. Palms-in/long-arm wording, fitting elevated pickup, handling clock and this small dose are explicitly declared OR08 session context, not a newly verified mandatory source profile."
+        },
+        "BW": {
+          "sets": 1,
+          "referenceRepetitionsByAge": {
+            "9-11": {
+              "D": 3,
+              "L": 2
+            },
+            "12-14": {
+              "D": 4,
+              "L": 3
+            },
+            "15-18": {
+              "D": 4,
+              "L": 3
+            }
+          },
+          "repetitionCaps": [
+            1,
+            2,
+            3
+          ],
+          "unknownHistoryRepetitions": 2,
+          "capRule": "min(reference, actual smaller selected cap); unknown uses explicit small counted instruction, no extra trial",
+          "tempoSeconds": {
+            "hipsBack": 3,
+            "stand": 1
+          },
+          "handlingSetupExitSeconds": 5,
+          "minimumRecoverySeconds": 60,
+          "technicalRIRAtLeast": 5,
+          "arms": "crossed at chest",
+          "range": "actual comfortable owned hip-back range; no wall or new target"
+        },
+        "roleClock": {
+          "standardBudgetSeconds": 360,
+          "standardGroupStartsSeconds": [
+            90,
+            165,
+            240
+          ],
+          "compressedBudgetSeconds": 240,
+          "compressedGroupStartsSeconds": [
+            60,
+            120,
+            180
+          ],
+          "maximumDBWorkPlusResetSeconds": 46,
+          "compressedStartPitchSeconds": 60
+        },
+        "fallback": "If actual pairs/stations/readiness/sightlines do not fit, deliberately choose a compatible unloaded set or defer BEFORE pickup. A post-pickup fault consumes partial work and ends the set; no replacement trial/set.",
+        "otherRoles": "Familiar bodyweight knee, incline press, opposite-hand-and-knee bench row and eligible fixed-arm brace or exact supported breathing; keep actual recent1/2/3 knee caps and lower supporting-dose level. No support removal, new load or first implement instruction."
+      },
+      "sourceDoseNotSessionPrescription": null,
+      "stopRules": [
+        "Stop for pain, symptoms, acute tightness/pull sensation, limp, apprehension/participant request, stumble, unsafe surface/traffic, misunderstood conduct or restriction conflict.",
+        "End the affected attempt or intent progression for lost coordination, uncontrolled contacts, forced posture/overstride, maximal racing or inability to slow gradually within sufficient protected space.",
+        "Record all actual/partial work. No extra attempt, faster return or shortened rest repairs a fault. Use remaining time for safe clearance, explanation or recovery.",
+        "If actual route, runoff, sightline, return or pace no longer fits, delay/omit or hold/reduce. No forced stopping deadline or silent corridor extension."
+      ],
+      "remainingGates": [
+        "Full integrated written/numeric session review remains separate from the completed bounded source/schema comparison; actual facility/traffic/strength equipment and participant fit remain unverified.",
+        "Independent exact owner/variant/profile, difficulty/media and human approval.",
+        "Current approved substitute, actual facility/readiness and separate tumbling unverified."
+      ],
+      "modestEntryPolicy": {
+        "first_increase": "Actual repeatable whole same-route easy2→3/3 running, current response and runoff fit. No prior successful whole4/10 attempt is needed to teach its first counted opportunity.",
+        "retention": "Actual repeatable most recent compatible same-route2→4/4 running may support holding4 without reconstructing an older easy3 record. Record retention, not a new increase.",
+        "both": "Current independently evaluated response, coordinated running/gradual slowing, route/conduct and selected-demand runoff fit; a single emerging attempt is not repeatability. Unknown evidence for both paths means easy instruction or another independently eligible route."
+      }
+    }
+  ],
+  "relatedSourceBoundaries": [
+    {
+      "sourceSlug": "build-up-sprint-stride-out",
+      "legacySourceId": 127,
+      "localStatus": "archived_identity_quarantine_source127",
+      "boundary": "Legacy 20–40 yard maximal upright second-half task; A-March/A-Skip and Output defaults do not define this lesson. No completed exact easy profile verified.",
+      "currentApprovalVerified": false,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null
+    },
+    {
+      "sourceSlug": "flying-10",
+      "legacySourceId": 128,
+      "localCandidateVariantKey": "progressive-build-in-flying-sprint",
+      "sourceAuthoredVariantUuid": "12800000-0000-4000-8000-000000000001",
+      "localCandidateProfileKeys": [
+        "output-flying-10",
+        "output-flying-20"
+      ],
+      "localStatus": "migration705_completed_review_candidate_quarantined",
+      "boundary": "Measured build-in, near-maximal/maximal fly zone and runoff; distinct from both nonmaximal contexts.",
+      "currentApprovalVerified": false,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null
+    },
+    {
+      "sourceSlug": "a-march",
+      "legacySourceId": 69,
+      "localCandidateVariantKey": "traveling-alternating-no-flight-a-march",
+      "sourceAuthoredVariantUuid": "69000000-0000-4000-8000-000000000002",
+      "localStatus": "migration715_completed_review_candidate_quarantined",
+      "boundary": "Traveling alternating no-flight thigh-target march; not unchanged basic stationary marching.",
+      "currentApprovalVerified": false,
+      "liveCanonicalDefinitionId": null,
+      "liveCanonicalVariantId": null,
+      "liveCanonicalProfileId": null
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "WALK-CORRIDOR-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or04_library_mapping.json",
+        "mappingKey": "WALK-CORRIDOR-TEACH"
+      },
+      "boundary": "Count whole route/return, walking only."
+    },
+    {
+      "mappingKey": "BASIC-MARCH-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or04_library_mapping.json",
+        "mappingKey": "BASIC-MARCH-TEACH"
+      },
+      "boundary": "In-place no-flight and natural arms; not exact traveling69."
+    },
+    {
+      "mappingKey": "ACC-STATIC",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "ACC-STATIC"
+      },
+      "boundary": "Standing-static 5+10 m low-intent context; no long-run/maximal-speed credit."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SQUAT-BW"
+      },
+      "boundary": "Actual controlled range/recent dose; legacy defaults are not this day."
+    },
+    {
+      "mappingKey": "HINGE-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HINGE-BW"
+      },
+      "boundary": "Arms-crossed actual unloaded hinge; one set,4s reps+5s setup/exit,60s rest, actual1/2/3 caps or unknown-history2. No restoration of older loaded work."
+    },
+    {
+      "mappingKey": "DB-RDL",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "DB-RDL"
+      },
+      "boundary": "Actual most recent compatible TWO-dumbbell record at the same pair/load/range/count with independently controlled pickup, top start, hinge repetitions and set-down, plus suitable current response. A single first OR06 loaded lesson or attendance does not establish familiarity. Actual OR07 unloading or a newer smaller record is not silently reversed; absent OR07 is not fictitious unloading history. D-only,4s reps+10s handling,90s recovery; current five fitting stations/ten suitable DBs and direct2/3 observation required."
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH"
+      },
+      "boundary": "Stable actual support/range/dose."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW"
+      },
+      "boundary": "Opposite hand AND knee bench support; other foot planted; actual single-DB handling and both sides."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "HEEL-TAP"
+      },
+      "boundary": "Eligible tabletop and fixed-arm heel contact/return; Strength placement contextual."
+    },
+    {
+      "mappingKey": "BREATH-9090-ALT",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT"
+      },
+      "boundary": "Exact inspected leg support and sequential reach/breath; no heel-tap pass."
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "BILATERAL-STAND-TEACH"
+      },
+      "boundary": "Independent comfortable standing only; no locomotor or running pass."
+    }
+  ],
+  "identityDecision": "Spec9: dose/emphasis alone need not create another identity. Retain EASY-BUILD-RUN-TEACH with two transparent profiles; ownership and approval remain unresolved.",
+  "historyRule": {
+    "status": "final_author_context_pending_operational_verification",
+    "mostRecentActualRecordGoverns": true,
+    "familiarTwoDBGate": "Actual most recent compatible TWO-dumbbell record at the same pair/load/range/count with independently controlled pickup, top start, hinge repetitions and set-down, plus suitable current response. A single first OR06 loaded lesson or attendance does not establish familiarity. Actual OR07 unloading or a newer smaller record is not silently reversed; absent OR07 is not fictitious unloading history.",
+    "firstLoadedInstructionAvailable": false,
+    "restoreOlderDBDuringNewIntent": false,
+    "DB": {
+      "allowedModes": [
+        "standard_D",
+        "compressed_D"
+      ],
+      "sets": 1,
+      "referenceRepetitionsByAge": {
+        "9-11": 3,
+        "12-14": 4,
+        "15-18": 4
+      },
+      "repetitionCaps": [
+        1,
+        2,
+        3
+      ],
+      "capRule": "min(reference, actual smaller selected cap)",
+      "tempoSeconds": {
+        "lower": 3,
+        "stand": 1
+      },
+      "handlingSeconds": {
+        "pickup": 4,
+        "setDown": 4,
+        "clear": 2
+      },
+      "minimumRecoverySeconds": 90,
+      "technicalRIRAtLeast": 5,
+      "kgPerDBActual": null,
+      "totalLoadActual": null,
+      "parkingHeightActual": null,
+      "setup": "Five individually fitting elevated pickup/parking stations with TEN simultaneously suitable DBs at actual retained pairs/loads. One DB in each hand, palms facing inward, long arms and tall top stand with weights near thighs. Soft knees and organized trunk; move hips back with the DBs close through the actual owned hamstring-limited range. No floor-touch target or new range/handling test.",
+      "stationCount": 5,
+      "simultaneouslySuitableDBs": 10,
+      "coachesObserve": [
+        2,
+        3
+      ],
+      "groupSize": 5,
+      "betweenGroupResetSeconds": 20,
+      "resetOnlyAfterAllImplementsParkedAndActiveAthletesCleared": true,
+      "maximumReferenceSetSeconds": 26,
+      "nextRowReuse": "Only after all hip work is parked/cleared during later row setup; actual suitable loads still required.",
+      "sourceVsAuthorContext": "Source331 verifies dumbbell-standard-tempo with TWO dumbbells on close independent paths and declared owned hamstring-limited range; related legacy RDL instructions explain hip-height start, soft knees, keeping load close and stopping before spinal compensation rather than reaching the floor. Palms-in/long-arm wording, fitting elevated pickup, handling clock and this small dose are explicitly declared OR08 session context, not a newly verified mandatory source profile."
+    },
+    "BW": {
+      "sets": 1,
+      "referenceRepetitionsByAge": {
+        "9-11": {
+          "D": 3,
+          "L": 2
+        },
+        "12-14": {
+          "D": 4,
+          "L": 3
+        },
+        "15-18": {
+          "D": 4,
+          "L": 3
+        }
+      },
+      "repetitionCaps": [
+        1,
+        2,
+        3
+      ],
+      "unknownHistoryRepetitions": 2,
+      "capRule": "min(reference, actual smaller selected cap); unknown uses explicit small counted instruction, no extra trial",
+      "tempoSeconds": {
+        "hipsBack": 3,
+        "stand": 1
+      },
+      "handlingSetupExitSeconds": 5,
+      "minimumRecoverySeconds": 60,
+      "technicalRIRAtLeast": 5,
+      "arms": "crossed at chest",
+      "range": "actual comfortable owned hip-back range; no wall or new target"
+    },
+    "roleClock": {
+      "standardBudgetSeconds": 360,
+      "standardGroupStartsSeconds": [
+        90,
+        165,
+        240
+      ],
+      "compressedBudgetSeconds": 240,
+      "compressedGroupStartsSeconds": [
+        60,
+        120,
+        180
+      ],
+      "maximumDBWorkPlusResetSeconds": 46,
+      "compressedStartPitchSeconds": 60
+    },
+    "fallback": "If actual pairs/stations/readiness/sightlines do not fit, deliberately choose a compatible unloaded set or defer BEFORE pickup. A post-pickup fault consumes partial work and ends the set; no replacement trial/set.",
+    "otherRoles": "Familiar bodyweight knee, incline press, opposite-hand-and-knee bench row and eligible fixed-arm brace or exact supported breathing; keep actual recent1/2/3 knee caps and lower supporting-dose level. No support removal, new load or first implement instruction."
+  },
+  "verification": {
+    "status": "bounded_local_source_schema_and_saved_session_comparison_passed",
+    "checkedOn": "2026-09-13",
+    "schema": "docs/workout-generator/schemas/exercise-card.schema.json",
+    "schemaCheck": "Complete local proposal checked against required properties, types, local refs, enums, const, ranges, patterns, arrays, additional-property schema and URI format used by the existing schema. No schema or app changes.",
+    "counts": {
+      "completeExistingSchemaProposal": 1,
+      "sourceReferenceGroups": 14,
+      "reusedMappingKeys": 11,
+      "markdownLinks": 19,
+      "profileAgeModeRows": 24,
+      "mainCapOneRows": 24,
+      "hipAgeModeRows": 24,
+      "hipCapRows": 72,
+      "independentP2AgeModeRows": 48
+    },
+    "sourcePolicyChecks": [
+      "first increase from repeatable whole easy3 and retention from repeatable compatible whole4 are separate paths; both current response/runoff fit",
+      "single emerging4 is not repeatability; missing archived3 alone does not invalidate retained4",
+      "first easy whole run does not require previous whole-run success",
+      "P2 remains independent, E0 counted, no fabricated running permission",
+      "two DB source identity and authored palms-in/elevated handling/dose are distinguished",
+      "most recent compatible hip history governs; no first load or restoring newer unloading",
+      "five fitting stations/ten suitable DBs, familiar10s handling and20s all-clear reset match current draft",
+      "exact/current approval IDs and media unset; provisional fit70 is author judgment"
+    ],
+    "reviewedArtifactSha256": {
+      "docs/programming/athleticism_12_week/instructional_on_ramp/week_02/or_08.json": "dc6fd1adad7683afa6bcf51fbd01947b8a294846c6e7c28696e28cd67af2cbb1",
+      "docs/programming/athleticism_12_week/prescriptions/author_or_08.py": "5dd6c82b7de2f0fe41b562305da19bcdf75da981495dd0380cc9aa6797cc9a94",
+      "docs/programming/athleticism_12_week/instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "ae0f42be9fc37c10d2851914978623c98b67cc53dba26d55066508aa46a5c32d"
+    },
+    "scopeLimit": "Read-only comparison of saved source/context fields and selected age/mode/cap tables, not a replacement for full written/numeric audit or actual operational/participant verification. No live library approval claim."
+  }
+}

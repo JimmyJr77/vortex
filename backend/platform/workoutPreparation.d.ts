@@ -20,6 +20,7 @@ export interface ProgrammingPreparationProposal {
   readonly downstreamHash: string
   readonly summary: string
   readonly selections: readonly { readonly deliveryProfileId: string; readonly programmingMethodId: string;
+    readonly sourceBlockId?: string | null;
     readonly role: 'base' | 'position_rehearsal' | 'progressive_bridge'; readonly purposes: readonly VortexPreparationPurpose[];
     readonly addressesDemandIds: readonly string[]; readonly rationale: string }[]
   readonly watchPoints: readonly string[]

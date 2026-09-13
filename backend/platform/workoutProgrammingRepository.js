@@ -79,11 +79,16 @@ export async function persistWorkoutProgrammingRun({ pool, context, workflow: ra
 
 export async function loadWorkoutProgrammingRun(pool, context, id) {
   snapshotId(id)
-  return withCoachingLibrarySnapshot(pool, context, async (client, scope) => {
-    await authorize(client, scope)
-    const row = await loadRow(client, scope, id)
-    return row ? savedRecord(row) : null
-  })
+  return withCoachingLibrarySnapshot(pool, context, (client, scope) => loadWorkoutProgrammingRunInSnapshot(client, scope, id))
+}
+
+/** Reuse an existing validation/save transaction when verifying a modification parent. */
+export async function loadWorkoutProgrammingRunInSnapshot(client, context, id) {
+  snapshotId(id)
+  const scope = scopeFor(context)
+  await authorize(client, scope)
+  const row = await loadRow(client, scope, id)
+  return row ? savedRecord(row) : null
 }
 
 /** Reopening can verify unchanged evidence without another model call or changing the historical snapshot. */

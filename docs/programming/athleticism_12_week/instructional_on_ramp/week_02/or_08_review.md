@@ -1,0 +1,42 @@
+# OR-08 — written athletic design review
+
+**PASS for the written athletic lesson.** This review concerns the written athletic prescription. Current canonical approval, actual facility execution, athlete results and precise separate tumbling content remain unverified.
+
+The [coach session](or_08.md) and [structured prescription](or_08.json) make one running-effort decision on the actual retained corridor. The first modest increase requires repeatable easy running; directly repeatable modest running can instead be retained without reconstructing an older easy-run record. Both need suitable current response and runoff. The easy lesson and distinct short, walking or stationary choices remain available under their own prerequisites.
+
+## Findings and resolution
+
+| Review finding | Resolution |
+|---|---|
+| The prior easy-run lesson had a local teaching mapping but no complete proposed card. | The current complete-schema proposal records easy and modest nonmaximal contexts under the existing teaching key. It preserves null live IDs, unapproved status and separate source boundaries. It does not restore the archived maximal stride-out or become a flying sprint. |
+| An unconditional prior-easy requirement conflicted with retention of directly repeatable modest running. | First increase uses actual repeatable same-route2→3/3; retention uses actual repeatable same-route2→4/4. Both require current response/runoff fit. One emerging attempt or attendance proves neither repeatability. |
+| P2’s short route differed from the outline’s full-route rehearsal purpose. | An explicit amendment preserves the full base and40/140-second targets. P2 remains an independently selected15m short task or stationary alternative. One whole-corridor walk is counted E0; the first modest effort attempt is counted E1. |
+| A smaller P2 choice could be mistaken for missing or acquired main-running permission. | Preparation and main choices are independent. Walking, marching and short starts observe narrower tasks. Each main route retains its actual running, slowing, conduct and space prerequisites. |
+| Retained geometry does not prove that its runoff fits greater effort. | The coach must assess current suitability for the selected demand before release. If uncertain, hold/reduce or defer; do not add a screening sprint, force a stop at the marker or silently enlarge the route. |
+| Restoring an older DB record could undo actual OR-07 unloading. | The most recent actual compatible hip record governs. A more recent unloaded set stays unloaded during the new running-intent lesson; one first-DB lesson is not automatic familiar handling. Athletes who missed OR-07 do not inherit fictitious unloading. |
+| Familiar DB work changes equipment and observation needs. | Five individually fitting elevated pickup/parking stations and ten simultaneously suitable DBs are required, with two coaches directly observing two/three independently familiar athletes. Full10-second handling,90-second recovery and20-second between-wave reset stay counted. Unavailable resources select compatible unloading before pickup or deferral. |
+| Familiar DB mechanics needed to be self-contained. | The session specifies one DB per hand, palms inward, long arms, tall top start near the thighs, owned comfortable hinge range and no floor-touch target. |
+| Reference doses could restore recent smaller work. | Explicit1/2/3 knee/hip repetition ceilings and the low supporting-dose level remain selectable onD days. They preserve handling, cadence, setup, role count and recovery. No extra strength set or physical finisher is added. |
+| Stationary tasks have no lane return. | P1/P2/E0/E1 stationary work stays in inspected personal bays visible to the assigned coach. Any transfer back after P2 occurs within opening main setup. No zero-time central transfer or unobserved bay is assumed. |
+
+The independent programming critic returned scoped written PASS after verifying the two entry paths in the session/proposal/mapping and the self-contained DB execution/recording corrections. The librarian also completed the existing-schema/source comparison: one complete proposal,14 reference groups,11 reused keys and explicit profile/hip/preparation dose comparisons. Neither review supplies live approval.
+
+## Numeric audit
+
+The independently authored [checker](../../prescriptions/check_or_08.py) reports **6,528 enumerated timing scenarios,45 rejecting probes and zero errors** in [the saved results](or_08_check_results.json). These cover all three ages/four booking-D/L modes, independent P1/P2 choices, main routes and count ceilings, eligible hip identities and pull/brace replacements. The144 reduction packets include18 explicitly unavailable L-DB zero packets. All32 knee×hip×support-level selections are compared within each fixed-start scenario, covering208,896 named choices by a reduction proof rather than claiming separately expanded timelines. Every reduced dose retains handling, cadence, setup, side accounting and recovery; it cannot worsen the checked timing when releases remain fixed.
+
+The audit checks550 mixed P2 timing sequences across the four modes, including the3-second ordinary-return overlap that requires actual segregated-path spacing. Both proposed running profiles are directly compared with session age/mode counts, distances, phase allowances, effort and recovery, beyond fingerprint matching. Positive hypothetical evidence tests accept first easy-to-modest instruction, retained modest running without an older easy record, and a genuinely familiar DB set with a smaller actual history. They are synthetic logic checks, not real athlete observations.
+
+Adverse probes reject missing running repeatability/current runoff fit, one emerging attempt used as established modest running, P2 used as main-running permission, invented canonical IDs, lost runoff or side counts, forced pace, extra compressed work, unsafe modeled return/coach overlap, absent stationary views, incomplete DB equipment/handling, restored old load or repetitions and changed source-profile doses. The current selected route’s60/90-second recovery also remains protected before knee work.
+
+The long-run allowance is25s active/exit plus40s return and90s minimum recovery; the long walk is45+40s. Same-lane releases90s apart clear the longest85s combination, while alternating coach assignments retain60s between that coach’s active observations. Standard two-round recovery is445s for long running or425s for long walking. The latest standard long-walk return42:55 and compressed29:25 leave time before Strength. Familiar DB hip is at most26s including10s handling; its20s between-wave reset fits the60s compact pitch, with90s recovery preserved before the next role. These are conditional clocks, not proof of actual facility fit or unforced pace.
+
+[Nine progression rows](or_08_anchor_ledger.json) preserve set purposes, exact local mapping pointers and prior/current/next links. The [workload ledger](or_08_workload_ledger.json) separates planned run targets, runoff, whole-route walks, P2 actions, handling and strength from unknown actual contacts/load/competency. The10.3MB schema-2 ledger retains all selectable dose options and passes exact serialize/parse/resolve equality for all6,528 timing scenarios. Use `check_or_08.resolve_workload_scenarios` before reading pooled values; `clock_reference_doses` are upper timing envelopes, not permission to restore recent smaller work. Alternatives are never summed as one workout.
+
+## Carryover and remaining limits
+
+OR-12 retains the actual route and output while teaching athletes to request and use recovery, with coach release authority preserved. OR-16 observes the same actual task for comparison. A short acceleration, walk, stationary pattern, chosen effort number or completed schedule supplies no maximal-speed result.
+
+Five strength roles remain: bilateral knee, hip, push, pull and brace. The whole-corridor walk, P2 choice, running targets, runoff and returns are separately accounted for; unknown actual foot contacts remain unknown. The final window is recovery, reflection, recording and transfer with zero extra physical sets.
+
+The separate30-minute Body Control/Tumbling handoff shares actual lower-limb, coordination, support, grip and trunk response. Its exact content is still unresolved. Full Week2 review follows OR-10; this daily review does not complete the week or the60-session main block plus separate20-session on-ramp.

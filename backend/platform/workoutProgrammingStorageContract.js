@@ -34,10 +34,16 @@ export function parseProgrammingWorkflowSnapshot(raw) {
   if (!sessionIntent.scope || draft.intentId !== sessionIntent.intentId || qa.draftId !== draft.draftId
     || draft.requestHash !== sessionIntent.requestHash || !same(draft.request, sessionIntent.request)
     || programmingValueHash(draft.request) !== draft.requestHash || value.repairPasses > value.maxRepairPasses) invalid('Snapshot identities or immutable coach request disagree')
+  if (draft.request.mode === 'modify_existing') {
+    const parent = sessionIntent.modification
+    if (!parent || parent.requestHash !== draft.requestHash || parent.sourceWorkoutId !== draft.request.modification.workoutId
+      || parent.sourceRevision !== draft.request.modification.expectedRevision || parent.sourceRevision === draft.request.revision) invalid('Modification lineage is not bound to the coach request')
+  } else if (sessionIntent.modification != null) invalid('A new session cannot claim modification lineage')
   for (const validation of [qa.validation, qa.finalValidation].filter(Boolean)) {
     if (validation.draftId !== draft.draftId || validation.reviewHash !== programmingValueHash(validation.reconstructed)
       || validation.reconstructed.intentId !== sessionIntent.intentId || !same(validation.reconstructed.scope, sessionIntent.scope)
-      || !same(validation.reconstructed.request, draft.request)) invalid('QA evidence is not bound to this session and facility')
+      || !same(validation.reconstructed.request, draft.request)
+      || !same(validation.reconstructed.modification ?? null, sessionIntent.modification ?? null)) invalid('QA evidence is not bound to this session and facility')
   }
   if (qa.reviewHash !== qa.validation?.reviewHash) invalid('QA review hash differs from its deterministic evidence')
   if (qa.critic) programmingCriticContract(qa.validation).parseOutput(qa.critic)
@@ -52,6 +58,7 @@ export function createProgrammingWorkoutEnvelope(workflow, freshValidation) {
   const source = parseProgrammingWorkflowSnapshot(workflow)
   if (freshValidation.draftId !== source.draft.draftId || freshValidation.reviewHash !== programmingValueHash(freshValidation.reconstructed)
     || !same(freshValidation.reconstructed.scope, source.sessionIntent.scope) || !same(freshValidation.reconstructed.request, source.draft.request)
+    || !same(freshValidation.reconstructed.modification ?? null, source.sessionIntent.modification ?? null)
     || !['PASS', 'REVISE'].includes(freshValidation.status) || (freshValidation.status === 'PASS') !== (freshValidation.findings.length === 0)) {
     invalid('Fresh validation is not bound to the saved session evidence')
   }

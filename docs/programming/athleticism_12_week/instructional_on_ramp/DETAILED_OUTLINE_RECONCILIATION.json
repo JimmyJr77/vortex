@@ -46,6 +46,109 @@
       "detailed_evidence": "instructional_on_ramp/week_02/or_06.json"
     },
     {
+      "id": "OR-07",
+      "state": "implemented_and_individually_reviewed",
+      "affected_fields": [
+        "preparation.targeted_drill_purposes",
+        "provisional_anchors_methods",
+        "progression_decision",
+        "prerequisites",
+        "delivery_geometry"
+      ],
+      "reason": "The first complete paused exit needs counted teaching and a protected diagonal exit area. It cannot inherit either a terminal-stop exercise identity or the old three-lane preparation return model, and it must not be assumed to fit P2.",
+      "current_decision": "Keep the full instructional preparation base and exactly two90-second targets: P1 actual retained supported stance/bilateral finish, or independently eligible quiet standing; P2 one retained straight walking stop, or its distinct stationary alternative. Teach the first early-announced45-degree2m ordinary walking exit in counted E1 after a complete balanced2-second stop. No assessed exit occurs in P2. E1 requires actual control of the corresponding approach/stop, without a prior perfect whole exit. First jogging stop and first exit are separate learning routes.",
+      "preparation_contract": {
+        "target_total_s": 180,
+        "P1_s": 90,
+        "P2_s": 90,
+        "P2_assessed_exits": 0,
+        "first_exit_is_counted_E1": true,
+        "base_unchanged": true
+      },
+      "delivery_contract": {
+        "main_active_athletes": 1,
+        "protected_main_area_m": [
+          6,
+          15
+        ],
+        "adjacent_approach_lanes_closed": 2,
+        "P2_independent_returns": 3,
+        "all_P2_returns_close_before_main": true,
+        "main_independent_returns": 2,
+        "reconfiguration_within_main_opening_setup_s": 300,
+        "main_active_envelope_s": 20,
+        "main_return_envelope_s": 45,
+        "release_pitch_s": 25,
+        "markers_prepositioned": true,
+        "actual_facility_staffing_and_pace_verified": false,
+        "stationary_alternatives": "Own inspected personal preparation bay; transfer within opening setup if needed; no central staging/return. Direct view from Coach1 pad required; no concurrent main action. Actual fit remains unverified."
+      },
+      "progression_contract": "Retain actual approach, gradual braking, support, depth and smaller recent stop opportunities/stance holds. Choose and record first exit direction before release; counts are direction-specific prefixes, with no repayment attempts or automatic both-side pass. Today uses one unloaded hinge set even after actual OR06 DB work, explicitly a deliberate unloading; preserve actual1/2/3-repetition ceilings. Do not shorten the pause, speed up the approach/exit, remove stance support or add strength load today.",
+      "next_evidence_rule": "OR11 may change the pause only after actual repeatability in the relevant direction at retained approach/angle; OR13 retains separate movement and cue gates. Planned attendance, terminal stopping, P2 side clearance and supported stance do not grant an exit or reactive-cut competency.",
+      "local_unapproved_teaching_proposal": "prescriptions/proposals/or07_paused_exit_teaching_candidate.json",
+      "detailed_evidence": "instructional_on_ramp/week_02/or_07.json"
+    },
+    {
+      "id": "OR-08",
+      "state": "implemented_and_individually_reviewed",
+      "affected_fields": [
+        "preparation.targeted_drill_purposes",
+        "provisional_anchors_methods",
+        "progression_decision",
+        "prerequisites"
+      ],
+      "reason": "The retained short15m preparation task cannot be described as a complete35m progressive run. Count full-route orientation and the first modest effort change inside the main block; preserve actual recent strength/history while introducing that effort decision.",
+      "current_decision": "Full instructional preparation base plus40s P1 basic rhythm and140s P2 independently selected retained short start/runout, walking or stationary task. No4/10 effort or full-route running is assigned in P2. One counted E0 whole-corridor walk/eligible standing orientation precedes E1. The first2→4/4 run requires actual repeatable prior2→3/3 long running and current runoff fit, without a prior perfect4/10 attempt. Retained/first easy running, short acceleration, walking and stationary alternatives remain separate. A directly repeatable actual same-route2→4/4 record may instead support retention without reconstructing an older easy-run record. Both paths require suitable current response and runoff fit; record first increase versus hold, with no repeatability inferred from one emerging attempt.",
+      "preparation_contract": {
+        "target_total_s": 180,
+        "P1_s": 40,
+        "P2_s": 140,
+        "P2_full_long_runs": 0,
+        "P2_new_intent_attempts": 0,
+        "first_modest_intent_is_counted_E1": true,
+        "E0_whole_route_walk_is_counted": true,
+        "base_unchanged": true
+      },
+      "running_contract": {
+        "long_protected_m": 35,
+        "build_m": [
+          0,
+          10
+        ],
+        "rhythm_m": [
+          10,
+          20
+        ],
+        "runoff_m": [
+          20,
+          35
+        ],
+        "easy_effort_build": [
+          2,
+          3
+        ],
+        "easy_effort_rhythm": 3,
+        "modest_effort_build": [
+          2,
+          4
+        ],
+        "modest_effort_rhythm": 4,
+        "requires_prior_successful_modest_attempt": false,
+        "actual_runoff_fit_for_selected_demand_required": true,
+        "segment_seconds_are_required_pace": false,
+        "automatic_maximal_speed_pass": false,
+        "modest_entry_paths": {
+          "first_increase": "actual repeatable easy2→3/3 long run",
+          "retention": "actual repeatable same-route2→4/4, no reconstructed older easy record",
+          "both": "current response and runoff fit independently required; record chosen basis"
+        }
+      },
+      "strength_contract": "Five familiar roles, one set each. Explicit1/2/3 knee and hip caps and low supporting-dose level retain actual recent reductions. Familiar two-DB hip is D-only and requires the most recent actual compatible loaded record, full10s familiar handling and90s recovery. One first-DB lesson is not automatic familiarity. Actual OR07 unloading is not silently reversed. Five suitable stations/ten actual fitting DBs/two-coach direct views are conditional; unavailable resources mean deliberately unload before pickup or defer.",
+      "next_evidence_rule": "OR12 retains actual route/output while changing responsibility for recovery/return under coach release; OR16 observes the same actual task. Walking, short starts, cue values and attendance do not supply unobserved long-run or maximal-velocity competency.",
+      "local_unapproved_teaching_proposal": "prescriptions/proposals/or08_progressive_run_teaching_candidate.json",
+      "detailed_evidence": "instructional_on_ramp/week_02/or_08.json"
+    },
+    {
       "id": "OR-15",
       "state": "required_for_future_individual_authoring_not_yet_prescribed",
       "affected_fields": [
@@ -75,7 +178,7 @@
     "OR-10": "Retain actual start/runoff and independently map/teach front-held load pickup/set-down before a goblet progression; bodyweight squat alone is not implement-handling evidence."
   },
   "not_completed": [
-    "OR-07 through OR-20 detailed workouts",
+    "OR-09 through OR-20 detailed workouts",
     "actual athlete outcomes",
     "current canonical or facility approvals",
     "precise separate tumbling content"

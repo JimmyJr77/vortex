@@ -6,6 +6,8 @@ import pg from 'pg'
 import { persistWorkoutProgrammingRun, loadWorkoutProgrammingRun, listWorkoutProgrammingRuns, revalidateWorkoutProgrammingRun } from '../workoutProgrammingRepository.js'
 import { storageFixtures, storageSourcePool } from './workoutProgrammingStorageFixtures.js'
 import { SCOPE, uuid } from './workoutProgrammingLibrarianFixtures.js'
+import { modificationFixtures, modificationRequest } from './workoutProgrammingModificationFixtures.js'
+import { generateWorkoutProgramming } from '../workoutProgrammingWorkflow.js'
 const connectionString = process.env.WORKOUT_PROGRAMMING_TEST_DATABASE_URL
 
 test('programming sessions persist in the actual canonical workout schema with atomic scoped evidence', { skip: !connectionString }, async (t) => {
@@ -87,6 +89,31 @@ test('programming sessions persist in the actual canonical workout schema with a
       } }
       await assert.rejects(save(workflow, { pool: cancelPool, signal: controller.signal }), { code: 'canceled' })
       assert.equal((await database.query('SELECT id FROM coaching.generated_workout_v1 WHERE id=$1', [workflow.runId])).rows.length, 0)
+    })
+    await t.test('modified sessions verify their actual parent inside save and read transactions while preserving immutable lineage', async () => {
+      const fixture = await modificationFixtures()
+      const coach = { facilityId: '9', userId: '11' }
+      const coachPool = storageSourcePool(database, { ...fixtures, pool: () => fixtures.pool({ userId: '11' }) })
+      const rawRequest = modificationRequest(saved)
+      const sourceBlock = saved.workout.workflow.draft.activities.find((activity) => activity.componentKey === 'strength')
+      rawRequest.modification.blockEdits = [{ blockId: sourceBlock.activityId, dose: { sets: 2 } }]
+      const workflow = await generateWorkoutProgramming({ pool: coachPool, context: coach, registry: fixture.registry, rawRequest })
+      assert.equal(workflow.status, 'QA_PASSED', JSON.stringify(workflow.qa.findings.map((entry) => entry.code)))
+      const start = coachPool.calls.length
+      const revised = await persistWorkoutProgrammingRun({ pool: coachPool, context: coach, workflow })
+      const writes = coachPool.calls.slice(start)
+      assert.equal(revised.createdBy, '11')
+      assert.equal(revised.workout.validatedWorkout, true)
+      assert.equal(writes.filter((entry) => entry.sql.startsWith('BEGIN')).length, 1)
+      assert.ok(writes.some((entry) => entry.sql.includes('programming_snapshot_read') && entry.values[0] === saved.persistedWorkoutId))
+      assert.equal(revised.workout.workflow.sessionIntent.modification.sourceContentHash, saved.workout.contentHash)
+      assert.deepEqual((await loadWorkoutProgrammingRun(pool, SCOPE, saved.persistedWorkoutId)).workout, saved.workout)
+      const validationStart = coachPool.calls.length
+      assert.equal((await revalidateWorkoutProgrammingRun(coachPool, coach, revised.persistedWorkoutId)).validatedWorkout, true)
+      assert.equal(coachPool.calls.slice(validationStart).filter((entry) => entry.sql.startsWith('BEGIN')).length, 1)
+      await assert.rejects(generateWorkoutProgramming({ pool: coachPool, context: { facilityId: '10', userId: '8' }, registry: fixture.registry, rawRequest }), { code: 'source_workout_unavailable' })
+      await assert.rejects(generateWorkoutProgramming({ pool: coachPool, context: coach, registry: fixture.registry,
+        rawRequest: { ...rawRequest, modification: { ...rawRequest.modification, expectedRevision: 'stale' } } }), { code: 'source_workout_revision_conflict' })
     })
     await t.test('fresh revalidation uses one read-only snapshot and preserves the saved audit when sources change', async () => {
       const start = pool.calls.length

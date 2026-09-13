@@ -3,11 +3,13 @@ import { programmingResourceRequests } from './workoutProgrammingDirector.js'
 import { loadWorkoutProgrammingMaterials } from './workoutProgrammingLibrarians.js'
 import { programmingCandidateMaterials } from './workoutProgrammingBuilder.js'
 import { filterProgrammingCandidateEligibility } from './workoutProgrammingEligibility.js'
+import { loadWorkoutProgrammingModification, modificationResourceSearches } from './workoutProgrammingModification.js'
 
 /** Human-readable canonical choices; the model and coach still cannot authorize missing evidence or new cards. */
 export async function loadWorkoutProgrammingChoices(pool, context, rawRequest) {
   const request = normalizeCoachWorkoutRequest(rawRequest)
-  const materials = await loadWorkoutProgrammingMaterials(pool, context, programmingResourceRequests(request, 100), { athleteRequest: request })
+  const modification = await loadWorkoutProgrammingModification({ pool, context, request })
+  const materials = await loadWorkoutProgrammingMaterials(pool, context, modificationResourceSearches(programmingResourceRequests(request, 100), modification), { athleteRequest: request })
   const candidates = programmingCandidateMaterials(materials)
   const eligibility = filterProgrammingCandidateEligibility({ groups: candidates, request, athleteEvidence: materials.athleteEvidence })
   return immutableProgrammingValue({ requestHash: programmingValueHash(request), release: materials.resources[0]?.libraryRelease ?? null,

@@ -37,7 +37,7 @@ export interface ProgrammingBuilderProposal {
   readonly summary: string
   readonly watchPoints: readonly string[]
   readonly components: readonly { readonly key: SessionComponentKey; readonly reserve: ProgrammingReserve;
-    readonly selections: readonly { readonly deliveryProfileId: string; readonly programmingMethodId: string; readonly rationale: string }[] }[]
+    readonly selections: readonly { readonly deliveryProfileId: string; readonly programmingMethodId: string; readonly rationale: string; readonly sourceBlockId?: string | null }[] }[]
 }
 export interface ProgrammingBuilderRevision {
   readonly previousDraft: WorkoutProgrammingDraft

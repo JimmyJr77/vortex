@@ -85,7 +85,10 @@ export interface CoachWorkoutRequest {
   readonly preferredExercises?: readonly CanonicalExerciseReference[]
   readonly excludedExerciseCardIds?: readonly string[]
   readonly consultants?: readonly string[]
-  readonly modification?: { readonly workoutId: string; readonly expectedRevision: string } | null
+  readonly modification?: { readonly workoutId: string; readonly expectedRevision: string;
+    readonly regenerateComponentKeys?: readonly SessionComponentKey[] | null;
+    readonly blockEdits?: readonly { readonly blockId: string; readonly exercise?: CanonicalExerciseReference; readonly programmingMethodId?: string;
+      readonly dose?: { readonly sets?: number; readonly reps?: number | null; readonly workSeconds?: number; readonly restSeconds?: number } }[] } | null
   readonly randomSeed?: string
 }
 export interface NormalizedProgrammingComponent extends Required<Omit<ProgrammingComponentControls, 'priorities'>> {

@@ -11,6 +11,7 @@ const COMMON_INSTRUCTIONS =
 export const PROGRAMMING_ROLE_INSTRUCTIONS = Object.freeze({
   director: 'Act as the Vortex Director of Performance. Resolve session intent and complementary component purposes. '
     + 'Recommend only candidate IDs supplied for that component. Honor fixed budgets and locks. Consultant advice is optional and subordinate to Vortex. '
+    + 'For Modify Existing, use the verified parent context to interpret the coaching instruction within the revised structured controls. Preserve earlier work and account for downstream effects. '
     + 'Your output is a session-intent proposal; the deterministic builder will prescribe, schedule and validate the complete workout.',
   athlete_development: 'Act as the Athlete Development Agent. Assess the supplied cohorts, training age, competency and readiness evidence. '
     + 'Use athleteEvidence source observations and timestamps, including recorded adjacent sessions, to inform development and recovery recommendations. '
@@ -24,12 +25,15 @@ export const PROGRAMMING_ROLE_INSTRUCTIONS = Object.freeze({
     + 'Account for earlier load when planning Strength and Capacity and preserve later Body Control readiness. The server owns doses, time and resources. '
     + 'Explain a purposeful use of each component remainder (recovery, coaching or readiness); do not invent exercise repetitions to fill time. '
     + 'When revision feedback is supplied, address its concrete findings. Preserve the exact previous component objects outside mutableComponentKeys. '
+    + 'When modification context is supplied, retain sourceBlockId for existing blocks, including replacements; use null only for additional work. '
+    + 'Implement explicit block edits and retain every locked field. Copy preserved component objects from modification.previousProposal exactly. '
     + 'Changes in earlier work must inform the permitted later components; original coach locks and directed choices still apply.',
   prepare_access: 'Act as the Prepare & Access Specialist. Use the supplied shared Vortex framework and the actual downstream exercise doses. '
     + 'Select a familiar base plus exactly two specific tasks: a position/mechanics rehearsal and a progressive bridge to the selected explosive work. '
     + 'Cover Raise, Mobilize, Activate, Integrate and Potentiate Bridge as purposes that may share drills. '
     + 'Use supplied canonical exercise/method pairs and only metadata-supported downstream demand IDs. Retain the supplied downstream hash. '
     + 'Preparation should raise readiness without exhausting athletes. Do not diagnose or certify readiness. '
+    + 'When modification context is supplied, retain sourceBlockId for retained or explicitly replaced source blocks; use null only for additional work. Honor its block edits and locks while updating demand attribution. '
     + 'When revision feedback is supplied, address it using current downstream demands; never reuse a stale downstream hash.',
   programming_critic: 'Act as the independent Vortex Programming Critic / QA Coach. Assess the complete reconstructed session against every supplied review area. '
     + 'Return PASS only when every area passes. Otherwise return REVISE with specific, actionable findings routed to the appropriate staff role or coach. '

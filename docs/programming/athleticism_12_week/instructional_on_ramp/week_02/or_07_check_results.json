@@ -1,0 +1,350 @@
+{
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "checked_at_utc": "2026-09-13T06:10:12.193968+00:00",
+  "session": "OR-07",
+  "scenario_count": 4320,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "wrong inherited week",
+      "rejected": true,
+      "sample_findings": [
+        "current OR07 week/day/phase metadata"
+      ]
+    },
+    {
+      "case": "missing age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: all three ages"
+      ]
+    },
+    {
+      "case": "missing purpose",
+      "rejected": true,
+      "sample_findings": [
+        "E1: missing set_purpose"
+      ]
+    },
+    {
+      "case": "circular prior complete exit",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit: corresponding-stop gate without circular complete-exit gate"
+      ]
+    },
+    {
+      "case": "new jog stop plus new exit",
+      "rejected": true,
+      "sample_findings": [
+        "jog_exit: no simultaneous new stop/exit or false P2 permission"
+      ]
+    },
+    {
+      "case": "missing corresponding stop gate",
+      "rejected": true,
+      "sample_findings": [
+        "jog_exit: corresponding-stop gate without circular complete-exit gate"
+      ]
+    },
+    {
+      "case": "P2 falsely proves redirect",
+      "rejected": true,
+      "sample_findings": [
+        "route policy P2_ordinary_side_gate_is_redirect_evidence"
+      ]
+    },
+    {
+      "case": "automatic both direction pass",
+      "rejected": true,
+      "sample_findings": [
+        "route policy automatic_both_direction_pass"
+      ]
+    },
+    {
+      "case": "extra compressed L exit",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit/12-14/compressed_L/E1: exact opportunity ceiling",
+        "walk_exit/compressed_L: actual opportunity direction order"
+      ]
+    },
+    {
+      "case": "comp L false other-side opportunity",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit/compressed_L: actual opportunity direction order"
+      ]
+    },
+    {
+      "case": "omitted balanced pause",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit/12-14/compressed_D/E1: pause, exit and ordinary clearance distinct"
+      ]
+    },
+    {
+      "case": "extra distance after opening steps",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit/12-14/compressed_D/E1: pause, exit and ordinary clearance distinct"
+      ]
+    },
+    {
+      "case": "jump contacts hidden as zero jog contacts",
+      "rejected": true,
+      "sample_findings": [
+        "jog_exit/12-14/compressed_D/E1: actual walking/jog/braking contacts unknown"
+      ]
+    },
+    {
+      "case": "missing main exit-clearance phase",
+      "rejected": true,
+      "sample_findings": [
+        "jog_exit/12-14/compressed_D/E1: phase/rep/active sum",
+        "jog_exit/12-14/compressed_D/E1: exact declared approach/hold/exit/reset phases"
+      ]
+    },
+    {
+      "case": "shortened full return",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit/12-14/compressed_D/E1: held finish and full return"
+      ]
+    },
+    {
+      "case": "immediate-cut source substitution",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit: separate source identities"
+      ]
+    },
+    {
+      "case": "P1 extra unknown split entry",
+      "rejected": true,
+      "sample_findings": [
+        "learn_high/default/12-14/compressed_D/P1: counted entry per lead",
+        "learn_high/1/12-14/compressed_D/P1: cap preserves split_entries_per_lead"
+      ]
+    },
+    {
+      "case": "hold cap inflates side hold",
+      "rejected": true,
+      "sample_findings": [
+        "high/1/12-14/compressed_D/S1: one combined set and exact both-lead holds"
+      ]
+    },
+    {
+      "case": "hold cap omits side change",
+      "rejected": true,
+      "sample_findings": [
+        "midrange/1/12-14/compressed_D/S1: two holds/side change/setup complete",
+        "midrange/1/12-14/compressed_D/S1: cap preserves side_change_s"
+      ]
+    },
+    {
+      "case": "hip cap adds repetition",
+      "rejected": true,
+      "sample_findings": [
+        "hip cap exact min/reference"
+      ]
+    },
+    {
+      "case": "second hip set",
+      "rejected": true,
+      "sample_findings": [
+        "hip cap preserves one unloaded set/mechanics/rest"
+      ]
+    },
+    {
+      "case": "P2 three returns silently become two",
+      "rejected": true,
+      "sample_findings": [
+        "three separate preparation paths close before two-path main"
+      ]
+    },
+    {
+      "case": "main opens before preparation returns close",
+      "rejected": true,
+      "sample_findings": [
+        "three separate preparation paths close before two-path main"
+      ]
+    },
+    {
+      "case": "simultaneous fan use",
+      "rejected": true,
+      "sample_findings": [
+        "single shared-fan25-second individual pitch"
+      ]
+    },
+    {
+      "case": "zero coach gap",
+      "rejected": true,
+      "sample_findings": [
+        "single shared-fan25-second individual pitch"
+      ]
+    },
+    {
+      "case": "return bank merge",
+      "rejected": true,
+      "sample_findings": [
+        "separate banks and bounded rear staging"
+      ]
+    },
+    {
+      "case": "staging crosses live start",
+      "rejected": true,
+      "sample_findings": [
+        "separate banks and bounded rear staging"
+      ]
+    },
+    {
+      "case": "coach pad placed in return",
+      "rejected": true,
+      "sample_findings": [
+        "coach pad outside fan and return strip"
+      ]
+    },
+    {
+      "case": "understated outward clearance",
+      "rejected": true,
+      "sample_findings": [
+        "actual constrained exit/outward distance geometry"
+      ]
+    },
+    {
+      "case": "unverified markers move during gap",
+      "rejected": true,
+      "sample_findings": [
+        "no rushed marker relocation"
+      ]
+    },
+    {
+      "case": "one row side removed",
+      "rejected": true,
+      "sample_findings": [
+        "S4/12-14/compressed_D: both-side arithmetic"
+      ]
+    },
+    {
+      "case": "stationary athlete silently stages in main",
+      "rejected": true,
+      "sample_findings": [
+        "stationary route no central staging/return; same numbered sole action"
+      ]
+    },
+    {
+      "case": "stationary personal bay lacks required direct view",
+      "rejected": true,
+      "sample_findings": [
+        "stationary personal bay, initial transfer and actual direct view condition"
+      ]
+    },
+    {
+      "case": "stationary transfer falsely completed",
+      "rejected": true,
+      "sample_findings": [
+        "stationary personal bay, initial transfer and actual direct view condition"
+      ]
+    },
+    {
+      "case": "new strength load",
+      "rejected": true,
+      "sample_findings": [
+        "route policy new_strength_load_today"
+      ]
+    },
+    {
+      "case": "unknown actual component evidence",
+      "rejected": true
+    },
+    {
+      "case": "automatic prior-low hip increase",
+      "rejected": true
+    },
+    {
+      "case": "automatic prior-low hold increase",
+      "rejected": true
+    },
+    {
+      "case": "unknown hip defaults to four",
+      "rejected": true
+    },
+    {
+      "case": "P2 walk cannot supply actual jog stop",
+      "rejected": true
+    },
+    {
+      "case": "L jog despite external evidence",
+      "rejected": true
+    },
+    {
+      "case": "unqualified suspension substitute despite bench problem",
+      "rejected": true
+    },
+    {
+      "case": "unknown supported breathing substitute",
+      "rejected": true
+    },
+    {
+      "case": "invented canonical source ID",
+      "rejected": true,
+      "sample_findings": [
+        "PAUSED-EXIT-TEACH: no fabricated canonical ID/approval"
+      ]
+    }
+  ],
+  "synthetic_positive_evidence_check": true,
+  "sha256": {
+    "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",
+    "instructional_on_ramp/week_02/or_07.md": "eef27f40ff7cc8af9d0eaaccd57edde48425598fead182f7a1b50d80fd19159c",
+    "prescriptions/author_or_07.py": "b3081e6a4eb2452e2548667a078ae2e670341326123519a1cdb532158884e628",
+    "prescriptions/check_or_07.py": "d307a91781afe458fde23ed88034fc793835cc561b342278dee0b6198820cc40",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "f490d974adf5256996c88420c76acc10f097177c948394da4b0f720ad4f61769",
+    "instructional_on_ramp/week_01/or_03.json": "cab4c3f62ab25e0c0605ee24b785cb947e40c273afd50e2324a092f319bf6683",
+    "instructional_on_ramp/week_02/or_06.json": "5c24d3a07773801772865b79f6bb028a00bbd88cdc3fab1e0061f217353497c1",
+    "prescriptions/proposals/or07_paused_exit_teaching_candidate.json": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/OR07_LIBRARY_MAPPING.md": "8676c489bef8e48a662424654b939d4afaaac24ef38e07fbf38197fbf01e1467"
+  },
+  "coverage": {
+    "enumerated_clock_cohorts": 4320,
+    "independently_checked_reduction_packets": 252,
+    "cap_pairings_checked_per_cohort": 16,
+    "factorized_named_cap_combinations_covered": 69120,
+    "proof": "All hold/hip cap packets are checked for exact min(reference,cap), unchanged entries/sides/setup/rest and no duration increase. Every16-option pairing is also compared within every enumerated fixed-start cohort. Therefore no such cap can worsen an action/return/station overlap or same-athlete rest; reduced workload counts come from the complete exported dose options. These are not16 independently simulated expanded timelines.",
+    "return_side_proof": "All-returner interval occupancy is at most2. Any left/right assignment partitions that set, so neither separate path exceeds2; no need to enumerate every bank assignment. This proves schedule capacity only, not actual spacing/supervision."
+  },
+  "limits": [
+    "Clock-reference holds/hip reps are upper planning envelopes, never a prescribed increase over actual history",
+    "Main exit directions are planned opportunities; actual stop/pause/exit/contact results remain null",
+    "A remaining opportunity may be simplified or omitted after a fault; mixed actual outcomes are not fabricated or separately enumerated",
+    "Full fixed-start geometry, actual path lengths, unforced pacing and coach sightlines still require operating verification",
+    "No source approval, athlete result or exact separate tumbling is supplied"
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 4320,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "4283f2fc1d10f9fb96731eed90d196cea86189558e55e0a1dd2b2d6689d877bd",
+    "resolved_scenarios_canonical_sha256": "4283f2fc1d10f9fb96731eed90d196cea86189558e55e0a1dd2b2d6689d877bd",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 8088662,
+    "unpooled_scenarios_canonical_bytes": 102053809,
+    "pooled_value_count": 1339,
+    "common_field_count": 22,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+  }
+}

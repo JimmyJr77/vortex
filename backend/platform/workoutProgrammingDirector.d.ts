@@ -3,6 +3,7 @@ import type { DeliveryPhaseKey, LibraryReadPool, ProgrammingResourceSearchResult
 import type { NormalizedCoachWorkoutRequest } from './workoutProgrammingRequest.js'
 import type { ProgrammingAthleteEvidence } from './workoutAthleteEvidence.js'
 import type { ProgrammingStaffRegistry, ProgrammingStaffRunOptions, ProgrammingStaffRun, ProgrammingStaffTrace, ProgrammingSourceReference } from './programmingStaffRuntime.js'
+import type { ProgrammingModificationContext } from './workoutProgrammingModification.js'
 
 export const PROGRAMMING_DIRECTOR_VERSION: '1.0.0'
 export const COMPONENT_DISCOVERY_PHASES: Readonly<Record<SessionComponentKey, readonly DeliveryPhaseKey[]>>
@@ -36,6 +37,7 @@ export interface WorkoutProgrammingSessionIntent {
   readonly proposal: ProgrammingDirectorProposal
   readonly athleteAdvice: AthleteDevelopmentAdvice | null
   readonly athleteEvidence: ProgrammingAthleteEvidence
+  readonly modification?: ProgrammingModificationContext
   readonly consultantAdvice: readonly { readonly capabilityId: string; readonly sourceReferences: readonly ProgrammingSourceReference[]; readonly advice: MethodologyConsultantAdvice }[]
   readonly decisionSource: 'deterministic_draft' | 'vortex_director'
   readonly status: 'NEEDS_COACH_REVIEW' | 'INTENT_READY'
@@ -46,7 +48,7 @@ export interface WorkoutProgrammingSessionIntent {
   readonly creatorAuthorized: false
   readonly trace: ProgrammingStaffTrace
 }
-/** Read-only intent stage. Modify Existing awaits a persisted component-workout adapter. */
+/** Read-only intent stage. Modify Existing reloads and verifies its immutable database parent. */
 export function directWorkoutProgramming(args: {
   readonly pool: LibraryReadPool
   readonly context: { readonly facilityId: number | string; readonly userId: number | string }
