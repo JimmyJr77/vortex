@@ -218,4 +218,10 @@ Tests grow with each increment; do not add a full-system facade ahead of the und
 
 `backend/platform/sessionComponentContract.js` and its adjacent declaration expose a **planning boundary only**. It validates integer seconds within a booked duration and component equipment inheritance. It does not establish exercise eligibility, lane throughput, coach ratios, completed-session safety, or successful QA. Unallocated seconds remain explicit reserve; incomplete component lists are accepted as planning input and must be resolved by the later Director before finalization. Separate tumbling must be counted in the supplied booked duration if included in the plan.
 
-The next implementation step is the shared librarian extraction with behavioral parity tests. Do not wire this planning object directly into `generateCanonicalWorkout`: its current validator still requires seven canonical phases. The component-aware builder and final validator must land before an endpoint advertises five-component generation.
+The next implementation step is the shared librarian extraction with behavioral parity tests. Do not wire this planning object directly into `generateCanonicalWorkout`: its planner and validator still use the legacy seven-phase vocabulary and order. The component-aware builder and final validator must land before an endpoint advertises five-component generation.
+
+Verification for this increment: 51 Node tests passed across `sessionComponentContract`, `canonicalWorkoutContract`, `canonicalDeterministicEngine`, `phaseArchitect`, and `taxonomyV2`. This includes 11 new component-contract tests and the existing 7,000-card deterministic generation scenario. JavaScript syntax, declaration checking and whitespace checks also pass. The copied specification matches the supplied file byte for byte. No database migrations, publication actions or feature-flag changes were performed.
+
+```sh
+node --test backend/platform/__tests__/sessionComponentContract.test.js backend/platform/__tests__/canonicalWorkoutContract.test.js backend/platform/__tests__/canonicalDeterministicEngine.test.js backend/platform/__tests__/phaseArchitect.test.js backend/platform/__tests__/taxonomyV2.test.js
+```
