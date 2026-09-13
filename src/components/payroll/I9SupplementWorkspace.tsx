@@ -1,5 +1,5 @@
-import {useRef,useState} from 'react'
-import {workforceApi,type I9SupplementPreview} from '../../utils/workforceApi'
+import {useEffect,useRef,useState} from 'react'
+import {workforceApi,type I9SupplementPreview,type I9SupplementDraftState} from '../../utils/workforceApi'
 import I9SupplementReviewPages from './I9SupplementReviewPages'
 import I9SupplementCopies from './I9SupplementCopies'
 const input='mt-1 block w-full min-w-0 rounded border border-slate-300 p-2'
@@ -7,10 +7,25 @@ const finalChecks=['attestationRead','signingAsExaminer','reviewedAllPages','rep
 function Field({label,value,onChange,type='text',required=false}:{label:string;value:string;onChange:(value:string)=>void;type?:string;required?:boolean}){return <label className="block">{label}{type==='textarea'?<textarea aria-label={label} className={input} value={value} required={required} onChange={e=>onChange(e.target.value)}/>:<input aria-label={label} className={input} type={type} value={value} required={required} onChange={e=>onChange(e.target.value)}/>}</label>}
 export default function I9SupplementWorkspace({employeeId,taskId,signatureId,dueOn,onUpdated}:{employeeId:number;taskId:string|number;signatureId:string|number;dueOn:string;onUpdated:()=>void}){
  const [opened,setOpened]=useState(false),[form,setForm]=useState<Record<string,string>>({}),[facts,setFacts]=useState<Record<string,string>>({}),[checks,setChecks]=useState<Record<string,boolean>>({}),[signature,setSignature]=useState(''),[copyIds,setCopyIds]=useState<string[]>([]),[preview,setPreview]=useState<I9SupplementPreview|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[receipt,setReceipt]=useState('')
+ const [saved,setSaved]=useState<I9SupplementDraftState|null>(null),[draftReload,setDraftReload]=useState(0),[notice,setNotice]=useState(''),[dirty,setDirty]=useState(false)
+ const savePending=useRef<{payload:string;key:string}|null>(null)
+ useEffect(()=>{
+  if(!opened)return
+  let live=true;setBusy(true);setSaved(null);setError('');setNotice('')
+  void workforceApi.supplementDraft(employeeId,taskId).then(value=>{if(!live)return;setSaved(value);setDirty(false);setForm(value.draft?.form||{});setFacts(value.draft?.facts||{});setPreview(null);setChecks({});setSignature('');setCopyIds([]);savePending.current=null}).catch(e=>{if(live)setError(e.message)}).finally(()=>{if(live)setBusy(false)})
+  return()=>{live=false}
+ },[opened,employeeId,taskId,draftReload])
+ const save=async()=>{
+  if(!saved)return
+  const body={draft:{form,facts},expectedRevision:saved.revision,basisHash:saved.basisHash},payload=JSON.stringify(body)
+  if(savePending.current?.payload!==payload)savePending.current={payload,key:crypto.randomUUID()}
+  setBusy(true);setError('');setNotice('')
+  try{setSaved(await workforceApi.saveSupplementDraft(employeeId,taskId,{...body,requestKey:savePending.current.key}));savePending.current=null;setDirty(false);setNotice('Unfinished reverification saved securely for your admin account.')}catch(e){setError(e instanceof Error?e.message:'Unable to save. Retry unchanged or reload the latest draft.')}finally{setBusy(false)}
+ }
  const pending=useRef<{payload:string;key:string}|null>(null)
  const invalidate=()=>{setChecks(old=>Object.fromEntries(Object.entries(old).filter(([key])=>!finalChecks.includes(key))));setSignature('')}
- const editForm=(key:string,value:string)=>{setForm(old=>({...old,[key]:value}));setPreview(null);setChecks({});setSignature('');setCopyIds([]);setFacts({})}
- const editFact=(key:string,value:string)=>{setFacts(old=>({...old,[key]:value}));invalidate()}
+ const editForm=(key:string,value:string)=>{setDirty(true);setNotice('');setForm(old=>({...old,[key]:value}));setPreview(null);setChecks({});setSignature('');setCopyIds([])}
+ const editFact=(key:string,value:string)=>{setDirty(true);setNotice('');setFacts(old=>({...old,[key]:value}));invalidate()}
  const check=(key:string,label:string)=><label key={key} className="flex items-start gap-2"><input className="mt-1" type="checkbox" checked={!!checks[key]} onChange={e=>{if(!finalChecks.includes(key))invalidate();setChecks(old=>({...old,[key]:e.target.checked}))}}/><span>{label}</span></label>
  const select=(label:string,key:string,options:Array<[string,string]>,values:Record<string,string>,change:(key:string,value:string)=>void)=><label className="block">{label}<select aria-label={label} className={input} required value={values[key]||''} onChange={e=>change(key,e.target.value)}><option value="">Choose…</option>{options.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>
  const prepare=async()=>{setBusy(true);setError('');setPreview(null);setChecks({});setSignature('');setCopyIds([]);try{setPreview(await workforceApi.supplementPreview(employeeId,taskId,{signatureId,answers:{edition:'01/20/25',document:{list:form.list,title:form.title,number:form.number||'',expiresOn:form.expiresOn||''},representativeName:form.representativeName,newName:{firstName:form.firstName||'',lastName:form.lastName||'',middleInitial:form.middleInitial||''},additionalInformation:form.additionalInformation||'',examinationMethod:form.examinationMethod}}))}catch(e){setError(e instanceof Error?e.message:'Unable to prepare Supplement B.')}finally{setBusy(false)}}
@@ -24,7 +39,10 @@ export default function I9SupplementWorkspace({employeeId,taskId,signatureId,due
  if(!opened)return <button type="button" className="rounded border p-2 font-semibold" onClick={()=>setOpened(true)}>Complete reverification with Supplement B</button>
  if(receipt)return <p role="status">{receipt}</p>
  return <section aria-label="I-9 reverification workspace" className="min-w-0 space-y-4 rounded border p-4"><h4 className="font-bold">Complete reverification</h4><p>Follow-up due {dueOn}. Prepare the employee-chosen List A or C document, review the retained forms and copies, then sign as the examiner. A new preview requires a fresh page review.</p>{error?<p role="alert">{error}</p>:null}
- <form onSubmit={e=>{e.preventDefault();void prepare()}}><fieldset disabled={busy} className="min-w-0 space-y-3">
+ <p>Save unfinished entries before leaving. After resuming, prepare the form again, review its pages and copies, and enter new signing confirmations.</p>
+ {dirty?<p role="status">You have unsaved form entries or examination notes.</p>:null}{notice?<p role="status">{notice}</p>:null}{saved?.savedAt?<p>Draft saved {saved.savedAt} · revision {saved.revision}</p>:null}{saved?.invalidated?<p role="status">The source I-9 changed. Previous draft entries are no longer current; prepare this follow-up from its current evidence.</p>:null}
+ <div className="flex flex-wrap gap-3"><button type="button" disabled={busy||!saved} className="rounded border p-2 font-semibold disabled:opacity-40" onClick={()=>void save()}>Save unfinished reverification</button><button type="button" disabled={busy} className="underline" onClick={()=>setDraftReload(n=>n+1)}>Reload my saved reverification (replaces unsaved entries)</button></div>
+ <form onSubmit={e=>{e.preventDefault();void prepare()}}><fieldset disabled={busy||!saved} className="min-w-0 space-y-3">
  {select('Document list','list',[['A','List A'],['C','List C']],form,editForm)}
  {([['title','Document title'],['number','Document number (if any)'],['expiresOn','Document expiration (if any)'],['representativeName','Examiner name on Supplement B'],['firstName','New first name (if changed)'],['lastName','New last name (if changed)'],['middleInitial','New middle initial (if changed)'],['additionalInformation','Initialed and dated form notation (if needed)']] as const).map(([key,label])=><Field key={key} label={label} value={form[key]||''} onChange={value=>editForm(key,value)} type={key==='expiresOn'?'date':key==='additionalInformation'?'textarea':'text'} required={['title','representativeName'].includes(key)}/>)}
  {select('Examination method','examinationMethod',[['PHYSICAL','Physical examination'],['ALTERNATIVE','DHS-authorized alternative procedure']],form,editForm)}

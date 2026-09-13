@@ -23,6 +23,14 @@ test('admin reviews and signs Supplement B in payroll and recovers a lost signin
   await work.getByLabel('Document expiration (if any)',{exact:true}).fill('2032-01-01')
   await work.getByLabel('Examiner name on Supplement B',{exact:true}).fill('Reviewer Alice')
   await work.getByLabel('Examination method',{exact:true}).selectOption('PHYSICAL')
+  const resume=async()=>{await page.reload();await page.getByRole('button',{name:'People & onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Employer I-9 review'}).click();await records.locator('summary').filter({hasText:'Current certification'}).click();await records.getByRole('button',{name:'Complete reverification with Supplement B',exact:true}).click()}
+  await work.getByRole('button',{name:'Save unfinished reverification',exact:true}).click()
+  await expect(work.getByRole('status')).toContainText('Unfinished reverification saved securely')
+  await work.getByRole('button',{name:'Save unfinished reverification',exact:true}).scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/payroll-supplement-draft-save.png'})
+  await work.getByLabel('Document number (if any)',{exact:true}).fill('UNSAVED-NUMBER')
+  await expect(work.getByText('You have unsaved form entries or examination notes.',{exact:true})).toBeVisible()
+  await resume()
+  await expect(work.getByLabel('Document number (if any)',{exact:true})).toHaveValue('SYNTHETIC-RENEWED')
   await work.getByRole('button',{name:'Prepare Supplement B for review',exact:true}).click()
   const source=work.getByRole('region',{name:'Official Original signed I-9 page review',exact:true})
   for(let n=1;n<=4;n++){await source.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(source.getByRole('status')).toContainText(`Page ${n} of 4 displayed and review visit saved.`)}
@@ -41,6 +49,22 @@ test('admin reviews and signs Supplement B in payroll and recovers a lost signin
   await work.getByLabel('Required next follow-up',{exact:true}).selectOption('REVERIFICATION')
   await work.getByLabel('Is no further reverification or document follow-up required?',{exact:true}).selectOption('no')
   const final=['I read and affirm the Supplement B certification.','I am the representative who performed this examination.','I reviewed every source, prior supplement, new supplement and selected copy page.','My identity and authority as the named representative are confirmed.']
+  for(const label of ['This employee currently requires reverification and is not exempt.','The employee chose their acceptable List A or C documentation.','I reviewed current authorization and applicable automatic extensions.','The original documents reasonably appear genuine and relate to this employee.','The selected copies include every required side and page.','I examined the originals in the employee’s physical presence.',...final])await work.getByRole('checkbox',{name:label,exact:true}).check()
+  await work.getByLabel('Your examiner signature',{exact:true}).fill('Reviewer Alice')
+  await work.getByRole('button',{name:'Save unfinished reverification',exact:true}).click()
+  await expect(work.getByText('Unfinished reverification saved securely for your admin account.',{exact:true})).toBeVisible()
+  await work.getByLabel('Examiner identity and authority evidence',{exact:true}).fill('UNSAVED examination changes')
+  await resume()
+  await work.getByRole('button',{name:'Prepare Supplement B for review',exact:true}).click()
+  await expect(work.getByLabel('Examiner identity and authority evidence',{exact:true})).toHaveValue('Authenticated administrator personally examined these documents.')
+  await expect(work.getByLabel('Your examiner signature',{exact:true})).toHaveValue('')
+  for(const label of final)await expect(work.getByRole('checkbox',{name:label,exact:true})).not.toBeChecked()
+  for(let n=1;n<=4;n++){await source.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(source.getByRole('status')).toContainText(`Page ${n} of 4 displayed and review visit saved.`)}
+  await expect(supplement.getByRole('status')).toContainText('Page 1 of 1 displayed and review visit saved.')
+  await expect(copies.getByRole('checkbox',{name:'Use replacement copy 1',exact:true})).not.toBeChecked()
+  await copies.getByRole('checkbox',{name:'Use replacement copy 1',exact:true}).check()
+  await copies.getByRole('button',{name:'Review replacement copy 1 (2 pages)',exact:true}).click()
+  for(let n=1;n<=2;n++){await copyView.getByRole('button',{name:`Page ${n}`,exact:true}).click();await expect(copyView.getByRole('status')).toContainText(`Page ${n} of 2 displayed and review visit saved.`)}
   for(const label of ['This employee currently requires reverification and is not exempt.','The employee chose their acceptable List A or C documentation.','I reviewed current authorization and applicable automatic extensions.','The original documents reasonably appear genuine and relate to this employee.','The selected copies include every required side and page.','I examined the originals in the employee’s physical presence.',...final])await work.getByRole('checkbox',{name:label,exact:true}).check()
   await work.getByLabel('Your examiner signature',{exact:true}).fill('Reviewer Alice')
   await work.getByLabel('Document acceptance and future-review evidence',{exact:true}).fill('Rechecked synthetic current document and January 2032 expiration.')
