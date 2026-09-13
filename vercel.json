@@ -346,6 +346,14 @@
   ],
   "rewrites": [
     {
+      "source": "/employee/payroll",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/employee/payroll/preparer",
+      "destination": "/index.html"
+    },
+    {
       "source": "/robots.txt",
       "has": [{ "type": "host", "value": "vortexathletics.com" }],
       "destination": "/robots-hub.txt"
