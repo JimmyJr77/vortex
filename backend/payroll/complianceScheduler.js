@@ -1,3 +1,4 @@
+import {reconcileComplianceDueAlerts} from './complianceDueAlerts.js'
 import {recordPayrollAutomation} from './automationHistory.js'
 import { runWorkforceAutomation } from './workforceAutomation.js'
 import { reviewPayrollComplianceSources } from './registerRoutes.js'
@@ -10,14 +11,7 @@ export async function runPayrollComplianceSweep(pool,{workforceRunner=runWorkfor
   for (const { facility_id: facilityId } of facilities) {
    try{await recordPayrollAutomation(pool,facilityId,'SCHEDULED',async()=>{
     const result=await workforceRunner(pool, facilityId)
-    await pool.query(`INSERT INTO payroll_alert (facility_id,dedupe_key,severity,title,message)
-      SELECT $1,'due-task-'||id||'-'||COALESCE(due_date::text,'none'),severity,
-        'Payroll task needs attention: '||title,
-        CASE WHEN due_date IS NULL THEN description ELSE description||' Due: '||due_date::text END
-      FROM payroll_compliance_task
-      WHERE facility_id=$1 AND status NOT IN ('COMPLETE','NOT_APPLICABLE')
-        AND (due_date IS NULL OR due_date <= CURRENT_DATE + 14)
-      ON CONFLICT (facility_id,dedupe_key) DO UPDATE SET status='OPEN',message=EXCLUDED.message`, [facilityId])
+    await reconcileComplianceDueAlerts(pool, facilityId)
     await pool.query(`INSERT INTO payroll_alert (facility_id,dedupe_key,severity,title,message)
       SELECT $1,'payday-'||id,'WARNING','Payroll timeline: '||pay_date::text,
         'Pay period '||period_start::text||' through '||period_end::text||' is still '||status||'. Payday is '||pay_date::text||'.'
