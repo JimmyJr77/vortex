@@ -40,7 +40,12 @@ export type LeaveYearHistory={policy:{enabled:boolean;first_year:number;carry_ca
 export type FractionRecoveryPlan={items:Array<{runId:string;workedMinutes:number;accruedMinutes:number;recoveredThirtieths:number}>;creditMinutes:number;remainder:number;effectiveOn:string;previewToken:string}
 export type OnboardingRevision={id:number;onboarding_cycle:number;event:string;recorded_at:string;snapshot:OnboardingTask;documents:Array<{id:number;filename:string}>}
 export type SavedAcknowledgment={id:number;cycle:number;kind:'HANDBOOK'|'WAGE_NOTICE';title:string;recordedAt:string;submittedAt:string|null;signature:string;terms:string|Record<string,unknown>|null;benefitsTerms:string|null;source:string}
+export type I9EmployerDocument={title:string;issuingAuthority:string;number:string;expiresOn:string}
+export type I9EmployerDraft={documentChoice:'LIST_A'|'LIST_B_C'|null;listA:I9EmployerDocument[];listB:I9EmployerDocument|null;listC:I9EmployerDocument|null;additionalInformation:string;examinationMethod:'PHYSICAL'|'ALTERNATIVE'|null;firstDayEmployed:string;representativeNameAndTitle:string;businessName:string;businessAddress:string}
+export type I9EmployerDraftState={revision:number;basisHash:string;submissionId:string|number|null;draft:I9EmployerDraft|null;savedAt:string|null;invalidated:boolean}
 export const workforceApi = {
+ i9EmployerDraft:(employeeId:number,taskId:number,cycle:number)=>request<I9EmployerDraftState>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft?onboardingCycle=${cycle}`,true),
+ saveI9EmployerDraft:(employeeId:number,taskId:number,body:unknown)=>request<{revision:number;basisHash:string;savedAt:string}>(`/employees/${employeeId}/onboarding/${taskId}/i9/employer-draft`,true,body),
  benefitContributions:(start:string,end:string)=>request<{contributions:EmployeeBenefitContribution[]}>(`/benefit-contributions?${new URLSearchParams({start,end})}`,false),
  acknowledgments:(taskId:number,beforeId?:number)=>request<{items:SavedAcknowledgment[];nextBeforeId:number|null}>(`/onboarding/${taskId}/acknowledgments${beforeId?`?beforeId=${beforeId}`:''}`,false),
  onboardingHistory:(employeeId:number,taskId:number)=>request<OnboardingRevision[]>(`/employees/${employeeId}/onboarding/${taskId}/history`,true),

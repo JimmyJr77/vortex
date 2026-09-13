@@ -1,3 +1,4 @@
+import I9EmployerDraft from './I9EmployerDraft'
 import I9PreparerRoster from './I9PreparerRoster'
 import I9HiringContext from './I9HiringContext'
 import OnboardingNextSteps from './OnboardingNextSteps'
@@ -71,6 +72,7 @@ function TaskStep({ taskId, task, packet, employeeId, busy, act, employmentStatu
   {canSubmit&&task.task_key==='W4'?<EmployeeW4 key={`${task.id}-${task.onboarding_cycle}`} taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed W-4 was submitted for hiring-admin review.')}/>:null}
   {employeeId&&activated&&task.task_key==='I9'&&task.response?.i9PreparerRequired?<I9PreparerRoster employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle} onReview={setPreparerReview}/>:null}
   {employeeId&&activated&&task.task_key==='I9'?<I9HiringContext key={`${task.id}-${task.onboarding_cycle}`} employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle}/>:null}
+  {employeeId&&activated&&task.task_key==='I9_REVIEW'?<I9EmployerDraft key={`${task.id}-${task.onboarding_cycle}`} employeeId={employeeId} taskId={Number(task.id)} cycle={task.onboarding_cycle} editable={['OPEN','SUBMITTED','CHANGES_REQUESTED'].includes(task.status)}/>:null}
   {canSubmit&&activated&&task.task_key==='I9'&&(!task.response?.i9SubmissionId||i9Amend)?<EmployeeI9Draft taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={async()=>{await act(()=>Promise.resolve(),'Your signed I-9 Section 1 was submitted for hiring-admin review.');setI9Amend(false)}}/>:null}
   {canSubmit&&activated&&task.task_key==='STATE_WITHHOLDING'&&packet.marylandCertificateAvailable?<EmployeeMW507 taskId={Number(task.id)} cycle={task.onboarding_cycle} vaultReady={packet.vaultReady} onSubmitted={()=>act(()=>Promise.resolve(), 'Your signed MW507 was submitted for hiring-admin review.')}/>:null}
   {canSubmit&&task.response?.i9SubmissionId?<button type="button" disabled={busy} className="my-3 rounded-lg border border-slate-300 px-3 py-2 font-bold" onClick={()=>setI9Amend(value=>!value)}>{i9Amend?'Close amendment (discards unsaved entries)':'Prepare an I-9 amendment'}</button>:null}

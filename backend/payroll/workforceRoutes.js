@@ -1,3 +1,4 @@
+import {readI9EmployerDraft,saveI9EmployerDraft} from './i9EmployerDraft.js'
 import {preparerRoster,invitePreparer,cancelPreparer} from './i9Preparers.js'
 import {signI9} from './i9Signing.js'
 import {previewI9,recordI9Page} from './i9Review.js'
@@ -99,6 +100,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
   if(!task)throw fail('Onboarding step not found.',404)
   return (await db.query('SELECT id,onboarding_cycle,event,snapshot,documents,recorded_at FROM payroll_onboarding_revision WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 ORDER BY id DESC',[task.id,ctx.employee,ctx.facility])).rows
  }))
+ app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9EmployerDraft(db,context(req),req.params.taskId,req.query.onboardingCycle))})
+ app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/employer-draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9EmployerDraft(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>preparerRoster(db,context(req),req.params.taskId,req.query.onboardingCycle))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>invitePreparer(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/onboarding/:taskId/i9/preparers/:requestId/cancel',(req,res)=>transaction(pool,res,db=>cancelPreparer(db,context(req),req.params.taskId,req.params.requestId,req.body||{})))

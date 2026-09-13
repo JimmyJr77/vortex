@@ -5663,3 +5663,22 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_preparer_page ON payroll_i9_preparer_page_visit;
 CREATE TRIGGER payroll_guard_i9_preparer_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_preparer_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_preparer_page();
+
+-- Private partial employer entries, bound to the current employee signature.
+CREATE TABLE IF NOT EXISTS payroll_i9_employer_draft (
+ facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),task_id BIGINT NOT NULL REFERENCES payroll_onboarding_task(id),
+ onboarding_cycle integer NOT NULL CHECK(onboarding_cycle>0),submission_id BIGINT NOT NULL REFERENCES payroll_i9_submission(id),revision integer NOT NULL CHECK(revision>0),
+ basis_hash text NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'),encrypted_draft bytea NOT NULL CHECK(octet_length(encrypted_draft)>28),
+ actor_user_id BIGINT NOT NULL,request_key UUID NOT NULL,request_revision integer NOT NULL CHECK(request_revision>=0),
+ updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(task_id,onboarding_cycle)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_employer_draft() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Employer drafts must retain their revision history.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='INSERT' AND NOT EXISTS(SELECT 1 FROM payroll_i9_employer_draft WHERE task_id=NEW.task_id AND onboarding_cycle=NEW.onboarding_cycle) AND (NEW.revision<>1 OR NEW.request_revision<>0) THEN RAISE EXCEPTION 'Employer draft starts at revision one.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.facility_id<>OLD.facility_id OR NEW.employee_id<>OLD.employee_id OR NEW.task_id<>OLD.task_id OR NEW.onboarding_cycle<>OLD.onboarding_cycle OR NEW.revision<>OLD.revision+1 OR NEW.request_revision<>OLD.revision) THEN RAISE EXCEPTION 'Employer draft scope is immutable and revision must advance.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_onboarding_task t JOIN payroll_i9_submission s ON s.id=NEW.submission_id JOIN payroll_onboarding_task e ON e.id=s.task_id WHERE t.id=NEW.task_id AND t.facility_id=NEW.facility_id AND t.employee_id=NEW.employee_id AND t.onboarding_cycle=NEW.onboarding_cycle AND t.task_key='I9_REVIEW' AND t.owner='ADMIN' AND t.status IN ('OPEN','SUBMITTED','CHANGES_REQUESTED') AND s.facility_id=t.facility_id AND s.employee_id=t.employee_id AND s.onboarding_cycle=t.onboarding_cycle AND e.onboarding_cycle=s.onboarding_cycle AND e.response->>'i9SubmissionId'=s.id::text) THEN RAISE EXCEPTION 'Employer draft requires the current scoped employee signature and editable employer step.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_employer_draft ON payroll_i9_employer_draft;
+CREATE TRIGGER payroll_guard_i9_employer_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_employer_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_employer_draft();
