@@ -47,9 +47,40 @@ test('native receipt review retains encrypted source and scopes immutable page e
   assert.ok([404,409].includes(response.status),String(response.status))
  }
  await assert.rejects(()=>currentI9ReceiptReview(h.pool,{facility:1,employee:employee.id,admin:100},followup.compliance_task_id,page),e=>e.status===409)
+ const upload={...page,requestKey:randomUUID(),filename:'PRIVATE-ID-NUMBER.pdf',contentBase64:(await syntheticI9CopyPdf()).toString('base64')}
+ const countBefore=(await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n
+ await h.pool.query(`CREATE FUNCTION reject_receipt_copy_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action='I9_RECEIPT_COPY_RETAINED' THEN RAISE EXCEPTION 'Synthetic copy audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_receipt_copy_audit BEFORE INSERT ON payroll_audit_log FOR EACH ROW EXECUTE FUNCTION reject_receipt_copy_audit()`)
+ await api(path+'/copies',upload,'POST',500)
+ assert.equal((await h.pool.query('SELECT count(*)::int AS n FROM payroll_private_document')).rows[0].n,countBefore)
+ await h.pool.query('DROP TRIGGER reject_receipt_copy_audit ON payroll_audit_log')
+ const [retained,retry]=await Promise.all([api(path+'/copies',upload),api(path+'/copies',upload)]);assert.deepEqual(retained,retry)
+ assert.deepEqual(await api(path+'/copies',{...upload,requestKey:upload.requestKey.toUpperCase()}),retained)
+ await api(path+'/copies',{...upload,requestKey:randomUUID(),contentBase64:Buffer.from('%PDF-broken').toString('base64')},'POST',400)
+ const copyParams={...page,copyId:retained.id}
+ const viewed=await api(path+'/copy',copyParams);assert.equal(viewed.contentBase64,upload.contentBase64);assert.equal(viewed.filename.includes('PRIVATE'),false);assert.equal(viewed.pageCount,2)
+ const query=new URLSearchParams({reviewId:page.reviewId,previewSha256:page.previewSha256})
+ assert.equal((await api(path+'/copies?'+query)).copies.length,1)
+ await api(path+'/copy-page',{...copyParams,displayed:false},'POST',400)
+ await api(path+'/copy-page',{...copyParams,page:3},'POST',400)
+ for(let n=1;n<=2;n++)await api(path+'/copy-page',{...copyParams,page:n})
+ await api(path+'/copy-page',{...copyParams,page:2})
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_receipt_copy_page')).rowCount,2)
+ const raw=(await h.pool.query('SELECT c.*,d.encrypted_content FROM payroll_i9_receipt_copy c JOIN payroll_private_document d ON d.id=c.document_id')).rows[0]
+ assert.equal(raw.encrypted_content.includes(Buffer.from('SYNTHETIC ID')),false)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_receipt_copy'),/immutable/)
+ await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_receipt_copy_page'),/immutable/)
  const next=await api(path+'/preview',body)
  await api(path+'/page',page,'POST',409)
  await api(path+'/page',{...page,reviewId:next.reviewId,previewSha256:next.previewSha256})
+ const refreshed={...page,reviewId:next.reviewId,previewSha256:next.previewSha256,copyId:retained.id}
+ assert.equal((await api(path+'/copy',refreshed)).contentBase64,upload.contentBase64)
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_receipt_copy_page WHERE review_id=$1',[next.reviewId])).rowCount,0)
+ const changed=await api(path+'/preview',{...body,answers:{...answers,replacement:{...answers.replacement,number:'CHANGED-REPLACEMENT'}}})
+ const changedBody={...page,reviewId:changed.reviewId,previewSha256:changed.previewSha256,copyId:retained.id}
+ await api(path+'/copy',changedBody,'POST',404)
+ await api(path+'/copy-page',{...changedBody,page:1},'POST',404)
+ await assert.rejects(()=>h.pool.query('INSERT INTO payroll_i9_receipt_copy_page(review_id,copy_id,page_number) VALUES($1,$2,1)',[changed.reviewId,retained.id]),/valid page/)
+ await api(path+'/copies',{...upload,reviewId:changed.reviewId,previewSha256:changed.previewSha256},'POST',409)
  const expired=(await h.pool.query(`INSERT INTO payroll_i9_receipt_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,document_fingerprint,encrypted_review,page_count,source_page_count,created_at,expires_at) SELECT facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,document_fingerprint,encrypted_review,page_count,source_page_count,clock_timestamp()-interval '2 hours',clock_timestamp()-interval '1 hour' FROM payroll_i9_receipt_review WHERE id=$1 RETURNING id`,[next.reviewId])).rows[0]
  await api(path+'/page',{...page,reviewId:expired.id,previewSha256:next.previewSha256},'POST',409)
  assert.equal((await h.pool.query('SELECT status FROM payroll_compliance_task WHERE id=$1',[followup.compliance_task_id])).rows[0].status,'OPEN')
@@ -79,6 +110,11 @@ test('receipt review resolves the signed supplement that created the follow-up',
  const receiptPath=`/employees/${employee.id}/i9/receipt/${completed.nextFollowup.id}`
  const replacement={sourceKind:'SUPPLEMENT_B',rowKey:'SUPPLEMENT',replacementKind:'ACTUAL_REPLACEMENT',replacement:{title:'Employment Authorization Document',issuingAuthority:'USCIS',number:'SYNTHETIC-ACTUAL',expiresOn:'2032-01-01'},examinerName:'Reviewer Alice',initials:'RA',amendedOn:today,explanation:'Actual replacement for the receipt recorded on the signed supplement.'}
  const retained=await api(receiptPath+'/preview',{signatureId:signed.signatureId,answers:replacement})
+ const receiptReview={reviewId:retained.reviewId,previewSha256:retained.previewSha256}
+ const receiptCopy=await api(receiptPath+'/copies',{...receiptReview,requestKey:randomUUID(),filename:'private-replacement.pdf',contentBase64:pdf.toString('base64')})
+ assert.equal((await api(receiptPath+'/copy',{...receiptReview,copyId:receiptCopy.id})).contentBase64,pdf.toString('base64'))
+ for(let n=1;n<=2;n++)await api(receiptPath+'/copy-page',{...receiptReview,copyId:receiptCopy.id,page:n,displayed:true})
+ assert.equal((await h.pool.query('SELECT * FROM payroll_i9_receipt_copy_page WHERE review_id=$1',[retained.reviewId])).rowCount,2)
  assert.equal(retained.source.documentId,completed.documentId)
  assert.equal(retained.source.pageCount,1);assert.equal(retained.pageCount,2)
  const form=(await PDFDocument.load(Buffer.from(retained.source.pdfBase64,'base64'))).getForm()

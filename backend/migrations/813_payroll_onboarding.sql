@@ -5976,3 +5976,30 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_page ON payroll_i9_receipt_page_visit;
 CREATE TRIGGER payroll_guard_i9_receipt_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_page();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_copy (
+ id BIGSERIAL PRIMARY KEY, facility_id BIGINT NOT NULL, employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id), signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id), source_review_id BIGINT NOT NULL REFERENCES payroll_i9_receipt_review(id),
+ document_fingerprint TEXT NOT NULL CHECK(document_fingerprint ~ '^[a-f0-9]{64}$'), document_id BIGINT NOT NULL UNIQUE REFERENCES payroll_private_document(id), page_count INTEGER NOT NULL CHECK(page_count BETWEEN 1 AND 100),
+ actor_user_id BIGINT NOT NULL, request_key UUID NOT NULL, request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'), created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), UNIQUE(facility_id,employee_id,request_key)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_copy() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'I-9 Receipt replacement document copies are immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_review r JOIN payroll_i9_employer_signature s ON s.id=r.signature_id JOIN payroll_private_document d ON d.id=NEW.document_id WHERE r.id=NEW.source_review_id AND r.facility_id=NEW.facility_id AND r.employee_id=NEW.employee_id AND r.compliance_task_id=NEW.compliance_task_id AND r.signature_id=NEW.signature_id AND r.actor_user_id=NEW.actor_user_id AND r.document_fingerprint=NEW.document_fingerprint AND d.facility_id=r.facility_id AND d.employee_id=r.employee_id AND d.task_id=s.task_id AND d.onboarding_cycle=s.onboarding_cycle AND d.mime_type IN ('application/pdf','image/png','image/jpeg')) THEN RAISE EXCEPTION 'Receipt replacement copy must match the current employee review and retained document.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_copy ON payroll_i9_receipt_copy;
+CREATE TRIGGER payroll_guard_i9_receipt_copy BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_copy FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_copy();
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_copy_page (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_receipt_review(id), copy_id BIGINT NOT NULL REFERENCES payroll_i9_receipt_copy(id), page_number INTEGER NOT NULL CHECK(page_number>0),
+ viewed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(review_id,copy_id,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_copy_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Receipt replacement copy page review is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_receipt_review r JOIN payroll_i9_receipt_copy c ON c.compliance_task_id=r.compliance_task_id AND c.signature_id=r.signature_id AND c.facility_id=r.facility_id AND c.employee_id=r.employee_id AND c.document_fingerprint=r.document_fingerprint WHERE r.id=NEW.review_id AND c.id=NEW.copy_id AND NEW.page_number<=c.page_count) THEN RAISE EXCEPTION 'Review a valid page of this employee receipt copy.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_copy_page ON payroll_i9_receipt_copy_page;
+CREATE TRIGGER payroll_guard_i9_receipt_copy_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_copy_page FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_copy_page();
