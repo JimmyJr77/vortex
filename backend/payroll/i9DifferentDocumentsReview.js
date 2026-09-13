@@ -1,3 +1,4 @@
+import {I9_EMPLOYER_ATTESTATION} from './i9Examination.js'
 import {i9Section2Input} from './i9Section2.js'
 import {i9DocumentEntries} from './i9DocumentEntries.js'
 import {createHash} from 'node:crypto'
@@ -20,7 +21,7 @@ export async function previewI9DifferentDocuments(db,ctx,taskId,body){
  const retained={answers:{section2,reason:body.reason,initials:body.initials},recordedOn:prepared.recordedOn,packet}
  const row=(await db.query(`INSERT INTO payroll_i9_different_review(facility_id,employee_id,compliance_task_id,signature_id,actor_user_id,basis_hash,preview_sha256,encrypted_review,page_counts,document_fingerprints) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,expires_at`,[ctx.facility,ctx.employee,taskId,current.row.id,ctx.admin,current.basisHash,prepared.previewSha256,encryptDocument(Buffer.from(JSON.stringify(retained)),aad(ctx,taskId,ctx.admin)),pageCounts,fingerprints])).rows[0]
  await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_DIFFERENT_PREVIEW_CREATED','i9_different_review',$3,$4)",[ctx.facility,ctx.admin,String(row.id),{employeeId:ctx.employee,complianceTaskId:taskId,signatureId:current.row.id,previewSha256:prepared.previewSha256}])
- return {reviewId:row.id,expiresAt:row.expires_at,previewSha256:prepared.previewSha256,...retained}
+ return {reviewId:row.id,expiresAt:row.expires_at,previewSha256:prepared.previewSha256,attestation:I9_EMPLOYER_ATTESTATION,...retained}
 }
 export async function currentI9DifferentDocumentsReview(db,ctx,taskId,body){
  if(!/^[1-9]\d*$/.test(String(body.reviewId))||!/^[a-f0-9]{64}$/.test(body.previewSha256||''))throw fail('Prepare the current replacement review.',400)
