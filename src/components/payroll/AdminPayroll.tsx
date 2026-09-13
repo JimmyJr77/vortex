@@ -131,6 +131,7 @@ function Empty({ children }: { children: ReactNode }) {
 export default function AdminPayroll() {
   const [view, setView] = useState<View>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'reports':'overview')
   const activeViewRef=useRef<HTMLButtonElement>(null)
+  const lastScrolledView=useRef<string|null>(null)
   const [data, setData] = useState<PayrollDashboard | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -246,7 +247,11 @@ export default function AdminPayroll() {
   }
 
   const [payrollPaymentDate,setPayrollPaymentDate]=useState('')
-  useEffect(()=>{if(!loading)activeViewRef.current?.scrollIntoView({block:'nearest',inline:'nearest'})},[loading,view])
+  useEffect(()=>{
+    if(loading||lastScrolledView.current===view)return
+    lastScrolledView.current=view
+    activeViewRef.current?.scrollIntoView({block:'nearest',inline:'nearest'})
+  },[loading,view])
   const preview = async () => {
     if (!selectedPeriodId) return
     setBusy(true)

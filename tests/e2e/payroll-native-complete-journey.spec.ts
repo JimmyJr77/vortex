@@ -9,6 +9,11 @@ import {syntheticI9CopyPdf} from '../../backend/payroll/testing/employerI9Review
 import { test, expect } from '@playwright/test'
 import {createHarness} from '../../backend/payroll/testing/harness.js'
 
+// Long PDF-review journeys generate hundreds of MB of continuous screenshots.
+// Keep action/DOM/network evidence and the explicit visual checkpoints without
+// exhausting Playwright's separate trace-archive teardown window.
+test.use({trace:{mode:'on',screenshots:false,snapshots:true,sources:true}})
+
 for(const preparers of [0,1,2])test(`fresh invited hire completes native certificates, activation, payroll and returning access: ${preparers===2?'multiple-preparers':preparers===1?'preparer-assisted':'unassisted'}`, async ({ browser }) => {
  test.setTimeout(360000)
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated local payroll database')
@@ -16,7 +21,7 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  const quickbooks=nativeJourneyQuickbooks()
  const h=await createHarness({quickbooksFetcher:quickbooks.fetcher})
  const adminContext = await browser.newContext({viewport:{width:1440,height:1000}})
- await adminContext.addInitScript(() => localStorage.setItem('adminToken','payroll-test-admin'))
+ await adminContext.addInitScript(() => {if(location.protocol==='http:')localStorage.setItem('adminToken','payroll-test-admin')})
  const admin=await adminContext.newPage(), employeeContext=await browser.newContext({viewport:{width:390,height:844}}), employee=await employeeContext.newPage()
  const errors:string[]=[];admin.on('pageerror',e=>errors.push(e.message));employee.on('pageerror',e=>errors.push(e.message))
  for(const page of [admin,employee])page.on('console',message=>{if(message.type()==='error'&&message.text().includes('Encountered two children with the same key'))errors.push(message.text())})
@@ -232,6 +237,9 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  await admin.getByRole('button',{name:'Save draft snapshot'}).click()
  await admin.getByRole('button',{name:'Open review'}).click()
  await admin.getByRole('button',{name:'Send to review'}).click()
+ await expect(admin.getByText('Payroll run moved to review.',{exact:true})).toBeAttached()
+ await expect(admin.getByRole('button',{name:'Approve run',exact:true})).toBeEnabled()
+ await expect(admin.getByRole('button',{name:'Approve run',exact:true})).toBeInViewport()
  await admin.getByRole('button',{name:'Approve run',exact:true}).click()
  await expect(admin.getByLabel('Actual payment date',{exact:true})).toHaveValue('2026-09-21')
  await admin.getByLabel('External payment confirmation').fill('BROWSER-TEST-CHECK-ONLY')
@@ -392,5 +400,20 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
   expect(quickbooks.journals.map(journal=>journal.payload.TxnDate)).toEqual(['2026-09-21','2026-10-06'])
  }
  expect(errors).toEqual([])
- }finally{try{await adminContext.unrouteAll({behavior:'wait'});await employeeContext.unrouteAll({behavior:'wait'});await adminContext.close();await employeeContext.close()}finally{await h.close();quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}}
+ console.info('Journey: all persisted payroll, accounting and browser assertions passed')
+ }finally{
+  try{
+   // Stop portal refreshes before removing interception so cleanup cannot send
+   // follow-on requests to the application's normal backend address.
+   await Promise.all([admin.goto('about:blank'),employee.goto('about:blank')])
+   await adminContext.unrouteAll({behavior:'wait'})
+   await employeeContext.unrouteAll({behavior:'wait'})
+  }finally{
+   try{await Promise.all([adminContext.close(),employeeContext.close()])}
+   finally{
+    try{await h.close();console.info('Journey: browser and isolated database cleanup completed')}
+    finally{quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}
+   }
+  }
+ }
 })
