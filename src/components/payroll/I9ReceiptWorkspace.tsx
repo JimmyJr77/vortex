@@ -7,11 +7,29 @@ const yesNo=[['','Choose'],['yes','Yes'],['no','No']]
 export default function I9ReceiptWorkspace({employeeId,taskId,signatureId,onUpdated}:{employeeId:number;taskId:string|number;signatureId:string|number;onUpdated:()=>void}){
  const [open,setOpen]=useState(false),[context,setContext]=useState<Awaited<ReturnType<typeof workforceApi.receiptContext>>|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false)
  const [form,setForm]=useState<Record<string,string>>({}),[facts,setFacts]=useState<Record<string,string>>({}),[checks,setChecks]=useState<Record<string,boolean>>({}),[signature,setSignature]=useState(''),[selected,setSelected]=useState<string[]>([]),[preview,setPreview]=useState<I9ReceiptPreview|null>(null)
+ const [draftState,setDraftState]=useState<Awaited<ReturnType<typeof workforceApi.receiptDraft>>|null>(null),[loading,setLoading]=useState(false),[notice,setNotice]=useState(''),[savedShape,setSavedShape]=useState('')
+ const loadVersion=useRef(0)
+ const saveRetry=useRef<{json:string;key:string}|null>(null)
  const retry=useRef<{json:string;key:string}|null>(null)
  const clearConsent=()=>{setChecks({});setSignature('');retry.current=null}
- useEffect(()=>{if(!open)return;let live=true;void workforceApi.receiptContext(employeeId,taskId).then(value=>{if(live){setContext(value);setForm(f=>({...f,amendedOn:value.today}));setFacts(f=>({...f,examinedOn:f.examinedOn||value.today}))}}).catch(e=>{if(live)setError(e.message)});return()=>{live=false}},[employeeId,taskId,open])
- const editForm=(key:string,value:string)=>{setForm(f=>({...f,[key]:value}));setPreview(null);setSelected([]);clearConsent()}
- const editFact=(key:string,value:string)=>{setFacts(f=>({...f,[key]:value}));clearConsent()}
+ const load=async()=>{
+  const version=++loadVersion.current
+  setLoading(true);setError('');setNotice('')
+  try{const [value,draft]=await Promise.all([workforceApi.receiptContext(employeeId,taskId),workforceApi.receiptDraft(employeeId,taskId)])
+   if(version!==loadVersion.current)return
+   const nextForm={...(draft.draft?.form||{}),amendedOn:value.today},nextFacts={...(draft.draft?.facts||{}),examinedOn:draft.draft?.facts.examinedOn||value.today}
+   setContext(value);setDraftState(draft);setForm(nextForm);setFacts(nextFacts);setSavedShape(JSON.stringify({form:nextForm,facts:nextFacts}));setPreview(null);setSelected([]);clearConsent();saveRetry.current=null;setNotice(draft.invalidated?'Source evidence changed. Start a fresh review.':draft.draft?'Your private unfinished receipt amendment was restored. Review and confirm everything again.':'')
+  }catch(e){if(version===loadVersion.current)setError(e instanceof Error?e.message:'Unable to load receipt draft.')}finally{if(version===loadVersion.current)setLoading(false)}
+ }
+ useEffect(()=>{if(open)void load();return()=>{loadVersion.current++}},[employeeId,taskId,open])
+ const save=async()=>{if(!draftState)return;setBusy(true);setError('');try{
+  const draft={form,facts},body={draft,basisHash:draftState.basisHash,expectedRevision:draftState.revision},json=JSON.stringify(body)
+  if(saveRetry.current?.json!==json)saveRetry.current={json,key:crypto.randomUUID()}
+  const saved=await workforceApi.saveReceiptDraft(employeeId,taskId,{...body,requestKey:saveRetry.current.key});setDraftState(saved);setSavedShape(JSON.stringify(draft));setNotice('Unfinished receipt amendment saved securely for your admin account.');saveRetry.current=null
+ }catch(e){setError(e instanceof Error?e.message:'Unable to save this draft.')}finally{setBusy(false)}}
+
+ const editForm=(key:string,value:string)=>{setForm(f=>({...f,[key]:value}));setNotice('');setPreview(null);setSelected([]);clearConsent()}
+ const editFact=(key:string,value:string)=>{setFacts(f=>({...f,[key]:value}));setNotice('');clearConsent()}
  const field=(key:string,label:string,type='text',required=false)=> <label key={key} className="block">{label}<input aria-label={label} className={inputClass} type={type} required={required} value={form[key]||''} onChange={e=>editForm(key,e.target.value)}/></label>
  const fact=(key:string,label:string,type='text')=><label key={key} className="block">{label}{type==='textarea'?<textarea aria-label={label} className={inputClass} value={facts[key]||''} onChange={e=>editFact(key,e.target.value)}/>:<input aria-label={label} className={inputClass} type={type} value={facts[key]||''} onChange={e=>editFact(key,e.target.value)}/>}</label>
  const choice=(key:string,label:string,options:string[][])=><label key={key} className="block">{label}<select aria-label={label} className={inputClass} value={facts[key]||''} onChange={e=>editFact(key,e.target.value)}>{options.map(([value,name])=><option key={value} value={value}>{name}</option>)}</select></label>
@@ -26,9 +44,11 @@ export default function I9ReceiptWorkspace({employeeId,taskId,signatureId,onUpda
   await workforceApi.signReceipt(employeeId,taskId,{...body,requestKey:retry.current.key});onUpdated()
  }catch(e){setError(e instanceof Error?e.message:'Unable to sign. Retry unchanged details to recover a saved result.')}finally{setBusy(false)}}
  return <section aria-label="Receipt replacement workspace" className="min-w-0 space-y-3">
- <button type="button" className="rounded border p-2" disabled={busy} onClick={()=>{setOpen(v=>!v);setPreview(null);setSelected([]);setError('');clearConsent()}}>{open?'Hide receipt replacement':'Replace receipt with actual document'}</button>
- {open?<><p>Use the actual replacement for this receipt. If the employee presents different documentation, its separate correction process is required. Original signatures remain retained.</p>{error?<p role="alert" className="text-red-700">{error}</p>:null}{!context?<p>Loading current receipt record…</p>:<fieldset disabled={busy} className="min-w-0 space-y-4">
+ <button type="button" className="rounded border p-2" disabled={busy||loading} onClick={()=>{setOpen(v=>!v);setPreview(null);setSelected([]);setError('');clearConsent()}}>{open?'Hide receipt replacement':'Replace receipt with actual document'}</button>
+ {open?<><p>Use the actual replacement for this receipt. If the employee presents different documentation, its separate correction process is required. Original signatures remain retained.</p>{error?<p role="alert" className="text-red-700">{error}</p>:null}{!context?<p>Loading current receipt record…</p>:<fieldset disabled={busy||loading} className="min-w-0 space-y-4">
+ <div className="space-y-2"><button type="button" className="rounded border p-2" disabled={!draftState} onClick={()=>void save()}>Save unfinished receipt amendment</button> <button type="button" className="underline" onClick={()=>void load()}>Reload saved receipt amendment (replaces unsaved entries)</button>{notice?<p role="status">{notice}</p>:null}{savedShape&&savedShape!==JSON.stringify({form,facts})?<p>You have unsaved receipt entries or examination notes.</p>:null}{draftState?.savedAt?<p>Saved {draftState.savedAt} · revision {draftState.revision}</p>:null}</div>
  <p>Source: {context.sourceKind==='SECTION2'?'Section 2':'Supplement B'}, row {context.rowKey}. Receipt follow-up due {context.dueOn}.</p>
+ {loading?<p role="status">Loading saved receipt entries…</p>:busy?<p role="status">Saving or preparing receipt evidence…</p>:null}
  <form className="space-y-3" onSubmit={e=>{e.preventDefault();void prepare()}}>
  <div className="grid gap-3 md:grid-cols-2">{field('title','Actual replacement document title','text',true)}{field('issuingAuthority','Replacement issuing authority','text',true)}{field('number','Replacement document number')}{field('expiresOn','Replacement expiration (if any)','date')}{field('examinerName','Receipt examiner full name','text',true)}{field('initials','Receipt examiner initials','text',true)}{field('amendedOn','Amendment date','date',true)}</div>
  <label className="block">Amendment explanation<textarea aria-label="Amendment explanation" className={inputClass} required maxLength={2000} value={form.explanation||''} onChange={e=>editForm('explanation',e.target.value)}/></label><button className="rounded border p-2" type="submit">Prepare receipt amendment</button></form>

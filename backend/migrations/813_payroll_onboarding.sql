@@ -6050,3 +6050,18 @@ BEGIN
  END LOOP;
  RETURN NEW;
 END $$;
+
+CREATE TABLE IF NOT EXISTS payroll_i9_receipt_draft (
+ facility_id BIGINT NOT NULL, employee_id BIGINT NOT NULL REFERENCES payroll_employee(id), compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id), signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id), actor_user_id BIGINT NOT NULL,
+ basis_hash TEXT NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'), revision INTEGER NOT NULL CHECK(revision>0), encrypted_draft BYTEA NOT NULL CHECK(octet_length(encrypted_draft)>28), request_key UUID NOT NULL, request_hash TEXT NOT NULL CHECK(request_hash ~ '^[a-f0-9]{64}$'), updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(), PRIMARY KEY(compliance_task_id,actor_user_id)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_receipt_draft() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Retained receipt amendment drafts cannot be deleted.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='INSERT' AND NEW.revision<>1 THEN RAISE EXCEPTION 'Start the draft at revision one.' USING ERRCODE='23514'; END IF;
+ IF TG_OP='UPDATE' AND (NEW.facility_id<>OLD.facility_id OR NEW.employee_id<>OLD.employee_id OR NEW.compliance_task_id<>OLD.compliance_task_id OR NEW.signature_id<>OLD.signature_id OR NEW.actor_user_id<>OLD.actor_user_id OR NEW.revision<>OLD.revision+1) THEN RAISE EXCEPTION 'Preserve draft ownership and advance its revision once.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_signature_followup f JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id WHERE f.compliance_task_id=NEW.compliance_task_id AND f.signature_id=NEW.signature_id AND f.kind='RECEIPT_REPLACEMENT' AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id AND c.facility_id=NEW.facility_id AND c.employee_id=NEW.employee_id) THEN RAISE EXCEPTION 'The draft must belong to this employee receipt replacement.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_draft ON payroll_i9_receipt_draft;
+CREATE TRIGGER payroll_guard_i9_receipt_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_draft();

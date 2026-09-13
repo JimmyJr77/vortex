@@ -56,6 +56,8 @@ export type I9EmployerRecord={receiptAmendments?:I9SupplementRecord[];supplement
 export type EVerifyResult={outcome:string;caseReference:string;observedOn:string;caseClosed:boolean;nextActionOn:string;nextAction:string;evidenceNote:string;verifiedAgainstOfficialCase:boolean;employeeAndEmployerMatched:boolean;evidenceReviewed:boolean}
 export type EVerifyHistory={revision:number;events:Array<{id:string|number;revision:number;recordedAt:string;result:EVerifyResult;documentId:string|number;filename:string}>}
 export const workforceApi = {
+ receiptDraft:(employeeId:number,taskId:string|number)=>request<I9SupplementDraftState>(`/employees/${employeeId}/i9/receipt/${taskId}/draft`,true),
+ saveReceiptDraft:(employeeId:number,taskId:string|number,body:unknown)=>request<I9SupplementDraftState>(`/employees/${employeeId}/i9/receipt/${taskId}/draft`,true,body),
  supplementDraft:(employeeId:number,taskId:string|number)=>request<I9SupplementDraftState>(`/employees/${employeeId}/i9/supplement/${taskId}/draft`,true),
  saveSupplementDraft:(employeeId:number,taskId:string|number,body:unknown)=>request<I9SupplementDraftState>(`/employees/${employeeId}/i9/supplement/${taskId}/draft`,true,body),
 

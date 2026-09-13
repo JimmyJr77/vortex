@@ -1,3 +1,4 @@
+import {readI9ReceiptDraft,saveI9ReceiptDraft} from './i9ReceiptDraft.js'
 import {signI9Receipt} from './i9ReceiptSigning.js'
 import {listI9ReceiptCopies,uploadI9ReceiptCopy,viewI9ReceiptCopy,recordI9ReceiptCopyPage} from './i9ReceiptCopies.js'
 import {previewI9Receipt,recordI9ReceiptPage,i9ReceiptContext} from './i9ReceiptReview.js'
@@ -130,6 +131,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/copy',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>viewI9SupplementBCopy(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/copy-page',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>recordI9SupplementBCopyPage(db,context(req),req.params.taskId,req.body||{}))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/sign',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>signI9SupplementB(db,context(req),req.params.taskId,req.body||{}))})
+ app.get('/api/admin/payroll/employees/:id/i9/receipt/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9ReceiptDraft(db,context(req),req.params.taskId))})
+ app.post('/api/admin/payroll/employees/:id/i9/receipt/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9ReceiptDraft(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/supplement/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>readI9SupplementBDraft(db,context(req),req.params.taskId))})
  app.post('/api/admin/payroll/employees/:id/i9/supplement/:taskId/draft',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>saveI9SupplementBDraft(db,context(req),req.params.taskId,req.body||{}))})
  app.get('/api/admin/payroll/employees/:id/i9/employer-records',(req,res)=>{res.setHeader('Cache-Control','no-store');return transaction(pool,res,db=>i9EmployerRecords(db,context(req)))})
