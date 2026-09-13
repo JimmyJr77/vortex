@@ -1,0 +1,536 @@
+{
+  "schema_version": 2,
+  "status": "PASS_WRITTEN_NUMERIC_MODEL",
+  "session": "OR-11",
+  "checked_at_utc": "2026-09-13T09:23:58.586197+00:00",
+  "scenario_count": 1152,
+  "errors": [],
+  "negative_probes": [
+    {
+      "case": "first jogging stop plus new exit together",
+      "rejected": true
+    },
+    {
+      "case": "P2 walking stop grants jogging exit",
+      "rejected": true
+    },
+    {
+      "case": "L jogging exit",
+      "rejected": true
+    },
+    {
+      "case": "unknown corresponding stop allows full exit",
+      "rejected": true
+    },
+    {
+      "case": "single emerging2s result allows first1s",
+      "rejected": true
+    },
+    {
+      "case": "one first1s result implies retained repeatability",
+      "rejected": true
+    },
+    {
+      "case": "opposite direction inherits firstside record",
+      "rejected": true
+    },
+    {
+      "case": "different approach inherits context",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong approach_m",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong exit_m",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong angle_degrees",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong quiet_finish_s",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong same_actual_approach_and_exit_intent",
+      "rejected": true
+    },
+    {
+      "case": "otherwise matching record has wrong same_controlled_stop_opening_steps",
+      "rejected": true
+    },
+    {
+      "case": "missing independent announced_before_start",
+      "rejected": true
+    },
+    {
+      "case": "missing independent current_selected_pause_suitable",
+      "rejected": true
+    },
+    {
+      "case": "missing independent current_response",
+      "rejected": true
+    },
+    {
+      "case": "missing independent verified_space",
+      "rejected": true
+    },
+    {
+      "case": "missing independent qualified_supervision",
+      "rejected": true
+    },
+    {
+      "case": "extra fourth physical attempt",
+      "rejected": true
+    },
+    {
+      "case": "compressedL second attempt",
+      "rejected": true
+    },
+    {
+      "case": "first high path ignores supplied smaller history",
+      "rejected": true
+    },
+    {
+      "case": "average stance hold repays smaller side",
+      "rejected": true
+    },
+    {
+      "case": "quiet P1 alone authorizes later midrange",
+      "rejected": true
+    },
+    {
+      "case": "unknown BW dose is fabricated familiarity",
+      "rejected": true
+    },
+    {
+      "case": "actual BW1 is restored to2",
+      "rejected": true
+    },
+    {
+      "case": "new firstDB handling uses familiar profile",
+      "rejected": true
+    },
+    {
+      "case": "older DB restored after newer actual unloaded HIP",
+      "rejected": true
+    },
+    {
+      "case": "L loaded hip",
+      "rejected": true
+    },
+    {
+      "case": "unknown loaded history treated as actual1",
+      "rejected": true
+    },
+    {
+      "case": "push permission borrowed from other role",
+      "rejected": true
+    },
+    {
+      "case": "row permission borrowed from other role",
+      "rejected": true
+    },
+    {
+      "case": "suspension permission borrowed from other role",
+      "rejected": true
+    },
+    {
+      "case": "heel permission borrowed from other role",
+      "rejected": true
+    },
+    {
+      "case": "unobserved row side repaid",
+      "rejected": true
+    },
+    {
+      "case": "first counted breath without comfortable bilateral arms",
+      "rejected": true
+    },
+    {
+      "case": "unknown breath count automatically4",
+      "rejected": true
+    },
+    {
+      "case": "unknown familiar stance duration invents actual3",
+      "rejected": true
+    },
+    {
+      "case": "known zero stance lead uses positive bothlead packet",
+      "rejected": true
+    },
+    {
+      "case": "unknown stance depth borrows known count",
+      "rejected": true
+    },
+    {
+      "case": "missing whole age",
+      "rejected": true,
+      "sample_findings": [
+        "P1: three ages"
+      ]
+    },
+    {
+      "case": "missing task purpose",
+      "rejected": true,
+      "sample_findings": [
+        "S2: complete set_purpose"
+      ]
+    },
+    {
+      "case": "extra E0 workout row",
+      "rejected": true,
+      "sample_findings": [
+        "eight tasks, exactly two targets, no extra E0"
+      ]
+    },
+    {
+      "case": "target budget adds uncounted drill time",
+      "rejected": true,
+      "sample_findings": [
+        "complete two-target timing"
+      ]
+    },
+    {
+      "case": "P2 assessed exit hidden in component lesson",
+      "rejected": true,
+      "sample_findings": [
+        "first included, no hidden/repayment work"
+      ]
+    },
+    {
+      "case": "compressedL opportunity repayment",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit: exact opportunity count",
+        "walk_exit: cap prefix count"
+      ]
+    },
+    {
+      "case": "main cap changes approach effort",
+      "rejected": true,
+      "sample_findings": [
+        "walk_exit: cap cannot change task"
+      ]
+    },
+    {
+      "case": "first1s consumes brake time instead of positive stopped pause",
+      "rejected": true,
+      "sample_findings": [
+        "pause after stop/finish/complete20s"
+      ]
+    },
+    {
+      "case": "saved pause becomes work rather than clearance",
+      "rejected": true,
+      "sample_findings": [
+        "pause after stop/finish/complete20s",
+        "saved second becomes clearance slack"
+      ]
+    },
+    {
+      "case": "repeatable shorter task demands reconstructed older full task",
+      "rejected": true,
+      "sample_findings": [
+        "noncircular direction-specific whole-context entry"
+      ]
+    },
+    {
+      "case": "first whole full task circular gate",
+      "rejected": true,
+      "sample_findings": [
+        "noncircular direction-specific whole-context entry"
+      ]
+    },
+    {
+      "case": "averaged asymmetric stance loses actual side duration",
+      "rejected": true,
+      "sample_findings": [
+        "actual independent hold seconds/entries"
+      ]
+    },
+    {
+      "case": "quiet P1 credited a split entry",
+      "rejected": true,
+      "sample_findings": [
+        "quiet reference P1 no split entries or hold credit"
+      ]
+    },
+    {
+      "case": "quiet capped P1 credited a lead",
+      "rejected": true,
+      "sample_findings": [
+        "quiet P1 no split entry"
+      ]
+    },
+    {
+      "case": "row actualzero side repaid",
+      "rejected": true,
+      "sample_findings": [
+        "S4: exact side-specific work/omission"
+      ]
+    },
+    {
+      "case": "row cap loses handling",
+      "rejected": true,
+      "sample_findings": [
+        "S4/1: full handling and side change"
+      ]
+    },
+    {
+      "case": "bothzero row still retains physical set",
+      "rejected": true,
+      "sample_findings": [
+        "S4/0_0: full handling and side change",
+        "S4: exact side-specific work/omission"
+      ]
+    },
+    {
+      "case": "hip cap loses90s recovery",
+      "rejected": true,
+      "sample_findings": [
+        "familiar_DB/cap1: preserved recovery"
+      ]
+    },
+    {
+      "case": "unknown main dose fabricated historicalone",
+      "rejected": true,
+      "sample_findings": [
+        "current unknown main dose has null actual history"
+      ]
+    },
+    {
+      "case": "unknown stance history forces new high identity",
+      "rejected": true,
+      "sample_findings": [
+        "independent unknown stance history/current setup"
+      ]
+    },
+    {
+      "case": "static stance overwrites compatible dynamic squat",
+      "rejected": true,
+      "sample_findings": [
+        "role-specific actual history"
+      ]
+    },
+    {
+      "case": "first loaded set fabricates familiar handling",
+      "rejected": true,
+      "sample_findings": [
+        "role-specific actual history"
+      ]
+    },
+    {
+      "case": "shared P2 and main return merge",
+      "rejected": true,
+      "sample_findings": [
+        "no merged or pre-verified paths"
+      ]
+    },
+    {
+      "case": "P2 not shut before main fan opens",
+      "rejected": true,
+      "sample_findings": [
+        "segregated phase/delivery P2_returns_close_before_main"
+      ]
+    },
+    {
+      "case": "missing next athlete rear staging",
+      "rejected": true,
+      "sample_findings": [
+        "unchanged whole action/return/staging"
+      ]
+    },
+    {
+      "case": "main release eliminates5s observation gap",
+      "rejected": true,
+      "sample_findings": [
+        "one main athlete, fixed25s releases, closed adjacent lanes",
+        "9-11/standard_D/jog_exit/midrange/bodyweight/heel/bench: at least five-second coach observation gap"
+      ]
+    },
+    {
+      "case": "compact familiar hip old40s pitch loses fullreset",
+      "rejected": true,
+      "sample_findings": [
+        "compressed DB complete waves/reset",
+        "compressed DB complete waves/reset"
+      ]
+    },
+    {
+      "case": "no hip station reset",
+      "rejected": true,
+      "sample_findings": [
+        "compressed DB complete waves/reset",
+        "compressed DB complete waves/reset"
+      ]
+    },
+    {
+      "case": "early push group violates hip recovery",
+      "rejected": true,
+      "sample_findings": [
+        "9-11/compressed_D/jog_exit/midrange/familiar_DB/heel/bench: all same-athlete role recovery",
+        "9-11/compressed_D/jog_exit/midrange/familiar_DB/heel/suspension: all same-athlete role recovery"
+      ]
+    },
+    {
+      "case": "stationary personalbay view unrequired",
+      "rejected": true,
+      "sample_findings": [
+        "visible independent stationary bay/transfer contract"
+      ]
+    },
+    {
+      "case": "stationary route enters common return",
+      "rejected": true,
+      "sample_findings": [
+        "visible independent stationary bay/transfer contract"
+      ]
+    },
+    {
+      "case": "natural jogging contacts reported zero",
+      "rejected": true,
+      "sample_findings": [
+        "jog_exit: zero intentional jump is not zero natural contacts",
+        "jog_exit: cap cannot change task"
+      ]
+    },
+    {
+      "case": "source context duplicates an opportunity",
+      "rejected": true,
+      "sample_findings": [
+        "source: actual context numeric comparison"
+      ]
+    },
+    {
+      "case": "proposed profile removes positive pause",
+      "rejected": true,
+      "sample_findings": [
+        "source: proposal actual pause/exit/finish"
+      ]
+    },
+    {
+      "case": "unverified source given a live canonical owner",
+      "rejected": true,
+      "sample_findings": [
+        "source: full actual mapping pointer PAUSED-EXIT-TEACH",
+        "source: unverified canonical owner remains null PAUSED-EXIT-TEACH"
+      ]
+    }
+  ],
+  "positive_evidence_checks": {
+    "first full2s uses actual components with no prior whole exit": true,
+    "first1s needs actual repeatable corresponding2s but no prior1s": true,
+    "retained1s direct current record without reconstructed2s": true,
+    "direct retained jogging1s does not reconstruct walkingstop or2s": true,
+    "first jogging stop stays terminal instruction": true,
+    "unavailable opposite slot remains deferred without repayment": true,
+    "compactL records only its actual assigned first direction": true,
+    "first counted high stance does not require prior whole stance": true,
+    "first high instruction respects actual smaller supplied side history": true,
+    "independent asymmetric familiar stance history": true,
+    "familiar BW with unknown dose may use current small2 observation": true,
+    "familiar DB retains actual small1 with full handling": true,
+    "familiar row remains independent of unfamiliar push": true,
+    "independent familiar brace survives unknown upper support": true,
+    "first counted breath only needs own actual component gates": true,
+    "unknown main count chooses current1 while history remains null": true,
+    "known completed zero is deliberate no-work, not missing attendance": true,
+    "known lower main1 remains1 across D booking": true,
+    "current familiar stance unknown seconds selects1 per lead": true,
+    "independent one unknown and one known4 stance lead": true
+  },
+  "coverage": {
+    "clock_cohorts": 1152,
+    "independent_factor_packets": 1602,
+    "stance_pair_packets": 900,
+    "hip_reduction_packets": 54,
+    "support_scalar_packets": 240,
+    "support_side_packets": 408,
+    "direction_context_prefix_plans": 1950,
+    "source_comparisons": {
+      "exit_context_rows": 72,
+      "proposal_age_mode_rows": 24,
+      "catalog_bindings": 15,
+      "mapping_keys": 14
+    },
+    "proof": "Every eligible age/mode/travel/stance/hip/two-support-switch cohort is timed at the complete reference duration. Each reference/1/2 main prefix is independently timed through final return. The five contexts per direction, either first side and every allowed total are enumerated separately. Exact per-lead stance, hip and support reductions are checked with unchanged fixed starts, full retained handling and recovery; their joint selection cannot extend any role or worsen any following same-athlete gap. Their Cartesian product is bounded mathematically, not counted as additional enumerated athlete histories. Quiet P1 and deferred work only shorten their own assigned slots and do not provide eligibility for later work."
+  },
+  "sha256": {
+    "instructional_on_ramp/week_03/or_11.json": "ec040d4d5d3a1fbd934462e59a7452a6046dafdf9afb30eb92b410bfd210e7b8",
+    "instructional_on_ramp/week_03/or_11.md": "2e10bba3d4895753246e23cbd32335ad83af0738ea614850932e82ebe151c1ed",
+    "prescriptions/author_or_11.py": "5d42079e4d3aa47f6883eda69e632249b47d1f722883b6890535c3e4079f11d5",
+    "prescriptions/check_or_11.py": "57ec1ad2f3a973b13f7bcee68c042dbcd96f07c9effa24e393b1d0067757f92d",
+    "prescriptions/check_or_06.py": "f347f95ee2579600f8c18ab50642de6a857ee744fea3bafe00780467b57b6cd8",
+    "prescriptions/check_exemplars.py": "6c8f68177025e79a2728fd7c72ad2097ca42d5d649590e3419537ee3ad6d154b",
+    "prescriptions/session_tools.py": "6ed53906c44b6e0212570ee0563ceda29071b2a6664d8319964822e87d42f883",
+    "prescriptions/standard_preparation.json": "c903bb9812c3714662f388bee7da6dd63f8a9780ebff5c591e96b509981afc0a",
+    "prescriptions/STANDARD_PREPARATION.md": "1978e5b9db5a0a0c6ce95e100ef2c9c2271bacf58b03e87b5c4b8da61aabbc28",
+    "instructional_on_ramp/instructional_map.json": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+    "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+    "instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json": "53cd15be2842935e5c97f340d353edb37252a1b33a983ba4740c84dda8972bd5",
+    "instructional_on_ramp/week_02/or_07.json": "0e716733346a42bdee9b9f9ddfaa42d1376b5999754886b876c65e59cdee6047",
+    "instructional_on_ramp/week_02/or_10.json": "12bdd5e4e5dbb3393bafc8de23df7c2d8e93f017267df20e4f7f74c43539645f",
+    "planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md": "51f8a1e8d66842c84762cf925f8908ba12ff02703a7cbaf23da208161e6585e3",
+    "prescriptions/exemplar_library_mapping.json": "10b10b042bdfd3a835cc8078e35bf33878ceb2fa1199eeb51aeceffc41474d5d",
+    "prescriptions/or02_library_mapping.json": "f21b798c653a755f0acdc3e62637fcafdd1683e5b3efb3ab029307a71fe5cf51",
+    "prescriptions/or03_library_mapping.json": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11",
+    "prescriptions/or04_library_mapping.json": "ded4b8226b532de30842bfb0ede35c0827e72cda3fbffe025a669dd9d1235863",
+    "prescriptions/or05_library_mapping.json": "7932e597c63a46f5301339360b449a484a50aea22128cc9b7caf2f32f47f3b02",
+    "prescriptions/or06_library_mapping.json": "9d2be0e118e401cdebcf5fda8d47b9bf29e9ad8c20a34fd9025dccbecc0f3607",
+    "prescriptions/or07_library_mapping.json": "2edf81fc441953138a8ef1eb74e33742134e6240a3d3f23d5e9d946afeeca327",
+    "prescriptions/or08_library_mapping.json": "01767d28f27b3d689b9eff887b3eee438d86f7b825b3c646a4dcffa10038b976",
+    "prescriptions/or09_library_mapping.json": "4f4eae7a0c222c3e530b5b9497764032258ced8f8fbc57400e984fbc1530f130",
+    "prescriptions/or10_library_mapping.json": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08",
+    "prescriptions/or11_library_mapping.json": "459fa0841a00536a9acd203454239d1f5b1b8f777166130ed60da3cee0dee751",
+    "prescriptions/OR11_LIBRARY_MAPPING.md": "787f8a96086597f737c874c0518ba0ddbe7c0fa90b16d007271e89869c98c2c9",
+    "prescriptions/proposals/or11_paused_exit_teaching_candidate.json": "9967e8dd28beefbee3c2d14e244246a7b80734b6b2d44b8aefa44f9ba1172254",
+    "prescriptions/proposals/or07_paused_exit_teaching_candidate.json": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82",
+    "/Users/jimmy_mac/Desktop/code/vortex/docs/workout-generator/schemas/exercise-card.schema.json": "b60cadc037a8a3bedd01d6e356a0c12962d2e7a5efa7861d414561d2592694a4"
+  },
+  "limits": [
+    "Conditional written model only: actual histories, current response, selected direction context, kg, support fit, traffic sightlines and execution outcomes remain null.",
+    "Clock cohorts and separate direction/cap catalogs are selectable envelopes, not additive prescriptions or proof one athlete qualifies for every option.",
+    "First whole instruction/current check is E1 opportunity1 inside the actual total; faults/partial attempts consume their assigned slot, without automatic retest or side repayment.",
+    "Unknown main/stance dose records remain null and select the specified current reduction only after independent task/setup evidence. Known zero main or ineligible/zero stance lead defers that work; it is not attendance debt.",
+    "Familiar two-DB hip assumes five fitting stations, ten suitable implements, two coaches observing groups of two/three, complete20s reset and actual retained pair/load/range. Actual slower changes delay or omit later work.",
+    "One shared fan and dedicated segregated returns require actual facility verification; calculated widths and ordinary travel durations are not participant safety or forced pace guarantees.",
+    "Natural walking/jogging/braking contacts and completed travel are unknown; zero prescribed jump events does not mean zero contacts. Full repeated base and target support/handling remain separate from main and Strength.",
+    "No additional physical finisher or completed separate tumbling prescription; the30-minute separate session and its workload/approval remain unresolved.",
+    "This is OR11 only. No cumulative Week3, all possible histories, universal age readiness, current library approval or main-program unlock is established."
+  ],
+  "storage_verification": {
+    "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+    "schema_version": 2,
+    "resolved_scenario_count": 1152,
+    "deep_value_equality": true,
+    "original_scenarios_canonical_sha256": "7d684e7597eb5c30d08f9fad7c44a7ef7e3ff18f504d55a3644479d5d4833c39",
+    "resolved_scenarios_canonical_sha256": "7d684e7597eb5c30d08f9fad7c44a7ef7e3ff18f504d55a3644479d5d4833c39",
+    "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+    "serialized_ledger_bytes": 2404960,
+    "unpooled_scenarios_canonical_bytes": 120356161,
+    "pooled_value_count": 2084,
+    "common_field_count": 17,
+    "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write",
+    "nested_direction_storage": {
+      "status": "PASS_LOSSLESS_SERIALIZE_PARSE_RESOLVE",
+      "schema_version": 2,
+      "resolved_scenario_count": 1950,
+      "deep_value_equality": true,
+      "original_scenarios_canonical_sha256": "31823ecd538c62487efd5663ad20e37c555c9436f7ba7a9ae11fd2ca318efb08",
+      "resolved_scenarios_canonical_sha256": "31823ecd538c62487efd5663ad20e37c555c9436f7ba7a9ae11fd2ca318efb08",
+      "canonicalization": "UTF-8 JSON, recursively sorted object keys, compact separators, original list order; object identity/order are not part of JSON value equality",
+      "serialized_ledger_bytes": 761589,
+      "unpooled_scenarios_canonical_bytes": 5358866,
+      "pooled_value_count": 327,
+      "common_field_count": 1,
+      "verification_order": "Calculated original scenarios -> serialize pooled ledger -> parse JSON -> resolve every named scenario -> deep equality and canonical digest -> permit write"
+    },
+    "complete_document_roundtrip": true,
+    "direction_canonical_sha256": "31823ecd538c62487efd5663ad20e37c555c9436f7ba7a9ae11fd2ca318efb08",
+    "factor_canonical_sha256": "4eb07157a6977912e419ef06312ea9cc60aa3adfa12abdb0c13f7e6f2db6a88a"
+  }
+}

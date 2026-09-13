@@ -1,0 +1,2733 @@
+{
+  "schemaVersion": "1.0.0",
+  "documentPurpose": "OR11 bounded local source mapping and complete positive-pause proposal snapshot",
+  "planningStatus": "local_source_schema_and_actual_session_comparison_pass_pending_human_release",
+  "checkedOn": "2026-09-13",
+  "accessBoundary": "No database/current approval query, source/app/schema mutation or historical-file edit. Candidate metadata is not live approval, inventory or athlete evidence.",
+  "records": [
+    {
+      "mappingKey": "PAUSED-EXIT-TEACH",
+      "name": "Straight Stop, Pause and Announced Walking Exit — Teaching Proposal",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentCanonicalDefinitionId": null,
+      "currentCanonicalVariantId": null,
+      "currentCanonicalProfileId": null,
+      "currentApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "proposalPath": "docs/programming/athleticism_12_week/prescriptions/proposals/or11_paused_exit_teaching_candidate.json",
+      "identityDecision": "Same proposed controlled stopped/opening-step identity with two positive-pause delivery contexts; no automatic new canonical owner or exact existing1s profile. Human owner/profile resolution remains required.",
+      "contextEntryRequirements": {
+        "full_2s": [
+          "Actual controlled corresponding walking or gentle-jog stop, comfortable ordinary walking/standing/small step-turn components, understood early-announced side and actual verified route/supervision.",
+          "First full-pause exit instruction does not require prior successful complete exit. Current counted P2 may establish only the walking-stop component. A first jogging-stop lesson stays terminal-only; easy jogging or walking stopping does not establish a retained controlled jogging stop.",
+          "Retained full-pause work uses actual compatible approach, direction, geometry, ordinary exit, dose and current response."
+        ],
+        "first_1s": [
+          "Actual repeatable corresponding full 2-second stop/opening-step/ordinary-exit task at the same approach, announced direction, geometry and intent; current components, response, conduct, space and supervision fit.",
+          "The first 1-second attempt is counted instruction and needs no prior successful 1-second attempt. A P2 walking stop, a static stance, attendance or one emerging full-pause result is not the required whole-task repeatability.",
+          "The opposite direction is evaluated independently. Use only that direction’s actual evidence; no assumed bilateral pass or repayment attempt."
+        ],
+        "retained_1s": [
+          "Actual repeatable same-approach, direction, geometry, stopped/opening-step/ordinary-walking-exit and 1-second pause evidence with current suitable response, conduct, space and supervision.",
+          "No reconstruction of an older 2-second record is required. One first or emerging 1-second result and narrow preparation observations are not repeatability.",
+          "Retain actual smaller opportunities, approach/intent, exit/finish, recovery and qualified direction; no automatic pause removal, immediate cutting or opposite-side pass.",
+          "Direct retained same-context jogging stop/exit evidence requires the actual controlled corresponding jog stop, repeatable selected 1-second direction/approach/intent task, comfortable ordinary walking/turning and current fit. It does not require reconstructing an older walking-stop or full 2-second record. First new terminal jogging stopping still requires its actual controlled walking-stop/easy-jog components; it cannot be combined with a first exit."
+        ]
+      },
+      "mechanics": "Reach an actually controlled bilateral stop at the retained walking or gentle-jog approach. Hold for the selected full2 seconds or independently eligible shorter1 second, counted only after the genuine stop. Use exit-side small opening steps, lifting/replanting both feet so body/feet turn together into the early-announced2 m approximately45-degree ordinary walking exit. Finish with a separate quiet bilateral2-second hold, clear outward and take the segregated return with full recovery. Each assigned opportunity selects its own direction/context; first instruction, retention and actual completion remain distinct.",
+      "sourceReferences": [
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/instructional_map.json",
+          "lines": "672-725",
+          "kind": "preserved_OR07_objective_and_independent_main_entry_gate"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/planning/OR07_STIMULUS_AND_SOURCE_REVIEW.md",
+          "lines": "1-32",
+          "kind": "bounded_local_source_review"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "21-26;53-76;192-201;235-242;325-341;409-457",
+          "kind": "related_source155_terminal_linear_stop_only"
+        },
+        {
+          "path": "scripts/data/canonical-research/generated/jog-to-stick-linear-deceleration.v1.json",
+          "lines": "410-418",
+          "kind": "walk_to_stick_is_proposed_new_variant_not_completed_profile"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/step-in-to-stick.v1.json",
+          "lines": "9-24;64-68;255-267;291-319;369-375;382-426",
+          "kind": "source223_distinct_single_step_terminal_stick"
+        },
+        {
+          "path": "scripts/data/canonical-research/contracts/45-degree-cut-and-reaccelerate.v1.json",
+          "lines": "7-15;24-32",
+          "kind": "source283_distinct_immediate_cut_and_exit_with_prior_cut_prerequisites"
+        },
+        {
+          "path": "scripts/data/canonical-research/generated/45-degree-cut-and-stick.v1.json",
+          "lines": "6-11;115-129;139-144",
+          "kind": "cut_then_terminal_hold_not_stop_before_walking_exit"
+        },
+        {
+          "path": "backend/migrations/391_coaching_score_74_identity_boundaries.sql",
+          "lines": "440-445",
+          "kind": "later_cut_then_terminal_balance_identity_boundary"
+        },
+        {
+          "path": "backend/migrations/352_coaching_static_control_family_completion.sql",
+          "lines": "478-500;746-755;859-860;1387-1390",
+          "kind": "retained_supported_static_stance_and_separate_support_change_gates"
+        },
+        {
+          "path": "backend/migrations/370_coaching_split_squat_family_completion.sql",
+          "lines": "248-271;498;551-568",
+          "kind": "dynamic_stationary_split_squat_is_a_separate_action"
+        },
+        {
+          "path": "docs/VORTEX_ATHLETICISM_BLOCK_PROGRAMMING_SPEC.md",
+          "lines": "305-315",
+          "kind": "complete_proposal_human_review_and_approved_substitute_release_gate"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md",
+          "lines": "7-57",
+          "kind": "reviewed_OR11_positive_pause_context_and_independent_history_gate"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or07_paused_exit_teaching_candidate.json",
+          "lines": "1-15",
+          "kind": "frozen_full_pause_source_snapshot_not_current_approval"
+        },
+        {
+          "path": "scripts/data/programming-methods-top50.mjs",
+          "lines": "7237-7277",
+          "kind": "fatigue_method_not_suitable_for_fresh_technical_instruction"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            111660,
+            111660
+          ],
+          "kind": "actual_OR11_direction_specific_pause_contexts"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            3045,
+            3045
+          ],
+          "kind": "actual_OR11_six_routes_and_count_caps"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            14525,
+            14525
+          ],
+          "kind": "actual_OR11_static_and_high_stance_packets"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            108778,
+            108778
+          ],
+          "kind": "actual_OR11_familiar_hip_contexts"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            114914,
+            114914
+          ],
+          "kind": "actual_OR11_support_count_caps"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            118446,
+            118446
+          ],
+          "kind": "actual_OR11_asymmetric_side_packets"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            2836,
+            2836
+          ],
+          "kind": "actual_OR11_clock"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json",
+          "lines": [
+            23,
+            23
+          ],
+          "kind": "additive_OR11_explicit_outline_reconciliation"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            126077,
+            126077
+          ],
+          "kind": "actual_OR11_main_volume_policy"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+          "lines": [
+            126085,
+            126085
+          ],
+          "kind": "actual_OR11_stance_history_policy"
+        }
+      ],
+      "doseProfiles": [
+        {
+          "id": "proposal:or11:paused-exit-full-2s",
+          "phaseKey": "movement_intelligence",
+          "role": "conditional",
+          "phaseSuitability": 70,
+          "phaseSuitabilityStatus": "explicit_root_author_fit_judgment_only_not_reviewed_calibration_or_participant_probability",
+          "purpose": "Teach or retain the exact full2-second stopped ordinary exit under its component gates.",
+          "qualityGate": "Actual controlled corresponding bilateral stop first, then full2-second positive pause, early-announced correct side, ordinary lifting/replanting opening steps without pivot/crossover/cut,2 m45-degree walking exit, separate quiet bilateral2-second finish and safe clearance/return. Record actual action; entry permission is not completion.",
+          "stopRules": [
+            "Stop the affected task for symptoms, apprehension, participant request, restrictions, unsafe surface/traffic, loss of balance or unclear conduct.",
+            "Do not open/turn before a genuinely controlled corresponding bilateral stop and the full selected positive pause. A rushed or unstable finish is not a valid shorter-pause result. Record the actual pause and partial work; restore an independently suitable held task or stop without an added attempt.",
+            "End the affected exit for fixed-foot pivot, crossover, hard sidestep cut, immediate acceleration, wrong or late-announced direction, unsafe foot placement or uncontrolled terminal finish.",
+            "Actual longer instruction, braking, clearance or return delays/omits later work. Do not add an athlete walkthrough, substitute attempt, opposite-side debt, faster release or shorter recovery."
+          ],
+          "dosage": {
+            "status": "compared_to_actual_OR11_three_ages_four_modes_direction_specific_contexts_and_caps",
+            "ageModeRows": [
+              {
+                "ageBand": "9-11",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 2,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              }
+            ],
+            "sharedOpportunityPool": "One total across full2s and shorter1s contexts and eligible route alternatives. Select one exact context per assigned opportunity/direction; do not add profile ceilings. First complete instruction is existing E1 opportunity1.",
+            "walkingEnvelopeSeconds": {
+              "approach": 2,
+              "braking": 3,
+              "balancedPause": 2,
+              "openingStepsAnd2mExit": 4,
+              "terminalQuietFinish": 2,
+              "ordinaryOutwardClearance": 7
+            },
+            "gentleJogEnvelopeSeconds": {
+              "approach": 3,
+              "braking": 3,
+              "balancedPause": 2,
+              "openingStepsAnd2mExit": 4,
+              "terminalQuietFinish": 2,
+              "ordinaryOutwardClearance": 6
+            },
+            "returnEnvelopeSeconds": 45,
+            "minimumRecoverySecondsAfterFullWorkAndReturn": 60,
+            "perceivedEffort": {
+              "walkingApproach": 2,
+              "gentleJogApproach": 3,
+              "ordinaryWalkingExit": 2
+            },
+            "naturalContacts": null,
+            "clockRule": "Both pause values retain20s active/clearance plus45s return and25s release headway. One saved second only adds clearance slack; no extra effort, forced pace or shortened recovery."
+          },
+          "timeModel": {
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "releaseHeadwaySeconds": 25,
+            "globalClockOwnedBy": "Bound actual OR11 timing_model; the day owns setup and subsequent roles.",
+            "delayRule": "Actual slower stabilization/action/return delays or omits later work; shorter pause creates slack only.",
+            "standardRoundStartSeconds": [
+              1200,
+              1620,
+              2040
+            ],
+            "compressedRoundStartSeconds": [
+              900,
+              1320
+            ],
+            "sameAthleteRoundSpacingSeconds": 420,
+            "availableRecoveryAfterFullWorkAndReturnSeconds": 355,
+            "singleOpportunityRule": "No between-repeat interval exists for one opportunity; still preserve at least 60 s after complete work/return before a later relevant role. Actual delays remove later work rather than compress recovery."
+          },
+          "doseScaling": {
+            "sameCeilingsAllAges": true,
+            "sharedAcrossProfiles": true,
+            "smallerCaps": [
+              1,
+              2
+            ],
+            "directionRule": "Record first side LEFT/RIGHT; assigned order is the actual first/opposite/first prefix. Select each direction/context independently. An unavailable opposite slot is terminal/deferred, not reassigned to add first-side work; no repeatability or side debt from a single emerging attempt.",
+            "L": "Walking only; preserve independently eligible full or shorter pause and actual lower dose.",
+            "progression": "No pause removal, cue change, approach increase, support removal, new load/handling or opportunity increase. Only later actual repeatability can support its separately reviewed next task.",
+            "unknownLongitudinalCountPolicy": "When selected main movement is independently eligible but longitudinal count is unknown, use one original counted opportunity or omit; keep prior count null. This is a current planning ceiling, not a claimed historical reduction. Known smaller/zero work or restrictions govern; missing attendance is not fabricated completed zero work."
+          },
+          "measurement": {
+            "record": [
+              "exact approach and current geometry",
+              "announced first side",
+              "planned and actual order/opportunities",
+              "stop quality and pause",
+              "opening/exit quality",
+              "final finish",
+              "actual travel/contacts",
+              "cue/assistance needs",
+              "faults/symptoms",
+              "clearance/return/recovery",
+              "first_1s versus retained_1s versus full_2s basis for each actual direction",
+              "actual smaller count and omitted direction without reassignment"
+            ],
+            "noSpeedOrAgilityTest": true
+          },
+          "supportPrompts": {
+            "athlete": "Stop first, hold the chosen pause, then walk the known exit. No race.",
+            "coach": "Select the direction-specific entry context before release. Count the first complete task inside the total and keep actual stop/pause/exit records separate."
+          },
+          "documentationContextKey": "full_2s",
+          "pauseSeconds": 2,
+          "eligibleEntryKeys": [
+            "full_2s"
+          ],
+          "entryRequirements": {
+            "full_2s": [
+              "Actual controlled corresponding walking or gentle-jog stop, comfortable ordinary walking/standing/small step-turn components, understood early-announced side and actual verified route/supervision.",
+              "First full-pause exit instruction does not require prior successful complete exit. Current counted P2 may establish only the walking-stop component. A first jogging-stop lesson stays terminal-only; easy jogging or walking stopping does not establish a retained controlled jogging stop.",
+              "Retained full-pause work uses actual compatible approach, direction, geometry, ordinary exit, dose and current response."
+            ]
+          }
+        },
+        {
+          "id": "proposal:or11:paused-exit-short-1s",
+          "phaseKey": "movement_intelligence",
+          "role": "conditional",
+          "phaseSuitability": 70,
+          "phaseSuitabilityStatus": "explicit_root_author_fit_judgment_only_not_reviewed_calibration_or_participant_probability",
+          "purpose": "Introduce or retain a shorter positive1-second stop pause while preserving the corresponding whole stopped/opening-step task.",
+          "qualityGate": "Actual controlled corresponding bilateral stop first, then full1-second positive pause, early-announced correct side, ordinary lifting/replanting opening steps without pivot/crossover/cut,2 m45-degree walking exit, separate quiet bilateral2-second finish and safe clearance/return. Record actual action; entry permission is not completion.",
+          "stopRules": [
+            "Stop the affected task for symptoms, apprehension, participant request, restrictions, unsafe surface/traffic, loss of balance or unclear conduct.",
+            "Do not open/turn before a genuinely controlled corresponding bilateral stop and the full selected positive pause. A rushed or unstable finish is not a valid shorter-pause result. Record the actual pause and partial work; restore an independently suitable held task or stop without an added attempt.",
+            "End the affected exit for fixed-foot pivot, crossover, hard sidestep cut, immediate acceleration, wrong or late-announced direction, unsafe foot placement or uncontrolled terminal finish.",
+            "Actual longer instruction, braking, clearance or return delays/omits later work. Do not add an athlete walkthrough, substitute attempt, opposite-side debt, faster release or shorter recovery."
+          ],
+          "dosage": {
+            "status": "compared_to_actual_OR11_three_ages_four_modes_direction_specific_contexts_and_caps",
+            "ageModeRows": [
+              {
+                "ageBand": "9-11",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "9-11",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "12-14",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_D",
+                "sharedSessionOpportunityCeiling": 3,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite",
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "standard_L",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_D",
+                "sharedSessionOpportunityCeiling": 2,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first",
+                  "opposite"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 2
+                },
+                "allowedApproaches": [
+                  "walk_exit",
+                  "jog_exit"
+                ]
+              },
+              {
+                "ageBand": "15-18",
+                "mode": "compressed_L",
+                "sharedSessionOpportunityCeiling": 1,
+                "repetitionsPerAssignedOpportunity": 1,
+                "pauseSeconds": 1,
+                "exitMetres": 2,
+                "exitAngleDegrees": 45,
+                "terminalHoldSeconds": 2,
+                "activeAndClearanceSeconds": 20,
+                "returnSeconds": 45,
+                "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+                "relativeDirectionOrder": [
+                  "first"
+                ],
+                "smallerCaps": {
+                  "1": 1,
+                  "2": 1
+                },
+                "allowedApproaches": [
+                  "walk_exit"
+                ]
+              }
+            ],
+            "sharedOpportunityPool": "One total across full2s and shorter1s contexts and eligible route alternatives. Select one exact context per assigned opportunity/direction; do not add profile ceilings. First complete instruction is existing E1 opportunity1.",
+            "walkingEnvelopeSeconds": {
+              "approach": 2,
+              "braking": 3,
+              "balancedPause": 1,
+              "openingStepsAnd2mExit": 4,
+              "terminalQuietFinish": 2,
+              "ordinaryOutwardClearance": 8
+            },
+            "gentleJogEnvelopeSeconds": {
+              "approach": 3,
+              "braking": 3,
+              "balancedPause": 1,
+              "openingStepsAnd2mExit": 4,
+              "terminalQuietFinish": 2,
+              "ordinaryOutwardClearance": 7
+            },
+            "returnEnvelopeSeconds": 45,
+            "minimumRecoverySecondsAfterFullWorkAndReturn": 60,
+            "perceivedEffort": {
+              "walkingApproach": 2,
+              "gentleJogApproach": 3,
+              "ordinaryWalkingExit": 2
+            },
+            "naturalContacts": null,
+            "clockRule": "Both pause values retain20s active/clearance plus45s return and25s release headway. One saved second only adds clearance slack; no extra effort, forced pace or shortened recovery."
+          },
+          "timeModel": {
+            "physicalAndClearanceSeconds": 20,
+            "returnSeconds": 45,
+            "minimumRecoveryAfterWorkAndReturnSeconds": 60,
+            "releaseHeadwaySeconds": 25,
+            "globalClockOwnedBy": "Bound actual OR11 timing_model; the day owns setup and subsequent roles.",
+            "delayRule": "Actual slower stabilization/action/return delays or omits later work; shorter pause creates slack only.",
+            "standardRoundStartSeconds": [
+              1200,
+              1620,
+              2040
+            ],
+            "compressedRoundStartSeconds": [
+              900,
+              1320
+            ],
+            "sameAthleteRoundSpacingSeconds": 420,
+            "availableRecoveryAfterFullWorkAndReturnSeconds": 355,
+            "singleOpportunityRule": "No between-repeat interval exists for one opportunity; still preserve at least 60 s after complete work/return before a later relevant role. Actual delays remove later work rather than compress recovery."
+          },
+          "doseScaling": {
+            "sameCeilingsAllAges": true,
+            "sharedAcrossProfiles": true,
+            "smallerCaps": [
+              1,
+              2
+            ],
+            "directionRule": "Record first side LEFT/RIGHT; assigned order is the actual first/opposite/first prefix. Select each direction/context independently. An unavailable opposite slot is terminal/deferred, not reassigned to add first-side work; no repeatability or side debt from a single emerging attempt.",
+            "L": "Walking only; preserve independently eligible full or shorter pause and actual lower dose.",
+            "progression": "No pause removal, cue change, approach increase, support removal, new load/handling or opportunity increase. Only later actual repeatability can support its separately reviewed next task.",
+            "unknownLongitudinalCountPolicy": "When selected main movement is independently eligible but longitudinal count is unknown, use one original counted opportunity or omit; keep prior count null. This is a current planning ceiling, not a claimed historical reduction. Known smaller/zero work or restrictions govern; missing attendance is not fabricated completed zero work."
+          },
+          "measurement": {
+            "record": [
+              "exact approach and current geometry",
+              "announced first side",
+              "planned and actual order/opportunities",
+              "stop quality and pause",
+              "opening/exit quality",
+              "final finish",
+              "actual travel/contacts",
+              "cue/assistance needs",
+              "faults/symptoms",
+              "clearance/return/recovery",
+              "first_1s versus retained_1s versus full_2s basis for each actual direction",
+              "actual smaller count and omitted direction without reassignment"
+            ],
+            "noSpeedOrAgilityTest": true
+          },
+          "supportPrompts": {
+            "athlete": "Stop first, hold the chosen pause, then walk the known exit. No race.",
+            "coach": "Select the direction-specific entry context before release. Count the first complete task inside the total and keep actual stop/pause/exit records separate."
+          },
+          "documentationContextKey": "short_1s",
+          "pauseSeconds": 1,
+          "eligibleEntryKeys": [
+            "first_1s",
+            "retained_1s"
+          ],
+          "entryRequirements": {
+            "first_1s": [
+              "Actual repeatable corresponding full 2-second stop/opening-step/ordinary-exit task at the same approach, announced direction, geometry and intent; current components, response, conduct, space and supervision fit.",
+              "The first 1-second attempt is counted instruction and needs no prior successful 1-second attempt. A P2 walking stop, a static stance, attendance or one emerging full-pause result is not the required whole-task repeatability.",
+              "The opposite direction is evaluated independently. Use only that direction’s actual evidence; no assumed bilateral pass or repayment attempt."
+            ],
+            "retained_1s": [
+              "Actual repeatable same-approach, direction, geometry, stopped/opening-step/ordinary-walking-exit and 1-second pause evidence with current suitable response, conduct, space and supervision.",
+              "No reconstruction of an older 2-second record is required. One first or emerging 1-second result and narrow preparation observations are not repeatability.",
+              "Retain actual smaller opportunities, approach/intent, exit/finish, recovery and qualified direction; no automatic pause removal, immediate cutting or opposite-side pass.",
+              "Direct retained same-context jogging stop/exit evidence requires the actual controlled corresponding jog stop, repeatable selected 1-second direction/approach/intent task, comfortable ordinary walking/turning and current fit. It does not require reconstructing an older walking-stop or full 2-second record. First new terminal jogging stopping still requires its actual controlled walking-stop/easy-jog components; it cannot be combined with a first exit."
+            ]
+          }
+        }
+      ],
+      "relatedIdentityBoundaries": [
+        {
+          "sourceSlug": "jog-to-stick-linear-deceleration",
+          "legacySourceId": 155,
+          "localCandidateVariantKey": "submaximal-linear-multistep-deceleration-to-bilateral-stick",
+          "localCandidateProfileKeys": [
+            "movement-intelligence",
+            "output"
+          ],
+          "sourceAuthoredVariantUuid": "15500000-0000-4000-8000-000000000001",
+          "sourceDefaults": "MI 2-3 sets x 2-3 valid stops,60-90s rest; legacy2x3,75s rest and2-second stick. Conditional Output is distinct. These are not the OR11 composite dose.",
+          "identityBoundary": "Terminal bilateral straight stop; no turn/cut/reacceleration. A walking start is separately proposed in the research rather than silently included in this exact jog variant.",
+          "liveCanonicalDefinitionId": null,
+          "liveCanonicalVariantId": null,
+          "liveCanonicalProfileId": null,
+          "currentApprovalVerified": false,
+          "scope": "related_or_distinct_local_source_only_not_selectable_OR11_whole_sequence"
+        },
+        {
+          "sourceSlug": "deceleration-step-down-stop-step-stick",
+          "legacySourceId": 223,
+          "localCandidateVariantKey": "low_speed_single_step_horizontal_deceleration_to_terminal_stick",
+          "localCandidateProfileKeys": [
+            "movement-intelligence"
+          ],
+          "sourceAuthoredVariantUuid": "22300000-0000-4000-8000-000000000001",
+          "sourceDefaults": "MI2-3x3-5 valid stops per declared side/direction,30-60s rest; walking-to-submaximal single step.",
+          "identityBoundary": "One braking step and terminal split/athletic hold; cut/reacceleration prohibited. Programming/safety also require controlled one-step stopping, so this is not a clean first complete paused-exit acquisition profile.",
+          "liveCanonicalDefinitionId": null,
+          "liveCanonicalVariantId": null,
+          "liveCanonicalProfileId": null,
+          "currentApprovalVerified": false,
+          "scope": "related_or_distinct_local_source_only_not_selectable_OR11_whole_sequence"
+        },
+        {
+          "sourceSlug": "45-degree-cut-and-reaccelerate",
+          "legacySourceId": 283,
+          "localCandidateVariantKey": "planned-45-degree-sidestep-cut-immediate-exit",
+          "localCandidateProfileKeys": [
+            "movement-intelligence-planned-45-degree-cut-exit",
+            "output-planned-45-degree-cut-reaccelerate"
+          ],
+          "sourceAuthoredVariantUuid": "283eafbc-e7e4-4c7e-bf13-1c2fc5002831",
+          "sourceDefaults": "MI2-3x2 per direction,45-75s rest; Output2-4x1-3 per direction,45-90s between reps and120-180s between sets. Legacy4x2,90s rest.",
+          "identityBoundary": "Immediate sidestep cut and acceleration without hesitation; prior exact cut-and-stick both directions required. Neither profile supplies a stopped pause then ordinary walking exit.",
+          "liveCanonicalDefinitionId": null,
+          "liveCanonicalVariantId": null,
+          "liveCanonicalProfileId": null,
+          "currentApprovalVerified": false,
+          "scope": "related_or_distinct_local_source_only_not_selectable_OR11_whole_sequence"
+        },
+        {
+          "sourceSlug": "45-degree-cut-and-stick",
+          "legacySourceId": null,
+          "localCandidateVariantKey": null,
+          "localCandidateProfileKeys": [],
+          "sourceAuthoredVariantUuid": null,
+          "sourceDefaults": "Local research proposals and generic legacy doses are not a completed exact OR11 prescription.",
+          "identityBoundary": "Redirect then terminal hold; exact historical cut-plant versus first-exit held contact remains unresolved in research. Migration391 confirms the terminal-balance outcome after redirect, not a prior full linear stop.",
+          "liveCanonicalDefinitionId": null,
+          "liveCanonicalVariantId": null,
+          "liveCanonicalProfileId": null,
+          "currentApprovalVerified": false,
+          "scope": "related_or_distinct_local_source_only_not_selectable_OR11_whole_sequence"
+        }
+      ]
+    }
+  ],
+  "reusedMappings": [
+    {
+      "mappingKey": "DECEL-LINEAR",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "DECEL-LINEAR"
+      },
+      "localCandidateVariantKey": "submaximal-linear-multistep-deceleration-to-bilateral-stick",
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Corresponding terminal-only jogging stop; no whole exit identity. First jog stopping may be taught only under its own source components, not simultaneously a new exit.",
+      "retainedEvidenceBoundary": "Direct retained same-context jogging stop/exit evidence requires the actual controlled corresponding jog stop, repeatable selected 1-second direction/approach/intent task, comfortable ordinary walking/turning and current fit. It does not require reconstructing an older walking-stop or full 2-second record. First new terminal jogging stopping still requires its actual controlled walking-stop/easy-jog components; it cannot be combined with a first exit."
+    },
+    {
+      "mappingKey": "WALK-STOP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "WALK-STOP"
+      },
+      "localCandidateVariantKey": null,
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Authored walking terminal stop, distinct from source155 jogging; P2 may establish only walking stop."
+    },
+    {
+      "mappingKey": "SPLIT-ISO-SUP",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "SPLIT-ISO-SUP"
+      },
+      "localCandidateVariantKey": "supported-bodyweight-mid-range",
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Source212 mid-range gates: actual controlled descent/safe exit/breathing at that depth; retain support/contact/hold caps; no dynamic or locomotor pass.",
+      "OR11DoseContext": "P1: one orientation composite, left/right at most3 s each plus19 s setup/standing-side-change/bilateral-finish/exit. S1: one combined set, D5/L3 s per lead before smaller actual independent caps,10 s standing side change+15 s setup/entry/exit,60 s recovery. 25 lead packets1–5 each preserve asymmetry; no new static/dynamic identity.",
+      "OR11UnknownHoldHistoryPolicy": "With actually current familiar support/depth/controlled entry and exit but unknown historical hold duration, P1 and S1 use at most 1 s on that eligible lead; the other lead keeps its own actual smaller ceiling. Prior seconds remain null. Unknown duration alone does not force first-high. A known zero or ineligible lead excludes the positive both-lead packet: independently eligible quiet P1 and other roles may remain, while S1 is deferred."
+    },
+    {
+      "mappingKey": "SPLIT-STANCE-HIGH-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "SPLIT-STANCE-HIGH-TEACH"
+      },
+      "localCandidateVariantKey": null,
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Retained high requires actual controlled entry/breathing/exit at the assigned shallow depth. Independently eligible learn_high teaches first small-bend entry within S1 from comfortable standing/support/direct instruction; no prior whole hold required, no mid-range/dynamic pass. P1 may remain quiet independently. Stop unsuitable entry without replacement. Retain actual per-lead shorter dose.",
+      "OR11UnknownHoldHistoryPolicy": "With actually current familiar support/depth/controlled entry and exit but unknown historical hold duration, P1 and S1 use at most 1 s on that eligible lead; the other lead keeps its own actual smaller ceiling. Prior seconds remain null. Unknown duration alone does not force first-high. A known zero or ineligible lead excludes the positive both-lead packet: independently eligible quiet P1 and other roles may remain, while S1 is deferred."
+    },
+    {
+      "mappingKey": "BILATERAL-STAND-TEACH",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "mappingKey": "BILATERAL-STAND-TEACH"
+      },
+      "localCandidateVariantKey": null,
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Independently comfortable quiet bilateral standing only; no split, lowering, stop or exit credit."
+    },
+    {
+      "mappingKey": "HINGE-BW",
+      "name": "Bodyweight Hip Hinge Good Morning",
+      "sourceSlug": "bodyweight-hip-hinge-good-morning",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "Arms crossed at chest, soft knees; hips back 3 s and stand 1 s through actual owned comfortable range. Five seconds setup/exit. No wall contact, floor reach or new arm position.",
+      "readinessAndBoundary": "Actual currently familiar pattern/setup/control; unknown longitudinal count may use its at-most-two packet, not first unfamiliar instruction. Most recent actual unloaded record blocks calling older DB work retained.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            2521,
+            2526
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "scripts/data/resistance-band-body-resistance-all-cards.json",
+          "lines": [
+            2615,
+            2674
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "HINGE-BW"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs."
+    },
+    {
+      "mappingKey": "DB-RDL",
+      "name": "Romanian Deadlift — two dumbbells, standard tempo",
+      "sourceSlug": "romanian-deadlift",
+      "localCandidateVariantKey": "dumbbell-standard-tempo",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "TWO dumbbells, one per hand, palms inward and long arms, tall top start near thighs; soft knees, organized trunk, close weight paths and owned hamstring-limited range, no floor-touch quota. Retained elevated parking: 4 s pickup, 3 s lower/1 s stand repetitions, 4 s set-down and 2 s clear.",
+      "readinessAndBoundary": "D only, actual most recent compatible same pair/load/range/count and independently familiar pickup/top-start/hinge/set-down. One first OR06 loaded set does not establish familiar 10 s handling. No first loaded hip instruction or restoration after newer unloading. Five fitting elevated stations/ten suitable DBs and two-coach direct observation must fit.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            461,
+            464
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            624,
+            680
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            707,
+            718
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/331_coaching_romanian_deadlift_family_completion.sql",
+          "lines": [
+            772,
+            774
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/OR06_LIBRARY_MAPPING.md",
+          "lines": [
+            53,
+            76
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Local capacity-strength source 2–5 sets, 3–10 reps, 90–240 s recovery is not OR11 one-set retained teaching dosage; neutral hand orientation and elevated parking are exact authored setup context.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "DB-RDL"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs.",
+      "OR11DoseContext": {
+        "roles": [
+          "S2"
+        ],
+        "sets": 1,
+        "D_reference_reps_by_age": {
+          "9-11": 3,
+          "12-14": 4,
+          "15-18": 4
+        },
+        "L_allowed": false,
+        "repetitionCaps": [
+          1,
+          2,
+          3
+        ],
+        "repSeconds": 4,
+        "handlingSeconds": 10,
+        "handlingPhasesSeconds": {
+          "pickup": 4,
+          "setdown": 4,
+          "clear": 2
+        },
+        "minimumRestSeconds": 90,
+        "minimumRIR": 5,
+        "simultaneousFittingStations": 5,
+        "simultaneouslySuitableDumbbells": 10,
+        "betweenGroupResetSeconds": 20,
+        "compactGroupStartsSeconds": [
+          45,
+          95,
+          145
+        ],
+        "firstLoadedInstruction": false,
+        "actualLoadEachKg": null
+      }
+    },
+    {
+      "mappingKey": "INCLINE-PUSH",
+      "name": "Push-Up — hands elevated on stable support",
+      "sourceSlug": "push-up",
+      "localCandidateVariantKey": "hands-elevated-stable",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "Hands secure on individually fitted stable elevated platform, feet on lower support at recorded position, organized head/pelvis/feet body line; owned full cycle 2 s lower/1 s press, no knees-down or new support geometry.",
+      "readinessAndBoundary": "Familiar actual support and control only. Verify current contacts in setup; first listed rep observes response. No first support-height/push instruction in the short role, no automatic lower support by age. Migration455 is a later exact local family contract than the frozen legacy incline-push-up snapshot; 682 normalizes profile attributes without granting approval.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/455_coaching_push_up_identity_and_family_completion.sql",
+          "lines": [
+            380,
+            380
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/455_coaching_push_up_identity_and_family_completion.sql",
+          "lines": [
+            431,
+            490
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/682_coaching_push_up_standard_profile_mapping.sql",
+          "lines": [
+            1,
+            66
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source capacity-strength 3 x 8 and 120 s rest/reserve2 are not copied; OR11 retained one small set, 60 s recovery and >=5 RIR are an explicit teaching dose.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "INCLINE-PUSH"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs."
+    },
+    {
+      "mappingKey": "SUPPORTED-ROW",
+      "name": "One-Arm Dumbbell Row — bench supported",
+      "sourceSlug": "one-arm-dumbbell-row",
+      "localCandidateVariantKey": "bench-supported-dumbbell",
+      "localCandidateProfileKey": "capacity-strength",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "OPPOSITE hand AND knee on suitable stable bench, other foot planted; one actual familiar DB, pull toward hip/lower rib without intentional torso rotation, 1 s pull/1 s organized top/2 s lower. One set includes both sides, 10 s side change and 10 s total handling.",
+      "readinessAndBoundary": "Familiar actual bench contacts, selected DB grip/handling and both-side control. Source orientation/light first reps are counted listed work, never bonus reps. Independent suspension substitute requires its own familiar anchors/angle/body line; no manual assistance or new loaded row lesson.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            184,
+            209
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            312,
+            312
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/453_coaching_one_arm_row_family_completion.sql",
+          "lines": [
+            344,
+            386
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source 4 x 6 per side/120 s recovery/reserve2 and source transition estimates are defaults, not the one-set OR11 dose or its 10 s side change.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "SUPPORTED-ROW"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs."
+    },
+    {
+      "mappingKey": "RING-ROW-ALT",
+      "name": "Ring Row / TRX Row, bilateral suspension alternative",
+      "sourceSlug": "ring-row-trx-row",
+      "localCandidateVariantKey": null,
+      "localCandidateProfileKey": null,
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "Two equal stable suspension contacts, secure grips, independently familiar body angle and foot position; organized whole-body line and bilateral pulling/lowering. Exact anchors, handles and range must be recorded.",
+      "readinessAndBoundary": "Legacy local candidate, no verified exact current canonical profile. Requires independent familiar suspension setup/control and fitting anchors. It is a bilateral alternative, not the same unilateral bench-supported variant or automatic equipment equivalence.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/capacity-pull-cards-27-36.mjs",
+          "lines": [
+            53,
+            54
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "scripts/data/capacity-pull-cards-27-36.mjs",
+          "lines": [
+            114,
+            172
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "docs/programming/athleticism_12_week/prescriptions/exemplar_library_mapping.json",
+          "lines": [
+            414,
+            459
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "RING-ROW-ALT"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs."
+    },
+    {
+      "mappingKey": "HEEL-TAP",
+      "name": "Dead Bug Heel Tap — arms fixed, alternating bent-leg heel contact",
+      "sourceSlug": "dead-bug-heel-tap",
+      "localCandidateVariantKey": "bodyweight-supine-arms-fixed-alternating-heel-tap",
+      "localCandidateProfileKey": "prepare-bodyweight-arms-fixed-alternating-dead-bug-heel-tap",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "Supine, arms fixed vertically, comfortable tabletop; lower one bent leg to light heel contact at selected target, return then alternate, 2 s out/2 s back. No heel slide, long straight-leg lever or opposite-arm reach.",
+      "readinessAndBoundary": "Actual comfortable floor access/tabletop and trunk/limb control; setup checks retained position, first counted heel contact observes response. If unavailable, separately eligible fully supported breathing or defer. Source Prepare profile is exact provenance; use in retained Strength brace role is disclosed contextual placement, not canonical profile approval.",
+      "sourceReferences": [
+        {
+          "path": "scripts/data/canonical-research/contracts/dead-bug-heel-tap.v1.json",
+          "lines": [
+            1,
+            1
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/542_coaching_dead_bug_heel_tap_source_66_candidate_materialization.sql",
+          "lines": [
+            1,
+            7
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "verifiedLegacySourceId": 66,
+      "sourceJsonPaths": [
+        "$.cards[0].definition",
+        "$.cards[0].variants[0]",
+        "$.cards[0].variants[0].deliveryProfiles[0]"
+      ],
+      "sourceDefaultBoundary": "Local contract 1–3 sets, 3–6 cycles per side, 20–45 s rest and setup20/perSet40/reset20 are not OR11 retained low-dose defaults.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "HEEL-TAP"
+      },
+      "OR11Boundary": "Retain actual independently familiar/suitable exact setup, most recent compatible dose and current response. No first load/handling, harder support or older-load restoration. Exact OR11 reference/low, scalar and applicable side packets are bound in sessionBinding; these are authored dose contexts, not changed canonical IDs.",
+      "OR11SideReduction": "Use exact actual left/right contact counts through the side packets; zero on a side is omitted work, not a new heel-slide action or repayment. Fixed vertical arms and bent-leg contact/return remain the source mechanics."
+    },
+    {
+      "mappingKey": "BREATH-9090-ALT",
+      "name": "90/90 Breathing with Reach — lower legs supported, bilateral reach",
+      "sourceSlug": "9090-breathing-with-reach",
+      "localCandidateVariantKey": "lower-leg-supported-bilateral-reach",
+      "localCandidateProfileKey": "prepare-and-access-lower-leg-support",
+      "legacySourceId": null,
+      "currentDefinitionId": null,
+      "currentVariantId": null,
+      "currentDeliveryProfileId": null,
+      "liveApprovalVerified": false,
+      "approvedMedia": null,
+      "calibratedDifficulty": null,
+      "mappingStatus": "inspected_local_candidate_with_explicit_OR11_context_pending_release",
+      "mechanics": "Supine lower legs/calves and/or heels fully passively supported by stable nonrolling bench/box near 90/90. BOTH arms reach vertically together with gentle scapular protraction; comfortable inhale and longer unforced exhale. No heel drive, hip lift, forced flattening/crunch, breath hold or sequential side reach.",
+      "readinessAndBoundary": "Independent comfortable floor transfer, fitted full passive lower-leg support, suitable simultaneous bilateral arm reach/position and comfortable breathing. First whole breathing instruction may occur in the counted set; prior whole breathing success or heel-tap pass is not required. Actual smaller cycles govern; unknown compatible history selects the one-cycle packet after these components fit. No floor/support suitability means defer.",
+      "sourceReferences": [
+        {
+          "path": "backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql",
+          "lines": [
+            992,
+            1022
+          ],
+          "kind": "local_source"
+        },
+        {
+          "path": "backend/migrations/490_coaching_9090_breathing_family_audit_hardening.sql",
+          "lines": [
+            1363,
+            1378
+          ],
+          "kind": "local_source"
+        }
+      ],
+      "sourceDefaultBoundary": "Source one set/four breaths/15 s rest; the OR11 shorter unforced 2/3 cadence is an explicit delivery context. Both arms together is the selected source action.",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "BREATH-9090-ALT"
+      },
+      "OR11Boundary": "Prepare/access source placement as a simple Strength brace alternative is disclosed. Reference 4 comfortable 5-second cycles (2 in/3 out), 20 s handling, 15 s recovery; explicit caps1/2/3/4 preserve smaller history. Both arms act together. No heel drive, hip lift, forced exhale, sequential side reach or tabletop/heel-tap credit."
+    },
+    {
+      "mappingKey": "SQUAT-BW",
+      "registerReference": {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "mappingKey": "BW-SQUAT-T"
+      },
+      "currentApprovalVerified": false,
+      "OR11Boundary": "Alias to OR10 BW-SQUAT-T / original SQUAT-BW only for independently suitable slow grounded positional teaching: 3 s comfortable lower,2 s quiet hold,1 s stand,4 s ordinary reset=10 s. Forward balancing arm context is authored, not the crossed-arm hinge. No rapid snap, jump, terminal locomotor stop, static split or dynamic strength-set credit."
+    }
+  ],
+  "methodBoundary": {
+    "organization": "Finite recovered technical attempts with feedback and complete reset; descriptive organization, no verified approved method ID.",
+    "rejectedNameMatch": {
+      "slug": "linear-deceleration-repeatability",
+      "path": "scripts/data/programming-methods-top50.mjs",
+      "lines": [
+        7237,
+        7277
+      ],
+      "reason": "Intentional fatigue/Sustained Capacity, incompatible with fresh Output/Movement Intelligence; a similar name is not a matching method."
+    }
+  },
+  "sessionBinding": {
+    "status": "actual_OR11_source_and_dose_comparison_pass_full_daily_numeric_and_release_separate",
+    "sessionPath": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+    "authorPath": "docs/programming/athleticism_12_week/prescriptions/author_or_11.py",
+    "amendmentPath": "docs/programming/athleticism_12_week/instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json",
+    "bindingNote": "Full-file snapshots refreshed after the final source/programming status-only author/export and active additive amendment. All 15 bound physical/context catalogs were unchanged by that render. Canonical JSON hashes use sorted keys, UTF-8, compact separators and ensure_ascii=False. Subsequent genuine content changes require renewed comparison.",
+    "taskKeys": [
+      "P1",
+      "P2",
+      "E1",
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5"
+    ],
+    "travelRouteKeys": [
+      "jog_exit",
+      "walk_exit",
+      "jog_stop",
+      "walk_stop",
+      "position",
+      "standing"
+    ],
+    "exitContextKeys": [
+      "first_1s",
+      "retained_1s",
+      "full_2s"
+    ],
+    "firstWholeTaskIsE1OpportunityOne": true,
+    "extraE0": false,
+    "contextSelectedPerDirectionAndOpportunity": true,
+    "hipNewLoadHandling": false,
+    "exitContextRows": [
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/walk_exit/15-18/compressed_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "first_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/first_1s/age_prescriptions/jog_exit/15-18/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/walk_exit/15-18/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "retained_1s",
+        "proposalDeliveryContextKey": "short_1s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 1,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/retained_1s/age_prescriptions/jog_exit/15-18/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "walk_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 1,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/walk_exit/15-18/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/9-11/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/9-11/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/9-11/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "9-11",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/9-11/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/12-14/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/12-14/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/12-14/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "12-14",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/12-14/compressed_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_D",
+        "sets": 3,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/15-18/standard_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "standard_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/15-18/standard_L"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_D",
+        "sets": 2,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 20,
+        "returnSeconds": 45,
+        "minimumRecoverySeconds": 60,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/15-18/compressed_D"
+      },
+      {
+        "entryContextKey": "full_2s",
+        "proposalDeliveryContextKey": "full_2s",
+        "route": "jog_exit",
+        "ageBand": "15-18",
+        "mode": "compressed_L",
+        "sets": 0,
+        "pauseSeconds": 2,
+        "activeAndClearanceSeconds": 0,
+        "returnSeconds": 0,
+        "minimumRecoverySeconds": null,
+        "sourceJsonPointer": "/exit_contexts/full_2s/age_prescriptions/jog_exit/15-18/compressed_L"
+      }
+    ],
+    "stablePhysicalContextCatalogs": [
+      {
+        "sourceJsonPointer": "/travel_routes",
+        "sha256CanonicalJson": "58a5b0e314686a6656ea4216501aaa602b48937c678bf55a834afd458c1cb382"
+      },
+      {
+        "sourceJsonPointer": "/exit_contexts",
+        "sha256CanonicalJson": "5ba9847fc975c4024c31d59e315a252d437edb58f6ea2dd03f24cf688f33296d"
+      },
+      {
+        "sourceJsonPointer": "/stance_routes",
+        "sha256CanonicalJson": "c809c6d354e88450fcdab4739e875ec176ab7cfd333658402c14bbfc3557b589"
+      },
+      {
+        "sourceJsonPointer": "/hip_routes",
+        "sha256CanonicalJson": "b761e25a9c9adc40b540d07c8c60479b8bde4b7ab01de51c90152f2812a22f9d"
+      },
+      {
+        "sourceJsonPointer": "/support_dose_levels",
+        "sha256CanonicalJson": "0c34bba110cdf5dcfcfbf8161d2a93ea3b69fd48c14f8203dcad5d811e927663"
+      },
+      {
+        "sourceJsonPointer": "/support_repetition_caps",
+        "sha256CanonicalJson": "454754d8920004eaa1bfddc9bc42a715c2f937ceabd5cbf5e3660a616d17b32d"
+      },
+      {
+        "sourceJsonPointer": "/support_side_packets",
+        "sha256CanonicalJson": "b117b14c9cf0766647562d6a3c37418185381f24cd1c434364b51541a02707dc"
+      },
+      {
+        "sourceJsonPointer": "/alternative_doses",
+        "sha256CanonicalJson": "833d5c396ec8ff4b495807d0fdf47f12424849c02eadea2b1c85bcc07b9e66ba"
+      },
+      {
+        "sourceJsonPointer": "/geometry",
+        "sha256CanonicalJson": "94902b648e472ebdf8d4b704af691dc9047a24a0f04e84616612b12310f3ae75"
+      },
+      {
+        "sourceJsonPointer": "/timing_model",
+        "sha256CanonicalJson": "fe74e0c49728bbc6ba21d9df9dd27cd357110c634c6c19b261cb94ba32e1d7a2"
+      },
+      {
+        "sourceJsonPointer": "/route_policy",
+        "sha256CanonicalJson": "b404472e9f54cc43d6fdfa47fff32d9738341183abb5bf54661ad40a7f3e814e"
+      },
+      {
+        "sourceJsonPointer": "/stationary_main_policy",
+        "sha256CanonicalJson": "2e6ec1e3e0bc2415268ae96a6304362f02afbd4ffd292aa7e2c17aadd4e348a3"
+      },
+      {
+        "sourceJsonPointer": "/history_policy",
+        "sha256CanonicalJson": "c3ea71b2da0fdb91512641fb2c56529f3eb4df930caaf92f0683b058758a23e2"
+      },
+      {
+        "sourceJsonPointer": "/main_volume_policy",
+        "sha256CanonicalJson": "f90d185259c0fc1ae9e0ca24f9bbbea599ebf32a95268e1265d22dad78e3628b"
+      },
+      {
+        "sourceJsonPointer": "/stance_history_policy",
+        "sha256CanonicalJson": "7367d244e213da9e8bc1ef59559ebfd148cf25db63a1addbcddb91bf187181a8"
+      }
+    ],
+    "sourceSnapshots": [
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.json",
+        "sha256AtSourceComparison": "ec040d4d5d3a1fbd934462e59a7452a6046dafdf9afb30eb92b410bfd210e7b8"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/week_03/or_11.md",
+        "sha256AtSourceComparison": "2e10bba3d4895753246e23cbd32335ad83af0738ea614850932e82ebe151c1ed"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/author_or_11.py",
+        "sha256AtSourceComparison": "5d42079e4d3aa47f6883eda69e632249b47d1f722883b6890535c3e4079f11d5"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/instructional_on_ramp/OR11_OUTLINE_RECONCILIATION.json",
+        "sha256AtSourceComparison": "53cd15be2842935e5c97f340d353edb37252a1b33a983ba4740c84dda8972bd5"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/planning/OR11_STIMULUS_AND_SOURCE_REVIEW.md",
+        "sha256AtSourceComparison": "51f8a1e8d66842c84762cf925f8908ba12ff02703a7cbaf23da208161e6585e3"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or03_library_mapping.json",
+        "sha256AtSourceComparison": "8ad2c49b2cdfc86e1b796a5f674e7b37fc1bfb7ed4dc509a3e9f037e8d238f11"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/or10_library_mapping.json",
+        "sha256AtSourceComparison": "2e58594b655eeaefb5e488d5a78f1278751a34a5feb8788d5249f093c925ea08"
+      },
+      {
+        "path": "docs/programming/athleticism_12_week/prescriptions/proposals/or07_paused_exit_teaching_candidate.json",
+        "sha256AtSourceComparison": "487308d22c25a5cfbad2dc00b340b03fa1559d4022cb7cbc7b0e58fae7c0fc82"
+      },
+      {
+        "path": "docs/workout-generator/schemas/exercise-card.schema.json",
+        "sha256AtSourceComparison": "b60cadc037a8a3bedd01d6e356a0c12962d2e7a5efa7861d414561d2592694a4"
+      }
+    ],
+    "smallerDoseCatalogs": {
+      "main": {
+        "path": "/travel_routes/{route}/main_count_caps/{1|2}/{age}/{mode}",
+        "rule": "One total across routes/context; no additional direction or fault repayment.",
+        "unknownLongitudinalCountCurrentCap": 1
+      },
+      "stance": {
+        "path": "/stance_routes/{route}/lead_hold_packets/{left}_{right}/{age}/{mode}/{P1|S1}",
+        "routes": [
+          "midrange",
+          "high",
+          "learn_high"
+        ],
+        "leadCapChoicesSeconds": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "packetsPerRoute": 25,
+        "rule": "Independent min(selected cap, reference) per lead; learn_high P1 quiet, S1 counted high. Preserve support and actual depth; no universal tall reset.",
+        "unknownDurationCapSecondsPerEligibleLead": 1
+      },
+      "hip": {
+        "path": "/hip_routes/{route}/repetition_caps/{1|2|3}/{age}/{mode}",
+        "bodyweightUnknownHistoryCeiling": 2,
+        "actualSmallerOneGoverns": true,
+        "newLoadedHandling": false
+      },
+      "supportScalar": {
+        "path": "/support_repetition_caps/{role}/{1|2|3|4}/{age}/{mode}",
+        "roles": [
+          "S3",
+          "S4",
+          "S5",
+          "suspension_pull",
+          "supported_breathing"
+        ],
+        "allOriginalHandlingRestPreserved": true
+      },
+      "supportSide": {
+        "path": "/support_side_packets/{S4|S5}/{left}_{right}/{age}/{mode}",
+        "S4CapChoices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "S5CapChoices": [
+          0,
+          1,
+          2
+        ],
+        "zeroZeroOmitsSet": true,
+        "zeroOnOneSideIsNotRepaid": true
+      },
+      "breathing": {
+        "path": "/support_repetition_caps/supported_breathing/{1|2|3|4}/{age}/{mode}",
+        "firstCountedCycleRequiresOwnComponentsNotWholeBreathPass": true,
+        "simultaneousBilateralArms": true,
+        "repSeconds": 5,
+        "handlingSeconds": 20,
+        "minimumRestSeconds": 15
+      }
+    },
+    "retainedStrengthBoundaries": {
+      "status": "actual_OR11_dose_and_component_entry_compared",
+      "knee": "One supported static mid-range, retained high or independently eligible counted learn-high set. P1/S1 preserve actual per-lead holds through 25 combinations of 1–5-second ceilings; P1 at most 3 s per lead, S1 D5/L3. Quiet P1 is independent of S1 and provides no split pass. Static stance is not compatible bilateral squat unloading.",
+      "hip": "One currently familiar bodyweight or D-only independently familiar TWO-DB RDL set. Same actual pair/load/range/elevated parking, no first loaded handling or older-load restoration over newer unloaded work. Exact 1/2/3-repetition caps; unknown BW history at most 2 only after actual current familiarity, actual 1 governs.",
+      "pushPull": "Current familiar stable incline push, exact opposite-hand-and-knee bench row or independently familiar suspension row. Retain reference/low and exact count/side packets, load, support and response; no first support or loaded handling lesson.",
+      "brace": "Eligible fixed-arm bent-leg heel contacts/returns or passive full-lower-leg-supported simultaneous bilateral breathing. First breathing instruction is permitted within the counted set from independently suitable floor transfer/support/bilateral arm/breathing components; no prior whole breathing success or heel-tap pass. Actual smaller cycles/side counts govern.",
+      "stanceUnknownDurationPolicy": "With actually current familiar support/depth/controlled entry and exit but unknown historical hold duration, P1 and S1 use at most 1 s on that eligible lead; the other lead keeps its own actual smaller ceiling. Prior seconds remain null. Unknown duration alone does not force first-high. A known zero or ineligible lead excludes the positive both-lead packet: independently eligible quiet P1 and other roles may remain, while S1 is deferred."
+    },
+    "actualHistoryInventoryApprovalKnown": false,
+    "completeSessionScope": "Scoped local source/context comparison only. Independent complete cohort/traffic/workload numeric audit, human exact identity/release, actual athlete/facility and separate tumbling gates remain separate.",
+    "main_volume_policy": {
+      "unknown_prior_count_current_cap": 1,
+      "unknown_prior_count_recorded_as": null,
+      "unknown_count_establishes_task_competence": false,
+      "known_smaller_or_zero_count_governs": true,
+      "missing_attendance_is_completed_zero_count": false,
+      "extra_screening_or_makeup_opportunities": 0
+    },
+    "retainedJogHistoryPolicy": "Direct retained same-context jogging stop/exit evidence requires the actual controlled corresponding jog stop, repeatable selected 1-second direction/approach/intent task, comfortable ordinary walking/turning and current fit. It does not require reconstructing an older walking-stop or full 2-second record. First new terminal jogging stopping still requires its actual controlled walking-stop/easy-jog components; it cannot be combined with a first exit.",
+    "stance_history_policy": {
+      "known_current_familiar_depth_setup_entry_can_have_unknown_hold_history": true,
+      "unknown_duration_current_cap_s_per_eligible_lead": 1,
+      "unknown_prior_duration_recorded_as": null,
+      "cap_applies_to": [
+        "P1",
+        "S1"
+      ],
+      "lead_records_independent": true,
+      "known_smaller_duration_governs": true,
+      "unknown_history_forces_first_high": false,
+      "known_zero_or_ineligible_lead": "Do not perform the positive both-lead stance packet; use eligible quiet P1 and defer S1 under this lesson. Other independently eligible roles remain available."
+    }
+  },
+  "verification": {
+    "status": "scoped_local_source_context_schema_and_reference_comparison_PASS",
+    "rootSourceCorrectionsRequired": [],
+    "limitations": [
+      "Human exact owner/variant/profile organization and current approval unverified.",
+      "All actual participant history, operating facility/traffic/equipment and separate tumbling content unresolved.",
+      "Local source review is not an empirical safety, difficulty calibration or cohort-flow approval."
+    ],
+    "counts": {
+      "exitContextRows": 72,
+      "permittedExitContexts": 54,
+      "prohibitedJogLContexts": 18,
+      "stanceLeadPackets": 1800,
+      "supportSidePackets": 408,
+      "supportScalarPackets": 240,
+      "hipReferenceAndCappedPackets": 96,
+      "uniqueLineReferences": 44,
+      "resolvedMappings": 14,
+      "stableContextCatalogs": 15,
+      "markdownLocalLinks": 17
+    },
+    "schemaValidation": {
+      "schemaPath": "docs/workout-generator/schemas/exercise-card.schema.json",
+      "result": "PASS",
+      "engine": "repository Ajv6.12.6",
+      "compatibility": "Only $schema declaration omitted in memory; all used validation constraints supported; source schema unchanged."
+    },
+    "bindingFreezeStatus": "final_source_files_frozen_after_status_only_export_bindings_refreshed_numeric_result_separate"
+  }
+}

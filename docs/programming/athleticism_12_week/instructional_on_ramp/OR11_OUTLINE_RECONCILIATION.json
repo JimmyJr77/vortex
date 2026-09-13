@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "status": "active_OR11_additive_reconciliation",
+  "authority_rule": "This additive OR11 reconciliation amends only the named OR11 fields. The original map and reviewed prior amendments remain frozen evidence. Latest explicit owner requirements and reviewed philosophy govern intent.",
+  "base_outline": "instructional_on_ramp/instructional_map.json",
+  "base_outline_sha256": "2493a122601b14e0bf2eaca2b705f3286eea44e90d209e804205da5c629af867",
+  "prior_amendments": "instructional_on_ramp/DETAILED_OUTLINE_RECONCILIATION.json",
+  "prior_amendments_sha256": "68c9179dc070f435d2e5f8ce2844f34b59252236dd52fda341f04148c6d650ed",
+  "amendments": [
+    {
+      "id": "OR-11",
+      "state": "implemented",
+      "affected_fields": [
+        "primary_objective",
+        "quality_target",
+        "provisional_anchors_methods",
+        "progression_decision",
+        "preparation.targeted_drill_purposes",
+        "observation_recording",
+        "delivery_geometry"
+      ],
+      "reason": "Known plant/removal of pause and whole blended preparation conflict with the actual stopped opening-step walking-exit identity and finite target clock. Static supported stance is the knee/unilateral role; recent compatible hip and separate support histories govern.",
+      "current_decision": "Retain actual approach, direction, ordinary2m45degree exit and separate2s finish. First1s pause comes from actual repeatable corresponding2s; retained1s may use direct repeatable same-context1s without older2s reconstruction. Time only after a real controlled bilateral stop. Firstfull2s exit needs corresponding actualstop and ordinaryturn/walk components, not priorwholeexit success. New jogstop stays terminal-only. Eachdirection selects independently; no extra screen or fault repayment.",
+      "preparation_contract": {
+        "base_unchanged": true,
+        "target_total_s": 180,
+        "P1_s": 90,
+        "P2_s": 90,
+        "P2_assessed_exits": 0,
+        "first_whole_task": "E1 opportunity1 within existingtotal",
+        "separate_extra_E0": false
+      },
+      "main_contract": {
+        "standard_D_opportunities": 3,
+        "standard_L_opportunities": 2,
+        "compressed_D_opportunities": 2,
+        "compressed_L_opportunities": 1,
+        "actual_smaller_count_caps": [
+          1,
+          2
+        ],
+        "first_second_third_direction": [
+          "first",
+          "opposite",
+          "first"
+        ],
+        "each_direction_context_independent": true,
+        "new_load_or_approach_with_pause": false,
+        "action_s": 20,
+        "return_s": 45,
+        "release_headway_s": 25,
+        "same_athlete_round_spacing_s": 420,
+        "main_fans": 1,
+        "fan_width_m": 6,
+        "fan_length_m": 15,
+        "adjacent_lanes_closed": 2,
+        "outside_return_banks": 2,
+        "actual_facility_verified": false
+      },
+      "strength_contract": "Five independent roles: retained supported static stance as knee/unilateral, actual compatible familiar BW/twoDB hip, familiar push and row, independently suitable heel/breath brace. Preserve actual smaller side-specific holds/counts and newer unloading; no extra bilateral squat or first loaded handling. Compressedhip starts45/95/145s with20s complete groupreset.",
+      "next_evidence_rule": "OR13 and OR20 receive actual task/direction/pause evidence only; no reactivecut clearance from family name. OR12/14/15 objectives and OR15/19 firstflight requirements remain intact.",
+      "detailed_evidence": "instructional_on_ramp/week_03/or_11.json",
+      "local_unapproved_context": "prescriptions/proposals/or11_paused_exit_teaching_candidate.json",
+      "unknown_history_contract": {
+        "historical_dose_remains_null": true,
+        "independently_eligible_main_current_count_cap": 1,
+        "currently_familiar_stance_current_hold_cap_per_eligible_lead_s": 1,
+        "stance_cap_applies_P1_and_S1": true,
+        "known_smaller_or_zero_governs": true,
+        "unknown_hold_forces_first_high": false,
+        "retained_jog_exit_reconstructs_older_walk_stop": false,
+        "first_jog_stop_component_gates_retained": true,
+        "dose_expansion": false
+      }
+    }
+  ],
+  "unchanged_future_requirements": [
+    "OR12 objective and prerequisites from original map",
+    "OR14 retained demand with changed prompting/group flow",
+    "OR15 and OR19 actual firstflight/grounded carryover from prior amendments",
+    "OR13 independent movement/cue evidence",
+    "OR20 actual retained-task verification"
+  ],
+  "not_completed": [
+    "OR12–20 detailed workouts",
+    "remaining main block sessions and later audits/entry pathways/assembly",
+    "actual athlete outcomes/current canonical and facility approvals",
+    "precise separate tumbling"
+  ],
+  "verification_scope": {
+    "source_and_independent_written_programming_review": "PASS",
+    "numeric_evidence": "instructional_on_ramp/week_03/or_11_check_results.json",
+    "daily_review": "instructional_on_ramp/week_03/or_11_review.md",
+    "operational_approval": false
+  }
+}
