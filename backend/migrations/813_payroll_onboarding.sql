@@ -6065,3 +6065,33 @@ BEGIN
 END $$;
 DROP TRIGGER IF EXISTS payroll_guard_i9_receipt_draft ON payroll_i9_receipt_draft;
 CREATE TRIGGER payroll_guard_i9_receipt_draft BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_receipt_draft FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_receipt_draft();
+
+CREATE TABLE IF NOT EXISTS payroll_i9_different_review (
+ id BIGSERIAL PRIMARY KEY,facility_id BIGINT NOT NULL,employee_id BIGINT NOT NULL REFERENCES payroll_employee(id),
+ compliance_task_id BIGINT NOT NULL REFERENCES payroll_compliance_task(id),signature_id BIGINT NOT NULL REFERENCES payroll_i9_employer_signature(id),actor_user_id BIGINT NOT NULL,
+ basis_hash TEXT NOT NULL CHECK(basis_hash ~ '^[a-f0-9]{64}$'),preview_sha256 TEXT NOT NULL CHECK(preview_sha256 ~ '^[a-f0-9]{64}$'),
+ encrypted_review BYTEA NOT NULL CHECK(octet_length(encrypted_review)>28),page_counts JSONB NOT NULL CHECK(jsonb_typeof(page_counts)='object'),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),expires_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()+interval '30 minutes',CHECK(expires_at>created_at)
+);
+CREATE INDEX IF NOT EXISTS payroll_i9_different_review_task ON payroll_i9_different_review(compliance_task_id,id DESC);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_review() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Different-document review evidence is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT (NEW.page_counts ?& ARRAY['replacement','source','employee']) OR NEW.page_counts->>'source'<>'4' OR NEW.page_counts->>'employee'<>'4' OR COALESCE((NEW.page_counts->>'replacement')::integer,0)<2 OR EXISTS(SELECT 1 FROM jsonb_each_text(NEW.page_counts) p WHERE p.key !~ '^(replacement|source|employee|prior:[1-9][0-9]*|receipt:[1-9][0-9]*)$' OR p.value !~ '^([1-9][0-9]?|100)$') THEN RAISE EXCEPTION 'Retain complete replacement packet page counts.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_signature_followup f JOIN payroll_i9_employer_signature s ON s.id=f.signature_id JOIN payroll_compliance_task c ON c.id=f.compliance_task_id JOIN payroll_onboarding_task t ON t.id=s.task_id JOIN payroll_onboarding_task e ON e.facility_id=s.facility_id AND e.employee_id=s.employee_id AND e.task_key='I9' WHERE f.signature_id=NEW.signature_id AND f.compliance_task_id=NEW.compliance_task_id AND f.kind='RECEIPT_REPLACEMENT' AND f.row_key IN ('A1','A2','A3','B','C') AND c.status IN ('OPEN','IN_PROGRESS') AND s.facility_id=NEW.facility_id AND s.employee_id=NEW.employee_id AND c.facility_id=NEW.facility_id AND c.employee_id=NEW.employee_id AND t.status='COMPLETE' AND e.status='COMPLETE' AND t.onboarding_cycle=s.onboarding_cycle AND e.onboarding_cycle=s.onboarding_cycle AND t.response->>'i9EmployerSignatureId'=s.id::text AND e.response->>'i9SubmissionId'=s.submission_id::text) THEN RAISE EXCEPTION 'Use the current employee certification and open initial receipt task.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_review ON payroll_i9_different_review;
+CREATE TRIGGER payroll_guard_i9_different_review BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_review FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_review();
+CREATE TABLE IF NOT EXISTS payroll_i9_different_page_visit (
+ review_id BIGINT NOT NULL REFERENCES payroll_i9_different_review(id),document_key TEXT NOT NULL,page_number INTEGER NOT NULL CHECK(page_number BETWEEN 1 AND 100),
+ viewed_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),PRIMARY KEY(review_id,document_key,page_number)
+);
+CREATE OR REPLACE FUNCTION payroll_guard_i9_different_page() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF TG_OP<>'INSERT' THEN RAISE EXCEPTION 'Different-document page review history is immutable.' USING ERRCODE='23514'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM payroll_i9_different_review r JOIN payroll_compliance_task c ON c.id=r.compliance_task_id WHERE r.id=NEW.review_id AND r.expires_at>clock_timestamp() AND c.status IN ('OPEN','IN_PROGRESS') AND r.id=(SELECT MAX(id) FROM payroll_i9_different_review WHERE compliance_task_id=r.compliance_task_id) AND NEW.page_number<=(r.page_counts->>NEW.document_key)::integer) THEN RAISE EXCEPTION 'Display a valid page from the current replacement review.' USING ERRCODE='23514'; END IF;
+ RETURN NEW;
+END $$;
+DROP TRIGGER IF EXISTS payroll_guard_i9_different_page ON payroll_i9_different_page_visit;
+CREATE TRIGGER payroll_guard_i9_different_page BEFORE INSERT OR UPDATE OR DELETE ON payroll_i9_different_page_visit FOR EACH ROW EXECUTE FUNCTION payroll_guard_i9_different_page();
