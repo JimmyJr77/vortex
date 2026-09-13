@@ -38,9 +38,9 @@ export async function nativeMW507(page:Page){
  await panel.getByRole('button',{name:'Sign and submit MW507',exact:true}).click()
  await expect(page.getByRole('status').filter({hasText:'Your signed MW507 was submitted'})).toBeVisible()
 }
-export async function nativeI9(page:Page,assisted=false){
+export async function nativeI9(page:Page,assisted=false,address='2 Test Street'){
  const panel=page.getByRole('region',{name:'Internal I-9 draft',exact:true})
- for(const [name,value] of [['Last name (family name)','Browser'],['First name (given name)','Morgan'],['Street address','2 Test Street'],['City or town','Bowie'],['State','MD'],['ZIP code','20715'],['Date of birth (YYYY-MM-DD)','2000-01-01'],['Social Security number (if provided)','123456789']])await panel.getByLabel(name,{exact:true}).fill(value)
+ for(const [name,value] of [['Last name (family name)','Browser'],['First name (given name)','Morgan'],['Street address',address],['City or town','Bowie'],['State','MD'],['ZIP code','20715'],['Date of birth (YYYY-MM-DD)','2000-01-01'],['Social Security number (if provided)','123456789']])await panel.getByLabel(name,{exact:true}).fill(value)
  for(const [name,value] of [['Citizenship or immigration attestation','CITIZEN'],['Have you applied for an SSN and are waiting to receive it?','NO'],['Did a preparer or translator assist you with Section 1?',assisted?'YES':'NO']])await panel.getByRole('combobox',{name,exact:true}).selectOption(value)
  await panel.getByRole('button',{name:'Save I-9 draft',exact:true}).click();await expect(panel.getByRole('status')).toContainText('I-9 draft saved securely.')
  await panel.getByLabel('First name (given name)',{exact:true}).fill('Unsaved edit')

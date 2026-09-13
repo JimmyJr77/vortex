@@ -1,4 +1,5 @@
 import {nativeJourneyPreparer} from '../support/nativeJourneyPreparer'
+import {nativeJourneyAmendment} from '../support/nativeJourneyAmendment'
 import {nativeW4,nativeMW507,nativeI9,nativeEmployerI9} from '../support/nativePayrollJourney'
 import {nativeJourneyQuickbooks} from '../support/nativeJourneyQuickbooks'
 import {syntheticI9CopyPdf} from '../../backend/payroll/testing/employerI9ReviewFixture.js'
@@ -354,6 +355,14 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(1)
  const applied=(await h.pool.query('SELECT elections FROM payroll_tax_election WHERE employee_id=$1',[hire.id])).rows[0].elections
  expect(applied.w4Source.submissionId).toBe(w4[0].id);expect(applied.mw507Source.submissionId).toBe(mw507[0].id)
+ if(preparers===2){
+  await nativeJourneyAmendment(employee,admin,number,h.url,await syntheticI9CopyPdf())
+  expect((await h.pool.query('SELECT id FROM payroll_i9_submission WHERE employee_id=$1',[hire.id])).rowCount).toBe(2)
+  expect((await h.pool.query('SELECT s.id FROM payroll_i9_preparer_signature s JOIN payroll_i9_preparer_request r ON r.id=s.request_id WHERE r.employee_id=$1',[hire.id])).rowCount).toBe(4)
+  expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(2)
+  expect((await h.pool.query('SELECT status FROM payroll_run')).rows.map(row=>row.status)).toEqual(['FINALIZED'])
+  expect(quickbooks.journals).toHaveLength(1)
+ }
  expect(errors).toEqual([])
  }finally{await adminContext.close();await employeeContext.close();await h.close();quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}
 })
