@@ -5,6 +5,8 @@ import test from 'node:test'
 const packageJsonUrl = new URL('../../package.json', import.meta.url)
 const renderBlueprintUrl = new URL('../../render.yaml', import.meta.url)
 const dockerfileUrl = new URL('../../Dockerfile', import.meta.url)
+const backendRootUrl = new URL('../../', import.meta.url)
+const i9HiringContextUrl = new URL('../../payroll/i9HiringContext.js', import.meta.url)
 
 test('backend start fails closed behind the allowlisted deploy migration command', async () => {
   const packageJson = JSON.parse(await fs.readFile(packageJsonUrl, 'utf8'))
@@ -17,6 +19,7 @@ test('the Render Blueprint retains the separate deploy migration gate', async ()
   const blueprint = await fs.readFile(renderBlueprintUrl, 'utf8')
   const webService = blueprint.split('  - type: cron', 1)[0]
 
+  assert.match(webService, /rootDir: backend/)
   assert.match(webService, /preDeployCommand: npm run migrate:deploy/)
   assert.match(webService, /startCommand: npm start/)
 })
@@ -25,4 +28,16 @@ test('the production container enters through the guarded npm start lifecycle', 
   const dockerfile = await fs.readFile(dockerfileUrl, 'utf8')
 
   assert.match(dockerfile, /CMD \["npm", "start"\]/)
+})
+
+test('I-9 startup dependencies stay inside the deployed backend root', async () => {
+  const source = await fs.readFile(i9HiringContextUrl, 'utf8')
+  const relativeImports = [...source.matchAll(/\bfrom\s*['"](\.[^'"]+)['"]/g)].map((match) => match[1])
+
+  assert.ok(relativeImports.length > 0)
+  for (const specifier of relativeImports) {
+    const resolved = new URL(specifier, i9HiringContextUrl)
+    assert.ok(resolved.href.startsWith(backendRootUrl.href), `${specifier} escapes Render's backend deploy root`)
+    await fs.access(resolved)
+  }
 })
