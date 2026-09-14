@@ -18,12 +18,12 @@ function parseIsoDate(value) {
   const text = typeof value === 'string' ? value : ''
   const match = ISO_DATE_PATTERN.exec(text)
   if (!match) {
-    throw new FlipFitScheduleError('Flip & Fit start date must use YYYY-MM-DD format.')
+    throw new FlipFitScheduleError('Fit & Flip start date must use YYYY-MM-DD format.')
   }
 
   const date = new Date(`${text}T00:00:00.000Z`)
   if (Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== text) {
-    throw new FlipFitScheduleError('Flip & Fit start date must be a valid calendar date.')
+    throw new FlipFitScheduleError('Fit & Flip start date must be a valid calendar date.')
   }
   return date
 }
@@ -88,13 +88,13 @@ export function calculateFlipFitEndDate(startDate) {
 
 export function validateFlipFitScheduleInput(raw = {}) {
   if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) {
-    throw new FlipFitScheduleError('Flip & Fit schedule payload must be a JSON object.')
+    throw new FlipFitScheduleError('Fit & Flip schedule payload must be a JSON object.')
   }
 
   const startDate = aliasedValue(raw, 'startDate', 'start_date')
   const parsedStart = parseIsoDate(startDate)
   if (parsedStart.getUTCDay() !== 1) {
-    throw new FlipFitScheduleError('Flip & Fit start date must be a Monday.')
+    throw new FlipFitScheduleError('Fit & Flip start date must be a Monday.')
   }
 
   const settingsValue = aliasedValue(raw, 'settings', 'settings_json')
@@ -200,13 +200,13 @@ export async function saveFlipFitSchedule(pool, facilityId, actorUserId, raw = {
       && isoTimestamp(current.updated_at) !== schedule.expectedUpdatedAt
     ) {
       throw new FlipFitScheduleError(
-        'The Flip & Fit schedule changed after it was loaded. Reload before saving so another coach’s edits are not overwritten.',
+        'The Fit & Flip schedule changed after it was loaded. Reload before saving so another coach’s edits are not overwritten.',
         409,
         'flip_fit_schedule_conflict',
       )
     }
     throw new FlipFitScheduleError(
-      'Changing the Flip & Fit start date requires confirmRemap=true.',
+      'Changing the Fit & Flip start date requires confirmRemap=true.',
       409,
       'flip_fit_remap_confirmation_required',
     )

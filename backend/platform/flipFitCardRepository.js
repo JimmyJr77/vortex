@@ -218,10 +218,10 @@ export function normalizeFlipFitProgramCard(raw) {
   const id = text(source.id, 180)
   const name = text(source.name, 220)
   if (!id || !name) {
-    throw new FlipFitCardReconciliationError('Every Flip & Fit card needs a stable id and name.')
+    throw new FlipFitCardReconciliationError('Every Fit & Flip card needs a stable id and name.')
   }
   if (!slugify(id)) {
-    throw new FlipFitCardReconciliationError('Every Flip & Fit card id must contain a letter or number.')
+    throw new FlipFitCardReconciliationError('Every Fit & Flip card id must contain a letter or number.')
   }
   const ageScaling = object(source.ageScaling)
   const card = {
@@ -508,7 +508,7 @@ export function flipFitCardToCanonicalDraft(card, taxonomy = null) {
     supportOperations: {
       issueCategories: ['programming', 'safety', 'exercise_identity'],
       supportEscalation: 'Escalate uncertain identity, pain, or prerequisite questions to the program lead.',
-      retentionPolicy: 'Retain while referenced by the active Flip & Fit program version.',
+      retentionPolicy: 'Retain while referenced by the active Fit & Flip program version.',
       changeImpactPolicy: 'Review all 60 sessions before changing canonical identity or age scaling.',
     },
     contentConfidence: 80,
@@ -578,7 +578,7 @@ export function flipFitCardToCanonicalDraft(card, taxonomy = null) {
           athleteInstructions: prescription.scalingGuidance,
           expectedAdaptation: prescription.intent,
           equipmentRequired: resolved.equipmentByAge[band] ?? [],
-          logistics: { program: 'Flip & Fit', sourcePhase: card.phase },
+          logistics: { program: 'Fit & Flip', sourcePhase: card.phase },
           timeModel: {},
           doseScaling: card.ageScaling,
           measurement: {},
@@ -689,11 +689,11 @@ function semanticMatchIssues(card, taxonomy, definition, registry) {
   const issues = []
   for (const key of Object.keys(labels)) {
     // Movement function belongs to the scheduled occurrence in the current
-    // Flip & Fit program contract, rather than the deduplicated card. Honor it
+    // Fit & Flip program contract, rather than the deduplicated card. Honor it
     // when callers provide it, but do not turn its absence into a false review.
     if (key === 'movementFunctions' && incoming[key].length === 0) continue
     if (incoming[key].length === 0) {
-      issues.push(`${labels[key]} is unresolved in the Flip & Fit card`)
+      issues.push(`${labels[key]} is unresolved in the Fit & Flip card`)
     } else if (existing[key].length === 0) {
       issues.push(`canonical ${labels[key]} evidence is missing`)
     } else if (!sharesValue(incoming[key], existing[key])) {
@@ -777,11 +777,11 @@ export async function reconcileFlipFitCards(pool, facilityId, actorUserId, rawCa
   }
   const cards = rawCards.map(normalizeFlipFitProgramCard)
   if (new Set(cards.map((card) => card.id)).size !== cards.length) {
-    throw new FlipFitCardReconciliationError('Flip & Fit card ids must be unique.')
+    throw new FlipFitCardReconciliationError('Fit & Flip card ids must be unique.')
   }
   const generatedSlugs = cards.map((card) => `flip-fit-${slugify(card.id)}`)
   if (new Set(generatedSlugs).size !== generatedSlugs.length) {
-    throw new FlipFitCardReconciliationError('Flip & Fit card ids must produce unique canonical slugs.')
+    throw new FlipFitCardReconciliationError('Fit & Flip card ids must produce unique canonical slugs.')
   }
 
   return withCanonicalCardTransaction(pool, facilityId, async (client) => {
@@ -960,7 +960,7 @@ export async function reconcileFlipFitCards(pool, facilityId, actorUserId, rawCa
           facilityId,
           actorUserId,
           draft,
-          { changeSummary: `Created idempotently for Flip & Fit program card ${card.id}.` },
+          { changeSummary: `Created idempotently for Fit & Flip program card ${card.id}.` },
         )
         match = {
           canonicalDefinitionId: created.id,

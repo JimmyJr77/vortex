@@ -47,7 +47,7 @@ test('coach portal uses the canonical planning navigation and separated collecti
     'Prepare & Access',
     'Custom Programs',
     'ABC Progressions',
-    'Flip & Fit',
+    'Fit & Flip',
     'Challenges',
     'Evaluation Form',
     'Skill Tree',

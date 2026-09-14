@@ -165,7 +165,7 @@ export interface FlipFitProgramWeek {
 
 export interface FlipFitProgram {
   version: number
-  name: 'Flip & Fit'
+  name: 'Fit & Flip'
   startDate: string
   endDate: string
   weeks: FlipFitProgramWeek[]
@@ -896,7 +896,7 @@ const PREPARE_CORE = seed(
     bodyRegions: ['Foot', 'Ankle', 'Knee', 'Hip', 'Shoulder', 'Trunk'],
     tenets: ['Flexibility and Mobility', 'Balance', 'Coordination', 'Body Control'],
     methodology: 'Dynamic preparation',
-    aliases: ['Standard Flip & Fit warm-up'],
+    aliases: ['Standard Fit & Flip warm-up'],
     matchStatus: 'new',
     cues: ['Start easy, then build rhythm.', 'Finish each position before moving faster.'],
   },
@@ -1011,7 +1011,7 @@ export function nextMondayIso(today = new Date()) {
 
 export function flipFitEndDate(startDate: string) {
   const start = parseIsoDate(startDate)
-  if (start.getUTCDay() !== 1) throw new Error('Flip & Fit must start on a Monday.')
+  if (start.getUTCDay() !== 1) throw new Error('Fit & Flip must start on a Monday.')
   return isoDate(addUtcDays(start, 81))
 }
 
@@ -1232,7 +1232,7 @@ function scheduled(
   const candidate = buildExerciseCard(seedValue, phase)
   const existing = cardInventory.get(candidate.id)
   if (existing && cardPayload(existing) !== cardPayload(candidate)) {
-    throw new Error(`Flip & Fit card ID ${candidate.id} resolved to more than one payload.`)
+    throw new Error(`Fit & Flip card ID ${candidate.id} resolved to more than one payload.`)
   }
   const card = existing ?? deepFreeze(candidate)
   if (!existing) cardInventory.set(card.id, card)
@@ -1417,7 +1417,7 @@ function buildCoverage(days: FlipFitTrainingDay[]): FlipFitCoverageSummary {
 
 export function generateFlipFitProgram(startDate: string): FlipFitProgram {
   const start = parseIsoDate(startDate)
-  if (start.getUTCDay() !== 1) throw new Error('Flip & Fit must start on a Monday.')
+  if (start.getUTCDay() !== 1) throw new Error('Fit & Flip must start on a Monday.')
 
   const weeks: FlipFitProgramWeek[] = []
   const sessions: FlipFitTrainingDay[] = []
@@ -1537,7 +1537,7 @@ export function generateFlipFitProgram(startDate: string): FlipFitProgram {
 
   return {
     version: FLIP_FIT_PROGRAM_VERSION,
-    name: 'Flip & Fit',
+    name: 'Fit & Flip',
     startDate,
     endDate: flipFitEndDate(startDate),
     weeks,

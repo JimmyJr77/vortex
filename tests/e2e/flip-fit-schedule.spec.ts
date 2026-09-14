@@ -118,7 +118,7 @@ async function openMockedCoachPortal(
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
 }
 
-test.describe('Flip & Fit Schedule', () => {
+test.describe('Fit & Flip Schedule', () => {
   test('opens from coach navigation and exposes the complete coach workflow', async ({ page }) => {
     const consoleErrors: string[] = []
     page.on('console', (message) => {
@@ -126,9 +126,9 @@ test.describe('Flip & Fit Schedule', () => {
     })
 
     await openMockedCoachPortal(page)
-    await page.getByRole('button', { name: 'Flip & Fit', exact: true }).click()
+    await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
-    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
     await expect(page.getByText('60', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Ages 12–14 · Foundation')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Two athlete sets, one shared tumbling period' })).toBeVisible()
@@ -192,7 +192,7 @@ test.describe('Flip & Fit Schedule', () => {
   test('persists coach session edits against the stable session id', async ({ page }) => {
     const savedBodies: Array<Record<string, unknown>> = []
     await openMockedCoachPortal(page, savedBodies)
-    await page.getByRole('button', { name: 'Flip & Fit', exact: true }).click()
+    await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
     await page.getByText('Edit this session’s coaching plan', { exact: true }).click()
     await page.getByRole('textbox', { name: 'Session objective', exact: true }).fill('Updated coach objective for the first session.')
@@ -210,7 +210,7 @@ test.describe('Flip & Fit Schedule', () => {
   test('reconciles the complete inventory only after confirmation', async ({ page }) => {
     const reconciledBodies: Array<Record<string, unknown>> = []
     await openMockedCoachPortal(page, [], reconciledBodies)
-    await page.getByRole('button', { name: 'Flip & Fit', exact: true }).click()
+    await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
     page.once('dialog', async (dialog) => {
       expect(dialog.message()).toContain('Nothing will be auto-published')
@@ -228,14 +228,14 @@ test.describe('Flip & Fit Schedule', () => {
   test('requires confirmation before remapping all 60 dates', async ({ page }) => {
     const savedBodies: Array<Record<string, unknown>> = []
     await openMockedCoachPortal(page, savedBodies)
-    await page.getByRole('button', { name: 'Flip & Fit', exact: true }).click()
+    await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
     const startDate = page.getByLabel('Program start · Monday')
     const remappedStartDate = addIsoDays(await startDate.inputValue(), 7)
     const remappedEndDate = addIsoDays(remappedStartDate, 81)
     await startDate.fill(remappedStartDate)
     page.once('dialog', async (dialog) => {
-      expect(dialog.message()).toContain('Remap all 60 Flip & Fit dates')
+      expect(dialog.message()).toContain('Remap all 60 Fit & Flip dates')
       await dialog.accept()
     })
     await page.getByRole('button', { name: 'Save schedule' }).click()
@@ -253,9 +253,9 @@ test.describe('Flip & Fit Schedule', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await openMockedCoachPortal(page)
     await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
-    await page.locator('nav').getByRole('button', { name: 'Flip & Fit', exact: true }).press('Enter')
+    await page.locator('nav').getByRole('button', { name: 'Fit & Flip', exact: true }).press('Enter')
 
-    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
     await expect(page.getByRole('button', { name: '12-14', exact: true })).toBeVisible()
     await expect(page.getByRole('combobox', { name: 'Week', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Open exercise card for / }).first()).toBeVisible()

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { registerFloorPlannerRoutes } from './floorPlannerRoutes.js'
 import bcrypt from 'bcryptjs'
 import {
   getCoachClassAssignment,
@@ -1186,6 +1187,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
   registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission })
   registerAccountDirectoryRoutes(app, pool, { jwtSecret, requirePermission })
+  registerFloorPlannerRoutes(app, pool, { jwtSecret, requirePermission })
   registerStoreRoutes(app, pool, {
     memberAuth: memberBillingAuthMiddleware(pool, jwtSecret),
     requirePermission: (permission) => requirePermission(pool, jwtSecret, permission),

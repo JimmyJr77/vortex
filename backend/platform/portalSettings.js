@@ -101,7 +101,7 @@ export const COACH_PORTAL_TAB_LABELS = {
   'prepare-access': 'Prepare & Access',
   'athleticism-accelerator': 'Custom Programs',
   programs: 'ABC Progressions',
-  'flip-fit': 'Flip & Fit',
+  'flip-fit': 'Fit & Flip',
   challenges: 'Challenges',
   'gymnastics-evaluations': 'Evaluation Form',
   skills: 'Skill Tree',
@@ -183,6 +183,18 @@ function normalizeNavLayout(portal, navLayout, tabOrder) {
   // Keep the dedicated gymnastics form with the facility's Athlete Development
   // group when that section is present in a customized coach navigation.
   if (portal === 'coach') {
+    const trainingPlanKeys = ['prepare-access', 'athleticism-accelerator', 'programs', 'flip-fit']
+    const trainingPlansIndex = result.findIndex((item) => item.type === 'section' && (item.id === 'training-plans' || item.label.toLowerCase() === 'training plans'))
+    if (trainingPlansIndex >= 0) {
+      const trainingPlans = trainingPlanKeys
+        .map((key) => result.find((item) => item.type === 'tab' && item.key === key))
+        .filter(Boolean)
+      const withoutTrainingPlans = result.filter((item) => item.type !== 'tab' || !trainingPlanKeys.includes(item.key))
+      const normalizedSectionIndex = withoutTrainingPlans.findIndex((item) => item.type === 'section' && (item.id === 'training-plans' || item.label.toLowerCase() === 'training plans'))
+      withoutTrainingPlans.splice(normalizedSectionIndex + 1, 0, ...trainingPlans)
+      result.splice(0, result.length, ...withoutTrainingPlans)
+    }
+
     const sectionIndex = result.findIndex((item) => item.type === 'section' && (item.id === 'athlete-dev' || item.label.toLowerCase() === 'athlete development'))
     const evaluationIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'gymnastics-evaluations')
     if (sectionIndex >= 0 && evaluationIndex >= 0) {

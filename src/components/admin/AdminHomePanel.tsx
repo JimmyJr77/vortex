@@ -15,6 +15,7 @@ const DESCRIPTIONS: Partial<Record<GroupId, string>> = {
   classSetup: 'Classes, coaches, and scheduling.',
   registrations: 'Class registrations and event signups.',
   calendar: 'Facility schedule at a glance.',
+  floorPlanner: 'Plan classes, locations, and coaches for every day.',
   pricingBilling: 'Pricing plans and family billing.',
   legal: 'Waivers and insurance.',
   highlightsEvents: 'Special pages, site popups, and events.',

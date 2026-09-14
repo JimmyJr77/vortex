@@ -51,6 +51,7 @@ import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
 const AdminPayroll = lazy(() => import('./payroll/AdminPayroll'))
+const FloorPlanner = lazy(() => import('./floorPlanner/FloorPlanner'))
 
 interface AdminProps {
   onLogout: () => void
@@ -87,9 +88,9 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'floorPlanner' | 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
 
-export type GroupId = 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
+export type GroupId = 'floorPlanner' | 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface AccessContext {
   permissions: string[]
@@ -120,6 +121,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; m
   { id: 'scheduling', label: 'Class & Event Scheduling', permission: 'scheduling.view' },
   { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
   { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
+  { id: 'floorPlanner', label: 'Floor Planner', permission: 'scheduling.view' },
   { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
   { id: 'customerBilling', label: 'Account Billing & Enrollments', permission: 'billing.view' },
   { id: 'billingAnomalies', label: 'Billing Anomalies', permission: 'billing.view' },
@@ -157,6 +159,7 @@ const GROUPS: GroupDef[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, sections: ['dashboard'] },
   { id: 'payroll', label: 'Payroll', icon: Landmark, sections: ['payroll'] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
+  { id: 'floorPlanner', label: 'Floor Planner', icon: LayoutDashboard, sections: ['floorPlanner'] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
   { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'customerBilling', 'billingAnomalies', 'access'] },
@@ -457,6 +460,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         )
       case 'calendar':
         return <AdminCalendar />
+      case 'floorPlanner':
+        return <Suspense fallback={<p className="p-6 text-gray-500">Loading Floor Planner…</p>}><FloorPlanner canManage={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('scheduling.manage'))} userId={accessContext?.userId ?? null} /></Suspense>
       case 'pricing':
         return <AdminPricing />
       case 'signups':

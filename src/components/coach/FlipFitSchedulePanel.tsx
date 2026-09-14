@@ -446,7 +446,7 @@ export default function FlipFitSchedulePanel() {
     const changed = draftStartDate !== startDate
     if (changed) {
       const confirmed = window.confirm(
-        `Remap all 60 Flip & Fit dates from ${formatDate(startDate)} to ${formatDate(draftStartDate)}? Stable week/day identities and saved session overrides will be preserved.`,
+        `Remap all 60 Fit & Flip dates from ${formatDate(startDate)} to ${formatDate(draftStartDate)}? Stable week/day identities and saved session overrides will be preserved.`,
       )
       if (!confirmed) {
         setDraftStartDate(startDate)
@@ -530,7 +530,7 @@ export default function FlipFitSchedulePanel() {
 
   const reconcileCards = async () => {
     const confirmed = window.confirm(
-      `Reconcile all ${program.exerciseCards.length} Flip & Fit cards with the facility library? Exact semantic matches will be linked, unmatched cards will be created as drafts, and uncertain identities will stay in coach review. Nothing will be auto-published.`,
+      `Reconcile all ${program.exerciseCards.length} Fit & Flip cards with the facility library? Exact semantic matches will be linked, unmatched cards will be created as drafts, and uncertain identities will stay in coach review. Nothing will be auto-published.`,
     )
     if (!confirmed) return
 

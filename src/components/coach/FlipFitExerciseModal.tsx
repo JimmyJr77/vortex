@@ -18,7 +18,7 @@ const AGE_COPY: Record<FlipFitAgeBand, { label: string; sublabel: string }> = {
 const MATCH_COPY: Record<FlipFitCardMatchStatus, string> = {
   reused: 'Reused library card',
   alias: 'Matched through alias',
-  new: 'New Flip & Fit card',
+  new: 'New Fit & Flip card',
   review: 'Coach review flag',
 }
 

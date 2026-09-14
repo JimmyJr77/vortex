@@ -80,7 +80,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'prepare-access', label: 'Prepare & Access', icon: Activity },
   { tab: 'athleticism-accelerator', label: 'Custom Programs', icon: Sparkles },
   { tab: 'programs', label: 'ABC Progressions', icon: CalendarRange },
-  { tab: 'flip-fit', label: 'Flip & Fit', icon: CalendarRange },
+  { tab: 'flip-fit', label: 'Fit & Flip', icon: CalendarRange },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'gymnastics-evaluations', label: 'Evaluation Form', icon: ClipboardCheck },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },

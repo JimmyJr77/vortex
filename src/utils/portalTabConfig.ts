@@ -115,6 +115,25 @@ export function normalizeNavLayout<T extends string>(
     }
   }
 
+  const trainingPlanKeys = ['prepare-access', 'athleticism-accelerator', 'programs', 'flip-fit']
+  const trainingPlansIndex = result.findIndex(
+    (item) => item.type === 'section' && (item.id === 'training-plans' || item.label.toLowerCase() === 'training plans'),
+  )
+  if (trainingPlansIndex >= 0) {
+    const trainingPlans = trainingPlanKeys.flatMap((key) => {
+      const item = result.find((candidate) => candidate.type === 'tab' && candidate.key === key)
+      return item ? [item] : []
+    })
+    const withoutTrainingPlans = result.filter(
+      (item) => item.type !== 'tab' || !trainingPlanKeys.includes(item.key),
+    )
+    const normalizedSectionIndex = withoutTrainingPlans.findIndex(
+      (item) => item.type === 'section' && (item.id === 'training-plans' || item.label.toLowerCase() === 'training plans'),
+    )
+    withoutTrainingPlans.splice(normalizedSectionIndex + 1, 0, ...trainingPlans)
+    result.splice(0, result.length, ...withoutTrainingPlans)
+  }
+
   const athleteDevelopmentIndex = result.findIndex(
     (item) => item.type === 'section' && (item.id === 'athlete-dev' || item.label.toLowerCase() === 'athlete development'),
   )
@@ -194,7 +213,7 @@ export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; loc
   { key: 'prepare-access', label: 'Prepare & Access' },
   { key: 'athleticism-accelerator', label: 'Custom Programs' },
   { key: 'programs', label: 'ABC Progressions' },
-  { key: 'flip-fit', label: 'Flip & Fit' },
+  { key: 'flip-fit', label: 'Fit & Flip' },
   { key: 'challenges', label: 'Challenges' },
   { key: 'gymnastics-evaluations', label: 'Evaluation Form' },
   { key: 'skills', label: 'Skill Tree' },
@@ -234,7 +253,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   'athleticism-accelerator': { title: 'Custom Programs', description: 'View custom athletic plans by class, daily equipment, and coaching cues.' },
   framework: { title: 'Training Philosophy', description: 'Explore the Athleticism Accelerator taxonomy — phases, tenets, methodologies, order slots, session models, and validation rules.' },
   programs: { title: 'ABC Progressions', description: 'Browse and build structured athletic progressions.' },
-  'flip-fit': { title: 'Flip & Fit', description: 'Build and manage the 12-week athlete development schedule.' },
+  'flip-fit': { title: 'Fit & Flip', description: 'Build and manage the 12-week athlete development schedule.' },
   challenges: { title: 'Challenges', description: 'Run scored competitions.' },
   'gymnastics-evaluations': { title: 'Evaluation Form', description: 'Score gymnastics movements and publish athlete focus reports.' },
   skills: { title: 'Skill Tree', description: 'Prerequisite progressions and mastery.' },

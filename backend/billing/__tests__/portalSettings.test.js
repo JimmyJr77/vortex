@@ -55,7 +55,7 @@ test('member portal preserves the Store selection', () => {
 
 test('coach portal exposes the renamed planning tabs and labels', () => {
   assert.ok(COACH_PORTAL_TAB_KEYS.includes('flip-fit'))
-  assert.equal(COACH_PORTAL_TAB_LABELS['flip-fit'], 'Flip & Fit')
+  assert.equal(COACH_PORTAL_TAB_LABELS['flip-fit'], 'Fit & Flip')
   assert.equal(COACH_PORTAL_TAB_LABELS.needs, 'Program Generator')
   assert.equal(COACH_PORTAL_TAB_LABELS['program-planner'], 'Program Planner')
   assert.equal(COACH_PORTAL_TAB_LABELS['prepare-access'], 'Prepare & Access')
@@ -105,6 +105,27 @@ test('normalizePortalConfig preserves nav layout section breaks and tab order', 
   assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'program-planner', 'gymnastics-evaluations'])
   const athleteDevelopmentIndex = config.coach.navLayout.findIndex((item) => item.type === 'section' && item.id === 'athlete-dev')
   assert.equal(config.coach.navLayout[athleteDevelopmentIndex + 1].key, 'gymnastics-evaluations')
+})
+
+test('normalizePortalConfig keeps training plans together in canonical order', () => {
+  const config = normalizePortalConfig({
+    coach: {
+      navLayout: [
+        { type: 'tab', key: 'home' },
+        { type: 'tab', key: 'flip-fit' },
+        { type: 'section', id: 'training-plans', label: 'Training Plans' },
+        { type: 'tab', key: 'programs' },
+        { type: 'tab', key: 'sessions' },
+        { type: 'tab', key: 'athleticism-accelerator' },
+        { type: 'tab', key: 'prepare-access' },
+      ],
+    },
+  })
+  const sectionIndex = config.coach.navLayout.findIndex((item) => item.type === 'section' && item.id === 'training-plans')
+  assert.deepEqual(
+    config.coach.navLayout.slice(sectionIndex + 1, sectionIndex + 5).map((item) => item.key),
+    ['prepare-access', 'athleticism-accelerator', 'programs', 'flip-fit'],
+  )
 })
 
 test('legacy builder tabs collapse into one Program Planner entry', () => {
