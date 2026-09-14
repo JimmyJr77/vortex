@@ -7,15 +7,17 @@ import test from 'node:test'
 import {
   DEPLOY_MIGRATION_CHECKSUM_COMPATIBILITY,
   DEPLOY_MIGRATION_FILES,
+  DEPLOY_APPLICATION_MIGRATION_FILES,
   DEPLOY_MIGRATION_LOCK_ID,
+  DEPLOY_RELEASE_MIGRATION_FILES,
   legacyMigrationChecksum,
   migrationChecksum,
   runDeployMigrations,
 } from '../../deployMigrations.js'
 
-async function migrationDirectory() {
+async function migrationDirectory(filenames = DEPLOY_MIGRATION_FILES) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'vortex-deploy-migrations-'))
-  for (const [index, filename] of DEPLOY_MIGRATION_FILES.entries()) {
+  for (const [index, filename] of filenames.entries()) {
     await fs.writeFile(path.join(directory, filename), `SELECT ${index + 1};\n`)
   }
   return directory
@@ -106,6 +108,35 @@ test('deploy migration runner applies only the fixed allowlist and is idempotent
   assert.ok(client.calls.some(({ text, params }) => (
     text.includes('pg_advisory_lock') && params[0] === DEPLOY_MIGRATION_LOCK_ID
   )))
+})
+
+test('release deploy includes application content migrations without broadening the schema-only default', async (t) => {
+  assert.deepEqual(DEPLOY_APPLICATION_MIGRATION_FILES, [
+    '819_coaching_exercise_difficulty_complexity_compatibility.sql',
+    '818_coaching_athleticism_accelerator_library.sql',
+  ])
+  assert.deepEqual(DEPLOY_RELEASE_MIGRATION_FILES, [
+    ...DEPLOY_MIGRATION_FILES,
+    ...DEPLOY_APPLICATION_MIGRATION_FILES,
+  ])
+  assert.equal(new Set(DEPLOY_RELEASE_MIGRATION_FILES).size, DEPLOY_RELEASE_MIGRATION_FILES.length)
+  for (const filename of DEPLOY_APPLICATION_MIGRATION_FILES) {
+    assert.equal(DEPLOY_MIGRATION_FILES.includes(filename), false)
+  }
+
+  const migrationsDirectory = await migrationDirectory(DEPLOY_RELEASE_MIGRATION_FILES)
+  t.after(() => fs.rm(migrationsDirectory, { recursive: true, force: true }))
+  const client = fakeMigrationClient()
+
+  const result = await runDeployMigrations(client, {
+    migrationsDirectory,
+    migrationFiles: DEPLOY_RELEASE_MIGRATION_FILES,
+    logger: { info() {} },
+  })
+
+  assert.deepEqual(result.applied, DEPLOY_RELEASE_MIGRATION_FILES)
+  assert.equal(client.applied.has('819_coaching_exercise_difficulty_complexity_compatibility.sql'), true)
+  assert.equal(client.applied.has('818_coaching_athleticism_accelerator_library.sql'), true)
 })
 
 test('deploy migration dry run validates readiness and rolls every change back', async (t) => {

@@ -16,6 +16,14 @@ export const DEPLOY_MIGRATION_FILES = Object.freeze([
   ...DEPLOY_BILLING_MIGRATIONS,
   ...DEPLOY_ACCESS_MIGRATIONS,
 ])
+export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
+  '819_coaching_exercise_difficulty_complexity_compatibility.sql',
+  '818_coaching_athleticism_accelerator_library.sql',
+])
+export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([
+  ...DEPLOY_MIGRATION_FILES,
+  ...DEPLOY_APPLICATION_MIGRATION_FILES,
+])
 export const DEPLOY_MIGRATION_LOCK_ID = 884679201
 
 // A small number of billing migrations were edited in place before immutable
@@ -252,6 +260,7 @@ async function applyMigration(client, {
 
 export async function runDeployMigrations(client, {
   migrationsDirectory = defaultMigrationsDirectory,
+  migrationFiles = DEPLOY_MIGRATION_FILES,
   logger = console,
   dryRun = false,
 } = {}) {
@@ -267,7 +276,7 @@ export async function runDeployMigrations(client, {
       dryRunTransactionOpen = true
     }
     await ensureMigrationTable(client)
-    for (const filename of DEPLOY_MIGRATION_FILES) {
+    for (const filename of migrationFiles) {
       const result = await applyMigration(client, {
         filename,
         migrationsDirectory,

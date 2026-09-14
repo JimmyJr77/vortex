@@ -5,6 +5,7 @@ import test from 'node:test'
 const packageJsonUrl = new URL('../../package.json', import.meta.url)
 const renderBlueprintUrl = new URL('../../render.yaml', import.meta.url)
 const dockerfileUrl = new URL('../../Dockerfile', import.meta.url)
+const deployMigrationCliUrl = new URL('../../scripts/run-deploy-migrations.mjs', import.meta.url)
 const backendRootUrl = new URL('../../', import.meta.url)
 const i9HiringContextUrl = new URL('../../payroll/i9HiringContext.js', import.meta.url)
 
@@ -22,6 +23,13 @@ test('the Render Blueprint retains the separate deploy migration gate', async ()
   assert.match(webService, /rootDir: backend/)
   assert.match(webService, /preDeployCommand: npm run migrate:deploy/)
   assert.match(webService, /startCommand: npm start/)
+})
+
+test('the deploy migration CLI uses the complete release migration list', async () => {
+  const source = await fs.readFile(deployMigrationCliUrl, 'utf8')
+
+  assert.match(source, /DEPLOY_RELEASE_MIGRATION_FILES/)
+  assert.match(source, /migrationFiles:\s*DEPLOY_RELEASE_MIGRATION_FILES/)
 })
 
 test('the production container enters through the guarded npm start lifecycle', async () => {

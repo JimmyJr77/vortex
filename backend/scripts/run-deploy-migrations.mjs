@@ -5,7 +5,10 @@ import { fileURLToPath } from 'node:url'
 import dotenv from 'dotenv'
 import pg from 'pg'
 
-import { runDeployMigrations } from '../deployMigrations.js'
+import {
+  DEPLOY_RELEASE_MIGRATION_FILES,
+  runDeployMigrations,
+} from '../deployMigrations.js'
 import {
   buildMigrationPoolConfig,
   resolveMigrationConnectionString,
@@ -48,7 +51,9 @@ const pool = new pg.Pool(buildMigrationPoolConfig({
 let client
 try {
   client = await pool.connect()
-  const result = await runDeployMigrations(client)
+  const result = await runDeployMigrations(client, {
+    migrationFiles: DEPLOY_RELEASE_MIGRATION_FILES,
+  })
   console.log(JSON.stringify({
     success: true,
     applied: result.applied,
