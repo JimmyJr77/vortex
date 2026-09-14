@@ -113,6 +113,7 @@ test('deploy migration runner applies only the fixed allowlist and is idempotent
 test('release deploy includes application content migrations without broadening the schema-only default', async (t) => {
   assert.deepEqual(DEPLOY_APPLICATION_MIGRATION_FILES, [
     '819_coaching_exercise_difficulty_complexity_compatibility.sql',
+    '820_coaching_exercise_difficulty_complexity_nullable.sql',
     '818_coaching_athleticism_accelerator_library.sql',
   ])
   assert.deepEqual(DEPLOY_RELEASE_MIGRATION_FILES, [
@@ -136,6 +137,7 @@ test('release deploy includes application content migrations without broadening 
 
   assert.deepEqual(result.applied, DEPLOY_RELEASE_MIGRATION_FILES)
   assert.equal(client.applied.has('819_coaching_exercise_difficulty_complexity_compatibility.sql'), true)
+  assert.equal(client.applied.has('820_coaching_exercise_difficulty_complexity_nullable.sql'), true)
   assert.equal(client.applied.has('818_coaching_athleticism_accelerator_library.sql'), true)
 })
 
