@@ -88,7 +88,7 @@ async function leavePreview(db,ctx,query){
 async function packet(db,facility,employeeId,admin=false) {
  const employee=(await salaryRowsAt(db,facility,[await scopedEmployee(db,facility,employeeId)]))[0]
  await ensureOnboarding(db,employee)
- const tasks=(await db.query(`SELECT * FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 ORDER BY id`,[facility,employeeId])).rows
+ const tasks=(await db.query(`SELECT * FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=$2 AND task_key<>'AVAILABILITY' ORDER BY id`,[facility,employeeId])).rows
  const docs=(await db.query(`SELECT d.id,d.task_id,d.filename,d.mime_type,d.uploaded_at FROM payroll_private_document d JOIN payroll_onboarding_task t ON t.id=d.task_id AND t.onboarding_cycle=d.onboarding_cycle WHERE d.facility_id=$1 AND d.employee_id=$2 ORDER BY d.uploaded_at DESC`,[facility,employeeId])).rows
  const policy=await hiringPolicy(db,facility,employee)
  const asOfDate=(await db.query('SELECT (now() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[facility])).rows[0].today
@@ -189,7 +189,7 @@ export function registerWorkforceAdminRoutes(app,pool) {
  app.get('/api/admin/payroll/workforce', (req,res)=>transaction(pool,res,async db=>{
   const f=context(req).facility
   const requests=(await db.query(`SELECT r.*,e.legal_first_name,e.legal_last_name FROM payroll_employee_request r JOIN payroll_employee e ON e.id=r.employee_id WHERE r.facility_id=$1 ORDER BY r.created_at DESC LIMIT 200`,[f])).rows
-  const tasks=(await db.query(`SELECT t.*,e.legal_first_name,e.legal_last_name FROM payroll_onboarding_task t JOIN payroll_employee e ON e.id=t.employee_id WHERE t.facility_id=$1 ORDER BY t.due_date,t.id`,[f])).rows
+  const tasks=(await db.query(`SELECT t.*,e.legal_first_name,e.legal_last_name FROM payroll_onboarding_task t JOIN payroll_employee e ON e.id=t.employee_id WHERE t.facility_id=$1 AND t.task_key<>'AVAILABILITY' ORDER BY t.due_date,t.id`,[f])).rows
   const audit=(await db.query(`SELECT id,action,entity_type,entity_id,actor_user_id,created_at FROM payroll_audit_log WHERE facility_id=$1 ORDER BY id DESC LIMIT 100`,[f])).rows
   return {requests,tasks,audit}
  }))
@@ -518,7 +518,6 @@ export function registerWorkforceEmployeeRoutes(app,pool) {
    const docs=await db.query('SELECT id FROM payroll_private_document WHERE task_id=$1 AND employee_id=$2 AND facility_id=$3 AND onboarding_cycle=$4',[task.id,ctx.employee,ctx.facility,task.onboarding_cycle])
    if(!docs.rows.length&&!response.reference)throw fail('Upload the signed form or enter a secure provider receipt.')
   }
-  if(task.task_key==='AVAILABILITY'&&!response.note)throw fail('Provide your availability and first-day questions.')
   if(task.task_key==='PROFILE')await db.query(`UPDATE payroll_employee SET legal_first_name=$1,legal_last_name=$2,phone=$3,updated_at=now() WHERE id=$4 AND facility_id=$5`,[response.legalFirstName,response.legalLastName,response.phone,ctx.employee,ctx.facility])
   await db.query(`UPDATE payroll_onboarding_task SET response=$1,status='SUBMITTED',submitted_at=now(),completed_at=NULL,updated_at=now() WHERE id=$2`,[response,task.id])
   await log(db,ctx,'ONBOARDING_SUBMITTED','onboarding_task',task.id)

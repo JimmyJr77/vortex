@@ -83,7 +83,6 @@ for(const payType of ['HOURLY','SALARY'])test(`${payType} rehire preserves ident
    let response={reference:'Synthetic fresh provider receipt'}
    if(task.task_key==='PROFILE')response=Object.fromEntries(['legalFirstName','legalLastName','address','city','state','postalCode','phone','emergencyName','emergencyPhone','emergencyRelationship'].map(key=>[key,key==='state'?'MD':'Synthetic current value']))
    if(task.task_key==='PAYMENT')response={method:'CHECK'}
-   if(task.task_key==='AVAILABILITY')response={note:'Available for the scheduled first shift; meet the supervisor at reception.'}
    if(['WAGE_NOTICE','HANDBOOK'].includes(task.task_key))response={acknowledged:true,signature:'Returning Worker'}
    if(task.task_key==='WAGE_NOTICE')response.displayedWageTerms=(await api(`/employees/${e.id}/onboarding`)).wageTerms
    if(task.task_key==='HANDBOOK')response.displayedHandbookTerms={handbookText:'Synthetic current handbook and leave policy',benefitsText:''}

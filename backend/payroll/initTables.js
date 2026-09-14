@@ -17,6 +17,8 @@ export async function initPayrollTables(pool) {
     await client.query(sql.slice(0, seedStart))
     await client.query(extension)
     await client.query(await fs.readFile(new URL('../migrations/815_payroll_existing_account_link.sql', import.meta.url), 'utf8'))
+    await client.query(await fs.readFile(new URL('../migrations/816_payroll_i9_participation_verification_date.sql', import.meta.url), 'utf8'))
+    await client.query(await fs.readFile(new URL('../migrations/817_payroll_retire_availability_onboarding.sql', import.meta.url), 'utf8'))
     for(const facility of (await client.query('SELECT id FROM facility')).rows)await ensureEmployerSetup(client,facility.id)
     await client.query('COMMIT')
   } catch(error) {

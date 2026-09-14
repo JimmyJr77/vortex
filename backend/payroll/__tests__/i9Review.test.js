@@ -14,7 +14,7 @@ test('I-9 previews bind encrypted answers to current draft, session and hiring c
  const saved=await api(path+'/draft',{draft,expectedRevision:0,baseResponseHash:initial.baseResponseHash,onboardingCycle:1,requestKey:randomUUID()},'POST',200,true)
  const body={onboardingCycle:1,expectedRevision:saved.revision,baseResponseHash:saved.baseResponseHash}
  await api(path+'/preview',body,'POST',409,true)
- const contextPath=`/employees/${employee.id}/onboarding/${task.id}/i9/context`,context={onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:false,evidence:'Synthetic offer and employer records verified.'}
+ const contextPath=`/employees/${employee.id}/onboarding/${task.id}/i9/context`,context={onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',participationVerifiedOn:'2026-09-02',eVerify:false}
  await api(contextPath,context)
  const preview=await api(path+'/preview',body,'POST',200,true)
  const pdf=await PDFDocument.load(Buffer.from(preview.pdfBase64,'base64'));assert.equal(pdf.getPageCount(),4);assert.equal(pdf.getForm().getTextField('US Social Security Number').getText(),'123456789');assert.equal(pdf.getForm().getTextField('Signature of Employee').getText()||'','')

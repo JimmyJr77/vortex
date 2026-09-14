@@ -2,7 +2,27 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode 
 import { Activity, ArrowDownUp, ArrowLeft, ArrowRight, ArrowRightLeft, ArrowUp, ArrowUpRight, Check, ChevronLeft, ChevronRight, Clock3, Info, Layers, Move, MoveHorizontal, Package, RotateCw, Search, Target, X, Zap } from 'lucide-react'
 import { ACCELERATOR_PHASES, ACCELERATOR_PROGRAMS, ACCELERATOR_PLAN_GUIDANCE, EQUIPMENT_NOTES, getAcceleratorSessions, type AcceleratorExercise, type AcceleratorPlanGuidance, type AcceleratorPhase, type AcceleratorProgramId, type AcceleratorSession } from '../../coach/athleticismAccelerator'
 
-const PROGRAM_ICONS = { endurance: Activity, speed: Zap, horizontal: MoveHorizontal, vertical: ArrowUp, rebound: ArrowDownUp, maxair: Layers, mobility: Move, reactive: ArrowRightLeft, upper: RotateCw, lower: RotateCw, fullbody: RotateCw }
+function MaxAirIcon({ className }: { className?: string }) {
+  return <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 18a8 8 0 0 1 16 0" />
+    <path d="m17 15 3 3 3-3" />
+    <path d="M12 21V3m-4 4 4-4 4 4" />
+  </svg>
+}
+
+function ForceIcon({ className }: { className?: string }) {
+  return <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <text x="11" y="21" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontStyle="italic" fontSize="26">F</text>
+  </svg>
+}
+
+function RotationalForceIcon({ className }: { className?: string }) {
+  return <RotateCw className={className} aria-hidden="true">
+    <text x="11.5" y="17" textAnchor="middle" fontFamily="Georgia, 'Times New Roman', serif" fontStyle="italic" fontSize="16" fill="currentColor" stroke="none">F</text>
+  </RotateCw>
+}
+
+const PROGRAM_ICONS = { endurance: Activity, speed: Zap, horizontal: MoveHorizontal, vertical: ArrowUp, rebound: ArrowDownUp, maxair: MaxAirIcon, mobility: Move, reactive: ArrowRightLeft, upper: RotateCw, lower: RotateCw, fullbody: ForceIcon, rotationfullbody: RotationalForceIcon }
 const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red focus-visible:ring-offset-2'
 type Detail = { title: string; eyebrow?: string; content: ReactNode }
 type ProgramType = 'all' | 'individual' | 'grouped'

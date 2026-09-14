@@ -1,3 +1,5 @@
+import {i9HiringContextEvidence} from '../../src/utils/i9HiringContextEvidence.js'
+export {i9HiringContextEvidence}
 const fail=(message,status=400)=>Object.assign(new Error(message),{status})
 async function scope(db,ctx,taskId,cycle){
  const employee=(await db.query('SELECT id FROM payroll_employee WHERE facility_id=$1 AND id=$2 FOR UPDATE',[ctx.facility,ctx.employee])).rows[0]
@@ -9,7 +11,7 @@ async function scope(db,ctx,taskId,cycle){
 }
 export async function readI9HiringContext(db,ctx,taskId,cycle){
  await scope(db,ctx,taskId,cycle)
- const history=(await db.query('SELECT revision,offer_accepted_on::text AS "offerAcceptedOn",e_verify AS "eVerify",evidence,actor_user_id AS "actorUserId",recorded_at AS "recordedAt" FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 AND facility_id=$3 AND employee_id=$4 ORDER BY revision DESC',[taskId,cycle,ctx.facility,ctx.employee])).rows
+ const history=(await db.query('SELECT revision,offer_accepted_on::text AS "offerAcceptedOn",participation_verified_on::text AS "participationVerifiedOn",e_verify AS "eVerify",evidence,actor_user_id AS "actorUserId",recorded_at AS "recordedAt" FROM payroll_i9_hiring_context WHERE task_id=$1 AND onboarding_cycle=$2 AND facility_id=$3 AND employee_id=$4 ORDER BY revision DESC',[taskId,cycle,ctx.facility,ctx.employee])).rows
  return {revision:history[0]?.revision||0,current:history[0]||null,history}
 }
 export async function saveI9HiringContext(db,ctx,taskId,body){
@@ -18,13 +20,15 @@ export async function saveI9HiringContext(db,ctx,taskId,body){
  if(!Number.isSafeInteger(body.expectedRevision)||body.expectedRevision<0)throw fail('Reload the I-9 context revision.')
  if(typeof body.eVerify!=='boolean'||body.offerAccepted!==true)throw fail('Explicitly confirm the accepted offer and employer E-Verify participation.')
  const date=body.offerAcceptedOn
+ const participationDate=body.participationVerifiedOn
  const today=(await db.query('SELECT (clock_timestamp() AT TIME ZONE timezone)::date::text AS today FROM payroll_settings WHERE facility_id=$1',[ctx.facility])).rows[0]?.today
  if(typeof date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(date)||!Number.isFinite(Date.parse(date))||new Date(date).toISOString().slice(0,10)!==date||!today||date>today)throw fail('Enter a valid offer acceptance date that is not in the future.')
- if(typeof body.evidence!=='string'||body.evidence.trim().length<12||body.evidence.length>2000||/[\u0000-\u001f\u007f]/.test(body.evidence))throw fail('Provide 12–2000 characters of offer and employer participation verification evidence.')
+ if(typeof participationDate!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(participationDate)||!Number.isFinite(Date.parse(participationDate))||new Date(participationDate).toISOString().slice(0,10)!==participationDate||participationDate>today)throw fail('Enter a valid E-Verify participation verification date that is not in the future.')
+ const evidence=i9HiringContextEvidence({offerAcceptedOn:date,participationVerifiedOn:participationDate,eVerify:body.eVerify})
  const previous=await readI9HiringContext(db,ctx,taskId,body.onboardingCycle)
  if(previous.revision!==body.expectedRevision)throw fail('I-9 preparation context changed. Reload before saving.',409)
  const revision=previous.revision+1
- await db.query('INSERT INTO payroll_i9_hiring_context(facility_id,employee_id,task_id,onboarding_cycle,revision,offer_accepted_on,e_verify,evidence,actor_user_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',[ctx.facility,ctx.employee,taskId,body.onboardingCycle,revision,date,body.eVerify,body.evidence.trim(),ctx.admin])
- await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_HIRING_CONTEXT_RECORDED','payroll_onboarding_task',$3,$4)",[ctx.facility,ctx.admin,String(taskId),{employeeId:ctx.employee,onboardingCycle:body.onboardingCycle,revision,eVerify:body.eVerify,offerAcceptedOn:date}])
+ await db.query('INSERT INTO payroll_i9_hiring_context(facility_id,employee_id,task_id,onboarding_cycle,revision,offer_accepted_on,participation_verified_on,e_verify,evidence,actor_user_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[ctx.facility,ctx.employee,taskId,body.onboardingCycle,revision,date,participationDate,body.eVerify,evidence,ctx.admin])
+ await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'I9_HIRING_CONTEXT_RECORDED','payroll_onboarding_task',$3,$4)",[ctx.facility,ctx.admin,String(taskId),{employeeId:ctx.employee,onboardingCycle:body.onboardingCycle,revision,eVerify:body.eVerify,offerAcceptedOn:date,participationVerifiedOn:participationDate}])
  return readI9HiringContext(db,ctx,taskId,body.onboardingCycle)
 }

@@ -82,13 +82,14 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  const hiring=admin.getByRole('region',{name:'I-9 hiring context',exact:true})
  await hiring.getByLabel('Offer accepted on',{exact:true}).fill('2026-09-10')
  await hiring.getByRole('combobox',{name:'Employer and hiring-site E-Verify participation',exact:true}).selectOption('false')
- await hiring.getByLabel('Offer and participation verification evidence',{exact:true}).fill('Synthetic accepted offer and hiring-site participation verified for this new hire.')
+ await hiring.getByLabel('E-Verify participation status verified on',{exact:true}).fill('2026-09-10')
  await hiring.getByRole('checkbox').check()
  await hiring.getByRole('button',{name:'Record I-9 hiring context',exact:true}).click()
  await expect(hiring.getByRole('status')).toContainText('I-9 hiring context recorded.')
  await employee.goto('/tests/support/payroll.html?employee=1')
  await employee.getByRole('button',{name:'Onboarding',exact:true}).click()
- for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Availability & first-day planning']) {
+ await expect(employee.getByText('Availability & first-day planning',{exact:true})).toHaveCount(0)
+ for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment']) {
   const step=employee.locator('details').filter({has:employee.locator('summary',{hasText:title})})
   await step.locator('summary').first().click()
   if(title==='Federal Form W-4'){await nativeW4(employee);continue}
@@ -96,7 +97,6 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
   if(title==='Form I-9 employee section'){await nativeI9(employee,preparers>0);continue}
   if (title==='Payment election') await step.getByLabel('Payment method').selectOption('CHECK')
   else if (title.includes('acknowledgment')) { await step.getByLabel('Your full name').fill('Morgan Browser');await step.getByRole('checkbox').check() }
-  else await step.getByLabel('Availability & first-day questions').fill('Weekday mornings; ready for orientation.')
   await step.getByRole('button',{name:'Submit for review',exact:true}).click()
   await expect(step.locator('summary').first()).toContainText('SUBMITTED')
  }
@@ -121,7 +121,7 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  await admin.getByRole('button',{name:new RegExp(number)}).click()
  // Switching back reloads the employee packet after employee submissions.
  await admin.reload();await admin.getByRole('button',{name:'People & onboarding',exact:true}).click();await admin.getByRole('button',{name:new RegExp(number)}).click()
- for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Availability & first-day planning','Employer I-9 review','State new-hire report','Pay, classification & benefits review','Role training & safeguarding','First shift & access ready']) {
+ for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Employer I-9 review','State new-hire report','Pay, classification & benefits review','Role training & safeguarding','First shift & access ready']) {
   if(title==='Pay, classification & benefits review'){
    await admin.getByRole('button',{name:'Pay setup & leave',exact:true}).click()
    await expect(admin.getByLabel('MW507 exemptions',{exact:true})).toHaveValue('1')

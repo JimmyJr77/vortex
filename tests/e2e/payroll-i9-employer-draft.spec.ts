@@ -40,7 +40,7 @@ test('admin resumes private employer I-9 rows after a lost save and context inva
   const storage=await page.evaluate(()=>JSON.stringify({local:{...localStorage},session:{...sessionStorage}}));expect(storage).not.toContain('SYNTHETIC-PRIVATE-DOC')
   await panel.getByLabel('Employee-chosen document combination').selectOption('LIST_A')
   await expect(panel.getByLabel('List A document 2: Document title',{exact:true})).toHaveValue('Synthetic second document')
-  await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:true,evidence:'Synthetic hiring-site participation update verified by admin.'})
+  await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',participationVerifiedOn:'2026-09-03',eVerify:true})
   await save.click();await expect(panel.getByRole('alert')).toContainText('context changed')
   await panel.getByRole('button',{name:'Reload employer draft (replaces unsaved entries)'}).click()
   await expect(panel.getByRole('status')).toContainText('Previous draft entries are no longer current')

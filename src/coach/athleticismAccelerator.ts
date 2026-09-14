@@ -15,7 +15,7 @@ export const ACCELERATOR_PROGRAMS = [
   { id: 'full-body-force', title: 'Full Body Force Generation', classCount: 36, category: 'Power', description: 'Combine upper and lower body force with upper and lower rotational power in every class.', icon: 'fullbody' },
   { id: 'rotation-upper', title: 'Rotational Force: Upper Body', classCount: 12, category: 'Rotational force', description: 'Connect the body turn to hand speed.', icon: 'upper' },
   { id: 'rotation-lower', title: 'Rotational Force: Lower Body', classCount: 12, category: 'Rotational force', description: 'Drive the turn from the ground up.', icon: 'lower' },
-  { id: 'rotation-full-body', title: 'Rotational Force: Full Body', classCount: 36, category: 'Rotational force', description: 'Upper and lower body rotational force generation connected in every class of this 36-week plan.', icon: 'fullbody' },
+  { id: 'rotation-full-body', title: 'Rotational Force: Full Body', classCount: 36, category: 'Rotational force', description: 'Upper and lower body rotational force generation connected in every class of this 36-week plan.', icon: 'rotationfullbody' },
 ] as const
 
 export type AcceleratorProgram = typeof ACCELERATOR_PROGRAMS[number]

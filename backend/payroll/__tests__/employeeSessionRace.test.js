@@ -9,11 +9,11 @@ test('employee writes recheck session revocation and separation after middleware
  assert.equal(response.status,201);const employee=(await response.json()).data
  await h.pool.query("UPDATE payroll_employee SET employment_status='ACTIVE',portal_password_hash='unchanged' WHERE id=$1",[employee.id])
  const time=(await h.pool.query("INSERT INTO payroll_time_entry(facility_id,employee_id,clock_in,clock_out,source,status) VALUES(1,$1,'2025-01-02T12:00Z','2025-01-02T13:00Z','ADMIN','UNVERIFIED') RETURNING id",[employee.id])).rows[0]
- const task=(await h.pool.query("SELECT id FROM payroll_onboarding_task WHERE employee_id=$1 AND task_key='AVAILABILITY'",[employee.id])).rows[0]
+ const task=(await h.pool.query("SELECT id FROM payroll_onboarding_task WHERE employee_id=$1 AND task_key='PAYMENT'",[employee.id])).rows[0]
  const original=h.pool.query.bind(h.pool)
  let pause=null
  h.pool.query=async(...args)=>{const result=await original(...args);if(pause&&String(args[0]).startsWith('UPDATE payroll_employee_session SET last_used_at')){const gate=pause;pause=null;gate.reached();await gate.wait}return result}
- const endpoints=[['/pay-rates/1/acknowledge',{acknowledged:true},'POST'],['/salary-changes/1/acknowledge',{acknowledged:true},'POST'],['/pay-schedule-notices/1/acknowledge',{acknowledged:true},'POST'],['/profile',{preferredName:'Should not save'},'PATCH'],['/clock',{action:'IN'},'POST'],[`/time-entries/${time.id}/attest`,{confirmed:true},'POST'],['/access',{password:'A-new-password-that-must-not-save'},'POST'],['/requests',{kind:'GENERAL',payload:{reason:'Should not save'}},'POST'],[`/onboarding/${task.id}`,{note:'Should not save'},'POST'],[`/onboarding/${task.id}/documents`,{filename:'blocked.pdf',contentBase64:Buffer.from('%PDF-1.4 synthetic').toString('base64')},'POST']]
+ const endpoints=[['/pay-rates/1/acknowledge',{acknowledged:true},'POST'],['/salary-changes/1/acknowledge',{acknowledged:true},'POST'],['/pay-schedule-notices/1/acknowledge',{acknowledged:true},'POST'],['/profile',{preferredName:'Should not save'},'PATCH'],['/clock',{action:'IN'},'POST'],[`/time-entries/${time.id}/attest`,{confirmed:true},'POST'],['/access',{password:'A-new-password-that-must-not-save'},'POST'],['/requests',{kind:'GENERAL',payload:{reason:'Should not save'}},'POST'],[`/onboarding/${task.id}`,{method:'CHECK'},'POST'],[`/onboarding/${task.id}/documents`,{filename:'blocked.pdf',contentBase64:Buffer.from('%PDF-1.4 synthetic').toString('base64')},'POST']]
  for(const [index,[path,body,method]] of endpoints.entries()){
   const token=`session-race-${index}`
   const session=(await original("INSERT INTO payroll_employee_session(facility_id,employee_id,token_hash,expires_at) VALUES(1,$1,$2,now()+interval '1 day') RETURNING id",[employee.id,hashPayrollToken(token)])).rows[0]
@@ -33,7 +33,7 @@ test('employee writes recheck session revocation and separation after middleware
  assert.equal((await original('SELECT COUNT(*)::int n FROM payroll_private_document WHERE employee_id=$1',[employee.id])).rows[0].n,0)
  const token='separation-race';await original("INSERT INTO payroll_employee_session(facility_id,employee_id,token_hash,expires_at) VALUES(1,$1,$2,now()+interval '1 day')",[employee.id,hashPayrollToken(token)])
  let reached,release;const authorized=new Promise(resolve=>{reached=resolve}),wait=new Promise(resolve=>{release=resolve});pause={reached,wait}
- const pending=fetch(`${h.url}/api/payroll/employee/onboarding/${task.id}`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({note:'Old authorization must not permit new work changes'})})
+ const pending=fetch(`${h.url}/api/payroll/employee/onboarding/${task.id}`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({method:'CHECK'})})
  await authorized
  try{await original("UPDATE payroll_employee SET employment_status='TERMINATED',termination_date='2026-09-01' WHERE id=$1",[employee.id])}finally{release()}
  assert.equal((await pending).status,403)

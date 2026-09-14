@@ -36,7 +36,7 @@ test('encrypted admin draft is scoped, retry safe, invalidated by context and ro
  const [a,b]=await Promise.all([api(path,next),api(path,next)]);assert.deepEqual(a,b);assert.equal(a.revision,2)
  await assert.rejects(()=>h.pool.query('DELETE FROM payroll_i9_employer_draft'),/revision history/)
  await assert.rejects(()=>h.pool.query('UPDATE payroll_i9_employer_draft SET revision=revision'),/revision must advance/)
- await api(`/employees/${employee.id}/onboarding/${employeeTask.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:true,evidence:'Synthetic hiring-site context amendment verified by admin.'})
+ await api(`/employees/${employee.id}/onboarding/${employeeTask.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',participationVerifiedOn:'2026-09-03',eVerify:true})
  const changed=await read();assert.equal(changed.draft,null);assert.equal(changed.invalidated,true);assert.equal(changed.revision,2)
  await api(path,{...next,expectedRevision:2,requestKey:randomUUID()},'POST',409)
  const current={...next,expectedRevision:2,basisHash:changed.basisHash,requestKey:randomUUID()}

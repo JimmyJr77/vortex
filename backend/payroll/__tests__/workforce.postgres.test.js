@@ -41,7 +41,7 @@ test('complete employee onboarding, documents, requests, payroll and QuickBooks 
  const invite=await api(`/employees/${e.id}/invitations`,{body:{email:'jordan@example.test',sendEmail:false},status:201})
  const redeemed=await api('/invitations/redeem',{employee:true,body:{token:new URL(invite.inviteUrl).searchParams.get('invite')}});token=redeemed.sessionToken
  await api('/invitations/redeem',{employee:true,body:{token:new URL(invite.inviteUrl).searchParams.get('invite')},status:410})
- const packet=await api('/onboarding',{employee:true});assert.equal(packet.tasks.length,13)
+ const packet=await api('/onboarding',{employee:true});assert.equal(packet.tasks.length,12);assert.equal(packet.tasks.some(t=>t.task_key==='AVAILABILITY'),false)
  const w4=packet.tasks.find(t=>t.task_key==='W4')
  await api(`/onboarding/${w4.id}`,{employee:true,body:{},status:400})
  const doc=await api(`/onboarding/${w4.id}/documents`,{employee:true,body:{filename:'signed-w4.pdf',contentBase64:Buffer.from('%PDF-1.4\nTest signed form').toString('base64')}})
@@ -51,7 +51,7 @@ test('complete employee onboarding, documents, requests, payroll and QuickBooks 
  await api(`/documents/${doc.id}`,{facility:2,status:404})
  const profile={legalFirstName:'Jordan',legalLastName:'Test',address:'1 Test Lane',city:'Bowie',state:'MD',postalCode:'20715',phone:'5550100101',emergencyName:'Taylor',emergencyPhone:'5550100102',emergencyRelationship:'Sibling'}
  for(const step of packet.tasks.filter(t=>t.owner==='EMPLOYEE')){
-  const body=step.task_key==='PROFILE'?profile:step.task_key==='PAYMENT'?{method:'CHECK'}:['WAGE_NOTICE','HANDBOOK'].includes(step.task_key)?{acknowledged:true,signature:'Jordan Test'}:step.task_key==='AVAILABILITY'?{note:'Weekday afternoons'}:{reference:'TEST-PROVIDER-RECEIPT'}
+  const body=step.task_key==='PROFILE'?profile:step.task_key==='PAYMENT'?{method:'CHECK'}:['WAGE_NOTICE','HANDBOOK'].includes(step.task_key)?{acknowledged:true,signature:'Jordan Test'}:{reference:'TEST-PROVIDER-RECEIPT'}
   if(step.task_key==='WAGE_NOTICE')body.displayedWageTerms=(await api('/onboarding',{employee:true})).wageTerms
   if(step.task_key==='HANDBOOK')body.displayedHandbookTerms={handbookText:packet.policy.handbookText,benefitsText:packet.policy.benefitsText||''}
   await api(`/onboarding/${step.id}`,{employee:true,body})

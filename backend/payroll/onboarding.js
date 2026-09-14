@@ -9,7 +9,6 @@ export const TASKS = [
  ['PAYMENT', 'Payment election', 'EMPLOYEE', 'Choose check or direct deposit. Direct deposit requires signed authorization and confirmed setup through the payroll provider.'],
  ['WAGE_NOTICE', 'Offer & wage notice acknowledgment', 'EMPLOYEE', 'Review your title, rate, work location, and pay schedule. Acknowledge the hiring terms shown here.'],
  ['HANDBOOK', 'Handbook & leave policy acknowledgment', 'EMPLOYEE', 'Read the employer-provided handbook and leave policy before acknowledging receipt.'],
- ['AVAILABILITY', 'Availability & first-day planning', 'EMPLOYEE', 'Tell your manager when you are available and any first-day questions.'],
  ['I9_REVIEW', 'Employer I-9 review', 'ADMIN', 'Examine the employee-selected acceptable documents and complete employer Section 2. Record the signed form or secure-provider reference.'],
  ['NEW_HIRE_REPORT', 'State new-hire report', 'ADMIN', 'Submit the required state report and record its confirmation. Verify the applicable reporting deadline.'],
  ['PAY_REVIEW', 'Pay, classification & benefits review', 'ADMIN', 'Verify compensation, worker and overtime classification, withholding, payment setup, benefits eligibility, and leave policy.'],
@@ -88,7 +87,7 @@ export function wageNoticeTerms(employee,policy){return {...(employee.pay_type==
 
 // Draft answers never record acknowledgment or mutate the employee's approved identity.
 export function onboardingDraft(key, body) {
- const fields=key==='PROFILE'?['legalFirstName','legalLastName','address','city','state','postalCode','phone','emergencyName','emergencyPhone','emergencyRelationship']:key==='PAYMENT'?['method','reference']:['WAGE_NOTICE','HANDBOOK'].includes(key)?['signature']:key==='AVAILABILITY'?['note']:['reference']
+ const fields=key==='PROFILE'?['legalFirstName','legalLastName','address','city','state','postalCode','phone','emergencyName','emergencyPhone','emergencyRelationship']:key==='PAYMENT'?['method','reference']:['WAGE_NOTICE','HANDBOOK'].includes(key)?['signature']:['reference']
  const result={}
  for(const field of fields){
   if(body[field]===undefined)continue

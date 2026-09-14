@@ -211,7 +211,7 @@ export const workforceApi = {
  },
 }
 
-export type I9HiringRecord={revision:number;offerAcceptedOn:string;eVerify:boolean;evidence:string;actorUserId:number;recordedAt:string}
+export type I9HiringRecord={revision:number;offerAcceptedOn:string;participationVerifiedOn:string|null;eVerify:boolean;evidence:string;actorUserId:number;recordedAt:string}
 export type I9HiringContext={revision:number;current:I9HiringRecord|null;history:I9HiringRecord[]}
 
 export type PreparerRoster={submissionId:string|null;fingerprint:string;requests:Array<{id:string;name:string;email:string;evidence:string;expiresAt:string;cancelledAt:string|null;signedAt:string|null;signatureId:string|null;documentId:string|null}>}

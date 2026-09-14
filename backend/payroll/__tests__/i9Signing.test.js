@@ -11,7 +11,7 @@ for(const assisted of [false,true])test(`I-9 Section 1 signing retains exact for
  const h=await createHarness();t.after(()=>h.close());const {api,employee}=await monthlyBenefitsFixture(h)
  const packet=await api('/onboarding',undefined,'GET',200,true),task=packet.tasks.find(t=>t.task_key==='I9'),employer=packet.tasks.find(t=>t.task_key==='I9_REVIEW'),path=`/onboarding/${task.id}/i9`
  const initial=await api(path+'/draft?onboardingCycle=1',undefined,'GET',200,true)
- await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:false,evidence:'Synthetic offer and employer participation verification.'})
+ await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:0,offerAccepted:true,offerAcceptedOn:'2026-09-01',participationVerifiedOn:'2026-09-02',eVerify:false})
  const draft={lastName:'Żółć',firstName:'Łukasz',address:'100 Example Street',city:'Bowie',state:'MD',postalCode:'20715',dateOfBirth:'2000-01-01',ssn:'123456789',attestationKind:'CITIZEN',ssnPending:false,preparerAssisted:assisted}
  const saved=await api(path+'/draft',{draft,expectedRevision:0,baseResponseHash:initial.baseResponseHash,onboardingCycle:1,requestKey:randomUUID()},'POST',200,true)
  let preview=await api(path+'/preview',{onboardingCycle:1,expectedRevision:saved.revision,baseResponseHash:saved.baseResponseHash},'POST',200,true)
@@ -19,7 +19,7 @@ for(const assisted of [false,true])test(`I-9 Section 1 signing retains exact for
  await api(path+'/sign',{...body,attestationRead:false},'POST',400,true);await api(path+'/sign',body,'POST',409,true)
  for(let page=1;page<=4;page++)await api(path+'/page',{onboardingCycle:1,reviewId:preview.reviewId,previewSha256:preview.previewSha256,page,displayed:true},'POST',200,true)
  if(!assisted){
-  await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',eVerify:true,evidence:'Synthetic corrected employer participation verification.'})
+  await api(`/employees/${employee.id}/onboarding/${task.id}/i9/context`,{onboardingCycle:1,expectedRevision:1,offerAccepted:true,offerAcceptedOn:'2026-09-01',participationVerifiedOn:'2026-09-03',eVerify:true})
   await api(path+'/sign',body,'POST',409,true)
   preview=await api(path+'/preview',{onboardingCycle:1,expectedRevision:saved.revision,baseResponseHash:saved.baseResponseHash},'POST',200,true)
   body={...body,reviewId:preview.reviewId,previewSha256:preview.previewSha256,requestKey:randomUUID()}

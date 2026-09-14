@@ -64,7 +64,8 @@ test('hire setup, employee onboarding, payroll, statement download and returning
  await admin.screenshot({path:'/tmp/payroll-admin-review.png',fullPage:true})
  await employee.goto('/tests/support/payroll.html?employee=1')
  await employee.getByRole('button',{name:'Onboarding',exact:true}).click()
- for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Availability & first-day planning']) {
+ await expect(employee.getByText('Availability & first-day planning',{exact:true})).toHaveCount(0)
+ for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment']) {
   const step=employee.locator('details').filter({has:employee.locator('summary',{hasText:title})})
   await step.locator('summary').first().click()
   if (title==='Federal Form W-4') {
@@ -73,7 +74,6 @@ test('hire setup, employee onboarding, payroll, statement download and returning
   } else if (['State withholding certificate','Form I-9 employee section'].includes(title)) await step.getByLabel('Secure provider receipt (if completed with provider)').fill('BROWSER-TEST-RECEIPT')
   else if (title==='Payment election') await step.getByLabel('Payment method').selectOption('CHECK')
   else if (title.includes('acknowledgment')) { await step.getByLabel('Your full name').fill('Morgan Browser');await step.getByRole('checkbox').check() }
-  else await step.getByLabel('Availability & first-day questions').fill('Weekday mornings; ready for orientation.')
   await step.getByRole('button',{name:'Submit for review',exact:true}).click()
   await expect(step.locator('summary').first()).toContainText('SUBMITTED')
  }
@@ -98,7 +98,7 @@ test('hire setup, employee onboarding, payroll, statement download and returning
  await admin.getByRole('button',{name:new RegExp(number)}).click()
  // Switching back reloads the employee packet after employee submissions.
  await admin.reload();await admin.getByRole('button',{name:'People & onboarding',exact:true}).click();await admin.getByRole('button',{name:new RegExp(number)}).click()
- for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Availability & first-day planning','Employer I-9 review','State new-hire report','Pay, classification & benefits review','Role training & safeguarding','First shift & access ready']) {
+ for (const title of ['Federal Form W-4','State withholding certificate','Form I-9 employee section','Payment election','Offer & wage notice acknowledgment','Handbook & leave policy acknowledgment','Employer I-9 review','State new-hire report','Pay, classification & benefits review','Role training & safeguarding','First shift & access ready']) {
   if(title==='Pay, classification & benefits review'){
    await admin.getByRole('button',{name:'Pay setup & leave',exact:true}).click()
    await admin.getByLabel('MW507 exemptions',{exact:true}).fill('1')
