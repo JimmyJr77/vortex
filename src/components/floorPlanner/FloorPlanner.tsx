@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
+import { createPortal } from 'react-dom'
 import { AlertTriangle, Check, Clock3, Copy, GripVertical, LayoutGrid, Loader2, MapPin, Plus, Save, Scissors, Search, RotateCcw, Trash2, Undo2, Users, X } from 'lucide-react'
 import { fetchClassSetupOverview } from '../../utils/classSetupOverviewApi'
 import { adminFetchSchedulingCalendar } from '../../utils/schedulingApi'
@@ -13,7 +14,7 @@ const button = 'inline-flex items-center justify-center gap-2 rounded-lg border 
 const primary = 'inline-flex items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40'
 const DRAG_TYPE = 'application/x-vortex-floor-class'
 interface DragData { kind: 'class' | 'block'; id: string; offset: number }
-interface Context { id: string; minute: number; x: number; y: number }
+interface Context { id: string; minute: number; x: number; y: number; anchor: HTMLElement }
 
 export default function FloorPlanner({ canManage, userId }: { canManage: boolean; userId: number | null }) {
   const [plan, setPlan] = useState<Plan>(newPlan)
@@ -39,6 +40,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const [selected, setSelected] = useState<Block | null>(null)
   const [pendingClass, setPendingClass] = useState<PlannerClass | null>(null)
   const [context, setContext] = useState<Context | null>(null)
+  const [movingBlock, setMovingBlock] = useState<Block | null>(null)
   const [dialog, setDialog] = useState<'class' | 'copy' | 'location' | 'reload' | 'reset' | 'saveView' | 'deleteView' | null>(null)
   const [resetPreview, setResetPreview] = useState<{ plan: Plan; startDate: string; endDate: string } | null>(null)
   const [resetLoading, setResetLoading] = useState(false)
@@ -116,11 +118,18 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   useEffect(() => () => resizeCleanup.current?.(), [])
   useEffect(() => {
     if (!context) return
-    contextRef.current?.querySelector('button')?.focus()
+    contextRef.current?.querySelector('button')?.focus({ preventScroll: true })
     const close = (event: Event) => { if (!contextRef.current?.contains(event.target as Node)) setContext(null) }
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') setContext(null) }
-    window.addEventListener('pointerdown', close); window.addEventListener('keydown', escape); window.addEventListener('scroll', close, true)
-    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('keydown', escape); window.removeEventListener('scroll', close, true) }
+    const anchorRect = context.anchor.getBoundingClientRect()
+    const closeOnScroll = () => {
+      const currentRect = context.anchor.getBoundingClientRect()
+      // Focusing the class can queue a scroll event before this menu opens.
+      // Only dismiss when a subsequent scroll actually moves its anchor.
+      if (currentRect.top !== anchorRect.top || currentRect.left !== anchorRect.left) setContext(null)
+    }
+    window.addEventListener('pointerdown', close); window.addEventListener('keydown', escape); window.addEventListener('scroll', closeOnScroll, true)
+    return () => { window.removeEventListener('pointerdown', close); window.removeEventListener('keydown', escape); window.removeEventListener('scroll', closeOnScroll, true) }
   }, [context])
 
   const commit = (next: Plan, message = '') => {
@@ -284,11 +293,11 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
                 return <div key={block.id} data-testid="floor-block" data-instance={block.instanceId} data-color={block.color} draggable={editing && !resizing} onDragStart={(e) => dragStart(e, { kind: 'block', id: block.id, offset: (e.clientX - e.currentTarget.getBoundingClientRect().left) / px + clippedStart - block.start })} onDragEnd={() => { drag.current = null; setDropPreview(null) }}
                   role="button" tabIndex={0} aria-label={`${block.program} · ${block.name}, ${timeLabel(block.start)} to ${timeLabel(block.end)}, ${row.name}${warning ? ', conflict' : ''}`} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(block) } }}
                   onClick={(e) => { e.stopPropagation(); setSelected(block); setPendingClass(null) }}
-                  onContextMenu={(e) => { e.preventDefault(); if (!editing) return; const minute = snap(clippedStart + (e.clientX - e.currentTarget.getBoundingClientRect().left) / px, plan.increment); setContext({ id: block.id, minute: Math.max(block.start + 5, Math.min(block.end - 5, minute)), x: Math.min(e.clientX, window.innerWidth - 250), y: Math.max(8, Math.min(e.clientY, window.innerHeight - 160)) }) }}
+                  onContextMenu={(e) => { e.preventDefault(); if (!editing) return; const minute = snap(clippedStart + (e.clientX - e.currentTarget.getBoundingClientRect().left) / px, plan.increment); setContext({ anchor: e.currentTarget, id: block.id, minute: Math.max(block.start + 5, Math.min(block.end - 5, minute)), x: Math.min(e.clientX, window.innerWidth - 250), y: Math.max(8, Math.min(e.clientY, window.innerHeight - 205)) }) }}
                   title={`${block.program} · ${block.name}\n${timeLabel(block.start)}–${timeLabel(block.end)} · ${block.end - block.start} min\n${block.coaches.join(', ') || 'Coach unassigned'}${warning ? `\n${[...warning].join('\n')}` : ''}`}
                   className={`absolute cursor-grab select-none overflow-hidden rounded-lg border border-l-[4px] px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-vortex-red ${selected?.id === block.id ? 'ring-2 ring-vortex-red ring-offset-1' : ''}`}
                   style={{ ...colorStyle(block.color), left: (clippedStart - plan.start) * px + 2, width: Math.max(16, (clippedEnd - clippedStart) * px - 4), top: lane * LANE_HEIGHT + 8, height: BLOCK_HEIGHT }}>
-                  <p className="truncate text-[10px] font-semibold opacity-80">{block.program}</p><div className="flex items-center gap-1"><span className="truncate text-xs font-bold">{block.name}</span>{warning && <AlertTriangle size={13} className="shrink-0" />}</div><p className="mt-0.5 truncate text-[10px] font-medium">{timeLabel(block.start)}–{timeLabel(block.end)}</p><p className="mt-1 flex items-center gap-1 truncate text-[10px]"><Users size={10} className="shrink-0" /><span className="truncate">{block.coaches.join(', ') || 'Assign coach'}</span></p>
+                  <div className="flex items-center gap-1"><span className="line-clamp-2 text-xs font-bold">{block.program} · {block.name}</span>{warning && <AlertTriangle size={13} className="shrink-0" />}</div><p className="mt-0.5 truncate text-[10px] font-medium">{timeLabel(block.start)}–{timeLabel(block.end)}</p><p className="mt-1 flex items-center gap-1 truncate text-[10px]"><Users size={10} className="shrink-0" /><span className="truncate">{block.coaches.join(', ') || 'Assign coach'}</span></p>
                   {editing && (['start', 'end'] as const).map((edge) => <span key={edge} data-testid={`resize-${edge}`} title={`Resize ${edge} time`} onPointerDown={(e) => startResize(e, original, edge)} onClick={(e) => e.stopPropagation()} draggable={false} onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }} className={`absolute top-0 h-full w-2 cursor-ew-resize touch-none hover:bg-black/10 ${edge === 'start' ? 'left-0' : 'right-0'}`} />)}
                 </div>
               })}
@@ -324,24 +333,43 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     </section>}
     <datalist id="floor-coaches">{coaches.map((coach) => <option key={coach.id} value={coach.name} />)}</datalist>
     <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm" aria-label="Class library">
-      <div className="flex flex-wrap items-start justify-between gap-4"><div><h3 className="text-lg font-bold">Class library <span className="ml-1 text-sm font-normal text-gray-400">{allClasses.length}</span></h3><p className="mt-1 text-xs text-gray-500">Drag onto the board, select then click a time, or use Add for exact placement.</p></div><button className={button} disabled={!editing} onClick={() => setDialog('class')}><Plus size={16} />Create idea class</button></div>
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><h3 className="text-lg font-bold">Class library <span className="ml-1 text-sm font-normal text-gray-400">{allClasses.length}</span></h3><p className="mt-1 text-xs text-gray-500">Drag onto the board, select then click a time, or use Add for exact placement.</p></div><button className={button} disabled={!editing} onClick={() => setDialog('class')}><Plus size={16} />Notional Class</button></div>
       <div className="relative mt-4"><Search size={17} className="absolute left-3 top-3 text-gray-400" /><input aria-label="Find classes" type="search" className={`${input} !pl-10`} placeholder="Find a class, program, or coach…" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
       {libraryError && <p role="alert" className="mt-3 text-sm text-amber-700">{libraryError} <button className="font-bold underline" onClick={() => void reloadLibrary()}>Retry</button></p>}
       {libraryLoading && <p className="mt-4 text-sm text-gray-500">Loading scheduled classes…</p>}
       <div className="mt-4 grid max-h-[420px] gap-3 overflow-y-auto sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{filtered.map((item) => <div key={item.id} draggable={editing} onDragStart={(e) => dragStart(e, { kind: 'class', id: item.id, offset: 0 })} onDragEnd={() => { drag.current = null; setDropPreview(null) }} className={`group rounded-xl border p-4 ${pendingClass?.id === item.id ? 'border-vortex-red bg-red-50/50' : 'border-gray-200 bg-white hover:border-gray-400'}`} data-testid="library-class">
-        <div className="flex items-start gap-2"><GripVertical size={16} className="mt-0.5 shrink-0 cursor-grab text-gray-300" /><button disabled={!editing} onClick={() => setPendingClass(item)} className="min-w-0 flex-1 text-left"><span className="block truncate text-sm font-bold">{item.name}</span><span className="mt-1 block truncate text-xs text-gray-500">{item.program}</span></button>{item.idea && <span className="rounded bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-700">Idea</span>}</div>
+        <div className="flex items-start gap-2"><GripVertical size={16} className="mt-0.5 shrink-0 cursor-grab text-gray-300" /><button disabled={!editing} onClick={() => setPendingClass(item)} className="min-w-0 flex-1 text-left"><span className="line-clamp-2 text-sm font-bold" title={`${item.program} · ${item.name}`}>{item.program} · {item.name}</span></button>{item.idea && <span className="rounded bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-700">Idea</span>}</div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500"><span className="flex items-center gap-1"><Clock3 size={12} />{item.duration} min</span><span className="flex items-center gap-1"><Users size={12} />{item.coaches.join(', ') || 'Unassigned'}</span></div>
         <p className="mt-2 line-clamp-2 min-h-8 text-[11px] text-gray-400" title={item.schedule}>{item.schedule || 'For planning and scheduling ideas'}</p>
         <div className="mt-3 flex justify-between"><button className="inline-flex items-center gap-1 text-xs font-bold text-vortex-red disabled:opacity-40" disabled={!editing || !plan.locations.length} onClick={() => { setPendingClass(null); setSelected({ id: randomUUID(), instanceId: randomUUID(), classId: item.id, name: item.name, program: item.program, coaches: [...item.coaches], color: nextColor(plan.blocks), day, locationId: plan.locations[0].id, start: Math.min(plan.start, 1440 - item.duration), end: Math.min(plan.start + item.duration, 1440) }) }}><Plus size={13} />Add to {DAYS[day].slice(0, 3)}</button>{item.idea && <button aria-label={`Delete idea ${item.name}`} disabled={!editing} onClick={() => { commit({ ...plan, classes: plan.classes.filter((c) => c.id !== item.id) }, 'Idea removed from the library. Existing placements are kept.'); if (pendingClass?.id === item.id) setPendingClass(null) }} className="text-gray-400 hover:text-red-600"><Trash2 size={13} /></button>}</div>
       </div>)}</div>
       {!libraryLoading && !filtered.length && <p className="py-8 text-center text-sm text-gray-500">{query ? 'No classes match your search.' : 'No scheduled classes yet. Create an idea class to start planning.'}</p>}
     </section>
-    {context && <div ref={contextRef} role="menu" aria-label="Class actions" className="fixed z-50 w-60 rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl" style={{ left: Math.max(8, context.x), top: context.y }}>
+    {context && createPortal(<div ref={contextRef} role="menu" aria-label="Class actions" className="fixed z-50 w-60 rounded-xl border border-gray-200 bg-white p-1.5 text-gray-900 shadow-xl" style={{ left: Math.max(8, context.x), top: context.y }}>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50" disabled={(plan.blocks.find((b) => b.id === context.id)?.end ?? 0) - (plan.blocks.find((b) => b.id === context.id)?.start ?? 0) < 10} onClick={() => splitBlock(context.id, context.minute)}><Scissors size={15} />Split at {timeLabel(context.minute)}</button>
+      <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50 disabled:opacity-40" disabled={plan.locations.length < 2} onClick={() => { setMovingBlock(plan.blocks.find((b) => b.id === context.id) || null); setContext(null) }}><MapPin size={15} />Move to location</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50" onClick={() => { setSelected(plan.blocks.find((b) => b.id === context.id) || null); setContext(null) }}><Clock3 size={15} />Edit time / coaches</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50" onClick={() => { commit({ ...plan, blocks: plan.blocks.filter((b) => b.id !== context.id) }, 'Class segment removed.'); setSelected(null); setContext(null) }}><Trash2 size={15} />Remove segment</button>
-    </div>}
-    {dialog === 'class' && <PlannerDialog title="Create idea class" onClose={() => setDialog(null)}><form className="space-y-4" onSubmit={(e) => {
+    </div>, document.body)}
+    {movingBlock && <PlannerDialog title="Move to location" onClose={() => setMovingBlock(null)}>
+      <form className="space-y-4" onSubmit={(event) => {
+        event.preventDefault()
+        if (!editing) return
+        const locationId = String(new FormData(event.currentTarget).get('location'))
+        const location = plan.locations.find((item) => item.id === locationId)
+        const block = plan.blocks.find((item) => item.id === movingBlock.id)
+        if (!location || !block || block.locationId === locationId) return
+        updateBlock({ ...block, locationId })
+        setNotice(`${block.program} · ${block.name} moved to ${location.name}. Times and coaches kept.`)
+        setMovingBlock(null)
+      }}>
+        <div><p className="text-sm font-semibold">{movingBlock.program} · {movingBlock.name}</p><p className="mt-1 text-sm text-gray-600">{DAYS[movingBlock.day]} · {timeLabel(movingBlock.start)}–{timeLabel(movingBlock.end)}</p></div>
+        <p className="text-sm text-gray-500">Choose a different location. The day, start and end times, and coaches stay the same.</p>
+        <label className="block text-sm font-semibold">Destination location<select name="location" aria-label="Destination location" className={`${input} mt-1`} required disabled={!editing} defaultValue={plan.locations.find((location) => location.id !== movingBlock.locationId)?.id}>{plan.locations.filter((location) => location.id !== movingBlock.locationId).map((location) => <option key={location.id} value={location.id}>{location.name}</option>)}</select></label>
+        <div className="flex gap-2"><button type="submit" className={primary} disabled={!editing}><MapPin size={15} />Move class</button><button type="button" className={button} onClick={() => setMovingBlock(null)}>Cancel</button></div>
+      </form>
+    </PlannerDialog>}
+    {dialog === 'class' && <PlannerDialog title="Notional Class" onClose={() => setDialog(null)}><form className="space-y-4" onSubmit={(e) => {
       e.preventDefault(); const form = new FormData(e.currentTarget)
       const name = String(form.get('name')).trim(), duration = Number(form.get('duration'))
       if (!name || !Number.isInteger(duration) || duration < 5 || duration > 1440) return
