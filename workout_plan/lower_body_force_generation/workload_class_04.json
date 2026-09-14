@@ -1,0 +1,669 @@
+{
+  "class_number": 4,
+  "week": 4,
+  "title": "Knee-led upward drive",
+  "effort": "Push upward through an organized knee and whole-foot base, then finish through the ankle.",
+  "quality_marker": "Within E1 record six takeoffs for a single controlled dip, clear upward projection and a quiet 2 s bilateral reception. Record actual dip/arm strategy and surface; a higher box in E2 is not a jump-height measurement. Use the listed attempts only; a miss or invalid attempt consumes the dose. Record actual attempts, setup and any substitutions; no bonus tests or comparison across unlike tasks.",
+  "brief": "The countermovement jump leads; a low box adds a defined receiving surface. Grounded knee-to-ankle extension, bent-knee ankle output and front-leg return isolate related contributors, with a small familiar hip-drive dose for continuity. Primary squat receives the main investment.",
+  "reviewed_source_hashes": {
+    "curriculum.md": "54422b057b0c75f438192ebe564276f24b6a9b03f10f69571a7801869b38dce9",
+    "progression_ledger.md": "186c27e059d69872ddf8dbbc40bc87b63189c046f7d9e4e5ac687c93a3a0bc88",
+    "drill_usage.md": "cd10540d3f408b4598b9031ee2174955fd73ab9a6fe7ecac501ec71f0ad4984e",
+    "strength_progressions.md": "fc234e7427cd438ae697d03d2f7b96b6c3659e9f89ad23efbb108928243d1c03",
+    "athlete_feedback.md": "71e0f8512ff4b13d92595ee648fb04008f858856106c20d05d8d4dea5955baf6",
+    "progress.json": "ff2abd767249baeb09d54cbd27e6ffcc34e9d7ebe8f25fc3b114ef414d73e988",
+    "classes/class_03.md": "cb9539fe5214eb440ad9b07d9443ce07dd5ef5af219d2a294f9869911e6e44b7",
+    "workload_class_03.json": "4e509ba30ba088e04b08d71aec099fd879e2d73865601762d3b679f9304de518",
+    "audits/class_03_audit.md": "169b050a4e3f3693ffecc2f171ef2835ef949101281a9dacee5e0b8e13782958"
+  },
+  "explosive": [
+    {
+      "name": "Countermovement Jump — vertical rise and stick",
+      "key": "Countermovement Jump — vertical rise and stick",
+      "sets": 2,
+      "reps": 3,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Main coordinated knee/hip push after one controlled countermovement.",
+      "cue": "Use one comfortable dip with arm swing, jump vertically, receive on both feet and hold 2 s. No repeated bouncing, deep-collapse dip or knee tuck for apparent height.",
+      "replacement": "a smaller countermovement jump or fast nonflight squat rise when reception cannot stay controlled; record removed landings",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 5,
+      "equipment": [
+        "Bodyweight"
+      ],
+      "exposure_per_rep": {
+        "bilateral_landings": 1
+      },
+      "identity": "countermovement-jump; plyometrics-all-cards.json",
+      "novelty": "related_variant",
+      "novelty_reason": "Related to Week 1 squat jump but includes a continuous preload. A deeper squat is not automatically better and was not used as the progression.",
+      "prep": null,
+      "rest_text": "90 s between complete set rounds; 10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E1"
+    },
+    {
+      "name": "Box Jump — low target, stand and step down",
+      "key": "Box Jump — low target, stand and step down",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Direct knee-led upward force to a clear receiving surface without a drop rebound.",
+      "cue": "Jump from floor to a low inspected immovable box; choose height permitting modest knee lift and a quiet full-foot landing. Stand tall, then step down under control; no jump down or rebound.",
+      "replacement": "three settled-start squat jumps with hands at hips: hold a quarter squat 2 s, jump without a second dip and land on both feet for a 2 s hold, using the same 10 s resets; this static-start task differs from E1 countermovement",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 9,
+      "equipment": [
+        "Box / step"
+      ],
+      "exposure_per_rep": {
+        "bilateral_landings": 1
+      },
+      "identity": "box-jump; plyometrics-all-cards.json; low target and step-down reset declared",
+      "novelty": "new_task",
+      "novelty_reason": "First raised-reception task. The receiving surface is a meaningful constraint, not a measured improvement in jump height; only three landings are added.",
+      "prep": null,
+      "rest_text": "10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E2"
+    },
+    {
+      "name": "Squat-to-Calf Rise — rapid extension, feet stay grounded",
+      "key": "Squat-to-Calf Rise — rapid extension, feet stay grounded",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Sequence knee/hip extension into an ankle finish without leaving the floor.",
+      "cue": "From a comfortable quarter squat rise quickly to tall legs, then onto forefeet in one smooth action; pause 1 s and lower under control. Do not jump or snap knees backward.",
+      "replacement": "a smaller fast squat rise with heels remaining down if the ankle finish disrupts alignment",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 4,
+      "equipment": [
+        "Bodyweight"
+      ],
+      "exposure_per_rep": {
+        "grounded_rapid_reps": 1
+      },
+      "identity": "Proposed exact nonflight knee-to-ankle rapid extension task",
+      "novelty": "related_variant",
+      "novelty_reason": "Combines the previously separated squat and ankle outputs into one continuous extension, not two exercises performed as a circuit.",
+      "prep": null,
+      "rest_text": "10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E3"
+    },
+    {
+      "name": "Seated Bent-Knee Calf Raise — fast light rise",
+      "key": "Seated Bent-Knee Calf Raise — fast light rise",
+      "sets": 1,
+      "reps": 4,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Express rapid plantar-flexion force with the knee held flexed.",
+      "cue": "Sit securely, feet on floor, very light controlled thigh loads if needed; lift heels quickly, hold 1 s and lower 2 s. Keep knee angle fixed; no bouncing or hand pull on the loads.",
+      "replacement": "a supported standing bent-knee rapid heel rise at the same bilateral dose if the seated setup fails",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 4,
+      "equipment": [
+        "Bench",
+        "Dumbbells"
+      ],
+      "exposure_per_rep": {
+        "grounded_rapid_reps": 1
+      },
+      "identity": "seated-dumbbell-calf-raise parent; rapid light delivery proposed",
+      "novelty": "related_variant",
+      "novelty_reason": "Different knee-angle force task from Week 1 straight-knee finish. An extra pogo set would test rebound rather than this grounded output.",
+      "prep": null,
+      "rest_text": "10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E4"
+    },
+    {
+      "name": "Reverse Lunge — quick front-leg return, no flight",
+      "key": "Reverse Lunge — quick front-leg return, no flight",
+      "sets": 1,
+      "reps": 2,
+      "sides": 2,
+      "unit": "reps",
+      "job": "Drive upward through the front leg after a controlled rear step.",
+      "cue": "Bodyweight; step back quietly and lower 2 s, then drive quickly through the front whole foot to stand. No jumping switch or rear-toe launch. Complete two returns per lead leg.",
+      "replacement": "a fast supported stationary split-squat rise at the same per-leg dose if stepping causes loss of alignment",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 4,
+      "equipment": [
+        "Bodyweight"
+      ],
+      "exposure_per_rep": {
+        "grounded_rapid_reps": 1
+      },
+      "identity": "dumbbell-reverse-lunge parent; rapid bodyweight return proposed",
+      "novelty": "related_variant",
+      "novelty_reason": "The controlled entry and return differ from a fixed-base rise. A jumping lunge was rejected because flight is not needed to teach front-leg force.",
+      "prep": null,
+      "rest_text": "complete one leg's bout, rest 45 s, then the other leg; 4 total reps; 10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E5"
+    },
+    {
+      "name": "Kettlebell Swing — dead-stop two-hand repetitions",
+      "key": "Kettlebell Swing — dead-stop two-hand repetitions",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Rapid hip extension moves a retained implement without adding landings.",
+      "cue": "Hike a light kettlebell from a stable parked start, snap hips to a tall finish with a chest-level float, guide the return and park fully after each rep. No squat pull, arm lift or lumbar arch.",
+      "replacement": "a very light rapid dumbbell hip hinge with a 2 s lowering and still finish if swing skill or grip is unconfirmed",
+      "rest_seconds": 90,
+      "side_rest_seconds": 45,
+      "reset_seconds": 10,
+      "active_seconds": 5,
+      "equipment": [
+        "Kettlebell"
+      ],
+      "exposure_per_rep": {
+        "grounded_rapid_reps": 1
+      },
+      "identity": "kettlebell-swing parent; migration 472 labels dead-stop as proposed new variant",
+      "novelty": "repeat",
+      "novelty_reason": "Three familiar parked swings retain hip-driven force after the knee-led tasks. A new ballistic hinge or added scoop would add instruction or release handling without a more direct hip-support job; no load increase is prescribed.",
+      "prep": null,
+      "rest_text": "10 s between individual reps; 90 s before the next exercise/section",
+      "slot": "E6"
+    }
+  ],
+  "resilience": [
+    {
+      "name": "Tibialis Raise — wall-supported",
+      "key": "tibialis",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Light ankle dorsiflexor loading to control foot position before a stable push/landing.",
+      "cue": "Back against an inspected wall, heels on floor; lift forefeet 2 s, hold 1 s, lower 2 s. Adjust foot distance to stay easy.",
+      "replacement": "a seated unweighted toe raise through comfortable range",
+      "rest_seconds": 60,
+      "side_rest_seconds": 30,
+      "reset_seconds": 0,
+      "active_seconds": 5,
+      "equipment": [
+        "Wall support"
+      ],
+      "exposure_per_rep": {
+        "light_reps": 1
+      },
+      "identity": "Verified family: tibialis-raise; wall-supported execution declared",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "45 s before the next exercise/section",
+      "slot": "S1"
+    },
+    {
+      "name": "Side-Lying Hip Adduction — light",
+      "key": "hip_adduction",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "unit": "reps",
+      "job": "Light medial-hip force to maintain a straight stance-leg push without drifting away from the foot.",
+      "cue": "Top foot rests in front of the lower knee. Lift the straight lower leg slightly 2 s, hold 1 s, lower 2 s; pelvis remains stacked.",
+      "replacement": "a smaller controlled lower-leg lift at the same dose",
+      "rest_seconds": 60,
+      "side_rest_seconds": 30,
+      "reset_seconds": 0,
+      "active_seconds": 5,
+      "equipment": [
+        "Bodyweight"
+      ],
+      "exposure_per_rep": {
+        "light_reps": 1
+      },
+      "identity": "Proposed exact execution; no verified canonical ID",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "complete one leg's bout, rest 30 s, then the other leg; 10 total reps; 60 s before the next exercise/section",
+      "slot": "S2"
+    }
+  ],
+  "primary": [
+    {
+      "name": "Goblet Squat — dumbbell",
+      "key": "squat",
+      "sets": 2,
+      "reps": 6,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Bilateral knee/hip extension through a repeatable full-foot push.",
+      "cue": "Lower 3 s, stand decisively in about 1 s; hold a manageable goblet load and retain comfortable depth without heels lifting.",
+      "replacement": "a lighter goblet squat through controlled comfortable range; a two-dumbbell front hold may replace a limiting goblet grip",
+      "rest_seconds": 120,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 4,
+      "equipment": [
+        "Dumbbells"
+      ],
+      "exposure_per_rep": {
+        "strength_reps": 1
+      },
+      "identity": "Verified local family: goblet-squat; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "120 s between complete set rounds; 120 s before the next lift preparation",
+      "slot": "P1",
+      "preparation_text": "Load preparation of this same lift: 1 × 5 then 1 × 3; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 90 s before working sets. Extra load-finding work adds actual workload/time."
+    },
+    {
+      "name": "Romanian Deadlift — two dumbbells",
+      "key": "rdl",
+      "sets": 1,
+      "reps": 6,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Hip extension from a lengthened hinge, with the trunk transmitting rather than supplying the motion.",
+      "cue": "Lower 3 s with soft knees, bells close and hips back; stand in about 1 s. Stop range before back rounding or pelvic tuck.",
+      "replacement": "a lighter two-dumbbell hinge through a shorter controlled range",
+      "rest_seconds": 120,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 4,
+      "equipment": [
+        "Dumbbells"
+      ],
+      "exposure_per_rep": {
+        "strength_reps": 1
+      },
+      "identity": "Verified local family: dumbbell-romanian-deadlift; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "120 s before the next lift preparation",
+      "slot": "P2",
+      "preparation_text": "Load preparation of this same lift: 1 × 5; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 90 s before working sets. Extra load-finding work adds actual workload/time."
+    },
+    {
+      "name": "Reverse Lunge — two dumbbells",
+      "key": "reverse_lunge",
+      "sets": 1,
+      "reps": 5,
+      "sides": 2,
+      "unit": "reps",
+      "job": "Accept a controlled step and drive through the front leg to regain the start.",
+      "cue": "Step back quietly, lower under control and push through the whole front foot to stand; about 4 s per complete cycle. Do not launch off the trailing toes.",
+      "replacement": "a stationary split squat at the same per-leg dose if stepping reduces control",
+      "rest_seconds": 120,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 4,
+      "equipment": [
+        "Dumbbells"
+      ],
+      "exposure_per_rep": {
+        "strength_reps": 1
+      },
+      "identity": "Verified local family: dumbbell-reverse-lunge; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "complete one leg's bout, rest 60 s, then the other leg; 10 total reps; 120 s before the next lift preparation",
+      "slot": "P3",
+      "preparation_text": "Load preparation of this same lift: 1 × 3 per leg; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds, 30 s between legs; 60 s before working sets. Extra load-finding work adds actual workload/time."
+    },
+    {
+      "name": "Standing Dumbbell Calf Raise — straight knees",
+      "key": "straight_calf",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Plantar-flexion force with the knees extended for the final upward/forward push.",
+      "cue": "Use stable hand support if needed; rise 1 s, hold 1 s, lower 2 s to the floor. Keep knees softly straight and heels tracking over the forefoot.",
+      "replacement": "a lighter supported standing calf raise; use individual load or leverage that retains the required technical reserve",
+      "rest_seconds": 90,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 4,
+      "equipment": [
+        "Dumbbells",
+        "Stable hand support"
+      ],
+      "exposure_per_rep": {
+        "strength_reps": 1
+      },
+      "identity": "Verified local family: standing-dumbbell-calf-raise; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "90 s before the next lift preparation",
+      "slot": "P4",
+      "preparation_text": "Load preparation of this same lift: 1 × 4; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time."
+    },
+    {
+      "name": "Seated Dumbbell Calf Raise — bent knees",
+      "key": "bent_calf",
+      "sets": 1,
+      "reps": 8,
+      "sides": 1,
+      "unit": "reps",
+      "job": "Plantar-flexion force while the knee remains flexed during early push and receiving.",
+      "cue": "Sit on an inspected stable bench, feet on floor; secure loads on thighs, rise 1 s, hold 1 s, lower 2 s without knee-angle change or bouncing.",
+      "replacement": "a supported standing bent-knee calf raise with the same bilateral dose and 2–3 technical RIR if bench/load support is unsuitable",
+      "rest_seconds": 90,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 4,
+      "equipment": [
+        "Dumbbells",
+        "Bench"
+      ],
+      "exposure_per_rep": {
+        "strength_reps": 1
+      },
+      "identity": "Verified local family: seated-dumbbell-calf-raise; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "90 s before the next lift preparation",
+      "slot": "P5",
+      "preparation_text": "Load preparation of this same lift: 1 × 4; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time."
+    },
+    {
+      "name": "Hamstring Walkout — complete out-and-back cycle",
+      "key": "walkout",
+      "sets": 1,
+      "reps": 3,
+      "sides": 1,
+      "unit": "cycles",
+      "job": "Knee-flexor leverage while the pelvis stays raised, distinct from moving through a hip hinge.",
+      "cue": "Start in a bilateral bridge. Each cycle is two small heel steps out per foot, then two back per foot: eight placements in about 8 s. Keep a soft knee and level hips; never chase a fully straight leg.",
+      "replacement": "a shorter-lever walkout at the same complete-cycle count; reduce range for sagging or cramp and stop if control does not return",
+      "rest_seconds": 90,
+      "side_rest_seconds": 60,
+      "reset_seconds": 0,
+      "active_seconds": 8,
+      "equipment": [
+        "Bodyweight"
+      ],
+      "exposure_per_rep": {
+        "strength_cycles": 1
+      },
+      "identity": "Verified local family: hamstring-walkout; supported/load/range details are declared coaching executions",
+      "novelty": null,
+      "novelty_reason": null,
+      "prep": null,
+      "rest_text": "No additional set is prescribed; finish this exercise without bonus work.",
+      "slot": "P6",
+      "preparation_text": "Load preparation of this same lift: 1 × 1 cycles; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time."
+    }
+  ],
+  "primary_preparation": [
+    {
+      "slot": "P1",
+      "reps_by_set": [
+        5,
+        3
+      ],
+      "sides": 1,
+      "unit": "reps",
+      "active_seconds_per_rep": 4,
+      "seconds_including_rest": 182,
+      "task_units": 8,
+      "rounds": 2,
+      "bouts": 2
+    },
+    {
+      "slot": "P2",
+      "reps_by_set": [
+        5
+      ],
+      "sides": 1,
+      "unit": "reps",
+      "active_seconds_per_rep": 4,
+      "seconds_including_rest": 110,
+      "task_units": 5,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P3",
+      "reps_by_set": [
+        3
+      ],
+      "sides": 2,
+      "unit": "reps",
+      "active_seconds_per_rep": 4,
+      "seconds_including_rest": 114,
+      "task_units": 6,
+      "rounds": 1,
+      "bouts": 2
+    },
+    {
+      "slot": "P4",
+      "reps_by_set": [
+        4
+      ],
+      "sides": 1,
+      "unit": "reps",
+      "active_seconds_per_rep": 4,
+      "seconds_including_rest": 76,
+      "task_units": 4,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P5",
+      "reps_by_set": [
+        4
+      ],
+      "sides": 1,
+      "unit": "reps",
+      "active_seconds_per_rep": 4,
+      "seconds_including_rest": 76,
+      "task_units": 4,
+      "rounds": 1,
+      "bouts": 1
+    },
+    {
+      "slot": "P6",
+      "reps_by_set": [
+        1
+      ],
+      "sides": 1,
+      "unit": "cycles",
+      "active_seconds_per_rep": 8,
+      "seconds_including_rest": 68,
+      "task_units": 1,
+      "rounds": 1,
+      "bouts": 1
+    }
+  ],
+  "summary": {
+    "exercise_counts": {
+      "explosiveness": 6,
+      "stabilization_resilience": 2,
+      "primary_strength": 6
+    },
+    "explosive_events": {
+      "bilateral_landings": 9,
+      "grounded_rapid_reps": 14,
+      "unilateral_landings": 0,
+      "low_amplitude_landings": 0,
+      "throws": 0,
+      "sprint_attempts": 0,
+      "sprint_metres": 0,
+      "individual_landing_foot_contacts": 18
+    },
+    "explosive_rounds": 7,
+    "explosive_bouts": 8,
+    "light_reps": 16,
+    "light_bouts": 3,
+    "primary_rounds": 7,
+    "primary_bouts": 8,
+    "primary_reps": 44,
+    "primary_walkout_cycles": 3,
+    "primary_walkout_heel_placements": 24,
+    "preparation_reps": 27,
+    "preparation_walkout_cycles": 1,
+    "preparation_rounds": 7,
+    "preparation_bouts": 8,
+    "estimated_post_prepare_minutes": [
+      55,
+      62
+    ],
+    "complete_session_minutes": null,
+    "access_prepare_1_workload": null,
+    "actual_workload": null
+  },
+  "timing": {
+    "explosive_seconds": 851,
+    "resilience_seconds": 155,
+    "primary_seconds": 1546,
+    "between_section_seconds": 150,
+    "instruction_setup_seconds": [
+      600,
+      960
+    ]
+  },
+  "phase_notes": {
+    "E": [
+      "Use light resistance or bodyweight that permits visibly rapid force with control. Begin with E1 while fresh. Each row has a distinct job; supporting work stays small. Rest may be extended to 2–3 minutes when speed, control or attention has not returned. Stop for pain, loss of alignment, stiff/asymmetric landing or clear slowing; rest and regress remaining work only if control returns, otherwise record stopped work. Never make up failed attempts. No drop landings or rotational throws are prescribed."
+    ],
+    "S": [
+      "Light controlled strengthening, at least 5 technical reps in reserve. Do not chase burn, shaking or pre-fatigue. Reduce load/range when control fades; stop for symptoms."
+    ],
+    "P": [
+      "Working sets are challenging at about 2–3 technical reps/cycles in reserve. Select load/lever from demonstrated ability, not age or calendar week. Keep the stated controlled lowering and complete range; no forced repetitions, maximum testing or conditioning circuit. Check late-set and late-session quality; record reductions instead of forcing nominal completion.",
+      "P1: Load preparation of this same lift: 1 × 5 then 1 × 3; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 90 s before working sets. Extra load-finding work adds actual workload/time. P2: Load preparation of this same lift: 1 × 5; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 90 s before working sets. Extra load-finding work adds actual workload/time. P3: Load preparation of this same lift: 1 × 3 per leg; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds, 30 s between legs; 60 s before working sets. Extra load-finding work adds actual workload/time. P4: Load preparation of this same lift: 1 × 4; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time. P5: Load preparation of this same lift: 1 × 4; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time. P6: Load preparation of this same lift: 1 × 1 cycles; very light first, intermediate only if a second set is listed; at least 5 technical reps/cycles in reserve; 60 s between preparation rounds; 60 s before working sets. Extra load-finding work adds actual workload/time."
+    ]
+  },
+  "setup": "The low box must permit the whole foot to receive without a deep knee tuck; reset by stepping down only. Keep rapid return lunges and seated calf work outside the active jump area. Load-preparation repetitions for strength remain separate from the light rapid tasks. Inspect stable supports, minimum loads, surface grip and all active/waiting/return paths. Keep one athlete active per lane under suitable supervision; no group size or station count is assumed. Three separate 10 m lanes are not a 30 m runway. Ball releases need separately verified flight/bounce/roll containment. Replacements occupy the original slot; missing readiness or equipment can change the practice exposure and actual totals. Before applying multiple replacements, check the other rows: a replacement must not duplicate an exercise already delivered in another slot. Do not add duplicate work just to fill the count. If the supplied replacements cannot preserve distinct jobs, stop the affected slot and record a modified/incomplete session for revision; do not claim the planned six distinct explosive tasks were completed. Changed reset time, takeoff/landing type, sides and reps belong in the actual record.",
+  "delivery": "Estimate 55–62 minutes after Access & Prepare 1 for an athlete with equipment access. Includes work, resets, listed recovery, preparation, transitions and 10–16 minutes of extra instruction/setup; additional queues, rest or load-finding add time. Existing preparation duration and total booking fit remain unresolved. Never compress needed recovery to fit a clock. One coached focus class per week for twelve weeks. Review actual sport, leg lifting, running, jumping and tumbling before delivery. Initially allow roughly 48–72 hours before another demanding leg exposure when the full schedule permits, adjusting to actual recovery; a week elapsed is not proof of readiness. Resume missed classes without doubling up. No additional full workouts or body-control blocks are prescribed.",
+  "progression": "Week 3 used Split Squat 2 × 5 per leg as the priority. Here Goblet Squat returns to its original 2 × 6, RDL stays 1 × 6, and Reverse Lunge 1 × 5 per leg replaces the split squat. The course moves from nine primary bouts to eight while retaining seven rounds. Loads are selected for the current task and reserve; the box and countermovement are new demands, not proof that heavier strength is earned.",
+  "audit_findings": "Nine bilateral landings include three raised-surface receptions; no jump-down or initial drop contacts. One exact drill repeat is disclosed, and related extension tasks have different start, knee-angle or step roles. The quick and primary reverse lunges are separately performed at different loads and jobs, never counted twice. Strength unilateral volume falls from the prior week.",
+  "strength_trace": [
+    {
+      "slot": "S1",
+      "exercise": "Tibialis Raise — wall-supported",
+      "section": "resilience",
+      "key": "tibialis",
+      "previous": {
+        "class_number": 1,
+        "dose": "1 × 6"
+      },
+      "current_dose": "1 × 6",
+      "reason": "Light ankle dorsiflexor loading to control foot position before a stable push/landing.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "S2",
+      "exercise": "Side-Lying Hip Adduction — light",
+      "section": "resilience",
+      "key": "hip_adduction",
+      "previous": null,
+      "current_dose": "1 × 5 per leg",
+      "reason": "Light medial-hip force to maintain a straight stance-leg push without drifting away from the foot.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P1",
+      "exercise": "Goblet Squat — dumbbell",
+      "section": "primary",
+      "key": "squat",
+      "previous": {
+        "class_number": 3,
+        "dose": "1 × 6"
+      },
+      "current_dose": "2 × 6",
+      "reason": "Bilateral knee/hip extension through a repeatable full-foot push.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P2",
+      "exercise": "Romanian Deadlift — two dumbbells",
+      "section": "primary",
+      "key": "rdl",
+      "previous": {
+        "class_number": 3,
+        "dose": "1 × 6"
+      },
+      "current_dose": "1 × 6",
+      "reason": "Hip extension from a lengthened hinge, with the trunk transmitting rather than supplying the motion.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P3",
+      "exercise": "Reverse Lunge — two dumbbells",
+      "section": "primary",
+      "key": "reverse_lunge",
+      "previous": null,
+      "current_dose": "1 × 5 per leg",
+      "reason": "Accept a controlled step and drive through the front leg to regain the start.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P4",
+      "exercise": "Standing Dumbbell Calf Raise — straight knees",
+      "section": "primary",
+      "key": "straight_calf",
+      "previous": {
+        "class_number": 3,
+        "dose": "1 × 8"
+      },
+      "current_dose": "1 × 8",
+      "reason": "Plantar-flexion force with the knees extended for the final upward/forward push.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P5",
+      "exercise": "Seated Dumbbell Calf Raise — bent knees",
+      "section": "primary",
+      "key": "bent_calf",
+      "previous": {
+        "class_number": 3,
+        "dose": "1 × 8"
+      },
+      "current_dose": "1 × 8",
+      "reason": "Plantar-flexion force while the knee remains flexed during early push and receiving.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    },
+    {
+      "slot": "P6",
+      "exercise": "Hamstring Walkout — complete out-and-back cycle",
+      "section": "primary",
+      "key": "walkout",
+      "previous": {
+        "class_number": 3,
+        "dose": "1 × 3 cycles"
+      },
+      "current_dose": "1 × 3 cycles",
+      "reason": "Knee-flexor leverage while the pelvis stays raised, distinct from moving through a hip hinge.",
+      "next_criterion": "Actual controlled completion at the written range/tempo and target reserve, plus satisfactory recovery. Hold or reduce if unreported or unsuitable; advance one relevant load/lever variable only.",
+      "actual_load": null
+    }
+  ],
+  "next_job": "Week 5 should connect a small preload to rapid output only where first-attempt control permits; review knees, ankles and landing quality before adding linked contacts.",
+  "actual_observations": null,
+  "revisions": [
+    "Before Week 6: per-repetition time expanded where start/landing holds, re-stance or step-down required more than the initial allowance. Work/rest doses unchanged."
+  ]
+}

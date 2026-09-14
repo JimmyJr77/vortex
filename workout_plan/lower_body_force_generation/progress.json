@@ -1,0 +1,87 @@
+{
+  "focus": "Lower Body Force Generation",
+  "weeks": 12,
+  "classes_per_week": 1,
+  "target_class_count": 12,
+  "last_finalized_class": 12,
+  "next_class": null,
+  "curriculum_complete": true,
+  "status": "authored_audited_and_locally_integrated",
+  "framework_mapping": {
+    "primary": [
+      "Jumps > Vertical",
+      "Jumps > Horizontal"
+    ],
+    "secondary": [
+      "Sprinting > Acceleration (straight-line and multidirectional)"
+    ]
+  },
+  "finalized_file_paths": [
+    "classes/class_01.md",
+    "classes/class_02.md",
+    "classes/class_03.md",
+    "classes/class_04.md",
+    "classes/class_05.md",
+    "classes/class_06.md",
+    "classes/class_07.md",
+    "classes/class_08.md",
+    "classes/class_09.md",
+    "classes/class_10.md",
+    "classes/class_11.md",
+    "classes/class_12.md"
+  ],
+  "workload_files": [
+    "workload_class_01.json",
+    "workload_class_02.json",
+    "workload_class_03.json",
+    "workload_class_04.json",
+    "workload_class_05.json",
+    "workload_class_06.json",
+    "workload_class_07.json",
+    "workload_class_08.json",
+    "workload_class_09.json",
+    "workload_class_10.json",
+    "workload_class_11.json",
+    "workload_class_12.json"
+  ],
+  "audit_files": [
+    "audits/class_01_audit.md",
+    "audits/class_02_audit.md",
+    "audits/class_03_audit.md",
+    "audits/class_04_audit.md",
+    "audits/class_05_audit.md",
+    "audits/class_06_audit.md",
+    "audits/class_07_audit.md",
+    "audits/class_08_audit.md",
+    "audits/class_09_audit.md",
+    "audits/class_10_audit.md",
+    "audits/class_11_audit.md",
+    "audits/class_12_audit.md"
+  ],
+  "observed": {
+    "completed_class_count": null,
+    "actual_workload": null,
+    "performance": null,
+    "recovery": null
+  },
+  "unresolved": [
+    "Actual athlete feedback and broader schedule unknown",
+    "Existing Access & Prepare 1 workload/duration unknown",
+    "Booking, staffing, group size, load ranges and support/throwing/stopping fit unknown",
+    "Older facility record differs; use adopted seven-category framework and conservative 10 m planning"
+  ],
+  "next_job": "The twelve-week authored sequence is complete. Before delivery or the next cycle, review actual athlete attendance, preparation/outside workload, output, load/lever, technical reserve, substitutions, symptoms and recovery. Hold, reduce or revise when justified; do not create Class 13 or infer improvement from authored classes.",
+  "full_sequence_audit": "full_sequence_audit.md",
+  "complete_manual": "LOWER_BODY_12_WEEK_PLAN.md",
+  "aggregate_workload": "sequence_workload.json",
+  "verification": "verification.json",
+  "portal": {
+    "collection": "Athleticism Accelerator",
+    "program_id": "lower-body-force",
+    "class_count": 12,
+    "cadence": "1 class per week for 12 weeks",
+    "status": "local integration verified",
+    "deployed": false,
+    "record": "portal_integration.md"
+  }
+}

@@ -1,0 +1,1122 @@
+{
+  "weeks": 36,
+  "classesPerWeek": 1,
+  "stages": [
+    {
+      "stage": 1,
+      "focus": "Projection and controlled reversal",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E2",
+            "E3"
+          ],
+          [
+            "E2",
+            "E6"
+          ],
+          [
+            "E2",
+            "E1"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E2"
+    },
+    {
+      "stage": 2,
+      "focus": "Low starts and lateral exits",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E2",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P1",
+            "P5"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 3,
+      "focus": "Diagonal force and commitment reads",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E3"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 4,
+      "focus": "Upright support and angled responses",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E2",
+            "E4"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 5,
+      "focus": "Hip reorientation and retreat recovery",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P3",
+            "P5"
+          ],
+          [
+            "P1",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P1",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 6,
+      "focus": "Reversal, closing space and exit denial",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 7,
+      "focus": "Curved approaches and anticipation",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P3",
+            "P5"
+          ],
+          [
+            "P1",
+            "P5"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 8,
+      "focus": "Linked movement and second decisions",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P2",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P1",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 9,
+      "focus": "Rhythm changes and connected routes",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E4",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P5"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 10,
+      "focus": "Movement transitions and route choices",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E4"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E4",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 11,
+      "focus": "Reorganization and attention shifts",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E5"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P1",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    },
+    {
+      "stage": 12,
+      "focus": "Integrated movement and adaptable decisions",
+      "explosive": {
+        "sprinting": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E4"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E3",
+            "E4"
+          ],
+          [
+            "E5",
+            "E6"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "E1",
+            "E2"
+          ],
+          [
+            "E1",
+            "E4"
+          ],
+          [
+            "E1",
+            "E6"
+          ]
+        ]
+      },
+      "primary": {
+        "sprinting": [
+          [
+            "P1",
+            "P3"
+          ],
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P4",
+            "P6"
+          ]
+        ],
+        "agility-mobility": [
+          [
+            "P2",
+            "P5"
+          ],
+          [
+            "P3",
+            "P4"
+          ],
+          [
+            "P1",
+            "P5"
+          ]
+        ],
+        "agility-reactive": [
+          [
+            "P5",
+            "P6"
+          ],
+          [
+            "P2",
+            "P4"
+          ],
+          [
+            "P3",
+            "P5"
+          ]
+        ]
+      },
+      "reactiveAnchor": "E1"
+    }
+  ]
+}

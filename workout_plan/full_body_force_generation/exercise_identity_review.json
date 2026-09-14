@@ -1,0 +1,1836 @@
+{
+  "explosive_slots": 216,
+  "semantic_executions": 158,
+  "later_placements_of_existing_executions": 58,
+  "identity_policy": "Exact source program/name plus the three reviewed paused-scoop aliases. Related executions remain related variants; these are not claims of unrelated movement families or newly invented drills.",
+  "occurrences": {
+    "lower-body-force:Squat Jump — settled quarter-squat start": [
+      {
+        "class": 1,
+        "slot": "E1",
+        "name": "Squat Jump — settled quarter-squat start",
+        "dose": "2 × 3",
+        "source": "lower-body-force:1:E1"
+      },
+      {
+        "class": 16,
+        "slot": "E1",
+        "name": "Squat Jump — settled quarter-squat start",
+        "dose": "1 × 3",
+        "source": "lower-body-force:6:E1"
+      },
+      {
+        "class": 34,
+        "slot": "E1",
+        "name": "Squat Jump — settled quarter-squat start",
+        "dose": "2 × 3",
+        "source": "lower-body-force:12:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Chest Pass — stationary, paused": [
+      {
+        "class": 1,
+        "slot": "E2",
+        "name": "Medicine Ball Chest Pass — stationary, paused",
+        "dose": "3 × 3",
+        "source": "upper-body-force:1:E1"
+      },
+      {
+        "class": 7,
+        "slot": "E4",
+        "name": "Medicine Ball Chest Pass — stationary, paused",
+        "dose": "1 × 3",
+        "source": "upper-body-force:3:E4"
+      },
+      {
+        "class": 21,
+        "slot": "E6",
+        "name": "Medicine Ball Chest Pass — stationary, paused",
+        "dose": "1 × 2",
+        "source": "upper-body-force:7:E6"
+      },
+      {
+        "class": 34,
+        "slot": "E2",
+        "name": "Medicine Ball Chest Pass — stationary, paused",
+        "dose": "3 × 3",
+        "source": "upper-body-force:12:E1"
+      }
+    ],
+    "lower-body-force:Calf Raise — rapid supported rise, no flight": [
+      {
+        "class": 1,
+        "slot": "E3",
+        "name": "Calf Raise — rapid supported rise, no flight",
+        "dose": "1 × 4",
+        "source": "lower-body-force:1:E3"
+      },
+      {
+        "class": 16,
+        "slot": "E3",
+        "name": "Calf Raise — rapid supported rise, no flight",
+        "dose": "1 × 3",
+        "source": "lower-body-force:6:E3"
+      },
+      {
+        "class": 34,
+        "slot": "E3",
+        "name": "Calf Raise — rapid supported rise, no flight",
+        "dose": "1 × 3",
+        "source": "lower-body-force:12:E3"
+      }
+    ],
+    "upper-body-force:Band Row — seated, fast pull": [
+      {
+        "class": 1,
+        "slot": "E4",
+        "name": "Band Row — seated, fast pull",
+        "dose": "1 × 4",
+        "source": "upper-body-force:1:E5"
+      }
+    ],
+    "rotation-lower:Split-stance explosive hip pivot": [
+      {
+        "class": 1,
+        "slot": "E5",
+        "name": "Split-stance explosive hip pivot",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:1:E1"
+      },
+      {
+        "class": 34,
+        "slot": "E5",
+        "name": "Split-stance explosive hip pivot",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:12:E1"
+      }
+    ],
+    "rotation-upper:paused-standing-scoop-floor-target": [
+      {
+        "class": 1,
+        "slot": "E6",
+        "name": "Med Ball Rotational Scoop Toss — paused standing start; floor-target adaptation",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:1:E1"
+      },
+      {
+        "class": 29,
+        "slot": "E6",
+        "name": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:10:E3"
+      },
+      {
+        "class": 34,
+        "slot": "E6",
+        "name": "Med Ball Rotational Scoop Toss — paused floor-target start",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:12:E1"
+      }
+    ],
+    "upper-body-force:Two-Hand Landmine Bent-Over Row — fast pull from a pause": [
+      {
+        "class": 2,
+        "slot": "E1",
+        "name": "Two-Hand Landmine Bent-Over Row — fast pull from a pause",
+        "dose": "2 × 3",
+        "source": "upper-body-force:1:E2"
+      },
+      {
+        "class": 10,
+        "slot": "E4",
+        "name": "Two-Hand Landmine Bent-Over Row — fast pull from a pause",
+        "dose": "1 × 3",
+        "source": "upper-body-force:4:E6"
+      },
+      {
+        "class": 16,
+        "slot": "E4",
+        "name": "Two-Hand Landmine Bent-Over Row — fast pull from a pause",
+        "dose": "1 × 3",
+        "source": "upper-body-force:6:E2"
+      }
+    ],
+    "lower-body-force:Kettlebell Swing — dead-stop two-hand repetitions": [
+      {
+        "class": 2,
+        "slot": "E2",
+        "name": "Kettlebell Swing — dead-stop two-hand repetitions",
+        "dose": "2 × 3",
+        "source": "lower-body-force:1:E2"
+      },
+      {
+        "class": 11,
+        "slot": "E4",
+        "name": "Kettlebell Swing — dead-stop two-hand repetitions",
+        "dose": "1 × 3",
+        "source": "lower-body-force:4:E6"
+      },
+      {
+        "class": 17,
+        "slot": "E2",
+        "name": "Kettlebell Swing — dead-stop two-hand repetitions",
+        "dose": "1 × 3",
+        "source": "lower-body-force:6:E2"
+      },
+      {
+        "class": 35,
+        "slot": "E2",
+        "name": "Kettlebell Swing — dead-stop two-hand repetitions",
+        "dose": "1 × 3",
+        "source": "lower-body-force:12:E2"
+      }
+    ],
+    "upper-body-force:Plyo Push-Up — hands elevated": [
+      {
+        "class": 2,
+        "slot": "E3",
+        "name": "Plyo Push-Up — hands elevated",
+        "dose": "1 × 3",
+        "source": "upper-body-force:1:E3"
+      },
+      {
+        "class": 33,
+        "slot": "E6",
+        "name": "Plyo Push-Up — hands elevated",
+        "dose": "1 × 3",
+        "source": "upper-body-force:11:E6"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — hip-driven forward release": [
+      {
+        "class": 2,
+        "slot": "E4",
+        "name": "Medicine Ball Scoop Toss — hip-driven forward release",
+        "dose": "1 × 3",
+        "source": "lower-body-force:1:E6"
+      },
+      {
+        "class": 35,
+        "slot": "E4",
+        "name": "Medicine Ball Scoop Toss — hip-driven forward release",
+        "dose": "1 × 2",
+        "source": "lower-body-force:12:E5"
+      }
+    ],
+    "rotation-lower:Standing low roundhouse shadow kick": [
+      {
+        "class": 2,
+        "slot": "E5",
+        "name": "Standing low roundhouse shadow kick",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:1:E2"
+      },
+      {
+        "class": 35,
+        "slot": "E5",
+        "name": "Standing low roundhouse shadow kick",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:12:E2"
+      }
+    ],
+    "rotation-upper:Half-Kneeling Rotational Med Ball Throw — floor-target adaptation": [
+      {
+        "class": 2,
+        "slot": "E6",
+        "name": "Half-Kneeling Rotational Med Ball Throw — floor-target adaptation",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:1:E2"
+      }
+    ],
+    "rotation-lower:Lateral step-in to rotational plant": [
+      {
+        "class": 3,
+        "slot": "E1",
+        "name": "Lateral step-in to rotational plant",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:1:E5"
+      },
+      {
+        "class": 15,
+        "slot": "E1",
+        "name": "Lateral step-in to rotational plant",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:1:E5"
+      }
+    ],
+    "rotation-upper:Med Ball Overhead to Side Slam — non-rebounding slam-ball execution": [
+      {
+        "class": 3,
+        "slot": "E2",
+        "name": "Med Ball Overhead to Side Slam — non-rebounding slam-ball execution",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:1:E6"
+      }
+    ],
+    "lower-body-force:Standing Broad Jump — dip, project and stick": [
+      {
+        "class": 3,
+        "slot": "E3",
+        "name": "Standing Broad Jump — dip, project and stick",
+        "dose": "1 × 3",
+        "source": "lower-body-force:1:E4"
+      }
+    ],
+    "upper-body-force:Medicine Ball Chest Pass — shallow countermovement": [
+      {
+        "class": 3,
+        "slot": "E4",
+        "name": "Medicine Ball Chest Pass — shallow countermovement",
+        "dose": "1 × 3",
+        "source": "upper-body-force:1:E4"
+      }
+    ],
+    "lower-body-force:Step-Up — fast grounded drive, rear foot joins": [
+      {
+        "class": 3,
+        "slot": "E5",
+        "name": "Step-Up — fast grounded drive, rear foot joins",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:1:E5"
+      },
+      {
+        "class": 18,
+        "slot": "E3",
+        "name": "Step-Up — fast grounded drive, rear foot joins",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:6:E4"
+      },
+      {
+        "class": 29,
+        "slot": "E2",
+        "name": "Step-Up — fast grounded drive, rear foot joins",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:10:E2"
+      },
+      {
+        "class": 36,
+        "slot": "E3",
+        "name": "Step-Up — fast grounded drive, rear foot joins",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:12:E4"
+      }
+    ],
+    "upper-body-force:Medicine Ball Shot Put Throw — forward-facing, no rotation": [
+      {
+        "class": 3,
+        "slot": "E6",
+        "name": "Medicine Ball Shot Put Throw — forward-facing, no rotation",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:1:E6"
+      },
+      {
+        "class": 18,
+        "slot": "E6",
+        "name": "Medicine Ball Shot Put Throw — forward-facing, no rotation",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:6:E6"
+      },
+      {
+        "class": 36,
+        "slot": "E6",
+        "name": "Medicine Ball Shot Put Throw — forward-facing, no rotation",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:12:E6"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — paused hinge start": [
+      {
+        "class": 4,
+        "slot": "E1",
+        "name": "Medicine Ball Scoop Toss — paused hinge start",
+        "dose": "2 × 3",
+        "source": "lower-body-force:2:E1"
+      }
+    ],
+    "upper-body-force:Kneeling Medicine Ball Chest Pass — tall kneeling, no hip swing": [
+      {
+        "class": 4,
+        "slot": "E2",
+        "name": "Kneeling Medicine Ball Chest Pass — tall kneeling, no hip swing",
+        "dose": "2 × 3",
+        "source": "upper-body-force:2:E1"
+      },
+      {
+        "class": 23,
+        "slot": "E3",
+        "name": "Kneeling Medicine Ball Chest Pass — tall kneeling, no hip swing",
+        "dose": "1 × 3",
+        "source": "upper-body-force:8:E5"
+      }
+    ],
+    "lower-body-force:Glute Bridge — fast grounded rise, settled floor start": [
+      {
+        "class": 4,
+        "slot": "E3",
+        "name": "Glute Bridge — fast grounded rise, settled floor start",
+        "dose": "1 × 4",
+        "source": "lower-body-force:2:E3"
+      },
+      {
+        "class": 17,
+        "slot": "E4",
+        "name": "Glute Bridge — fast grounded rise, settled floor start",
+        "dose": "1 × 3",
+        "source": "lower-body-force:6:E5"
+      },
+      {
+        "class": 32,
+        "slot": "E4",
+        "name": "Glute Bridge — fast grounded rise, settled floor start",
+        "dose": "1 × 3",
+        "source": "lower-body-force:11:E6"
+      }
+    ],
+    "upper-body-force:Seated Hand-over-Hand Battle-Rope Pull — free rope on floor": [
+      {
+        "class": 4,
+        "slot": "E4",
+        "name": "Seated Hand-over-Hand Battle-Rope Pull — free rope on floor",
+        "dose": "1 × 8",
+        "source": "upper-body-force:2:E3"
+      },
+      {
+        "class": 17,
+        "slot": "E3",
+        "name": "Seated Hand-over-Hand Battle-Rope Pull — free rope on floor",
+        "dose": "1 × 4",
+        "source": "upper-body-force:6:E4"
+      }
+    ],
+    "rotation-lower:Lead-leg low roundhouse without a gather step": [
+      {
+        "class": 4,
+        "slot": "E5",
+        "name": "Lead-leg low roundhouse without a gather step",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:2:E2"
+      }
+    ],
+    "rotation-upper:Light-band rotational cross": [
+      {
+        "class": 4,
+        "slot": "E6",
+        "name": "Light-band rotational cross",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:2:E1"
+      },
+      {
+        "class": 32,
+        "slot": "E6",
+        "name": "Light-band rotational cross",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:11:E4"
+      }
+    ],
+    "upper-body-force:Landmine Press — one-arm strict speed press": [
+      {
+        "class": 5,
+        "slot": "E1",
+        "name": "Landmine Press — one-arm strict speed press",
+        "dose": "1 × 3 per arm",
+        "source": "upper-body-force:2:E2"
+      }
+    ],
+    "lower-body-force:Kettlebell Swing — continuous two-hand chest-height float": [
+      {
+        "class": 5,
+        "slot": "E2",
+        "name": "Kettlebell Swing — continuous two-hand chest-height float",
+        "dose": "1 × 4",
+        "source": "lower-body-force:2:E2"
+      },
+      {
+        "class": 23,
+        "slot": "E2",
+        "name": "Kettlebell Swing — continuous two-hand chest-height float",
+        "dose": "1 × 3",
+        "source": "lower-body-force:8:E3"
+      },
+      {
+        "class": 30,
+        "slot": "E5",
+        "name": "Kettlebell Swing — continuous two-hand chest-height float",
+        "dose": "1 × 3",
+        "source": "lower-body-force:10:E6"
+      }
+    ],
+    "upper-body-force:Foot-Supported Pull-Up — fast ascent, controlled return": [
+      {
+        "class": 5,
+        "slot": "E3",
+        "name": "Foot-Supported Pull-Up — fast ascent, controlled return",
+        "dose": "1 × 3",
+        "source": "upper-body-force:2:E4"
+      }
+    ],
+    "lower-body-force:Seated Vertical Jump — low bench start to floor landing": [
+      {
+        "class": 5,
+        "slot": "E4",
+        "name": "Seated Vertical Jump — low bench start to floor landing",
+        "dose": "1 × 3",
+        "source": "lower-body-force:2:E4"
+      }
+    ],
+    "rotation-lower:Pre-chambered bent-knee roundhouse whip": [
+      {
+        "class": 5,
+        "slot": "E5",
+        "name": "Pre-chambered bent-knee roundhouse whip",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:2:E5"
+      }
+    ],
+    "rotation-upper:Two-hand band backhand speed sweep": [
+      {
+        "class": 5,
+        "slot": "E6",
+        "name": "Two-hand band backhand speed sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:2:E3"
+      },
+      {
+        "class": 21,
+        "slot": "E2",
+        "name": "Two-hand band backhand speed sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:7:E6"
+      }
+    ],
+    "rotation-lower:Forward plant-and-open to kick stance": [
+      {
+        "class": 6,
+        "slot": "E1",
+        "name": "Forward plant-and-open to kick stance",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:2:E6"
+      }
+    ],
+    "rotation-upper:Rotational shadow hook": [
+      {
+        "class": 6,
+        "slot": "E2",
+        "name": "Rotational shadow hook",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:2:E2"
+      }
+    ],
+    "lower-body-force:Ankle Pogo in Place — short bilateral set": [
+      {
+        "class": 6,
+        "slot": "E3",
+        "name": "Ankle Pogo in Place — short bilateral set",
+        "dose": "1 × 6",
+        "source": "lower-body-force:2:E5"
+      }
+    ],
+    "upper-body-force:Band Chest Press — simultaneous fast extension, no release": [
+      {
+        "class": 6,
+        "slot": "E4",
+        "name": "Band Chest Press — simultaneous fast extension, no release",
+        "dose": "1 × 4",
+        "source": "upper-body-force:2:E5"
+      },
+      {
+        "class": 18,
+        "slot": "E4",
+        "name": "Band Chest Press — simultaneous fast extension, no release",
+        "dose": "1 × 3",
+        "source": "upper-body-force:6:E5"
+      }
+    ],
+    "lower-body-force:Split Squat — fast supported rise, no flight": [
+      {
+        "class": 6,
+        "slot": "E5",
+        "name": "Split Squat — fast supported rise, no flight",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:2:E6"
+      }
+    ],
+    "upper-body-force:Band Straight-Arm Pulldown — rapid shoulder extension": [
+      {
+        "class": 6,
+        "slot": "E6",
+        "name": "Band Straight-Arm Pulldown — rapid shoulder extension",
+        "dose": "1 × 4",
+        "source": "upper-body-force:2:E6"
+      },
+      {
+        "class": 24,
+        "slot": "E6",
+        "name": "Band Straight-Arm Pulldown — rapid shoulder extension",
+        "dose": "1 × 3",
+        "source": "upper-body-force:8:E6"
+      }
+    ],
+    "lower-body-force:Split-Stance Broad Jump — fixed lead, two-foot reception": [
+      {
+        "class": 7,
+        "slot": "E1",
+        "name": "Split-Stance Broad Jump — fixed lead, two-foot reception",
+        "dose": "2 × 2 per leg",
+        "source": "lower-body-force:3:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Overhead Slam — tall kneeling, arm-driven": [
+      {
+        "class": 7,
+        "slot": "E2",
+        "name": "Medicine Ball Overhead Slam — tall kneeling, arm-driven",
+        "dose": "2 × 3",
+        "source": "upper-body-force:3:E1"
+      }
+    ],
+    "lower-body-force:Calf Raise — single-leg fast supported finish, no flight": [
+      {
+        "class": 7,
+        "slot": "E3",
+        "name": "Calf Raise — single-leg fast supported finish, no flight",
+        "dose": "1 × 3 per leg",
+        "source": "lower-body-force:3:E5"
+      }
+    ],
+    "rotation-lower:Low roundhouse from a held split-squat start": [
+      {
+        "class": 7,
+        "slot": "E5",
+        "name": "Low roundhouse from a held split-squat start",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:3:E2"
+      }
+    ],
+    "rotation-upper:Med Ball Countermovement Rotational Throw — floor target": [
+      {
+        "class": 7,
+        "slot": "E6",
+        "name": "Med Ball Countermovement Rotational Throw — floor target",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:3:E1"
+      }
+    ],
+    "upper-body-force:Band Lat Pulldown — single-arm rapid elbow drive": [
+      {
+        "class": 8,
+        "slot": "E1",
+        "name": "Band Lat Pulldown — single-arm rapid elbow drive",
+        "dose": "1 × 3 per arm",
+        "source": "upper-body-force:3:E2"
+      },
+      {
+        "class": 20,
+        "slot": "E3",
+        "name": "Band Lat Pulldown — single-arm rapid elbow drive",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:7:E4"
+      },
+      {
+        "class": 25,
+        "slot": "E4",
+        "name": "Band Lat Pulldown — single-arm rapid elbow drive",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:9:E4"
+      }
+    ],
+    "lower-body-force:Glute Bridge — single-leg rapid rise with level pelvis": [
+      {
+        "class": 8,
+        "slot": "E2",
+        "name": "Glute Bridge — single-leg rapid rise with level pelvis",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:3:E2"
+      },
+      {
+        "class": 20,
+        "slot": "E4",
+        "name": "Glute Bridge — single-leg rapid rise with level pelvis",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:7:E5"
+      }
+    ],
+    "upper-body-force:Scapular Pull-Up — foot-supported quick initiation": [
+      {
+        "class": 8,
+        "slot": "E3",
+        "name": "Scapular Pull-Up — foot-supported quick initiation",
+        "dose": "1 × 4",
+        "source": "upper-body-force:3:E6"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — fixed split stance, forward release": [
+      {
+        "class": 8,
+        "slot": "E4",
+        "name": "Medicine Ball Scoop Toss — fixed split stance, forward release",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:3:E4"
+      },
+      {
+        "class": 33,
+        "slot": "E3",
+        "name": "Medicine Ball Scoop Toss — fixed split stance, forward release",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:11:E2"
+      }
+    ],
+    "rotation-lower:Seated light-band hip-rotation acceleration": [
+      {
+        "class": 8,
+        "slot": "E5",
+        "name": "Seated light-band hip-rotation acceleration",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:3:E4"
+      },
+      {
+        "class": 12,
+        "slot": "E1",
+        "name": "Seated light-band hip-rotation acceleration",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:3:E4"
+      }
+    ],
+    "rotation-upper:Rotational band row speed drive": [
+      {
+        "class": 8,
+        "slot": "E6",
+        "name": "Rotational band row speed drive",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:3:E3"
+      },
+      {
+        "class": 18,
+        "slot": "E2",
+        "name": "Rotational band row speed drive",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-upper:6:E6"
+      },
+      {
+        "class": 36,
+        "slot": "E2",
+        "name": "Rotational band row speed drive",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:12:E6"
+      }
+    ],
+    "rotation-lower:Lateral release step from held split stance": [
+      {
+        "class": 9,
+        "slot": "E1",
+        "name": "Lateral release step from held split stance",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:3:E6"
+      }
+    ],
+    "rotation-upper:Two-hand medicine-ball backhand throw": [
+      {
+        "class": 9,
+        "slot": "E2",
+        "name": "Two-hand medicine-ball backhand throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:3:E5"
+      }
+    ],
+    "lower-body-force:Step-Up to Knee Drive — fast ascent, no flight": [
+      {
+        "class": 9,
+        "slot": "E3",
+        "name": "Step-Up to Knee Drive — fast ascent, no flight",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:3:E3"
+      }
+    ],
+    "upper-body-force:Band Row — controlled reach into immediate fast reversal": [
+      {
+        "class": 9,
+        "slot": "E4",
+        "name": "Band Row — controlled reach into immediate fast reversal",
+        "dose": "1 × 4",
+        "source": "upper-body-force:3:E3"
+      }
+    ],
+    "lower-body-force:Standing Split-Start Acceleration — 2 m, full stop": [
+      {
+        "class": 9,
+        "slot": "E5",
+        "name": "Standing Split-Start Acceleration — 2 m, full stop",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:3:E6"
+      }
+    ],
+    "upper-body-force:Band Biceps Curl — rapid neutral-grip pull": [
+      {
+        "class": 9,
+        "slot": "E6",
+        "name": "Band Biceps Curl — rapid neutral-grip pull",
+        "dose": "1 × 4",
+        "source": "upper-body-force:3:E5"
+      },
+      {
+        "class": 30,
+        "slot": "E6",
+        "name": "Band Biceps Curl — rapid neutral-grip pull",
+        "dose": "1 × 3",
+        "source": "upper-body-force:10:E6"
+      }
+    ],
+    "lower-body-force:Countermovement Jump — vertical rise and stick": [
+      {
+        "class": 10,
+        "slot": "E1",
+        "name": "Countermovement Jump — vertical rise and stick",
+        "dose": "2 × 3",
+        "source": "lower-body-force:4:E1"
+      },
+      {
+        "class": 28,
+        "slot": "E1",
+        "name": "Countermovement Jump — vertical rise and stick",
+        "dose": "2 × 3",
+        "source": "lower-body-force:10:E1"
+      }
+    ],
+    "upper-body-force:Plyo Push-Up — paused bottom start, hands elevated": [
+      {
+        "class": 10,
+        "slot": "E2",
+        "name": "Plyo Push-Up — paused bottom start, hands elevated",
+        "dose": "2 × 3",
+        "source": "upper-body-force:4:E1"
+      }
+    ],
+    "lower-body-force:Seated Bent-Knee Calf Raise — fast light rise": [
+      {
+        "class": 10,
+        "slot": "E3",
+        "name": "Seated Bent-Knee Calf Raise — fast light rise",
+        "dose": "1 × 4",
+        "source": "lower-body-force:4:E4"
+      },
+      {
+        "class": 22,
+        "slot": "E3",
+        "name": "Seated Bent-Knee Calf Raise — fast light rise",
+        "dose": "1 × 3",
+        "source": "lower-body-force:8:E5"
+      }
+    ],
+    "rotation-lower:Low roundhouse to suspended re-chamber": [
+      {
+        "class": 10,
+        "slot": "E5",
+        "name": "Low roundhouse to suspended re-chamber",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:4:E2"
+      }
+    ],
+    "rotation-upper:Step-in rotational medicine-ball shot-put": [
+      {
+        "class": 10,
+        "slot": "E6",
+        "name": "Step-in rotational medicine-ball shot-put",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:4:E1"
+      },
+      {
+        "class": 33,
+        "slot": "E2",
+        "name": "Step-in rotational medicine-ball shot-put",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:11:E6"
+      }
+    ],
+    "upper-body-force:Band Triceps Pressdown — rapid elbow extension": [
+      {
+        "class": 11,
+        "slot": "E1",
+        "name": "Band Triceps Pressdown — rapid elbow extension",
+        "dose": "1 × 4",
+        "source": "upper-body-force:4:E2"
+      }
+    ],
+    "lower-body-force:Box Jump — low target, stand and step down": [
+      {
+        "class": 11,
+        "slot": "E2",
+        "name": "Box Jump — low target, stand and step down",
+        "dose": "1 × 3",
+        "source": "lower-body-force:4:E2"
+      }
+    ],
+    "upper-body-force:Medicine Ball Catch-Set Chest Pass — gentle coach feed": [
+      {
+        "class": 11,
+        "slot": "E3",
+        "name": "Medicine Ball Catch-Set Chest Pass — gentle coach feed",
+        "dose": "1 × 3",
+        "source": "upper-body-force:4:E3"
+      },
+      {
+        "class": 30,
+        "slot": "E4",
+        "name": "Medicine Ball Catch-Set Chest Pass — gentle coach feed",
+        "dose": "1 × 3",
+        "source": "upper-body-force:10:E5"
+      }
+    ],
+    "rotation-lower:Low inward crescent shadow sweep": [
+      {
+        "class": 11,
+        "slot": "E5",
+        "name": "Low inward crescent shadow sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:4:E4"
+      }
+    ],
+    "rotation-upper:Light-band rotational uppercut": [
+      {
+        "class": 11,
+        "slot": "E6",
+        "name": "Light-band rotational uppercut",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:4:E2"
+      }
+    ],
+    "rotation-upper:Lead-hand rotational medicine-ball push throw": [
+      {
+        "class": 12,
+        "slot": "E2",
+        "name": "Lead-hand rotational medicine-ball push throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:4:E4"
+      }
+    ],
+    "lower-body-force:Squat-to-Calf Rise — rapid extension, feet stay grounded": [
+      {
+        "class": 12,
+        "slot": "E3",
+        "name": "Squat-to-Calf Rise — rapid extension, feet stay grounded",
+        "dose": "1 × 3",
+        "source": "lower-body-force:4:E3"
+      }
+    ],
+    "upper-body-force:Floor Press — light dumbbells, fast concentric from floor contact": [
+      {
+        "class": 12,
+        "slot": "E4",
+        "name": "Floor Press — light dumbbells, fast concentric from floor contact",
+        "dose": "1 × 4",
+        "source": "upper-body-force:4:E4"
+      }
+    ],
+    "lower-body-force:Reverse Lunge — quick front-leg return, no flight": [
+      {
+        "class": 12,
+        "slot": "E5",
+        "name": "Reverse Lunge — quick front-leg return, no flight",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:4:E5"
+      }
+    ],
+    "upper-body-force:Band Chest Press — one arm presses while opposite arm holds": [
+      {
+        "class": 12,
+        "slot": "E6",
+        "name": "Band Chest Press — one arm presses while opposite arm holds",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:4:E5"
+      }
+    ],
+    "lower-body-force:Broad Jump — two linked projections, final stick": [
+      {
+        "class": 13,
+        "slot": "E1",
+        "name": "Broad Jump — two linked projections, final stick",
+        "dose": "2 × 2",
+        "source": "lower-body-force:5:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Receive-and-Return Chest Pass — single coach feed": [
+      {
+        "class": 13,
+        "slot": "E2",
+        "name": "Medicine Ball Receive-and-Return Chest Pass — single coach feed",
+        "dose": "2 × 3",
+        "source": "upper-body-force:5:E1"
+      }
+    ],
+    "lower-body-force:Bent-Knee Calf Raise — single-leg rapid supported rise": [
+      {
+        "class": 13,
+        "slot": "E3",
+        "name": "Bent-Knee Calf Raise — single-leg rapid supported rise",
+        "dose": "1 × 3 per leg",
+        "source": "lower-body-force:5:E4"
+      },
+      {
+        "class": 19,
+        "slot": "E3",
+        "name": "Bent-Knee Calf Raise — single-leg rapid supported rise",
+        "dose": "1 × 3 per leg",
+        "source": "lower-body-force:7:E4"
+      }
+    ],
+    "upper-body-force:Band Lat Pulldown — controlled upward reach into fast draw": [
+      {
+        "class": 13,
+        "slot": "E4",
+        "name": "Band Lat Pulldown — controlled upward reach into fast draw",
+        "dose": "1 × 4",
+        "source": "upper-body-force:5:E4"
+      }
+    ],
+    "rotation-lower:Single-shuffle low roundhouse": [
+      {
+        "class": 13,
+        "slot": "E5",
+        "name": "Single-shuffle low roundhouse",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:5:E2"
+      }
+    ],
+    "rotation-upper:Med Ball Shuffle-to-Rotation Throw — short floor-target version": [
+      {
+        "class": 13,
+        "slot": "E6",
+        "name": "Med Ball Shuffle-to-Rotation Throw — short floor-target version",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:5:E1"
+      }
+    ],
+    "upper-body-force:Two-Hand Landmine Push Press — shallow dip, feet stay planted": [
+      {
+        "class": 14,
+        "slot": "E1",
+        "name": "Two-Hand Landmine Push Press — shallow dip, feet stay planted",
+        "dose": "1 × 3",
+        "source": "upper-body-force:5:E2"
+      },
+      {
+        "class": 27,
+        "slot": "E6",
+        "name": "Two-Hand Landmine Push Press — shallow dip, feet stay planted",
+        "dose": "1 × 3",
+        "source": "upper-body-force:9:E5"
+      }
+    ],
+    "lower-body-force:Countermovement Jump — hands fixed at hips": [
+      {
+        "class": 14,
+        "slot": "E2",
+        "name": "Countermovement Jump — hands fixed at hips",
+        "dose": "1 × 3",
+        "source": "lower-body-force:5:E2"
+      },
+      {
+        "class": 18,
+        "slot": "E5",
+        "name": "Countermovement Jump — hands fixed at hips",
+        "dose": "1 × 2",
+        "source": "lower-body-force:6:E6"
+      }
+    ],
+    "upper-body-force:Medicine Ball Shot Put Throw — controlled arm draw into forward release": [
+      {
+        "class": 14,
+        "slot": "E3",
+        "name": "Medicine Ball Shot Put Throw — controlled arm draw into forward release",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:5:E3"
+      }
+    ],
+    "lower-body-force:Single-Leg Hip Hinge — rapid return with hand support": [
+      {
+        "class": 14,
+        "slot": "E4",
+        "name": "Single-Leg Hip Hinge — rapid return with hand support",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:5:E6"
+      }
+    ],
+    "rotation-lower:Crossover entry to rotational knee chamber": [
+      {
+        "class": 14,
+        "slot": "E5",
+        "name": "Crossover entry to rotational knee chamber",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:5:E4"
+      }
+    ],
+    "rotation-upper:Drop-step rotational medicine-ball scoop throw": [
+      {
+        "class": 14,
+        "slot": "E6",
+        "name": "Drop-step rotational medicine-ball scoop throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:5:E2"
+      }
+    ],
+    "rotation-upper:Close-held medicine-ball rotational snap-to-stop": [
+      {
+        "class": 15,
+        "slot": "E2",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:5:E6"
+      },
+      {
+        "class": 17,
+        "slot": "E6",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-upper:6:E5"
+      },
+      {
+        "class": 20,
+        "slot": "E6",
+        "name": "Close-held medicine-ball rotational snap-to-stop",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:7:E5"
+      }
+    ],
+    "lower-body-force:Kettlebell Swing — staggered-stance continuous pair": [
+      {
+        "class": 15,
+        "slot": "E3",
+        "name": "Kettlebell Swing — staggered-stance continuous pair",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:5:E3"
+      }
+    ],
+    "upper-body-force:Plyo Push-Up — two linked pairs on elevated hands": [
+      {
+        "class": 15,
+        "slot": "E4",
+        "name": "Plyo Push-Up — two linked pairs on elevated hands",
+        "dose": "1 × 4",
+        "source": "upper-body-force:5:E5"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — upward-forward leg drive": [
+      {
+        "class": 15,
+        "slot": "E5",
+        "name": "Medicine Ball Scoop Toss — upward-forward leg drive",
+        "dose": "1 × 3",
+        "source": "lower-body-force:5:E5"
+      }
+    ],
+    "upper-body-force:Medicine Ball Overhead Forward Throw — fixed stance, arm-driven": [
+      {
+        "class": 15,
+        "slot": "E6",
+        "name": "Medicine Ball Overhead Forward Throw — fixed stance, arm-driven",
+        "dose": "1 × 3",
+        "source": "upper-body-force:5:E6"
+      },
+      {
+        "class": 33,
+        "slot": "E4",
+        "name": "Medicine Ball Overhead Forward Throw — fixed stance, arm-driven",
+        "dose": "1 × 3",
+        "source": "upper-body-force:11:E5"
+      }
+    ],
+    "upper-body-force:Medicine Ball Chest Pass — still start on a spoken release cue": [
+      {
+        "class": 16,
+        "slot": "E2",
+        "name": "Medicine Ball Chest Pass — still start on a spoken release cue",
+        "dose": "2 × 2",
+        "source": "upper-body-force:6:E1"
+      }
+    ],
+    "rotation-lower:Parallel-stance low roundhouse": [
+      {
+        "class": 16,
+        "slot": "E5",
+        "name": "Parallel-stance low roundhouse",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-lower:6:E2"
+      }
+    ],
+    "rotation-upper:Unloaded rotational diagonal hand drive": [
+      {
+        "class": 16,
+        "slot": "E6",
+        "name": "Unloaded rotational diagonal hand drive",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-upper:6:E4"
+      }
+    ],
+    "upper-body-force:Supine Dumbbell Serratus Reach — brief rapid finish": [
+      {
+        "class": 17,
+        "slot": "E1",
+        "name": "Supine Dumbbell Serratus Reach — brief rapid finish",
+        "dose": "1 × 4",
+        "source": "upper-body-force:6:E3"
+      }
+    ],
+    "rotation-lower:Supported low outward crescent sweep": [
+      {
+        "class": 17,
+        "slot": "E5",
+        "name": "Supported low outward crescent sweep",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-lower:6:E4"
+      }
+    ],
+    "rotation-lower:Seated self-resisted hip external-rotation acceleration": [
+      {
+        "class": 18,
+        "slot": "E1",
+        "name": "Seated self-resisted hip external-rotation acceleration",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-lower:6:E6"
+      }
+    ],
+    "lower-body-force:Single-Leg Vertical Takeoff — two-foot floor reception": [
+      {
+        "class": 19,
+        "slot": "E1",
+        "name": "Single-Leg Vertical Takeoff — two-foot floor reception",
+        "dose": "1 × 3 per leg",
+        "source": "lower-body-force:7:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Two-Hand Receive to Single-Arm Forward Return": [
+      {
+        "class": 19,
+        "slot": "E2",
+        "name": "Medicine Ball Two-Hand Receive to Single-Arm Forward Return",
+        "dose": "1 × 3 per arm",
+        "source": "upper-body-force:7:E1"
+      }
+    ],
+    "upper-body-force:One-Arm Row — supported dumbbell speed pull": [
+      {
+        "class": 19,
+        "slot": "E4",
+        "name": "One-Arm Row — supported dumbbell speed pull",
+        "dose": "1 × 3 per arm",
+        "source": "upper-body-force:7:E2"
+      }
+    ],
+    "rotation-lower:Lateral hip rock-to-pivot release": [
+      {
+        "class": 19,
+        "slot": "E5",
+        "name": "Lateral hip rock-to-pivot release",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:7:E3"
+      }
+    ],
+    "rotation-upper:Externally supplied rotational scoop return": [
+      {
+        "class": 19,
+        "slot": "E6",
+        "name": "Externally supplied rotational scoop return",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:7:E1"
+      }
+    ],
+    "upper-body-force:Floor Press — single-arm light dumbbell speed press": [
+      {
+        "class": 20,
+        "slot": "E1",
+        "name": "Floor Press — single-arm light dumbbell speed press",
+        "dose": "1 × 3 per arm",
+        "source": "upper-body-force:7:E3"
+      }
+    ],
+    "lower-body-force:Kettlebell Swing — staggered dead-stop repetitions": [
+      {
+        "class": 20,
+        "slot": "E2",
+        "name": "Kettlebell Swing — staggered dead-stop repetitions",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:7:E2"
+      }
+    ],
+    "rotation-lower:Bent-knee counter-sweep to chamber": [
+      {
+        "class": 20,
+        "slot": "E5",
+        "name": "Bent-knee counter-sweep to chamber",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:7:E4"
+      }
+    ],
+    "rotation-lower:Grounded switch-step rotational knee drive": [
+      {
+        "class": 21,
+        "slot": "E1",
+        "name": "Grounded switch-step rotational knee drive",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:7:E5"
+      }
+    ],
+    "lower-body-force:Single-Leg Squat Rise — supported rapid quarter-range": [
+      {
+        "class": 21,
+        "slot": "E3",
+        "name": "Single-Leg Squat Rise — supported rapid quarter-range",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:7:E3"
+      },
+      {
+        "class": 36,
+        "slot": "E5",
+        "name": "Single-Leg Squat Rise — supported rapid quarter-range",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:12:E6"
+      }
+    ],
+    "upper-body-force:Landmine Push Press — single arm, shallow dip": [
+      {
+        "class": 21,
+        "slot": "E4",
+        "name": "Landmine Push Press — single arm, shallow dip",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:7:E5"
+      }
+    ],
+    "lower-body-force:Single-Leg Forward Takeoff — two-foot floor reception": [
+      {
+        "class": 21,
+        "slot": "E5",
+        "name": "Single-Leg Forward Takeoff — two-foot floor reception",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:7:E6"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — held hinge to forefoot finish": [
+      {
+        "class": 22,
+        "slot": "E1",
+        "name": "Medicine Ball Scoop Toss — held hinge to forefoot finish",
+        "dose": "2 × 3",
+        "source": "lower-body-force:8:E1"
+      }
+    ],
+    "upper-body-force:Landmine Power Row — continuous hip-to-arm drive": [
+      {
+        "class": 22,
+        "slot": "E2",
+        "name": "Landmine Power Row — continuous hip-to-arm drive",
+        "dose": "2 × 3",
+        "source": "upper-body-force:8:E1"
+      },
+      {
+        "class": 32,
+        "slot": "E3",
+        "name": "Landmine Power Row — continuous hip-to-arm drive",
+        "dose": "1 × 3",
+        "source": "upper-body-force:11:E4"
+      }
+    ],
+    "upper-body-force:Medicine Ball Overhead Slam — single arm, no trunk rotation": [
+      {
+        "class": 22,
+        "slot": "E4",
+        "name": "Medicine Ball Overhead Slam — single arm, no trunk rotation",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:8:E4"
+      }
+    ],
+    "rotation-lower:Forward step-in low roundhouse": [
+      {
+        "class": 22,
+        "slot": "E5",
+        "name": "Forward step-in low roundhouse",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:8:E2"
+      }
+    ],
+    "rotation-upper:Tall-kneeling diagonal medicine-ball side slam": [
+      {
+        "class": 22,
+        "slot": "E6",
+        "name": "Tall-kneeling diagonal medicine-ball side slam",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:8:E1"
+      }
+    ],
+    "upper-body-force:Band Row — alternating arm draws from a fixed trunk": [
+      {
+        "class": 23,
+        "slot": "E1",
+        "name": "Band Row — alternating arm draws from a fixed trunk",
+        "dose": "1 × 8",
+        "source": "upper-body-force:8:E2"
+      }
+    ],
+    "lower-body-force:Sit-to-Stand — rapid full-foot push, no flight": [
+      {
+        "class": 23,
+        "slot": "E4",
+        "name": "Sit-to-Stand — rapid full-foot push, no flight",
+        "dose": "1 × 3",
+        "source": "lower-body-force:8:E6"
+      }
+    ],
+    "rotation-lower:Forward plant to low rotational chamber": [
+      {
+        "class": 23,
+        "slot": "E5",
+        "name": "Forward plant to low rotational chamber",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:8:E4"
+      }
+    ],
+    "rotation-upper:Single-arm rotational underhand medicine-ball scoop": [
+      {
+        "class": 23,
+        "slot": "E6",
+        "name": "Single-arm rotational underhand medicine-ball scoop",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:8:E3"
+      }
+    ],
+    "rotation-lower:Low roundhouse with forward step-down finish": [
+      {
+        "class": 24,
+        "slot": "E1",
+        "name": "Low roundhouse with forward step-down finish",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:8:E6"
+      }
+    ],
+    "rotation-upper:Two-hand descending backhand medicine-ball throw": [
+      {
+        "class": 24,
+        "slot": "E2",
+        "name": "Two-hand descending backhand medicine-ball throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:8:E4"
+      }
+    ],
+    "lower-body-force:Ankle Pogo — three small forward advances": [
+      {
+        "class": 24,
+        "slot": "E3",
+        "name": "Ankle Pogo — three small forward advances",
+        "dose": "1 × 3",
+        "source": "lower-body-force:8:E2"
+      }
+    ],
+    "upper-body-force:Band Biceps Curl — loaded return into quick reversal": [
+      {
+        "class": 24,
+        "slot": "E4",
+        "name": "Band Biceps Curl — loaded return into quick reversal",
+        "dose": "1 × 4",
+        "source": "upper-body-force:8:E3"
+      }
+    ],
+    "lower-body-force:Reverse Lunge to Knee Drive — fast grounded return": [
+      {
+        "class": 24,
+        "slot": "E5",
+        "name": "Reverse Lunge to Knee Drive — fast grounded return",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:8:E4"
+      }
+    ],
+    "lower-body-force:Walk-In Vertical Jump — step-close takeoff": [
+      {
+        "class": 25,
+        "slot": "E1",
+        "name": "Walk-In Vertical Jump — step-close takeoff",
+        "dose": "2 × 2",
+        "source": "lower-body-force:9:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Step-In Chest Pass — one forward plant": [
+      {
+        "class": 25,
+        "slot": "E2",
+        "name": "Medicine Ball Step-In Chest Pass — one forward plant",
+        "dose": "1 × 3 per lead foot",
+        "source": "upper-body-force:9:E1"
+      }
+    ],
+    "lower-body-force:Glute Bridge — controlled lower to rapid reversal": [
+      {
+        "class": 25,
+        "slot": "E3",
+        "name": "Glute Bridge — controlled lower to rapid reversal",
+        "dose": "1 × 4",
+        "source": "lower-body-force:9:E6"
+      }
+    ],
+    "rotation-lower:Retreat-step low roundhouse counter": [
+      {
+        "class": 25,
+        "slot": "E5",
+        "name": "Retreat-step low roundhouse counter",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:9:E2"
+      }
+    ],
+    "rotation-upper:Lateral-step two-hand medicine-ball backhand throw": [
+      {
+        "class": 25,
+        "slot": "E6",
+        "name": "Lateral-step two-hand medicine-ball backhand throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:9:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Step-In Shot Put — forward-facing single arm": [
+      {
+        "class": 26,
+        "slot": "E1",
+        "name": "Medicine Ball Step-In Shot Put — forward-facing single arm",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:9:E2"
+      }
+    ],
+    "lower-body-force:Walk-In Broad Jump — step-close forward takeoff": [
+      {
+        "class": 26,
+        "slot": "E2",
+        "name": "Walk-In Broad Jump — step-close forward takeoff",
+        "dose": "1 × 2",
+        "source": "lower-body-force:9:E2"
+      }
+    ],
+    "upper-body-force:Standing Wall Power Push-Off — return to upright": [
+      {
+        "class": 26,
+        "slot": "E3",
+        "name": "Standing Wall Power Push-Off — return to upright",
+        "dose": "1 × 3",
+        "source": "upper-body-force:9:E6"
+      },
+      {
+        "class": 29,
+        "slot": "E3",
+        "name": "Standing Wall Power Push-Off — return to upright",
+        "dose": "1 × 3",
+        "source": "upper-body-force:10:E4"
+      }
+    ],
+    "lower-body-force:Step-Down to Step-Up — quick grounded reversal": [
+      {
+        "class": 26,
+        "slot": "E4",
+        "name": "Step-Down to Step-Up — quick grounded reversal",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:9:E5"
+      },
+      {
+        "class": 32,
+        "slot": "E2",
+        "name": "Step-Down to Step-Up — quick grounded reversal",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:11:E3"
+      }
+    ],
+    "rotation-lower:Pre-chambered hip-unwind step-down": [
+      {
+        "class": 26,
+        "slot": "E5",
+        "name": "Pre-chambered hip-unwind step-down",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:9:E4"
+      }
+    ],
+    "rotation-upper:Drop-step rotational medicine-ball shot-put": [
+      {
+        "class": 26,
+        "slot": "E6",
+        "name": "Drop-step rotational medicine-ball shot-put",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:9:E2"
+      }
+    ],
+    "rotation-lower:Low bent-knee hook shadow sweep": [
+      {
+        "class": 27,
+        "slot": "E1",
+        "name": "Low bent-knee hook shadow sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:9:E5"
+      }
+    ],
+    "rotation-upper:Short crossover-to-band backhand speed sweep": [
+      {
+        "class": 27,
+        "slot": "E2",
+        "name": "Short crossover-to-band backhand speed sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:9:E4"
+      }
+    ],
+    "lower-body-force:Forward Lunge — rapid return to the starting foot line": [
+      {
+        "class": 27,
+        "slot": "E3",
+        "name": "Forward Lunge — rapid return to the starting foot line",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:9:E3"
+      }
+    ],
+    "upper-body-force:Battle-Rope Traction Pull — one backward step per draw": [
+      {
+        "class": 27,
+        "slot": "E4",
+        "name": "Battle-Rope Traction Pull — one backward step per draw",
+        "dose": "1 × 4",
+        "source": "upper-body-force:9:E3"
+      }
+    ],
+    "lower-body-force:Medicine Ball Scoop Toss — walk-step forward release": [
+      {
+        "class": 27,
+        "slot": "E5",
+        "name": "Medicine Ball Scoop Toss — walk-step forward release",
+        "dose": "1 × 1 per leg",
+        "source": "lower-body-force:9:E4"
+      }
+    ],
+    "upper-body-force:Band Chest Press — mid-range pause into fast finish": [
+      {
+        "class": 28,
+        "slot": "E2",
+        "name": "Band Chest Press — mid-range pause into fast finish",
+        "dose": "2 × 3",
+        "source": "upper-body-force:10:E1"
+      }
+    ],
+    "lower-body-force:Split-Stance Calf Rise — rapid rear-heel finish": [
+      {
+        "class": 28,
+        "slot": "E3",
+        "name": "Split-Stance Calf Rise — rapid rear-heel finish",
+        "dose": "1 × 3 per leg",
+        "source": "lower-body-force:10:E4"
+      }
+    ],
+    "upper-body-force:Band Row — mid-range pause into fast finish": [
+      {
+        "class": 28,
+        "slot": "E4",
+        "name": "Band Row — mid-range pause into fast finish",
+        "dose": "1 × 4",
+        "source": "upper-body-force:10:E2"
+      }
+    ],
+    "rotation-lower:Point-cued open-step hip turn": [
+      {
+        "class": 28,
+        "slot": "E5",
+        "name": "Point-cued open-step hip turn",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:10:E1"
+      }
+    ],
+    "rotation-upper:Single-arm rotational medicine-ball hook throw": [
+      {
+        "class": 28,
+        "slot": "E6",
+        "name": "Single-arm rotational medicine-ball hook throw",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:10:E1"
+      }
+    ],
+    "upper-body-force:Dumbbell Reverse Fly — quick lift, controlled return": [
+      {
+        "class": 29,
+        "slot": "E1",
+        "name": "Dumbbell Reverse Fly — quick lift, controlled return",
+        "dose": "1 × 4",
+        "source": "upper-body-force:10:E3"
+      },
+      {
+        "class": 34,
+        "slot": "E4",
+        "name": "Dumbbell Reverse Fly — quick lift, controlled return",
+        "dose": "1 × 3",
+        "source": "upper-body-force:12:E5"
+      }
+    ],
+    "lower-body-force:Hip Thrust — bench-supported rapid rise": [
+      {
+        "class": 29,
+        "slot": "E4",
+        "name": "Hip Thrust — bench-supported rapid rise",
+        "dose": "1 × 3",
+        "source": "lower-body-force:10:E3"
+      }
+    ],
+    "rotation-lower:Coach-called-leg low roundhouse": [
+      {
+        "class": 29,
+        "slot": "E5",
+        "name": "Coach-called-leg low roundhouse",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:10:E2"
+      }
+    ],
+    "rotation-lower:Auditory-go pre-chambered thigh whip": [
+      {
+        "class": 30,
+        "slot": "E1",
+        "name": "Auditory-go pre-chambered thigh whip",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:10:E5"
+      }
+    ],
+    "rotation-upper:Unloaded two-hand rotational backhand sweep": [
+      {
+        "class": 30,
+        "slot": "E2",
+        "name": "Unloaded two-hand rotational backhand sweep",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:10:E6"
+      }
+    ],
+    "lower-body-force:Split Squat Jump — fixed stance, same-stance reception": [
+      {
+        "class": 30,
+        "slot": "E3",
+        "name": "Split Squat Jump — fixed stance, same-stance reception",
+        "dose": "1 × 2 per leg",
+        "source": "lower-body-force:10:E5"
+      }
+    ],
+    "lower-body-force:Vertical Jump — two linked rises, final stick": [
+      {
+        "class": 31,
+        "slot": "E1",
+        "name": "Vertical Jump — two linked rises, final stick",
+        "dose": "2 × 2",
+        "source": "lower-body-force:11:E1"
+      }
+    ],
+    "upper-body-force:Medicine Ball Receive-Step Chest Pass — one controlled plant": [
+      {
+        "class": 31,
+        "slot": "E2",
+        "name": "Medicine Ball Receive-Step Chest Pass — one controlled plant",
+        "dose": "1 × 2 per lead foot",
+        "source": "upper-body-force:11:E1"
+      }
+    ],
+    "lower-body-force:Kettlebell Deadlift — rapid full-foot rise, no swing": [
+      {
+        "class": 31,
+        "slot": "E3",
+        "name": "Kettlebell Deadlift — rapid full-foot rise, no swing",
+        "dose": "1 × 3",
+        "source": "lower-body-force:11:E4"
+      }
+    ],
+    "upper-body-force:Band Row — two-arm pull from a spoken cue": [
+      {
+        "class": 31,
+        "slot": "E4",
+        "name": "Band Row — two-arm pull from a spoken cue",
+        "dose": "1 × 3",
+        "source": "upper-body-force:11:E3"
+      }
+    ],
+    "rotation-lower:Low roundhouse through an empty direction gate": [
+      {
+        "class": 31,
+        "slot": "E5",
+        "name": "Low roundhouse through an empty direction gate",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:11:E2"
+      }
+    ],
+    "rotation-upper:Handoff-to-step rotational medicine-ball scoop return": [
+      {
+        "class": 31,
+        "slot": "E6",
+        "name": "Handoff-to-step rotational medicine-ball scoop return",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:11:E1"
+      }
+    ],
+    "upper-body-force:Single-Arm Band Chest Press — still start on a spoken cue": [
+      {
+        "class": 32,
+        "slot": "E1",
+        "name": "Single-Arm Band Chest Press — still start on a spoken cue",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:11:E2"
+      },
+      {
+        "class": 35,
+        "slot": "E1",
+        "name": "Single-Arm Band Chest Press — still start on a spoken cue",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:12:E2"
+      }
+    ],
+    "rotation-lower:Short drop-step lead-leg roundhouse": [
+      {
+        "class": 32,
+        "slot": "E5",
+        "name": "Short drop-step lead-leg roundhouse",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:11:E4"
+      }
+    ],
+    "rotation-lower:Crossover recovery to a marked kick base": [
+      {
+        "class": 33,
+        "slot": "E1",
+        "name": "Crossover recovery to a marked kick base",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-lower:11:E6"
+      }
+    ],
+    "lower-body-force:Ankle Pogo — two pairs with a full reset": [
+      {
+        "class": 33,
+        "slot": "E5",
+        "name": "Ankle Pogo — two pairs with a full reset",
+        "dose": "1 × 4",
+        "source": "lower-body-force:11:E5"
+      }
+    ],
+    "upper-body-force:One-Arm Row — supported mid-range pause into fast finish": [
+      {
+        "class": 35,
+        "slot": "E3",
+        "name": "One-Arm Row — supported mid-range pause into fast finish",
+        "dose": "1 × 2 per arm",
+        "source": "upper-body-force:12:E3"
+      }
+    ],
+    "rotation-upper:Med Ball Shot-Put Throw — rotational floor-target version": [
+      {
+        "class": 35,
+        "slot": "E6",
+        "name": "Med Ball Shot-Put Throw — rotational floor-target version",
+        "dose": "1 × 2 per side/direction",
+        "source": "rotation-upper:12:E3"
+      }
+    ],
+    "rotation-lower:Low roundhouse with lateral recovery placement": [
+      {
+        "class": 36,
+        "slot": "E1",
+        "name": "Low roundhouse with lateral recovery placement",
+        "dose": "1 × 1 per side/direction",
+        "source": "rotation-lower:12:E6"
+      }
+    ],
+    "upper-body-force:Floor Press — alternating light speed presses, opposite arm parked": [
+      {
+        "class": 36,
+        "slot": "E4",
+        "name": "Floor Press — alternating light speed presses, opposite arm parked",
+        "dose": "1 × 4",
+        "source": "upper-body-force:12:E4"
+      }
+    ]
+  }
+}

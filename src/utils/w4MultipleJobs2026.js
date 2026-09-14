@@ -1,8 +1,14 @@
 import {w4MultipleJobsTables2026 as tables} from './w4MultipleJobsTables2026.js'
+export class W4MultipleJobsTableRangeError extends Error {
+ constructor(){
+  super('At least two jobs have annual taxable wages over $120,000 each. The printed W-4 tables do not cover these wages; additional tables or the IRS estimator are required.')
+  this.name='W4MultipleJobsTableRangeError'
+ }
+}
 const money=value=>{if(!Number.isSafeInteger(value)||value<0)throw new Error('Use nonnegative whole-cent annual wages.');return value}
 const sum=(a,b)=>money(a+b)
 function lookup(status,higher,lower){
- if(lower>12000000)throw new Error('The W-4 worksheet requires additional tables when more than one job pays over $120,000. Review Publication 505 or the IRS estimator.')
+ if(lower>12000000)throw new W4MultipleJobsTableRangeError()
  const rows=tables[status],row=rows.findLast(row=>higher>=row.minimumDollars*100)
  const column=Math.min(11,Math.floor(lower/1000000))
  return row.annualDollars[column]*100

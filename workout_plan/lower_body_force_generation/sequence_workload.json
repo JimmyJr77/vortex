@@ -1,0 +1,543 @@
+{
+  "scope": "Twelve weekly prescriptions, not performed work or a combined physiological stress score",
+  "weeks": 12,
+  "classes_per_week": 1,
+  "exercise_entries": {
+    "explosive": 72,
+    "light_resilience": 24,
+    "primary_strength": 72
+  },
+  "prescribed_explosive_events": {
+    "approach_steps": 14,
+    "bilateral_landings": 88,
+    "grounded_rapid_reps": 156,
+    "individual_landing_foot_contacts": 176,
+    "low_amplitude_landings": 13,
+    "sprint_attempts": 2,
+    "sprint_metres": 4,
+    "throws": 28,
+    "unilateral_landings": 0,
+    "unilateral_takeoffs": 8
+  },
+  "prescribed_strength_and_preparation": {
+    "explosive_rounds": 83,
+    "explosive_bouts": 114,
+    "light_reps": 201,
+    "light_bouts": 42,
+    "primary_rounds": 79,
+    "primary_bouts": 89,
+    "primary_reps": 424,
+    "primary_walkout_cycles": 28,
+    "primary_walkout_heel_placements": 224,
+    "preparation_reps": 326,
+    "preparation_walkout_cycles": 12,
+    "preparation_rounds": 83,
+    "preparation_bouts": 95
+  },
+  "novelty_classifications": {
+    "new_task": 11,
+    "related_variant": 38,
+    "repeat": 23
+  },
+  "distinct_named_explosive_executions": 49,
+  "weeks_detail": [
+    {
+      "week": 1,
+      "title": "Settled force initiation",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 9,
+          "grounded_rapid_reps": 14,
+          "throws": 3,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 18
+        },
+        "explosive_rounds": 8,
+        "explosive_bouts": 9,
+        "light_reps": 16,
+        "light_bouts": 3,
+        "primary_rounds": 8,
+        "primary_bouts": 9,
+        "primary_reps": 50,
+        "primary_walkout_cycles": 3,
+        "primary_walkout_heel_placements": 24,
+        "preparation_reps": 27,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 8,
+        "estimated_post_prepare_minutes": [
+          59,
+          66
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 2,
+      "title": "Hip-driven projection",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "throws": 6,
+          "grounded_rapid_reps": 12,
+          "bilateral_landings": 9,
+          "low_amplitude_landings": 6,
+          "unilateral_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 18
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 8,
+        "light_reps": 20,
+        "light_bouts": 4,
+        "primary_rounds": 7,
+        "primary_bouts": 7,
+        "primary_reps": 40,
+        "primary_walkout_cycles": 3,
+        "primary_walkout_heel_placements": 24,
+        "preparation_reps": 25,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 7,
+        "estimated_post_prepare_minutes": [
+          54,
+          61
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 3,
+      "title": "One lead leg contributes",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 8,
+          "grounded_rapid_reps": 14,
+          "throws": 4,
+          "sprint_attempts": 2,
+          "sprint_metres": 4,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "individual_landing_foot_contacts": 16
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 14,
+        "light_reps": 20,
+        "light_bouts": 4,
+        "primary_rounds": 7,
+        "primary_bouts": 9,
+        "primary_reps": 48,
+        "primary_walkout_cycles": 3,
+        "primary_walkout_heel_placements": 24,
+        "preparation_reps": 33,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 9,
+        "estimated_post_prepare_minutes": [
+          64,
+          71
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 4,
+      "title": "Knee-led upward drive",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 9,
+          "grounded_rapid_reps": 14,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "throws": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 18
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 8,
+        "light_reps": 16,
+        "light_bouts": 3,
+        "primary_rounds": 7,
+        "primary_bouts": 8,
+        "primary_reps": 44,
+        "primary_walkout_cycles": 3,
+        "primary_walkout_heel_placements": 24,
+        "preparation_reps": 27,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 8,
+        "estimated_post_prepare_minutes": [
+          55,
+          62
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 5,
+      "title": "Preload into projection",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 7,
+          "grounded_rapid_reps": 14,
+          "throws": 3,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 14
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 10,
+        "light_reps": 20,
+        "light_bouts": 4,
+        "primary_rounds": 6,
+        "primary_bouts": 7,
+        "primary_reps": 32,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 27,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 8,
+        "estimated_post_prepare_minutes": [
+          53,
+          60
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 6,
+      "title": "Midpoint consolidation",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 5,
+          "grounded_rapid_reps": 11,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "throws": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 10
+        },
+        "explosive_rounds": 6,
+        "explosive_bouts": 7,
+        "light_reps": 12,
+        "light_bouts": 3,
+        "primary_rounds": 6,
+        "primary_bouts": 6,
+        "primary_reps": 22,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 15,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 6,
+        "preparation_bouts": 6,
+        "estimated_post_prepare_minutes": [
+          44,
+          51
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 7,
+      "title": "Independent stance-leg force",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 8,
+          "unilateral_takeoffs": 8,
+          "grounded_rapid_reps": 18,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "throws": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 16
+        },
+        "explosive_rounds": 6,
+        "explosive_bouts": 12,
+        "light_reps": 20,
+        "light_bouts": 4,
+        "primary_rounds": 6,
+        "primary_bouts": 8,
+        "primary_reps": 34,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 35,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 10,
+        "estimated_post_prepare_minutes": [
+          58,
+          65
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 8,
+      "title": "Hip-to-ankle sequencing",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "throws": 6,
+          "bilateral_landings": 3,
+          "low_amplitude_landings": 3,
+          "grounded_rapid_reps": 13,
+          "unilateral_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 6
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 8,
+        "light_reps": 14,
+        "light_bouts": 3,
+        "primary_rounds": 7,
+        "primary_bouts": 7,
+        "primary_reps": 32,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 25,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 7,
+        "estimated_post_prepare_minutes": [
+          52,
+          58
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 9,
+      "title": "Controlled entry into force",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 6,
+          "approach_steps": 14,
+          "grounded_rapid_reps": 12,
+          "throws": 2,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 12
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 10,
+        "light_reps": 15,
+        "light_bouts": 3,
+        "primary_rounds": 6,
+        "primary_bouts": 7,
+        "primary_reps": 30,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 33,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 9,
+        "estimated_post_prepare_minutes": [
+          53,
+          60
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 10,
+      "title": "Force through the finish",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 10,
+          "grounded_rapid_reps": 16,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "throws": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 20
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 10,
+        "light_reps": 20,
+        "light_bouts": 4,
+        "primary_rounds": 7,
+        "primary_bouts": 7,
+        "primary_reps": 32,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 25,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 7,
+        "estimated_post_prepare_minutes": [
+          54,
+          61
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 11,
+      "title": "Connect and control",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 8,
+          "throws": 2,
+          "grounded_rapid_reps": 8,
+          "low_amplitude_landings": 4,
+          "unilateral_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 16
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 9,
+        "light_reps": 16,
+        "light_bouts": 4,
+        "primary_rounds": 6,
+        "primary_bouts": 7,
+        "primary_reps": 30,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 27,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 8,
+        "estimated_post_prepare_minutes": [
+          50,
+          57
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    },
+    {
+      "week": 12,
+      "title": "Review and next-cycle decision",
+      "summary": {
+        "exercise_counts": {
+          "explosiveness": 6,
+          "stabilization_resilience": 2,
+          "primary_strength": 6
+        },
+        "explosive_events": {
+          "bilateral_landings": 6,
+          "grounded_rapid_reps": 10,
+          "throws": 2,
+          "unilateral_landings": 0,
+          "low_amplitude_landings": 0,
+          "sprint_attempts": 0,
+          "sprint_metres": 0,
+          "individual_landing_foot_contacts": 12
+        },
+        "explosive_rounds": 7,
+        "explosive_bouts": 9,
+        "light_reps": 12,
+        "light_bouts": 3,
+        "primary_rounds": 6,
+        "primary_bouts": 7,
+        "primary_reps": 30,
+        "primary_walkout_cycles": 2,
+        "primary_walkout_heel_placements": 16,
+        "preparation_reps": 27,
+        "preparation_walkout_cycles": 1,
+        "preparation_rounds": 7,
+        "preparation_bouts": 8,
+        "estimated_post_prepare_minutes": [
+          51,
+          58
+        ],
+        "complete_session_minutes": null,
+        "access_prepare_1_workload": null,
+        "actual_workload": null
+      }
+    }
+  ],
+  "actual_workload": null,
+  "actual_athlete_completion": null,
+  "access_prepare_1_workload": null,
+  "complete_session_minutes": null
+}

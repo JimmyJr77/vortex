@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-13",
+  "status": "passed",
+  "source_verifier": {
+    "classes": 36,
+    "entries": 504,
+    "original_force_entries": 336,
+    "checks": 234,
+    "portal_equality": true
+  },
+  "collection": {
+    "programs": 15,
+    "classes": 276,
+    "prescriptions": 3864
+  },
+  "typescript": "npx tsc -b passed",
+  "browser": {
+    "test": "tests/e2e/full-body-force.spec.ts",
+    "result": "passed",
+    "test_seconds": 54.1,
+    "overall_seconds": 57.8,
+    "all_class_phase_counts_checked": true,
+    "primary_preparation_dialogs_checked": 216,
+    "mobile_viewport_width": 390,
+    "page_errors": [],
+    "api": "mocked local coach test"
+  },
+  "visual_check": "Desktop and mobile screenshots inspected; layout readable, no horizontal overflow or framework error overlay.",
+  "deployment": "not performed",
+  "actual_athlete_workload": null,
+  "existing_exercise_review": {
+    "entries_checked": 504,
+    "existing_source_entries": 504,
+    "new_exercise_identities": 0,
+    "hybrid_drills_created": 0,
+    "scope": "User clarification saved: purposeful reuse and ordering; forced novelty is not a goal. This review changes no class prescription."
+  }
+}

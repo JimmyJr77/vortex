@@ -1,5 +1,10 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
+import { buildSpeedAgility, speedAgilityCurriculum } from './lib/build-speed-agility.mjs'
+import { buildRotationalFullBody, rotationalClassMarkdown, rotationalReadme } from './lib/build-rotational-full-body.mjs'
+import { enrichUpperBodyForceSession } from './lib/build-upper-body-force.mjs'
+import { enrichLowerBodyForceSession } from './lib/build-lower-body-force.mjs'
+import { buildFullBodyForce } from './lib/build-full-body-force.mjs'
 
 // The finalized curriculum markdown remains the source of truth. This script
 // creates a compact read model for the coach-facing daily-plan view.
@@ -11,6 +16,8 @@ const programs = [
   ['jumps-rebound', 'jumps_force_absorption_elastic_rebound'],
   ['agility-mobility', 'agility_directional'],
   ['agility-reactive', 'agility_reactive_anticipation'],
+  ['upper-body-force', 'upper_body_force_generation'],
+  ['lower-body-force', 'lower_body_force_generation'],
   ['rotation-upper', 'rotational_explosiveness_upper_body'],
   ['rotation-lower', 'rotational_explosiveness_lower_body'],
 ]
@@ -52,13 +59,16 @@ function sections(markdown) {
 function tableRows(section, phase) {
   return section.split('\n').flatMap((line) => {
     if (!/^\|\s*(?:[ESP]\d+|\d+)\s*\|/i.test(line)) return []
-    const [, name = '', dose = '', description = ''] = line.split('|').slice(1, -1).map(plain)
-    return [{ name, sourceName: name, dose, description }]
+    const [, name = '', dose = '', description = '', equipment = '', recovery = ''] = line.split('|').slice(1, -1).map(plain)
+    return [{ name, sourceName: name, dose, description,
+      ...(equipment ? { equipment: equipment.split(';').map(plain) } : {}),
+      ...(recovery ? { rest: recovery } : {}),
+    }]
   }).map((entry, index) => ({
     ...entry, id: `${phase}${index + 1}`,
-    prescription: short(entry.dose.split(';')[0], 100), rest: restFor(entry.dose, entry.description),
+    prescription: short(entry.dose.split(';')[0], 100), rest: entry.rest ?? restFor(entry.dose, entry.description),
     purpose: short(entry.description, 220), instruction: entry.description, preparation: null,
-    equipment: equipmentFor(`${entry.name} ${entry.description}`),
+    equipment: entry.equipment ?? equipmentFor(`${entry.name} ${entry.description}`),
   }))
 }
 
@@ -72,18 +82,121 @@ function buildSession(source, n) {
   const delivery = plain(markdown.match(/^\*\*Delivery and timing:\*\*\s*(.+)$/m)?.[1] ?? '')
   const minuteMatch = delivery.match(/(\d+)\s*[–-]\s*(\d+)\s*minutes/i)
   const marker = markdown.match(/^\*\*(?:Integrated )?Quality marker:\*\*\s*(.+)$/m)
-  return {
+  const session = {
     n, title: `Class ${n}`, effort, minutes: minuteMatch ? [Number(minuteMatch[1]), Number(minuteMatch[2])] : null, delivery,
     equipment: unique(exercises.flatMap((exercise) => exercise.equipment)).filter((item) => item !== 'Bodyweight'), exercises,
     quality: plain(marker?.[1] ?? ''), preparation: plain(part['1'] ?? ''),
     explosiveNotes: short(plain((part['2'] ?? '').split('| # |')[0]), 520), counts: { explosive: 6, resilience: 2, primary: 6 },
   }
+  if (source === 'lower_body_force_generation') return enrichLowerBodyForceSession(session, markdown, part, new URL(`${source}/`, root))
+  return source === 'upper_body_force_generation'
+    ? enrichUpperBodyForceSession(session, markdown, part, new URL(`${source}/`, root))
+    : session
 }
 
 const output = Object.fromEntries(programs.map(([id, source]) => [id, Array.from({ length: 12 }, (_, index) => buildSession(source, index + 1))]))
+const jumpTrackLabels = {
+  'jumps-horizontal': 'Horizontal jumps',
+  'jumps-vertical': 'Vertical jumps',
+  'jumps-rebound': 'Force absorption & elastic rebound',
+}
+const jumpTracks = ['jumps-rebound', 'jumps-vertical', 'jumps-horizontal']
+const resilienceRotation = [
+  [['jumps-rebound', 0], ['jumps-vertical', 0]],
+  [['jumps-horizontal', 0], ['jumps-rebound', 1]],
+  [['jumps-vertical', 1], ['jumps-horizontal', 1]],
+]
+const integratedTitles = ['Control & project', 'Rebound & redirect', 'Consolidate every direction']
+
+function integratedExercise(exercise, programId, sourceClass, phase, index) {
+  return {
+    ...exercise,
+    id: `${phase}${index + 1}`,
+    sourceTrack: jumpTrackLabels[programId],
+    sourceClass,
+    sourceExerciseId: exercise.id,
+  }
+}
+
+function interleavePairs(sourceIndex, variantIndex, phase) {
+  const rows = jumpTracks.map((programId) => ({
+    programId,
+    exercises: output[programId][sourceIndex].exercises
+      .filter((exercise) => exercise.id.startsWith(phase))
+      .slice(variantIndex * 2, variantIndex * 2 + 2),
+  }))
+  return [0, 1].flatMap((pairIndex) => rows.map(({ programId, exercises }) => ({ programId, exercise: exercises[pairIndex] })))
+    .map(({ programId, exercise }, index) => integratedExercise(exercise, programId, sourceIndex + 1, phase, index))
+}
+
+output['jumps-max-air'] = Array.from({ length: 12 }, (_, sourceIndex) =>
+  Array.from({ length: 3 }, (_, variantIndex) => {
+    const explosive = interleavePairs(sourceIndex, variantIndex, 'E')
+    const primary = interleavePairs(sourceIndex, variantIndex, 'P')
+    const resilience = resilienceRotation[variantIndex].map(([programId, exerciseIndex], index) => {
+      const exercise = output[programId][sourceIndex].exercises.filter((item) => item.id.startsWith('S'))[exerciseIndex]
+      return integratedExercise(exercise, programId, sourceIndex + 1, 'S', index)
+    })
+    const sourceSessions = jumpTracks.map((programId) => output[programId][sourceIndex])
+    const exercises = [...explosive, ...resilience, ...primary]
+    return {
+      n: sourceIndex * 3 + variantIndex + 1,
+      title: `${integratedTitles[variantIndex]} · Stage ${sourceIndex + 1}${String.fromCharCode(65 + variantIndex)}`,
+      effort: `Integrate force absorption, vertical projection, and horizontal projection using the existing Stage ${sourceIndex + 1} prescriptions. Each output and strength phase draws from all three jump tracks.`,
+      minutes: null,
+      delivery: 'Preserve every listed dose and recovery period. Confirm total delivery time, equipment flow, and athlete readiness for this integrated class before coaching it.',
+      equipment: unique(exercises.flatMap((exercise) => exercise.equipment)).filter((item) => item !== 'Bodyweight'),
+      exercises,
+      quality: sourceSessions.map((session) => session.quality).filter(Boolean).join(' '),
+      preparation: sourceSessions[0].preparation,
+      explosiveNotes: 'Six explosive exercises are integrated in alternating order: two force-absorption and rebound selections, two vertical-jump selections, and two horizontal-jump selections. Preserve each exercise’s written quality and recovery rules.',
+      counts: { explosive: 6, resilience: 2, primary: 6 },
+    }
+  }),
+).flat()
+
+for (let sourceIndex = 0; sourceIndex < 12; sourceIndex += 1) {
+  const stage = output['jumps-max-air'].slice(sourceIndex * 3, sourceIndex * 3 + 3)
+  for (const session of stage) {
+    for (const phase of ['E', 'P']) {
+      for (const programId of jumpTracks) {
+        const trackCount = session.exercises.filter((exercise) => exercise.id.startsWith(phase) && exercise.sourceTrack === jumpTrackLabels[programId]).length
+        if (trackCount !== 2) throw new Error(`Max Air class ${session.n} must include two ${phase} exercises from ${programId}`)
+      }
+    }
+  }
+  for (const phase of ['E', 'S', 'P']) {
+    for (const programId of jumpTracks) {
+      const sourceIds = output[programId][sourceIndex].exercises.filter((exercise) => exercise.id.startsWith(phase)).map((exercise) => exercise.id).sort()
+      const integratedIds = stage.flatMap((session) => session.exercises)
+        .filter((exercise) => exercise.id.startsWith(phase) && exercise.sourceTrack === jumpTrackLabels[programId])
+        .map((exercise) => exercise.sourceExerciseId).sort()
+      if (sourceIds.join(',') !== integratedIds.join(',')) throw new Error(`Max Air Stage ${sourceIndex + 1} does not preserve every ${phase} prescription from ${programId}`)
+    }
+  }
+}
+
+output['speed-agility'] = buildSpeedAgility(output)
+const rotationPlan = JSON.parse(readFileSync(new URL('rotational_force_full_body/sequence.json', root), 'utf8'))
+output['rotation-full-body'] = buildRotationalFullBody(output, rotationPlan)
+output['full-body-force'] = buildFullBodyForce(root)
 mkdirSync(new URL('../src/coach/data/', import.meta.url), { recursive: true })
 const content = `${JSON.stringify(output, null, 2)}\n`
+const speedAgilityDraftTarget = new URL('speed_and_agility/curriculum.md', root)
+const speedAgilityDraft = speedAgilityCurriculum(output['speed-agility'])
+const rotationArtifacts = [
+  ['README.md', rotationalReadme(output['rotation-full-body'])],
+  ...output['rotation-full-body'].map(session => [`classes/class_${String(session.n).padStart(2, '0')}.md`, rotationalClassMarkdown(session)]),
+]
+for (const [path, content] of rotationArtifacts) {
+  const file = new URL(`rotational_force_full_body/${path}`, root)
+  if (process.argv.includes('--check')) {
+    if (readFileSync(file, 'utf8') !== content) throw new Error(`Rotational draft ${path} is stale; rebuild the accelerator data`)
+  } else writeFileSync(file, content)
+}
 if (process.argv.includes('--check')) {
+  if (readFileSync(speedAgilityDraftTarget, 'utf8') !== speedAgilityDraft) throw new Error('Speed & Agility draft is stale; rebuild the accelerator data')
   if (readFileSync(target, 'utf8') !== content) throw new Error('Accelerator data is stale; run node scripts/build-athleticism-accelerator.mjs')
-  console.log(`Verified ${programs.length} programs / ${programs.length * 12} classes / ${programs.length * 12 * 14} exercise prescriptions against curriculum source.`)
-} else { writeFileSync(target, content); console.log(`Wrote ${fileURLToPath(target)}`) }
+  const classCount = Object.values(output).reduce((total, sessions) => total + sessions.length, 0)
+  console.log(`Verified ${Object.keys(output).length} programs / ${classCount} classes / ${classCount * 14} exercise prescriptions against curriculum source.`)
+} else { writeFileSync(speedAgilityDraftTarget, speedAgilityDraft); writeFileSync(target, content); console.log(`Wrote ${fileURLToPath(target)}`) }

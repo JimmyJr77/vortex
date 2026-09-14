@@ -1,0 +1,23 @@
+[
+  {
+    "sourceProgramId": "rotation-upper",
+    "sourceClass": 1,
+    "sourceExerciseId": "E1",
+    "identityKey": "rotation-upper:paused-standing-scoop-floor-target",
+    "reason": "Unambiguous execution alias: the source exercise key is paused_scoop. These source labels describe the same standing side-on two-hand scoop: ball held beside rear hip for 2 seconds, rear-foot/hip turn, no entry or countermovement, low forward floor target, and a 2-second balanced finish. Combined dose is 1 \u00d7 2 per side with the same 15-second within-side reset and 90-second side rest. Source display-name differences do not create a new drill. Reconciles combined Classes 1, 29 and 34; comparison still requires matching actual equipment, range, quality and session context."
+  },
+  {
+    "sourceProgramId": "rotation-upper",
+    "sourceClass": 10,
+    "sourceExerciseId": "E3",
+    "identityKey": "rotation-upper:paused-standing-scoop-floor-target",
+    "reason": "Unambiguous execution alias: the source exercise key is paused_scoop. These source labels describe the same standing side-on two-hand scoop: ball held beside rear hip for 2 seconds, rear-foot/hip turn, no entry or countermovement, low forward floor target, and a 2-second balanced finish. Combined dose is 1 \u00d7 2 per side with the same 15-second within-side reset and 90-second side rest. Source display-name differences do not create a new drill. Reconciles combined Classes 1, 29 and 34; comparison still requires matching actual equipment, range, quality and session context."
+  },
+  {
+    "sourceProgramId": "rotation-upper",
+    "sourceClass": 12,
+    "sourceExerciseId": "E1",
+    "identityKey": "rotation-upper:paused-standing-scoop-floor-target",
+    "reason": "Unambiguous execution alias: the source exercise key is paused_scoop. These source labels describe the same standing side-on two-hand scoop: ball held beside rear hip for 2 seconds, rear-foot/hip turn, no entry or countermovement, low forward floor target, and a 2-second balanced finish. Combined dose is 1 \u00d7 2 per side with the same 15-second within-side reset and 90-second side rest. Source display-name differences do not create a new drill. Reconciles combined Classes 1, 29 and 34; comparison still requires matching actual equipment, range, quality and session context."
+  }
+]

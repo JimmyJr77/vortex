@@ -1,0 +1,1468 @@
+{
+  "stages": [
+    {
+      "stage": 1,
+      "upperE": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        1,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Still-start upward and forward force",
+          "effort": "Start a decisive upward leg push before a still-base forward release.",
+          "brief": "Open with Squat Jump \u2014 settled quarter-squat start as the controlled lower-body force anchor. Start a decisive upward leg push before a still-base forward release.",
+          "connections": [
+            {
+              "title": "Settled force onset",
+              "cue": "Squat Jump \u2014 settled quarter-squat start and Medicine Ball Chest Pass \u2014 stationary, paused: Settle the body and load before accelerating; use the same clear start discipline for upward leg projection and forward hand release."
+            },
+            {
+              "title": "Force through a stable finish",
+              "cue": "Calf Raise \u2014 rapid supported rise, no flight and Band Row \u2014 seated, fast pull: Keep the support base organized while force builds toward the ankle-rise or arm-draw finish; reset without rocking the torso."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Split-stance explosive hip pivot and Med Ball Rotational Scoop Toss \u2014 paused standing start; floor-target adaptation: Settled rotational projection beside an isolated grounded hip/foot initiation."
+            }
+          ]
+        },
+        {
+          "title": "Grounded hip drive and fast traction",
+          "effort": "Drive the hips sharply while expressing a quick arm pull and controlled hand push-off.",
+          "brief": "Open with Two-Hand Landmine Bent-Over Row \u2014 fast pull from a pause as the controlled upper-body force anchor. Drive the hips sharply while expressing a quick arm pull and controlled hand push-off.",
+          "connections": [
+            {
+              "title": "Force from a parked load",
+              "cue": "Two-Hand Landmine Bent-Over Row \u2014 fast pull from a pause and Kettlebell Swing \u2014 dead-stop two-hand repetitions: Organize the held starting load before accelerating; preserve the row's still trunk and the swing's deliberate hip drive as separate ways of producing force."
+            },
+            {
+              "title": "Impulse and controlled reception",
+              "cue": "Plyo Push-Up \u2014 hands elevated and Medicine Ball Scoop Toss \u2014 hip-driven forward release: Direct a decisive push through the support before the body or ball moves away, then control the body's finish; only the push-up includes a hand reception."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Standing low roundhouse shadow kick and Half-Kneeling Rotational Med Ball Throw \u2014 floor-target adaptation: Reduce upper leg propulsion in the throw while directly expressing the lower hip-led kick."
+            }
+          ]
+        },
+        {
+          "title": "Lead-leg projection and independent release",
+          "effort": "Use a controlled lateral plant to initiate grounded hip rotation and a diagonal upper-body finish. Retain forward leg and independent arm projection as supporting force work.",
+          "brief": "Open with Lateral step-in to rotational plant as the grounded rotational force anchor. Convert arriving lateral bodyweight into a grounded foot-and-hip turn with a controlled split-stance finish.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Lateral step-in to rotational plant and Med Ball Overhead to Side Slam \u2014 non-rebounding slam-ball execution: Downward arm finish plus lateral bodyweight accepted into a grounded hip turn."
+            },
+            {
+              "title": "Preload into forward projection",
+              "cue": "Standing Broad Jump \u2014 dip, project and stick and Medicine Ball Chest Pass \u2014 shallow countermovement: Use the declared small preload to direct force forward, finishing balanced without an extra approach or torso turn."
+            },
+            {
+              "title": "Lead-side support and finish",
+              "cue": "Step-Up \u2014 fast grounded drive, rear foot joins and Medicine Ball Shot Put Throw \u2014 forward-facing, no rotation: Maintain pressure through the declared support stance and finish balanced as the lead leg rises or the independent arm releases."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "upperE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        2,
+        1
+      ],
+      "lessons": [
+        {
+          "title": "Hip-driven release and arm-only projection",
+          "effort": "Project from the hips, then isolate the forward arm release from unnecessary leg assistance.",
+          "brief": "Open with Medicine Ball Scoop Toss \u2014 paused hinge start as the controlled lower-body force anchor. Project from the hips, then isolate the forward arm release from unnecessary leg assistance.",
+          "connections": [
+            {
+              "title": "Hip force with a controlled trunk",
+              "cue": "Medicine Ball Scoop Toss \u2014 paused hinge start and Kneeling Medicine Ball Chest Pass \u2014 tall kneeling, no hip swing: Establish a steady trunk before projection; allow the scoop's hip drive while preserving the kneeling pass's arm-led release."
+            },
+            {
+              "title": "Supported traction and hip extension",
+              "cue": "Glute Bridge \u2014 fast grounded rise, settled floor start and Seated Hand-over-Hand Battle-Rope Pull \u2014 free rope on floor: Use the available ground support to stabilize the body while the arms draw or the hips extend; avoid finishing by leaning or arching the back."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Lead-leg low roundhouse without a gather step and Light-band rotational cross: Forward rotational punch paired with lead-leg hip-led output."
+            }
+          ]
+        },
+        {
+          "title": "Guided push and supported ascent",
+          "effort": "Accelerate a guided arm push and a supported upward effort.",
+          "brief": "Open with Landmine Press \u2014 one-arm strict speed press as the controlled upper-body force anchor. Accelerate a guided arm push and a supported upward effort.",
+          "connections": [
+            {
+              "title": "Drive from an organized base",
+              "cue": "Landmine Press \u2014 one-arm strict speed press and Kettlebell Swing \u2014 continuous two-hand chest-height float: Keep the support pressure organized as force begins; the strict press uses no leg dip, while the retained swing expresses its deliberate hip impulse."
+            },
+            {
+              "title": "Supported upward force",
+              "cue": "Foot-Supported Pull-Up \u2014 fast ascent, controlled return and Seated Vertical Jump \u2014 low bench start to floor landing: Drive upward from the declared support without rocking for momentum, then control the return or two-foot reception."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Pre-chambered bent-knee roundhouse whip and Two-hand band backhand speed sweep: Transverse hand sweep and short-lever thigh sweep express rotation without more release or terminal kick volume."
+            }
+          ]
+        },
+        {
+          "title": "Ankle rebound and overhead draw",
+          "effort": "Organize a forward plant into a grounded hip turn and compact rotational hand arc. Ankle rebound, a supported split-leg rise and linear arm pressing/pulling support that base and finish.",
+          "brief": "Open with Forward plant-and-open to kick stance as the grounded rotational force anchor. Accept forward arrival onto a leg before freeing the other thigh for a kick.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Forward plant-and-open to kick stance and Rotational shadow hook: Compact unloaded upper turn paired with forward arrival into an open lower stance."
+            },
+            {
+              "title": "Compact ankle and arm finish",
+              "cue": "Ankle Pogo in Place \u2014 short bilateral set and Band Chest Press \u2014 simultaneous fast extension, no release: Keep the action compact and the support organized, with a clear ankle or arm finish; retain the pogo's brief contacts without speeding the band's return."
+            },
+            {
+              "title": "Stable-base upward force",
+              "cue": "Split Squat \u2014 fast supported rise, no flight and Band Straight-Arm Pulldown \u2014 rapid shoulder extension: Hold the support stance steady while the leg rises or shoulders draw the arms down, with no trunk crunch or unwanted turn."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "upperE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        2,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Split-base projection and downward draw",
+          "effort": "Project from a fixed split base while expressing clear downward and forward arm force.",
+          "brief": "Open with Split-Stance Broad Jump \u2014 fixed lead, two-foot reception as the controlled lower-body force anchor. Project from a fixed split base while expressing clear downward and forward arm force.",
+          "connections": [
+            {
+              "title": "Directed force from a fixed base",
+              "cue": "Split-Stance Broad Jump \u2014 fixed lead, two-foot reception and Medicine Ball Overhead Slam \u2014 tall kneeling, arm-driven: Start from the declared support position and direct force into the forward jump or downward arm release; maintain a controlled finish in the chosen line."
+            },
+            {
+              "title": "Distal force finish",
+              "cue": "Calf Raise \u2014 single-leg fast supported finish, no flight and Medicine Ball Chest Pass \u2014 stationary, paused: Keep the body organized while force passes through the ankle rise or forward hand release; do not add a leg bounce to the stationary pass."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Low roundhouse from a held split-squat start and Med Ball Countermovement Rotational Throw \u2014 floor target: Upper reversal projection and lower still-start rotational force are distinct tasks; no assumption that one proves mastery of the other."
+            }
+          ]
+        },
+        {
+          "title": "Independent hip and overhead force",
+          "effort": "Produce force through one hip and an independent overhead arm draw.",
+          "brief": "Open with Band Lat Pulldown \u2014 single-arm rapid elbow drive as the controlled upper-body force anchor. Produce force through one hip and an independent overhead arm draw.",
+          "connections": [
+            {
+              "title": "Independent force with pelvic control",
+              "cue": "Band Lat Pulldown \u2014 single-arm rapid elbow drive and Glute Bridge \u2014 single-leg rapid rise with level pelvis: Keep the pelvis and rib cage organized while one arm draws or one hip extends, avoiding a lateral trunk bend to finish."
+            },
+            {
+              "title": "Shoulder initiation and leg-driven release",
+              "cue": "Scapular Pull-Up \u2014 foot-supported quick initiation and Medicine Ball Scoop Toss \u2014 fixed split stance, forward release: Stabilize the trunk so the intended shoulder initiation or leg-to-ball impulse stays clear; preserve the scoop's forward release line."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Seated light-band hip-rotation acceleration and Rotational band row speed drive: Load the pulling-side turn quickly while directly accelerating hip internal rotation in a supported seated task."
+            }
+          ]
+        },
+        {
+          "title": "Lead-leg ascent and traction onset",
+          "effort": "Drive laterally from a held split stance into an open rotational base and an outward upper-body release. Lead-leg ascent, a short linear start and arm draws reinforce support and the pulling finish.",
+          "brief": "Open with Lateral release step from held split stance as the grounded rotational force anchor. Release planted leg force into a grounded turn when there is no incoming momentum.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Lateral release step from held split stance and Two-hand medicine-ball backhand throw: Outward upper sweep paired with a held-start lateral leg push that opens into a rotational stance."
+            },
+            {
+              "title": "Supported onset and controlled reversal",
+              "cue": "Step-Up to Knee Drive \u2014 fast ascent, no flight and Band Row \u2014 controlled reach into immediate fast reversal: Use stable support to organize the lead-leg drive or loaded arm reversal, then finish without borrowing a torso rock."
+            },
+            {
+              "title": "Short force impulse and reset",
+              "cue": "Standing Split-Start Acceleration \u2014 2 m, full stop and Band Biceps Curl \u2014 rapid neutral-grip pull: Produce the short forward start or elbow-flexion impulse from an organized base, then regain control before the next attempt."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 4,
+      "upperE": [
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "sRepeat": [
+        2,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Held hand push and vertical leg drive",
+          "effort": "Express a settled arm push and a direct upward leg impulse.",
+          "brief": "Open with Countermovement Jump \u2014 vertical rise and stick as the controlled lower-body force anchor. Express a settled arm push and a direct upward leg impulse.",
+          "connections": [
+            {
+              "title": "Controlled start into projection",
+              "cue": "Countermovement Jump \u2014 vertical rise and stick and Plyo Push-Up \u2014 paused bottom start, hands elevated: Organize the start before the rapid impulse and accept the hand or foot reception under control; keep each task's prescribed preload distinct."
+            },
+            {
+              "title": "Force against a retained load",
+              "cue": "Seated Bent-Knee Calf Raise \u2014 fast light rise and Two-Hand Landmine Bent-Over Row \u2014 fast pull from a pause: Stabilize the support base while the ankle or arms accelerate the retained load, then lower under control without an extra body lift."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Low roundhouse to suspended re-chamber and Step-in rotational medicine-ball shot-put: Step-in upper push and controlled lower kick recoil organize an active finish."
+            }
+          ]
+        },
+        {
+          "title": "Short reception to controlled release",
+          "effort": "Receive a small load or landing, settle it, and produce the next clear force action.",
+          "brief": "Open with Band Triceps Pressdown \u2014 rapid elbow extension as the controlled upper-body force anchor. Receive a small load or landing, settle it, and produce the next clear force action.",
+          "connections": [
+            {
+              "title": "Finish force and regain support",
+              "cue": "Band Triceps Pressdown \u2014 rapid elbow extension and Box Jump \u2014 low target, stand and step down: Complete the elbow extension or upward leg drive decisively, then regain a quiet supported position; the box return remains a step down."
+            },
+            {
+              "title": "Set the load before the next impulse",
+              "cue": "Medicine Ball Catch-Set Chest Pass \u2014 gentle coach feed and Kettlebell Swing \u2014 dead-stop two-hand repetitions: Control the received ball or parked kettlebell before producing the next clear force action; use the assigned reset rather than an uncontrolled continuous cycle."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Low inward crescent shadow sweep and Light-band rotational uppercut: Rising hand arc and inward low-leg arc use complementary rotational paths."
+            }
+          ]
+        },
+        {
+          "title": "Knee-to-ankle drive through the press finish",
+          "effort": "Initiate controlled hip internal rotation and produce a lead-hand rotational pushing release. Grounded knee-to-ankle drive and linear arm presses supply supporting initiation and finishing force.",
+          "brief": "Open with Seated light-band hip-rotation acceleration as the grounded rotational force anchor. Give the hip internal rotators a small rapid force-expression task without the balance or whole-kick demand.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Seated light-band hip-rotation acceleration and Lead-hand rotational medicine-ball push throw: Lead-hand rotational projection plus repeat seated hip torque avoids inventing a third rotating lower task; Class 4 pure chamber/recoil drills are not themselves rotation."
+            },
+            {
+              "title": "Extension through a controlled boundary",
+              "cue": "Squat-to-Calf Rise \u2014 rapid extension, feet stay grounded and Floor Press \u2014 light dumbbells, fast concentric from floor contact: Carry force through the intended knee/ankle or arm extension, retaining the floor boundary and avoiding a back arch to finish."
+            },
+            {
+              "title": "Independent contribution with a steady trunk",
+              "cue": "Reverse Lunge \u2014 quick front-leg return, no flight and Band Chest Press \u2014 one arm presses while opposite arm holds: Keep the support pressure and trunk organized while the front leg returns or one arm presses, preserving control of the opposite support or arm."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 5,
+      "upperE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "sRepeat": [
+        2,
+        1
+      ],
+      "lessons": [
+        {
+          "title": "Receive, redirect and stick",
+          "effort": "Convert a small received load or contact into the next force action, then regain control.",
+          "brief": "Open with Broad Jump \u2014 two linked projections, final stick as the controlled lower-body force anchor. Convert a small received load or contact into the next force action, then regain control.",
+          "connections": [
+            {
+              "title": "Receive and redirect force",
+              "cue": "Broad Jump \u2014 two linked projections, final stick and Medicine Ball Receive-and-Return Chest Pass \u2014 single coach feed: Use the first controlled reception to organize the next projection, then regain control; keep the ball feed and the broad-jump contact small enough to redirect cleanly."
+            },
+            {
+              "title": "Controlled return into the finish",
+              "cue": "Bent-Knee Calf Raise \u2014 single-leg rapid supported rise and Band Lat Pulldown \u2014 controlled upward reach into fast draw: Use a controlled lowering or loaded reach before the rapid ankle or arm finish, with the support base stable and no trunk swing."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Single-shuffle low roundhouse and Med Ball Shuffle-to-Rotation Throw \u2014 short floor-target version: Both endpoints express rotation after one small lateral arrival, with separate stations and full resets."
+            }
+          ]
+        },
+        {
+          "title": "Preload through supported limbs",
+          "effort": "Use a small preload to drive through a supported arm or leg without unnecessary travel.",
+          "brief": "Open with Two-Hand Landmine Push Press \u2014 shallow dip, feet stay planted as the controlled upper-body force anchor. Use a small preload to drive through a supported arm or leg without unnecessary travel.",
+          "connections": [
+            {
+              "title": "Coordinate a permitted preload",
+              "cue": "Two-Hand Landmine Push Press \u2014 shallow dip, feet stay planted and Countermovement Jump \u2014 hands fixed at hips: Use the declared preload to sequence force into the jump or guided press, finishing without an extra dip or turn."
+            },
+            {
+              "title": "Independent force with stable support",
+              "cue": "Medicine Ball Shot Put Throw \u2014 controlled arm draw into forward release and Single-Leg Hip Hinge \u2014 rapid return with hand support: Keep the supporting limb and trunk organized while the arm reverses to release or the hip returns from its hinge; use only the specified arm draw or hip motion."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Crossover entry to rotational knee chamber and Drop-step rotational medicine-ball scoop throw: Rear upper loading step and lower crossover-to-chamber differentiate how weight arrives before rotation."
+            }
+          ]
+        },
+        {
+          "title": "Retained hip return and linked hand push",
+          "effort": "Accept a lateral arrival into a grounded hip turn and arrest a retained upper-body rotational arc. Linked hand pushes and leg-driven projection support a controlled impulse and finish.",
+          "brief": "Open with Lateral step-in to rotational plant as the grounded rotational force anchor. Convert arriving lateral bodyweight into a grounded foot-and-hip turn with a controlled split-stance finish.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Lateral step-in to rotational plant and Close-held medicine-ball rotational snap-to-stop: Retained upper endpoint control paired with familiar lateral step-to-turn. Lower Class 5 jab-step has no explicit turn, so source Class 1 E5 is reused honestly."
+            },
+            {
+              "title": "Brief return-to-force link",
+              "cue": "Kettlebell Swing \u2014 staggered-stance continuous pair and Plyo Push-Up \u2014 two linked pairs on elevated hands: Use the controlled return of the retained hip load or hand contact to organize the next impulse, then complete the planned reset."
+            },
+            {
+              "title": "Directed implement projection",
+              "cue": "Medicine Ball Scoop Toss \u2014 upward-forward leg drive and Medicine Ball Overhead Forward Throw \u2014 fixed stance, arm-driven: Direct the ball along the declared forward path and keep the body's finish organized; preserve leg drive for the scoop and the arm-led overhead release."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 6,
+      "upperE": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        1,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Simple starts, smaller dose",
+          "effort": "Rehearse organized force onset with a deliberately smaller midpoint workload.",
+          "brief": "Open with Squat Jump \u2014 settled quarter-squat start as the controlled lower-body force anchor. Rehearse organized force onset with a deliberately smaller midpoint workload. Consolidate with the reduced planned exposure; previous prescriptions do not establish tolerance.",
+          "connections": [
+            {
+              "title": "Familiar settled starts",
+              "cue": "Squat Jump \u2014 settled quarter-squat start and Medicine Ball Chest Pass \u2014 still start on a spoken release cue: Use the familiar settled start before the upward jump or forward release, preserving control at the deliberately smaller midpoint dose."
+            },
+            {
+              "title": "Stable-base force finish",
+              "cue": "Calf Raise \u2014 rapid supported rise, no flight and Two-Hand Landmine Bent-Over Row \u2014 fast pull from a pause: Keep the support base steady while the ankle or arms complete a short force action; avoid extra body movement to create speed."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Parallel-stance low roundhouse and Unloaded rotational diagonal hand drive: Unloaded diagonal upper action and reduced-dose parallel-start lower turn consolidate at two events each."
+            }
+          ]
+        },
+        {
+          "title": "Grounded hip and gripping force",
+          "effort": "Consolidate a grounded hip impulse and a short controlled arm-force transfer.",
+          "brief": "Open with Supine Dumbbell Serratus Reach \u2014 brief rapid finish as the controlled upper-body force anchor. Consolidate a grounded hip impulse and a short controlled arm-force transfer. Consolidate with the reduced planned exposure; previous prescriptions do not establish tolerance.",
+          "connections": [
+            {
+              "title": "Supported force without flight",
+              "cue": "Supine Dumbbell Serratus Reach \u2014 brief rapid finish and Kettlebell Swing \u2014 dead-stop two-hand repetitions: Use the floor support to stabilize the body while the shoulder blades or hips produce the brief impulse, keeping the endpoint controlled."
+            },
+            {
+              "title": "Controlled traction and hip finish",
+              "cue": "Seated Hand-over-Hand Battle-Rope Pull \u2014 free rope on floor and Glute Bridge \u2014 fast grounded rise, settled floor start: Keep the supported torso organized while the arms transfer traction or the hips rise; finish without a backward lean or back arch."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Supported low outward crescent sweep and Close-held medicine-ball rotational snap-to-stop: Retained upper turn and supported outward low-leg sweep reduce release/landing exposure."
+            }
+          ]
+        },
+        {
+          "title": "Low-dose lead-leg and release",
+          "effort": "Consolidate direct hip external-rotation force and retained rotational pulling at the reduced planned dose. Small lead-leg and linear arm-force tasks support an organized base and finish.",
+          "brief": "Open with Seated self-resisted hip external-rotation acceleration as the grounded rotational force anchor. Give the return-direction hip rotators a small rapid torque task with standing balance removed. Consolidate with the reduced planned exposure; previous prescriptions do not establish tolerance.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Seated self-resisted hip external-rotation acceleration and Rotational band row speed drive: Predictable upper pulling turn and seated direct hip external-rotation acceleration preserve rotational work with no flight or release."
+            },
+            {
+              "title": "Low-dose support and finish",
+              "cue": "Step-Up \u2014 fast grounded drive, rear foot joins and Band Chest Press \u2014 simultaneous fast extension, no release: Maintain the declared support position while the lead leg rises or the arms press, completing each small force action without extra travel."
+            },
+            {
+              "title": "Small projection with a balanced finish",
+              "cue": "Countermovement Jump \u2014 hands fixed at hips and Medicine Ball Shot Put Throw \u2014 forward-facing, no rotation: Express the compact vertical or forward impulse from the declared base and finish organized, keeping the independent arm release free of an added turn."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 7,
+      "upperE": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        2,
+        1
+      ],
+      "lessons": [
+        {
+          "title": "Independent takeoff and received return",
+          "effort": "Express force through one takeoff leg and one returning arm while keeping reception controlled.",
+          "brief": "Open with Single-Leg Vertical Takeoff \u2014 two-foot floor reception as the controlled lower-body force anchor. Express force through one takeoff leg and one returning arm while keeping reception controlled.",
+          "connections": [
+            {
+              "title": "Independent impulse and reception",
+              "cue": "Single-Leg Vertical Takeoff \u2014 two-foot floor reception and Medicine Ball Two-Hand Receive to Single-Arm Forward Return: Organize force through one takeoff leg or one returning arm, then control the two-foot landing or the body's release finish."
+            },
+            {
+              "title": "Stable support for an independent finish",
+              "cue": "Bent-Knee Calf Raise \u2014 single-leg rapid supported rise and One-Arm Row \u2014 supported dumbbell speed pull: Keep the supported trunk and force-producing side organized while the calf or arm completes its draw, without adding a pelvic roll."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Lateral hip rock-to-pivot release and Externally supplied rotational scoop return: Controlled coach handoff adds supplied-ball organization; lower rock-to-pivot adds a small controlled reversal without a bounce."
+            }
+          ]
+        },
+        {
+          "title": "Supported arm and staggered hip force",
+          "effort": "Generate independent arm force and a staggered hip impulse from controlled support.",
+          "brief": "Open with Floor Press \u2014 single-arm light dumbbell speed press as the controlled upper-body force anchor. Generate independent arm force and a staggered hip impulse from controlled support.",
+          "connections": [
+            {
+              "title": "Independent arm force and hip initiation",
+              "cue": "Floor Press \u2014 single-arm light dumbbell speed press and Kettlebell Swing \u2014 staggered dead-stop repetitions: Set the support and load before the impulse; retain trunk control through the independent press and the staggered hip-driven swing."
+            },
+            {
+              "title": "One-side force with a level base",
+              "cue": "Band Lat Pulldown \u2014 single-arm rapid elbow drive and Glute Bridge \u2014 single-leg rapid rise with level pelvis: Keep the pelvis and rib cage organized as one arm draws or one hip rises, finishing without a lateral trunk bend."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Bent-knee counter-sweep to chamber and Close-held medicine-ball rotational snap-to-stop: Familiar upper snap-to-stop and short bent-knee lower counter-sweep emphasize rapid turn with a controlled endpoint."
+            }
+          ]
+        },
+        {
+          "title": "Single-leg control with guided projection",
+          "effort": "Reorganize a grounded stance into rotational knee drive and a controlled upper-body hand sweep. Single-leg support and guided or free forward pressing reinforce force transfer.",
+          "brief": "Open with Grounded switch-step rotational knee drive as the grounded rotational force anchor. Link a fast support-role exchange to proximal rotational output without a full additional kick.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Grounded switch-step rotational knee drive and Two-hand band backhand speed sweep: Predictable retained upper sweep and grounded lower stance exchange preserve rotation while avoiding linked-jump volume."
+            },
+            {
+              "title": "Supported knee drive and guided projection",
+              "cue": "Single-Leg Squat Rise \u2014 supported rapid quarter-range and Landmine Push Press \u2014 single arm, shallow dip: Keep pressure through the supporting leg as force begins; retain the squat rise's support and the press's deliberate shallow dip-to-arm sequence."
+            },
+            {
+              "title": "Small projection from organized support",
+              "cue": "Single-Leg Forward Takeoff \u2014 two-foot floor reception and Medicine Ball Chest Pass \u2014 stationary, paused: Direct the single-leg forward impulse or stationary hand release from a controlled base, then finish balanced without adding a run-up."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 8,
+      "upperE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          5
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "sRepeat": [
+        1,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Hip-to-release and shoulder pull",
+          "effort": "Transmit hip force into a release or draw, with a controlled ankle and shoulder finish.",
+          "brief": "Open with Medicine Ball Scoop Toss \u2014 held hinge to forefoot finish as the controlled lower-body force anchor. Transmit hip force into a release or draw, with a controlled ankle and shoulder finish.",
+          "connections": [
+            {
+              "title": "Hip-to-implement force transfer",
+              "cue": "Medicine Ball Scoop Toss \u2014 held hinge to forefoot finish and Landmine Power Row \u2014 continuous hip-to-arm drive: Organize the hip impulse so it continues into the forward scoop or arm draw, finishing tall without an added lumbar arch."
+            },
+            {
+              "title": "Controlled ankle and shoulder finish",
+              "cue": "Seated Bent-Knee Calf Raise \u2014 fast light rise and Medicine Ball Overhead Slam \u2014 single arm, no trunk rotation: Keep the support base organized while the ankle rises or shoulder drives the ball downward, preserving each task's declared line."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Forward step-in low roundhouse and Tall-kneeling diagonal medicine-ball side slam: Constrained-base upper diagonal slam and lower forward step-in kick separate trunk/hand expression from stance-leg arrival."
+            }
+          ]
+        },
+        {
+          "title": "Full-foot rise and alternating traction",
+          "effort": "Produce a grounded leg rise while transferring arm-force effort between sides.",
+          "brief": "Open with Band Row \u2014 alternating arm draws from a fixed trunk as the controlled upper-body force anchor. Produce a grounded leg rise while transferring arm-force effort between sides.",
+          "connections": [
+            {
+              "title": "Grounded impulse with trunk control",
+              "cue": "Band Row \u2014 alternating arm draws from a fixed trunk and Kettlebell Swing \u2014 continuous two-hand chest-height float: Keep the torso organized while the alternating arms draw or the hips accelerate the retained implement; avoid adding a body rock to the row."
+            },
+            {
+              "title": "Supported force into a clear finish",
+              "cue": "Kneeling Medicine Ball Chest Pass \u2014 tall kneeling, no hip swing and Sit-to-Stand \u2014 rapid full-foot push, no flight: Use the declared floor or kneeling support to organize the upward body rise or forward arm release, preserving the arm-only kneeling task."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Forward plant to low rotational chamber and Single-arm rotational underhand medicine-ball scoop: Unilateral low-to-high hand projection and forward plant-to-rotational chamber express rotation without duplicating a full kick."
+            }
+          ]
+        },
+        {
+          "title": "Ankle advance and forceful draw",
+          "effort": "Practice separate hip-led low kicking and a descending upper-body rotational release, then regain controlled support. Small ankle advances, grounded leg return and linear arm draws support onset and finish.",
+          "brief": "Open with Low roundhouse with forward step-down finish as the grounded rotational force anchor. Control residual forward/rotational momentum when the kicking leg becomes the next lead foot.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Low roundhouse with forward step-down finish and Two-hand descending backhand medicine-ball throw: Descending upper hand arc and lower kick with a controlled forward recovery finish require distinct endpoint control."
+            },
+            {
+              "title": "Compact forward and elbow impulse",
+              "cue": "Ankle Pogo \u2014 three small forward advances and Band Biceps Curl \u2014 loaded return into quick reversal: Keep the action compact as the ankles advance the body or elbows reverse the loaded curl, retaining control before the next effort."
+            },
+            {
+              "title": "Grounded return and shoulder draw",
+              "cue": "Reverse Lunge to Knee Drive \u2014 fast grounded return and Band Straight-Arm Pulldown \u2014 rapid shoulder extension: Control the support position through the leg return or shoulder-only pull, finishing without a trunk crunch or unnecessary travel."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 9,
+      "upperE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          3,
+          5
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          1,
+          4
+        ]
+      ],
+      "sRepeat": [
+        1,
+        1
+      ],
+      "lessons": [
+        {
+          "title": "Step-close vertical and forward release",
+          "effort": "Time a controlled foot plant with upward leg projection or forward arm release.",
+          "brief": "Open with Walk-In Vertical Jump \u2014 step-close takeoff as the controlled lower-body force anchor. Time a controlled foot plant with upward leg projection or forward arm release.",
+          "connections": [
+            {
+              "title": "Plant before projection",
+              "cue": "Walk-In Vertical Jump \u2014 step-close takeoff and Medicine Ball Step-In Chest Pass \u2014 one forward plant: Organize the controlled foot plant before the upward jump or forward release, retaining the declared step pattern and a balanced finish."
+            },
+            {
+              "title": "Controlled reversal with a stable trunk",
+              "cue": "Glute Bridge \u2014 controlled lower to rapid reversal and Band Lat Pulldown \u2014 single-arm rapid elbow drive: Keep the torso supported and organized while the hip reverses upward or the independent arm draws, without adding rotation to either source task."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Retreat-step low roundhouse counter and Lateral-step two-hand medicine-ball backhand throw: Lateral upper entry and retreating lower entry demand controlled direction-specific plants before rotation."
+            }
+          ]
+        },
+        {
+          "title": "Forward plant into controlled projection",
+          "effort": "Project from a controlled forward entry and regain support before repeating.",
+          "brief": "Open with Medicine Ball Step-In Shot Put \u2014 forward-facing single arm as the controlled upper-body force anchor. Project from a controlled forward entry and regain support before repeating.",
+          "connections": [
+            {
+              "title": "Forward entry into a directed impulse",
+              "cue": "Medicine Ball Step-In Shot Put \u2014 forward-facing single arm and Walk-In Broad Jump \u2014 step-close forward takeoff: Time the controlled forward entry to the leg projection or independent arm release, then regain support without running through."
+            },
+            {
+              "title": "Push from stable support and finish controlled",
+              "cue": "Standing Wall Power Push-Off \u2014 return to upright and Step-Down to Step-Up \u2014 quick grounded reversal: Use a secure support contact to produce the next push, finishing upright or on the step; neither task adds a drop or a rebound hand catch."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Pre-chambered hip-unwind step-down and Drop-step rotational medicine-ball shot-put: Upper drop-step pushing release and lower supported hip unwind express force out of a loaded orientation."
+            }
+          ]
+        },
+        {
+          "title": "Backward traction and forward leg drive",
+          "effort": "Generate compact folded-leg and hand sweeps through controlled hip and trunk turns. Grounded lunge return, leg-driven forward projection and linear arm traction supply plant and finish support.",
+          "brief": "Open with Low bent-knee hook shadow sweep as the grounded rotational force anchor. Practice the coupled inward thigh sweep and knee folding used to recover a rotational leg action.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Low bent-knee hook shadow sweep and Short crossover-to-band backhand speed sweep: Upper crossover-to-retained sweep and low folding hook sweep retain transverse outputs without another airborne task."
+            },
+            {
+              "title": "Plant to direct force",
+              "cue": "Forward Lunge \u2014 rapid return to the starting foot line and Battle-Rope Traction Pull \u2014 one backward step per draw: Use the declared forward or backward plant to organize the connected leg or arm effort, then stop and reset within the controlled movement corridor."
+            },
+            {
+              "title": "Leg impulse into implement force",
+              "cue": "Medicine Ball Scoop Toss \u2014 walk-step forward release and Two-Hand Landmine Push Press \u2014 shallow dip, feet stay planted: Sequence the declared leg drive into the guided press or scoop release, keeping the finish balanced and free of an extra jump."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 10,
+      "upperE": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "sRepeat": [
+        1,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Mid-range force and complete leg finish",
+          "effort": "Drive through a defined finish range while producing a clear upward leg impulse.",
+          "brief": "Open with Countermovement Jump \u2014 vertical rise and stick as the controlled lower-body force anchor. Drive through a defined finish range while producing a clear upward leg impulse.",
+          "connections": [
+            {
+              "title": "Force from a defined start",
+              "cue": "Countermovement Jump \u2014 vertical rise and stick and Band Chest Press \u2014 mid-range pause into fast finish: Respect the declared start boundary before accelerating toward the jump or press finish; do not add a second dip after the arm's mid-range pause."
+            },
+            {
+              "title": "Support pressure through the finish",
+              "cue": "Split-Stance Calf Rise \u2014 rapid rear-heel finish and Band Row \u2014 mid-range pause into fast finish: Keep pressure organized through the support stance while the rear heel rises or arms complete the held-start draw, without a torso swing."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Point-cued open-step hip turn and Single-arm rotational medicine-ball hook throw: Unilateral upper hook release and early point-cued lower turn pair a hand-force task with a modest decision demand; no midmovement cues."
+            }
+          ]
+        },
+        {
+          "title": "Supported ascent and shoulder force",
+          "effort": "Express a supported lower-body rise and a brief shoulder-driven upper action.",
+          "brief": "Open with Dumbbell Reverse Fly \u2014 quick lift, controlled return as the controlled upper-body force anchor. Express a supported lower-body rise and a brief shoulder-driven upper action.",
+          "connections": [
+            {
+              "title": "Supported ascent and shoulder opening",
+              "cue": "Dumbbell Reverse Fly \u2014 quick lift, controlled return and Step-Up \u2014 fast grounded drive, rear foot joins: Stabilize the body through the support leg or held hinge so the intended knee drive or shoulder opening supplies the motion."
+            },
+            {
+              "title": "Controlled hip and hand push",
+              "cue": "Standing Wall Power Push-Off \u2014 return to upright and Hip Thrust \u2014 bench-supported rapid rise: Use stable support to produce the hip rise or hand push-off, finishing tall without lumbar extension or an added rebound."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Coach-called-leg low roundhouse and Med Ball Rotational Scoop Toss \u2014 paused floor-target start: Familiar settled upper scoop lowers novelty while a called lower leg changes preparation responsibility."
+            }
+          ]
+        },
+        {
+          "title": "Split-base push and catch-set release",
+          "effort": "Initiate a compact hip-turning thigh action from the early cue and express a separate unloaded upper-body backhand arc. Split-base leg force and catch-set forward release support an organized start and finish.",
+          "brief": "Open with Auditory-go pre-chambered thigh whip as the grounded rotational force anchor. Release proximal rotation from a prepared leg position without anticipating the start.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Auditory-go pre-chambered thigh whip and Unloaded two-hand rotational backhand sweep: Unloaded upper backhand and early auditory-go folded-thigh sweep produce compact rotational arcs with no release or jump."
+            },
+            {
+              "title": "Receive control before another impulse",
+              "cue": "Split Squat Jump \u2014 fixed stance, same-stance reception and Medicine Ball Catch-Set Chest Pass \u2014 gentle coach feed: Control the prescribed foot reception or gentle ball feed before repeating, preserving the split-base landing and the set-before-release requirement."
+            },
+            {
+              "title": "Retained-load acceleration with a steady finish",
+              "cue": "Kettlebell Swing \u2014 continuous two-hand chest-height float and Band Biceps Curl \u2014 rapid neutral-grip pull: Keep the body organized as the hips or elbows accelerate their retained load, then control the return without an extra trunk swing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 11,
+      "upperE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          4
+        ],
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          5
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        1,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Receive and project from controlled starts",
+          "effort": "Link a controlled contact or plant to the next clear force action.",
+          "brief": "Open with Vertical Jump \u2014 two linked rises, final stick as the controlled lower-body force anchor. Link a controlled contact or plant to the next clear force action.",
+          "connections": [
+            {
+              "title": "Contact and plant into projection",
+              "cue": "Vertical Jump \u2014 two linked rises, final stick and Medicine Ball Receive-Step Chest Pass \u2014 one controlled plant: Use the controlled foot contact or received-ball plant to organize the next projection, then regain balance before the next sequence."
+            },
+            {
+              "title": "Clear onset from organized support",
+              "cue": "Kettlebell Deadlift \u2014 rapid full-foot rise, no swing and Band Row \u2014 two-arm pull from a spoken cue: Set the support and load before the cued draw or grounded leg rise, finishing without an added jump or torso turn."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Low roundhouse through an empty direction gate and Handoff-to-step rotational medicine-ball scoop return: Coach handoff followed by one short upper step and a low kick through an empty direction gate target controlled placement."
+            }
+          ]
+        },
+        {
+          "title": "Cued arm force and grounded leg reversal",
+          "effort": "Express force from a clear cue or controlled reversal while retaining grounded support.",
+          "brief": "Open with Single-Arm Band Chest Press \u2014 still start on a spoken cue as the controlled upper-body force anchor. Express force from a clear cue or controlled reversal while retaining grounded support.",
+          "connections": [
+            {
+              "title": "Controlled reversal and clear cue",
+              "cue": "Single-Arm Band Chest Press \u2014 still start on a spoken cue and Step-Down to Step-Up \u2014 quick grounded reversal: Keep the support position stable as the step reverses or the cued arm presses, with the intended start clear before accelerating."
+            },
+            {
+              "title": "Grounded force with a tall finish",
+              "cue": "Landmine Power Row \u2014 continuous hip-to-arm drive and Glute Bridge \u2014 fast grounded rise, settled floor start: Use the deliberate hip impulse to produce the arm draw or bridge rise, finishing through the hips without arching the back."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Short drop-step lead-leg roundhouse and Light-band rotational cross: Retained upper cross keeps setup familiar while the lower lead-leg kick uses a short support-hip loading step."
+            }
+          ]
+        },
+        {
+          "title": "Brief contact to forward projection",
+          "effort": "Place crossover recovery into a controlled rotational base and couple a separate step-in hip turn to an upper-body pushing release. Small linear leg, ankle and arm-force tasks support placement and the finish.",
+          "brief": "Open with Crossover recovery to a marked kick base as the grounded rotational force anchor. Recover an exact useful two-foot base after reorientation, instead of leaving the feet crossed or too narrow.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Crossover recovery to a marked kick base and Step-in rotational medicine-ball shot-put: A familiar upper step-in press pairs with grounded crossover recovery to a marked kick base; no added jump contacts."
+            },
+            {
+              "title": "Directed forward release",
+              "cue": "Medicine Ball Scoop Toss \u2014 fixed split stance, forward release and Medicine Ball Overhead Forward Throw \u2014 fixed stance, arm-driven: Keep the release line and body finish organized; use the scoop's leg drive and the overhead throw's arm action as distinct force routes."
+            },
+            {
+              "title": "Brief contact and controlled reception",
+              "cue": "Ankle Pogo \u2014 two pairs with a full reset and Plyo Push-Up \u2014 hands elevated: Use the prescribed small foot or hand contact to organize the next force action, then complete the full reset without extending the sequence."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": 12,
+      "upperE": [
+        [
+          1,
+          5
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "lowerE": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "upperP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          6
+        ]
+      ],
+      "lowerP": [
+        [
+          1,
+          4
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "sRepeat": [
+        2,
+        2
+      ],
+      "lessons": [
+        {
+          "title": "Review still-start force",
+          "effort": "Review the combined program's opening lower and upper still-start tasks under recorded matching conditions.",
+          "brief": "Open with Squat Jump \u2014 settled quarter-squat start as the controlled lower-body force anchor. Review the combined program's opening lower and upper still-start tasks under recorded matching conditions. Review current quality under matched recorded conditions where available; do not infer improvement from absent baseline data.",
+          "connections": [
+            {
+              "title": "Matched settled-start review",
+              "cue": "Squat Jump \u2014 settled quarter-squat start and Medicine Ball Chest Pass \u2014 stationary, paused: Match the recorded combined opening-class start and setup for the upward jump and forward release where actual records exist; absent baseline data establishes current quality only."
+            },
+            {
+              "title": "Small controlled finish",
+              "cue": "Calf Raise \u2014 rapid supported rise, no flight and Dumbbell Reverse Fly \u2014 quick lift, controlled return: Keep the support base organized through the ankle rise or shoulder opening, using the small retained task as a controlled finish beside the review anchors."
+            },
+            {
+              "title": "Hip initiation into hand force",
+              "cue": "Split-stance explosive hip pivot and Med Ball Rotational Scoop Toss \u2014 paused floor-target start: Repeat the combined Class 1 reduced-dose settled scoop and hip-pivot conditions when actual earlier conditions exist; no automatic improvement claim."
+            }
+          ]
+        },
+        {
+          "title": "Review fixed-base independent force",
+          "effort": "Review independent arm force and a grounded hip-driven projection with controlled starts.",
+          "brief": "Open with Single-Arm Band Chest Press \u2014 still start on a spoken cue as the controlled upper-body force anchor. Review independent arm force and a grounded hip-driven projection with controlled starts. Review current quality under matched recorded conditions where available; do not infer improvement from absent baseline data.",
+          "connections": [
+            {
+              "title": "Clear start with retained support",
+              "cue": "Single-Arm Band Chest Press \u2014 still start on a spoken cue and Kettlebell Swing \u2014 dead-stop two-hand repetitions: Set the support and load before the cued independent press or parked hip impulse, retaining the source task's declared trunk behavior."
+            },
+            {
+              "title": "Independent draw and leg-driven release",
+              "cue": "One-Arm Row \u2014 supported mid-range pause into fast finish and Medicine Ball Scoop Toss \u2014 hip-driven forward release: Keep the support and torso organized while the arm completes its held-start draw or the hips supply the forward scoop, without adding an unrecorded turn."
+            },
+            {
+              "title": "Supported rotational force",
+              "cue": "Standing low roundhouse shadow kick and Med Ball Shot-Put Throw \u2014 rotational floor-target version: A short rotational pushing release and familiar rear-leg low kick revisit direct endpoints at reduced source dose."
+            }
+          ]
+        },
+        {
+          "title": "Review lead-leg and arm sequence",
+          "effort": "Review a low hip-led rotational kick with lateral recovery and a retained upper-body rotational pull. Supported lead-leg work and alternating or independent forward arm actions provide small linear-force support; no improvement is inferred without matched actual records.",
+          "brief": "Open with Low roundhouse with lateral recovery placement as the grounded rotational force anchor. Control the return leg when restoring a base slightly off the original line after rotational output. Review current quality under matched recorded conditions where available; do not infer improvement from absent baseline data.",
+          "connections": [
+            {
+              "title": "Turn and control the finish",
+              "cue": "Low roundhouse with lateral recovery placement and Rotational band row speed drive: Retained upper pulling turn plus only one kick/side with lateral placement finishes the course without increasing the source kick dose."
+            },
+            {
+              "title": "Supported rise and alternating finish",
+              "cue": "Step-Up \u2014 fast grounded drive, rear foot joins and Floor Press \u2014 alternating light speed presses, opposite arm parked: Maintain a stable body base while the lead leg rises or the arms alternate their presses, keeping the opposite support or load controlled."
+            },
+            {
+              "title": "Independent force from organized support",
+              "cue": "Single-Leg Squat Rise \u2014 supported rapid quarter-range and Medicine Ball Shot Put Throw \u2014 forward-facing, no rotation: Keep the supporting leg and trunk organized as the single-leg rise or forward-facing arm release finishes, without adding rotation to either source task."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

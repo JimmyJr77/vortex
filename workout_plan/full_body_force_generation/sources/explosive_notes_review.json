@@ -1,0 +1,694 @@
+[
+  {
+    "class_number": 1,
+    "workload_sha256": "42c0ac615e83634197ce2150ee87e3aad8d9497c0b5e39d780daca950588aa76",
+    "compared_to": null,
+    "event_fields": {
+      "ball_releases": {
+        "previous": null,
+        "current": 13
+      },
+      "bilateral_landings": {
+        "previous": null,
+        "current": 6
+      },
+      "bilateral_hand_landing_events": {
+        "previous": null,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 2,
+    "workload_sha256": "2312226238167e4d4675ca750f37e865f35bdf7cc1204c65fdfaa763017907c8",
+    "compared_to": 1,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 13,
+        "current": 7
+      },
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 0
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 3,
+    "workload_sha256": "891c239e4923906372aef8167e4152e1e797cedf95bed38daf8a0da1aeec033e",
+    "compared_to": 2,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 7,
+        "current": 11
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 3
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 3,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 4,
+    "workload_sha256": "ba7976bc36ce176b5a8539f611b9eb2bb3e816631bc64dda5c7e16a51875261c",
+    "compared_to": 3,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 11,
+        "current": 12
+      },
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 5,
+    "workload_sha256": "f66db4cc5bb8b30168f0bad8699f38b823d455a9feac13df1b442595202c0a5b",
+    "compared_to": 4,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 12,
+        "current": 0
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 3
+      },
+      "explosive_bouts": {
+        "previous": 10,
+        "current": 9
+      }
+    }
+  },
+  {
+    "class_number": 6,
+    "workload_sha256": "59c0f49a1d393b3b24ce269ceda7dcb97da1f9d02e5f26adb2e81b361160c696",
+    "compared_to": 5,
+    "event_fields": {
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 6
+      },
+      "low_amplitude_landings": {
+        "previous": 0,
+        "current": 6
+      }
+    }
+  },
+  {
+    "class_number": 7,
+    "workload_sha256": "6ae11ac30188bd7113ab7be5232451d45c6b492dd8351104623abead2c4116a2",
+    "compared_to": 6,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 0,
+        "current": 13
+      },
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 8
+      },
+      "explosive_bouts": {
+        "previous": 9,
+        "current": 13
+      }
+    }
+  },
+  {
+    "class_number": 8,
+    "workload_sha256": "8aedf36a38a0f818bc8c4f6c9057dc05240d980bd439bd1951418425c9ab23c1",
+    "compared_to": 7,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 13,
+        "current": 4
+      },
+      "bilateral_landings": {
+        "previous": 8,
+        "current": 0
+      },
+      "explosive_bouts": {
+        "previous": 13,
+        "current": 11
+      }
+    }
+  },
+  {
+    "class_number": 9,
+    "workload_sha256": "bb3770121e589df9bc2b8c6fe732c9f2ca99c3643b1b73db33c04a7ede337b6e",
+    "compared_to": 8,
+    "event_fields": {
+      "sprint_attempts": {
+        "previous": 0,
+        "current": 2
+      },
+      "sprint_metres": {
+        "previous": 0,
+        "current": 4
+      },
+      "explosive_bouts": {
+        "previous": 11,
+        "current": 10
+      }
+    }
+  },
+  {
+    "class_number": 10,
+    "workload_sha256": "7f27b4d636a5df527bb8015437477fdc89e88cef0715cdf1276e52625aabe687",
+    "compared_to": 9,
+    "event_fields": {
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 6
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 0,
+        "current": 6
+      }
+    }
+  },
+  {
+    "class_number": 11,
+    "workload_sha256": "82dcd5b6271a661a04831ce70e5548d826d1ddacdd80fb71eca4b3d2c604e96d",
+    "compared_to": 10,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 3
+      },
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 3
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 6,
+        "current": 0
+      },
+      "catches": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 12,
+    "workload_sha256": "ebbdfb6c28d6df410ef169f256c42680ae88b864b0da2fd9a3460f2eeb143199",
+    "compared_to": 11,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 3,
+        "current": 4
+      },
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 0
+      },
+      "catches": {
+        "previous": 3,
+        "current": 0
+      },
+      "explosive_bouts": {
+        "previous": 8,
+        "current": 10
+      }
+    }
+  },
+  {
+    "class_number": 13,
+    "workload_sha256": "ab9c5a24274c8d42a2000a23283ef6d51bfbc08d9f868b4c189c4626afe44dfb",
+    "compared_to": 12,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 10
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 4
+      },
+      "catches": {
+        "previous": 0,
+        "current": 6
+      }
+    }
+  },
+  {
+    "class_number": 14,
+    "workload_sha256": "d178722f283989af26866d80c007807a72176aa723cbccdd9540e60cff82d9cf",
+    "compared_to": 13,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 10,
+        "current": 8
+      },
+      "bilateral_landings": {
+        "previous": 4,
+        "current": 3
+      },
+      "catches": {
+        "previous": 6,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 15,
+    "workload_sha256": "b2c5f25506c6bf6e0b5223d57783500fd119d3309ecd550277a0a5bfea3e0575",
+    "compared_to": 14,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 8,
+        "current": 6
+      },
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 0
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 0,
+        "current": 4
+      }
+    }
+  },
+  {
+    "class_number": 16,
+    "workload_sha256": "b8b5fed9164cfe9c5b6bbfc28c7dd9e5cccc21e68dc0ddbe295db9869e9ed027",
+    "compared_to": 15,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 6,
+        "current": 4
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 4,
+        "current": 0
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 17,
+    "workload_sha256": "a8d36bdacfa556059071924fbab6a32144f10594e87bfa825f9978eca4fa3e10",
+    "compared_to": 16,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 0
+      },
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 0
+      },
+      "explosive_bouts": {
+        "previous": 9,
+        "current": 8
+      }
+    }
+  },
+  {
+    "class_number": 18,
+    "workload_sha256": "bba57aae92a3ffa899c1a44f891ec68a740c6f75444afc2e3fe36c4ecbea4cae",
+    "compared_to": 17,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 0,
+        "current": 4
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 2
+      },
+      "explosive_bouts": {
+        "previous": 8,
+        "current": 10
+      }
+    }
+  },
+  {
+    "class_number": 19,
+    "workload_sha256": "7a54a05a6f3de35ecd89bd39cdbdb59c4dcfd00d190fd6fb080cb98d09e18a77",
+    "compared_to": 18,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 10
+      },
+      "bilateral_landings": {
+        "previous": 2,
+        "current": 6
+      },
+      "catches": {
+        "previous": 0,
+        "current": 6
+      },
+      "handoffs": {
+        "previous": 0,
+        "current": 4
+      },
+      "explosive_bouts": {
+        "previous": 10,
+        "current": 12
+      }
+    }
+  },
+  {
+    "class_number": 20,
+    "workload_sha256": "3b90d4654f0b4457b8d12d172282c8f8ce0e81bdc0deb6271dfdccab17d7d3ac",
+    "compared_to": 19,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 10,
+        "current": 0
+      },
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 0
+      },
+      "catches": {
+        "previous": 6,
+        "current": 0
+      },
+      "handoffs": {
+        "previous": 4,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 21,
+    "workload_sha256": "b75c85c750d55d418a73e24b64151a5187fcfe3e3a72adfd77c811de0cc609cd",
+    "compared_to": 20,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 0,
+        "current": 2
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 2
+      },
+      "explosive_bouts": {
+        "previous": 12,
+        "current": 11
+      }
+    }
+  },
+  {
+    "class_number": 22,
+    "workload_sha256": "59241a06e904934f83ca90fe548c758058a6a345254d785defce305319a0212d",
+    "compared_to": 21,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 2,
+        "current": 14
+      },
+      "bilateral_landings": {
+        "previous": 2,
+        "current": 0
+      },
+      "explosive_bouts": {
+        "previous": 11,
+        "current": 11
+      }
+    }
+  },
+  {
+    "class_number": 23,
+    "workload_sha256": "ad79d973926e1af566cb4dcf2f1adf1010ae9afdd09c26f604e0ca1cd5a6466c",
+    "compared_to": 22,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 14,
+        "current": 7
+      },
+      "explosive_bouts": {
+        "previous": 11,
+        "current": 8
+      }
+    }
+  },
+  {
+    "class_number": 24,
+    "workload_sha256": "9b74f9f76ffe2e471786d466b75478fbf9838db4c4a867956d548f1fa9433be5",
+    "compared_to": 23,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 7,
+        "current": 4
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 3
+      },
+      "low_amplitude_landings": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 25,
+    "workload_sha256": "f8fd813f5bae03b26b5263e99ab9bc9fddfea525574e357c7da8e8fc3eeb96df",
+    "compared_to": 24,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 10
+      },
+      "bilateral_landings": {
+        "previous": 3,
+        "current": 4
+      },
+      "explosive_bouts": {
+        "previous": 9,
+        "current": 11
+      }
+    }
+  },
+  {
+    "class_number": 26,
+    "workload_sha256": "19657896d245a0007c36050dca85274cfbcca2e641e7fad62492217f049f478f",
+    "compared_to": 25,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 10,
+        "current": 8
+      },
+      "bilateral_landings": {
+        "previous": 4,
+        "current": 2
+      },
+      "explosive_bouts": {
+        "previous": 11,
+        "current": 10
+      }
+    }
+  },
+  {
+    "class_number": 27,
+    "workload_sha256": "5b24d3543ff512d11ffb5393e3d9407d69d0a1884f155038a3e346257ec10bd8",
+    "compared_to": 26,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 8,
+        "current": 2
+      },
+      "bilateral_landings": {
+        "previous": 2,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 28,
+    "workload_sha256": "0ce5d04c7d0a8489c912d35ce310f279f3307e2a6359a321f92a026fdb56ab86",
+    "compared_to": 27,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 2,
+        "current": 4
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 6
+      },
+      "explosive_bouts": {
+        "previous": 10,
+        "current": 11
+      }
+    }
+  },
+  {
+    "class_number": 29,
+    "workload_sha256": "76ded32d6120cc54fb5b515b411b727b42ccb5ce9b57f933e4216a385dc4bdc8",
+    "compared_to": 28,
+    "event_fields": {
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 0
+      },
+      "explosive_bouts": {
+        "previous": 11,
+        "current": 9
+      },
+      "kick_actions": {
+        "previous": 0,
+        "current": 4
+      }
+    }
+  },
+  {
+    "class_number": 30,
+    "workload_sha256": "fcaf52e2760f7a3c1fdf93c004bbfd560824f47c8b80cff87fd5dc82945f1432",
+    "compared_to": 29,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 4,
+        "current": 3
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 4
+      },
+      "catches": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 31,
+    "workload_sha256": "dd1c2b5291c25ccae1c3631bd816f752679c78c42c509a12bfa8f4bc4998de43",
+    "compared_to": 30,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 3,
+        "current": 8
+      },
+      "bilateral_landings": {
+        "previous": 4,
+        "current": 4
+      },
+      "catches": {
+        "previous": 3,
+        "current": 4
+      },
+      "handoffs": {
+        "previous": 0,
+        "current": 4
+      }
+    }
+  },
+  {
+    "class_number": 32,
+    "workload_sha256": "811e03b986d16dee84995962b5ee31fb9996f942ec24b870be69e404eebc21a3",
+    "compared_to": 31,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 8,
+        "current": 0
+      },
+      "bilateral_landings": {
+        "previous": 4,
+        "current": 0
+      },
+      "catches": {
+        "previous": 4,
+        "current": 0
+      },
+      "handoffs": {
+        "previous": 4,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 33,
+    "workload_sha256": "0962980da29ff962d8d5c4edc465c096172fcdb4c7ac2ad3b6f7d807671b6080",
+    "compared_to": 32,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 0,
+        "current": 9
+      },
+      "bilateral_landings": {
+        "previous": 0,
+        "current": 4
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 0,
+        "current": 3
+      }
+    }
+  },
+  {
+    "class_number": 34,
+    "workload_sha256": "a46b8bda7f40bf75ee461856fc7604e97bae8459245021cd2a2b48ccd84c187a",
+    "compared_to": 33,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 9,
+        "current": 13
+      },
+      "bilateral_landings": {
+        "previous": 4,
+        "current": 6
+      },
+      "bilateral_hand_landing_events": {
+        "previous": 3,
+        "current": 0
+      }
+    }
+  },
+  {
+    "class_number": 35,
+    "workload_sha256": "727a049957bd2bb9102ad67986180ec16dde76345e93f40500837ea74a08c40a",
+    "compared_to": 34,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 13,
+        "current": 6
+      },
+      "bilateral_landings": {
+        "previous": 6,
+        "current": 0
+      },
+      "kick_actions": {
+        "previous": 0,
+        "current": 4
+      }
+    }
+  },
+  {
+    "class_number": 36,
+    "workload_sha256": "08b243f3e63f769794a0d186fea1971d601e0695fb51db896eb57ca1a762e35b",
+    "compared_to": 35,
+    "event_fields": {
+      "ball_releases": {
+        "previous": 6,
+        "current": 4
+      },
+      "kick_actions": {
+        "previous": 4,
+        "current": 2
+      },
+      "explosive_bouts": {
+        "previous": 10,
+        "current": 11
+      }
+    }
+  }
+]

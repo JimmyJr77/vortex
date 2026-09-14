@@ -718,7 +718,8 @@
     "workload_class_09.json": "b53f6fadc026419ee641e00d7aedf7c8414e729f0d1c01ddd0641bf2b1517b08",
     "workload_class_10.json": "0a68055c6348b4d5ab91fca50be7bb493cc5091160253cc4b40be158046d3d14",
     "workload_class_11.json": "26825d34e33f8cffeda187d3ad034595a9be24657006dd749522ce534a15fe1d",
-    "workload_class_12.json": "f8a9c20b7293e3ff76cb016eebf449a467d63f28811e168e12c6ca97a1b9692a"
+    "workload_class_12.json": "f8a9c20b7293e3ff76cb016eebf449a467d63f28811e168e12c6ca97a1b9692a",
+    "portal_integration.md": "454cc0e1dd06a8e9597d1b5364014ffe9789a68716ab9c40dee57695ea5a66e8"
   },
   "drill_usage_register": "drill_usage.md",
   "drill_selection_policy": {
@@ -787,5 +788,20 @@
     "exercise_entries": 168,
     "primary_and_light_strength_trace_entries": 96,
     "observed_athlete_work": "unknown"
+  },
+  "portal_collection": {
+    "program_id": "upper-body-force",
+    "title": "Upper Body Force Generation",
+    "class_count": 12,
+    "location": "Coach Portal → Athleticism Accelerator → Your program collection",
+    "integration_record": "portal_integration.md",
+    "deployment_status": "local application changes; no production deployment performed",
+    "verification": {
+      "source_sync": "passed",
+      "exercise_rows": 168,
+      "typescript": "passed",
+      "browser_all_12_classes": "passed",
+      "desktop_mobile_visual_review": "passed"
+    }
   }
 }

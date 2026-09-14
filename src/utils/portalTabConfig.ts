@@ -191,7 +191,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   sessions: { title: "Today's Sessions", description: 'Run a class: attendance and group logging.' },
   needs: { title: 'Needs Engine', description: 'Describe a need, get a time-packed session.' },
   library: { title: 'Exercise Library', description: 'Search and tag the movement library.' },
-  'athleticism-accelerator': { title: 'Athleticism Accelerator', description: 'View 12-week athletic plans, daily equipment, and coaching cues.' },
+  'athleticism-accelerator': { title: 'Athleticism Accelerator', description: 'View athletic plans by class, daily equipment, and coaching cues.' },
   framework: { title: 'Training Philosophy', description: 'Explore the Athleticism Accelerator taxonomy — phases, tenets, methodologies, order slots, session models, and validation rules.' },
   workout: { title: 'Workout Builder', description: 'Build sessions with a live time clock.' },
   programs: { title: 'Training Programs', description: 'Sequence weeks of training.' },

@@ -23,6 +23,9 @@ for(const claim of ['NONE','PENNSYLVANIA','NO_LIABILITY'])test(`Maryland employe
   const open=async()=>{await page.goto('/tests/support/payroll.html?employee=1');await page.getByRole('button',{name:'Onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'State withholding certificate'}).click()}
   await open()
   const panel=page.getByRole('region',{name:'Complete MW507 internally',exact:true})
+  const initialSsn=panel.getByLabel('Social Security number',{exact:true}),initialAddress=panel.getByLabel('Street address, city, state and ZIP',{exact:true})
+  await expect(initialSsn).toHaveValue('');await expect(initialAddress).toHaveValue('')
+  await expect(initialSsn).toHaveAttribute('autocomplete','new-password');await expect(initialSsn).toHaveAttribute('data-lpignore','true');await expect(initialAddress).toHaveAttribute('data-form-type','other')
   await panel.getByLabel('Print full name',{exact:true}).fill('Łukasz Żółć')
   await panel.getByLabel('Social Security number',{exact:true}).fill('123-4')
   await panel.getByRole('button',{name:'Save MW507 draft',exact:true}).click()

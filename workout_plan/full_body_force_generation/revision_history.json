@@ -1,0 +1,990 @@
+{
+  "revisions": [
+    {
+      "file": "classes/class_01.md",
+      "previous_sha256": "273c9f42613508a2fb7945af2e110a75565d9eafb262129a495139703232859e",
+      "current_sha256": "d5a1b30220703bcca237dced892d624723b830f90ffaa43374982fe5ff9627dc",
+      "reviewed_by_class": 2,
+      "reason": "Before Class 4, removed a duplicated rotational connection sentence from saved Classes 1\u20133 after the independent blueprint correction. Class 1 had also received corrected pair labels, contextualized purposes and explicit retrieval rules before Class 2. This recorded post-review edit changes presentation only; prescribed exercises, doses, events and timing are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "bf1327890df37bdf9f345f2fbcfdbb75b0f23bad9aab4b8e076415d75b19c617",
+        "eed885e634bfc397717f5a1cd638814adef0ee5db8351f91241033e5062339dc"
+      ]
+    },
+    {
+      "file": "workload_class_01.json",
+      "previous_sha256": "ff3fb6a85647038d516cd2d751a691238fe1447bcc28811de0513eed9f9a7d58",
+      "current_sha256": "d21cc3c3a1ab817fd8104a2d0634cfdbebcd530c8cf164a25a849c49c6a55948",
+      "reviewed_by_class": 2,
+      "reason": "Before Class 4, removed a duplicated rotational connection sentence from saved Classes 1\u20133 after the independent blueprint correction. Class 1 had also received corrected pair labels, contextualized purposes and explicit retrieval rules before Class 2. This recorded post-review edit changes presentation only; prescribed exercises, doses, events and timing are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged. Final ledger alignment contextualized strength-trace reasons to the actual combined-class purposes and named out-of-class source references. Exercise coaching, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c3a73e8b9e17cd56314daca1e5a298e5288dd0f07492598948550cd438a4494d",
+        "42c0ac615e83634197ce2150ee87e3aad8d9497c0b5e39d780daca950588aa76",
+        "1963a840aca9efc2125bb1d4a3d25aff6e88f832dfffce9e7192910511a61df6"
+      ]
+    },
+    {
+      "file": "classes/class_02.md",
+      "previous_sha256": "82ac1f1fd24d4fa90b08df6735c6e60106f7bc6b2356e7caa232ac9cb350718a",
+      "current_sha256": "41ffd9b3d87cfc9698aeea527762c369e64e8c5622c47ea698ab3ab541bdf187",
+      "reviewed_by_class": 3,
+      "reason": "Before Class 4, removed a duplicated rotational connection sentence from saved Classes 1\u20133 after the independent blueprint correction. Class 1 had also received corrected pair labels, contextualized purposes and explicit retrieval rules before Class 2. This recorded post-review edit changes presentation only; prescribed exercises, doses, events and timing are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "cdf6eccb1dd9ca60e1dc61af385dbe4f38767a75b2f8eac50165e8f2a7547bfb",
+        "cadb065d7cdfad32d96c4d1f1cd0bbaa5982eac942110ba91048054c19b1d2cb"
+      ]
+    },
+    {
+      "file": "workload_class_02.json",
+      "previous_sha256": "8cfb92b99c4d7de0d77a5c7534b602065e4cfd7668b4e23e91f8921b11ec5414",
+      "current_sha256": "a35f8ceb8c34f72fbe7e222612c6b6d3fab3dca2017940555ae6215eef13e398",
+      "reviewed_by_class": 3,
+      "reason": "Before Class 4, removed a duplicated rotational connection sentence from saved Classes 1\u20133 after the independent blueprint correction. Class 1 had also received corrected pair labels, contextualized purposes and explicit retrieval rules before Class 2. This recorded post-review edit changes presentation only; prescribed exercises, doses, events and timing are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "97c78c8889ffcc3f145db25f25d024b0a46f929d5785a5250699ab90a88daf1c",
+        "2312226238167e4d4675ca750f37e865f35bdf7cc1204c65fdfaa763017907c8"
+      ]
+    },
+    {
+      "file": "classes/class_03.md",
+      "previous_sha256": "d3f2f8a8e25e967b450c637da48321b4d5ea12a603f108d2f96a17a8e19e5fc7",
+      "current_sha256": "1eab08ea28b4ad5427fe82480958a26802ee075997c413af0a40c2fcbc76ce96",
+      "reviewed_by_class": 4,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "5da0b5e092a702a4f7c9789ebca7b579abb5a57a91f0f12de33e0e3269d06fcf",
+        "6c4ce0912df6990cb3931e2ea12cb7076e0811979a24ac33a7cea3acd8eef338"
+      ]
+    },
+    {
+      "file": "workload_class_03.json",
+      "previous_sha256": "9574cfa652aec69e0a449f315fb2f4f7f280b9f10af4babffaf1c96e18fe7985",
+      "current_sha256": "6372106a5ab1cdaade551c9fb763fa72af65858c66f921e8316641c29b7b6785",
+      "reviewed_by_class": 4,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "e0df98c382c20ea4f22d3e200b4bdce2935c2289dcc8dfae7ca50dad30551dda",
+        "891c239e4923906372aef8167e4152e1e797cedf95bed38daf8a0da1aeec033e"
+      ]
+    },
+    {
+      "file": "classes/class_06.md",
+      "previous_sha256": "505c1c437a82474dc086b512d86255b8b8de1e8201928233fb58a81638905706",
+      "current_sha256": "864c9edb755063e4bc65cc9b241a6413f4449c051f01cfd9cfe287f867bb9ac0",
+      "reviewed_by_class": 7,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "55564004c054ea8011fe522a80e9237b316f802841aaccda5137776ce3be978b",
+        "d76bb32ac68f250ebd0c12dc514a14ef68ef1ede24fe2e2d8ed7faf8ace5321e"
+      ]
+    },
+    {
+      "file": "workload_class_06.json",
+      "previous_sha256": "01b14710697102c358b0d41643bc001fe4294a1bf225e6999b58c208e92b48a3",
+      "current_sha256": "db7cbaa2ed4d994f64f388c653f33418aecc4bef98fc80b01b8acbf0640f50eb",
+      "reviewed_by_class": 7,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "e5ac757751e530b8a12eeea7dc6d12372d60c00b1158e4d7847af6df5b1ebfd0",
+        "59c0f49a1d393b3b24ce269ceda7dcb97da1f9d02e5f26adb2e81b361160c696"
+      ]
+    },
+    {
+      "file": "classes/class_09.md",
+      "previous_sha256": "ef15a3c9f536681295c15bcec278cba8c5711c689edb2fb30e028c094e17935e",
+      "current_sha256": "6cfb676e5aafd11f39b844870152be8bdb0044dd5a4ae8e22e7655b906d56308",
+      "reviewed_by_class": 10,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "44404f596b83d0d58a9230d15cb2501f703446f2d377467154d283fc73c1bbc9",
+        "a740a98cbc6b9b0f611098194ea6967d2f76d6363f3daea59f42d5db9079bf90"
+      ]
+    },
+    {
+      "file": "workload_class_09.json",
+      "previous_sha256": "913260b07cff6270781d11817262253d414d5cb1ef3b3a7b8eed177c06e9b4cb",
+      "current_sha256": "281f2ea62dc20b73b160868329182f7d08ae39fc5fc1abf1a86f50676ca765d3",
+      "reviewed_by_class": 10,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c162e66ab6c2fda300e0c5ee778eff7dbbd529c095ccb9d606ad0c5de3e8a0e7",
+        "bb3770121e589df9bc2b8c6fe732c9f2ca99c3643b1b73db33c04a7ede337b6e"
+      ]
+    },
+    {
+      "file": "classes/class_12.md",
+      "previous_sha256": "e8c5a4f2066ae0c4da81eba35093fed8cf05070cfe23b456757c1b56bffc2783",
+      "current_sha256": "eb61d142a4609a86120dbc3e1fadc5ec546625021c61caedb915bd080f0f8b7f",
+      "reviewed_by_class": 13,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "2066a2e159321e057f0f0ea3dff0948fdf8cf21da30b88f45b8b3179b63eb967",
+        "c3662d146fbefc08d5fd842fa267e15f46d7d9ebafead880e0a46fa600f7bb1f"
+      ]
+    },
+    {
+      "file": "workload_class_12.json",
+      "previous_sha256": "87fbe26b30a760fa18a7ee69496ea33de5cfbc43f11f1670adc53dc105ed00bf",
+      "current_sha256": "075707a4b3b8b41d2a9b08b43c3c002b33ad7f1f3a3eb1d4184b40572a611b96",
+      "reviewed_by_class": 13,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "f286a8e8ad9a40009cd77baf968710aa2778ede97ac87e4c81b3f2f5fe091ba0",
+        "ebbdfb6c28d6df410ef169f256c42680ae88b864b0da2fd9a3460f2eeb143199"
+      ]
+    },
+    {
+      "file": "classes/class_15.md",
+      "previous_sha256": "4706bf5a1785c2e874dffbc5b38b4dfbd0272942bb0916c66d2aeb72e7a1664d",
+      "current_sha256": "8ec2994846dc2921de5d5bb380d0f3f66972221d210948a4c2eba7e170ab6599",
+      "reviewed_by_class": 16,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "e7bc3cb5f3f80b3566e5fcce306dacb7519c0dd7c0e1c7f4936132a69661bfe7",
+        "47d6a82e9c32fc5426178cbeb4f36723426e298bb19bec0b020980904dcb2246"
+      ]
+    },
+    {
+      "file": "workload_class_15.json",
+      "previous_sha256": "b4c832754d8d9e2e23de471c0e40f7ff724384477b4c4e9b2a72b7ccc7b69b7e",
+      "current_sha256": "96a5990058ab14a2608a267f557515055bc786956793106e425cf7ad0a35bc88",
+      "reviewed_by_class": 16,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "b671fc3fa544e968a23dd02af83bf40d5e7fbdf27c68656a925c7e6c0a8f9601",
+        "b2c5f25506c6bf6e0b5223d57783500fd119d3309ecd550277a0a5bfea3e0575"
+      ]
+    },
+    {
+      "file": "classes/class_18.md",
+      "previous_sha256": "29cabe0293ebaaa7d8812807a2bfdf362c40582df34a1d81224f01cc0dbf3479",
+      "current_sha256": "c2a4bca058bbe35e8ea0c201bbb1b0dc2ec9f948ecf3eadbd9ca464d1eddaa71",
+      "reviewed_by_class": 19,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "3262b8b985dab8aad77de1e8ea584b5def9c00bc9f2b0f95470d3340383c76ea",
+        "c1a6e7907d71c8e9c6483b64842558906954a4e4f3b5b6f171757c17cf1f83df"
+      ]
+    },
+    {
+      "file": "workload_class_18.json",
+      "previous_sha256": "1c0b3b4e648808e1e89de6774232b535ef6d33d7920f9c75db078785e23f498c",
+      "current_sha256": "c54d5bcd4b3bb81fcdefd9a6b5fba790545d188cf4b89766cae11c21f99c10be",
+      "reviewed_by_class": 19,
+      "reason": "Before authoring Class 22, relevance audit revised the C-lesson primary effort to lead with its actual lower hip-turn/plant and upper rotational endpoint, explicitly assigning supporting roles to the linear force tasks. Exercises, doses, timing and workload are unchanged. Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "336d54b06c256b11cac0191a45429dd455f71f9ae43987ed4847f777d03caf57",
+        "bba57aae92a3ffa899c1a44f891ec68a740c6f75444afc2e3fe36c4ecbea4cae"
+      ]
+    },
+    {
+      "file": "audits/class_01_audit.md",
+      "previous_sha256": "c57e539334bfa33c0100863579cb7454dcc8fbbddf8164040af3f4192f834093",
+      "current_sha256": "a7a9bb559c119ce87905441bc86f2c09fe896d8979a471747067077ad6ebcd4c",
+      "reviewed_by_class": 2,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "46ba2ac3615e66404338feaf770631cca43460d858ca4561af54e69b07ce881c"
+      ]
+    },
+    {
+      "file": "audits/class_02_audit.md",
+      "previous_sha256": "131327c5b763a923508a2328147e282f91517514a79a96ae00052d0fc8b630c8",
+      "current_sha256": "ef8e6b9e05b100c70eff171edb338837382879fd5422e689a68ca9b7122036bd",
+      "reviewed_by_class": 3,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "31bc4040b8a20e42d68141df946db79c53bb6b7a6cf52bc06ae3bf5e1d142c53"
+      ]
+    },
+    {
+      "file": "audits/class_03_audit.md",
+      "previous_sha256": "9c68b96e2e75068b04c4370f4a86707927a108ab1313d7b70833b451e5bfbf82",
+      "current_sha256": "bd6d3b20fce6d1f92ca68c84acae08ca4fdb39fa0f81a2039502f7247d2f19e2",
+      "reviewed_by_class": 4,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "9bf3c3334b3dee972f60b2f21ca526ea3bf9b878068f7a1123376493b70a3979"
+      ]
+    },
+    {
+      "file": "classes/class_04.md",
+      "previous_sha256": "28d4a71ae581d41b53dcc643c758c616add155e00afc7edfe854ca9cdea29735",
+      "current_sha256": "a2223d48e77fe7184c49c46cebc23bbe4db6414e710ab9351cfc6740ed1a7b3c",
+      "reviewed_by_class": 5,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "e0d69cdc36ee117be8b5ffd449e86b1b7ec774187af72210f2d9a282a257dc0d"
+      ]
+    },
+    {
+      "file": "workload_class_04.json",
+      "previous_sha256": "eda1973900d6a7ea82750978e185637daa4ec32b7dccad0634d17fce2f2b79c8",
+      "current_sha256": "2ac88d4e964ffff8c09d3c4816943434affd932efca0b90a0901a31ffe43386f",
+      "reviewed_by_class": 5,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "ba7976bc36ce176b5a8539f611b9eb2bb3e816631bc64dda5c7e16a51875261c"
+      ]
+    },
+    {
+      "file": "audits/class_04_audit.md",
+      "previous_sha256": "f1d373d30d8d3284bb4535b11229af5c8c2532a84486f65526fe906fb30f6210",
+      "current_sha256": "e1820e474ad176a8cab43e4974014070c4a061133e8a36d7ed43b0a8536b87a9",
+      "reviewed_by_class": 5,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "24aedb2e5b60aa890d984af7e0d43d6437537cf0dc3d581d5549140e477c5420"
+      ]
+    },
+    {
+      "file": "classes/class_05.md",
+      "previous_sha256": "f5adf4caed955ba954dd0e99cd01f202c8f30a78ac12d059d65818991b35aa9d",
+      "current_sha256": "e7daecba4b2c0610a88d0108f6851c3bb65403aac429792e18a9a412a307c9dd",
+      "reviewed_by_class": 6,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "917ec37851f5ffcc32eaa7288347792ec410089508e4e30f83b065f5dd69bf3f"
+      ]
+    },
+    {
+      "file": "workload_class_05.json",
+      "previous_sha256": "70b62bb39fa031fa56a37050f8eb9389825643fb0c6c63f90371e1de5a6141e4",
+      "current_sha256": "326e9a3123d96119b6ce99e5fd173ff485c6b208f44285bfe8458215bbd2cc34",
+      "reviewed_by_class": 6,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "f66db4cc5bb8b30168f0bad8699f38b823d455a9feac13df1b442595202c0a5b"
+      ]
+    },
+    {
+      "file": "audits/class_05_audit.md",
+      "previous_sha256": "4fe6408acc454998cc1df6b5d38398b0fd101c629b3a6ebe699055d628dc607b",
+      "current_sha256": "c39a70063e6dde34edfc3b38ea3284cc34a075fe3150d3f1505eb0fcf1243bea",
+      "reviewed_by_class": 6,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "2585da3cb7d0b0f2fdd2c1d52ebcd172866231d53128d50c397a16479976378e"
+      ]
+    },
+    {
+      "file": "audits/class_06_audit.md",
+      "previous_sha256": "a08c07956dc1e361fdfa676abd1c3f401b2ba67621346431c1ce7b73f3051ff3",
+      "current_sha256": "19b5f57b9d22c986f25828644115185fed05befc6feb6801f4c6bf133e2aeb60",
+      "reviewed_by_class": 7,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "8c6de321965f437c8178ee2cc76f3ec49a1b98fcbffbaaa11c5e5e1b46a515fa"
+      ]
+    },
+    {
+      "file": "classes/class_07.md",
+      "previous_sha256": "07e66ca1d58862ee38cbbcd456fcafaa55e311625750ad04e651077668c354cf",
+      "current_sha256": "c553c7162610ef3616cf51fbc0a42ed1b866523409d6bd619286d2c194baaf4c",
+      "reviewed_by_class": 8,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "e610738f550b6dc717a359da5c7de4281ee946f82ee4622ea3e60e6bc9f9ab84"
+      ]
+    },
+    {
+      "file": "workload_class_07.json",
+      "previous_sha256": "4d5261c737e56a91a2ee9604249d75002a0c532a502cfdf38c23e3be029e51a0",
+      "current_sha256": "35926eca7856c42b665e190b00f296e2164e8dc6fedfc54ca3a76fc3e5974a66",
+      "reviewed_by_class": 8,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "6ae11ac30188bd7113ab7be5232451d45c6b492dd8351104623abead2c4116a2"
+      ]
+    },
+    {
+      "file": "audits/class_07_audit.md",
+      "previous_sha256": "7f5cd9d5a3f920f8b175f75b6ffb7b2cd82d42ebacc710e584ef3a291486e7ce",
+      "current_sha256": "b857cbd4453b20c20bce8929267caeaf0f92dee595802987a546f4151cb9302c",
+      "reviewed_by_class": 8,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "44f44ac41c2fbf28b66e6e55dcd48ac810dda0153ad57f749343b5c0021aa14e"
+      ]
+    },
+    {
+      "file": "classes/class_08.md",
+      "previous_sha256": "57f77c4ab86b3b461a7c593834429da54355b66028d4b3f7c2eba01c84ae2953",
+      "current_sha256": "76876382e1b6580fff04aa33e5f242430dcb1a4b5c3a92d2860e724a362b1e2a",
+      "reviewed_by_class": 9,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d234b724bd8bdd8e4bf767eb7fe258fbb594977ed23efb3cf9293756c46f4d99"
+      ]
+    },
+    {
+      "file": "workload_class_08.json",
+      "previous_sha256": "2947b161cfa33b61ee5fa66c7f3638daba691fed7bfd57b39c1b68bf4d084669",
+      "current_sha256": "d79dc286a7059a8ab66f097fa1070e31c9fa31bab741e0da1d6f47fd38c84f9f",
+      "reviewed_by_class": 9,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "8aedf36a38a0f818bc8c4f6c9057dc05240d980bd439bd1951418425c9ab23c1"
+      ]
+    },
+    {
+      "file": "audits/class_08_audit.md",
+      "previous_sha256": "6ac14b3152f9e343b6074d28e835b2c06aaaa800aafaca6616eda33bab21e6de",
+      "current_sha256": "f2c60f6849a31158df10bcbbec814354203962494fa47539e6034742f6c71497",
+      "reviewed_by_class": 9,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "95c25d348e3b009423975ac4ce0905d3e9c0f378c3b320ba15f5b84a4c1c996e"
+      ]
+    },
+    {
+      "file": "audits/class_09_audit.md",
+      "previous_sha256": "47e6a94afd392f3637bd26870b6766c053f6246fe058477324ccfab18c9af841",
+      "current_sha256": "e0ab8fa83229eaf2803c53cfe19c623fa249702c943e46158476376697099c1c",
+      "reviewed_by_class": 10,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c3b9a842b5224760197307493aba58b605c13cfd22eb5032cb84064d41e0b255"
+      ]
+    },
+    {
+      "file": "classes/class_10.md",
+      "previous_sha256": "1109e59149ea01a110704b5b7fb43c02d168e56b46dc7da1d89d817c9025b6c6",
+      "current_sha256": "b46c4a08cb289c5494dfa0b8b4d532807c10e11babcd7bd8a8154dc5dac749e1",
+      "reviewed_by_class": 11,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "53a1f386d16f2957a17ad22ebd97fb780d03d581ff2d2f4e97d0ee7973c6c0a8"
+      ]
+    },
+    {
+      "file": "workload_class_10.json",
+      "previous_sha256": "b6a67dcf2b2a249addd7293991fedd0b8133b754ad94edc37cb657cf14b306ff",
+      "current_sha256": "822068f1532b3809ef1b8646971292f67aa5b3d189de43ce6a21f9605ffc5ddf",
+      "reviewed_by_class": 11,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "7f27b4d636a5df527bb8015437477fdc89e88cef0715cdf1276e52625aabe687"
+      ]
+    },
+    {
+      "file": "audits/class_10_audit.md",
+      "previous_sha256": "e26dae17d6a3406a45aa3c58ff85c7a28946bbb16292b1839169dce453f570dc",
+      "current_sha256": "de8fe43b40e4da07509576dd4bce44b515d3f34042951cdd4bf3986030850171",
+      "reviewed_by_class": 11,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d6ae9838b35434cbe4566d91ae61fd0da8fabec5d79c452f2869fa983489b832"
+      ]
+    },
+    {
+      "file": "classes/class_11.md",
+      "previous_sha256": "ec9230cc5654e8d91efa467366f6d084056a2cc1893ae67d188eaacbdee93bd4",
+      "current_sha256": "4f50c1ebd875eb117ef0f70a028ebd3c21fc38cad363bcc6db6576f783f5b0ea",
+      "reviewed_by_class": 12,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c87076cb4917fbc0b901dda313bc8fad9a717712341567a376c116a67232dd69"
+      ]
+    },
+    {
+      "file": "workload_class_11.json",
+      "previous_sha256": "8d2bd12d6e315eacff568ef012adbaa7ae443abbaac9706d3bba1e85c9e49f5e",
+      "current_sha256": "275ac5d6f380e15cbd083bb19728543958bbfe33699c27c601626118e9ef05ae",
+      "reviewed_by_class": 12,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "82dcd5b6271a661a04831ce70e5548d826d1ddacdd80fb71eca4b3d2c604e96d"
+      ]
+    },
+    {
+      "file": "audits/class_11_audit.md",
+      "previous_sha256": "7ade1933cb06343fe7cf90f2e277872d101ecf9d4322412209df695b8365f431",
+      "current_sha256": "85a9901ae7fc02c1a62d8a8f0f0afacae340a7b96e4051a5852f8282692a2fa6",
+      "reviewed_by_class": 12,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "92ce665d978585c6a54437bde8224c85297e31da6027b69775957ce710614792"
+      ]
+    },
+    {
+      "file": "audits/class_12_audit.md",
+      "previous_sha256": "e8e47b13666edbf5dfdeb2e7d7d9348b8baa9fb02a45e9c2e3863204a0cad45e",
+      "current_sha256": "07acd0d1af0e52fdfaf001a242eee788ad25a361c7d564247230f523497ab87d",
+      "reviewed_by_class": 13,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "2f7f9c1033a534c6439f3b6de6b912e15d8e0f7751ed90e018ace39dd14692fd"
+      ]
+    },
+    {
+      "file": "classes/class_13.md",
+      "previous_sha256": "12985b4597dd6390738cd1136bf64b1a333097a215b62c5c2f2a3ab123ba7f67",
+      "current_sha256": "426a0bbbbe32b09657a567bc3aa44bc4763ad6081db8e10b9f3ba2a1f34febeb",
+      "reviewed_by_class": 14,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "af53d7afe2b3a81a9b6ed0150360f86b40926547297b0e8158d4676115b6f9c3"
+      ]
+    },
+    {
+      "file": "workload_class_13.json",
+      "previous_sha256": "ea26f643d31148809e6168d70a68c22e49fe8764fa17422515653b8617638c0c",
+      "current_sha256": "766191b0af5ad89ccedc5190f1d0b68b5aeafed0f58f0a3597783bd061ffdf57",
+      "reviewed_by_class": 14,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "ab9c5a24274c8d42a2000a23283ef6d51bfbc08d9f868b4c189c4626afe44dfb"
+      ]
+    },
+    {
+      "file": "audits/class_13_audit.md",
+      "previous_sha256": "4175019f9e861774244818694d95b384def71cee51722ea87ced29cabb12eec1",
+      "current_sha256": "47856ecaa1f7f392959e620379f0c6251d4e2f532ed4be8f9d709eb7e428553d",
+      "reviewed_by_class": 14,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d78c9529c539a8d69e7f6e8f30d184be7b15fab4d9f666301c8c4d5a6271942a"
+      ]
+    },
+    {
+      "file": "classes/class_14.md",
+      "previous_sha256": "fc6bd23a543ac490f200c1859343ace29b29b437f251cacdc6f79e638e4c8ac5",
+      "current_sha256": "7f4d25fd439e2fa64b5ef7810e832e5b1a7dc1e089d7cf9e419e50c59448574f",
+      "reviewed_by_class": 15,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "3752afd3b4e909d6a5c6d77ac1d7c1d33cc9ec31fe84e6ed23e158c7c0f5827b"
+      ]
+    },
+    {
+      "file": "workload_class_14.json",
+      "previous_sha256": "dd3d62caa25efd1178006395bf7c3db6a03e14ad51e04ba30288086409a823be",
+      "current_sha256": "6f6dd2739033bb5aca982a188239870acb3ad6b01437f30d1883be216bb8dd3e",
+      "reviewed_by_class": 15,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d178722f283989af26866d80c007807a72176aa723cbccdd9540e60cff82d9cf"
+      ]
+    },
+    {
+      "file": "audits/class_14_audit.md",
+      "previous_sha256": "261f583cbfdcede8ad0fbb406e89269fe510de1e497dede1ddcb82df0c201fb7",
+      "current_sha256": "64c4f0b1b48f746a6ec51566239a8f472cdee619523add6e8ceb2ba278ac5383",
+      "reviewed_by_class": 15,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c998762860f08cd230f2fd18f9a898bf13b06c2665422cc61f205727b2d3fb0a"
+      ]
+    },
+    {
+      "file": "audits/class_15_audit.md",
+      "previous_sha256": "8650eb82b870bdac094f242cca0030a8d80c18e10cec00fdf367f3dbf8be585c",
+      "current_sha256": "aa5da0ff43990208e19fb1d70ec00eee61825f58515d31d2e7e50d5732abc97b",
+      "reviewed_by_class": 16,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "c469fe636b14ce0d96aea42e304cf8f66155166620390862f94df7616bf9a6ac"
+      ]
+    },
+    {
+      "file": "classes/class_16.md",
+      "previous_sha256": "8864361a43a850cc6c29e4baa97ad564c3837455d34a1c495f54cc5e3c19395c",
+      "current_sha256": "6a3b3c58280cea992c94157ba6cf5bac2606ec11c61d162078a46e4070463fff",
+      "reviewed_by_class": 17,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "26dce7aa7c9e62ba35564a1cf02275f086911dcaf35c7f8b30eba08c76c483ff"
+      ]
+    },
+    {
+      "file": "workload_class_16.json",
+      "previous_sha256": "fdc05a6168a918c627346e424be273b22897c76cdc25d7161cfa0b15631de87b",
+      "current_sha256": "32401863dfe3910f269873ee232c27eedb071d95aef5b4bcfa128d16fb3136a8",
+      "reviewed_by_class": 17,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "b8b5fed9164cfe9c5b6bbfc28c7dd9e5cccc21e68dc0ddbe295db9869e9ed027"
+      ]
+    },
+    {
+      "file": "audits/class_16_audit.md",
+      "previous_sha256": "49564b1452dd7b4ff8993b80a8fc057187f683cc7dfe5f29ef3e12d308ea7849",
+      "current_sha256": "f6ec339a7bea2ef32ee3df3cfc28cecee5a4ac577f06023df214e7a1e49ed263",
+      "reviewed_by_class": 17,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "3532dd9a348cff06dc740e98e1b8380f93697c6985585a1df61b267b71e54e29"
+      ]
+    },
+    {
+      "file": "classes/class_17.md",
+      "previous_sha256": "b9916f2baf1645fa2e574e09e3427a5edb838a49ea227139757f4df365e83542",
+      "current_sha256": "7f3cbdd64aa133aac07293119f063d73e0cb4277871a19a4d7b2057cc24442ae",
+      "reviewed_by_class": 18,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "75f67c3e2cd91ed87a6ec6d382b9d261427f1b6df723e2a0435ab993700d4bf9"
+      ]
+    },
+    {
+      "file": "workload_class_17.json",
+      "previous_sha256": "9f140255522fc5cf959848576d78c56279f4a397e1a7ed37079d999f2f2f0319",
+      "current_sha256": "9b8c589eddab4bd9c95a3c734e17f678d1bc6c666f0ac71d2fc6811b844b7c28",
+      "reviewed_by_class": 18,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "a8d36bdacfa556059071924fbab6a32144f10594e87bfa825f9978eca4fa3e10"
+      ]
+    },
+    {
+      "file": "audits/class_17_audit.md",
+      "previous_sha256": "52bd9c61d05e1a422eb58a0cd3cf3534a6bd8932fb6afcde1c1e4461c4e0a320",
+      "current_sha256": "9025e96ef39973fd2bf7e15def72231fb57090804deea136536494bcece4b484",
+      "reviewed_by_class": 18,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "6b9559961f17cee5a5ada6bacf4bcfe750354b8d25b22a3c2ba5c848b0631a1c"
+      ]
+    },
+    {
+      "file": "audits/class_18_audit.md",
+      "previous_sha256": "19ba6bee84eaf3f4d3fe850cebd6aeaf03bafa1f3e2d97b1f4e580550d63f3bc",
+      "current_sha256": "025074123639746b1283a3b06102733dbfe600b1a68b21f013c80460b68624da",
+      "reviewed_by_class": 19,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "4c0816bddc8a44271b4e49cb4703bab1bd2c12c5c31d52528c4e430727251fb5"
+      ]
+    },
+    {
+      "file": "classes/class_19.md",
+      "previous_sha256": "2e06f99713d3607e2a0f7bf8783fc898df71d99c06b12032977a05db407fe5d8",
+      "current_sha256": "1d59bb94ccf6842aed707c13f2b3e1af5e8de7f96341b6df27cd038815b522ce",
+      "reviewed_by_class": 20,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "bf39e254a92c4ccdf6162624210025d74ae462e1e892f3a0230bcb0f4e6369b5"
+      ]
+    },
+    {
+      "file": "workload_class_19.json",
+      "previous_sha256": "f10d5e423b4321cf324b0700056af26a81c708536d6f78c514fee7b40538cdd1",
+      "current_sha256": "5a2c72dbfa6f8c964c56a68af42f2733c1f0cf6457ea67d1b4592a274f685079",
+      "reviewed_by_class": 20,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "7a54a05a6f3de35ecd89bd39cdbdb59c4dcfd00d190fd6fb080cb98d09e18a77"
+      ]
+    },
+    {
+      "file": "audits/class_19_audit.md",
+      "previous_sha256": "2fd4282cb036c69c9d63fcb040f6b1259be078d582324a56954325da4f4292c4",
+      "current_sha256": "660a7f5ad128f29fe02645ff6f7bcf2d54e4c518eabd36a5725646ac73273e2f",
+      "reviewed_by_class": 20,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "de71bd1257f12896a6698264e9610b9249c4d78f304481e392ec9f7315b3c8f9"
+      ]
+    },
+    {
+      "file": "classes/class_20.md",
+      "previous_sha256": "06ca424671cb3dfd5ff0f673513412f64c037b8c043bb20c959ea73551d4b48e",
+      "current_sha256": "1aa1fb6ffaa2a1fda6d351c09dd25797e7317b4aa475eee91cc65690059dae72",
+      "reviewed_by_class": 21,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "65dee9b983abe74e25bba99a8982e12556db44147b02dad11987cbace698f8fb"
+      ]
+    },
+    {
+      "file": "workload_class_20.json",
+      "previous_sha256": "36f52f6bcb3c3a88d0e9b18d8472a9f6b913d853a1c3162787268872c8a917b7",
+      "current_sha256": "5233e55477663a82f4a5a3c9ddbef2d5f2751c70bc0d396994806d26a2f0d6dc",
+      "reviewed_by_class": 21,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "3b90d4654f0b4457b8d12d172282c8f8ce0e81bdc0deb6271dfdccab17d7d3ac"
+      ]
+    },
+    {
+      "file": "audits/class_20_audit.md",
+      "previous_sha256": "376d1d7d4f63bcdbd5f2e134a70ed892a22cf530a71c3b3e8f1b3da01175d84f",
+      "current_sha256": "aa36fde6b69cbb98a6c3a86e5331324e45322360d49094d1b604bd297df6aa63",
+      "reviewed_by_class": 21,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "94cf76c68bd5ca73e5d130bda7628d241b24767612b6a9f831e91e8d63000382"
+      ]
+    },
+    {
+      "file": "classes/class_21.md",
+      "previous_sha256": "70ab72d0da58d861e9e9b752fb80fc30f2010bac4f4d00bc3e7584799bf71f6b",
+      "current_sha256": "8fa23f079fa3b129603b0964a3dbb716806b89a0967245f4f0cfc0dd4930acf4",
+      "reviewed_by_class": 22,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d26c184e18641845dc075015a018cbb19b685071d152c1b8564224885a610450"
+      ]
+    },
+    {
+      "file": "workload_class_21.json",
+      "previous_sha256": "d34226211fb6a5a28fd306aa530af590be344c2fbb2415747fe56f43e21449c9",
+      "current_sha256": "ab49ecfc2eed37da4db1e9111617a77a1c542f39ed6c3e148952ed90079b236f",
+      "reviewed_by_class": 22,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "b75c85c750d55d418a73e24b64151a5187fcfe3e3a72adfd77c811de0cc609cd"
+      ]
+    },
+    {
+      "file": "audits/class_21_audit.md",
+      "previous_sha256": "e6084b20d2d7fd114d7b1b5a6ca8b35127f91a5859f817b05365ddd46e778969",
+      "current_sha256": "f0c3b04266fd93ade8d4a71c92b2366dbb95cab4417be75111edb3ecdcc97cd6",
+      "reviewed_by_class": 22,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d0b50097da05359dae07afe49a624bb4be3d09786e29b4c6974936a02e74c3b8"
+      ]
+    },
+    {
+      "file": "classes/class_22.md",
+      "previous_sha256": "dc8155a9905e42ffdc2a2e7ce86e1f693ca86a3c782a10edc67c1601f0d69d57",
+      "current_sha256": "fc2dcfc5a92a2091cb04c6b3dd2d97b310396107728dbc2351898c96994e1bd7",
+      "reviewed_by_class": 23,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "47f126207091ce9fcf3bc9c33788f88ea82129d61ff83988caf345a43f337eb0"
+      ]
+    },
+    {
+      "file": "workload_class_22.json",
+      "previous_sha256": "f8bf11817de597ec1c12a3c51ec82b78459ebbed3ce780de83b4065343635f06",
+      "current_sha256": "1762a44e8af5079ef6d8f7b98a19f3055fa19ea989ec82efa4cbf1d1c47ec2b8",
+      "reviewed_by_class": 23,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "59241a06e904934f83ca90fe548c758058a6a345254d785defce305319a0212d"
+      ]
+    },
+    {
+      "file": "audits/class_22_audit.md",
+      "previous_sha256": "e77d247c80a09af4a02f5c7081883343b463e87bf53f12ce1b6167f227a71291",
+      "current_sha256": "65e6b1cc7847efff8ad0fc6bb050d1bb95a81d73b94b8b37b2500b5990b3b6e7",
+      "reviewed_by_class": 23,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "71f63cd49550945a0c72ca21a766d734810e78941128880d2342bb4b9da25bbc"
+      ]
+    },
+    {
+      "file": "classes/class_23.md",
+      "previous_sha256": "b566b46c86a6aa1d6d638340dbf161ffaf3226c49d6d82c29ef6bcd16bc1b00e",
+      "current_sha256": "c7c85a00e0dc64287294e0883b26695e7103e3d33f0427640626d28ebe628d3c",
+      "reviewed_by_class": 24,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "f764f46256ba970e2597be7914322a9e0bf97ab570abde7e1ceeba90dab3b06e"
+      ]
+    },
+    {
+      "file": "workload_class_23.json",
+      "previous_sha256": "3532c12c2ceb86229ee53312285782f955ac7189f5d3409a13d54840f7825628",
+      "current_sha256": "56415a7fbef87fe4d8cfa7a7f686913de3841f0b3de0201245faf6a3052f9d0f",
+      "reviewed_by_class": 24,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "ad79d973926e1af566cb4dcf2f1adf1010ae9afdd09c26f604e0ca1cd5a6466c"
+      ]
+    },
+    {
+      "file": "audits/class_23_audit.md",
+      "previous_sha256": "57d36b0aada50b39958b4874d2dd6b297242d1e5a2edee525b6a90ed5db824a9",
+      "current_sha256": "824c474d49f82b737b2e4b7759d1253ef75a3f7acce593f442f800d3ef3f99b5",
+      "reviewed_by_class": 24,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "b1433911e04c7c391c667fdb214c66ae9fecec6668e2a694522a8f9cdefff022"
+      ]
+    },
+    {
+      "file": "classes/class_24.md",
+      "previous_sha256": "df16baf95836d600abffe09caa264d2bcb677a2826a7224f690ccad7fb87db5e",
+      "current_sha256": "2d7fce08e7cd96550b8489a64f6ada13bef1cff4facff0838869832c0f6ccce9",
+      "reviewed_by_class": 25,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "484852f424a7845620d8e14c87b5b0a5efa27fa7e9ac45e6f873bc0252ce8fe7"
+      ]
+    },
+    {
+      "file": "workload_class_24.json",
+      "previous_sha256": "831c5fe6249286979029fa2461adbe411cb70b12b99a7c373baf0f57dfa055c2",
+      "current_sha256": "014d956d09045e01d0455bb425839562c9c652afef22e3042558553ac11810cf",
+      "reviewed_by_class": 25,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "9b74f9f76ffe2e471786d466b75478fbf9838db4c4a867956d548f1fa9433be5"
+      ]
+    },
+    {
+      "file": "audits/class_24_audit.md",
+      "previous_sha256": "a07b341f6d66d7033fb8d3b0205dd21af1bc6604ea268f85794e884f9335bf27",
+      "current_sha256": "9f9d5de121b0ca863852f493d319e6267a506f9f9dd2dff620c40bba31ef9c06",
+      "reviewed_by_class": 25,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "a31148577ade70e73558a781f22fbbd8893a93a041668208cabb12d6c28f4000"
+      ]
+    },
+    {
+      "file": "classes/class_25.md",
+      "previous_sha256": "098661510ccff2b2e86dbe315112350c5b5d43bc95aa1bc8118125a1c683e766",
+      "current_sha256": "abb2ed11bd021cdfb45ae4fbb0cb8387067e9f7d05457520863086d92af5d1c6",
+      "reviewed_by_class": 26,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "9ce960a91b2fc458ac695231f78484902681b17b837d783234f17e5cc0fd94c0"
+      ]
+    },
+    {
+      "file": "workload_class_25.json",
+      "previous_sha256": "cacd728e5bc2a54c33231e4905a7be9de3bf63b665ab42ea5c8c7622962db19d",
+      "current_sha256": "5622be1cf0cb5295b81342785b64f351a2a06163b2453fb3abe3dc176e9cb9ff",
+      "reviewed_by_class": 26,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "f8fd813f5bae03b26b5263e99ab9bc9fddfea525574e357c7da8e8fc3eeb96df"
+      ]
+    },
+    {
+      "file": "audits/class_25_audit.md",
+      "previous_sha256": "32c0729594b6dd2fd2b544b12550e7f27994c9166181d76d84c8ceb7b0af17cb",
+      "current_sha256": "d9da6b5764fa90a2b4470d5fabc7b22fb11fb6b5d2c5ef537d8614033da8337a",
+      "reviewed_by_class": 26,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "3e782f2f0f79a65409608893fe59b11b179181ada770008f69a4adbce42d5b2b"
+      ]
+    },
+    {
+      "file": "classes/class_26.md",
+      "previous_sha256": "d460b2138a154e0a23da04b1e80954402b5364541ea1f60087a2feb03b10d146",
+      "current_sha256": "76b65ec529b2fd7894f6a6ad196bcd1a5e0734306fe4ab2f2fa52140f8916a5b",
+      "reviewed_by_class": 27,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "19015649f5e53d24b67c525f40720e75b313468d3e32f1471925427bf7eec042"
+      ]
+    },
+    {
+      "file": "workload_class_26.json",
+      "previous_sha256": "3604700018119bfcd78c97dcfc6d658eef508bcbba521c8329b6aff866e13d0f",
+      "current_sha256": "879fd72c173b22fc6d24ceedff7c869808bc7b86902b9a5c79fdc12262e534b5",
+      "reviewed_by_class": 27,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "19657896d245a0007c36050dca85274cfbcca2e641e7fad62492217f049f478f"
+      ]
+    },
+    {
+      "file": "audits/class_26_audit.md",
+      "previous_sha256": "1bfe06691f37a771e8c5557483b508edbe3e63cb1d70274e7d5c4ac46b733c4b",
+      "current_sha256": "c78c331b5ae9b0991d8d6cfec57988a0a0f8882bf5bdfc9e2f4e40c4335dd136",
+      "reviewed_by_class": 27,
+      "reason": "Before Class 28, the sequence audit clarified source-force-only step counters and reconciled legacy slam/throw event conventions using explicitly named source aliases and separate nonrotational/rotational slam subsets. Prescribed exercises, doses, ball-release totals, landings and clocks are unchanged. At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged.",
+      "intermediate_sha256": [
+        "d7a6309baae9de758c57af31de08c01e2c059878e76ee1ea58e240855dba659b"
+      ]
+    },
+    {
+      "file": "classes/class_27.md",
+      "previous_sha256": "0ad89f1acb690176693ac5bc4adf00ff87d7dcc1e4b55947fe1fadcf887a3659",
+      "current_sha256": "71c4bf9d3f48ac7716c1c1c674078bb79bcb7423d3ccd044156ad28ba39117f6",
+      "reviewed_by_class": 28,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_27.json",
+      "previous_sha256": "5b24d3543ff512d11ffb5393e3d9407d69d0a1884f155038a3e346257ec10bd8",
+      "current_sha256": "39b6c2f919c7ced4fb1e4ccbdf1538e09fa6f88228d545660ce2d443aa8eecc5",
+      "reviewed_by_class": 28,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_27_audit.md",
+      "previous_sha256": "5fecc0e2cf5e7f963d43120db08a4e8d32fc6fc8bfcc1c9ed19a2aa6aa800145",
+      "current_sha256": "82770f01457d27dc0c7a114175d89cd82024bebe1b4c69e87d0007def0cb5507",
+      "reviewed_by_class": 28,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_28.md",
+      "previous_sha256": "5b2b425bce097c4a7a1815d4ce90120fcc5611d3b325dd5d7758fd2a7af71673",
+      "current_sha256": "1bd36d1e78a86bc5df84caeef1d8e3f679fcb29281f3df08844f18ec168cb4e6",
+      "reviewed_by_class": 29,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_28.json",
+      "previous_sha256": "0ce5d04c7d0a8489c912d35ce310f279f3307e2a6359a321f92a026fdb56ab86",
+      "current_sha256": "634f2ed7b6308cbf8b031b6de176c162eac987b70791f1a855515d7660ff41bc",
+      "reviewed_by_class": 29,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_28_audit.md",
+      "previous_sha256": "fb4eb5a1a4f6ea8d40505e220c8d08e8d5562110364ff7fca5cf358507c0259a",
+      "current_sha256": "295fccfe32664a17b616020ba15a247aeec9dd57d5d293e3517466095587456c",
+      "reviewed_by_class": 29,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_29.md",
+      "previous_sha256": "c4ad94047a7e1cad28adb7a9ccb3fa1807c77685faea0455468fc61ddab56dd6",
+      "current_sha256": "0113dcc4d822b745618fdca5200005b2f7d33cf5cefa4ec987075caacfe0c553",
+      "reviewed_by_class": 30,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_29.json",
+      "previous_sha256": "76ded32d6120cc54fb5b515b411b727b42ccb5ce9b57f933e4216a385dc4bdc8",
+      "current_sha256": "0fcff0ffd4ecd2afc3272913345761a443e663769c402e8a41794f489b56b1d6",
+      "reviewed_by_class": 30,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_29_audit.md",
+      "previous_sha256": "fc9c47a3e82176aa025cb4729ab842bb0f5664524fcaf79de8f3676b14742c94",
+      "current_sha256": "3305333268a47fa6c68b7f524946bbb5cf835609b32f2858535c1be4b660f970",
+      "reviewed_by_class": 30,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_30.md",
+      "previous_sha256": "d0fe3c257c6bcc270bb2415a83008169cff4d7e2fadc08ec79f4ca2979fc3f05",
+      "current_sha256": "c994e7db82e2f87402cf73091012011ea6800ac248d41342714223ef31c03b1f",
+      "reviewed_by_class": 31,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_30.json",
+      "previous_sha256": "fcaf52e2760f7a3c1fdf93c004bbfd560824f47c8b80cff87fd5dc82945f1432",
+      "current_sha256": "67dbf6a69d58849c763f58bfc91209ec4eda6dba53fe3c1b20059ecd224ff33b",
+      "reviewed_by_class": 31,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_30_audit.md",
+      "previous_sha256": "58e42a15941f5628ffeff04c34fb6a240b3458e7d38c29ed8dad38df0baf2a02",
+      "current_sha256": "dbd911f7ad23fb0af52824b92fa3391a6364fc145e60f07b703bf5fefd5c489f",
+      "reviewed_by_class": 31,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_31.md",
+      "previous_sha256": "cd1cf5cbec90d8fdd1860cefff412f5936b3aed0a93611998ffd0ce934eb33dd",
+      "current_sha256": "891f1252001133e2863ff9d7dfff83642354cb1c078cca09a8f5c7ff2af2894a",
+      "reviewed_by_class": 32,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_31.json",
+      "previous_sha256": "dd1c2b5291c25ccae1c3631bd816f752679c78c42c509a12bfa8f4bc4998de43",
+      "current_sha256": "5388b3fb9808252af5e6c01ed064fe54d73f19f27e1aae5e7c5e54ccbe708d4f",
+      "reviewed_by_class": 32,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_31_audit.md",
+      "previous_sha256": "ebbab4c45d941943ba77902f072744960b559f10c0fc66065b25c3d21700888d",
+      "current_sha256": "b5dae3160619525195007e9e2268ec5c8b39859eee9c1081129e0bddcc4fcff6",
+      "reviewed_by_class": 32,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_32.md",
+      "previous_sha256": "fa3d991446f1c798ee2c77d4d436c6e44b738fababeb025b76c2e170f1a7cede",
+      "current_sha256": "5150f0e7e479c9e7a1a70dec027e9cb36244c35fc117d7dcda212409e1b90867",
+      "reviewed_by_class": 33,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_32.json",
+      "previous_sha256": "811e03b986d16dee84995962b5ee31fb9996f942ec24b870be69e404eebc21a3",
+      "current_sha256": "40547b7288dc025c318c4aeea89d9f198546da23959be518fd6689b9f15bdfe2",
+      "reviewed_by_class": 33,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_32_audit.md",
+      "previous_sha256": "0058b1c6ac7f839ee321d24f6310565811a31aca05bad487013bc4dbcf760541",
+      "current_sha256": "bf3607bd7e0daea16e49096c8cf20319d37b6ecbe6a002793ba2c1cacef1671b",
+      "reviewed_by_class": 33,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_33.md",
+      "previous_sha256": "720fed2efa1645999e1b24e993ddb073f52f0ba0ae7ff1df2e8f57aa58548a76",
+      "current_sha256": "dd82e22d206a971e4bbeb496967e0182dd213317237d8982aa2d6c8df6b121e6",
+      "reviewed_by_class": 34,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_33.json",
+      "previous_sha256": "0962980da29ff962d8d5c4edc465c096172fcdb4c7ac2ad3b6f7d807671b6080",
+      "current_sha256": "1c7abd1c012c0c308b67c9e6873c1b18e8810db240a86c5ac57234e92de8cd2a",
+      "reviewed_by_class": 34,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_33_audit.md",
+      "previous_sha256": "374b031751b24885f22f464d76797480f922f1417a95395d3602072b2f450fa3",
+      "current_sha256": "25652d254a77ff12cc47d1f5d06e69efbef500f71e102bab525172b2d1806fee",
+      "reviewed_by_class": 34,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_34.md",
+      "previous_sha256": "9e991f400e844280c2a7676e90bc041c5100718189c606ad4971ff6c2e9e553e",
+      "current_sha256": "93fb1945d2272cc00d8171aca7eb15e93e40c965ba3c44033ab1847c4900c8d1",
+      "reviewed_by_class": 35,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_34.json",
+      "previous_sha256": "4c0225ad585e42de9743f4fb4c960f311ef9d082d2e8b01bc7a3f9496d130a7c",
+      "current_sha256": "8503c610c03968915b990ee551e6616962aa49e5639159b9c91071859ee26f4d",
+      "reviewed_by_class": 35,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_34_audit.md",
+      "previous_sha256": "9889f7abc5627eedc5c3e7554e9f115467a70a7cb28ead45a1eaaef75ccc6add",
+      "current_sha256": "005da7a0cb4f5e3d565132bef4165dc03265a751d41fd0430aad5cbef3760cd6",
+      "reviewed_by_class": 35,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "classes/class_35.md",
+      "previous_sha256": "b8513f0df7621d3f40b2c6468a62cd150c563be3608b1a35b15820c3b3afc77a",
+      "current_sha256": "757bf88d7c5180aa07c5f478d6e0f2a0308110202ec726b963ac2020dcde1794",
+      "reviewed_by_class": 36,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "workload_class_35.json",
+      "previous_sha256": "9787af7ee16c6b840d8a791fb178ed8c2021fdaa8e0ade541735c3e85f3d21c6",
+      "current_sha256": "db14a0942617f32203ce429c5f9cae81aa56dadd6ca757b58d75e4aa477ce44c",
+      "reviewed_by_class": 36,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    },
+    {
+      "file": "audits/class_35_audit.md",
+      "previous_sha256": "265dcdf1eb90fb41e05ad934fb138b8094ee608b25428d7459d03921998f58c5",
+      "current_sha256": "5a8d0cb5972824cc1fbdd1dd98205a130c855f5cd86753de21d0ede317ea3ee7",
+      "reviewed_by_class": 36,
+      "reason": "At full-sequence review, added class-specific explosive progression and readiness conditions to all36classes and corrected Classes34\u201335 inherited assessment-context jobs. Prescribed exercise identities, doses, events and clocks are unchanged."
+    }
+  ]
+}

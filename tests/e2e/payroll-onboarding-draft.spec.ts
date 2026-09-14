@@ -17,6 +17,8 @@ test('employee saves partial onboarding, resumes after reload and submits comple
  const nextSteps=page.getByRole('navigation',{name:'Onboarding next steps',exact:true})
  await nextSteps.getByRole('button',{name:'Continue: Personal details & emergency contact',exact:true}).click()
  await expect(step.locator('summary')).toBeFocused()
+ const initialAddress=step.getByRole('textbox',{name:'Home street address',exact:true})
+ await expect(initialAddress).toHaveValue('');await expect(initialAddress).toHaveAttribute('autocomplete','off');await expect(initialAddress).toHaveAttribute('data-form-type','other')
  await step.getByRole('textbox',{name:'Legal first name',exact:true}).fill('Saved Draft')
  await nextSteps.getByRole('button',{name:'Personal details & emergency contact',exact:true}).click()
  await expect(step.getByRole('textbox',{name:'Legal first name',exact:true})).toHaveValue('Saved Draft')

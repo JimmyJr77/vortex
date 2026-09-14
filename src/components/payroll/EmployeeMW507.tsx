@@ -3,6 +3,7 @@ import {employeePayrollApi,type W4Preview} from '../../utils/employeePayrollApi'
 import W4PdfReview from './W4PdfReview'
 import officialFormUrl from '../../../backend/payroll/forms/maryland-mw507-2026.pdf?url'
 import {emptyMw507,mw507Answers} from '../../utils/mw507Answers'
+import PrivateFormInput from '../common/PrivateFormInput'
 
 const input='mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900'
 const button='rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40'
@@ -46,7 +47,7 @@ export default function EmployeeMW507({taskId,cycle,vaultReady,onSubmitted}:{tas
   }catch(e){setError(e instanceof Error?e.message:'Unable to save your signature. Retry without changing your entries.')}finally{setBusy(false)}
  }
 
- const field=(key:keyof ReturnType<typeof empty>,label:string,mode:'text'|'numeric'|'decimal'='text',required=false)=><label className="block text-sm font-semibold">{label}<input className={input} required={required} autoComplete="off" type={key==='ssn'?'password':'text'} inputMode={mode} maxLength={key==='ssn'?11:200} value={String(form[key])} onChange={e=>change(key,e.target.value)}/></label>
+ const field=(key:keyof ReturnType<typeof empty>,label:string,mode:'text'|'numeric'|'decimal'='text',required=false)=><label className="block text-sm font-semibold">{label}<PrivateFormInput className={input} required={required} autoComplete={key==='ssn'?'new-password':'off'} name={`mw507-${key}`} type={key==='ssn'?'password':'text'} inputMode={mode} maxLength={key==='ssn'?11:200} value={String(form[key])} onChange={e=>change(key,e.target.value)}/></label>
  return <section aria-label="Complete MW507 internally" className="mt-4 space-y-4 rounded-xl border border-blue-200 bg-blue-50/30 p-4">
   <h3 className="text-lg font-bold">Complete your 2026 Maryland MW507 here</h3>
   <p className="text-sm">Enter your details, save unfinished work securely, review both official pages, then sign. Your hiring admin must review the certificate and any required attachments, agreements or Comptroller submissions before applying it to payroll.</p>

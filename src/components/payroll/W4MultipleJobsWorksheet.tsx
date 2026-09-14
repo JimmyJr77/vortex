@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {w4MultipleJobs2026,type W4MultipleJobsResult} from '../../utils/w4MultipleJobs2026.js'
+import {w4MultipleJobs2026,W4MultipleJobsTableRangeError,type W4MultipleJobsResult} from '../../utils/w4MultipleJobs2026.js'
 
 const input='mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm'
 const dollars=(cents:number)=>`${Math.floor(cents/100)}.${String(cents%100).padStart(2,'0')}`
@@ -11,16 +11,18 @@ function amount(text:string){
 }
 export default function W4MultipleJobsWorksheet({filingStatus,exempt,onApply}:{filingStatus:string;exempt:boolean;onApply:(value:string)=>void}){
  const [jobs,setJobs]=useState('2'),[wages,setWages]=useState(['','','']),[periods,setPeriods]=useState(''),[extra,setExtra]=useState('0'),[highest,setHighest]=useState(false)
- const [calculation,setCalculation]=useState<{key:string;result:W4MultipleJobsResult}|null>(null),[error,setError]=useState('')
+ const [calculation,setCalculation]=useState<{key:string;result:W4MultipleJobsResult}|null>(null)
+ const [feedback,setFeedback]=useState<{key:string;message:string;tableRange:boolean}|null>(null)
  const key=JSON.stringify({filingStatus,jobs,wages,periods,extra,exempt})
  const result=calculation?.key===key&&!exempt?calculation.result:null
+ const currentFeedback=feedback?.key===key&&!exempt?feedback:null
  const calculate=()=>{
-  setError('');setCalculation(null)
+  setFeedback(null);setCalculation(null);setHighest(false)
   try{
    if(exempt)throw new Error('An exempt W-4 leaves Steps 2–4 blank.')
    if(!/^\d+$/.test(periods))throw new Error('Enter a whole number of annual pay periods.')
    setCalculation({key,result:w4MultipleJobs2026({filingStatus,annualWagesCents:wages.slice(0,Number(jobs)).map(amount),payPeriods:Number(periods),additionalCents:amount(extra)})})
-  }catch(e){setError(e instanceof Error?e.message:'Unable to calculate the worksheet.')}
+  }catch(e){setFeedback({key,message:e instanceof Error?e.message:'Unable to calculate the worksheet.',tableRange:e instanceof W4MultipleJobsTableRangeError})}
  }
  const download=()=>{
   if(!result)return
@@ -32,7 +34,8 @@ export default function W4MultipleJobsWorksheet({filingStatus,exempt,onApply}:{f
   <summary className="cursor-pointer font-semibold">Calculate Step 2(b): Multiple Jobs Worksheet</summary>
   <section aria-label="Multiple Jobs Worksheet" className="mt-3 space-y-3">
    <p className="text-sm">Use this worksheet on one W-4, preferably for the highest paying job. Include your spouse’s concurrent jobs if married filing jointly. Update other jobs’ W-4 forms if you have not updated withholding since 2019. Use only one Step 2 method.</p>
-   <p className="text-sm">This is the annual worksheet from pages 3 and 5. For self-employment, partial-year work, changes during the year, more than three jobs, or more than one job over $120,000, use the IRS estimator or the additional guidance in Publication 505. It does not account for tax already withheld this year.</p>
+   <p className="text-sm">This uses the printed 2026 W-4 worksheet on pages 3 and 5. It supports two or three concurrent jobs when no more than one job pays over $120,000 per year. The limit applies to each job, not your combined household income. Enter each job’s annual taxable wages separately, in dollars.</p>
+   <p className="text-sm">For self-employment, partial-year work, changes during the year, more than three jobs, or two or more jobs over $120,000 each, use the <a className="font-semibold underline" href="https://www.irs.gov/W4App" target="_blank" rel="noreferrer">IRS withholding estimator</a> or <a className="font-semibold underline" href="https://www.irs.gov/publications/p505" target="_blank" rel="noreferrer">Publication 505</a>. This annual worksheet does not account for tax already withheld this year.</p>
    <p className="text-sm">Job wages stay on this screen. Save W-4 draft retains only the result after you apply it. Download a worksheet copy before leaving if you want to keep the calculation.</p>
    <label className="block text-sm font-semibold">Number of concurrent jobs<select className={input} value={jobs} onChange={e=>setJobs(e.target.value)}><option value="2">Two jobs</option><option value="3">Three jobs</option></select></label>
    {wages.slice(0,Number(jobs)).map((value,index)=><label key={index} className="block text-sm font-semibold">Job {index+1}: annual taxable wages in dollars<input className={input} inputMode="decimal" autoComplete="off" value={value} onChange={e=>setWages(current=>current.map((w,i)=>i===index?e.target.value:w))}/></label>)}
@@ -40,7 +43,13 @@ export default function W4MultipleJobsWorksheet({filingStatus,exempt,onApply}:{f
    <p className="text-sm">Common frequencies: weekly 52, every other week 26, twice monthly 24, monthly 12.</p>
    <label className="block text-sm font-semibold">Other additional withholding per paycheck in dollars<input className={input} inputMode="decimal" value={extra} onChange={e=>setExtra(e.target.value)}/></label>
    <button type="button" disabled={exempt} className="rounded-lg bg-slate-800 px-3 py-2 font-semibold text-white disabled:opacity-40" onClick={calculate}>Calculate multiple-job withholding</button>
-   {error?<p role="alert" className="text-sm text-red-800">{error}</p>:null}
+   {currentFeedback?.tableRange?<div role="status" className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">
+    <p className="font-semibold">Use the IRS estimator for these wages</p>
+    <p>{currentFeedback.message}</p>
+    <p>Check that each wage is for one job and entered in dollars, not cents or combined household income. If these wages are correct, you can still complete your W-4 here.</p>
+    <p>Use the estimator and copy its recommended entries into the main W-4, including Step 4(c) if provided. Alternatively, follow Publication 505 Worksheets 1-3 through 1-5 and their W-4 instructions. Use only one Step 2 method.</p>
+    <div className="flex flex-wrap gap-3"><a className="font-semibold underline" href="https://www.irs.gov/W4App" target="_blank" rel="noreferrer">Use the IRS withholding estimator</a><a className="font-semibold underline" href="https://www.irs.gov/publications/p505" target="_blank" rel="noreferrer">Review Publication 505 worksheets</a></div>
+   </div>:currentFeedback?<p role="alert" className="text-sm text-red-800">{currentFeedback.message}</p>:null}
    {result?<div className="space-y-3">
     <dl className="space-y-2 text-sm">{lines(result).map(([label,value])=><div key={label} className="flex flex-wrap justify-between gap-2"><dt>{label}</dt><dd className="font-semibold">{value}</dd></div>)}</dl>
     <p className="text-sm">Applying replaces the current Step 4(c) amount and clears the alternative Step 2(c) checkbox. Add any other desired withholding above before applying. The result is rounded to the nearest cent.</p>

@@ -15,6 +15,9 @@ test('admin records employer and employee encrypted filing identities and correc
  const form=page.getByRole('region',{name:employee?'Employee filing identity':'Employer filing identity',exact:true})
  await form.getByRole('button',{name:'Open filing identity',exact:true}).click()
  await expect(form.getByText('No filing identity recorded.',{exact:true})).toBeVisible()
+ const initialIdentifier=form.getByLabel(employee?'Full SSN':'Full EIN',{exact:true}),initialAddress=form.getByLabel('Mailing street address',{exact:true})
+ await expect(initialIdentifier).toHaveValue('');await expect(initialAddress).toHaveValue('')
+ await expect(initialIdentifier).toHaveAttribute('autocomplete','new-password');await expect(initialIdentifier).toHaveAttribute('data-1p-ignore','true');await expect(initialAddress).toHaveAttribute('data-form-type','other')
  const fill=async(identifier:string)=>{
  await form.getByLabel(employee?'Full SSN':'Full EIN',{exact:true}).fill(identifier)
  if(employee){await form.getByLabel('Legal first name',{exact:true}).fill('Filing');await form.getByLabel('Legal last name',{exact:true}).fill('Browser')}else await form.getByLabel('Legal employer name',{exact:true}).fill('Synthetic Employer LLC')

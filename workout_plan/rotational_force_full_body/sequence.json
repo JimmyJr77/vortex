@@ -1,0 +1,4364 @@
+{
+  "version": 2,
+  "weeks": 36,
+  "classesPerWeek": 1,
+  "structure": "24 integrated classes plus 12 application days; every class includes both regions",
+  "sequence": [
+    {
+      "week": 1,
+      "stage": 1,
+      "role": "integration",
+      "title": "Pivot and project",
+      "focus": "Foot release, hip initiation and a balanced finish",
+      "effort": "Foot release, hip initiation and a balanced finish. Pivot → scoop; Kick → pushing release; Support the moving limb.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Pivot → scoop",
+          "cue": "Let the support foot release with the hip turn in the grounded pivot, then retain that foot-led sequence when the hands project the ball."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Kick → pushing release",
+          "cue": "Use the same freely turning support base to accelerate the thigh or the throwing hand; recover balance before resetting either task."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Support the moving limb",
+          "cue": "Use the knee drive to own the stance leg, then reduce leg propulsion in the kneeling throw and keep the pelvis and trunk organized."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "stage": 1,
+      "role": "integration",
+      "title": "Load, redirect and brake",
+      "focus": "Foot release, hip initiation and a balanced finish",
+      "effort": "Foot release, hip initiation and a balanced finish. Load → rotational output; Absorb → diagonal force; Entry → usable plant.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Load → rotational output",
+          "cue": "Compare the single dip of the turning jump with the single compact preload of the ball throw; each load flows into one action."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Absorb → diagonal force",
+          "cue": "Own the rotational bound landing, then use a settled base to direct the side slam. The landing and slam are separate efforts with full recovery."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Entry → usable plant",
+          "cue": "Match the lateral entry and step-behind throw by uncrossing and settling the support foot before the pelvis and hands turn."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "stage": 1,
+      "role": "application",
+      "title": "Build the pivot-to-projection link",
+      "focus": "Foot release, hip initiation and a balanced finish",
+      "effort": "Apply one shared cue—foot, hip, finish—to the pivot/scoop and kick/shot-put pairs. Then compare turning-jump landing control with the constrained-base throw. Record these six drills in this order as the Week 36 reference; add no test attempts.",
+      "extension": "Apply one shared cue—foot, hip, finish—to the pivot/scoop and kick/shot-put pairs. Then compare turning-jump landing control with the constrained-base throw. Record these six drills in this order as the Week 36 reference; add no test attempts.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Carry foot-led initiation from the pivot into the paused scoop without an extra wind-up."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Keep the same controlled support-foot release when the output changes from kicking leg to pushing hand."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Use the jump to observe lower-body orientation and the kneeling throw to observe trunk control when leg drive is reduced."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "stage": 2,
+      "role": "integration",
+      "title": "Plant, free the limb and drive",
+      "focus": "Transfer support before accelerating the free limb",
+      "effort": "Transfer support before accelerating the free limb. Plant → chest push; Lead leg → rear-hand cross; Short-lever leg → short-lever hand.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Plant → chest push",
+          "cue": "Receive the forward step on a soft support knee, then reproduce a usable staggered base for the rotational chest push."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Lead leg → rear-hand cross",
+          "cue": "Shift pressure before freeing the lead leg; carry that organized support shift into the band cross rather than punching with the arm alone."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Short-lever leg → short-lever hand",
+          "cue": "Keep the thigh and hook compact around the turning trunk; both limbs stop under control without chasing a longer arc."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "stage": 2,
+      "role": "integration",
+      "title": "Own the base through changing support",
+      "focus": "Transfer support before accelerating the free limb",
+      "effort": "Transfer support before accelerating the free limb. Stance freeze → constrained press; Project → arrest the endpoint; Lateral support → resisted sweep.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Stance freeze → constrained press",
+          "cue": "Own the changed stance after the scissor hop, then use the kneeling shot-put to distinguish stable support from additional footwork."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Project → arrest the endpoint",
+          "cue": "Control the broad-jump landing, then stop a single transverse rope impulse from a grounded base; compare endpoint control, not output distances."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Lateral support → resisted sweep",
+          "cue": "Use the same-side hop to control lateral support, then keep foot pressure organized as the band sweep accelerates across the body."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "stage": 2,
+      "role": "application",
+      "title": "Free the leg, finish through the hand",
+      "focus": "Transfer support before accelerating the free limb",
+      "effort": "Apply the support-first cue across forward plant, lead-leg kick and pre-chambered thigh work while alternating band cross, hook and backhand outputs. Use the existing short-lever options to distinguish poor support transfer from excessive limb reach; keep the original doses.",
+      "extension": "Apply the support-first cue across forward plant, lead-leg kick and pre-chambered thigh work while alternating band cross, hook and backhand outputs. Use the existing short-lever options to distinguish poor support transfer from excessive limb reach; keep the original doses.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Set the receiving foot before initiating the grounded cross."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Compare lead-leg release and the short hand hook using the same support-first cue."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Retain hip control in the folded-leg whip while the band sweep tests a longer resisted hand path."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 2,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 2,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "stage": 3,
+      "role": "integration",
+      "title": "Hold the base, reverse the load",
+      "focus": "Distinguish force from stillness from force after a preload",
+      "effort": "Distinguish force from stillness from force after a preload. Held kick → preloaded scoop; Paused jump → countermovement push; Hip torque → pulling turn.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Held kick → preloaded scoop",
+          "cue": "Preserve the held start of the kick and the immediate reversal of the scoop; identify which initiation the athlete actually used."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Paused jump → countermovement push",
+          "cue": "Keep the jump free of a redip, then allow exactly one preload in the shot-put. Different starts are different tasks, not comparable power tests."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Hip torque → pulling turn",
+          "cue": "Isolate a small hip-rotation action while seated, then coordinate feet, hips and pulling arm in the light speed row."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P2"
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "stage": 3,
+      "role": "integration",
+      "title": "Release support and direct the turn",
+      "focus": "Distinguish force from stillness from force after a preload",
+      "effort": "Distinguish force from stillness from force after a preload. Lateral catch → outward release; Knee drive → rising hand path; Release step → diagonal pull.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Lateral catch → outward release",
+          "cue": "Establish a balanced split-to-parallel landing, then keep a stable base as the backhand hand path moves outward."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Knee drive → rising hand path",
+          "cue": "Keep the hovering-leg drive and uppercut connected to a tall trunk without substituting a back arch for limb acceleration."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Release step → diagonal pull",
+          "cue": "Push out of the held split stance, then use a settled stance to send rotational force down the rope diagonal."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E4"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "stage": 3,
+      "role": "application",
+      "title": "Create force from stillness and reversal",
+      "focus": "Distinguish force from stillness from force after a preload",
+      "effort": "Contrast a held lower-body start with a permitted upper-body preload, then apply the same tall-trunk control to an upward hand finish. Classify each scheduled attempt as held, preloaded or an unintended redip; use that observation to choose the next appropriate start.",
+      "extension": "Contrast a held lower-body start with a permitted upper-body preload, then apply the same tall-trunk control to an upward hand finish. Classify each scheduled attempt as held, preloaded or an unintended redip; use that observation to choose the next appropriate start.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Keep the paused jump truly still and the scoop reversal continuous; do not blend the start rules."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Carry the controlled held-kick initiation into a compact uppercut without adding a preparatory bounce."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Use isolated hip rotation to rehearse the torque contribution before the whole-chain speed row."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 3,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 3,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "stage": 4,
+      "role": "integration",
+      "title": "Accelerate, recoil and stop",
+      "focus": "Create an impulse and actively recover the limb",
+      "effort": "Create an impulse and actively recover the limb. Chamber → upward hand drive; Recoil → planted release; Leg recoil → compact hand stop.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Chamber → upward hand drive",
+          "cue": "Keep the supported chamber and band uppercut low enough to preserve a stacked trunk while the limb rises."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Recoil → planted release",
+          "cue": "Own the suspended re-chamber after the kick, then own the stance after the step-in shot-put; output ends with control in both tasks."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Leg recoil → compact hand stop",
+          "cue": "Actively fold the knee after acceleration and stop the hand hook near the midline, using controlled return rather than letting either limb fall."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "stage": 4,
+      "role": "integration",
+      "title": "Support rising and sweeping force",
+      "focus": "Create an impulse and actively recover the limb",
+      "effort": "Create an impulse and actively recover the limb. Leg projection → supported arm arc; Low sweep → rising release; Support with a free limb.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Leg projection → supported arm arc",
+          "cue": "Control the single-leg takeoff and two-foot landing, then keep that organized base during the light landmine arc."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Low sweep → rising release",
+          "cue": "Keep pelvic control through the low inward leg sweep, then preserve it as the two-hand throw takes an overhead path within the source readiness limits."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Support with a free limb",
+          "cue": "Hold the chamber through the support-leg hop, then use a stable lead side to deliver the lead-hand push throw."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E4"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "stage": 4,
+      "role": "application",
+      "title": "Plant, project and recover",
+      "focus": "Create an impulse and actively recover the limb",
+      "effort": "Apply the same finish-and-return standard to the step-in release, kick re-chamber, inward leg sweep and short hand paths. Use the shorter source extension or stationary entry when return control deteriorates, retaining the remaining scheduled attempts only.",
+      "extension": "Apply the same finish-and-return standard to the step-in release, kick re-chamber, inward leg sweep and short hand paths. Use the shorter source extension or stationary entry when return control deteriorates, retaining the remaining scheduled attempts only.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Settle the plant, express force and own the finish in both the kick and shot-put."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Compare inward leg recovery with the compact hand hook: neither arc should pull the torso off its base."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Connect active knee folding and the band uppercut through a quiet pelvis and controlled limb return."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 4,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 4,
+          "sourceId": "P5"
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "stage": 5,
+      "role": "integration",
+      "title": "Lateral arrival into leg and hand force",
+      "focus": "Accept lateral arrival and redirect it through the body",
+      "effort": "Accept lateral arrival and redirect it through the body. Shuffle → kick and throw; Uncross → rotational output; Lateral catch → retained cross.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Shuffle → kick and throw",
+          "cue": "Use one short shuffle and a usable plant before either the kicking thigh or the hands accelerate."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Uncross → rotational output",
+          "cue": "Finish the crossover chamber and step-behind slam entries with uncrossed feet before turning; retain each source travel limit."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Lateral catch → retained cross",
+          "cue": "Own the bound-to-split catch before applying the same support alignment to the planted band cross."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "stage": 5,
+      "role": "integration",
+      "title": "Reload, brake and recover",
+      "focus": "Accept lateral arrival and redirect it through the body",
+      "effort": "Accept lateral arrival and redirect it through the body. Step-behind push → hip reload; Adductor contribution → lateral hand pulse; Return base → stop the implement.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Step-behind push → hip reload",
+          "cue": "Use the step-behind bound to organize lateral push-off, then control the smaller drop-step reload before the scoop release."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Adductor contribution → lateral hand pulse",
+          "cue": "Control the rapid short-lever adduction, then coordinate that lateral support demand with a grounded step and transverse rope pulse."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Return base → stop the implement",
+          "cue": "Recover the jab-step stance, then stop body and close-held ball together rather than allowing either finish to keep drifting."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "stage": 5,
+      "role": "application",
+      "title": "Redirect lateral force",
+      "focus": "Accept lateral arrival and redirect it through the body",
+      "effort": "Apply the same plant-and-stop cue to a lateral kick/throw pair, a bound-to-catch/ball-stop pair and a crossover-chamber/band-cross pair. Log entry length and rescue steps so the next progression changes control or entry demand before adding load.",
+      "extension": "Apply the same plant-and-stop cue to a lateral kick/throw pair, a bound-to-catch/ball-stop pair and a crossover-chamber/band-cross pair. Log entry length and rescue steps so the next progression changes control or entry demand before adding load.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Keep the single shuffle and plant recognizable whether the output is a low kick or a scoop."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Use the controlled catch as the support reference for stopping the retained ball and trunk together."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Uncross before turning in the chamber task and preserve that plant-before-hand sequence in the band cross."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 5,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 5,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "stage": 6,
+      "role": "integration",
+      "title": "Simple support, compact force",
+      "focus": "Consolidate compact rotation with reduced workload",
+      "effort": "Consolidate compact rotation with reduced workload. Heel release → rising impulse; Neutral support → constrained push; Retreat plant → body-and-ball stop.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Heel release → rising impulse",
+          "cue": "Keep the calf-pop grounded, then use a free foot/hip turn to produce one modest upward rope pulse."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Neutral support → constrained push",
+          "cue": "Organize the parallel-stance kick base, then retain trunk control when the kneeling shot-put reduces leg propulsion."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Retreat plant → body-and-ball stop",
+          "cue": "Own the small retreat plant and then the compact retained-ball endpoint; neither task should drift into another turn."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 17,
+      "stage": 6,
+      "role": "integration",
+      "title": "Control both ends of the turn",
+      "focus": "Consolidate compact rotation with reduced workload",
+      "effort": "Consolidate compact rotation with reduced workload. Leg-driven turn → outward hand force; Outward leg arc → downward hand arc; Isolated hip return → pulling turn.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Leg-driven turn → outward hand force",
+          "cue": "Keep hands on hips for the turning jump, then allow a short backhand path from a controlled grounded base."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Outward leg arc → downward hand arc",
+          "cue": "Use supported leg sweeping and unloaded hand driving to review low-inertia rotational paths and their stopping points."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Isolated hip return → pulling turn",
+          "cue": "Keep the seated hip action small and controlled, then transmit a coordinated turn through the light band row."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 18,
+      "stage": 6,
+      "role": "application",
+      "title": "Consolidate with less volume",
+      "focus": "Consolidate compact rotation with reduced workload",
+      "effort": "Apply familiar control cues at the smallest planned combined dose: 24 explosive attempts, four ball releases and no planned landings. Every primary lift has one working set. Compare ease and finish quality with the prior integrated classes; hold loads and do not add tests.",
+      "extension": "Apply familiar control cues at the smallest planned combined dose: 24 explosive attempts, four ball releases and no planned landings. Every primary lift has one working set. Compare ease and finish quality with the prior integrated classes; hold loads and do not add tests.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Use a grounded heel release and a constrained-base push to check support without adding landing demand."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Control the endpoints of the outward leg sweep and unloaded downward hand drive."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Retain small-range hip control and stop the close-held ball without another wind-up."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 6,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 6,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 19,
+      "stage": 7,
+      "role": "integration",
+      "title": "Organize the input before release",
+      "focus": "Receive or preload, organize support, then turn",
+      "effort": "Receive or preload, organize support, then turn. Hip loading → supplied-ball return; Land and organize → push return; Rebound support → retained endpoint.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Hip loading → supplied-ball return",
+          "cue": "Organize the grounded hip preload and the ball handoff before turning. A handoff must finish with secure grip and the feeder clear."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Land and organize → push return",
+          "cue": "Use the source bounce-to-kick gate, then organize a handoff before the shot-put. Hold the landing or self-hold the ball when readiness requires."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Rebound support → retained endpoint",
+          "cue": "Control the split-stance rebound before practicing a compact grounded ball stop. Rebound contacts and retained-ball actions remain distinct loads."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P2"
+        }
+      ]
+    },
+    {
+      "week": 20,
+      "stage": 7,
+      "role": "integration",
+      "title": "Reverse the load with a controlled return",
+      "focus": "Receive or preload, organize support, then turn",
+      "effort": "Receive or preload, organize support, then turn. Thigh reversal → outward return; Switch support → resisted sweep; Lateral rebound → diagonal return.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Thigh reversal → outward return",
+          "cue": "Reverse the folded-thigh load under control, then coordinate a supplied-ball backhand without rushing grip or the support-foot turn."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Switch support → resisted sweep",
+          "cue": "Finish the grounded stance exchange before the knee drive; preserve that untangled support base for the transverse band sweep."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Lateral rebound → diagonal return",
+          "cue": "Keep the two lateral contacts organized, then separately apply a stable base to the supplied side slam. Reset the area between tasks."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E3"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 21,
+      "stage": 7,
+      "role": "application",
+      "title": "Receive, organize and turn",
+      "focus": "Receive or preload, organize support, then turn",
+      "effort": "Integrate the receiving lesson with three grounded leg actions, removing rebound landings from this application day. Use controlled handoffs only. Preserve the support-before-turn sequence when switching from externally supplied release to retained-ball stopping and band sweeping.",
+      "extension": "Integrate the receiving lesson with three grounded leg actions, removing rebound landings from this application day. Use controlled handoffs only. Preserve the support-before-turn sequence when switching from externally supplied release to retained-ball stopping and band sweeping.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Organize the hip load and the supplied ball before initiating either turn."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Reverse the folded-thigh preload, then test whether body and retained ball can stop together."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Settle the new support leg after the switch step before using a similar base for the resisted sweep."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 7,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 7,
+          "sourceId": "P5"
+        }
+      ]
+    },
+    {
+      "week": 22,
+      "stage": 8,
+      "role": "integration",
+      "title": "Forward plant into changing hand paths",
+      "focus": "Receive forward force and direct it along a diagonal",
+      "effort": "Receive forward force and direct it along a diagonal. Forward kick → low hand release; Plant-and-chamber → diagonal chop; Rear-leg push → rising hand force.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Forward kick → low hand release",
+          "cue": "Receive the step with a soft knee and freely turning foot before expressing the kick or underhand release."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Plant-and-chamber → diagonal chop",
+          "cue": "Organize the receiving foot and folded knee, then preserve the same stacked base for the downward rope impulse."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Rear-leg push → rising hand force",
+          "cue": "Create a short grounded forward push, then connect a settled foot/hip turn to the rising single-arm rope pulse."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 23,
+      "stage": 8,
+      "role": "integration",
+      "title": "Catch forward travel and control the diagonal",
+      "focus": "Receive forward force and direct it along a diagonal",
+      "effort": "Receive forward force and direct it along a diagonal. Approach turn → descending release; Forward catch → constrained diagonal; Step-down finish → compact upward path.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Approach turn → descending release",
+          "cue": "Control orientation after the short approach jump, then keep the trunk organized through the descending backhand throw."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Forward catch → constrained diagonal",
+          "cue": "Own the opposite-leg landing before using the tall-kneeling side slam to practice a diagonal with leg propulsion reduced."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Step-down finish → compact upward path",
+          "cue": "Control forward placement after the kick, then keep the same rib/pelvis stack in an unloaded uppercut."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 24,
+      "stage": 8,
+      "role": "application",
+      "title": "Drive forward and send force diagonally",
+      "focus": "Receive forward force and direct it along a diagonal",
+      "effort": "Reassemble propulsion, acceptance and recovery: grounded power step with underhand projection; step-in kick with a rising pulse; kick step-down finish with a descending pulse. This combines the entry lesson with the second lesson’s recovery task. Keep each exercise separate and preserve the same receive-before-redirect cue.",
+      "extension": "Reassemble propulsion, acceptance and recovery: grounded power step with underhand projection; step-in kick with a rising pulse; kick step-down finish with a descending pulse. This combines the entry lesson with the second lesson’s recovery task. Keep each exercise separate and preserve the same receive-before-redirect cue.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Use the rear-leg push to understand the incoming force that a stable base redirects into the underhand release."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Own the forward receiving plant before the low kick or the upward rope pulse changes the limb path."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Recover the support base during the forward kick step-down, then retain that controlled endpoint through a separate diagonal rope chop."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 8,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 8,
+          "sourceId": "P1"
+        }
+      ]
+    },
+    {
+      "week": 25,
+      "stage": 9,
+      "role": "integration",
+      "title": "Withdraw and redirect",
+      "focus": "Stop incoming travel, redirect the turn and recover a base",
+      "effort": "Stop incoming travel, redirect the turn and recover a base. Retreat plant → rear-hip pressing reload; Unwind the hip → uncross and sweep; Inward recovery → outward release.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Retreat plant → rear-hip pressing reload",
+          "cue": "Arrest the small retreat before kicking and settle the drop-step reload before the shot-put; do not reach to compensate for drift."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Unwind the hip → uncross and sweep",
+          "cue": "Recover the chambered leg to stance, then finish the crossover plant before beginning the retained backhand."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Inward recovery → outward release",
+          "cue": "Own the folded-leg inward sweep and the outward hand sweep without pulling the torso beyond its support base."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E1"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 26,
+      "stage": 9,
+      "role": "integration",
+      "title": "Catch the reload without losing orientation",
+      "focus": "Stop incoming travel, redirect the turn and recover a base",
+      "effort": "Stop incoming travel, redirect the turn and recover a base. Drop-step takeoff → forward diagonal; Lateral return → rising hand path; Backward catch → constrained projection.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Drop-step takeoff → forward diagonal",
+          "cue": "Control the loaded turning jump, then organize a separate forward step and diagonal slam with a stable endpoint."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Lateral return → rising hand path",
+          "cue": "Recover support after the linked lateral bounds before using a grounded uppercut to express the turn without added travel."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Backward catch → constrained projection",
+          "cue": "Own the backward two-foot catch, then remove travel with a kneeling throw to isolate trunk-to-hand control."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 27,
+      "stage": 9,
+      "role": "application",
+      "title": "Redirect and recover the base",
+      "focus": "Stop incoming travel, redirect the turn and recover a base",
+      "effort": "Apply one braking standard across retreat, unwind and inward recovery, then alternate outward release, pushing release and a rising resisted hand path. Bring the second lesson’s uppercut into the first lesson’s recovery tasks. Use the existing settled-plant alternatives when travel persists.",
+      "extension": "Apply one braking standard across retreat, unwind and inward recovery, then alternate outward release, pushing release and a rising resisted hand path. Bring the second lesson’s uppercut into the first lesson’s recovery tasks. Use the existing settled-plant alternatives when travel persists.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Stop drift before the retreat kick and before the lateral-entry backhand release."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Rebuild stance after the hip unwind and before the drop-step pressing release."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Recover the inward leg sweep under a controlled pelvis, then preserve that base through the rising band uppercut without leaning back."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 9,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 9,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 28,
+      "stage": 10,
+      "role": "integration",
+      "title": "Choose the base, deliver the force",
+      "focus": "Select support early and commit to controlled rotational output",
+      "effort": "Select support early and commit to controlled rotational output. Called turn → planned scoop; Called leg → compact hand release; Mapped plant → chest push.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Called turn → planned scoop",
+          "cue": "Choose the opening step from an early cue, then compare that organized support with a planned paused scoop. The throw stays preplanned."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Called leg → compact hand release",
+          "cue": "Set the support leg before kicking; retain the same support-first sequence in a preplanned hook throw."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Mapped plant → chest push",
+          "cue": "Identify the chamber side before entry, then use a planned chest push to check stable rotational output without a decision load."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 29,
+      "stage": 10,
+      "role": "integration",
+      "title": "Read, stabilize and finish",
+      "focus": "Select support early and commit to controlled rotational output",
+      "effort": "Select support early and commit to controlled rotational output. Called landing → diagonal stop; Go-cued thigh → transverse hand impulse; Called catch → unloaded sweep.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Called landing → diagonal stop",
+          "cue": "Choose the jump direction before takeoff and own the landing; separately stop a single diagonal rope pulse from a planned stance."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Go-cued thigh → transverse hand impulse",
+          "cue": "Respond to the early go cue without changing chamber mechanics, then check a compact, planned transverse rope pulse."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Called catch → unloaded sweep",
+          "cue": "Choose and catch the lateral bound before using an unloaded planned sweep to review the shared base and finish."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 30,
+      "stage": 10,
+      "role": "application",
+      "title": "Choose the side, then commit",
+      "focus": "Select support early and commit to controlled rotational output",
+      "effort": "Apply the same plant-and-finish standard to three early-cued lower-body tasks and three planned upper-body references. Keep the source 60-second recovery for cue attempts. Record cue errors separately from movement errors; use announced-side replacements without inventing reactive throws.",
+      "extension": "Apply the same plant-and-finish standard to three early-cued lower-body tasks and three planned upper-body references. Keep the source 60-second recovery for cue attempts. Record cue errors separately from movement errors; use announced-side replacements without inventing reactive throws.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Compare support quality after a direction call with the planned scoop reference."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Establish the correct support leg before the kick and retain that hip-led sequence in the planned hook throw."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Resolve the chamber cue before moving; use the unloaded hand sweep to review the base with less implement demand."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 10,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 10,
+          "sourceId": "P5"
+        }
+      ]
+    },
+    {
+      "week": 31,
+      "stage": 11,
+      "role": "integration",
+      "title": "Keep the line through entry and release",
+      "focus": "Preserve the output line and recover a repeatable endpoint",
+      "effort": "Preserve the output line and recover a repeatable endpoint. Kick line → step-in release line; Drop-step kick → handoff and entry; Chamber stop → band-cross stop.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Kick line → step-in release line",
+          "cue": "Keep the low kick and planted shot-put directed while maintaining a soft knee and recoverable stance."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Drop-step kick → handoff and entry",
+          "cue": "Organize the small entry before kicking or projecting the supplied ball; the feeder clears before the athlete moves."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Chamber stop → band-cross stop",
+          "cue": "Stop the supported chamber at its chosen height and the cross before elbow lock, with the pelvis and ribs controlled."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E4"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "stage": 11,
+      "role": "integration",
+      "title": "Place the base and control supplied force",
+      "focus": "Preserve the output line and recover a repeatable endpoint",
+      "effort": "Preserve the output line and recover a repeatable endpoint. Landing gate → one-hand return; Single-leg orientation → constrained handoff; Recovery base → transverse impulse.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Landing gate → one-hand return",
+          "cue": "Own the offset stance gate, then use a settled base for the supplied underhand return; reduce the one-hand demand when grip is insecure."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Single-leg orientation → constrained handoff",
+          "cue": "Control the small same-leg turning hop and then the kneeling supplied push with a stable support position."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recovery base → transverse impulse",
+          "cue": "Uncross into the marked kick stance before checking a compact rope impulse from an equally deliberate base."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E5"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 33,
+      "stage": 11,
+      "role": "application",
+      "title": "Keep the line and own the finish",
+      "focus": "Preserve the output line and recover a repeatable endpoint",
+      "effort": "Bring line, endpoint and support recovery together at restrained strength volume. Use a planned kick/throw line, matched chamber/hand stops and a recovery-base/handoff pair. Keep handoffs predictable and every primary lift at one working set before the reference stage.",
+      "extension": "Bring line, endpoint and support recovery together at restrained strength volume. Use a planned kick/throw line, matched chamber/hand stops and a recovery-base/handoff pair. Keep handoffs predictable and every primary lift at one working set before the reference stage.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Retain direction and recoverability through the low kick and self-held step-in throw."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Stop the chamber and band cross at their intended endpoints without shifting the trunk."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Use the recovered marked base as the model for a secure handoff, deliberate step and balanced scoop finish."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "E1"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 11,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 11,
+          "sourceId": "P4"
+        }
+      ]
+    },
+    {
+      "week": 34,
+      "stage": 12,
+      "role": "integration",
+      "title": "Review pivot, projection and return",
+      "focus": "Review foundations and apply entry/recovery control",
+      "effort": "Review foundations and apply entry/recovery control. Pivot → paused projection review; Kick recovery → pressing finish review; Landing orientation → diagonal control.",
+      "extension": "Establish the stage’s support and force-transfer connections using both source courses inside this class. Keep the original working doses; qualify the listed range and load before seeking more speed.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Pivot → paused projection review",
+          "cue": "Review the original grounded pivot and paused scoop conditions within their scheduled attempts; record the actual setup and finish quality."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Kick recovery → pressing finish review",
+          "cue": "Review low roundhouse recoil and rotational shot-put balance with matched task conditions where possible."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Landing orientation → diagonal control",
+          "cue": "Review the turning-jump landing and a separate diagonal slam without adding height, ball mass or test attempts."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E4"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P3"
+        }
+      ]
+    },
+    {
+      "week": 35,
+      "stage": 12,
+      "role": "integration",
+      "title": "Apply the turn after entry and recovery",
+      "focus": "Review foundations and apply entry/recovery control",
+      "effort": "Review foundations and apply entry/recovery control. Gathered entry → supplied lateral entry; Angle out → grounded hand drive; Lateral recovery → pulling return.",
+      "extension": "Expand the stage to its complementary entry, direction or control demands. Transfer the support-and-finish standards from the preceding integrated class; new task demands do not authorize heavier loads.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Gathered entry → supplied lateral entry",
+          "cue": "Uncross and settle the step-behind kick entry, then organize handoff, lateral step and backhand release without rushing the base."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Angle out → grounded hand drive",
+          "cue": "Recover the original kick line after the angle-out step, then retain a controlled planned band-cross line."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Lateral recovery → pulling return",
+          "cue": "Own the lateral placement after the kick, then coordinate a short foot/hip turn and pulling hand path in the speed row."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E5"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "E6"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "E6"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "S2"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "S2"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P4"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 12,
+          "sourceId": "P5"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 12,
+          "sourceId": "P6"
+        }
+      ]
+    },
+    {
+      "week": 36,
+      "stage": 12,
+      "role": "application",
+      "title": "Review the full-body foundations",
+      "focus": "Review foundations and apply entry/recovery control",
+      "effort": "Repeat Week 3’s integrated reference—same six explosive selections, pair order, working doses and strength work. Compare only matched equipment, stance, range, recovery and source variants. Use the scheduled attempts and actual recovery record to choose the next block; do not claim a force gain from unlike conditions.",
+      "extension": "Repeat Week 3’s integrated reference—same six explosive selections, pair order, working doses and strength work. Compare only matched equipment, stance, range, recovery and source variants. Use the scheduled attempts and actual recovery record to choose the next block; do not claim a force gain from unlike conditions.",
+      "pairings": [
+        {
+          "slots": [
+            "E1",
+            "E2"
+          ],
+          "title": "Support → output",
+          "cue": "Carry foot-led initiation from the pivot into the paused scoop without an extra wind-up."
+        },
+        {
+          "slots": [
+            "E3",
+            "E4"
+          ],
+          "title": "Accelerate → control",
+          "cue": "Keep the same controlled support-foot release when the output changes from kicking leg to pushing hand."
+        },
+        {
+          "slots": [
+            "E5",
+            "E6"
+          ],
+          "title": "Recover → redirect",
+          "cue": "Use the jump to observe lower-body orientation and the kneeling throw to observe trunk control when leg drive is reduced."
+        }
+      ],
+      "references": [
+        {
+          "id": "E1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E1"
+        },
+        {
+          "id": "E3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "E4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E4"
+        },
+        {
+          "id": "E5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "E3"
+        },
+        {
+          "id": "E6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "E2"
+        },
+        {
+          "id": "S1",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "S2",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "S1"
+        },
+        {
+          "id": "P1",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P1"
+        },
+        {
+          "id": "P2",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P3",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P2"
+        },
+        {
+          "id": "P4",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P3"
+        },
+        {
+          "id": "P5",
+          "programId": "rotation-lower",
+          "sourceClass": 1,
+          "sourceId": "P6"
+        },
+        {
+          "id": "P6",
+          "programId": "rotation-upper",
+          "sourceClass": 1,
+          "sourceId": "P4"
+        }
+      ]
+    }
+  ]
+}

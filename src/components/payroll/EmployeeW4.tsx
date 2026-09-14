@@ -4,6 +4,7 @@ import W4PdfReview from './W4PdfReview'
 import wording from './w4OfficialWording2026.json'
 import W4MultipleJobsWorksheet from './W4MultipleJobsWorksheet'
 import W4DeductionsWorksheet from './W4DeductionsWorksheet'
+import PrivateFormInput from '../common/PrivateFormInput'
 
 const input='mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900'
 const button='rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40'
@@ -61,7 +62,7 @@ export default function EmployeeW4({taskId,cycle,vaultReady,onSubmitted}:{taskId
   <form autoComplete="off" onSubmit={e=>{e.preventDefault();void prepare()}}>
    <fieldset disabled={busy||!!preview||!vaultReady||!draftLoaded} className="space-y-5 disabled:opacity-80">
     <legend className="font-bold">Step 1: Enter Personal Information</legend>
-    <div className="grid gap-3 sm:grid-cols-2">{([['firstNameMiddleInitial','First name and middle initial'],['lastName','Last name'],['address','Address'],['cityStateZip','City or town, state, and ZIP code'],['ssn','Social security number']] as const).map(([key,label])=><label key={key} className="block text-sm font-semibold">{label}<input required type={key==='ssn'?'password':'text'} inputMode={key==='ssn'?'numeric':undefined} autoComplete="off" maxLength={key==='ssn'?11:200} value={form[key]} onChange={e=>change(key,e.target.value)} className={input}/></label>)}</div>
+    <div className="grid gap-3 sm:grid-cols-2">{([['firstNameMiddleInitial','First name and middle initial'],['lastName','Last name'],['address','Address'],['cityStateZip','City or town, state, and ZIP code'],['ssn','Social security number']] as const).map(([key,label])=><label key={key} className="block text-sm font-semibold">{label}<PrivateFormInput required type={key==='ssn'?'password':'text'} inputMode={key==='ssn'?'numeric':undefined} autoComplete={key==='ssn'?'new-password':'off'} name={`w4-${key}`} maxLength={key==='ssn'?11:200} value={form[key]} onChange={e=>change(key,e.target.value)} className={input}/></label>)}</div>
     {official('identity')}
     <label className="block text-sm font-semibold">Step 1(c): Filing status<select required={!form.exempt} value={form.filingStatus} onChange={e=>change('filingStatus',e.target.value)} className={input}><option value="">Leave blank only if claiming exemption</option><option value="SINGLE">Single or Married filing separately</option><option value="MARRIED">Married filing jointly or Qualifying surviving spouse</option><option value="HEAD_OF_HOUSEHOLD">Head of household</option></select></label>
     {official('filing')}

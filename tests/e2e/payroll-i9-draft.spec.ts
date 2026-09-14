@@ -20,6 +20,9 @@ test('I-9 employee draft resumes, retries once and displays all official instruc
   const open=async()=>{await page.goto('/tests/support/payroll.html?employee=1');await page.getByRole('button',{name:'Onboarding',exact:true}).click();await page.locator('summary').filter({hasText:'Form I-9 employee section'}).click()}
   await open()
   const panel=page.getByRole('region',{name:'Internal I-9 draft',exact:true}),save=panel.getByRole('button',{name:'Save I-9 draft',exact:true})
+  const initialSsn=panel.getByLabel('Social Security number (if provided)',{exact:true}),initialAddress=panel.getByLabel('Street address',{exact:true})
+  await expect(initialSsn).toHaveValue('');await expect(initialAddress).toHaveValue('')
+  await expect(initialSsn).toHaveAttribute('autocomplete','new-password');await expect(initialSsn).toHaveAttribute('data-bwignore','true');await expect(initialAddress).toHaveAttribute('data-form-type','other')
   await panel.getByLabel('Last name (family name)',{exact:true}).fill('Żółć')
   await panel.getByLabel('Social Security number (if provided)',{exact:true}).fill('123-4')
   await expect(panel.getByRole('combobox',{name:'Did a preparer or translator assist you with Section 1?',exact:true})).toHaveValue('')

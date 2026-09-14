@@ -1,0 +1,92 @@
+{
+  "path": "/Users/jimmy_mac/Desktop/code/vortex/workout_plan/full_body_force_generation/sources/blueprints.json",
+  "source_sha256_before": "9b45d07bdbb48654fc3c0402e41dd982c95bf1ffba2d497d74a9babe3c31cdc7",
+  "source_sha256_after": "e652fb855eac6e6a5c40fb319da43ec1e34600004a08a6c019ca979fcf8bedbd",
+  "changed_fields": [
+    {
+      "class_number": 3,
+      "stage": 1,
+      "field": "lessons[2].effort",
+      "old": "Direct force through a lead leg and finish with an independent forward arm release.",
+      "new": "Use a controlled lateral plant to initiate grounded hip rotation and a diagonal upper-body finish. Retain forward leg and independent arm projection as supporting force work."
+    },
+    {
+      "class_number": 6,
+      "stage": 2,
+      "field": "lessons[2].effort",
+      "old": "Keep ankle contacts brief while sustaining a forceful arm finish.",
+      "new": "Organize a forward plant into a grounded hip turn and compact rotational hand arc. Ankle rebound, a supported split-leg rise and linear arm pressing/pulling support that base and finish."
+    },
+    {
+      "class_number": 9,
+      "stage": 3,
+      "field": "lessons[2].effort",
+      "old": "Connect lead-leg support to a short upward or forward drive, with a decisive arm draw.",
+      "new": "Drive laterally from a held split stance into an open rotational base and an outward upper-body release. Lead-leg ascent, a short linear start and arm draws reinforce support and the pulling finish."
+    },
+    {
+      "class_number": 12,
+      "stage": 4,
+      "field": "lessons[2].effort",
+      "old": "Carry lower-body extension and upper-body pressing force through a controlled finish.",
+      "new": "Initiate controlled hip internal rotation and produce a lead-hand rotational pushing release. Grounded knee-to-ankle drive and linear arm presses supply supporting initiation and finishing force."
+    },
+    {
+      "class_number": 15,
+      "stage": 5,
+      "field": "lessons[2].effort",
+      "old": "Connect a retained hip return to force and use one brief hand-contact link before resetting.",
+      "new": "Accept a lateral arrival into a grounded hip turn and arrest a retained upper-body rotational arc. Linked hand pushes and leg-driven projection support a controlled impulse and finish."
+    },
+    {
+      "class_number": 18,
+      "stage": 6,
+      "field": "lessons[2].effort",
+      "old": "Maintain lead-leg drive and a clear arm finish while keeping midpoint volume modest.",
+      "new": "Consolidate direct hip external-rotation force and retained rotational pulling at the reduced planned dose. Small lead-leg and linear arm-force tasks support an organized base and finish."
+    },
+    {
+      "class_number": 21,
+      "stage": 7,
+      "field": "lessons[2].effort",
+      "old": "Drive from a controlled single-leg position and finish a guided or free upper-body projection.",
+      "new": "Reorganize a grounded stance into rotational knee drive and a controlled upper-body hand sweep. Single-leg support and guided or free forward pressing reinforce force transfer."
+    },
+    {
+      "class_number": 24,
+      "stage": 8,
+      "field": "lessons[2].effort",
+      "old": "Carry a small ankle impulse forward and finish a deliberate upper-body pull.",
+      "new": "Practice separate hip-led low kicking and a descending upper-body rotational release, then regain controlled support. Small ankle advances, grounded leg return and linear arm draws support onset and finish."
+    },
+    {
+      "class_number": 27,
+      "stage": 9,
+      "field": "lessons[2].effort",
+      "old": "Use a controlled plant to direct traction or leg-driven projection.",
+      "new": "Generate compact folded-leg and hand sweeps through controlled hip and trunk turns. Grounded lunge return, leg-driven forward projection and linear arm traction supply plant and finish support."
+    },
+    {
+      "class_number": 30,
+      "stage": 10,
+      "field": "lessons[2].effort",
+      "old": "Produce a split-base leg impulse and a deliberate arm release after a small reception.",
+      "new": "Initiate a compact hip-turning thigh action from the early cue and express a separate unloaded upper-body backhand arc. Split-base leg force and catch-set forward release support an organized start and finish."
+    },
+    {
+      "class_number": 33,
+      "stage": 11,
+      "field": "lessons[2].effort",
+      "old": "Finish a small contact or leg-driven impulse with organized forward projection.",
+      "new": "Place crossover recovery into a controlled rotational base and couple a separate step-in hip turn to an upper-body pushing release. Small linear leg, ankle and arm-force tasks support placement and the finish."
+    },
+    {
+      "class_number": 36,
+      "stage": 12,
+      "field": "lessons[2].effort",
+      "old": "Review controlled lead-leg support and an alternating or independent arm finish.",
+      "new": "Review a low hip-led rotational kick with lateral recovery and a retained upper-body rotational pull. Supported lead-leg work and alternating or independent forward arm actions provide small linear-force support; no improvement is inferred without matched actual records."
+    }
+  ],
+  "unchanged": "All partitions,source selections,doses,titles,briefs,and connections unchanged."
+}
