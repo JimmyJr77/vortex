@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { GripVertical, Loader2, Minus, Plus, Save } from 'lucide-react'
+import { GripVertical, Loader2, Minus, Plus, RotateCcw, Save } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import {
   COACH_PORTAL_TAB_OPTIONS,
   MEMBER_PORTAL_TAB_OPTIONS,
   createPortalSectionBreak,
+  defaultPortalSidebarConfig,
   normalizeNavLayout,
   tabOrderFromNavLayout,
   type PortalNavLayoutItem,
@@ -144,6 +145,32 @@ export default function AdminPortalTabSettings({ portal }: AdminPortalTabSetting
     }
   }
 
+  const resetToDefault = async () => {
+    if (!window.confirm(`Reset the ${portalLabel} navigation to its default sections and order?`)) return
+    setSaving(true)
+    setError(null)
+    setSavedMessage(null)
+    try {
+      const defaults = defaultPortalSidebarConfig(portal)
+      const payload = portal === 'member' ? { member: defaults } : { coach: defaults }
+      const res = await adminApiRequest('/api/admin/portal-settings', {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      })
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok || json.success !== true) throw new Error(json.message || `Reset failed (${res.status})`)
+      const config = json.data as PortalTabConfig
+      const portalConfig = portal === 'member' ? config.member : config.coach
+      setHiddenTabs(portalConfig.hiddenTabs)
+      setNavLayout(mergeNavLayout(portalConfig.navLayout))
+      setSavedMessage('Reset to the default navigation.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset portal settings')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-gray-600 py-8">
@@ -263,15 +290,26 @@ export default function AdminPortalTabSettings({ portal }: AdminPortalTabSetting
         })}
       </div>
 
-      <button
-        type="button"
-        onClick={() => void save()}
-        disabled={saving}
-        className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-      >
-        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-        Save {portalLabel} settings
-      </button>
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+        >
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Save {portalLabel} settings
+        </button>
+        <button
+          type="button"
+          onClick={() => void resetToDefault()}
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-vortex-red hover:text-vortex-red disabled:opacity-60"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reset to default
+        </button>
+      </div>
     </div>
   )
 }

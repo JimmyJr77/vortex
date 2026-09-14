@@ -33,6 +33,13 @@ const plain = (value = '') => value.replace(/\*\*/g, '').replace(/\[(.*?)\]\([^)
 const short = (value, length = 78) => value.length <= length ? value : `${value.slice(0, length).replace(/\s+\S*$/, '')}…`
 const unique = (items) => [...new Set(items)]
 
+function dailyClassTitle(markdown, n) {
+  const primaryEffort = plain(markdown.match(/^\*\*Primary effort:\*\*\s*(.+)$/m)?.[1] ?? '')
+  const title = (primaryEffort.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? primaryEffort).replace(/[.!?]$/, '')
+  if (!title) throw new Error(`Class ${n} must define a Primary effort for its daily overview title`)
+  return title
+}
+
 function equipmentFor(value) {
   const text = value.toLowerCase()
   const matches = []
@@ -89,7 +96,7 @@ function buildSession(source, n) {
   const minuteMatch = delivery.match(/(\d+)\s*[–-]\s*(\d+)\s*minutes/i)
   const marker = markdown.match(/^\*\*(?:Integrated )?Quality marker:\*\*\s*(.+)$/m)
   const session = {
-    n, title: `Class ${n}`, effort, minutes: minuteMatch ? [Number(minuteMatch[1]), Number(minuteMatch[2])] : null, delivery,
+    n, title: dailyClassTitle(markdown, n), effort, minutes: minuteMatch ? [Number(minuteMatch[1]), Number(minuteMatch[2])] : null, delivery,
     equipment: unique(exercises.flatMap((exercise) => exercise.equipment)).filter((item) => item !== 'Bodyweight'), exercises,
     quality: plain(marker?.[1] ?? ''), preparation: plain(part['1'] ?? ''),
     explosiveNotes: short(plain((part['2'] ?? '').split('| # |')[0]), 520), counts: { explosive: 6, resilience: 2, primary: 6 },
@@ -189,6 +196,9 @@ output['full-body-force'] = buildFullBodyForce(root)
 
 for (const [programId, sessions] of Object.entries(output)) {
   for (const session of sessions) {
+    if (!session.title?.trim() || /^(?:Class|Week)\s+\d+\b/i.test(session.title)) {
+      throw new Error(`${programId} Class ${session.n} must have a purpose-driven daily overview title without a class or week prefix`)
+    }
     for (const exercise of [...(session.prepareExercises ?? []), ...session.exercises]) {
       const association = libraryAssociations.get(acceleratorExerciseKey(exercise.name))
       if (!association) {

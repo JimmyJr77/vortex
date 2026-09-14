@@ -26,11 +26,11 @@ async function openAccelerator(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athleticism Accelerator View athletic plans by class/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
-  await page.locator('nav').getByRole('button', { name: 'Athleticism Accelerator', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Athleticism Accelerator', exact: true })).toBeVisible()
+  await page.locator('nav').getByRole('button', { name: 'Custom Programs', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Custom Programs', exact: true })).toBeVisible()
 }
 
 
@@ -49,14 +49,14 @@ test('lower-body twelve-week plan preserves all classes and coach delivery detai
   await expect(page.getByText('12 weeks · 1 class per week · Ages 12–14 · Coach-led', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Class \d+:/ })).toHaveCount(12)
   for (let n = 1; n <= 12; n++) {
-    await page.getByRole('button', { name: new RegExp(`^Class ${n}: Week ${n} —`) }).click()
+    await page.getByRole('button', { name: new RegExp(`^Class ${n}: (?!Week ${n} —)`) }).click()
     for (const [phase, count] of [['2. Explosiveness', 6], ['3. Resilience', 2], ['4. Primary strength', 6]] as const) {
       await page.getByRole('tab', { name: phase }).click()
       await expect(page.getByRole('tabpanel', { name: phase }).getByRole('button', { name: /Coaching notes for/ })).toHaveCount(count)
     }
   }
   await expect(page.getByRole('button', { name: 'Next class', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: /^Class 1: Week 1 —/ }).click()
+  await page.getByRole('button', { name: 'Class 1: Settled force initiation', exact: true }).click()
   await page.getByRole('button', { name: 'Coaching notes for Split Squat — stationary, two dumbbells', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('1 × 3 per leg')
   await expect(page.getByRole('dialog')).toContainText('30 s between legs')
@@ -70,12 +70,12 @@ test('lower-body twelve-week plan preserves all classes and coach delivery detai
   await page.getByRole('button', { name: '59–66 min + preparation', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('total booking fit remain unresolved')
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: /^Class 6: Week 6 —/ }).click()
+  await page.getByRole('button', { name: 'Class 6: Midpoint consolidation', exact: true }).click()
   await page.getByRole('tab', { name: '2. Explosiveness' }).click()
   await expect(page.getByRole('tabpanel', { name: '2. Explosiveness' })).toContainText('1 × 1 per leg')
-  await page.getByRole('button', { name: /^Class 11: Week 11 —/ }).click()
+  await page.getByRole('button', { name: 'Class 11: Connect and control', exact: true }).click()
   await expect(page.getByRole('tabpanel', { name: '2. Explosiveness' })).toContainText('between-rep gaps 0 / 15 / 0 s')
-  await page.getByRole('button', { name: /^Class 12: Week 12 —/ }).click()
+  await page.getByRole('button', { name: 'Class 12: Review and next-cycle decision', exact: true }).click()
   await page.screenshot({ path: testInfo.outputPath('lower-force-desktop.png'), fullPage: true })
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -86,6 +86,6 @@ test('lower-body twelve-week plan preserves all classes and coach delivery detai
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Plan overview', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('reduce work at Week 6')
-  await expect(page.getByRole('dialog').getByRole('button', { name: /Class \d+ ·/ })).toHaveCount(12)
+  await expect(page.getByRole('dialog').getByRole('button', { name: /^Class \d+:/ })).toHaveCount(12)
   expect(errors).toEqual([])
 })

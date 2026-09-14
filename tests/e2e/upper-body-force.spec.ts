@@ -26,11 +26,11 @@ async function openAccelerator(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athleticism Accelerator View athletic plans by class/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
-  await page.locator('nav').getByRole('button', { name: 'Athleticism Accelerator', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Athleticism Accelerator', exact: true })).toBeVisible()
+  await page.locator('nav').getByRole('button', { name: 'Custom Programs', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Custom Programs', exact: true })).toBeVisible()
 }
 
 test('upper-body force course preserves 12 class views, doses and coaching detail', async ({ page }, testInfo) => {
@@ -46,14 +46,14 @@ test('upper-body force course preserves 12 class views, doses and coaching detai
   await expect(page.getByRole('heading', { name: 'Upper Body Force Generation 12 Classes', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Class \d+:/ })).toHaveCount(12)
   for (let n = 1; n <= 12; n++) {
-    await page.getByRole('button', { name: `Class ${n}: Class ${n}`, exact: true }).click()
+    await page.getByRole('button', { name: `Class ${n}:`, exact: false }).click()
     for (const [phase, count] of [['2. Explosiveness', 6], ['3. Resilience', 2], ['4. Primary strength', 6]] as const) {
       await page.getByRole('tab', { name: phase }).click()
       await expect(page.getByRole('tabpanel', { name: phase }).getByRole('button', { name: /Coaching notes for/ })).toHaveCount(count)
     }
   }
   await expect(page.getByRole('button', { name: 'Next class', exact: true })).toBeDisabled()
-  await page.getByRole('button', { name: 'Class 1: Class 1', exact: true }).click()
+  await page.getByRole('button', { name: 'Class 1:', exact: false }).click()
   await page.getByRole('button', { name: 'Coaching notes for Floor Press — two dumbbells, neutral grip', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('Load preparation')
   await expect(page.getByRole('dialog')).toContainText('1 × 6 then 1 × 3')
@@ -67,10 +67,10 @@ test('upper-body force course preserves 12 class views, doses and coaching detai
   await page.getByRole('button', { name: '65–75 min + preparation', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('complete session duration is unresolved')
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Class 5: Class 5', exact: true }).click()
+  await page.getByRole('button', { name: 'Class 5:', exact: false }).click()
   await page.getByRole('tab', { name: '2. Explosiveness' }).click()
   await expect(page.getByRole('tabpanel', { name: '2. Explosiveness' })).toContainText('0 / 15 / 0 s between-rep gaps')
-  await page.getByRole('button', { name: 'Class 12: Class 12', exact: true }).click()
+  await page.getByRole('button', { name: 'Class 12:', exact: false }).click()
   await page.screenshot({ path: testInfo.outputPath('upper-force-desktop.png'), fullPage: true })
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
@@ -82,6 +82,6 @@ test('upper-body force course preserves 12 class views, doses and coaching detai
   await page.keyboard.press('Escape')
   await page.getByRole('button', { name: 'Plan overview', exact: true }).click()
   await expect(page.getByRole('dialog')).toContainText('consolidate at Class 6')
-  await expect(page.getByRole('dialog').getByRole('button', { name: /Class \d+ ·/ })).toHaveCount(12)
+  await expect(page.getByRole('dialog').getByRole('button', { name: /Class \d+:/ })).toHaveCount(12)
   expect(errors).toEqual([])
 })

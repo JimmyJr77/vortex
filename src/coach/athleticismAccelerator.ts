@@ -1,7 +1,9 @@
 import programSessions from './data/acceleratorPrograms.json'
+import { DISCIPLINE_PREPARATION_CARDS } from './preparation/routines'
 
 export const ACCELERATOR_PROGRAMS = [
   { kind: 'routine', id: 'access-prepare-standard', title: 'Access & Prepare Standard', durationMinutes: 15, category: 'Preparation', description: 'A familiar 16-exercise base that prepares athletes to move with purpose.', icon: 'prepare' },
+  ...DISCIPLINE_PREPARATION_CARDS,
   { kind: 'program', id: 'distance-running', title: 'Distance Running', classCount: 12, category: 'Endurance', description: 'Build the capacity to keep moving.', icon: 'endurance' },
   { kind: 'program', id: 'sprinting', title: 'Sprinting & Acceleration', classCount: 12, category: 'Speed', description: 'Make the first steps count.', icon: 'speed' },
   { kind: 'program', id: 'speed-agility', title: 'Speed & Agility', classCount: 36, category: 'Speed & movement', description: 'Sprinting, acceleration, mobile agility and reactive agility integrated in every class.', icon: 'speed' },

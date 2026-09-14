@@ -112,7 +112,7 @@ export default function ProgramBuilder() {
             mode === 'library' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
-          Vortex Program Library
+          ABC Progression Library
         </button>
         <button
           type="button"
@@ -121,7 +121,7 @@ export default function ProgramBuilder() {
             mode === 'custom' ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-500 hover:text-gray-800'
           }`}
         >
-          Custom Program Builder
+          Custom ABC Progression
         </button>
       </nav>
     </div>
@@ -141,11 +141,11 @@ export default function ProgramBuilder() {
       {modeTabs}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Training Programs</h2>
-          <p className="text-sm text-gray-500">Sequence workouts into multi-week plans.</p>
+          <h2 className="text-2xl font-bold text-gray-900">ABC Progression Builder</h2>
+          <p className="text-sm text-gray-500">Sequence workouts into a structured athletic progression.</p>
         </div>
         <button type="button" onClick={() => void save()} disabled={saving || !program.title} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Program
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Progression
         </button>
       </div>
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
@@ -219,7 +219,7 @@ export default function ProgramBuilder() {
         </div>
 
         <div className="bg-white border border-gray-200 rounded-xl p-4 h-fit">
-          <div className="flex items-center gap-2 font-semibold text-gray-700 mb-2"><FolderOpen className="w-4 h-4" /> Saved Programs</div>
+          <div className="flex items-center gap-2 font-semibold text-gray-700 mb-2"><FolderOpen className="w-4 h-4" /> Saved Progressions</div>
           <div className="space-y-1 max-h-[420px] overflow-y-auto">
             {list.map((p) => (
               <button key={p.id} type="button" onClick={() => void open(p.id)} className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 text-sm">

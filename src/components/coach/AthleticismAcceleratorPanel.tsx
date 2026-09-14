@@ -5,6 +5,8 @@ import { ACCESS_PREPARE_PURPOSES, ACCESS_PREPARE_STANDARD, type AccessPrepareRou
 import { coachFetch } from '../../coach/api'
 import type { Exercise } from '../../coach/types'
 import ExerciseDetailModal from './ExerciseDetailModal'
+import DisciplinePreparationView from './DisciplinePreparationView'
+import { getDisciplinePreparationRoutine } from '../../coach/preparation/routines'
 
 function MaxAirIcon({ className }: { className?: string }) {
   return <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -39,10 +41,11 @@ const FOCUS_RING = 'focus-visible:outline-none focus-visible:ring-2 focus-visibl
 type Detail = { title: string; eyebrow?: string; content: ReactNode }
 type LibraryExerciseTarget = { name: string; librarySlug: string }
 type ProgramType = 'all' | 'individual' | 'grouped'
+type ProgramCollection = 'custom-programs' | 'prepare-access'
 const timeLabel = (session: AcceleratorSession) => session.minutes ? `${session.minutes.join('–')} min + preparation` : 'Timing & delivery'
 const catalogMetric = (item: (typeof ACCELERATOR_PROGRAMS)[number]) => item.kind === 'routine' ? `${item.durationMinutes}min` : `${item.classCount} Classes`
 
-export default function AthleticismAcceleratorPanel() {
+export default function AthleticismAcceleratorPanel({ collection = 'custom-programs' }: { collection?: ProgramCollection }) {
   const [programId, setProgramId] = useState<AcceleratorProgramId | null>(null)
   const [search, setSearch] = useState('')
   const [programType, setProgramType] = useState<ProgramType>('all')
@@ -51,7 +54,9 @@ export default function AthleticismAcceleratorPanel() {
   const [detail, setDetail] = useState<Detail | null>(null)
   const [libraryExercise, setLibraryExercise] = useState<Exercise | null>(null)
   const [libraryLoadingSlug, setLibraryLoadingSlug] = useState<string | null>(null)
-  const selectedProgram = ACCELERATOR_PROGRAMS.find((program) => program.id === programId)
+  const collectionPrograms = ACCELERATOR_PROGRAMS.filter((program) => collection === 'prepare-access' ? program.kind === 'routine' : program.kind === 'program')
+  const selectedProgram = collectionPrograms.find((program) => program.id === programId)
+  const disciplineRoutine = selectedProgram?.kind === 'routine' ? getDisciplinePreparationRoutine(selectedProgram.id) : undefined
   const sessions = selectedProgram?.kind === 'program' ? getAcceleratorSessions(selectedProgram.id) : []
   const session = sessions[classIndex]
   const guidance = selectedProgram?.kind === 'program' ? ACCELERATOR_PLAN_GUIDANCE[selectedProgram.id] : undefined
@@ -72,20 +77,22 @@ export default function AthleticismAcceleratorPanel() {
     }
   }
 
-  const classProgramCount = ACCELERATOR_PROGRAMS.filter((item) => item.kind === 'program').length
+  const classProgramCount = collectionPrograms.filter((item) => item.kind === 'program').length
+  const preparationCount = collectionPrograms.filter((item) => item.kind === 'routine').length
+  const isPreparationCollection = collection === 'prepare-access'
 
   return <div className="space-y-5 pb-5">
     <header className="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">Session Design</p>
-        <h2 className="text-2xl font-bold tracking-tight text-gray-950">Athleticism Accelerator</h2>
-        {!selectedProgram && <p className="mt-1 text-sm text-gray-500">A clear plan. A focused session.</p>}
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">Training Plans</p>
+        <h2 className="text-2xl font-bold tracking-tight text-gray-950">{isPreparationCollection ? 'Prepare & Access' : 'Custom Programs'}</h2>
+        {!selectedProgram && <p className="mt-1 text-sm text-gray-500">{isPreparationCollection ? 'Choose the preparation routine that opens the training day.' : 'A clear plan. A focused session.'}</p>}
       </div>
-      {!selectedProgram && <span className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">1 standard routine · {classProgramCount} programs</span>}
+      {!selectedProgram && <span className="rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">{isPreparationCollection ? `${preparationCount} preparation routine${preparationCount === 1 ? '' : 's'}` : `${classProgramCount} programs`}</span>}
     </header>
-    {!selectedProgram ? <ProgramCards onSelect={selectProgram} search={search} onSearch={setSearch} programType={programType} onProgramTypeChange={setProgramType} /> : <>
+    {!selectedProgram ? <ProgramCards programs={collectionPrograms} collection={collection} onSelect={selectProgram} search={search} onSearch={setSearch} programType={programType} onProgramTypeChange={setProgramType} /> : <>
       <button type="button" onClick={() => selectProgram(null)} className={`flex items-center gap-2 rounded-lg px-1 py-2 text-sm font-semibold text-gray-600 hover:text-vortex-red ${FOCUS_RING}`}><ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back</button>
-      {selectedProgram.kind === 'routine' ? <AccessPrepareRoutineView
+      {selectedProgram.kind === 'routine' ? disciplineRoutine ? <DisciplinePreparationView routine={disciplineRoutine} onOpenDetail={(title, content) => setDetail({ title, eyebrow: `${disciplineRoutine.title} · ${disciplineRoutine.durationMinutes}min`, content })} /> : <AccessPrepareRoutineView
         onOpenExercise={(exercise) => setDetail({ title: exercise.name, eyebrow: `Access & Prepare · ${exercise.order}`, content: <AccessPrepareExerciseNotes exercise={exercise} /> })}
         onOpenDelivery={() => setDetail({ title: 'Timing & delivery', eyebrow: selectedProgram.title, content: <AccessPrepareDeliveryNotes /> })}
         onOpenSetup={() => setDetail({ title: 'Equipment, space & safety', eyebrow: selectedProgram.title, content: <AccessPrepareSetupNotes /> })}
@@ -104,7 +111,9 @@ export default function AthleticismAcceleratorPanel() {
   </div>
 }
 
-function ProgramCards({ onSelect, search, onSearch, programType, onProgramTypeChange }: {
+function ProgramCards({ programs: availablePrograms, collection, onSelect, search, onSearch, programType, onProgramTypeChange }: {
+  programs: typeof ACCELERATOR_PROGRAMS[number][]
+  collection: ProgramCollection
   onSelect: (id: AcceleratorProgramId) => void
   search: string
   onSearch: (value: string) => void
@@ -114,66 +123,72 @@ function ProgramCards({ onSelect, search, onSearch, programType, onProgramTypeCh
   const searchId = useId()
   const programTypeId = useId()
   const suggestionsId = useId()
-  const programsByType = ACCELERATOR_PROGRAMS.filter((program) => programType === 'all' || (program.kind === 'program' && program.classCount === (programType === 'individual' ? 12 : 36)))
+  const isPreparationCollection = collection === 'prepare-access'
+  const programsByType = availablePrograms.filter((program) => programType === 'all' || (program.kind === 'program' && program.classCount === (programType === 'individual' ? 12 : 36)))
   const query = search.trim().toLowerCase()
-  const programs = programsByType.filter((program) => `${program.title} ${program.description} ${program.category} ${catalogMetric(program)}`.toLowerCase().includes(query))
+  const durationPattern = /\b(\d+)\s*min(?:ute)?s?\b/g
+  const durations = isPreparationCollection ? Array.from(query.matchAll(durationPattern), (match) => Number(match[1])) : []
+  const textQuery = durations.length ? query.replace(durationPattern, '').replace(/\s+/g, ' ').trim() : query
+  const programs = programsByType.filter((program) =>
+    (!durations.length || (program.kind === 'routine' && durations.every((duration) => program.durationMinutes === duration)))
+    && `${program.title} ${catalogMetric(program)} ${program.description} ${program.category}`.toLowerCase().includes(textQuery))
   const clearFilters = () => { onSearch(''); onProgramTypeChange('all') }
 
   return <>
     <div className="relative overflow-hidden rounded-2xl bg-gray-950 px-5 py-6 text-white sm:px-6">
-      <p className="relative text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">Built around the workout</p>
-      <h3 className="relative mt-2 text-xl font-semibold">Choose a quality. See the day’s plan.</h3>
-      <p className="relative mt-2 max-w-xl text-sm text-gray-300">Equipment, exercise doses, and recovery in one view. Open coaching notes when you need more.</p>
+      <p className="relative text-[11px] font-bold uppercase tracking-[0.18em] text-red-300">{isPreparationCollection ? 'Open every training day well' : 'Built around the workout'}</p>
+      <h3 className="relative mt-2 text-xl font-semibold">{isPreparationCollection ? 'Choose a routine. Prepare with purpose.' : 'Choose a quality. See the day’s plan.'}</h3>
+      <p className="relative mt-2 max-w-xl text-sm text-gray-300">{isPreparationCollection ? 'Warm-up sequence, coaching detail, timing, equipment, and safety in one view.' : 'Equipment, exercise doses, and recovery in one view. Open coaching notes when you need more.'}</p>
     </div>
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-gray-800">Your program collection</h3>
-        <p className="text-xs text-gray-500">Standard preparation, focused courses, and complete development plans</p>
+        <h3 className="text-sm font-semibold text-gray-800">{isPreparationCollection ? 'Your preparation collection' : 'Your custom program collection'}</h3>
+        <p className="text-xs text-gray-500">{isPreparationCollection ? 'Reusable warm-up routines for coached training' : 'Focused courses and complete development plans'}</p>
       </div>
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className={`grid gap-3 ${isPreparationCollection ? '' : 'md:grid-cols-[minmax(0,1fr)_20rem]'}`}>
         <div className="min-w-0">
-          <label htmlFor={searchId} className="mb-1.5 block text-xs font-semibold text-gray-700">Search programs</label>
+          <label htmlFor={searchId} className="mb-1.5 block text-xs font-semibold text-gray-700">Search {isPreparationCollection ? 'routines' : 'programs'}</label>
           <div className="relative">
             <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input id={searchId} type="search" list={suggestionsId} value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search by name or athletic focus…" autoComplete="off" className={`w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 ${FOCUS_RING}`} />
+            <input id={searchId} type="search" list={suggestionsId} value={search} onChange={(event) => onSearch(event.target.value)} placeholder={isPreparationCollection ? 'Search preparation routines…' : 'Search by name or athletic focus…'} autoComplete="off" className={`w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 placeholder:text-gray-400 ${FOCUS_RING}`} />
             <datalist id={suggestionsId}>{programsByType.map((program) => <option key={program.id} value={program.title} />)}</datalist>
           </div>
         </div>
-        <div className="min-w-0">
+        {!isPreparationCollection && <div className="min-w-0">
           <label htmlFor={programTypeId} className="mb-1.5 block text-xs font-semibold text-gray-700">Program type</label>
           <select id={programTypeId} value={programType} onChange={(event) => onProgramTypeChange(event.target.value as ProgramType)} className={`w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 ${FOCUS_RING}`}>
             <option value="all">All programs</option>
             <option value="individual">Individual athletic focal points</option>
             <option value="grouped">Grouped athletic focal points</option>
           </select>
-        </div>
+        </div>}
       </div>
       <div className="flex items-center justify-between gap-3">
-        <p role="status" className="text-xs text-gray-500">{programs.length} of {ACCELERATOR_PROGRAMS.length} collection items</p>
+        <p role="status" className="text-xs text-gray-500">{programs.length} of {availablePrograms.length} collection items</p>
         {(search || programType !== 'all') && <button type="button" onClick={clearFilters} className={`rounded text-xs font-semibold text-vortex-red hover:underline ${FOCUS_RING}`}>Clear filters</button>}
       </div>
     </div>
-    {programs.length ? <section aria-label="Athleticism Accelerator collection" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+    {programs.length ? <section aria-label={`${isPreparationCollection ? 'Prepare & Access' : 'Custom Programs'} collection`} className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {programs.map((program) => {
         const Icon = PROGRAM_ICONS[program.icon]
         const featured = program.kind === 'program' && program.classCount === 36
         const metric = catalogMetric(program)
         return <button key={program.id} type="button" onClick={() => onSelect(program.id)} aria-label={`${program.title} ${metric}`} className={`group flex flex-col rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-vortex-red hover:shadow-sm ${FOCUS_RING} ${featured ? 'border-red-300 bg-red-50/50' : ''}`}>
           <div className="mb-4 flex w-full items-center justify-between gap-3">
-            <span data-testid={program.kind === 'routine' ? 'access-prepare-standard-icon' : undefined} className={`rounded-xl p-2.5 ${program.kind === 'routine' ? 'bg-black text-white' : featured ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-600'}`}><Icon className={`h-5 w-5 ${program.icon === 'lower' ? 'rotate-180' : ''}`} /></span>
+            <span data-testid={program.kind === 'routine' ? `${program.id}-icon` : undefined} className={`rounded-xl p-2.5 ${program.kind === 'routine' ? 'bg-black text-white' : featured ? 'bg-vortex-red text-white' : 'bg-gray-100 text-gray-600'}`}><Icon className={`h-5 w-5 ${program.icon === 'lower' ? 'rotate-180' : ''}`} /></span>
             <span className="text-[10px] font-bold uppercase tracking-wider text-vortex-red">{program.kind === 'routine' ? 'View routine' : `View ${program.classCount} classes`}</span>
           </div>
-          <h4 className="text-base font-bold text-gray-950">{program.title} <span data-testid={program.kind === 'routine' ? 'access-prepare-standard-metric' : undefined} className="whitespace-nowrap text-sm font-medium text-gray-400">{metric}</span></h4>
+          <h4 className="text-base font-bold text-gray-950">{program.title} <span data-testid={program.kind === 'routine' ? `${program.id}-metric` : undefined} className="whitespace-nowrap text-sm font-medium text-gray-400">{metric}</span></h4>
           <p className="mt-1 text-xs leading-relaxed text-gray-500">{program.description}</p>
           <div className="mt-4 flex w-full items-center justify-between border-t border-gray-200/70 pt-3 text-xs">
-            <span className="font-semibold text-vortex-red">{program.kind === 'routine' ? 'Open standard routine' : 'Open workout plan'}</span>
+            <span className="font-semibold text-vortex-red">{program.kind === 'routine' ? 'Open routine' : 'Open workout plan'}</span>
             <ArrowRight className="h-4 w-4 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-vortex-red" />
           </div>
         </button>
       })}
     </section> : <div className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-10 text-center">
-      <p className="text-sm font-semibold text-gray-800">No programs match your filters.</p>
-      <p className="mt-1 text-xs text-gray-500">Try another search or choose a different program type.</p>
+      <p className="text-sm font-semibold text-gray-800">No {isPreparationCollection ? 'routines' : 'programs'} match your filters.</p>
+      <p className="mt-1 text-xs text-gray-500">{isPreparationCollection ? 'Try a discipline name or a duration, such as 5min.' : 'Try another search or choose a different program type.'}</p>
     </div>}
   </>
 }
@@ -315,5 +330,5 @@ function ExerciseNotes({ exercise }: { exercise: AcceleratorExercise }) { return
 function EquipmentNotes({ session }: { session: AcceleratorSession }) { return <div className="space-y-5"><Note title="Bring for this class"><ul className="space-y-2">{session.equipment.length ? session.equipment.map((item) => <li key={item}><strong>{item}.</strong> {EQUIPMENT_NOTES[item] ?? 'Confirm safe, usable equipment before delivery.'}</li>) : <li><strong>Bodyweight.</strong> Confirm sufficient clear space for each drill.</li>}</ul></Note><Note title="Station setup"><p>{session.setup || "Confirm clear working space, stable surfaces and secure anchors before athletes begin. Follow each exercise’s written clearance and substitution conditions."}</p></Note><Note title="Group setup"><p>Equipment quantities depend on group size and supervised waves. Add any equipment required by the existing Access & Prepare 1 sequence.</p></Note></div> }
 function DeliveryNotes({ session }: { session: AcceleratorSession }) { return <div className="space-y-5"><Note title={session.minutes ? `${session.minutes.join('–')} minutes of prescribed work` : 'Timing to confirm'}><p>{session.delivery || 'Use the written prescription to set the session timing. Add the actual Access & Prepare 1 duration and group queues while preserving prescribed recovery.'}</p></Note><Note title="Session order"><p>Access & Prepare 1 → 6 explosive exercises → 2 light resilience exercises → 6 primary-strength exercises.</p></Note><Note title="Schedule by readiness"><p>Class numbers describe sequence, not consecutive days. Review actual training, technique and recovery before selecting the next class.</p></Note></div> }
 function CoachingNotes({ session, phase }: { session: AcceleratorSession; phase: AcceleratorPhase }) { return <div className="space-y-5">{session.quality && <Note title="Today’s quality marker"><p>{session.quality}</p></Note>}<Note title="Class-specific intent"><p>{session.explosiveNotes}</p></Note>{session.phaseNotes?.[phase]?.map((paragraph, index) => <Note key={index} title={index === 0 ? "Phase guidance" : "Recovery & execution"}><p>{paragraph}</p></Note>)}<Note title="Adjust within the dose"><p>On a technical miss, stop, recover and adjust the remaining scheduled attempts. Stop for pain or loss of control. Do not add attempts to replace misses.</p></Note><Note title="Readiness & progression"><p>{session.progression || "Advance one variable only when actual execution and recovery support it; otherwise hold or regress."}</p></Note></div> }
-function PlanOverview({ sessions, selected, onSelect, guidance }: { sessions: AcceleratorSession[]; selected: number; onSelect: (index: number) => void; guidance?: AcceleratorPlanGuidance }) { return <div>{guidance && <div className="mb-4 space-y-3 rounded-xl bg-red-50 p-4 text-sm leading-relaxed text-gray-700"><p className="font-semibold text-gray-950">{guidance.cadence}</p><p>{guidance.overview}</p><p>{guidance.progression}</p></div>}<p className="mb-4 text-sm leading-relaxed text-gray-500">{guidance ? 'Class numbers match the development sequence. Choose a class to open its daily plan.' : `${sessions.length} class exposures, selected by athlete readiness. Choose a class to open its daily plan.`}</p><div className="space-y-2">{sessions.map((item, index) => <button key={item.n} type="button" onClick={() => onSelect(index)} className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left ${FOCUS_RING} ${selected === index ? 'border-red-200 bg-red-50' : 'border-gray-100 hover:bg-gray-50'}`}><span className="text-sm font-bold tabular-nums text-vortex-red">{String(item.n).padStart(2, '0')}</span><span className="flex-1"><span className="block text-sm font-semibold text-gray-900">{guidance && `Class ${item.n} · `}{item.title}</span><span className="mt-0.5 block text-xs leading-relaxed text-gray-500">{item.effort}</span></span><ChevronRight className="h-4 w-4 shrink-0 text-gray-400" /></button>)}</div></div> }
+function PlanOverview({ sessions, selected, onSelect, guidance }: { sessions: AcceleratorSession[]; selected: number; onSelect: (index: number) => void; guidance?: AcceleratorPlanGuidance }) { return <div>{guidance && <div className="mb-4 space-y-3 rounded-xl bg-red-50 p-4 text-sm leading-relaxed text-gray-700"><p className="font-semibold text-gray-950">{guidance.cadence}</p><p>{guidance.overview}</p><p>{guidance.progression}</p></div>}<p className="mb-4 text-sm leading-relaxed text-gray-500">{guidance ? 'Class numbers match the development sequence. Choose a class to open its daily plan.' : `${sessions.length} class exposures, selected by athlete readiness. Choose a class to open its daily plan.`}</p><div className="space-y-2">{sessions.map((item, index) => <button key={item.n} type="button" aria-label={`Class ${item.n}: ${item.title}`} onClick={() => onSelect(index)} className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left ${FOCUS_RING} ${selected === index ? 'border-red-200 bg-red-50' : 'border-gray-100 hover:bg-gray-50'}`}><span className="shrink-0 rounded-md bg-vortex-red px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Class {item.n}</span><span className="flex-1"><span className="block text-sm font-semibold text-gray-900">{item.title}</span><span className="mt-0.5 block text-xs leading-relaxed text-gray-500">{item.effort}</span></span><ChevronRight className="h-4 w-4 shrink-0 text-gray-400" /></button>)}</div></div> }
 function DetailDialog({ detail, onClose }: { detail: Detail; onClose: () => void }) { const dialog = useRef<HTMLDialogElement>(null); const titleId = useId(); useEffect(() => { const element = dialog.current; const focus = document.activeElement instanceof HTMLElement ? document.activeElement : null; element?.showModal(); return () => { element?.close(); focus?.focus({ preventScroll: true }) } }, []); return <dialog ref={dialog} aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); onClose() }} onKeyDown={(event) => { if (event.key !== 'Tab') return; const controls = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])') ?? []); const first = controls[0]; const last = controls.at(-1); if ((event.shiftKey && document.activeElement === first) || (!event.shiftKey && document.activeElement === last)) { event.preventDefault(); (event.shiftKey ? last : first)?.focus() } }} className="m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-2xl border-0 bg-white p-0 text-gray-900 shadow-2xl backdrop:bg-gray-950/50"><header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-gray-100 bg-white p-5"><div>{detail.eyebrow && <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-vortex-red">{detail.eyebrow}</p>}<h3 id={titleId} className="text-lg font-bold leading-snug">{detail.title}</h3></div><button type="button" autoFocus onClick={onClose} aria-label="Close details" className={`shrink-0 rounded-lg p-1.5 text-gray-500 hover:bg-gray-100 ${FOCUS_RING}`}><X className="h-5 w-5" /></button></header><div className="p-5">{detail.content}</div></dialog> }

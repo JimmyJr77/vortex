@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   COACH_PORTAL_TAB_KEYS,
   COACH_PORTAL_TAB_LABELS,
+  DEFAULT_COACH_PORTAL_NAV_LAYOUT,
   MEMBER_PORTAL_TAB_KEYS,
   MEMBER_PORTAL_TAB_LABELS,
   normalizePortalConfig,
@@ -37,7 +38,8 @@ test('normalizePortalConfig defaults to empty hidden lists and canonical order',
     'waivers',
     'preferences',
   ])
-  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'needs', 'library'])
+  assert.deepEqual(config.coach.tabOrder, DEFAULT_COACH_PORTAL_NAV_LAYOUT.filter((item) => item.type === 'tab').map((item) => item.key))
+  assert.deepEqual(config.coach.navLayout, DEFAULT_COACH_PORTAL_NAV_LAYOUT)
   assert.ok(config.coach.tabOrder.includes('flip-fit'))
 })
 
@@ -51,9 +53,14 @@ test('member portal preserves the Store selection', () => {
   assert.deepEqual(config.member.tabOrder.slice(0, 3), ['home', 'store', 'billing'])
 })
 
-test('coach portal exposes the Flip & Fit tab and label', () => {
+test('coach portal exposes the renamed planning tabs and labels', () => {
   assert.ok(COACH_PORTAL_TAB_KEYS.includes('flip-fit'))
   assert.equal(COACH_PORTAL_TAB_LABELS['flip-fit'], 'Flip & Fit')
+  assert.equal(COACH_PORTAL_TAB_LABELS.needs, 'Program Generator')
+  assert.equal(COACH_PORTAL_TAB_LABELS['program-planner'], 'Program Planner')
+  assert.equal(COACH_PORTAL_TAB_LABELS['prepare-access'], 'Prepare & Access')
+  assert.equal(COACH_PORTAL_TAB_LABELS['athleticism-accelerator'], 'Custom Programs')
+  assert.equal(COACH_PORTAL_TAB_LABELS.programs, 'ABC Progressions')
 })
 
 test('normalizePortalConfig preserves custom coach order for all portal tabs', () => {
@@ -73,8 +80,7 @@ test('normalizePortalConfig preserves custom coach order for all portal tabs', (
     'preferences',
   ]
   const config = normalizePortalConfig({ coach: { tabOrder: customOrder } })
-  const expectedOrder = [...customOrder]
-  expectedOrder.splice(expectedOrder.indexOf('library') + 1, 0, 'athleticism-accelerator')
+  const expectedOrder = ['home', 'sessions', 'messages', 'roster', 'framework', 'library', 'needs', 'program-planner', 'assign', 'faqs', 'preferences']
   assert.deepEqual(config.coach.tabOrder.slice(0, expectedOrder.length), expectedOrder)
   assert.ok(config.coach.tabOrder.includes('programs'))
   assert.ok(config.coach.tabOrder.includes('insights'))
@@ -96,25 +102,24 @@ test('normalizePortalConfig preserves nav layout section breaks and tab order', 
   })
   assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Session Design'))
   assert.ok(config.coach.navLayout.some((item) => item.type === 'section' && item.label === 'Athlete Development'))
-  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'workout', 'gymnastics-evaluations'])
+  assert.deepEqual(config.coach.tabOrder.slice(0, 4), ['home', 'sessions', 'program-planner', 'gymnastics-evaluations'])
   const athleteDevelopmentIndex = config.coach.navLayout.findIndex((item) => item.type === 'section' && item.id === 'athlete-dev')
   assert.equal(config.coach.navLayout[athleteDevelopmentIndex + 1].key, 'gymnastics-evaluations')
 })
 
-test('Accelerator follows Library within a saved Session Design section, without duplicates', () => {
+test('legacy builder tabs collapse into one Program Planner entry', () => {
   const config = normalizePortalConfig({ coach: {
-    hiddenTabs: ['athleticism-accelerator'],
+    hiddenTabs: ['workout', 'training-blocks', 'regimens'],
     navLayout: [
       { type: 'tab', key: 'home' },
       { type: 'section', id: 'session-design', label: 'Session Design' },
-      { type: 'tab', key: 'library' },
-      { type: 'section', id: 'athlete-dev', label: 'Athlete Development' },
-      { type: 'tab', key: 'skills' },
+      { type: 'tab', key: 'workout' },
+      { type: 'tab', key: 'training-blocks' },
+      { type: 'tab', key: 'regimens' },
     ],
   } })
-  const index = config.coach.navLayout.findIndex((item) => item.key === 'library')
-  assert.deepEqual(config.coach.navLayout[index + 1], { type: 'tab', key: 'athleticism-accelerator' })
-  assert.equal(config.coach.navLayout[index + 2].label, 'Athlete Development')
-  assert.deepEqual(config.coach.hiddenTabs, ['athleticism-accelerator'])
+  assert.equal(config.coach.navLayout.filter((item) => item.key === 'program-planner').length, 1)
+  assert.equal(config.coach.navLayout.some((item) => ['workout', 'training-blocks', 'regimens'].includes(item.key)), false)
+  assert.deepEqual(config.coach.hiddenTabs, [])
   assert.deepEqual(normalizePortalConfig(config), config)
 })

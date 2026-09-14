@@ -30,11 +30,11 @@ async function openAccelerator(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athleticism Accelerator View athletic plans by class/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
-  await page.locator('nav').getByRole('button', { name: 'Athleticism Accelerator', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Athleticism Accelerator', exact: true })).toBeVisible()
+  await page.locator('nav').getByRole('button', { name: 'Custom Programs', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Custom Programs', exact: true })).toBeVisible()
 }
 
 test('all 36 rotational classes integrate both regions, with 12 added application days', async ({ page }, testInfo) => {
@@ -71,7 +71,7 @@ test('all 36 rotational classes integrate both regions, with 12 added applicatio
   await expect(page.getByRole('button', { name: 'Next class' })).toBeDisabled()
   await page.getByRole('button', { name: 'Plan overview' }).click()
   await expect(page.getByRole('dialog')).toContainText('24 integrated classes plus 12 application days')
-  await page.getByRole('dialog').getByRole('button', { name: /Class 18 · Full body · Consolidate with less volume/ }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Class 18: Full body · Consolidate with less volume', exact: true }).click()
   await page.getByRole('tab', { name: '2. Explosiveness' }).click()
   await page.getByRole('button', { name: 'Quality, scaling & readiness' }).click()
   await expect(page.getByRole('dialog')).toContainText('24 explosive attempts, four ball releases and no planned landings')

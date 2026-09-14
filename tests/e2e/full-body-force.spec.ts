@@ -51,11 +51,11 @@ async function openAccelerator(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athleticism Accelerator View athletic plans by class/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
-  await page.locator('nav').getByRole('button', { name: 'Athleticism Accelerator', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Athleticism Accelerator', exact: true })).toBeVisible()
+  await page.locator('nav').getByRole('button', { name: 'Custom Programs', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Custom Programs', exact: true })).toBeVisible()
 }
 
 const phaseNames = { E: '2. Explosiveness', S: '3. Resilience', P: '4. Primary strength' } as const
@@ -80,8 +80,8 @@ async function phasePanel(page: Page, phase: keyof typeof phaseNames) {
 async function checkDisplayedExercise(panel: Locator, exercise: SavedExercise) {
   const notes = panel.getByRole('button', { name: `Coaching notes for ${exercise.name}`, exact: true })
   await expect(notes).toBeVisible()
-  // The parent is this exercise's grid, containing its name, source and dose.
-  const row = notes.locator('..')
+  // The exercise grid contains its name, source, dose and the action buttons.
+  const row = notes.locator('../..')
   await expect(row).toContainText(exercise.dose)
   await expect(row).toContainText(`${exercise.sourceTrack} · Source class ${exercise.sourceClass}`)
 }
@@ -211,10 +211,10 @@ test('Full Body Force Generation retains all 36 mixed classes, source doses, pre
 
   await page.getByRole('button', { name: 'Plan overview', exact: true }).click()
   const overview = page.getByRole('dialog')
-  await expect(overview.getByRole('button', { name: /Class \d+ ·/ })).toHaveCount(36)
+  await expect(overview.getByRole('button', { name: /Class \d+:/ })).toHaveCount(36)
   await expect(overview).toContainText('36 Classes · 12 development stages')
   await expectDialogFits(page)
-  await overview.getByRole('button', { name: new RegExp(`Class 36 · ${escapeRegExp(sessions[35].title)}`) }).click()
+  await overview.getByRole('button', { name: new RegExp(`Class 36: ${escapeRegExp(sessions[35].title)}`) }).click()
   await expect(overview).not.toBeVisible()
   await expect(page.getByRole('button', { name: 'Next class', exact: true })).toBeDisabled()
   await expect(page.getByRole('region', { name: 'Class 36 workout', exact: true })).toBeVisible()

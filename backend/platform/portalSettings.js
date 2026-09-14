@@ -17,27 +17,59 @@ export const MEMBER_PORTAL_TAB_KEYS = [
 /** Keep in sync with COACH_PORTAL_TAB_OPTIONS in src/utils/portalTabConfig.ts */
 export const COACH_PORTAL_TAB_KEYS = [
   'home',
+  'messages',
   'sessions',
-  'needs',
-  'library',
-  'athleticism-accelerator',
+  'roster',
   'framework',
-  'workout',
+  'library',
+  'needs',
+  'program-planner',
+  'prepare-access',
+  'athleticism-accelerator',
   'programs',
-  'training-blocks',
-  'regimens',
   'flip-fit',
   'challenges',
   'gymnastics-evaluations',
   'skills',
   'assign',
-  'messages',
-  'faqs',
   'reviews',
   'insights',
-  'roster',
+  'faqs',
   'preferences',
 ]
+
+export const DEFAULT_COACH_PORTAL_NAV_LAYOUT = [
+  { type: 'tab', key: 'home' },
+  { type: 'tab', key: 'messages' },
+  { type: 'tab', key: 'sessions' },
+  { type: 'tab', key: 'roster' },
+  { type: 'section', id: 'session-design', label: 'Session Design' },
+  { type: 'tab', key: 'framework' },
+  { type: 'tab', key: 'library' },
+  { type: 'tab', key: 'needs' },
+  { type: 'tab', key: 'program-planner' },
+  { type: 'section', id: 'training-plans', label: 'Training Plans' },
+  { type: 'tab', key: 'prepare-access' },
+  { type: 'tab', key: 'athleticism-accelerator' },
+  { type: 'tab', key: 'programs' },
+  { type: 'tab', key: 'flip-fit' },
+  { type: 'tab', key: 'challenges' },
+  { type: 'section', id: 'athlete-dev', label: 'Athlete Development' },
+  { type: 'tab', key: 'gymnastics-evaluations' },
+  { type: 'tab', key: 'skills' },
+  { type: 'tab', key: 'assign' },
+  { type: 'tab', key: 'reviews' },
+  { type: 'tab', key: 'insights' },
+  { type: 'section', id: 'administrative', label: 'Administrative' },
+  { type: 'tab', key: 'faqs' },
+  { type: 'tab', key: 'preferences' },
+]
+
+const LEGACY_COACH_TAB_ALIASES = {
+  workout: 'program-planner',
+  'training-blocks': 'program-planner',
+  regimens: 'program-planner',
+}
 
 export const MEMBER_PORTAL_LOCKED_TABS = new Set(['home'])
 export const COACH_PORTAL_LOCKED_TABS = new Set(['home'])
@@ -59,25 +91,24 @@ export const MEMBER_PORTAL_TAB_LABELS = {
 
 export const COACH_PORTAL_TAB_LABELS = {
   home: 'Home',
+  messages: 'Messages',
   sessions: 'Today',
-  needs: 'Needs Engine',
-  library: 'Library',
-  'athleticism-accelerator': 'Athleticism Accelerator',
+  roster: 'Roster',
   framework: 'Philosophy',
-  workout: 'Workouts',
-  programs: 'Programs',
-  'training-blocks': 'Blocks',
-  regimens: 'Regimens',
+  library: 'Library',
+  needs: 'Program Generator',
+  'program-planner': 'Program Planner',
+  'prepare-access': 'Prepare & Access',
+  'athleticism-accelerator': 'Custom Programs',
+  programs: 'ABC Progressions',
   'flip-fit': 'Flip & Fit',
   challenges: 'Challenges',
   'gymnastics-evaluations': 'Evaluation Form',
   skills: 'Skill Tree',
   assign: 'Assign',
-  messages: 'Messages',
-  faqs: 'FAQ library',
   reviews: 'Form Review',
   insights: 'Insights',
-  roster: 'Roster',
+  faqs: 'FAQ library',
   preferences: 'Preferences',
 }
 
@@ -103,7 +134,10 @@ function normalizeHiddenTabs(portal, hiddenTabs) {
 function normalizeTabOrder(portal, tabOrder) {
   const valid = portal === 'member' ? MEMBER_PORTAL_TAB_KEYS : COACH_PORTAL_TAB_KEYS
   if (!Array.isArray(tabOrder)) return [...valid]
-  const selected = [...new Set(tabOrder.map(String))].filter((tab) => valid.includes(tab))
+  const selected = [...new Set(tabOrder.map((tab) => {
+    const key = String(tab)
+    return portal === 'coach' ? LEGACY_COACH_TAB_ALIASES[key] ?? key : key
+  }))].filter((tab) => valid.includes(tab))
   return [...selected, ...valid.filter((tab) => !selected.includes(tab))]
 }
 
@@ -133,7 +167,8 @@ function normalizeNavLayout(portal, navLayout, tabOrder) {
         : entry && typeof entry === 'object'
           ? entry.key
           : entry
-    const key = String(keyRaw ?? '')
+    const rawKey = String(keyRaw ?? '')
+    const key = portal === 'coach' ? LEGACY_COACH_TAB_ALIASES[rawKey] ?? rawKey : rawKey
     if (!valid.includes(key) || seen.has(key)) continue
     seen.add(key)
     result.push({ type: 'tab', key })
@@ -154,18 +189,23 @@ function normalizeNavLayout(portal, navLayout, tabOrder) {
       const [evaluation] = result.splice(evaluationIndex, 1)
       result.splice(sectionIndex + (evaluationIndex < sectionIndex ? 0 : 1), 0, evaluation)
     }
-    const acceleratorIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'athleticism-accelerator')
-    const [accelerator] = result.splice(acceleratorIndex, 1)
-    const libraryIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'library')
-    result.splice(libraryIndex + 1, 0, accelerator)
   }
 
   return result
 }
 
 function normalizePortalSidebar(portal, raw = {}) {
-  const tabOrder = normalizeTabOrder(portal, raw?.tabOrder)
-  const navLayout = normalizeNavLayout(portal, raw?.navLayout, tabOrder)
+  const hasSavedLayout = Array.isArray(raw?.navLayout) && raw.navLayout.length > 0
+  const hasSavedOrder = Array.isArray(raw?.tabOrder) && raw.tabOrder.length > 0
+  const defaultLayout = portal === 'coach'
+    ? DEFAULT_COACH_PORTAL_NAV_LAYOUT
+    : MEMBER_PORTAL_TAB_KEYS.map((key) => ({ type: 'tab', key }))
+  const tabOrder = normalizeTabOrder(portal, hasSavedOrder ? raw.tabOrder : defaultLayout.filter((item) => item.type === 'tab').map((item) => item.key))
+  const navLayout = normalizeNavLayout(
+    portal,
+    hasSavedLayout ? raw.navLayout : hasSavedOrder ? tabOrder.map((key) => ({ type: 'tab', key })) : defaultLayout,
+    tabOrder,
+  )
   return {
     hiddenTabs: normalizeHiddenTabs(portal, raw?.hiddenTabs),
     tabOrder: navLayout.filter((item) => item.type === 'tab').map((item) => item.key),

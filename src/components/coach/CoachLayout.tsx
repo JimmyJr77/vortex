@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp, Layers, Blocks } from 'lucide-react'
+import { Activity, Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp } from 'lucide-react'
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
@@ -12,18 +12,17 @@ import {
 } from '../../utils/notificationNavigation'
 import type { PortalId } from '../../utils/portalSession'
 import { coachFetch } from '../../coach/api'
-import { firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, type PortalNavLayoutItem } from '../../utils/portalTabConfig'
+import { DEFAULT_COACH_PORTAL_NAV_LAYOUT, firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, type PortalNavLayoutItem } from '../../utils/portalTabConfig'
 
 const LiveSessionPanel = lazyWithRetry(() => import('./LiveSessionPanel'))
 const RosterPanel = lazyWithRetry(() => import('./RosterPanel'))
 const LibraryPanel = lazyWithRetry(() => import('./LibraryPanel'))
 const AthleticismAcceleratorPanel = lazyWithRetry(() => import('./AthleticismAcceleratorPanel'))
-const WorkoutBuilder = lazyWithRetry(() => import('./WorkoutBuilder'))
+const PrepareAccessPanel = lazyWithRetry(() => import('./PrepareAccessPanel'))
+const ProgramPlanner = lazyWithRetry(() => import('./ProgramPlanner'))
 const NeedsEnginePanel = lazyWithRetry(() => import('./NeedsEnginePanel'))
 const ProgramBuilder = lazyWithRetry(() => import('./ProgramBuilder'))
 const FrameworkPanel = lazyWithRetry(() => import('./FrameworkPanel'))
-const TrainingBlockBuilder = lazyWithRetry(() => import('./TrainingBlockBuilder'))
-const RegimenBuilder = lazyWithRetry(() => import('./RegimenBuilder'))
 const FlipFitSchedulePanel = lazyWithRetry(() => import('./FlipFitSchedulePanel'))
 const ChallengeBuilder = lazyWithRetry(() => import('./ChallengeBuilder'))
 const AssignPanel = lazyWithRetry(() => import('./AssignPanel'))
@@ -38,13 +37,12 @@ export type CoachTab =
   | 'sessions'
   | 'roster'
   | 'library'
+  | 'prepare-access'
   | 'athleticism-accelerator'
-  | 'workout'
+  | 'program-planner'
   | 'needs'
   | 'programs'
   | 'framework'
-  | 'training-blocks'
-  | 'regimens'
   | 'flip-fit'
   | 'challenges'
   | 'assign'
@@ -72,25 +70,24 @@ interface CoachLayoutProps {
 
 const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'home', label: 'Home', icon: Home },
+  { tab: 'messages', label: 'Messages', icon: MessageSquare },
   { tab: 'sessions', label: 'Today', icon: CalendarDays },
-  { tab: 'needs', label: 'Needs Engine', icon: Sparkles },
-  { tab: 'library', label: 'Library', icon: BookOpen },
-  { tab: 'athleticism-accelerator', label: 'Athleticism Accelerator', icon: Sparkles },
+  { tab: 'roster', label: 'Roster', icon: Users },
   { tab: 'framework', label: 'Philosophy', icon: ScrollText },
-  { tab: 'workout', label: 'Workouts', icon: Dumbbell },
-  { tab: 'programs', label: 'Programs', icon: CalendarRange },
-  { tab: 'training-blocks', label: 'Blocks', icon: Blocks },
-  { tab: 'regimens', label: 'Regimens', icon: Layers },
+  { tab: 'library', label: 'Library', icon: BookOpen },
+  { tab: 'needs', label: 'Program Generator', icon: Sparkles },
+  { tab: 'program-planner', label: 'Program Planner', icon: Dumbbell },
+  { tab: 'prepare-access', label: 'Prepare & Access', icon: Activity },
+  { tab: 'athleticism-accelerator', label: 'Custom Programs', icon: Sparkles },
+  { tab: 'programs', label: 'ABC Progressions', icon: CalendarRange },
   { tab: 'flip-fit', label: 'Flip & Fit', icon: CalendarRange },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
   { tab: 'gymnastics-evaluations', label: 'Evaluation Form', icon: ClipboardCheck },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
-  { tab: 'messages', label: 'Messages', icon: MessageSquare },
   { tab: 'faqs', label: 'FAQ library', icon: CircleHelp },
   { tab: 'reviews', label: 'Form Review', icon: Video },
   { tab: 'insights', label: 'Insights', icon: BarChart3 },
-  { tab: 'roster', label: 'Roster', icon: Users },
   { tab: 'preferences', label: 'Preferences', icon: Bell },
 ]
 
@@ -102,7 +99,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   const [openFormReviewSubmissionId, setOpenFormReviewSubmissionId] = useState<number | null>(null)
   const [hiddenCoachTabs, setHiddenCoachTabs] = useState<CoachTab[]>([])
   const [coachTabOrder, setCoachTabOrder] = useState<CoachTab[]>(NAV.map((item) => item.tab))
-  const [coachNavLayout, setCoachNavLayout] = useState<PortalNavLayoutItem[]>(NAV.map((item) => ({ type: 'tab', key: item.tab })))
+  const [coachNavLayout, setCoachNavLayout] = useState<PortalNavLayoutItem[]>(() => DEFAULT_COACH_PORTAL_NAV_LAYOUT.map((item) => ({ ...item })))
 
   const visibleNavEntries = useMemo(
     () => buildPortalNavRenderList(NAV, coachNavLayout, coachTabOrder, hiddenCoachTabs, (item) => item.tab),
@@ -125,7 +122,9 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
           setCoachNavLayout(
             Array.isArray(data.navLayout) && data.navLayout.length > 0
               ? data.navLayout
-              : (Array.isArray(data.tabOrder) ? data.tabOrder : NAV.map((item) => item.tab)).map((key) => ({ type: 'tab', key })),
+              : Array.isArray(data.tabOrder) && data.tabOrder.length > 0
+                ? data.tabOrder.map((key) => ({ type: 'tab', key }))
+                : DEFAULT_COACH_PORTAL_NAV_LAYOUT.map((item) => ({ ...item })),
           )
         }
       } catch {
@@ -182,20 +181,18 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <RosterPanel />
       case 'library':
         return <LibraryPanel />
+      case 'prepare-access':
+        return <PrepareAccessPanel />
       case 'athleticism-accelerator':
-        return <AthleticismAcceleratorPanel />
-      case 'workout':
-        return <WorkoutBuilder defaultType="workout" />
+        return <AthleticismAcceleratorPanel collection="custom-programs" />
+      case 'program-planner':
+        return <ProgramPlanner />
       case 'needs':
-        return <NeedsEnginePanel onSendToBuilder={() => setTab('workout')} />
+        return <NeedsEnginePanel onSendToBuilder={() => setTab('program-planner')} />
       case 'programs':
         return <ProgramBuilder />
       case 'framework':
         return <FrameworkPanel />
-      case 'training-blocks':
-        return <TrainingBlockBuilder />
-      case 'regimens':
-        return <RegimenBuilder />
       case 'flip-fit':
         return <FlipFitSchedulePanel />
       case 'challenges':
@@ -268,17 +265,17 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
       </header>
 
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={messagingFullscreen ? 'hidden' : `${navOpen ? 'block' : 'hidden lg:block'} min-h-0 lg:overflow-y-auto lg:overscroll-contain`}>
+        <nav className={messagingFullscreen ? 'hidden' : `${navOpen ? 'block' : 'hidden lg:block'} h-full min-h-0 overflow-y-auto overscroll-contain`}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 lg:sticky lg:top-0">
             {visibleNavEntries.map((entry) => {
               if (entry.type === 'section') {
                 return (
-                  <div
+                  <h2
                     key={entry.id}
                     className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
                   >
                     {entry.label}
-                  </div>
+                  </h2>
                 )
               }
               const item = entry.item
@@ -300,7 +297,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className={`min-w-0 min-h-0 flex flex-col flex-1 ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain'}`}>
+        <main className={`${navOpen ? 'hidden lg:flex' : 'flex'} min-w-0 min-h-0 flex-col flex-1 ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
             <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
               {renderPanel()}

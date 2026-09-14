@@ -30,11 +30,11 @@ async function openAccelerator(page: Page) {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athleticism Accelerator View athletic plans by class/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
-  await page.locator('nav').getByRole('button', { name: 'Athleticism Accelerator', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Athleticism Accelerator', exact: true })).toBeVisible()
+  await page.locator('nav').getByRole('button', { name: 'Custom Programs', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Custom Programs', exact: true })).toBeVisible()
 }
 
 test('every Speed & Agility class integrates all three courses', async ({ page }, testInfo) => {

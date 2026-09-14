@@ -20,6 +20,51 @@ export interface PortalTabConfig {
   coach: PortalSidebarConfig<CoachTab>
 }
 
+export const DEFAULT_COACH_PORTAL_NAV_LAYOUT: PortalNavLayoutItem[] = [
+  { type: 'tab', key: 'home' },
+  { type: 'tab', key: 'messages' },
+  { type: 'tab', key: 'sessions' },
+  { type: 'tab', key: 'roster' },
+  { type: 'section', id: 'session-design', label: 'Session Design' },
+  { type: 'tab', key: 'framework' },
+  { type: 'tab', key: 'library' },
+  { type: 'tab', key: 'needs' },
+  { type: 'tab', key: 'program-planner' },
+  { type: 'section', id: 'training-plans', label: 'Training Plans' },
+  { type: 'tab', key: 'prepare-access' },
+  { type: 'tab', key: 'athleticism-accelerator' },
+  { type: 'tab', key: 'programs' },
+  { type: 'tab', key: 'flip-fit' },
+  { type: 'tab', key: 'challenges' },
+  { type: 'section', id: 'athlete-dev', label: 'Athlete Development' },
+  { type: 'tab', key: 'gymnastics-evaluations' },
+  { type: 'tab', key: 'skills' },
+  { type: 'tab', key: 'assign' },
+  { type: 'tab', key: 'reviews' },
+  { type: 'tab', key: 'insights' },
+  { type: 'section', id: 'administrative', label: 'Administrative' },
+  { type: 'tab', key: 'faqs' },
+  { type: 'tab', key: 'preferences' },
+]
+
+const LEGACY_COACH_TAB_ALIASES: Record<string, string> = {
+  workout: 'program-planner',
+  'training-blocks': 'program-planner',
+  regimens: 'program-planner',
+}
+
+function canonicalPortalTabKey<T extends string>(key: unknown, validKeys: readonly T[]): T {
+  const rawKey = String(key ?? '')
+  return String(validKeys.includes('program-planner' as T) ? LEGACY_COACH_TAB_ALIASES[rawKey] ?? rawKey : rawKey) as T
+}
+
+export function defaultPortalSidebarConfig(portal: 'member' | 'coach'): PortalSidebarConfig {
+  const navLayout = portal === 'coach'
+    ? DEFAULT_COACH_PORTAL_NAV_LAYOUT.map((item) => ({ ...item }))
+    : MEMBER_PORTAL_TAB_OPTIONS.map(({ key }) => ({ type: 'tab' as const, key }))
+  return { hiddenTabs: [], tabOrder: tabOrderFromNavLayout(navLayout), navLayout }
+}
+
 export function tabOrderFromNavLayout<T extends string>(layout: PortalNavLayoutItem[]): T[] {
   return layout
     .filter((item): item is { type: 'tab'; key: string } => item.type === 'tab')
@@ -31,7 +76,10 @@ export function normalizeNavLayout<T extends string>(
   validKeys: readonly T[],
   tabOrder?: readonly T[],
 ): PortalNavLayoutItem[] {
-  const fallbackOrder = tabOrder?.length ? [...tabOrder] : [...validKeys]
+  const requestedOrder = (tabOrder?.length ? [...tabOrder] : [...validKeys])
+    .map((key) => canonicalPortalTabKey(key, validKeys))
+    .filter((key, index, keys) => validKeys.includes(key) && keys.indexOf(key) === index)
+  const fallbackOrder = [...requestedOrder, ...validKeys.filter((key) => !requestedOrder.includes(key))]
   const entries = Array.isArray(raw) && raw.length > 0 ? raw : fallbackOrder
 
   const seen = new Set<T>()
@@ -55,7 +103,7 @@ export function normalizeNavLayout<T extends string>(
         : entry && typeof entry === 'object'
           ? entry.key
           : entry
-    const key = String(keyRaw ?? '') as T
+    const key = canonicalPortalTabKey(keyRaw, validKeys)
     if (!validKeys.includes(key) || seen.has(key)) continue
     seen.add(key)
     result.push({ type: 'tab', key })
@@ -74,15 +122,6 @@ export function normalizeNavLayout<T extends string>(
   if (athleteDevelopmentIndex >= 0 && evaluationIndex >= 0) {
     const [evaluation] = result.splice(evaluationIndex, 1)
     result.splice(athleteDevelopmentIndex + (evaluationIndex < athleteDevelopmentIndex ? 0 : 1), 0, evaluation)
-  }
-
-  // Older saved layouts do not know this tab. Keep it in Library's section,
-  // including when talking to a backend that still returns the old tab order.
-  if (validKeys.some((key) => key === 'athleticism-accelerator')) {
-    const existingIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'athleticism-accelerator')
-    if (existingIndex >= 0) result.splice(existingIndex, 1)
-    const libraryIndex = result.findIndex((item) => item.type === 'tab' && item.key === 'library')
-    result.splice(libraryIndex >= 0 ? libraryIndex + 1 : result.length, 0, { type: 'tab', key: 'athleticism-accelerator' })
   }
 
   return result
@@ -145,25 +184,24 @@ export const MEMBER_PORTAL_TAB_OPTIONS: Array<{ key: MemberTab; label: string; l
 
 export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; locked?: boolean }> = [
   { key: 'home', label: 'Home', locked: true },
+  { key: 'messages', label: 'Messages' },
   { key: 'sessions', label: 'Today' },
-  { key: 'needs', label: 'Needs Engine' },
-  { key: 'library', label: 'Library' },
-  { key: 'athleticism-accelerator', label: 'Athleticism Accelerator' },
+  { key: 'roster', label: 'Roster' },
   { key: 'framework', label: 'Philosophy' },
-  { key: 'workout', label: 'Workouts' },
-  { key: 'programs', label: 'Programs' },
-  { key: 'training-blocks', label: 'Blocks' },
-  { key: 'regimens', label: 'Regimens' },
+  { key: 'library', label: 'Library' },
+  { key: 'needs', label: 'Program Generator' },
+  { key: 'program-planner', label: 'Program Planner' },
+  { key: 'prepare-access', label: 'Prepare & Access' },
+  { key: 'athleticism-accelerator', label: 'Custom Programs' },
+  { key: 'programs', label: 'ABC Progressions' },
   { key: 'flip-fit', label: 'Flip & Fit' },
   { key: 'challenges', label: 'Challenges' },
   { key: 'gymnastics-evaluations', label: 'Evaluation Form' },
   { key: 'skills', label: 'Skill Tree' },
   { key: 'assign', label: 'Assign' },
-  { key: 'messages', label: 'Messages' },
-  { key: 'faqs', label: 'FAQ library' },
   { key: 'reviews', label: 'Form Review' },
   { key: 'insights', label: 'Insights' },
-  { key: 'roster', label: 'Roster' },
+  { key: 'faqs', label: 'FAQ library' },
   { key: 'preferences', label: 'Preferences' },
 ]
 
@@ -189,14 +227,13 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   { title: string; description: string }
 > = {
   sessions: { title: "Today's Sessions", description: 'Run a class: attendance and group logging.' },
-  needs: { title: 'Needs Engine', description: 'Describe a need, get a time-packed session.' },
+  needs: { title: 'Program Generator', description: 'Describe a need and generate a time-packed session.' },
   library: { title: 'Exercise Library', description: 'Search and tag the movement library.' },
-  'athleticism-accelerator': { title: 'Athleticism Accelerator', description: 'View athletic plans by class, daily equipment, and coaching cues.' },
+  'program-planner': { title: 'Program Planner', description: 'Build workouts from exercise cards, then organize blocks and regimens.' },
+  'prepare-access': { title: 'Prepare & Access', description: 'Choose and inspect the preparation routine for a training day.' },
+  'athleticism-accelerator': { title: 'Custom Programs', description: 'View custom athletic plans by class, daily equipment, and coaching cues.' },
   framework: { title: 'Training Philosophy', description: 'Explore the Athleticism Accelerator taxonomy — phases, tenets, methodologies, order slots, session models, and validation rules.' },
-  workout: { title: 'Workout Builder', description: 'Build sessions with a live time clock.' },
-  programs: { title: 'Training Programs', description: 'Sequence weeks of training.' },
-  'training-blocks': { title: 'Training Blocks', description: 'Multi-day block templates with weekly rules.' },
-  regimens: { title: 'Regimens', description: 'Evergreen phase-balanced training templates.' },
+  programs: { title: 'ABC Progressions', description: 'Browse and build structured athletic progressions.' },
   'flip-fit': { title: 'Flip & Fit', description: 'Build and manage the 12-week athlete development schedule.' },
   challenges: { title: 'Challenges', description: 'Run scored competitions.' },
   'gymnastics-evaluations': { title: 'Evaluation Form', description: 'Score gymnastics movements and publish athlete focus reports.' },

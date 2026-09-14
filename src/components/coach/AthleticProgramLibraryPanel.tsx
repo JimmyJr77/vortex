@@ -77,9 +77,9 @@ export default function AthleticProgramLibraryPanel() {
           <div className="max-w-3xl">
             <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-300">
               <CalendarRange className="h-4 w-4" />
-              Vortex Program Library
+              ABC Progression Library
             </div>
-            <h2 className="text-2xl font-bold md:text-3xl">Coach-ready 12-week athletic programs</h2>
+            <h2 className="text-2xl font-bold md:text-3xl">Coach-ready 12-week ABC progressions</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
               Sixteen complete progressions across performance outcomes and full-body equipment tracks.
               Every workout component connects to the canonical Exercise Library for coaching, scaling,

@@ -54,7 +54,7 @@ export function enrichLowerBodyForceSession(session, markdown, parts, source) {
   }
   assert.ok(markdown.includes(workload.quality_marker), `${context}: quality guidance matches source`)
   return { ...session,
-    title: `Week ${workload.week} — ${workload.title}`,
+    title: workload.title,
     exercises,
     equipment: unique(exercises.flatMap(({ equipment }) => equipment)).filter((item) => item !== 'Bodyweight'),
     minutes: [...minutes],

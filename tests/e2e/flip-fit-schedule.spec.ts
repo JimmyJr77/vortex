@@ -16,9 +16,10 @@ function formatShortDate(isoDate: string) {
 }
 
 const coachTabs = [
-  'home', 'sessions', 'needs', 'library', 'framework', 'workout', 'programs',
-  'training-blocks', 'regimens', 'flip-fit', 'challenges', 'gymnastics-evaluations',
-  'skills', 'assign', 'messages', 'faqs', 'reviews', 'insights', 'roster', 'preferences',
+  'home', 'messages', 'sessions', 'roster', 'framework', 'library', 'needs',
+  'program-planner', 'prepare-access', 'athleticism-accelerator', 'programs',
+  'flip-fit', 'challenges', 'gymnastics-evaluations', 'skills', 'assign',
+  'reviews', 'insights', 'faqs', 'preferences',
 ]
 
 async function openMockedCoachPortal(

@@ -8,7 +8,7 @@ import { CanonicalCardLibraryPanel } from './CanonicalCardLibraryPanel'
 type LibraryTab = 'exercises' | 'canonical' | 'skills' | 'programming' | 'games'
 
 export default function LibraryPanel() {
-  const [tab, setTab] = useState<LibraryTab>('exercises')
+  const [tab, setTab] = useState<LibraryTab>('programming')
 
   const tabClass = (value: LibraryTab) =>
     `-mb-px border-b-2 px-1 py-2 text-sm font-semibold transition-colors ${
@@ -21,20 +21,20 @@ export default function LibraryPanel() {
     <div className="space-y-5">
       <div className="border-b border-gray-200">
         <nav className="flex flex-wrap gap-6">
+          <button type="button" onClick={() => setTab('programming')} className={tabClass('programming')}>
+            Programming Library
+          </button>
           <button type="button" onClick={() => setTab('exercises')} className={tabClass('exercises')}>
             Exercise Library
-          </button>
-          <button type="button" onClick={() => setTab('canonical')} className={tabClass('canonical')}>
-            Canonical Governance
           </button>
           <button type="button" onClick={() => setTab('skills')} className={tabClass('skills')}>
             Skill Library
           </button>
-          <button type="button" onClick={() => setTab('programming')} className={tabClass('programming')}>
-            Programming Library
-          </button>
           <button type="button" onClick={() => setTab('games')} className={tabClass('games')}>
-            Games & Competitions
+            Games &amp; Competitions Library
+          </button>
+          <button type="button" onClick={() => setTab('canonical')} className={tabClass('canonical')}>
+            Canonical Governance
           </button>
         </nav>
       </div>
