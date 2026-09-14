@@ -5,6 +5,10 @@ import { buildRotationalFullBody, rotationalClassMarkdown, rotationalReadme } fr
 import { enrichUpperBodyForceSession } from './lib/build-upper-body-force.mjs'
 import { enrichLowerBodyForceSession } from './lib/build-lower-body-force.mjs'
 import { buildFullBodyForce } from './lib/build-full-body-force.mjs'
+import {
+  acceleratorExerciseKey,
+  associationMap,
+} from './lib/accelerator-exercise-library.mjs'
 
 // The finalized curriculum markdown remains the source of truth. This script
 // creates a compact read model for the coach-facing daily-plan view.
@@ -23,6 +27,8 @@ const programs = [
 ]
 const root = new URL('../workout_plan/', import.meta.url)
 const target = new URL('../src/coach/data/acceleratorPrograms.json', import.meta.url)
+const libraryManifest = JSON.parse(readFileSync(new URL('./data/athleticism-accelerator-library-manifest.json', import.meta.url), 'utf8'))
+const libraryAssociations = associationMap(libraryManifest)
 const plain = (value = '') => value.replace(/\*\*/g, '').replace(/\[(.*?)\]\([^)]*\)/g, '$1').replace(/\s+/g, ' ').trim()
 const short = (value, length = 78) => value.length <= length ? value : `${value.slice(0, length).replace(/\s+\S*$/, '')}…`
 const unique = (items) => [...new Set(items)]
@@ -180,6 +186,18 @@ output['speed-agility'] = buildSpeedAgility(output)
 const rotationPlan = JSON.parse(readFileSync(new URL('rotational_force_full_body/sequence.json', root), 'utf8'))
 output['rotation-full-body'] = buildRotationalFullBody(output, rotationPlan)
 output['full-body-force'] = buildFullBodyForce(root)
+
+for (const [programId, sessions] of Object.entries(output)) {
+  for (const session of sessions) {
+    for (const exercise of [...(session.prepareExercises ?? []), ...session.exercises]) {
+      const association = libraryAssociations.get(acceleratorExerciseKey(exercise.name))
+      if (!association) {
+        throw new Error(`Missing Exercise Library association for ${programId} Class ${session.n}: ${exercise.name}`)
+      }
+      exercise.librarySlug = association.librarySlug
+    }
+  }
+}
 mkdirSync(new URL('../src/coach/data/', import.meta.url), { recursive: true })
 const content = `${JSON.stringify(output, null, 2)}\n`
 const speedAgilityDraftTarget = new URL('speed_and_agility/curriculum.md', root)

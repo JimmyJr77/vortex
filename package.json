@@ -20,6 +20,7 @@
     "test:integration:backend": "node --test backend/tests/integration/*.test.mjs",
     "test:backend:billing": "node --test backend/billing/__tests__/*.test.js backend/platform/__tests__/deployMigrations.test.js backend/platform/__tests__/initTablesRuntimeMigrations.test.js backend/platform/__tests__/legacyBillingFacilityIsolation.test.js backend/platform/__tests__/memberBillingHttpAuthorization.test.js backend/platform/__tests__/memberBillingReadPath.test.js backend/platform/__tests__/migrationConnection.test.js",
     "test:flip-fit": "node --test scripts/verify-flip-fit-program.mjs scripts/verify-flip-fit-overrides.mjs scripts/verify-flip-fit-prescriptions.mjs backend/platform/__tests__/flipFitScheduleRepository.test.js backend/platform/__tests__/flipFitCardRepository.test.js",
+    "test:athleticism-library": "node scripts/generate-athleticism-accelerator-library.mjs --check && node scripts/build-athleticism-accelerator.mjs --check && node scripts/verify-athleticism-accelerator-library.mjs",
     "test:e2e:smoke": "playwright test --config=playwright.config.ts",
     "test:seo-release": "node scripts/verify-seo-release.mjs",
     "test:seo-live": "node scripts/verify-seo-release.mjs --live",

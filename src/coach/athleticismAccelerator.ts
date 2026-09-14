@@ -1,25 +1,28 @@
 import programSessions from './data/acceleratorPrograms.json'
 
 export const ACCELERATOR_PROGRAMS = [
-  { id: 'distance-running', title: 'Distance Running', classCount: 12, category: 'Endurance', description: 'Build the capacity to keep moving.', icon: 'endurance' },
-  { id: 'sprinting', title: 'Sprinting & Acceleration', classCount: 12, category: 'Speed', description: 'Make the first steps count.', icon: 'speed' },
-  { id: 'speed-agility', title: 'Speed & Agility', classCount: 36, category: 'Speed & movement', description: 'Sprinting, acceleration, mobile agility and reactive agility integrated in every class.', icon: 'speed' },
-  { id: 'jumps-horizontal', title: 'Jumps: Horizontal', classCount: 12, category: 'Power', description: 'Project force forward.', icon: 'horizontal' },
-  { id: 'jumps-vertical', title: 'Jumps: Vertical', classCount: 12, category: 'Power', description: 'Develop upward projection.', icon: 'vertical' },
-  { id: 'jumps-rebound', title: 'Jumps: Absorption & Rebound', classCount: 12, category: 'Elasticity', description: 'Land with control. Return with intent.', icon: 'rebound' },
-  { id: 'jumps-max-air', title: 'Jumps: Max Air', classCount: 36, category: 'Complete jumping', description: 'Vertical and horizontal jumps with force absorption and elastic rebound.', icon: 'maxair' },
-  { id: 'agility-mobility', title: 'Agility: Mobility', classCount: 12, category: 'Movement', description: 'Create room to move well.', icon: 'mobility' },
-  { id: 'agility-reactive', title: 'Agility: Reactive', classCount: 12, category: 'Movement', description: 'Read, respond, and change direction.', icon: 'reactive' },
-  { id: 'upper-body-force', title: 'Upper Body Force Generation', classCount: 12, category: 'Upper-body force generation', description: 'Develop pushing, pulling and straight-line projection through purposeful explosive drills and progressive strength.', icon: 'horizontal' },
-  { id: 'lower-body-force', title: 'Lower Body Force Generation', classCount: 12, category: 'Power', description: 'Build knee, hip and ankle force for upward and forward projection across twelve weekly classes.', icon: 'vertical' },
-  { id: 'full-body-force', title: 'Full Body Force Generation', classCount: 36, category: 'Power', description: 'Combine upper and lower body force with upper and lower rotational power in every class.', icon: 'fullbody' },
-  { id: 'rotation-upper', title: 'Rotational Force: Upper Body', classCount: 12, category: 'Rotational force', description: 'Connect the body turn to hand speed.', icon: 'upper' },
-  { id: 'rotation-lower', title: 'Rotational Force: Lower Body', classCount: 12, category: 'Rotational force', description: 'Drive the turn from the ground up.', icon: 'lower' },
-  { id: 'rotation-full-body', title: 'Rotational Force: Full Body', classCount: 36, category: 'Rotational force', description: 'Upper and lower body rotational force generation connected in every class of this 36-week plan.', icon: 'rotationfullbody' },
+  { kind: 'routine', id: 'access-prepare-standard', title: 'Access & Prepare Standard', durationMinutes: 15, category: 'Preparation', description: 'A familiar 16-exercise base that prepares athletes to move with purpose.', icon: 'prepare' },
+  { kind: 'program', id: 'distance-running', title: 'Distance Running', classCount: 12, category: 'Endurance', description: 'Build the capacity to keep moving.', icon: 'endurance' },
+  { kind: 'program', id: 'sprinting', title: 'Sprinting & Acceleration', classCount: 12, category: 'Speed', description: 'Make the first steps count.', icon: 'speed' },
+  { kind: 'program', id: 'speed-agility', title: 'Speed & Agility', classCount: 36, category: 'Speed & movement', description: 'Sprinting, acceleration, mobile agility and reactive agility integrated in every class.', icon: 'speed' },
+  { kind: 'program', id: 'jumps-horizontal', title: 'Jumps: Horizontal', classCount: 12, category: 'Power', description: 'Project force forward.', icon: 'horizontal' },
+  { kind: 'program', id: 'jumps-vertical', title: 'Jumps: Vertical', classCount: 12, category: 'Power', description: 'Develop upward projection.', icon: 'vertical' },
+  { kind: 'program', id: 'jumps-rebound', title: 'Jumps: Absorption & Rebound', classCount: 12, category: 'Elasticity', description: 'Land with control. Return with intent.', icon: 'rebound' },
+  { kind: 'program', id: 'jumps-max-air', title: 'Jumps: Max Air', classCount: 36, category: 'Complete jumping', description: 'Vertical and horizontal jumps with force absorption and elastic rebound.', icon: 'maxair' },
+  { kind: 'program', id: 'agility-mobility', title: 'Agility: Mobility', classCount: 12, category: 'Movement', description: 'Create room to move well.', icon: 'mobility' },
+  { kind: 'program', id: 'agility-reactive', title: 'Agility: Reactive', classCount: 12, category: 'Movement', description: 'Read, respond, and change direction.', icon: 'reactive' },
+  { kind: 'program', id: 'upper-body-force', title: 'Upper Body Force Generation', classCount: 12, category: 'Upper-body force generation', description: 'Develop pushing, pulling and straight-line projection through purposeful explosive drills and progressive strength.', icon: 'horizontal' },
+  { kind: 'program', id: 'lower-body-force', title: 'Lower Body Force Generation', classCount: 12, category: 'Power', description: 'Build knee, hip and ankle force for upward and forward projection across twelve weekly classes.', icon: 'vertical' },
+  { kind: 'program', id: 'full-body-force', title: 'Full Body Force Generation', classCount: 36, category: 'Power', description: 'Combine upper and lower body force with upper and lower rotational power in every class.', icon: 'fullbody' },
+  { kind: 'program', id: 'rotation-upper', title: 'Rotational Force: Upper Body', classCount: 12, category: 'Rotational force', description: 'Connect the body turn to hand speed.', icon: 'upper' },
+  { kind: 'program', id: 'rotation-lower', title: 'Rotational Force: Lower Body', classCount: 12, category: 'Rotational force', description: 'Drive the turn from the ground up.', icon: 'lower' },
+  { kind: 'program', id: 'rotation-full-body', title: 'Rotational Force: Full Body', classCount: 36, category: 'Rotational force', description: 'Upper and lower body rotational force generation connected in every class of this 36-week plan.', icon: 'rotationfullbody' },
 ] as const
 
 export type AcceleratorProgram = typeof ACCELERATOR_PROGRAMS[number]
 export type AcceleratorProgramId = AcceleratorProgram['id']
+export type AcceleratorClassProgram = Extract<AcceleratorProgram, { kind: 'program' }>
+export type AcceleratorClassProgramId = AcceleratorClassProgram['id']
 export type AcceleratorPhase = 'prepare' | 'E' | 'S' | 'P'
 export type AcceleratorExercise = {
   id: string
@@ -33,6 +36,7 @@ export type AcceleratorExercise = {
   instruction: string
   preparation: string | null
   equipment: string[]
+  librarySlug: string
   sourceTrack?: string
   sourceClass?: number
   sourceExerciseId?: string
@@ -46,6 +50,7 @@ export type AcceleratorSession = {
   delivery: string
   equipment: string[]
   exercises: AcceleratorExercise[]
+  prepareExercises?: AcceleratorExercise[]
   quality: string
   preparation: string
   explosiveNotes: string
@@ -59,7 +64,7 @@ export type AcceleratorSession = {
 }
 
 export type AcceleratorPlanGuidance = { cadence: string; overview: string; progression: string }
-export const ACCELERATOR_PLAN_GUIDANCE: Partial<Record<AcceleratorProgramId, AcceleratorPlanGuidance>> = {
+export const ACCELERATOR_PLAN_GUIDANCE: Partial<Record<AcceleratorClassProgramId, AcceleratorPlanGuidance>> = {
   'full-body-force': {
     cadence: '36 Classes · 12 development stages',
     overview: 'Twelve stages of three classes combine all twelve upper and all twelve lower body force classes. Every explosive and primary-strength phase includes two upper force, two lower force, one upper rotation and one lower rotation selection. Each class references existing Access & Prepare 1 and keeps six explosive drills, two light resilience exercises and six challenging strength exercises.',
@@ -92,8 +97,8 @@ export const ACCELERATOR_PLAN_GUIDANCE: Partial<Record<AcceleratorProgramId, Acc
   },
 }
 
-const sessionsByProgram = programSessions as Record<AcceleratorProgramId, AcceleratorSession[]>
-export const getAcceleratorSessions = (programId: AcceleratorProgramId): AcceleratorSession[] => sessionsByProgram[programId]
+const sessionsByProgram = programSessions as Record<AcceleratorClassProgramId, AcceleratorSession[]>
+export const getAcceleratorSessions = (programId: AcceleratorClassProgramId): AcceleratorSession[] => sessionsByProgram[programId]
 export const ACCELERATOR_PHASES: { id: AcceleratorPhase; title: string; subtitle: string }[] = [
   { id: 'prepare', title: 'Prepare', subtitle: 'Access & Prepare 1' },
   { id: 'E', title: 'Explosiveness', subtitle: '6 exercises' },

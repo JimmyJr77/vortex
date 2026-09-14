@@ -1036,6 +1036,44 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.get('/api/coach/exercises/by-slug/:slug', ...can('library.view'), async (req, res) => {
+    try {
+      const slug = String(req.params.slug ?? '').trim()
+      const facilityId = req.platformAuth.user.facility_id
+      const exercise = await pool.query(
+        `SELECT e.*, s.name as sport_name
+         FROM coaching.exercise e
+         LEFT JOIN coaching.sport s ON s.id = e.sport_id
+         WHERE e.slug = $1 AND e.facility_id = $2 AND e.archived = FALSE`,
+        [slug, facilityId],
+      )
+      if (exercise.rows.length === 0) return bad(res, 'Exercise not found.', 404)
+      const row = exercise.rows[0]
+      const id = Number(row.id)
+      const [tagMap, media, cues, prereqs, bundle, education] = await Promise.all([
+        loadExerciseTags([id]),
+        pool.query(`SELECT * FROM coaching.exercise_media WHERE exercise_id = $1 ORDER BY sort_order, id`, [id]),
+        pool.query(`SELECT * FROM coaching.exercise_cue WHERE exercise_id = $1 ORDER BY sort_order, id`, [id]),
+        pool.query(
+          `SELECT p.prerequisite_exercise_id, p.note, e.name FROM coaching.exercise_prerequisite p JOIN coaching.exercise e ON e.id = p.prerequisite_exercise_id WHERE p.exercise_id = $1`,
+          [id],
+        ),
+        loadExerciseProgrammingBundle(pool, [id]),
+        loadEducationForExercise(pool, id, row.slug),
+      ])
+      const attached = attachProgrammingToExercise(row, bundle, education)
+      ok(res, {
+        ...attached,
+        tags: tagMap.get(String(id)) ?? [],
+        media: media.rows,
+        cues: cues.rows,
+        prerequisites: prereqs.rows,
+      })
+    } catch (error) {
+      bad(res, error.message, 500)
+    }
+  })
+
   app.get('/api/coach/exercises/:id', ...can('library.view'), async (req, res) => {
     try {
       const id = num(req.params.id)
