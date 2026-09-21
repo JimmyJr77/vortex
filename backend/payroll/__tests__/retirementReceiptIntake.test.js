@@ -10,20 +10,20 @@ import {employeeRetirementContributions} from '../employeeRetirementContribution
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createHash,randomBytes,randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
 import {retirementBankProvider} from '../testing/retirementBankProvider.js'
 import {retirementReceiptIntakeFixture} from '../testing/retirementReceiptIntakeFixture.js'
 import {readRetirementSftpReceipt,transferRetirementAllocation,verifyRetirementSftpConnection} from '../retirementSftpTransport.js'
 import {decryptDocument} from '../onboarding.js'
 const enabled=!!process.env.PAYROLL_TEST_DATABASE_URL
-async function scenario(work,{blockWrite=false}={}){
+async function scenario(t,work,{blockWrite=false}={}){
  const old=process.env.PAYROLL_DOCUMENT_KEY,key=randomBytes(32).toString('hex');process.env.PAYROLL_DOCUMENT_KEY=key
  const server=await createRetirementSftpServer(),provider=retirementBankProvider();let paymentFetcher=provider.fetcher,qboFetcher=async()=>{throw new Error('No synthetic accounting configured')},hook=async()=>{},transferHook=async()=>{},receiptDate='2026-09-19T15:00:00Z'
- const h=await createHarness({quickbooksFetcher:(...args)=>qboFetcher(...args),paymentFetcher:(...args)=>paymentFetcher(...args),remittanceNow:()=>new Date(receiptDate),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:async(c,file,options)=>{await transferHook(options);return transferRetirementAllocation(c,file,{...server.options,...options,...(blockWrite?{beforeWrite:async()=>false}:{})})},retirementReceiptReader:async(c,receipt)=>{const result=await readRetirementSftpReceipt(c,receipt,server.options);await hook();return result}})
+ const h=await createHistoricalHarness(t,{quickbooksFetcher:(...args)=>qboFetcher(...args),paymentFetcher:(...args)=>paymentFetcher(...args),remittanceNow:()=>new Date(receiptDate),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:async(c,file,options)=>{await transferHook(options);return transferRetirementAllocation(c,file,{...server.options,...options,...(blockWrite?{beforeWrite:async()=>false}:{})})},retirementReceiptReader:async(c,receipt)=>{const result=await readRetirementSftpReceipt(c,receipt,server.options);await hook();return result}})
  try{const f=await retirementReceiptIntakeFixture(h,server.config),check=(requestKey=randomUUID())=>f.api(f.receiptPath,{confirmed:true,bindingId:f.bindingId,requestKey});await work({h,f,server,key,check,provider,setQbo:fetcher=>{qboFetcher=fetcher},setPayment:fetcher=>{paymentFetcher=fetcher},setNow:value=>{receiptDate=value},setHook:fn=>{hook=fn},setTransferHook:fn=>{transferHook=fn}})}finally{await h.close();await server.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}
 }
-test('receipt intake retains encrypted exact files/results once per check and protects scopes and audit privacy',{skip:!enabled},()=>scenario(async({h,f,server,check,key})=>{
+test('receipt intake retains encrypted exact files/results once per check and protects scopes and audit privacy',{skip:!enabled},t=>scenario(t,async({h,f,server,check,key})=>{
  const bytes=f.receipt();server.files.set(f.remotePath,bytes);const requestKey=randomUUID(),[one,two]=await Promise.all([check(requestKey),check(requestKey)]);assert.equal(one.id,two.id);assert.equal(one.summary.status,'POSTED');assert.equal(one.summary.postedCents,1400)
  const stored=(await h.pool.query('SELECT * FROM payroll_retirement_receipt_observation')).rows;assert.equal(stored.length,1);assert.ok(!stored[0].encrypted_receipt.includes(Buffer.from('PRIVATE-PARTICIPANT')));assert.ok(decryptDocument(stored[0].encrypted_receipt,`payroll-retirement-receipt:1:${one.id}:file`).equals(bytes));assert.equal(JSON.parse(decryptDocument(stored[0].encrypted_result,`payroll-retirement-receipt:1:${one.id}:result`).toString()).status,'POSTED')
  const history=await f.api(f.receiptPath);assert.equal(history.history.length,1);assert.ok(!JSON.stringify(history).includes('Synthetic batch'));assert.ok(!JSON.stringify(history).includes('PRIVATE-PARTICIPANT'));assert.equal(history.history[0].summary.decision,'RECONCILED')
@@ -32,7 +32,7 @@ test('receipt intake retains encrypted exact files/results once per check and pr
  delete process.env.PAYROLL_DOCUMENT_KEY;assert.equal((await check(requestKey)).id,one.id);assert.equal((await check()).summary.status,'CREDENTIALS_UNAVAILABLE');process.env.PAYROLL_DOCUMENT_KEY=key
  assert.equal(server.state.created,1);assert.equal(server.state.renames,1)
 }))
-test('regressing, stale and changed-batch receipts cannot replace a reconciled participant posting',{skip:!enabled},()=>scenario(async({h,f,server,check})=>{
+test('regressing, stale and changed-batch receipts cannot replace a reconciled participant posting',{skip:!enabled},t=>scenario(t,async({h,f,server,check})=>{
  server.files.set(f.remotePath,f.receipt());await check()
  server.files.set(f.remotePath,f.receipt({status:'Imported',recordedAt:'2026-09-19T14:00:00Z'}));assert.equal((await check()).summary.status,'REGRESSION')
  server.files.set(f.remotePath,f.receipt({recordedAt:'2026-09-19T12:30:00Z'}));assert.equal((await check()).summary.status,'STALE')
@@ -41,12 +41,12 @@ test('regressing, stale and changed-batch receipts cannot replace a reconciled p
  assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_retirement_receipt_observation WHERE decision='RECONCILED'")).rows[0].n,2)
  server.files.delete(f.remotePath);assert.equal((await check()).summary.status,'RECEIPT_NOT_FOUND');assert.equal(server.state.created,1)
 }))
-test('a contract suspended during retrieval preserves encrypted receipt but does not interpret it',{skip:!enabled},()=>scenario(async({h,f,server,check,setHook})=>{
+test('a contract suspended during retrieval preserves encrypted receipt but does not interpret it',{skip:!enabled},t=>scenario(t,async({h,f,server,check,setHook})=>{
  server.files.set(f.remotePath,f.receipt());setHook(async()=>{await f.api(f.contractPath,{action:'SUSPEND',expectedRevision:1,requestKey:randomUUID(),confirmed:true,reference:'Suspend receipt interpretation during provider result retrieval'})})
  const outcome=await check();assert.equal(outcome.summary.status,'BINDING_CHANGED');const stored=(await h.pool.query('SELECT encrypted_receipt,encrypted_result FROM payroll_retirement_receipt_observation WHERE id=$1',[outcome.id])).rows[0];assert.ok(stored.encrypted_receipt);assert.equal(stored.encrypted_result,null)
  await f.api(f.receiptPath,{confirmed:true,bindingId:f.bindingId,requestKey:randomUUID()},'POST',409)
 }))
-test('a retrieved invalid provider receipt blocks an otherwise proven unsent allocation release',{skip:!enabled},()=>scenario(async({h,f,server,check})=>{
+test('a retrieved invalid provider receipt blocks an otherwise proven unsent allocation release',{skip:!enabled},t=>scenario(t,async({h,f,server,check})=>{
  const releasePath=`${f.deliveryPath}/${f.allocationId}/release-unsent`
  await check();assert.equal((await f.api(releasePath+'/preview',{})).eligible,true)
  server.files.set(f.remotePath,Buffer.from('invalid provider evidence'));assert.equal((await check()).summary.status,'RECONCILIATION_REQUIRED')
@@ -55,7 +55,7 @@ test('a retrieved invalid provider receipt blocks an otherwise proven unsent all
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_allocation_unsent_release')).rows[0].n,0);assert.equal(server.state.created,0)
 },{blockWrite:true}))
 
-test('employee contribution outcomes expose only their own reconciled receipt and fail closed on later uncertainty',{skip:!enabled},()=>scenario(async({h,f,server,check})=>{
+test('employee contribution outcomes expose only their own reconciled receipt and fail closed on later uncertainty',{skip:!enabled},t=>scenario(t,async({h,f,server,check})=>{
  const read=()=>f.api('/retirement-contributions',undefined,'GET',200,true)
  const initial=await read();assert.equal(initial.items[0].contributions[0].status,'RECEIPT_UNVERIFIED');assert.equal(initial.items[0].contributions[0].amountCents,1400)
  server.files.set(f.remotePath,f.receipt());await check();const posted=await read();assert.equal(posted.items[0].contributions[0].status,'POSTED');assert.equal(posted.items[0].contributions[0].postedCents,1400)
@@ -68,7 +68,7 @@ test('employee contribution outcomes expose only their own reconciled receipt an
  assert.equal((await fetch(h.url+'/api/payroll/employee/retirement-contributions')).status,401)
 }))
 
-test('returned funding reopens employee participant visibility and persists across later ordinary observations',{skip:!enabled},()=>scenario(async({h,f,server,check,provider})=>{
+test('returned funding reopens employee participant visibility and persists across later ordinary observations',{skip:!enabled},t=>scenario(t,async({h,f,server,check,provider})=>{
  const read=()=>f.api('/retirement-contributions',undefined,'GET',200,true)
  server.files.set(f.remotePath,f.receipt());await check();assert.equal((await read()).items[0].contributions[0].status,'POSTED')
  const bankPath=`/retirement-remittance-authorizations/${f.remittanceId}/dispatch`
@@ -85,7 +85,7 @@ test('returned funding reopens employee participant visibility and persists acro
  assert.equal((await employeeRetirementContributions(h.pool,2,f.employee.id)).items.length,0)
 }))
 
-for(const automatic of [false,true])test(`reviewed participant reversals require prior posting and a verified full bank return (${automatic?'automatic':'manual'} replacement)`,{skip:!enabled},()=>scenario(async({h,f,server,check,provider,setNow,setQbo,setTransferHook,setPayment})=>{
+for(const automatic of [false,true])test(`reviewed participant reversals require prior posting and a verified full bank return (${automatic?'automatic':'manual'} replacement)`,{skip:!enabled},t=>scenario(t,async({h,f,server,check,provider,setNow,setQbo,setTransferHook,setPayment})=>{
  const accounting=retirementReversalAccountingFixture(h,f);setQbo(accounting.fetcher)
  const contract=await f.api(f.contractPath,{...f.contractBody,expectedRevision:1,requestKey:randomUUID(),contract:{...f.contractBody.contract,participantReversalConfirmed:true,statusValues:{...f.contractBody.contract.statusValues,REVERSED:'Reversed credit'}}})
  const binding=await f.api(f.bindingPath,{...f.bindingBody,expectedRevision:1,contractId:contract.id,requestKey:randomUUID()});f.bindingId=binding.id

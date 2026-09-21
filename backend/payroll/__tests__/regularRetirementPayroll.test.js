@@ -2,13 +2,13 @@ import {regularRetirementFixture} from '../testing/regularRetirementFixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {retirementAnnualReporting} from '../retirementAnnualReporting.js'
 import {retirementOffCycleWarnings} from '../regularRetirementPayroll.js'
 import {loadSupplementalPaymentHistory} from '../supplementalPaymentHistory.js'
 
 test('regular payroll calculates reviewed retirement, retains approval ledger and finalizes separate benefit and retirement deductions',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness({retirementNow:()=>new Date('2026-09-11T12:00:00Z')});t.after(()=>h.close())
+ const h=await createHistoricalHarness(t,{retirementNow:()=>new Date('2026-09-11T12:00:00Z')});t.after(()=>h.close())
  const {api,employee,periods,preview,processingPath,processing}=await regularRetirementFixture(h)
  await h.pool.query("UPDATE payroll_tax_election SET elections=jsonb_set(elections,'{maryland,extraWithholdingCents}','250'::jsonb) WHERE employee_id=$1",[employee.id])
  const first=await preview(periods[0]),calculated=first.employees[0]

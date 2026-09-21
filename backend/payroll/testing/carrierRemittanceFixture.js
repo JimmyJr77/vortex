@@ -3,7 +3,7 @@ import {createHarness} from './harness.js'
 import {monthlyBenefitsFixture} from './monthlyBenefitsFixture.js'
 import {encryptDocument} from '../onboarding.js'
 import {syncQuickbooksRun} from '../quickbooks.js'
-export async function carrierRemittanceFixture({sender,providerIntake}={}){
+export async function carrierRemittanceFixture({sender,providerIntake,harness=createHarness}={}){
  const uid=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,journals=new Map();let next=50,order=null,bankReturned=false,now=new Date('2051-01-01T12:00:00Z')
  const fetcher=async(url,options={})=>{let data
   if(url.includes('/account/'))data={Account:{Id:url.split('/').at(-1),Name:'Synthetic account',Active:true,AccountType:url.endsWith('/7')?'Expense':'Other Current Liability',CurrencyRef:{value:'USD'}}}
@@ -20,7 +20,7 @@ export async function carrierRemittanceFixture({sender,providerIntake}={}){
   if(url.includes('/transaction_line_items?'))return {ok:true,status:200,json:async()=>[{id:uid(41),transaction_id:uid(40),transactable_type:'payment_order',transactable_id:uid(30),live_mode:false,type:'originating',amount:57500}]}
   return {ok:true,status:200,json:async()=>url.includes('/internal_accounts/')?{id:uid(2),currency:'USD',live_mode:false}:{id:uid(3),counterparty_id:uid(4),party_type:'business',party_name:'Synthetic Benefits LLC',account_type:'checking',live_mode:false,verification_status:'verified',updated_at:'2026-09-11T12:00:00Z',account_details:[{id:uid(5),account_number_safe:'1234'}],routing_details:[{id:uid(6),payment_type:'ach',routing_number_type:'aba',routing_number:'021000021'}]}}
  }
- const h=await createHarness({providerIntake,quickbooksFetcher:fetcher,paymentFetcher,carrierNoticeSender:sender,payrollNow:()=>now})
+ const h=await harness({providerIntake,quickbooksFetcher:fetcher,paymentFetcher,carrierNoticeSender:sender,payrollNow:()=>now})
  try{
   const {api,periods}=await monthlyBenefitsFixture(h),run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-REMITTANCE-FIXTURE'})
   const tokens=encryptDocument(Buffer.from(JSON.stringify({access_token:'synthetic',refresh_token:'synthetic',expiresAt:Date.now()+3600000})),'quickbooks:1')

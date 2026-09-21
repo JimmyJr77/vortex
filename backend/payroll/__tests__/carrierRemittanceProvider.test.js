@@ -1,3 +1,4 @@
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFile} from 'node:fs/promises'
@@ -22,7 +23,7 @@ test('signed carrier returns preserve evidence, reject conflicts and prevent fur
  t.after(()=>{if(prior===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=prior})
  let sends=0,mail
  const sender=async input=>{sends++;mail=input;return {sent:true,messageId:'synthetic-smtp-id'}}
- const f=await carrierRemittanceFixture({sender});t.after(()=>f.h.close())
+ const f=await carrierRemittanceFixture({sender,harness:options=>createHistoricalHarness(t,options)});t.after(()=>f.h.close())
  const {pool}=f.h
  await runCarrierRemittanceSweep(pool,{facility:1,now:f.now(),sender})
  const attempt=(await pool.query('SELECT * FROM payroll_carrier_remittance_attempt')).rows[0]

@@ -8,7 +8,8 @@ export async function carrierAddressReturns(db,facility,email){
 }
 export async function carrierAddressClearance(db,facility,recipient){
  const events=await carrierAddressReturns(db,facility,recipient.contact.email)
- const review=(await db.query('SELECT * FROM payroll_carrier_remittance_return_review WHERE facility_id=$1 AND recipient_id=$2 ORDER BY created_at DESC,id DESC LIMIT 1',[facility,recipient.id])).rows[0]
+ // Clearance must cover every retained return and must not use a superseded review.
+ const review=(await db.query('SELECT r.* FROM payroll_carrier_remittance_return_review r WHERE r.facility_id=$1 AND r.recipient_id=$2 AND r.target_event_ids=$3::jsonb AND NOT EXISTS(SELECT 1 FROM payroll_carrier_remittance_return_review child WHERE child.previous_review_id=r.id) ORDER BY r.id DESC LIMIT 1',[facility,recipient.id,JSON.stringify(events)])).rows[0]
  return {ready:!events.length||!!review&&JSON.stringify(review.target_event_ids)===JSON.stringify(events),reviewId:review?.id||null}
 }
 export async function carrierReturnReviewPreview(db,facility,noticeId){
@@ -20,7 +21,7 @@ export async function carrierReturnReviewPreview(db,facility,noticeId){
  const recipient=await readCurrentCarrierRecipient(db,facility,source.carrier_key)
  if(recipient?.action!=='REVIEW'||String(recipient.id)===String(source.recipient_id))throw fail('Retain a fresh carrier contact review after investigating the return, including any request to resume delivery.')
  const targetEvents=await carrierAddressReturns(db,facility,recipient.contact.email)
- const latest=(await db.query('SELECT id FROM payroll_carrier_remittance_return_review WHERE notice_id=$1 ORDER BY created_at DESC,id DESC LIMIT 1',[noticeId])).rows[0]
+ const latest=(await db.query('SELECT r.id FROM payroll_carrier_remittance_return_review r WHERE r.notice_id=$1 AND NOT EXISTS(SELECT 1 FROM payroll_carrier_remittance_return_review child WHERE child.previous_review_id=r.id) ORDER BY r.id DESC LIMIT 1',[noticeId])).rows[0]
  const preview={noticeId,facilityId:Number(facility),recipient:{id:String(recipient.id),revision:recipient.revision,name:recipient.contact.name,email:recipient.contact.email},sourceEventIds:events,targetEventIds:targetEvents,previousReviewId:latest?.id||null}
  return {...preview,fingerprint:hash(preview)}
 }

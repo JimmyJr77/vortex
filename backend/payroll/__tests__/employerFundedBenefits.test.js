@@ -1,11 +1,11 @@
 import {employerBenefitFundingReport} from '../employerBenefitFundingReport.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {runWorkforceAutomation} from '../workforceAutomation.js'
 for(const {future,authorize,withdraw=true} of [{future:false,authorize:true},{future:true,authorize:true},{future:false,authorize:false},{future:true,authorize:true,withdraw:false}])test(`reviewed employer funding preserves enrollment and dated payroll coverage (${!withdraw?'FUTURE_WITHOUT_WITHDRAWAL':future?'FUTURE':authorize?'CURRENT':'NO_PRIOR_AUTHORIZATION'})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h,{authorize})
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h,{authorize})
  let packet=await api('/onboarding',undefined,'GET',200,true)
  if(authorize&&withdraw)packet=await api('/benefits-deduction-authorization/withdraw',{confirmed:true,requestKey:'employer-funded-withdrawal',authorizationRequestKey:packet.benefitsDeduction.saved.requestKey,onboardingCycle:1},'POST',200,true)
  const task=packet.tasks.find(t=>t.task_key==='PAY_REVIEW'),path=`/employees/${employee.id}/onboarding/${task.id}/review`
@@ -50,7 +50,7 @@ for(const {future,authorize,withdraw=true} of [{future:false,authorize:true},{fu
 
 })
 test('employer funding reconciliation retains earlier employee collections without subtracting or duplicating premiums',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const finalize=async(period,paymentDate)=>{const run=await api('/runs',{payPeriodId:period.id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate,paymentConfirmationReference:'SYNTHETIC-FUNDING-RECONCILIATION'});return run}
  const first=await finalize(periods[0],'2026-09-18'),packet=await api('/onboarding',undefined,'GET',200,true),task=packet.tasks.find(t=>t.task_key==='PAY_REVIEW')
  await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{status:'COMPLETE',note:'Employer assumes health funding after the first payment',paySetupFingerprint:packet.paySetup.fingerprint,benefitsReview:{disposition:'ENROLLED_EMPLOYER_FUNDED',effectiveOn:'2026-09-20',summary:'Employer funds continued group medical enrollment.',evidenceReference:'Synthetic excluded group health review',confirmed:true,employerFundingConfirmed:true,fundingTreatment:'EXCLUDED_GROUP_HEALTH_PREMIUM'}})

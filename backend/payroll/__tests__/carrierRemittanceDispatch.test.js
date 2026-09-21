@@ -1,3 +1,4 @@
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
@@ -13,7 +14,7 @@ for(const scenario of ['RETRY','UNCERTAIN','RESULT_FAILURE','REVOKED','RETURNED'
  const priorKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32);t.after(()=>{if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey})
  let sends=0,throwSender=scenario==='UNCERTAIN',mail
  const sender=async input=>{sends++;mail=input;if(throwSender)throw new Error('Synthetic secret sender error');return scenario==='EXHAUSTED'||scenario==='RETRY'&&sends===1?{sent:false,skipped:true,reason:'cooldown'}:{sent:true,messageId:'synthetic-accepted'}}
- const f=await carrierRemittanceFixture({sender});t.after(()=>f.h.close());const {h,api,notice,noticePath}=f
+ const f=await carrierRemittanceFixture({sender,harness:options=>createHistoricalHarness(t,options)});t.after(()=>f.h.close());const {h,api,notice,noticePath}=f
  if(scenario==='REVOKED')await api(f.recipientPath,{...f.recipientBody,action:'REVOKE',expectedRevision:1,requestKey:randomUUID()})
  if(scenario==='RETURNED')await f.returnBank()
  if(scenario==='RESULT_FAILURE')await h.pool.query("CREATE FUNCTION synthetic_remittance_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'secret result write unavailable'; END $$; CREATE TRIGGER synthetic_remittance_failure BEFORE INSERT ON payroll_carrier_remittance_result FOR EACH ROW EXECUTE FUNCTION synthetic_remittance_failure()")

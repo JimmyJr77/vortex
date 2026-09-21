@@ -20,6 +20,7 @@ export async function initPayrollTables(pool) {
     await client.query(await fs.readFile(new URL('../migrations/816_payroll_i9_participation_verification_date.sql', import.meta.url), 'utf8'))
     await client.query(await fs.readFile(new URL('../migrations/817_payroll_retire_availability_onboarding.sql', import.meta.url), 'utf8'))
     await client.query(await fs.readFile(new URL('../migrations/823_payroll_check_document_observation_order.sql', import.meta.url), 'utf8'))
+    await client.query(await fs.readFile(new URL('../migrations/824_payroll_carrier_return_review_order.sql', import.meta.url), 'utf8'))
     for(const facility of (await client.query('SELECT id FROM facility')).rows)await ensureEmployerSetup(client,facility.id)
     await client.query('COMMIT')
   } catch(error) {

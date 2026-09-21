@@ -1,3 +1,4 @@
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
@@ -6,7 +7,7 @@ import {carrierAlternateDeliveryHistory,checkCarrierAlternateDeliveries} from '.
 import {carrierRemittanceFixture} from '../testing/carrierRemittanceFixture.js'
 test('alternate carrier delivery retains exact advice, scope, encryption and correction history',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const priorKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='b'.repeat(64);t.after(()=>{if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey})
- const f=await carrierRemittanceFixture();t.after(()=>f.h.close());f.setNow('2026-09-20T12:00:00Z')
+ const f=await carrierRemittanceFixture({harness:options=>createHistoricalHarness(t,options)});t.after(()=>f.h.close());f.setNow('2026-09-20T12:00:00Z')
  await carrierAlternateDeliveryHistory(f.h.pool,1,f.payment.id)
  const path=`/carrier-payment-authorizations/${f.payment.id}/alternate-delivery`,model=await f.api(path)
  assert.equal(model.status,'NOT_RECORDED');assert.ok(model.advice)

@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {loadSupplementalPaymentHistory} from '../supplementalPaymentHistory.js'
 for(const stateMethod of ['REVIEWED','MD_LUMP_SUM'])for(const aggregate of [false,true])test(`standalone PTO settles reserved vacation: ${stateMethod} federal ${aggregate?'aggregate':'flat'}`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close())
+ const h=await createHistoricalHarness(t);t.after(()=>h.close())
  const api=async(path,body,status=200,method='POST')=>{const r=await fetch(`${h.url}/api/admin/payroll${path}`,{method,headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json();assert.equal(r.status,status,JSON.stringify(j));return j.data}
  await api('/settings',{legalBusinessName:'Standalone PTO Fixture',businessAddress:'123 Test Street',businessPhone:'5550100000'},200,'PATCH')
  await api('/employer-taxes',{futaRatePercent:0.6,mdUiRatePercent:2.6,source:'Synthetic employer notice',confirmed:true},200,'PATCH')

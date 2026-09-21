@@ -4,7 +4,7 @@ import {runRetirementContributionSweep} from '../retirementContributionAutomatio
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomBytes,randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {retirementReceiptIntakeFixture} from '../testing/retirementReceiptIntakeFixture.js'
 import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
 import {readRetirementSftpReceipt,transferRetirementAllocation,verifyRetirementSftpConnection} from '../retirementSftpTransport.js'
@@ -12,9 +12,9 @@ import {checkRetirementReceipts} from '../retirementReceiptAutomation.js'
 import {retirementBankProvider} from '../testing/retirementBankProvider.js'
 import {encryptDocument} from '../onboarding.js'
 import {journalPayload} from '../quickbooks.js'
-test('full contribution reconciles payroll bank participant posting and accounting then reopens when accounting changes',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async()=>{
+test('full contribution reconciles payroll bank participant posting and accounting then reopens when accounting changes',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex');let journal=null,settlement=null,posts=0;let changed=false,closed=false;const wrong=false
- const server=await createRetirementSftpServer(),provider=retirementBankProvider(),h=await createHarness({retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o}),paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),quickbooksFetcher:async(url,options)=>{if(options.method==='POST'){posts++;settlement={...JSON.parse(options.body),Id:'100'};throw new Error('Synthetic lost settlement response')}if(url.includes('/query?'))return {ok:true,json:async()=>({QueryResponse:{JournalEntry:settlement?[settlement]:[]}})};const account=url.split('/').pop();return {ok:true,json:async()=>url.includes('/journalentry/')?{JournalEntry:changed?{...journal,PrivateNote:'Changed outside application'}:journal}:url.endsWith('/preferences')?{Preferences:{CurrencyPrefs:{HomeCurrency:{value:'USD'}},AccountingInfoPrefs:closed?{BookCloseDate:'2026-09-22'}:{}}}:{Account:{Id:wrong?'99':account,Name:`Account ${account}`,Active:true,AccountType:account==='8'?'Bank':'Other Current Liability',CurrencyRef:{value:'USD'}}}}}})
+ const server=await createRetirementSftpServer(),provider=retirementBankProvider(),h=await createHistoricalHarness(t,{retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o}),paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),quickbooksFetcher:async(url,options)=>{if(options.method==='POST'){posts++;settlement={...JSON.parse(options.body),Id:'100'};throw new Error('Synthetic lost settlement response')}if(url.includes('/query?'))return {ok:true,json:async()=>({QueryResponse:{JournalEntry:settlement?[settlement]:[]}})};const account=url.split('/').pop();return {ok:true,json:async()=>url.includes('/journalentry/')?{JournalEntry:changed?{...journal,PrivateNote:'Changed outside application'}:journal}:url.endsWith('/preferences')?{Preferences:{CurrencyPrefs:{HomeCurrency:{value:'USD'}},AccountingInfoPrefs:closed?{BookCloseDate:'2026-09-22'}:{}}}:{Account:{Id:wrong?'99':account,Name:`Account ${account}`,Active:true,AccountType:account==='8'?'Bank':'Other Current Liability',CurrencyRef:{value:'USD'}}}}}})
  try{
   const f=await retirementReceiptIntakeFixture(h,server.config),a={id:f.remittanceId},base=`/retirement-remittance-authorizations/${a.id}`
   await f.api(base+'/dispatch',{action:'SUBMIT',confirmed:true,bankInstructionsReviewed:true,outsideActivityReviewed:true,reference:'Verified original trustee instructions and separate allocation delivery'})
@@ -36,7 +36,7 @@ test('full contribution reconciles payroll bank participant posting and accounti
   await f.api(authPath,{...body,requestKey:randomUUID()},'POST',409)
   const postPath=`/retirement-settlement-authorizations/${auth.id}/post`,results=await Promise.all([f.api(postPath,{action:'POST',confirmed:true}),f.api(postPath,{action:'POST',confirmed:true})])
   assert.equal(posts,1);assert.ok(results.some(r=>r.status==='SYNCED'));assert.equal((await h.pool.query('SELECT * FROM payroll_retirement_settlement_claim')).rowCount,1)
-  const history=await f.api(authPath);assert.equal(history.history[0].claimed,true);assert.equal(history.history[0].journals[0].result.status,'SYNCED')
+  const history=await f.api(authPath),posted=history.history.find(row=>row.id===auth.id);assert.ok(posted);assert.equal(posted.claimed,true);assert.equal(posted.journals[0].result.status,'SYNCED')
   await f.api(`/retirement-settlement-authorizations/${auth.id}/cancel`,{confirmed:true,reference:'Cannot cancel after a journal claim has been retained'},'POST',409)
   await f.api(base+'/dispatch',{action:'RECOVER',confirmed:true})
   await f.api(postPath,{action:'RECOVER',confirmed:true})

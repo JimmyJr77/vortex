@@ -1,16 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomBytes} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
 import {retirementBankProvider} from '../testing/retirementBankProvider.js'
 import {retirementReceiptIntakeFixture} from '../testing/retirementReceiptIntakeFixture.js'
 import {readRetirementSftpReceipt,transferRetirementAllocation,verifyRetirementSftpConnection} from '../retirementSftpTransport.js'
 import {checkRetirementReceipts} from '../retirementReceiptAutomation.js'
 import {retirementContributionAssessment} from '../retirementContributionAssessment.js'
-test('contribution assessment requires exact bank and every participant receipt, reopens for returns and stale evidence',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async()=>{
+test('contribution assessment requires exact bank and every participant receipt, reopens for returns and stale evidence',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
- const server=await createRetirementSftpServer(),provider=retirementBankProvider(),h=await createHarness({paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o})})
+ const server=await createRetirementSftpServer(),provider=retirementBankProvider(),h=await createHistoricalHarness(t,{paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o})})
  try{
   const f=await retirementReceiptIntakeFixture(h,server.config),path=`/retirement-remittance-authorizations/${f.remittanceId}`,read=()=>f.api(path+'/assessment')
   let data=await read();assert.equal(data.payrollStatus,'MATCHED');assert.equal(data.bankStatus,'UNVERIFIED');assert.equal(data.receiptStatus,'UNVERIFIED')

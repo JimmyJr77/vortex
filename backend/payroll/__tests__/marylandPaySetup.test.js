@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {marylandAgreementPaySetup} from '../marylandAgreementPaySetup.js'
 test('hiring pay review requires an agreement covering the planned payment and reopens after suspension',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close())
+ const h=await createHistoricalHarness(t);t.after(()=>h.close())
  const {api,employee}=await monthlyBenefitsFixture(h)
  await h.pool.query("UPDATE payroll_employee SET employment_status='ONBOARDING' WHERE id=$1",[employee.id])
  await api(`/employees/${employee.id}/tax-elections`,{confirmed:true,sourceNote:'Synthetic signed Maryland election',federal:{filingStatus:'SINGLE'},maryland:{filingStatus:'SINGLE',localRate:3.2,exemptions:1,extraWithholdingCents:500}},'PATCH')
@@ -30,7 +30,7 @@ test('hiring pay review requires an agreement covering the planned payment and r
 })
 
 test('generated agreement review detects persisted payment-date changes and overlapping periods',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close())
+ const h=await createHistoricalHarness(t);t.after(()=>h.close())
  const {api,employee}=await monthlyBenefitsFixture(h)
  await api(`/employees/${employee.id}/tax-elections`,{confirmed:true,sourceNote:'Synthetic signed Maryland election',federal:{filingStatus:'SINGLE'},maryland:{filingStatus:'SINGLE',localRate:3.2,exemptions:1,extraWithholdingCents:500}},'PATCH')
  const current=await api(`/employees/${employee.id}/maryland-additional-agreements`)

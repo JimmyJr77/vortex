@@ -1,3 +1,4 @@
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
@@ -11,7 +12,7 @@ for(const scenario of ['EARLY','EXHAUSTED','UNCERTAIN','ACCEPTED','LATE_ACCEPTAN
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32);t.after(()=>{if(prior===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=prior})
  let sends=0,allowSend=scenario==='ACCEPTED',mail
  const sender=async input=>{sends++;mail=input;if(scenario==='UNCERTAIN')throw new Error('Synthetic uncertain transport');return allowSend?{sent:true,messageId:'synthetic-accepted'}:{sent:false,skipped:true,reason:'category_disabled'}}
- const f=await carrierRemittanceFixture({sender});t.after(()=>f.h.close());const {h,api,noticePath}=f,releasePath=`${noticePath}/${f.notice.id}/release-unsent`
+ const f=await carrierRemittanceFixture({sender,harness:options=>createHistoricalHarness(t,options)});t.after(()=>f.h.close());const {h,api,noticePath}=f,releasePath=`${noticePath}/${f.notice.id}/release-unsent`
  await h.pool.query('CREATE TABLE email_delivery(id BIGINT PRIMARY KEY,facility_id BIGINT,recipient_hash TEXT,category TEXT,stream TEXT,template_version TEXT,status TEXT,idempotency_key TEXT,created_at TIMESTAMPTZ,accepted_at TIMESTAMPTZ,bounced_at TIMESTAMPTZ,complained_at TIMESTAMPTZ)')
  const sweep=()=>runCarrierRemittanceSweep(h.pool,{facility:1,now:f.now(),sender})
  await sweep()
@@ -50,7 +51,7 @@ test('non-send release waits for an in-flight sender and rejects an obsolete att
  let finish,started,sends=0
  const began=new Promise(resolve=>{started=resolve}),pending=new Promise(resolve=>{finish=resolve})
  const sender=async()=>{sends++;if(sends===1){started();await pending}return {sent:false,skipped:true,reason:'category_disabled'}}
- const f=await carrierRemittanceFixture({sender});t.after(()=>f.h.close());const {h,api,noticePath}=f,path=`${noticePath}/${f.notice.id}/release-unsent`
+ const f=await carrierRemittanceFixture({sender,harness:options=>createHistoricalHarness(t,options)});t.after(()=>f.h.close());const {h,api,noticePath}=f,path=`${noticePath}/${f.notice.id}/release-unsent`
  await h.pool.query('CREATE TABLE email_delivery(id BIGINT PRIMARY KEY,facility_id BIGINT,recipient_hash TEXT,category TEXT,stream TEXT,template_version TEXT,status TEXT,idempotency_key TEXT,created_at TIMESTAMPTZ,accepted_at TIMESTAMPTZ,bounced_at TIMESTAMPTZ,complained_at TIMESTAMPTZ)')
  const sending=processCarrierRemittance(h.pool,1,f.notice.id,{sender,now:f.now()});await began
  let previewDone=false;const previewing=api(`${path}/preview`,{}).then(value=>{previewDone=true;return value})

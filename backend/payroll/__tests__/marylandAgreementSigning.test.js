@@ -1,11 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {loadMarylandAdditionalAgreement} from '../marylandAdditionalAgreement.js'
 test('employee accepts exact employer terms once; changes, declines, immutable history and rollback remain safe',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close())
+ const h=await createHistoricalHarness(t);t.after(()=>h.close())
  const {api,employee}=await monthlyBenefitsFixture(h)
  const elections={confirmed:true,sourceNote:'Synthetic signed Maryland election evidence',federal:{filingStatus:'SINGLE'},maryland:{filingStatus:'SINGLE',localRate:3.2,exemptions:1,extraWithholdingCents:500}}
  await api(`/employees/${employee.id}/tax-elections`,elections,'PATCH')

@@ -14,7 +14,7 @@ import {combinedMedicareWithholding} from '../yearEndPreparation.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomBytes,randomUUID,createHash,generateKeyPairSync,sign} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 async function exerciseProviderBounce(h,claim,delivery){
  const pair=generateKeyPairSync('ec',{namedCurve:'prime256v1'}),old=process.env.PAYROLL_SENDGRID_WEBHOOK_PUBLIC_KEY
@@ -95,7 +95,7 @@ test('combined Medicare uses exact cents and requires both components',()=>{
  for(const value of [null,undefined,'','1.2','-0.01','NaN',1]){assert.equal(combinedMedicareWithholding(value,'0.00'),null);assert.equal(combinedMedicareWithholding('0.00',value),null)}
 })
 for(const noticeOutcome of ['SMTP_ACCEPTED','UNCERTAIN','NOT_SENT','INTERRUPTED','PAPER_FIRST'])test(`annual preparation joins masked identities, wage inputs and current overtime reviews (${noticeOutcome})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex');const h=await createHarness();t.after(async()=>{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex');const h=await createHistoricalHarness(t);t.after(async()=>{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
  const {api,employee,periods}=await monthlyBenefitsFixture(h),path='/reports/year-end-preparation?year=2026'
  assert.deepEqual((await api(path)).employees,[])
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-YEAR-END-INPUT'})
@@ -367,7 +367,7 @@ for(const noticeOutcome of ['SMTP_ACCEPTED','UNCERTAIN','NOT_SENT','INTERRUPTED'
 })
 
 test('annual preparation combines real finalized Medicare and Additional Medicare and rejects inconsistent taxes',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h,{hourlyRateCents:2625000})
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h,{hourlyRateCents:2625000})
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-ADDITIONAL-MEDICARE'})
  const path='/reports/year-end-preparation?year=2026';let record=(await api(path)).employees[0]
  assert.equal(record.wageInputs.medicare,'210000.00');assert.equal(record.withholding.medicare,'3045.00');assert.equal(record.withholding.additionalMedicare,'90.00');assert.equal(record.withholding.combinedMedicare,'3135.00')

@@ -1,15 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomBytes,randomUUID} from 'node:crypto'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
 import {retirementDestinationProvider} from '../testing/retirementDestinationProvider.js'
 import {retirementReceiptIntakeFixture} from '../testing/retirementReceiptIntakeFixture.js'
 import {readRetirementSftpReceipt,transferRetirementAllocation,verifyRetirementSftpConnection} from '../retirementSftpTransport.js'
 import {checkRetirementReceipts,startRetirementReceiptScheduler} from '../retirementReceiptAutomation.js'
-test('automatic receipt checks serialize concurrent sweeps, retain actor-free evidence, respect due times and suspension',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async()=>{
+test('automatic receipt checks serialize concurrent sweeps, retain actor-free evidence, respect due times and suspension',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
- const server=await createRetirementSftpServer(),provider=retirementDestinationProvider(),h=await createHarness({paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o})})
+ const server=await createRetirementSftpServer(),provider=retirementDestinationProvider(),h=await createHistoricalHarness(t,{paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-19T15:00:00Z'),retirementNow:()=>new Date('2026-09-11T12:00:00Z'),retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,f,o)=>transferRetirementAllocation(c,f,{...server.options,...o})})
  try{
   const f=await retirementReceiptIntakeFixture(h,server.config),reader=(c,r)=>readRetirementSftpReceipt(c,r,server.options),options={reader,receiptNow:()=>new Date('2026-09-19T15:00:00Z')}
   server.files.set(f.remotePath,f.receipt());const results=await Promise.all([checkRetirementReceipts(h.pool,1,options),checkRetirementReceipts(h.pool,1,options)])
