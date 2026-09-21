@@ -75,7 +75,7 @@ async function employerPayrollSources(db,facility,employeeId,planId){
 function retainedAllocation(planRow,annualRow,inputs){
  const allocation=employerCompensationAllocation({plan:planRow.plan,annual:annualRow.facts,...inputs})
  const source={planRevisionId:planRow.id,annualSourceId:annualRow.id,allocationFingerprint:allocation.fingerprint}
- return {...allocation,source,sourceFingerprint:hash(source)}
+ return {...allocation,source,sourceFingerprint:hash(source),employerContributionPeriod:planRow.plan.employerFormula.period}
 }
 
 // Internal engine boundary, not a request-body parser. The normal payroll

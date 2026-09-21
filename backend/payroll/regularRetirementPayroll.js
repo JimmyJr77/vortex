@@ -1,5 +1,5 @@
 import {retirementPayrollCalculation} from './retirementPayrollCalculation.js'
-import {retirementEmployerCompensationPreview} from './retirementEmployerCompensation.js'
+import {retirementEmployerFundingPreview} from './retirementEmployerFundingPreview.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
 // Rebuild the full payroll, including benefit collections, after calculating
 // deferrals. All inputs originate from the same employer-scoped transaction.
@@ -40,8 +40,10 @@ export async function regularRetirementPayroll(db,facility,result,excludeRunId,r
    const planId=plans[0].plan_id
    const terms=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,planId])).rows[0]?.plan
    if(terms?.employerContributions!=='NONE'){
-    employee.employerCompensationPreview=await retirementEmployerCompensationPreview(db,{facility,employeeId:employee.employeeId,planId,payDate:date,payrollPreview:employee,runId:excludeRunId??null})
-    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap. Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
+    employee.employerCompensationPreview=await retirementEmployerFundingPreview(db,{facility,employeeId:employee.employeeId,planId,payDate:date,payrollPreview:employee,payPeriodId:result.period.id,runId:excludeRunId??null,runKind})
+    const eligibility=employee.employerCompensationPreview.eligibility
+    const finding=eligibility.status==='REVIEWED_FOR_PAY_PERIOD'?` Matching eligibility: ${eligibility.components.matching.eligible?'eligible':'not eligible'}. Nonelective eligibility: ${eligibility.components.nonelective.eligible?'eligible':'not eligible'}.`:` ${eligibility.message}`
+    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap.${finding} Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
    }
    const calculation=await retirementPayrollCalculation(db,{facility,employeeId:employee.employeeId,planId,payDate:date,runKind,payrollPreview:employee,excludeRunId})
    calculations.set(String(employee.employeeId),{planId,calculation});inputs[employee.employeeId]=calculation.retirement401k

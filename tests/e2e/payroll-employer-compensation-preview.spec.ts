@@ -24,6 +24,7 @@ test('payroll preview shows capped employer compensation without presenting it a
   const message=page.getByText(/Employer retirement compensation preview: \$100\.00/).first()
   await expect(message).toBeVisible()
   await expect(message).toContainText('No employer contribution has been reserved.')
+  await expect(message).toContainText('Review current employer eligibility before calculating contributions.')
   await message.locator('..').screenshot({path:'/tmp/payroll-employer-compensation-preview-mobile.png'})
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
   expect(errors).toEqual([])
