@@ -108,6 +108,9 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
   const [saving, setSaving] = useState(false)
   const [updatingActive, setUpdatingActive] = useState(false)
   const [showNewStaff, setShowNewStaff] = useState(false)
+  const [newStaffSource, setNewStaffSource] = useState<'member' | 'new'>('member')
+  const [newStaffMemberId, setNewStaffMemberId] = useState('')
+  const [memberSearch, setMemberSearch] = useState('')
   const [creatingStaff, setCreatingStaff] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [newStaffForm, setNewStaffForm] = useState(emptyNewStaffForm)
@@ -128,6 +131,14 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
     () => users.filter((user) => user.isOwner === true || user.roles.some((role) => staffRoleSet.has(role))),
     [users],
   )
+  const eligibleMembers = useMemo(
+    () => users.filter((user) => user.memberId != null
+      && !user.isOwner && !user.roles.some((role) => staffRoleSet.has(role))),
+    [users],
+  )
+  const matchingMembers = eligibleMembers.filter((user) =>
+    `${user.fullName} ${user.email ?? ''} ${user.username ?? ''}`.toLowerCase().includes(memberSearch.trim().toLowerCase()),
+  )
   const selectedUserIsOwner = selectedUser?.isOwner === true
   const canEditSelectedProfile = !selectedUserIsOwner
     || (currentUserId != null && selectedUser?.id === currentUserId)
@@ -137,7 +148,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
     setError(null)
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        adminApiRequest('/api/admin/access/users'),
+        adminApiRequest('/api/admin/access/users?scope=all'),
         adminApiRequest('/api/admin/access/roles'),
       ])
       if (!usersRes.ok) throw new Error(`Users request failed: ${usersRes.status}`)
@@ -288,6 +299,31 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
   }
 
   const createStaff = async () => {
+    if (newStaffSource === 'member') {
+      const member = eligibleMembers.find((user) => String(user.id) === newStaffMemberId)
+      if (!member || newStaffForm.roles.length === 0) {
+        setError('Select a member account and at least one staff role.')
+        return
+      }
+      setCreatingStaff(true)
+      setError(null)
+      try {
+        const response = await adminApiRequest(`/api/admin/access/users/${member.id}/roles`, {
+          method: 'PUT',
+          body: JSON.stringify({ roles: newStaffForm.roles }),
+        })
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(payload.message || 'Failed to add staff access')
+        setSelectedUserId(member.id)
+        setShowNewStaff(false)
+        await load()
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to add staff access')
+      } finally {
+        setCreatingStaff(false)
+      }
+      return
+    }
     const fullName = combineFullName(newStaffForm.firstName, newStaffForm.lastName)
     if (!fullName || (!newStaffForm.email.trim() && !newStaffForm.username.trim()) || !newStaffForm.password) {
       setError('Name, password, and either email or username are required.')
@@ -378,6 +414,10 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
           type="button"
           onClick={() => {
             setNewStaffForm(emptyNewStaffForm)
+            setNewStaffSource('member')
+            setNewStaffMemberId('')
+            setMemberSearch('')
+            setError(null)
             setShowNewStaff(true)
           }}
           className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-medium text-white"
@@ -614,15 +654,16 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
             role="dialog"
             aria-modal="true"
             aria-labelledby="new-staff-title"
-            className="w-full max-w-2xl rounded-xl bg-white p-5 shadow-xl"
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-5 shadow-xl"
           >
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <h3 id="new-staff-title" className="text-lg font-bold text-gray-900">New staff account</h3>
-                <p className="text-sm text-gray-500">Create an Administrator, Coach, or combined staff login.</p>
+                <h3 id="new-staff-title" className="text-lg font-bold text-gray-900">New staff access</h3>
+                <p className="text-sm text-gray-500">Give a member Administrator, Coach, or combined staff access.</p>
               </div>
               <button
                 type="button"
+                disabled={creatingStaff}
                 onClick={() => setShowNewStaff(false)}
                 aria-label="Close new staff dialog"
                 className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
@@ -631,6 +672,54 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
               </button>
             </div>
 
+            {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+            <fieldset disabled={creatingStaff}>
+            <label className="mb-4 block text-sm font-medium text-gray-700">
+              Account source
+              <select
+                value={newStaffSource}
+                onChange={(event) => { setNewStaffSource(event.target.value as 'member' | 'new'); setError(null) }}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+              >
+                <option value="member">Existing member account</option>
+                <option value="new">Create a new account</option>
+              </select>
+            </label>
+            {newStaffSource === 'member' ? (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  Search members
+                  <input
+                    autoFocus
+                    type="search"
+                    value={memberSearch}
+                    onChange={(event) => { setMemberSearch(event.target.value); setNewStaffMemberId('') }}
+                    placeholder="Search by name, email, or username"
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Member account
+                  <select
+                    value={newStaffMemberId}
+                    onChange={(event) => setNewStaffMemberId(event.target.value)}
+                    disabled={loading}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                  >
+                    <option value="">{loading ? 'Loading members…' : 'Select a member account'}</option>
+                    {matchingMembers.map((member) => (
+                      <option key={member.id} value={member.id}>
+                        {member.fullName} — {member.email || member.username || `Member #${member.memberId}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {!loading && matchingMembers.length === 0 && (
+                  <p className="text-sm text-gray-500">No matching member accounts without staff access.</p>
+                )}
+                <p className="text-sm text-gray-500">The member will use their existing login. Their member access and password will stay the same.</p>
+              </div>
+            ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="text-xs font-medium text-gray-700">
                 First name
@@ -692,6 +781,8 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
               </label>
             </div>
 
+            )}
+
             <fieldset className="mt-4">
               <legend className="text-sm font-semibold text-gray-900">Staff access</legend>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
@@ -717,9 +808,12 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
               </div>
             </fieldset>
 
+            </fieldset>
+
             <div className="mt-5 flex justify-end gap-2">
               <button
                 type="button"
+                disabled={creatingStaff}
                 onClick={() => setShowNewStaff(false)}
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700"
               >
@@ -728,11 +822,11 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
               <button
                 type="button"
                 onClick={() => void createStaff()}
-                disabled={creatingStaff || newStaffForm.roles.length === 0}
+                disabled={creatingStaff || newStaffForm.roles.length === 0 || (newStaffSource === 'member' && (!newStaffMemberId || loading))}
                 className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
               >
                 {creatingStaff && <Loader2 className="h-4 w-4 animate-spin" />}
-                Create staff account
+                {newStaffSource === 'member' ? 'Add staff access' : 'Create staff account'}
               </button>
             </div>
           </div>
