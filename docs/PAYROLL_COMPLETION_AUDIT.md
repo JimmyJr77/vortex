@@ -1,6 +1,16 @@
 # Payroll completion audit
 
-## Current completion boundary — September 21, 2026
+## Current completion boundary — integrated employer payroll
+
+The overall goal remains incomplete. Main now supports reviewed per-payroll employer matching/nonelective contributions through ordinary draft, review, approval and finalization, then contribution-file preparation, payment authorization, allocation delivery, provider receipts and QuickBooks settlement. The synthetic public API journey reaches RECONCILED; 45 employer/regular-retirement tests passed. See [public approval evidence](PAYROLL_EMPLOYER_PUBLIC_APPROVAL_2026_09_21.md), [delivery/accounting evidence](PAYROLL_EMPLOYER_DELIVERY_JOURNEY_2026_09_21.md), and [admin setup controls](PAYROLL_EMPLOYER_CONTRACT_UI_2026_09_21.md).
+
+The supported path requires reviewed dated eligibility, a signed employee election, one applicable plan, sufficient annual capacity, retained prior internal obligations, and no external employer contribution amounts still awaiting assignment to payroll. Annual true-up, external funding assignment, additional off-cycle/partial-period/rehire cases and remaining compliance/provider exceptions are not complete. The earlier onboarding journey evidence below remains useful but does not establish every new-hire category or real production acceptance.
+
+The last verified production application release is `13a43f9a`, as recorded in [release evidence](PAYROLL_RELEASE_2026_09_21_13a43f9a.md). Later employer ledger, accounting, remittance and approval changes are published to main but are not yet verified live. Migrations 827–829 therefore still need production verification. Secure document storage and the three originally reported CORS preflights passed that last production check; no complete real production hire/payment/provider journal was created as a test.
+
+A new full payroll backend regression is running with bounded concurrency; its log is `/tmp/payroll-integrated-employer-full-backend.log`. Its final result is not yet established. The earlier 1,007-pass suite and browser evidence below apply to earlier revisions, not the complete current employer implementation. Focused newer results must not be presented as a full current-suite pass.
+
+## Earlier completion boundary — September 21, 2026
 
 **The full goal is not complete.** Frontend commit `4bfd5a27` is deployed on `vortexathletics.com` and repairs overlapping onboarding checklist responses and unstable scrolling through long forms. All four representative native candidate journeys passed (unassisted, one preparer, multiple preparers, existing-account linking); the unassisted and linked cases include rehire and a second payroll statement. The deterministic checklist regression fails on the original implementation and passes on the repair. See `PAYROLL_ONBOARDING_RELIABILITY_2026_09_21.json` for scope and hashes and `PAYROLL_ONBOARDING_DEPLOYMENT_2026_09_21.json` for the separate deployment/read-only health evidence.
 
