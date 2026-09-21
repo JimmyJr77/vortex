@@ -1,4 +1,14 @@
-# Native onboarding-to-payroll verification gap
+# Native onboarding-to-payroll verification
+
+## Current evidence — September 21, 2026
+
+The combined native journey is verified for four representative synthetic cases at runtime commit `aa6f7010`: unassisted, single preparer, multiple preparers and existing-account linking. In `/tmp/payroll-browser-aa6f7010.log`, scenarios 204–207 each complete activation, payroll, employee statement, persisted payroll/accounting assertions and cleanup. Unassisted and linked-account cases additionally complete rehire and a second payroll/statement. The test is `tests/e2e/payroll-native-complete-journey.spec.ts`; its payment election is CHECK and its QuickBooks transport is synthetic. This does not establish live direct-deposit settlement or real external journal acceptance.
+
+The enclosing baseline remains **162 passed / 45 failed**; these four passing cases do not make that full run green. Its log hash has been verified against `PAYROLL_BROWSER_BASELINE_2026_09_21.json`. A corrected full browser run at `ec69aa82` is pending. Full backend regression is **992/992 passed**, recorded in `PAYROLL_BACKEND_VERIFICATION_2026_09_21.json`.
+
+The historical gap analysis below explains the journey's development. Statements there that the combined native journey is unverified are superseded by this checkpoint. Coverage of every employment arrangement, real invitation delivery, production provider acceptance and remaining exception/remittance/year-end implementation is still incomplete; see `PAYROLL_COMPLETION_AUDIT.md`.
+
+## Historical journey checkpoints
 
 Assisted recheck (September 13, 2026, payroll code `aaf88e37`): the two-preparer journey passed in the serial run logged at `/tmp/payroll-native-assisted-current.log`. It includes separate private preparer contexts without an admin token, roster completion disabled until both signatures exist, activation, payroll, statement download and a post-payroll Section 1 correction requiring two fresh preparer signatures and a fresh employer certification. The final database checks retain two employee submissions, four preparer signatures and two employer certifications while the existing finalized payroll and synthetic QuickBooks journal remain single records. The history screenshot was inspected and displays separate current and historical certifications. Its complete 9,441,923-byte trace passed ZIP CRC validation with zero test errors, retained at `/tmp/payroll-assisted-check-payroll-native-complete-jo-71683-g-access-multiple-preparers.zip`.
 

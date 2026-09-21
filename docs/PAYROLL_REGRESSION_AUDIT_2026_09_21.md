@@ -1,6 +1,18 @@
 # Payroll regression audit — September 21, 2026
 
-Baseline source: `2b92550c`. Original onboarding/payroll goal remains active.
+## Current verification checkpoint — main `ec69aa82`
+
+This checkpoint supersedes the historical checkpoints below. The original onboarding/payroll goal remains active.
+
+- Full backend regression at runtime commit `aa6f7010`: **992 passed, zero failed/skipped/cancelled**. The retained log hash was reverified against `PAYROLL_BACKEND_VERIFICATION_2026_09_21.json`. Commit `ec69aa82` changes browser tests and documentation only.
+- Original full browser baseline: **162 passed and 45 failed out of 207**. Its retained log hash was reverified against `PAYROLL_BROWSER_BASELINE_2026_09_21.json`. All four native complete journeys finished their persisted payroll/accounting assertions and cleanup: unassisted, single preparer, multiple preparers and existing-account link. The unassisted and linked-account cases also completed a second hiring/payroll cycle.
+- Historical fixture and selector corrections have focused passing results, recorded later in this document. Those results do not convert the failed baseline into a passing full run.
+- A fresh integrated 207-scenario browser run is active, execution `63093`, log `/tmp/payroll-browser-ec69aa82.log`. At this checkpoint 21 scenarios have passed with no failures reported; the remaining scenarios are pending. All 3,503 recorded test/runtime input hashes still match `/tmp/payroll-browser-ec69aa82-inputs.json`.
+- Live bank/recordkeeper/QuickBooks acceptance, government transmission and the remaining implementation exceptions in `PAYROLL_COMPLETION_AUDIT.md` are not established by synthetic tests. The goal is not complete.
+
+## Historical investigation record
+
+Original baseline source: `2b92550c`. The entries below describe successive runs; their present-tense process and publication statements apply only to their individual checkpoints.
 
 ## Final worktree checkpoint
 
