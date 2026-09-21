@@ -3,16 +3,26 @@ const fail=message=>Object.assign(new Error(message),{status:409})
 // Rebuild the full payroll, including benefit collections, after calculating
 // deferrals. All inputs originate from the same employer-scoped transaction.
 export async function retirementCandidatesFor(db,facility,date,employees){
+ // Employer obligations can exist without a signed employee deferral election.
+ // Every employee in this payroll needs a disposition for applicable employer
+ // terms; candidate inclusion does not itself establish participant eligibility.
  return (await db.query(`SELECT DISTINCT q.employee_id,q.plan_id FROM payroll_retirement_election q
    WHERE q.facility_id=$1 AND q.election->>'effectiveOn'<=$2
    AND q.employee_id=ANY($3::bigint[])
    UNION SELECT e.employee_id,e.plan_id FROM
    (SELECT DISTINCT ON(employee_id,plan_id) employee_id,plan_id,review FROM payroll_retirement_eligibility WHERE facility_id=$1 AND employee_id=ANY($3::bigint[]) ORDER BY employee_id,plan_id,revision DESC) e
-   WHERE e.review->>'disposition'='ELIGIBLE' AND e.review->>'eligibleOn'<=$2 ORDER BY employee_id,plan_id`,[facility,date,employees])).rows
+   WHERE e.review->>'disposition'='ELIGIBLE' AND e.review->>'eligibleOn'<=$2
+   UNION SELECT employee.id AS employee_id,plan.plan_id FROM payroll_employee employee
+   CROSS JOIN (SELECT DISTINCT ON(plan_id) plan_id,plan FROM payroll_retirement_plan_revision
+     WHERE facility_id=$1 AND tax_year=2026 AND plan->>'effectiveOn'<=$2
+     ORDER BY plan_id,revision DESC) plan
+   WHERE employee.facility_id=$1 AND employee.id=ANY($3::bigint[])
+   AND plan.plan->>'employerContributions' IS DISTINCT FROM 'NONE'
+   ORDER BY employee_id,plan_id`,[facility,date,employees])).rows
 }
 export async function retirementOffCycleWarnings(db,facility,employeeId,date){
  const candidates=await retirementCandidatesFor(db,facility,date,[employeeId])
- return candidates.length?[{employeeId,code:'RETIREMENT_OFF_CYCLE_REVIEW',severity:'critical',blocking:true,message:'Retirement election or eligibility applies. Reconcile off-cycle retirement compensation and withholding before approving this payment.'}]:[]
+ return candidates.length?[{employeeId,code:'RETIREMENT_OFF_CYCLE_REVIEW',severity:'critical',blocking:true,message:'A retirement election, eligibility review, or employer-funded plan applies. Reconcile off-cycle retirement compensation and withholding before approving this payment.'}]:[]
 }
 export async function regularRetirementPayroll(db,facility,result,excludeRunId,rebuild,runKind='REGULAR'){
  if(!result)return result
