@@ -7,8 +7,9 @@ export async function retirementReceiptContractHistory(db,facility,planId){
  if(!plan)throw fail('Retirement plan not found.',404)
  const format=(await db.query('SELECT id,plan_revision_id,format FROM payroll_retirement_allocation_format WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,planId])).rows[0]
  const history=(await db.query('SELECT id,plan_revision_id,allocation_format_id,revision,disposition,contract,reference,created_at FROM payroll_retirement_receipt_contract WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC',[facility,planId])).rows,latest=history[0]
+ const employerContributionsIncluded=!!format?.format?.columns?.some(c=>c.field==='employerMatchingCents')
  const sourceReady=!!format&&format.plan_revision_id===plan.id&&format.format.disposition==='VERIFIED'
- return {planRevisionId:plan.id,allocationFormatId:format?.id||null,sourceReady,status:!latest?'REVIEW_REQUIRED':latest.disposition==='SUSPENDED'?'SUSPENDED':!sourceReady||latest.plan_revision_id!==plan.id||latest.allocation_format_id!==format.id?'SOURCE_CHANGED':'CURRENT',history}
+ return {planRevisionId:plan.id,allocationFormatId:format?.id||null,sourceReady,employerContributionsIncluded,status:!latest?'REVIEW_REQUIRED':latest.disposition==='SUSPENDED'?'SUSPENDED':!sourceReady||latest.plan_revision_id!==plan.id||latest.allocation_format_id!==format.id||(latest.contract?.employerContributionsConfirmed===true)!==employerContributionsIncluded?'SOURCE_CHANGED':'CURRENT',history}
 }
 export function registerRetirementReceiptContracts(app,pool){
  const path='/api/admin/payroll/retirement-plans/:planId/receipt-contract'
@@ -28,6 +29,7 @@ export function registerRetirementReceiptContracts(app,pool){
    const state=await retirementReceiptContractHistory(db,facility,planId),latest=state.history[0]
    if((latest?.revision||0)!==b.expectedRevision)throw fail('Receipt contract changed. Reload its current revision.')
    if(contract&&(!state.sourceReady||state.planRevisionId!==b.planRevisionId||state.allocationFormatId!==b.allocationFormatId))throw fail('Plan or allocation format changed. Review the current receipt contract.')
+   if(contract&&(contract.employerContributionsConfirmed===true)!==state.employerContributionsIncluded)throw fail('Receipt employer categories must match the retained allocation format.')
    if(!contract&&latest?.disposition!=='REVIEWED')throw fail('Suspend the latest reviewed receipt contract.')
    const id=randomUUID(),planRevisionId=contract?b.planRevisionId:latest.plan_revision_id,formatId=contract?b.allocationFormatId:latest.allocation_format_id
    await db.query('INSERT INTO payroll_retirement_receipt_contract(id,facility_id,plan_id,plan_revision_id,allocation_format_id,revision,disposition,contract,reference,request_key,request_fingerprint,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[id,facility,planId,planRevisionId,formatId,b.expectedRevision+1,contract?'REVIEWED':'SUSPENDED',contract||latest.contract,reference,b.requestKey,fingerprint,req.adminId])

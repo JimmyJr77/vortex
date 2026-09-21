@@ -34,3 +34,22 @@ test('receipt reviews reject missing semantic confirmations, duplicate mappings 
   assert.equal((await f.api(f.path)).history.length,0)
  }finally{await h.close()}
 })
+
+test('employer receipt reviews require matching allocation columns and retain exact retry identity',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const h=await createHarness();t.after(()=>h.close())
+ const f=await retirementReceiptContractFixture(h)
+ const extra=['employerMatchingCents','employerNonelectiveCents'].map(field=>({field,header:field}))
+ const contract={...f.body.contract,employerContributionsConfirmed:true,columns:[...f.body.contract.columns,...extra]}
+ await f.api(f.path,{...f.body,contract},409)
+ const format=await f.api(f.formatPath,{format:{...allocationFormatFixture(),columns:[...allocationFormatFixture().columns,...extra]},planRevisionId:f.body.planRevisionId,expectedRevision:1,requestKey:randomUUID()})
+ await f.api(f.path,{...f.body,allocationFormatId:format.id,requestKey:randomUUID()},409)
+ const body={...f.body,contract,allocationFormatId:format.id,requestKey:randomUUID()}
+ const [one,two]=await Promise.all([f.api(f.path,body),f.api(f.path,body)])
+ assert.equal(one.id,two.id)
+ const state=await f.api(f.path)
+ assert.equal(state.status,'CURRENT');assert.equal(state.employerContributionsIncluded,true)
+ assert.equal(state.history[0].contract.version,3)
+ assert.equal(state.history[0].contract.columns.length,15)
+ assert.equal(state.history[0].contract.employerContributionsConfirmed,true)
+ await f.api(f.path,{...body,contract:{...contract,employerContributionsConfirmed:false}},409)
+})

@@ -1,5 +1,11 @@
-const fields=['ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents','totalCents']
+const employeeFields=['ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents','totalCents']
 export function retirementReceiptEvolution(previous,next,{allowReversals=false}={}){
+ const employerFields=['employerMatchingCents','employerNonelectiveCents']
+ const included=next.employerContributionsIncluded===true
+ if(next.participants.some(p=>employerFields.some(k=>included?!Number.isSafeInteger(p.reported?.[k])||p.reported[k]<0:p.reported?.[k]!==undefined)))return 'CONFLICT'
+ const fields=[...employeeFields,...(included?employerFields:[])]
+ if(previous&&(previous.employerContributionsIncluded===true)!==included)return 'CONFLICT'
+ if(previous&&previous.participants.some(p=>employerFields.some(k=>included?!Number.isSafeInteger(p.reported?.[k])||p.reported[k]<0:p.reported?.[k]!==undefined)))return 'CONFLICT'
  if(!previous)return next.participants.some(p=>p.status==='REVERSED')?'REGRESSION':'CURRENT'
  if(previous.sourceSha256!==next.sourceSha256||previous.batchId!==next.batchId||previous.authorizedCents!==next.authorizedCents||previous.participants.length!==next.participants.length)return 'CONFLICT'
  const prior=new Map(previous.participants.map(p=>[p.employeeId,p]));let changed=false,stale=false,regression=false,conflict=false

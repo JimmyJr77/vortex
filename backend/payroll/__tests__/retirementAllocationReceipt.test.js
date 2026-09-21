@@ -72,3 +72,36 @@ test('reviewed full participant reversals retain exact allocations and require a
  assert.throws(()=>f.run([{...rows[0],ordinaryPretaxCents:1,totalCents:1},rows[1]],{contract}),/status and cumulative/)
  const partial=f.run([rows[0],f.rows[1]],{contract});assert.equal(partial.status,'PARTIALLY_REVERSED');assert.equal(partial.reversedAllocationCents,1400)
 })
+
+test('employer receipts reconcile every category and track partial postings, regressions and reversals',()=>{
+ const extra=['employerMatchingCents','employerNonelectiveCents']
+ const c={...contract(),employerContributionsConfirmed:true,participantReversalConfirmed:true,statusValues:{...contract().statusValues,REVERSED:'Reversed'},columns:[...contract().columns,...extra.map(field=>({field,header:field}))]}
+ const allocation={employeeId:'10',ordinaryPretaxCents:1000,ordinaryRothCents:400,catchUpPretaxCents:0,catchUpRothCents:0,employerMatchingCents:600,employerNonelectiveCents:400,totalCents:2400}
+ const basis={amountFormat:'CENTS',dateFormat:'ISO',columns:[...allocationFields,...extra].map(field=>({field,header:field})),includeHeader:true,allocations:[allocation],withheldDate:'2026-09-10',amountCents:2400,rowCount:1}
+ const source={...allocation,providerPlanId:'Synthetic plan',participantId:'Private participant',withheldDate:basis.withheldDate}
+ const allocationBytes=Buffer.from(retirementAllocationCsv(basis,[source])),fileName='employer.csv'
+ const row={...source,sourceFileName:fileName,sourceSha256:createHash('sha256').update(allocationBytes).digest('hex'),batchId:'Employer batch',status:'Credited',recordedAt:'2026-09-19T13:00:00Z'}
+ const input={contract:c,allocationBytes,basis,fileName,claimedAt:'2026-09-19T12:00:00Z',now:new Date('2026-09-20T12:00:00Z')}
+ const reconcile=(changes={},override={})=>reconcileRetirementAllocationReceipt({...input,...override,receiptBytes:csv(c.columns,[{...row,...changes}])})
+ const full=reconcile();assert.equal(full.status,'POSTED');assert.equal(full.version,3);assert.equal(full.postedCents,2400)
+ assert.equal(full.participants[0].reported.employerMatchingCents,600)
+ assert.equal(full.participants[0].reported.employerNonelectiveCents,400)
+ assert.equal(JSON.stringify(full).includes('Private participant'),false)
+ const partial=reconcile({employerMatchingCents:200,totalCents:2000});assert.equal(partial.status,'PARTIALLY_POSTED');assert.equal(partial.unreportedCents,400)
+ assert.equal(retirementReceiptEvolution(partial,full),'CONFLICT')
+ const later=reconcile({recordedAt:'2026-09-19T14:00:00Z'})
+ assert.equal(retirementReceiptEvolution(partial,later),'CURRENT')
+ const regressed=reconcile({employerMatchingCents:100,totalCents:1900,recordedAt:'2026-09-19T15:00:00Z'})
+ assert.equal(retirementReceiptEvolution(later,regressed),'REGRESSION')
+ assert.throws(()=>reconcile({employerMatchingCents:700,employerNonelectiveCents:300}),/status and cumulative/)
+ assert.throws(()=>reconcile({}, {contract:{...c,employerContributionsConfirmed:false}}),/Independently confirm/)
+ assert.throws(()=>reconcile({}, {contract:contract()}),/differ from the reviewed receipt/)
+ const reversed=reconcile({ordinaryPretaxCents:0,ordinaryRothCents:0,employerMatchingCents:0,employerNonelectiveCents:0,totalCents:0,status:'Reversed',recordedAt:'2026-09-19T15:00:00Z'})
+ assert.equal(reversed.status,'REVERSED');assert.equal(reversed.reversedAllocationCents,2400)
+ assert.equal(retirementReceiptEvolution(later,reversed,{allowReversals:true}),'CURRENT')
+ assert.equal(retirementReceiptEvolution(later,reversed),'REGRESSION')
+ const missing=structuredClone(full);delete missing.participants[0].reported.employerMatchingCents
+ assert.equal(retirementReceiptEvolution(full,missing),'CONFLICT')
+ const unmarked=structuredClone(full);delete unmarked.employerContributionsIncluded
+ assert.equal(retirementReceiptEvolution(null,unmarked),'CONFLICT')
+})
