@@ -1,6 +1,6 @@
 import {expect,type Page} from '@playwright/test'
 
-export async function nativeJourneyRehire(admin:Page,employee:Page,email:string,startDate:string){
+export async function nativeJourneyRehire(admin:Page,employee:Page,email:string,startDate:string,signIn?:()=>Promise<void>){
  await admin.getByRole('button',{name:'Pay setup & leave',exact:true}).click()
  await admin.getByRole('button',{name:'Cancel scheduled pay change',exact:true}).click()
  await admin.getByLabel('Reason for cancellation',{exact:true}).fill('Synthetic separation and rehire review: reconcile the future wage agreement.')
@@ -24,18 +24,21 @@ export async function nativeJourneyRehire(admin:Page,employee:Page,email:string,
  await rehire.getByLabel('I reviewed prior wages, corrections, expenses and leave policy, including retaining the displayed balances.',{exact:true}).check()
  await rehire.getByRole('button',{name:'Reopen onboarding',exact:true}).click()
  await expect(admin.getByText('Rehire onboarding opened. Complete fresh submissions and reviews before activation.',{exact:true})).toBeVisible()
- await expect(admin.getByText('0 of 13 steps complete',{exact:true})).toBeVisible()
+ await expect(admin.getByText('0 of 12 steps complete',{exact:true})).toBeVisible()
  await expect(admin.getByRole('button',{name:'Complete onboarding & activate employee',exact:true})).toBeDisabled()
  await admin.locator('summary').filter({hasText:'Employer I-9 review'}).first().click()
  const records=admin.getByRole('region',{name:'Retained employer I-9 evidence',exact:true})
  await expect(records.locator('summary').filter({hasText:'Historical certification'})).toHaveCount(1)
  await expect(records.locator('summary').filter({hasText:'Current certification'})).toHaveCount(0)
  await employee.reload()
+ if(signIn)await signIn()
+ else{
  await employee.getByLabel('Email',{exact:true}).fill(email)
  await employee.getByLabel('Password',{exact:true}).fill('Vortex-Test-Password-2026')
  await employee.getByRole('button',{name:'Sign in to payroll',exact:true}).click()
+ }
  await expect(employee.getByText('Hi, Morgan')).toBeVisible()
  await employee.getByRole('button',{name:'Onboarding',exact:true}).click()
- await expect(employee.getByText('0 of 13 steps complete',{exact:true})).toBeVisible()
+ await expect(employee.getByText('0 of 12 steps complete',{exact:true})).toBeVisible()
  await employee.screenshot({path:'/tmp/payroll-native-rehire-employee.png',fullPage:true})
 }

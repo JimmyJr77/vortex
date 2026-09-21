@@ -15,3 +15,20 @@ test('historical harness clock is isolated from ordinary payroll database sessio
   assert.equal(inserted.created_at.toISOString(),'2026-09-08T12:00:00.000Z')
  }finally{if(ordinary)await ordinary.close();await historical.close()}
 })
+
+test('isolated payroll reference clock applies to business dates and expiry checks', {skip:!process.env.PAYROLL_TEST_DATABASE_URL},async()=>{
+ const fixed='2026-09-13T16:00:00.000Z'
+ const h=await createHarness({databaseNow:fixed})
+ try{
+  const row=(await h.pool.query('SELECT now() AS business_time,clock_timestamp() AS expiry_time')).rows[0]
+  assert.equal(row.business_time.toISOString(),fixed)
+  assert.equal(row.expiry_time.toISOString(),fixed)
+ }finally{await h.close()}
+ const live=await createHarness()
+ try{
+  const before=Date.now()
+  const row=(await live.pool.query('SELECT now() AS business_time,clock_timestamp() AS expiry_time')).rows[0]
+  const after=Date.now()
+  for(const value of Object.values(row))assert.ok(value.getTime()>=before-1000&&value.getTime()<=after+1000)
+ }finally{await live.close()}
+})

@@ -72,6 +72,7 @@ export default function PayrollEmployeePortal() {
 
   const load = useCallback(async () => {
     const next = await employeePayrollApi.me()
+    setError('')
     setData(next)
     setPreferredName(next.employee.preferredName)
     setPhone(next.employee.phone)
@@ -127,7 +128,7 @@ export default function PayrollEmployeePortal() {
     setBusy(true)
     try { await employeePayrollApi.logout() } catch { clearPayrollEmployeeSession() }
     setData(null)
-    setError('Your payroll session has ended. Sign in with your payroll password, or ask your hiring admin for a fresh invitation.')
+    setError('Your payroll session has ended. Sign in with your linked Vortex account or payroll password, or ask your hiring admin for a fresh invitation.')
     setBusy(false)
   }
 

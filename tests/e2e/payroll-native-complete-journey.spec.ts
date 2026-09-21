@@ -1,3 +1,4 @@
+import {nativeJourneyAccountLink,nativeJourneyLinkedSignIn} from '../support/nativeJourneyAccountLink'
 import {nativeJourneyRehireCompletion} from '../support/nativeJourneyRehireCompletion'
 import {nativeJourneyRehirePayroll} from '../support/nativeJourneyRehirePayroll'
 import {nativeJourneyPreparer} from '../support/nativeJourneyPreparer'
@@ -14,15 +15,24 @@ import {createHarness} from '../../backend/payroll/testing/harness.js'
 // exhausting Playwright's separate trace-archive teardown window.
 test.use({trace:{mode:'on',screenshots:false,snapshots:true,sources:true}})
 
-for(const preparers of [0,1,2])test(`fresh invited hire completes native certificates, activation, payroll and returning access: ${preparers===2?'multiple-preparers':preparers===1?'preparer-assisted':'unassisted'}`, async ({ browser }) => {
+for(const {preparers,linkedAccount} of [{preparers:0,linkedAccount:false},{preparers:1,linkedAccount:false},{preparers:2,linkedAccount:false},{preparers:0,linkedAccount:true}])test(`fresh invited hire completes native certificates, activation, payroll and returning access: ${linkedAccount?'linked-account':preparers===2?'multiple-preparers':preparers===1?'preparer-assisted':'unassisted'}`, async ({ browser }) => {
  test.setTimeout(360000)
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated local payroll database')
+ // Keep application, database, and browser dates aligned; real timers still advance.
+ const realDate=globalThis.Date,referenceTime=realDate.parse('2026-09-13T16:00:00.000Z')
+ globalThis.Date=new Proxy(realDate,{
+  construct(target,args){return Reflect.construct(target,args.length?args:[referenceTime])},
+  apply(){return new realDate(referenceTime).toString()},
+  get(target,property){return property==='now'?()=>referenceTime:Reflect.get(target,property)},
+ })
  const priorKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='b'.repeat(64)
  const quickbooks=nativeJourneyQuickbooks()
- const h=await createHarness({quickbooksFetcher:quickbooks.fetcher})
+ const h=await createHarness({quickbooksFetcher:quickbooks.fetcher,databaseNow:'2026-09-13T16:00:00.000Z'})
  const adminContext = await browser.newContext({viewport:{width:1440,height:1000}})
  await adminContext.addInitScript(() => {if(location.protocol==='http:')localStorage.setItem('adminToken','payroll-test-admin')})
  const admin=await adminContext.newPage(), employeeContext=await browser.newContext({viewport:{width:390,height:844}}), employee=await employeeContext.newPage()
+ await admin.clock.setFixedTime(new Date('2026-09-13T16:00:00.000Z'))
+ await employee.clock.setFixedTime(new Date('2026-09-13T16:00:00.000Z'))
  const errors:string[]=[];admin.on('pageerror',e=>errors.push(e.message));employee.on('pageerror',e=>errors.push(e.message))
  for(const page of [admin,employee])page.on('console',message=>{if(message.type()==='error'&&message.text().includes('Encountered two children with the same key'))errors.push(message.text())})
  try{
@@ -195,6 +205,8 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
 
 
  await employee.getByRole('button',{name:'Home',exact:true}).click()
+ if(linkedAccount)await nativeJourneyAccountLink(employee,h,number)
+ else{
  await employee.getByLabel('New payroll password').fill('Vortex-Test-Password-2026')
  await employee.getByRole('button',{name:'Save password',exact:true}).click()
  await expect(employee.getByRole('status')).toContainText('Password saved.')
@@ -203,6 +215,7 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  await employee.getByLabel('Password',{exact:true}).fill('Vortex-Test-Password-2026')
  await employee.getByRole('button',{name:'Sign in to payroll'}).click()
  await expect(employee.getByText('Hi, Morgan')).toBeVisible()
+ }
  await employee.getByRole('button',{name:'Leave & requests',exact:true}).click()
  await employee.getByLabel('Request type').selectOption('GENERAL')
  await employee.getByLabel('Details / reason').fill(`Please confirm my orientation time: ${number}`)
@@ -377,9 +390,9 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
  }
  if(preparers===0){
   const start=(await h.pool.query("SELECT to_char((now() AT TIME ZONE timezone)::date+1,'YYYY-MM-DD') AS day FROM payroll_settings WHERE facility_id=1")).rows[0].day
-  await nativeJourneyRehire(admin,employee,email,start)
+  await nativeJourneyRehire(admin,employee,email,start,linkedAccount?()=>nativeJourneyLinkedSignIn(employee):undefined)
   expect((await h.pool.query('SELECT id FROM payroll_employee WHERE employee_number=$1',[number])).rowCount).toBe(1)
-  expect((await h.pool.query('SELECT id FROM payroll_onboarding_task WHERE employee_id=$1 AND onboarding_cycle=2',[hire.id])).rowCount).toBe(13)
+  expect((await h.pool.query('SELECT id FROM payroll_onboarding_task WHERE employee_id=$1 AND onboarding_cycle=2',[hire.id])).rowCount).toBe(12)
   expect((await h.pool.query('SELECT id FROM payroll_i9_employer_signature WHERE employee_id=$1',[hire.id])).rowCount).toBe(1)
   expect((await h.pool.query('SELECT employee_id FROM payroll_tax_election WHERE employee_id=$1',[hire.id])).rowCount).toBe(0)
   const acceptedOn=new Date(new Date(`${start}T12:00:00Z`).valueOf()-86400000).toISOString().slice(0,10)
@@ -395,6 +408,10 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
   expect(wages.map(row=>Number(row.regular_minutes))).toEqual([480,480])
   expect(wages.map(row=>Number(row.regular_pay_cents))).toEqual([20000,20000])
   expect(wages.map(row=>Number(row.net_pay_cents))).toEqual([18470,18470])
+  if(linkedAccount){
+   expect((await h.pool.query('SELECT employee_id FROM payroll_employee_account_link')).rows.map(row=>Number(row.employee_id))).toEqual([Number(hire.id)])
+   expect((await h.pool.query("SELECT id FROM payroll_audit_log WHERE action='EMPLOYEE_ACCOUNT_SIGN_IN'")).rowCount).toBe(2)
+  }
   expect(quickbooks.journals).toHaveLength(2)
   expect(new Set(quickbooks.journals.map(journal=>journal.requestId)).size).toBe(2)
   expect(quickbooks.journals.map(journal=>journal.payload.TxnDate)).toEqual(['2026-09-21','2026-10-06'])
@@ -412,7 +429,7 @@ for(const preparers of [0,1,2])test(`fresh invited hire completes native certifi
    try{await Promise.all([adminContext.close(),employeeContext.close()])}
    finally{
     try{await h.close();console.info('Journey: browser and isolated database cleanup completed')}
-    finally{quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}
+    finally{globalThis.Date=realDate;quickbooks.restore();if(priorKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=priorKey}
    }
   }
  }

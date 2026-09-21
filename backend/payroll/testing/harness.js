@@ -20,7 +20,7 @@ export async function createHarness({retirementReceiptReader=async()=>({status:'
  const root=new pg.Pool({connectionString:databaseUrl})
  await root.query(`CREATE SCHEMA ${schema}`)
  const pool=new pg.Pool({connectionString:databaseUrl,options:`-c search_path=${schema},${databaseNow?'pg_catalog,':''}public`})
- if(databaseNow)await pool.query(`CREATE FUNCTION now() RETURNS timestamptz LANGUAGE sql STABLE AS $$ SELECT '${new Date(databaseNow).toISOString()}'::timestamptz $$`)
+ if(databaseNow)await pool.query(`CREATE FUNCTION now() RETURNS timestamptz LANGUAGE sql STABLE AS $$ SELECT '${new Date(databaseNow).toISOString()}'::timestamptz $$; CREATE FUNCTION clock_timestamp() RETURNS timestamptz LANGUAGE sql VOLATILE AS $$ SELECT '${new Date(databaseNow).toISOString()}'::timestamptz $$`)
  await pool.query(`CREATE TABLE facility(id BIGINT PRIMARY KEY,timezone TEXT); CREATE TABLE permission(id BIGSERIAL PRIMARY KEY,key TEXT UNIQUE,description TEXT); CREATE TABLE role(id BIGSERIAL PRIMARY KEY,key TEXT UNIQUE); CREATE TABLE role_permission(role_id BIGINT,permission_id BIGINT,UNIQUE(role_id,permission_id)); INSERT INTO facility VALUES (1,'America/New_York'),(2,'America/New_York')`)
  for(const file of ['812_payroll_operations.sql','813_payroll_onboarding.sql','815_payroll_existing_account_link.sql','816_payroll_i9_participation_verification_date.sql','817_payroll_retire_availability_onboarding.sql'])await pool.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
  // Remove historical seed employees in this isolated fixture only.
