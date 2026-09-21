@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {encryptDocument} from '../onboarding.js'
 import {syncQuickbooksRun} from '../quickbooks.js'
@@ -8,7 +8,7 @@ test('carrier accounting check verifies the actual source journal and rejects dr
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='19'.repeat(32);t.after(()=>{if(prior===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=prior})
  let journal,posts=0,accountingPreferences={}
  const fetcher=async(url,options)=>{let data;if(url.includes('/account/'))data={Account:{Id:url.split('/').at(-1),Name:'Synthetic account '+url.split('/').at(-1),Active:true,AccountType:url.endsWith('/7')?'Expense':'Other Current Liability',CurrencyRef:{value:'USD'}}};else if(url.endsWith('/preferences'))data={Preferences:{AccountingInfoPrefs:accountingPreferences,CurrencyPrefs:{HomeCurrency:{value:'USD'}}}};else if(options.body){posts++;journal={...JSON.parse(options.body),Id:'55'};data={JournalEntry:journal}}else data={JournalEntry:journal};return {ok:true,status:200,json:async()=>data}}
- const h=await createHarness({quickbooksFetcher:fetcher});t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t,{quickbooksFetcher:fetcher});t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-INVOICE-ACCOUNTING'})
  const path='/benefit-carrier-invoices',source=(await api(`${path}?month=2026-09`)).source
  const saved=await api(path,{month:'2026-09',carrier:'Synthetic Health',invoiceNumber:'ACC-SEP',invoiceDate:'2026-09-01',dueDate:'2026-09-30',amountCents:57500,reference:'Synthetic carrier invoice reference',reconciliation:'Matched invoice coverage with employee payroll contributions',confirmed:true,fingerprint:source.fingerprint,allocation:{employerExpenseCents:45000,employeeContributionCents:12500,confirmed:true,reference:'Retained payroll medical contribution',contributions:[{key:source.contributions[0].key,amountCents:12500}]}}),check=`${path}/${saved.id}/accounting-check`

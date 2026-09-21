@@ -11,13 +11,13 @@ import {runPaymentRecoverySweep} from '../paymentRecoveryScheduler.js'
 import {addMixedPaymentEmployees} from '../testing/mixedPaymentEmployees.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {randomBytes} from 'node:crypto'
 import {dispatchPayrollInstruction} from '../paymentDispatch.js'
 import {loadRunPreview,payrollFingerprint,finalizePayrollRun} from '../registerRoutes.js'
 test('run payment authorization retains a single reviewed plan and blocks manual payment until cancelled',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201)
  await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH')
  const plan=await api(`/runs/${run.id}/payment-plan`),path=`/runs/${run.id}/payment-authorization`,body={fingerprint:plan.fingerprint,reference:'Synthetic reviewed payroll payment batch',confirmed:true}
@@ -39,12 +39,13 @@ test('run payment authorization retains a single reviewed plan and blocks manual
  await api(`/runs/${run.id}/status`,{status:'VOID'},'PATCH')
  assert.equal((await h.pool.query('SELECT * FROM payroll_payment_dispatch_attempt')).rowCount,0)
 })
-for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHEDULE_CANCEL','SCHEDULE_WITHDRAWN','SCHEDULE_RACE','SCHEDULE_EXPIRED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE','SWEEP','MIXED','CLOSEOUT','BANK_SETTLEMENT','ADMIN_ROUTE','ACCEPTED','LOST_RESPONSE','WRITE_INTERRUPTED','WITHDRAWN','BLOCKED_LOOKUP','BLOCKED_VERIFICATION','OBSERVED_AFTER_BLOCK','UNKNOWN_LOOKUP'])test(`direct-deposit dispatch retains authorized instructions and recovers safely (${variant})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const variant of ['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','SCHEDULE','SCHEDULE_CANCEL','SCHEDULE_WITHDRAWN','SCHEDULE_RACE','SCHEDULE_EXPIRED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE','SWEEP','MIXED','CLOSEOUT','BANK_SETTLEMENT','ADMIN_ROUTE','ACCEPTED','LOST_RESPONSE','WRITE_INTERRUPTED','WITHDRAWN','BLOCKED_LOOKUP','BLOCKED_VERIFICATION','OBSERVED_AFTER_BLOCK','UNKNOWN_LOOKUP'])test(`direct-deposit dispatch retains authorized instructions and recovers safely (${variant})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const previousKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`
  let routeFetcher,quickbooksFetcher
- const h=await createHarness({quickbooksFetcher:async(...args)=>{if(!quickbooksFetcher)throw new Error('Synthetic QuickBooks unavailable');return quickbooksFetcher(...args)},payrollNow:()=>new Date(variant.startsWith('SCHEDULE')?'2026-09-10T12:00:00Z':['SETTLEMENT_POSTING','REPEAT_REPLACEMENT'].includes(variant)?'2026-09-20T12:00:00Z':'2051-01-01T12:00:00Z'),paymentFetcher:async(url,options)=>{if(routeFetcher)return routeFetcher(url,options);assert.equal(options.method,undefined);return {ok:true,status:200,json:async()=>url.includes('/internal_accounts/')?{id:id(2),currency:'USD',live_mode:true}:{id:id(3),counterparty_id:id(4),party_name:'Monthly Benefits',party_type:'individual',account_type:'checking',live_mode:true,verification_status:'verified',account_details:[{account_number_safe:'1234'}]}}}})
+ const h=await createHistoricalHarness(t,{quickbooksFetcher:async(...args)=>{if(!quickbooksFetcher)throw new Error('Synthetic QuickBooks unavailable');return quickbooksFetcher(...args)},payrollNow:()=>new Date(variant.startsWith('SCHEDULE')?'2026-09-10T12:00:00Z':['SETTLEMENT_POSTING','REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED'].includes(variant)?'2026-09-20T12:00:00Z':'2051-01-01T12:00:00Z'),paymentFetcher:async(url,options)=>{if(routeFetcher)return routeFetcher(url,options);assert.equal(options.method,undefined);return {ok:true,status:200,json:async()=>url.includes('/internal_accounts/')?{id:id(2),currency:'USD',live_mode:true}:{id:id(3),counterparty_id:id(4),party_name:'Monthly Benefits',party_type:'individual',account_type:'checking',live_mode:true,verification_status:'verified',account_details:[{account_number_safe:'1234'}]}}}})
  t.after(async()=>{await h.close();if(previousKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=previousKey})
+ if(variant==='REPEAT_REPLACEMENT_REGRESSED')await h.pool.query(`CREATE FUNCTION replacement_authorization_test_clock() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.predecessor_id IS NOT NULL THEN NEW.created_at=clock_timestamp()-interval '1 hour'; END IF; RETURN NEW; END $$; CREATE TRIGGER replacement_authorization_test_clock BEFORE INSERT ON payroll_payment_replacement_authorization FOR EACH ROW EXECUTE FUNCTION replacement_authorization_test_clock();`)
  const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const connection=await api('/payment-connection',{organizationId:id(1),originatingAccountId:id(2),apiKey:'synthetic-batch-key',mode:'LIVE',reference:'Synthetic employer payment account review',confirmed:true,expectedRevision:0},'POST',201)
  await api('/payment-connection/verify',{expectedRevision:connection.revision})
@@ -173,9 +174,9 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
  assert.equal(observations.at(-1).source,'RECOVERY');assert.equal(observations.at(-1).result.status,'PROCESSING')
  await assert.rejects(h.pool.query('DELETE FROM payroll_payment_observation'),/append-only/)
  assert.equal((await h.pool.query('SELECT * FROM payroll_payment_dispatch_attempt')).rowCount,1)
- if(['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','BANK_SETTLEMENT','CLOSEOUT','MIXED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE'].includes(variant)){
+ if(['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','BANK_SETTLEMENT','CLOSEOUT','MIXED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE'].includes(variant)){
   const closeBody={batchId:batch.id,fingerprint:plan.fingerprint,paymentDate:plan.paymentDate,reference:'Synthetic verified payment closeout',checkPayments:mixed?[{employeeId:mixed.checkEmployee.id,amountCents:plan.totals.checkCents,paymentDate:plan.paymentDate,reference:'Synthetic check 2001 delivered'}]:[],confirmed:true}
-  if(['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','CLOSEOUT','MIXED'].includes(variant))await api(`/runs/${run.id}/payment-closeout`,closeBody,'POST',409)
+  if(['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','CLOSEOUT','MIXED'].includes(variant))await api(`/runs/${run.id}/payment-closeout`,closeBody,'POST',409)
   if(['AUTOMATIC','AUTO_CANCEL','AUTO_RACE'].includes(variant)){
    await api(`/runs/${run.id}/payment-closeout/automatic`,closeBody)
    assert.equal((await api(path)).automatic_closeout.status,'SCHEDULED')
@@ -199,7 +200,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
    await assert.rejects(h.pool.query('DELETE FROM payroll_automatic_closeout'),/append-only/)
    return
   }
-  if(['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','CLOSEOUT','MIXED'].includes(variant)){
+  if(['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','CLOSEOUT','MIXED'].includes(variant)){
    await h.pool.query("INSERT INTO payroll_payment_observation(attempt_id,source,result,created_at) SELECT attempt_id,source,result,clock_timestamp()-interval '16 minutes' FROM payroll_payment_observation ORDER BY id DESC LIMIT 1")
    await api(`/runs/${run.id}/payment-closeout`,closeBody,'POST',409)
    await api(dispatchPath,{action:'RECOVER'})
@@ -214,7 +215,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
    assert.equal((await h.pool.query('SELECT * FROM payroll_payment_closeout')).rowCount,1);assert.equal((await h.pool.query('SELECT bank_observations FROM payroll_payment_closeout')).rows[0].bank_observations.length,1)
    assert.ok((await h.pool.query('SELECT statement_snapshot FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows[0].statement_snapshot.employeeName)
    await assert.rejects(h.pool.query('DELETE FROM payroll_payment_closeout'),/append-only/)
-   if(['SETTLEMENT_POSTING','REPEAT_REPLACEMENT'].includes(variant)){
+   if(['SETTLEMENT_POSTING','REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED'].includes(variant)){
     const qbo=await configureSettlementFixture(h,api,run.id,connection.revision,value=>{quickbooksFetcher=value}),posting=`/runs/${run.id}/payment-accounting/posting`
     const before=(await h.pool.query('SELECT gross_pay_cents,employee_tax_cents,net_pay_cents FROM payroll_run WHERE id=$1',[run.id])).rows[0]
     let prepared=await api(posting);assert.deepEqual(prepared.issues,[]);assert.equal(prepared.items[0].canPost,true)
@@ -303,20 +304,20 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
     const replacementDispatches=await Promise.all([dispatchReplacementPayment(h.pool,1,Number(run.id),secondAuthorization.id,replacementOptions),dispatchReplacementPayment(h.pool,1,Number(run.id),secondAuthorization.id,replacementOptions)])
     assert.equal(replacementPosts,1);assert.deepEqual(replacementDispatches.map(r=>r.result.status).sort(),['PROCESSING','UNCERTAIN']);assert.equal(replacementDispatches.filter(r=>r.recovery).length,1)
     assert.equal(replacementOrder.external_id,`vortex_payroll_${secondAuthorization.id}`)
-    assert.equal((await api(historyPath))[0].provider.status,'PROCESSING')
+    assert.equal((await api(historyPath)).find(row=>row.id===secondAuthorization.id).provider.status,'PROCESSING')
     const sweepOptions={fetcher:replacementFetcher,now:()=>new Date('2052-01-01T12:00:00Z')}
     const replacementSweeps=await Promise.all([runReplacementRecoverySweep(h.pool,sweepOptions),runReplacementRecoverySweep(h.pool,sweepOptions)])
     assert.equal(replacementSweeps.reduce((n,r)=>n+r.checked,0),1);assert.equal(replacementPosts,1)
     assert.equal((await runReplacementRecoverySweep(h.pool,sweepOptions)).checked,0)
     const unavailable=await runReplacementRecoverySweep(h.pool,{...sweepOptions,now:()=>new Date('2052-01-01T12:11:00Z'),fetcher:async()=>{throw new Error('Synthetic unavailable')}})
-    assert.equal(unavailable.checked,1);assert.equal((await api(historyPath))[0].provider.status,'UNCERTAIN')
+    assert.equal(unavailable.checked,1);assert.equal((await api(historyPath)).find(row=>row.id===secondAuthorization.id).provider.status,'UNCERTAIN')
     assert.equal((await h.pool.query('SELECT status FROM payroll_alert WHERE dedupe_key=$1',[`replacement-payment-${secondAuthorization.id}`])).rows[0].status,'OPEN')
     assert.equal((await runReplacementRecoverySweep(h.pool,{...sweepOptions,now:()=>new Date('2052-01-01T12:11:00Z')})).checked,0)
     assert.equal((await runReplacementRecoverySweep(h.pool,{...sweepOptions,now:()=>new Date('2052-01-01T12:22:00Z')})).checked,1)
-    assert.equal((await api(historyPath))[0].provider.status,'PROCESSING');assert.equal(replacementPosts,1)
+    assert.equal((await api(historyPath)).find(row=>row.id===secondAuthorization.id).provider.status,'PROCESSING');assert.equal(replacementPosts,1)
     replacementOrder.status='completed';replacementOrder.reconciliation_status='reconciled';replacementOrder.transaction_ids=[id(92)]
     assert.equal((await runReplacementRecoverySweep(h.pool,{...sweepOptions,now:()=>new Date('2052-01-01T12:33:00Z')})).checked,1)
-    assert.equal((await api(historyPath))[0].provider.settlementStatus,'BANK_POSTED')
+    assert.equal((await api(historyPath)).find(row=>row.id===secondAuthorization.id).provider.settlementStatus,'BANK_POSTED')
     const receiptPath=`/runs/${run.id}/payment-replacement-receipts`
     const receipts=await api(receiptPath);assert.equal(receipts.length,1);assert.equal(receipts[0].status,'BANK_CONFIRMED');assert.equal(receipts[0].amountCents,plan.totals.directDepositCents);assert.equal(receipts[0].account.accountLast4,'1234')
     const employeeReceipts=await api('/payment-replacement-receipts',undefined,'GET',200,true);assert.deepEqual(employeeReceipts,receipts)
@@ -339,7 +340,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
 
     await api(`${replacementPath}/${secondAuthorization.id}/cancel`,cancellation,'POST',409)
     await assert.rejects(h.pool.query('INSERT INTO payroll_payment_replacement_cancellation(authorization_id,reference,created_by) VALUES($1,$2,99)',[secondAuthorization.id,cancellation.reference]),/dispatch has already started/)
-    assert.equal((await api(historyPath))[0].canCancel,false)
+    assert.equal((await api(historyPath)).find(row=>row.id===secondAuthorization.id).canCancel,false)
     await assert.rejects(h.pool.query('DELETE FROM payroll_payment_replacement_authorization'),/append-only/)
     const cross=await fetch(`${h.url}/api/admin/payroll${replacementPath}`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(cross.status,404)
     await assert.rejects(h.pool.query('DELETE FROM payroll_payment_replacement_review'),/append-only/)
@@ -396,7 +397,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
     const replacementPayload=qbo.journals.get('103');assert.equal(replacementPayload.TxnDate,'2026-09-21');assert.equal(replacementPayload.Line[0].Amount,plan.totals.directDepositCents/100)
     assert.equal((await api(`/runs/${run.id}/payment-accounting`)).totals.netOutflowCents,plan.totals.directDepositCents)
     assert.deepEqual((await h.pool.query('SELECT gross_pay_cents,employee_tax_cents,net_pay_cents FROM payroll_run WHERE id=$1',[run.id])).rows[0],before)
-    if(variant==='REPEAT_REPLACEMENT'){
+    if(variant.startsWith('REPEAT_REPLACEMENT')){
      const completedReplacement=(await h.pool.query('SELECT result FROM payroll_payment_replacement_observation WHERE authorization_id=$1 ORDER BY id DESC LIMIT 1',[secondAuthorization.id])).rows[0].result
      const repeatedReturn={...completedReplacement,status:'RETURNED',settlementStatus:'EXCEPTION',settlementEvidence:[],returnEvidenceStatus:'BANK_CREDIT_POSTED',returnEvidence:{returnId:id(95),transactionId:id(96),lineItemId:id(97),postedDate:'2026-09-22',amountCents:plan.totals.directDepositCents,code:'R03'}}
      await h.pool.query("INSERT INTO payroll_payment_replacement_observation(authorization_id,source,result) VALUES($1,'RECOVERY',$2)",[secondAuthorization.id,repeatedReturn])
@@ -433,7 +434,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
      await api(posting,{...body,eventKey:priorReturn.key,fingerprint:prepared.fingerprint})
      prepared=await api(posting);const nextMovement=prepared.items.find(i=>i.instructionId===nextAuthorization.id);assert.equal(nextMovement.canPost,true)
      await api(posting,{...body,eventKey:nextMovement.key,fingerprint:prepared.fingerprint});assert.equal(qbo.posts,5)
-     assert.equal((await api(casePath))[0].status,'CLOSED');assert.equal((await api(receiptPath)).length,2)
+     const closedCase=(await api(casePath))[0];assert.equal(closedCase.status,'CLOSED',JSON.stringify(closedCase.issues));assert.equal((await api(receiptPath)).length,2)
      nextReview=(await api(replacementPath)).items[0]
      await api(replacementPath,{...replacementBody,replacementDate:'2026-09-23',expectedRevision:nextReview.revision,fingerprint:nextReview.fingerprint,taxReference:'Synthetic same paid facts reconfirmed after payment'})
      assert.equal((await api(casePath))[0].status,'CLOSED')
@@ -488,7 +489,7 @@ for(const variant of ['REPEAT_REPLACEMENT','SETTLEMENT_POSTING','SCHEDULE','SCHE
 })
 
 test('check closeout requires exact delivery evidence and retains one finalized run',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods,employee}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods,employee}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201)
  await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH')
  const plan=await api(`/runs/${run.id}/payment-plan`),batch=await api(`/runs/${run.id}/payment-authorization`,{fingerprint:plan.fingerprint,reference:'Synthetic authorized check payroll',confirmed:true},'POST',201)

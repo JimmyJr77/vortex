@@ -17,13 +17,14 @@ export async function paymentReturnCases(db,facility,runId){
   if(original.run_status!=='FINALIZED')issues.push('Original payroll is not finalized.')
   const bank=paymentAccountingEvidence(original,source),returned=bank.events.find(e=>e.kind==='RETURN')
   if(bank.issues.length||source.at(-1)?.result?.status!=='RETURNED'||!returned)issues.push('Original returned-payment bank evidence needs reconciliation.')
-  const authorization=(await db.query('SELECT a.* FROM payroll_payment_replacement_authorization a LEFT JOIN payroll_payment_replacement_cancellation c ON c.authorization_id=a.id WHERE a.instruction_id=$1 AND c.authorization_id IS NULL ORDER BY a.created_at DESC LIMIT 1',[original.id])).rows[0]
+  // The un-cancelled chain leaf is current even when timestamps tie or regress.
+  const authorization=(await db.query('SELECT a.* FROM payroll_payment_replacement_authorization a LEFT JOIN payroll_payment_replacement_cancellation c ON c.authorization_id=a.id WHERE a.instruction_id=$1 AND c.authorization_id IS NULL AND NOT EXISTS(SELECT 1 FROM payroll_payment_replacement_authorization child WHERE child.predecessor_id=a.id) LIMIT 1',[original.id])).rows[0]
   const review=(await db.query('SELECT * FROM payroll_payment_replacement_review WHERE instruction_id=$1 ORDER BY id DESC LIMIT 1',[original.id])).rows[0]
   if(!authorization||!review||review.review.amountCents!==Number(authorization.amount_cents)||review.review.method!==authorization.method||review.review.replacementDate!==authorization.intent.paymentDate||(review.basis.predecessor?.id||null)!==(authorization.predecessor_id||null)||review.review.taxTreatment!=='ORIGINAL_PAYROLL_RETAINED'||!returned||!sameMovement(review.basis.returnEvent,returned)||(review.basis.returnCode||null)!==(source.at(-1)?.result?.returnEvidence?.code||null))issues.push('The retained unpaid-wage and tax-date review needs reconciliation.')
   const receipt=receipts.find(r=>r.id===authorization?.id)
   if(receipt?.status!=='BANK_CONFIRMED')issues.push('The replacement still needs confirmed bank evidence and its receipt.')
   const replacement={events:[],issues:[]}
-  const cycles=(await db.query('SELECT a.* FROM payroll_payment_replacement_authorization a JOIN payroll_payment_replacement_attempt t ON t.authorization_id=a.id WHERE a.instruction_id=$1 ORDER BY a.created_at,a.id',[original.id])).rows
+  const cycles=(await db.query('SELECT a.* FROM payroll_payment_replacement_authorization a JOIN payroll_payment_replacement_attempt t ON t.authorization_id=a.id WHERE a.instruction_id=$1 ORDER BY a.review_id,a.id',[original.id])).rows
   for(const cycle of cycles){
    const observations=(await db.query('SELECT id,source,result FROM payroll_payment_replacement_observation WHERE authorization_id=$1 ORDER BY id',[cycle.id])).rows
    const evidence=paymentAccountingEvidence({id:cycle.id,amount_cents:cycle.amount_cents,originating_account_id:cycle.intent.originatingAccountId,mode:cycle.intent.mode},observations)

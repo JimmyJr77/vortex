@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {encryptDocument} from '../onboarding.js'
 import {syncQuickbooksRun} from '../quickbooks.js'
@@ -15,7 +15,7 @@ test('verified reversal reconciliation unlocks a new invoice revision and revali
   else data={JournalEntry:[...journals.values()].find(j=>url.endsWith('/'+j.Id))}
   return {ok:true,status:200,json:async()=>data}
  }
- const h=await createHarness({quickbooksFetcher:fetcher});t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t,{quickbooksFetcher:fetcher});t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-INVOICE-CORRECTION'})
  const accounts={wages:'1',employerTax:'2',reimbursements:'3',taxLiability:'4',deductions:'5',clearing:'6'},tokens=encryptDocument(Buffer.from(JSON.stringify({access_token:'synthetic',refresh_token:'synthetic',expiresAt:Date.now()+3600000})),'quickbooks:1')
  await h.pool.query("INSERT INTO payroll_quickbooks_connection(facility_id,realm_id,environment,account_ids,encrypted_tokens) VALUES(1,'123','sandbox',$1,$2)",[accounts,tokens]);await syncQuickbooksRun(h.pool,1,run.id,{fetcher})

@@ -3,7 +3,7 @@ const withoutObservation=({observationId,...event})=>event
 // Follow the latest executed cycle. An unstarted/cancelled successor does not
 // erase the bank return that still establishes the unpaid amount.
 export async function replacementPredecessor(db,facility,instructionId){
- const latest=(await db.query(`SELECT a.* FROM payroll_payment_replacement_authorization a JOIN payroll_payment_replacement_attempt t ON t.authorization_id=a.id WHERE a.facility_id=$1 AND a.instruction_id=$2 ORDER BY a.created_at DESC,a.id DESC LIMIT 1`,[facility,instructionId])).rows[0]
+ const latest=(await db.query(`SELECT a.* FROM payroll_payment_replacement_authorization a JOIN payroll_payment_replacement_attempt t ON t.authorization_id=a.id WHERE a.facility_id=$1 AND a.instruction_id=$2 AND NOT EXISTS(SELECT 1 FROM payroll_payment_replacement_authorization child JOIN payroll_payment_replacement_attempt executed ON executed.authorization_id=child.id WHERE child.predecessor_id=a.id) LIMIT 1`,[facility,instructionId])).rows[0]
  if(!latest)return {predecessor:null,issues:[]}
  const everReturned=(await db.query("SELECT 1 FROM payroll_payment_replacement_observation WHERE authorization_id=$1 AND result->>'status'='RETURNED' LIMIT 1",[latest.id])).rowCount
  const selected=everReturned?latest.id:latest.predecessor_id

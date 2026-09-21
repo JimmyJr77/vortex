@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 test('carrier invoices reserve exact employee deductions across partial allocations and concurrent revisions',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-CARRIER-MATCHING'})
  const path='/benefit-carrier-invoices',source=(await api(`${path}?month=2026-09`)).source;assert.equal(source.contributions.length,1);assert.equal(source.contributions[0].amountCents,12500)
  const body=(invoiceNumber,amount,previousId=null)=>({month:'2026-09',carrier:'Synthetic Carrier',invoiceNumber,invoiceDate:'2026-09-01',dueDate:'2026-09-30',amountCents:57500,reference:'Synthetic matched carrier invoice',reconciliation:'Reviewed coverage and employee funding against carrier records.',confirmed:true,fingerprint:source.fingerprint,previousId,allocation:{employerExpenseCents:57500-amount,employeeContributionCents:amount,reference:'Matched retained September payroll deduction',confirmed:true,contributions:amount?[{key:source.contributions[0].key,amountCents:amount}]:[]}})

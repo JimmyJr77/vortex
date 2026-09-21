@@ -76,3 +76,19 @@ Four focused document/delivery cases passed, including tied and backwards timest
 Assumptions: observations within one check are ordered by their append-only IDs under the existing employer connection lock; historical signing fixtures must use an explicit historical clock; ambiguous legacy evidence should prompt recovery rather than permit payroll closeout. None of these checks initiates a live payment.
 
 The expanded check/migration run finished with **52 passes, zero failures/skips/cancellations**, in 253.0 seconds. Subsequent direct database guard checks passed in three selected workflow cases (`/tmp/payroll-check-order-guards.log`, 47 unrelated cases filtered). Those checks attempt original and replacement handoffs with equal/backwards observation timestamps, with and without the new document boundary, and verify rejection by the database trigger. Each probe rolls back its synthetic records. Normal verified handoff and closeout still complete afterward. `git diff --check` passed.
+
+## Replacement-chain and historical-fixture follow-up
+
+The check-document fix was published as `b9137fa0a7362afefdd410437eb622d9692158bb`. Render deployment `dep-daolo3qjnfac73epbj00` reached Live; a fresh public health request returned that release, OK, connected database, and ready secure document storage. Vercel deployment `dpl_FNynGoSfJmzwv8VyuEv8zcWJNTCD` reached READY with the production alias. Two real-clock control tests (time-entry recovery and payroll-input concurrency) passed, confirming their frozen-clock comparison failures were artifacts (`/tmp/payroll-real-clock-control.log`).
+
+Correcting identity-specific history assertions exposed a further runtime defect: repeated direct-deposit replacements could select a superseded payment cycle by timestamp and leave a fully reconciled return case OPEN. A deterministic backwards-timestamp regression reproduced the incorrect case and its reconciliation issues (`/tmp/payroll-replacement-chain-red.log`). The fix selects the active authorization through predecessor/successor relationships and the latest executed cycle through executed successors. Evidence aggregation uses review sequence order. It does not alter wages or initiate an additional payment.
+
+Historical benefit/carrier and payment fixtures now explicitly select a signing/database clock using `testing/historicalHarness.js`. The helper mocks only Date within each test context; network IO and timer waits remain real, and independent payment/scheduler clocks retain their existing scenario values. Time-entry duration tests continue using the ordinary harness. Tests inspect the exact authorization/reversal identity rather than assuming the first row has that identity when timestamps tie.
+
+Verification completed with no failures or skips:
+
+- 31 direct-deposit dispatch, replacement, settlement, and retirement-return checks: `/tmp/payroll-replacement-chain-green.log`.
+- 20 benefit coverage, withdrawal, carrier accounting/payment and premium recovery checks: `/tmp/payroll-benefits-historical-scoped.log`.
+- 10 monthly benefit checks, including explicit September 13 and September 21 authorization boundaries: `/tmp/payroll-benefit-boundaries-retained.log`. The later signature does not permit a September 18 deduction; September 30 remains eligible. Preview leaves the retained signed evidence unchanged.
+
+Assumptions: replacement lineage, rather than timestamps or UUID sort order, identifies the active cycle; dated fixture signatures must precede their expected deductions unless the test explicitly exercises later authorization. Live-provider settlement is still unproven. The full backend and browser suites still require completion; these 61 passes do not replace a new full-suite result.

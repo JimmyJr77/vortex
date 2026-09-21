@@ -7,11 +7,11 @@ import {encryptDocument} from '../onboarding.js'
 import {priorMonthlyBenefitCollection} from '../monthlyBenefits.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {statementLines} from '../payStatement.js'
 test('authorized monthly benefits collect once, stale another draft, recur next month and appear on statements',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const preview=async p=>(await api('/runs/preview',{payPeriodId:p.id})).preview
  const first=await preview(periods[0]);assert.equal(first.canApprove,true,JSON.stringify(first.warnings));assert.equal(first.deductionCents,12500);assert.equal(first.employees[0].netPayCents,5970)
  const draftA=await api('/runs',{payPeriodId:periods[0].id},'POST',201),draftB=await api('/runs',{payPeriodId:periods[1].id},'POST',201)
@@ -61,7 +61,7 @@ test('authorized monthly benefits collect once, stale another draft, recur next 
 
 })
 test('monthly deductions skip zero wages and cannot be funded by reimbursements',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const preview=async()=>(await api('/runs/preview',{payPeriodId:periods[0].id})).preview
  await h.pool.query("UPDATE payroll_time_entry SET status='REJECTED' WHERE employee_id=$1 AND clock_in::date='2026-09-10'",[employee.id])
  let result=await preview();assert.equal(result.deductionCents,0);assert.equal(result.employees[0].benefitCollection.status,'NO_WAGES')
@@ -74,14 +74,14 @@ test('monthly deductions skip zero wages and cannot be funded by reimbursements'
  result=await preview();assert.equal(result.canApprove,false);assert.ok(result.employees[0].netPayCents>0);assert.ok(result.warnings.some(w=>w.code==='BENEFIT_DEDUCTION_REVIEW'&&w.message.includes('Reimbursements cannot fund')))
 })
 test('pretax and missing benefit authorizations block automatic collection',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h,{taxTreatment:'PRETAX'})
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h,{taxTreatment:'PRETAX'})
  const preview=async()=>(await api('/runs/preview',{payPeriodId:periods[0].id})).preview
  let result=await preview();assert.equal(result.canApprove,false);assert.equal(result.deductionCents,0);assert.ok(result.warnings.some(w=>w.message.includes('Pretax benefit deductions')))
  await h.pool.query("UPDATE payroll_onboarding_task SET response=response-'benefitsDeductionAuthorization' WHERE employee_id=$1 AND task_key='PAY_REVIEW'",[employee.id])
  result=await preview();assert.equal(result.canApprove,false);assert.ok(result.warnings.some(w=>w.message.includes('current signed benefit deduction authorization')))
 })
 test('concurrent payroll approvals reserve a monthly contribution once and void releases it',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,periods}=await monthlyBenefitsFixture(h)
  const runs=[]
  for(const p of periods.slice(0,2)){const run=await api('/runs',{payPeriodId:p.id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');runs.push(run)}
  const outcomes=await Promise.all(runs.map(run=>fetch(`${h.url}/api/admin/payroll/runs/${run.id}/status`,{method:'PATCH',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify({status:'APPROVED'})})))
@@ -95,7 +95,7 @@ test('concurrent payroll approvals reserve a monthly contribution once and void 
 })
 
 test('benefit deductions reconcile into private plan-level QuickBooks lines and immutable retries',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  await api(`/employees/${employee.id}/adjustments`,{kind:'POSTTAX_DEDUCTION',name:'Separate authorized deduction',amountCents:500,activeFrom:'2026-09-01',activeTo:'2026-09-15',status:'ACTIVE',authorizationReference:'Synthetic separate signed authorization',taxTreatmentVerified:true},'POST',201)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201)
  await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH')
@@ -149,7 +149,7 @@ test('benefit deductions reconcile into private plan-level QuickBooks lines and 
 })
 
 test('foreign destination history cannot starve automatic sync of new payroll',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {periods}=await monthlyBenefitsFixture(h)
  const oldKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex');t.after(()=>{if(oldKey===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=oldKey})
  const encrypted=encryptDocument(Buffer.from(JSON.stringify({access_token:'synthetic',refresh_token:'synthetic',expiresAt:Date.now()+3600000})),'quickbooks:1')
  await h.pool.query("INSERT INTO payroll_quickbooks_connection (facility_id,realm_id,encrypted_tokens,environment,account_ids,auto_sync) VALUES (1,'999',$1,'sandbox',$2,true)",[encrypted,{wages:'1',clearing:'6'}])
@@ -164,7 +164,7 @@ test('foreign destination history cannot starve automatic sync of new payroll',{
 })
 
 test('an employee waiver cannot silently stop a prior authorized contribution before current admin review',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  let packet=await api('/onboarding',undefined,'GET',200,true)
  packet=await api('/benefits-election',{choice:'WAIVE',signature:'Monthly Benefits',confirmed:true,displayedTerms:packet.policy.benefitsText,requestKey:'monthly-benefit-waiver-review',selections:[{planId:'medical',optionId:'WAIVE'}],onboardingCycle:1},'POST',200,true)
  const preview=async()=>(await api('/runs/preview',{payPeriodId:periods[0].id})).preview
@@ -181,7 +181,7 @@ test('an employee waiver cannot silently stop a prior authorized contribution be
 })
 
 test('future reviewed coverage changes preserve the signed earlier coverage for earlier payments',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  let packet=await api('/onboarding',undefined,'GET',200,true)
  packet=await api('/benefits-election',{choice:'WAIVE',signature:'Monthly Benefits',confirmed:true,displayedTerms:packet.policy.benefitsText,requestKey:'future-monthly-benefit-waiver',selections:[{planId:'medical',optionId:'WAIVE'}],onboardingCycle:1},'POST',200,true)
  const task=packet.tasks.find(t=>t.task_key==='PAY_REVIEW')
@@ -199,4 +199,16 @@ test('future reviewed coverage changes preserve the signed earlier coverage for 
   h.pool.connect=async()=>{const client=await connect(),query=client.query,release=client.release;client.query=async function(sql,...args){const result=await query.call(this,sql,...args);return String(sql).startsWith('SELECT id,snapshot FROM payroll_onboarding_revision')?transform(result):result};client.release=function(...args){client.query=query;client.release=release;return release.apply(this,args)};return client}
   try{first=await preview(periods[0]);assert.equal(first.canApprove,false);assert.ok(first.warnings.some(w=>w.code==='BENEFIT_DEDUCTION_REVIEW'))}finally{h.pool.connect=connect}
  }
+})
+
+for(const [signedAt,expectedFirstDeduction] of [['2026-09-13T16:00:00.000Z',12500],['2026-09-21T16:00:00.000Z',0]])test(`benefit deductions respect actual authorization date (${signedAt})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const h=await createHistoricalHarness(t,{},signedAt);t.after(()=>h.close())
+ const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const retained=async()=>(await h.pool.query("SELECT response->'benefitsDeductionAuthorization' AS authorization FROM payroll_onboarding_task WHERE employee_id=$1 AND task_key='PAY_REVIEW'",[employee.id])).rows[0].authorization
+ const before=await retained();assert.equal(before.signedAt,signedAt)
+ const first=(await api('/runs/preview',{payPeriodId:periods[0].id})).preview
+ assert.equal(first.deductionCents,expectedFirstDeduction)
+ const later=(await api('/runs/preview',{payPeriodId:periods[1].id})).preview
+ assert.equal(later.deductionCents,12500)
+ assert.deepEqual(await retained(),before,'Payroll preview must not alter signed authorization evidence')
 })

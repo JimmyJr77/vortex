@@ -2,11 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {readFile} from 'node:fs/promises'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {refreshBenefitCoverageAlerts} from '../benefitCoverageAutomation.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 test('monthly coverage includes enrollment without finalized wages and binds carrier invoice evidence',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const path='/benefit-coverage',get=()=>api(`${path}?month=2026-09`)
  let ledger=await get();assert.equal(ledger.rows.length,1);let row=ledger.rows[0];assert.equal(row.employeeId,String(employee.id));assert.equal(row.status,'NEEDS_REVIEW');assert.equal(row.payrolls.length,0);assert.equal(row.employeeCollectedCents,0)
  await api(`${path}?month=2026-99`,undefined,'GET',400)
@@ -42,7 +42,7 @@ test('monthly coverage includes enrollment without finalized wages and binds car
  await h.pool.query(await readFile(new URL('../../migrations/813_payroll_onboarding.sql',import.meta.url),'utf8'));assert.equal((await get()).rows[0].history.length,3)
 })
 test('removed enrollment preserves monthly evidence and allows explicit retraction',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee}=await monthlyBenefitsFixture(h)
  const row=(await api('/benefit-coverage?month=2026-09')).rows[0],body={month:'2026-09',employeeId:row.employeeId,onboardingCycle:row.onboardingCycle,planId:row.planId,sourceFingerprint:row.sourceFingerprint,expectedRevision:0,disposition:'COVERED',carrier:'Synthetic Coverage Carrier',coverageStart:'2026-09-01',coverageEnd:'2026-09-30',reference:'Original retained coverage review before corrected hiring evidence',confirmed:true,requestKey:randomUUID()}
  await api('/benefit-coverage',body)
  let packet=await api('/onboarding',undefined,'GET',200,true)

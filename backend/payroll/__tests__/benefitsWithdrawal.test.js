@@ -1,10 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createHarness} from '../testing/harness.js'
+import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {runWorkforceAutomation} from '../workforceAutomation.js'
 test('employee withdrawal blocks new collection, rejects old signature replay and allows explicit reauthorization',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const preview=async()=> (await api('/runs/preview',{payPeriodId:periods[0].id})).preview
  assert.equal((await preview()).canApprove,true)
  let packet=await api('/onboarding',undefined,'GET',200,true),saved=packet.benefitsDeduction.saved
@@ -34,7 +34,7 @@ test('employee withdrawal blocks new collection, rejects old signature replay an
 })
 
 test('a finalized collection before withdrawal covers the month without permitting later deductions',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const finish=async(run,date)=>{await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate:date,paymentConfirmationReference:'SYNTHETIC-COLLECTION-BEFORE-WITHDRAWAL'})}
  const first=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await finish(first,'2026-09-18')
  let packet=await api('/onboarding',undefined,'GET',200,true)
