@@ -21,6 +21,7 @@ test('admin reviews employer eligibility independently, corrects invalid vesting
   const panel=page.getByRole('region',{name:'Employer retirement eligibility',exact:true})
   await panel.getByRole('button',{name:'Load employer eligibility',exact:true}).click()
   await panel.getByRole('textbox',{name:'Employer eligibility and vesting evidence',exact:true}).fill('Reviewed actual matching, nonelective service and vesting evidence.')
+  await panel.getByLabel('Employer eligibility assessed from',{exact:true}).fill('2026-09-01')
   await panel.getByLabel('Employer eligibility assessed through',{exact:true}).fill('2026-09-11')
   for(const name of ['Matching','Nonelective']){
    await panel.getByRole('combobox',{name:`${name} eligibility`,exact:true}).selectOption('ELIGIBLE')
@@ -40,5 +41,9 @@ test('admin reviews employer eligibility independently, corrects invalid vesting
   expect((await h.pool.query('SELECT count(*)::int AS n FROM payroll_retirement_eligibility')).rows[0].n).toBe(0)
   await panel.screenshot({path:'/tmp/payroll-employer-eligibility-mobile.png'})
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([])
+  await page.route('**/retirement-employer-eligibility/standard',async route=>{const response=await route.fetch({url:`${h.url}/api/admin/payroll/employees/${employee.id}/retirement-employer-eligibility/standard`}),body=await response.json();delete body.data.supportedReviewFields;await route.fulfill({json:body})})
+  await panel.getByRole('button',{name:'Load employer eligibility',exact:true}).click()
+  await expect(panel).toContainText('Employer assessment date ranges require the current payroll backend.')
+  await expect(panel.getByRole('button',{name:'Retain employer eligibility',exact:true})).toHaveCount(0)
  }finally{try{if(!page.isClosed()){await page.unrouteAll({behavior:'ignoreErrors'});await page.close()}}finally{await h.close()}}
 })

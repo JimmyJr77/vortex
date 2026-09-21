@@ -6,7 +6,7 @@ import {retirementPlanFixture} from '../testing/retirementPlanFixture.js'
 function fixture({period='PER_PAYROLL',scope='MATCH_AND_NONELECTIVE',formula={}}={}){
  const employerFormula={period,matchCatchUp:scope!=='NONELECTIVE',matchTiers:scope==='NONELECTIVE'?[]:[{upToBps:300,matchBps:10000},{upToBps:500,matchBps:5000}],nonelectiveBps:scope==='MATCH'?0:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Retained reviewed eligibility source and plan clause.',vestingTerms:'Retained reviewed vesting source and plan clause.',...formula}
  const plan=retirementPlanInput({...retirementPlanFixture(),employerContributions:scope,employerContributionTerms:'Retained reviewed employer formula terms.',employerFormula})
- return {plan,sourceFingerprint:'a'.repeat(64),eligibleCompensationCents:100000,ordinaryDeferralsCents:5000,catchUpDeferralsCents:0,priorMatchingCents:0,priorNonelectiveCents:0,annualAdditionsRemainingCents:100000,eligibilityConfirmed:true}
+ return {plan,sourceFingerprint:'a'.repeat(64),eligibleCompensationCents:100000,ordinaryDeferralsCents:5000,catchUpDeferralsCents:0,priorMatchingCents:0,priorNonelectiveCents:0,annualAdditionsRemainingCents:100000,eligibilityConfirmed:true,matchingEligible:scope!=='NONELECTIVE',nonelectiveEligible:scope!=='MATCH'}
 }
 test('tiered matching and nonelective contributions reconcile independently of employee wage deductions',()=>{
  const input=fixture(),result=retirementEmployerCalculation(input)
@@ -70,4 +70,13 @@ test('unknown, forged and overflowing source amounts fail rather than being trea
  const overflow=fixture({scope:'MATCH',formula:{matchTiers:[{upToBps:10000,matchBps:100000}]}})
  assert.throws(()=>retirementEmployerCalculation({...overflow,eligibleCompensationCents:Number.MAX_SAFE_INTEGER,ordinaryDeferralsCents:Number.MAX_SAFE_INTEGER}),/exceeds supported cents/)
  assert.equal(retirementEmployerCalculation({...input,eligibleCompensationCents:0,ordinaryDeferralsCents:0}).proposed.totalCents,0)
+})
+
+test('matching and nonelective eligibility independently control obligations without vesting reductions',()=>{
+ const input=fixture()
+ assert.deepEqual(retirementEmployerCalculation({...input,matchingEligible:false}).obligation,{matchingCents:0,nonelectiveCents:2000,totalCents:2000})
+ assert.deepEqual(retirementEmployerCalculation({...input,nonelectiveEligible:false}).obligation,{matchingCents:4000,nonelectiveCents:0,totalCents:4000})
+ assert.equal(retirementEmployerCalculation({...input,matchingEligible:false,nonelectiveEligible:false}).obligation.totalCents,0)
+ for(const patch of [{matchingEligible:undefined},{nonelectiveEligible:null},{matchingEligible:'true'}])assert.throws(()=>retirementEmployerCalculation({...input,...patch}),/eligibility findings/)
+ assert.throws(()=>retirementEmployerCalculation({...fixture({scope:'MATCH'}),nonelectiveEligible:true}),/formula-consistent/)
 })

@@ -18,9 +18,9 @@ export function retirementEmployerEligibilityInput(body,source){
  const b=body||{}
  if(b.confirmed!==true||b.sourceFingerprint!==source.fingerprint)throw fail('Confirm the current employer eligibility source evidence.',409)
  if(!source.employerFormula||!['MATCH','NONELECTIVE','MATCH_AND_NONELECTIVE'].includes(source.employerContributions))throw fail('Retain a structured employer funding formula before reviewing participant employer eligibility.')
- if(!day(b.assessedThrough))throw fail('Review the date through which employer eligibility and vesting were assessed.')
+ if(!day(b.assessedFrom)||!day(b.assessedThrough)||b.assessedFrom>b.assessedThrough||b.assessedFrom<source.hireDate)throw fail('Review the employer eligibility assessment date range within this employment cycle.')
  if(typeof b.reference!=='string'||b.reference.trim().length<12||b.reference.length>2000||/[\u0000-\u001f\u007f]/.test(b.reference))throw fail('Retain the employer eligibility and vesting evidence reference.')
- const result={assessedThrough:b.assessedThrough,reference:b.reference.trim()}
+ const result={assessedFrom:b.assessedFrom,assessedThrough:b.assessedThrough,reference:b.reference.trim()}
  for(const key of ['matching','nonelective']){
   const applicable=key==='matching'?source.employerContributions!=='NONELECTIVE':source.employerContributions!=='MATCH',r=b[key]
   if(!r||typeof r!=='object'||Array.isArray(r)||Object.keys(r).length!==3||!['status','eligibleOn','vestedBps'].every(field=>Object.hasOwn(r,field))||!['ELIGIBLE','NOT_ELIGIBLE','REVIEW_REQUIRED','NOT_APPLICABLE'].includes(r.status))throw fail('Review employer matching and nonelective eligibility separately.')
@@ -41,7 +41,7 @@ export function registerRetirementEmployerEligibility(app,pool){
    const facility=req.canonicalAccess.facilityId,source=await retirementEmployerEligibilitySource(db,facility,req.params.employeeId,req.params.planId)
    const rows=(await db.query('SELECT id,revision,source_fingerprint,review,created_at FROM payroll_retirement_employer_eligibility WHERE facility_id=$1 AND employee_id=$2 AND plan_id=$3 ORDER BY revision DESC',[facility,req.params.employeeId,req.params.planId])).rows
    const history=rows.map((row,index)=>({...row,status:row.source_fingerprint!==source.fingerprint?'STALE':index===0?'CURRENT':'SUPERSEDED'}))
-   await db.query('COMMIT');res.json({success:true,data:{source,history}})
+   await db.query('COMMIT');res.json({success:true,data:{source,history,supportedReviewFields:['assessedFrom']}})
   }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to read employer retirement eligibility.'})}finally{db.release()}
  })
  app.post(path,async(req,res)=>{
