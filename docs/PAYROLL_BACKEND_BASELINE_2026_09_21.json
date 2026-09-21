@@ -1,0 +1,460 @@
+{
+  "commit": "2b92550c",
+  "tests": 981,
+  "passed": 869,
+  "failed": 112,
+  "skipped": 0,
+  "durationMs": 1446371.391542,
+  "recordedInputCount": 838,
+  "recordedInputsUnchanged": true,
+  "failures": [
+    {
+      "test": "not ok 65 - monthly coverage includes enrollment without finalized wages and binds carrier invoice evidence",
+      "location": "backend/payroll/__tests__/benefitCoverageLedger.test.js:8:1"
+    },
+    {
+      "test": "not ok 72 - employee withdrawal blocks new collection, rejects old signature replay and allows explicit reauthorization",
+      "location": "backend/payroll/__tests__/benefitsWithdrawal.test.js:6:1"
+    },
+    {
+      "test": "not ok 73 - a finalized collection before withdrawal covers the month without permitting later deductions",
+      "location": "backend/payroll/__tests__/benefitsWithdrawal.test.js:36:1"
+    },
+    {
+      "test": "not ok 77 - carrier accounting check verifies the actual source journal and rejects drift before premium posting",
+      "location": "backend/payroll/__tests__/carrierAccountingCheck.test.js:7:1"
+    },
+    {
+      "test": "not ok 79 - alternate carrier delivery retains exact advice, scope, encryption and correction history",
+      "location": "backend/payroll/__tests__/carrierAlternateDelivery.test.js:7:1"
+    },
+    {
+      "test": "not ok 80 - carrier invoices reserve exact employee deductions across partial allocations and concurrent revisions",
+      "location": "backend/payroll/__tests__/carrierContributionMatching.test.js:5:1"
+    },
+    {
+      "test": "not ok 87 - carrier payment authorizations reserve amounts, preserve retries and block concurrent overpayment and corrections",
+      "location": "backend/payroll/__tests__/carrierPaymentAuthorization.test.js:7:1"
+    },
+    {
+      "test": "not ok 88 - carrier dispatch claims once, blocks cancellation and recovers a lost provider response without resending",
+      "location": "backend/payroll/__tests__/carrierPaymentDispatch.test.js:12:1"
+    },
+    {
+      "test": "not ok 89 - carrier payment preview binds current invoice liability, payee and funding without sending",
+      "location": "backend/payroll/__tests__/carrierPaymentPreview.test.js:7:1"
+    },
+    {
+      "test": "not ok 92 - automatic carrier recovery is scoped, deduplicated, rate-limited and retains configuration failures and alerts",
+      "location": "backend/payroll/__tests__/carrierPaymentRecovery.test.js:8:1"
+    },
+    {
+      "test": "not ok 93 - scheduled carrier submission retains decisions, blocks stale facts and dispatches exactly once when due",
+      "location": "backend/payroll/__tests__/carrierPaymentSchedule.test.js:9:1"
+    },
+    {
+      "test": "not ok 94 - verified reversal reconciliation unlocks a new invoice revision and revalidates prior corrections before reposting",
+      "location": "backend/payroll/__tests__/carrierPremiumCorrection.test.js:7:1"
+    },
+    {
+      "test": "not ok 97 - carrier premium posting commits its claim and recovers without duplicate creation (SUCCESS)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 98 - carrier premium posting commits its claim and recovers without duplicate creation (LOST_RESPONSE)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 99 - carrier premium posting commits its claim and recovers without duplicate creation (CHANGED)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 100 - carrier premium posting commits its claim and recovers without duplicate creation (NOT_SENT)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 101 - carrier premium posting commits its claim and recovers without duplicate creation (CHANGED_AFTER_CLAIM)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 102 - carrier premium posting commits its claim and recovers without duplicate creation (NOT_SENT_FOUND)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 103 - carrier premium posting commits its claim and recovers without duplicate creation (REVERSAL_LOST_RESPONSE)",
+      "location": "backend/payroll/__tests__/carrierPremiumPosting.test.js:10:132"
+    },
+    {
+      "test": "not ok 107 - carrier remittance durable dispatch and recovery: RETRY",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 108 - carrier remittance durable dispatch and recovery: UNCERTAIN",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 109 - carrier remittance durable dispatch and recovery: RESULT_FAILURE",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 110 - carrier remittance durable dispatch and recovery: REVOKED",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 111 - carrier remittance durable dispatch and recovery: RETURNED",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 112 - carrier remittance durable dispatch and recovery: EXHAUSTED",
+      "location": "backend/payroll/__tests__/carrierRemittanceDispatch.test.js:12:95"
+    },
+    {
+      "test": "not ok 114 - signed carrier returns preserve evidence, reject conflicts and prevent further sends",
+      "location": "backend/payroll/__tests__/carrierRemittanceProvider.test.js:20:1"
+    },
+    {
+      "test": "not ok 117 - carrier returned notice resolution and replacement: corrected address",
+      "location": "backend/payroll/__tests__/carrierRemittanceReturnReview.test.js:7:39"
+    },
+    {
+      "test": "not ok 118 - carrier returned notice resolution and replacement: restored address",
+      "location": "backend/payroll/__tests__/carrierRemittanceReturnReview.test.js:7:39"
+    },
+    {
+      "test": "not ok 121 - carrier proven-non-send release: EARLY",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 122 - carrier proven-non-send release: EXHAUSTED",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 123 - carrier proven-non-send release: UNCERTAIN",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 124 - carrier proven-non-send release: ACCEPTED",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 125 - carrier proven-non-send release: LATE_ACCEPTANCE",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 126 - carrier proven-non-send release: AFTER_RELEASE",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:10:102"
+    },
+    {
+      "test": "not ok 127 - non-send release waits for an in-flight sender and rejects an obsolete attempt preview",
+      "location": "backend/payroll/__tests__/carrierRemittanceUnsentRelease.test.js:48:1"
+    },
+    {
+      "test": "not ok 134 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 135 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 136 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONFLICT)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 137 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_UNCERTAIN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 138 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 139 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CRASH)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 140 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_CRASH)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 141 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_RENEW_CRASH)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 142 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY_RENEW)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 143 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_RETRY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 144 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 145 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE_CHANGED)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 146 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE_STOP)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 147 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE_PAID)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 148 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE_FOREIGN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 149 - check issuance binds approved wages and prevents duplicate payments (CANCEL_CONTINUE_CANCELLED)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 150 - check issuance binds approved wages and prevents duplicate payments (CANCEL_RETRY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 151 - check issuance binds approved wages and prevents duplicate payments (CANCEL_RETRY_CRASH)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 152 - check issuance binds approved wages and prevents duplicate payments (CANCEL_RETRY_REPEAT)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 153 - check issuance binds approved wages and prevents duplicate payments (CANCEL_BANK_HISTORY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 154 - check issuance binds approved wages and prevents duplicate payments (CANCEL_ALREADY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 155 - check issuance binds approved wages and prevents duplicate payments (CANCEL_PROVIDER)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 156 - check issuance binds approved wages and prevents duplicate payments (CANCEL_RACE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 157 - check issuance binds approved wages and prevents duplicate payments (CANCEL_HISTORY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 158 - check issuance binds approved wages and prevents duplicate payments (CANCEL_FOREIGN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 159 - check issuance binds approved wages and prevents duplicate payments (CANCEL_PENDING)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 160 - check issuance binds approved wages and prevents duplicate payments (PREFLIGHT_LOOKUP)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 161 - check issuance binds approved wages and prevents duplicate payments (PREFLIGHT_FUNDING)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 162 - check issuance binds approved wages and prevents duplicate payments (PREFLIGHT_UNCERTAIN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 163 - check issuance binds approved wages and prevents duplicate payments (PREFLIGHT_HISTORY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 164 - check issuance binds approved wages and prevents duplicate payments (PLAN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 165 - check issuance binds approved wages and prevents duplicate payments (ISSUE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 166 - check issuance binds approved wages and prevents duplicate payments (DOCUMENT)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 167 - check issuance binds approved wages and prevents duplicate payments (DELIVERY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 168 - check issuance binds approved wages and prevents duplicate payments (RECOVERY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 169 - check issuance binds approved wages and prevents duplicate payments (STOP_INITIAL_PAID)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 170 - check issuance binds approved wages and prevents duplicate payments (STOP_INITIAL_FOREIGN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 171 - check issuance binds approved wages and prevents duplicate payments (STOP_INITIAL_RECONCILED)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 172 - check issuance binds approved wages and prevents duplicate payments (STOP_RELEASE_RACE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 173 - check issuance binds approved wages and prevents duplicate payments (STOP_RELEASE_EVIDENCE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 174 - check issuance binds approved wages and prevents duplicate payments (STOP_RELEASE_HISTORY)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 175 - check issuance binds approved wages and prevents duplicate payments (STOP_RELEASE_FOREIGN)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 176 - check issuance binds approved wages and prevents duplicate payments (STOP)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 177 - check issuance binds approved wages and prevents duplicate payments (STOP_RELEASE)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 178 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 179 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_DD)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 180 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 181 - check issuance binds approved wages and prevents duplicate payments (STOP_REVIEW_CLOSEOUT_DD)",
+      "location": "backend/payroll/__tests__/checkIssuancePlan.test.js:30:1161"
+    },
+    {
+      "test": "not ok 241 - reviewed employer funding preserves enrollment and dated payroll coverage (FUTURE)",
+      "location": "backend/payroll/__tests__/employerFundedBenefits.test.js:7:183"
+    },
+    {
+      "test": "not ok 244 - employer funding reconciliation retains earlier employee collections without subtracting or duplicating premiums",
+      "location": "backend/payroll/__tests__/employerFundedBenefits.test.js:52:1"
+    },
+    {
+      "test": "not ok 422 - employee accepts exact employer terms once; changes, declines, immutable history and rollback remain safe",
+      "location": "backend/payroll/__tests__/marylandAgreementSigning.test.js:7:1"
+    },
+    {
+      "test": "not ok 430 - hiring pay review requires an agreement covering the planned payment and reopens after suspension",
+      "location": "backend/payroll/__tests__/marylandPaySetup.test.js:7:1"
+    },
+    {
+      "test": "not ok 435 - Maryland signing isolates employee records and rejects revoked sessions after waiting for the employer lock",
+      "location": "backend/payroll/__tests__/marylandSigningScope.test.js:7:1"
+    },
+    {
+      "test": "not ok 482 - authorized monthly benefits collect once, stale another draft, recur next month and appear on statements",
+      "location": "backend/payroll/__tests__/monthlyBenefits.test.js:13:1"
+    },
+    {
+      "test": "not ok 483 - monthly deductions skip zero wages and cannot be funded by reimbursements",
+      "location": "backend/payroll/__tests__/monthlyBenefits.test.js:63:1"
+    },
+    {
+      "test": "not ok 484 - pretax and missing benefit authorizations block automatic collection",
+      "location": "backend/payroll/__tests__/monthlyBenefits.test.js:76:1"
+    },
+    {
+      "test": "not ok 486 - benefit deductions reconcile into private plan-level QuickBooks lines and immutable retries",
+      "location": "backend/payroll/__tests__/monthlyBenefits.test.js:97:1"
+    },
+    {
+      "test": "not ok 489 - future reviewed coverage changes preserve the signed earlier coverage for earlier payments",
+      "location": "backend/payroll/__tests__/monthlyBenefits.test.js:183:1"
+    },
+    {
+      "test": "not ok 516 - standalone PTO settles reserved vacation: REVIEWED federal aggregate",
+      "location": "backend/payroll/__tests__/offCyclePto.test.js:5:89"
+    },
+    {
+      "test": "not ok 518 - standalone PTO settles reserved vacation: MD_LUMP_SUM federal aggregate",
+      "location": "backend/payroll/__tests__/offCyclePto.test.js:5:89"
+    },
+    {
+      "test": "not ok 634 - employee payroll portal exposes a separate narrow route surface",
+      "location": "backend/payroll/__tests__/payrollRoutes.test.js:46:1"
+    },
+    {
+      "test": "not ok 644 - regular payroll calculates reviewed retirement, retains approval ledger and finalizes separate benefit and retirement deductions",
+      "location": "backend/payroll/__tests__/regularRetirementPayroll.test.js:10:1"
+    },
+    {
+      "test": "not ok 653 - rehire preparation reconciles prior records without mutating the employee or reopening tasks",
+      "location": "backend/payroll/__tests__/rehireReview.test.js:5:1"
+    },
+    {
+      "test": "not ok 699 - contribution assessment requires exact bank and every participant receipt, reopens for returns and stale evidence",
+      "location": "backend/payroll/__tests__/retirementContributionAssessment.test.js:11:1"
+    },
+    {
+      "test": "not ok 704 - full contribution reconciles payroll bank participant posting and accounting then reopens when accounting changes",
+      "location": "backend/payroll/__tests__/retirementContributionReconciliation.test.js:15:1"
+    },
+    {
+      "test": "not ok 751 - automatic receipt checks serialize concurrent sweeps, retain actor-free evidence, respect due times and suspension",
+      "location": "backend/payroll/__tests__/retirementReceiptAutomation.test.js:10:1"
+    },
+    {
+      "test": "not ok 758 - receipt intake retains encrypted exact files/results once per check and protects scopes and audit privacy",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:26:1"
+    },
+    {
+      "test": "not ok 759 - regressing, stale and changed-batch receipts cannot replace a reconciled participant posting",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:35:1"
+    },
+    {
+      "test": "not ok 762 - employee contribution outcomes expose only their own reconciled receipt and fail closed on later uncertainty",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:58:1"
+    },
+    {
+      "test": "not ok 763 - returned funding reopens employee participant visibility and persists across later ordinary observations",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:71:1"
+    },
+    {
+      "test": "not ok 764 - reviewed participant reversals require prior posting and a verified full bank return (manual replacement)",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:88:37"
+    },
+    {
+      "test": "not ok 765 - reviewed participant reversals require prior posting and a verified full bank return (automatic replacement)",
+      "location": "backend/payroll/__tests__/retirementReceiptIntake.test.js:88:37"
+    },
+    {
+      "test": "not ok 976 - annual preparation joins masked identities, wage inputs and current overtime reviews (SMTP_ACCEPTED)",
+      "location": "backend/payroll/__tests__/yearEndPreparation.test.js:97:97"
+    },
+    {
+      "test": "not ok 977 - annual preparation joins masked identities, wage inputs and current overtime reviews (UNCERTAIN)",
+      "location": "backend/payroll/__tests__/yearEndPreparation.test.js:97:97"
+    },
+    {
+      "test": "not ok 978 - annual preparation joins masked identities, wage inputs and current overtime reviews (NOT_SENT)",
+      "location": "backend/payroll/__tests__/yearEndPreparation.test.js:97:97"
+    },
+    {
+      "test": "not ok 979 - annual preparation joins masked identities, wage inputs and current overtime reviews (INTERRUPTED)",
+      "location": "backend/payroll/__tests__/yearEndPreparation.test.js:97:97"
+    },
+    {
+      "test": "not ok 980 - annual preparation joins masked identities, wage inputs and current overtime reviews (PAPER_FIRST)",
+      "location": "backend/payroll/__tests__/yearEndPreparation.test.js:97:97"
+    }
+  ]
+}

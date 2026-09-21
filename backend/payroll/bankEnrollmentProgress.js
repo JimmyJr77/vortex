@@ -8,7 +8,8 @@ import {encryptDocument,decryptDocument} from './onboarding.js'
 import {provisionPayrollCounterparty,provisionPayrollBankAccount,verifyPayrollBankAccount} from './modernTreasuryEnrollment.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 export async function bankEnrollmentProgress(db,enrollmentId){
- const rows=(await db.query(`SELECT o.*,v.result,v.id AS observation_id,v.created_at AS observed_at FROM payroll_bank_enrollment_operation o LEFT JOIN LATERAL(SELECT id,result,created_at FROM payroll_bank_enrollment_observation WHERE operation_id=o.id ORDER BY id DESC LIMIT 1)v ON true WHERE o.enrollment_id=$1 ORDER BY o.created_at,o.id`,[enrollmentId])).rows
+ // Stages and attempts define operation order; tied timestamps and random UUIDs do not.
+ const rows=(await db.query(`SELECT o.*,v.result,v.id AS observation_id,v.created_at AS observed_at FROM payroll_bank_enrollment_operation o LEFT JOIN LATERAL(SELECT id,result,created_at FROM payroll_bank_enrollment_observation WHERE operation_id=o.id ORDER BY id DESC LIMIT 1)v ON true WHERE o.enrollment_id=$1 ORDER BY CASE o.stage WHEN 'COUNTERPARTY' THEN 0 WHEN 'ACCOUNT' THEN 1 WHEN 'START' THEN 2 ELSE 3 END,o.attempt,o.id`,[enrollmentId])).rows
  // A successful holder lookup carries no bank-verification state. Preserve
  // newer account evidence when an admin reviews that prerequisite afterward.
  const hasAccountEvidence=rows.some(r=>r.stage!=='COUNTERPARTY'&&r.observation_id)

@@ -52,6 +52,9 @@ test('employee payroll portal exposes a separate narrow route surface', () => {
   }
   registerPayrollEmployeeRoutes(app, {})
   assert.deepEqual(registered.map((route) => route.path).sort(), [
+    '/api/payroll/employee/account-link',
+    '/api/payroll/employee/account-link',
+    '/api/payroll/employee/account-session',
     '/api/payroll/employee/bank-enrollment',
     '/api/payroll/employee/bank-enrollment',
     '/api/payroll/employee/bank-enrollment/advance',
@@ -125,7 +128,9 @@ test('employee payroll portal exposes a separate narrow route surface', () => {
     '/api/payroll/employee/time-entries/:id/attest',
   ].sort())
   assert.ok(registered.every((route) => route.path.startsWith('/api/payroll/employee/')))
-  assert.ok(registered.filter(route=>!route.path.endsWith('/invitations/redeem')).every(route=>route.handlers.length >= 2))
+  const tokenExchangePaths=new Set(['/api/payroll/employee/invitations/redeem','/api/payroll/employee/account-session'])
+  assert.ok(registered.filter(route=>!tokenExchangePaths.has(route.path)).every(route=>route.handlers.length >= 2))
+  assert.deepEqual(registered.filter(route=>tokenExchangePaths.has(route.path)).map(route=>`${route.method} ${route.path}`).sort(),['POST /api/payroll/employee/account-session','POST /api/payroll/employee/invitations/redeem'])
 })
 
 test('employee invitation and session tokens are high-entropy and only compared by hash', () => {

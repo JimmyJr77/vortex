@@ -12,7 +12,7 @@ export async function runBankEnrollmentRecoverySweep(pool,{fetcher=fetch,limit=2
     SELECT p.id,p.created_at,v.created_at AS observed_at,v.result FROM payroll_bank_enrollment_operation p
     LEFT JOIN LATERAL(SELECT result,created_at FROM payroll_bank_enrollment_observation WHERE operation_id=p.id ORDER BY id DESC LIMIT 1)v ON true
     WHERE p.enrollment_id=e.id
-    ORDER BY CASE WHEN p.stage='COUNTERPARTY' AND (v.result IS NULL OR v.result->>'status'<>'RECORDED') THEN 0 WHEN p.stage='ACCOUNT' AND (v.result IS NULL OR v.result->>'status'<>'RECORDED') THEN 1 WHEN v.result IS NULL THEN 2 ELSE 3 END,p.created_at DESC,p.id DESC LIMIT 1
+    ORDER BY CASE WHEN p.stage='COUNTERPARTY' AND (v.result IS NULL OR v.result->>'status'<>'RECORDED') THEN 0 WHEN p.stage='ACCOUNT' AND (v.result IS NULL OR v.result->>'status'<>'RECORDED') THEN 1 WHEN v.result IS NULL THEN 2 ELSE 3 END,CASE p.stage WHEN 'COUNTERPARTY' THEN 0 WHEN 'ACCOUNT' THEN 1 WHEN 'START' THEN 2 ELSE 3 END DESC,p.attempt DESC,p.id DESC LIMIT 1
    )o ON true
    LEFT JOIN LATERAL(SELECT created_at FROM payroll_bank_enrollment_recovery_check WHERE enrollment_id=e.id ORDER BY id DESC LIMIT 1)c ON true
    WHERE NOT EXISTS(SELECT 1 FROM payroll_bank_enrollment_restart restart WHERE restart.parent_id=e.id)

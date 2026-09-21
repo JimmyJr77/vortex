@@ -26,7 +26,7 @@ test('rehire preparation reconciles prior records without mutating the employee 
  assert.ok(review.issues.some(i=>i.includes('compensation changes')));assert.ok(review.issues.some(i=>i.includes('1 saved payroll runs')))
  assert.ok(review.issues.some(i=>i.includes('has not been finalized')))
  assert.equal(review.pendingRuns[0].id,Number(pending.id));assert.equal(review.leaveBalances[0].minutes,480)
- assert.equal(review.onboarding.length,13);assert.ok(review.onboarding.every(t=>t.cycle===1&&t.status==='OPEN'))
+ assert.equal(review.onboarding.length,12);assert.equal(review.onboarding.some(t=>t.key==='AVAILABILITY'),false);assert.ok(review.onboarding.every(t=>t.cycle===1&&t.status==='OPEN'))
  assert.equal(review.employmentPeriods.length,1)
  const after=(await h.pool.query('SELECT to_jsonb(e) AS employee,(SELECT jsonb_agg(to_jsonb(t) ORDER BY id) FROM payroll_onboarding_task t WHERE t.employee_id=e.id) AS tasks,(SELECT COUNT(*) FROM payroll_onboarding_revision v WHERE v.employee_id=e.id) AS revisions FROM payroll_employee e WHERE e.id=$1',[employee.id])).rows[0]
  assert.deepEqual(after,before)
