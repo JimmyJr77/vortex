@@ -1,3 +1,4 @@
+import {assertCheckDocumentObservationOrder} from '../testing/checkDocumentOrderAssertion.js'
 import {stopPayrollCheck} from '../checkStop.js'
 import {cancelPayrollCheck} from '../checkCancellation.js'
 import {readFile} from 'node:fs/promises'
@@ -27,7 +28,9 @@ async function assertCheckDownload(h,runId,id,status){
  const foreign=await fetch(`${h.url}/api/admin/payroll/runs/${runId}/check-receipts/${id}/download`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(foreign.status,404)
  assert.equal((await fetch(`${h.url}/api/payroll/employee/check-receipts/${id}/download`)).status,401)
 }
-for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONFLICT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_UNCERTAIN','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW','STOP_REVIEW_CLOSEOUT_RETRY','CANCEL_CONTINUE','CANCEL_CONTINUE_CHANGED','CANCEL_CONTINUE_STOP','CANCEL_CONTINUE_PAID','CANCEL_CONTINUE_FOREIGN','CANCEL_CONTINUE_CANCELLED','CANCEL_RETRY','CANCEL_RETRY_CRASH','CANCEL_RETRY_REPEAT','CANCEL_BANK_HISTORY','CANCEL_ALREADY','CANCEL_PROVIDER','CANCEL_RACE','CANCEL_HISTORY','CANCEL_FOREIGN','CANCEL_PENDING','PREFLIGHT_LOOKUP','PREFLIGHT_FUNDING','PREFLIGHT_UNCERTAIN','PREFLIGHT_HISTORY','PLAN','ISSUE','DOCUMENT','DELIVERY','RECOVERY','STOP_INITIAL_PAID','STOP_INITIAL_FOREIGN','STOP_INITIAL_RECONCILED','STOP_RELEASE_RACE','STOP_RELEASE_EVIDENCE','STOP_RELEASE_HISTORY','STOP_RELEASE_FOREIGN','STOP','STOP_RELEASE','STOP_REVIEW','STOP_REVIEW_DD','STOP_REVIEW_CLOSEOUT','STOP_REVIEW_CLOSEOUT_DD'])test(`check issuance binds approved wages and prevents duplicate payments (${variant})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONFLICT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_UNCERTAIN','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW','STOP_REVIEW_CLOSEOUT_RETRY','CANCEL_CONTINUE','CANCEL_CONTINUE_CHANGED','CANCEL_CONTINUE_STOP','CANCEL_CONTINUE_PAID','CANCEL_CONTINUE_FOREIGN','CANCEL_CONTINUE_CANCELLED','CANCEL_RETRY','CANCEL_RETRY_CRASH','CANCEL_RETRY_REPEAT','CANCEL_BANK_HISTORY','CANCEL_ALREADY','CANCEL_PROVIDER','CANCEL_RACE','CANCEL_HISTORY','CANCEL_FOREIGN','CANCEL_PENDING','PREFLIGHT_LOOKUP','PREFLIGHT_FUNDING','PREFLIGHT_UNCERTAIN','PREFLIGHT_HISTORY','PLAN','ISSUE','DOCUMENT','DELIVERY','DELIVERY_TIED','DELIVERY_CLOCK_REGRESSED','RECOVERY','STOP_INITIAL_PAID','STOP_INITIAL_FOREIGN','STOP_INITIAL_RECONCILED','STOP_RELEASE_RACE','STOP_RELEASE_EVIDENCE','STOP_RELEASE_HISTORY','STOP_RELEASE_FOREIGN','STOP','STOP_RELEASE','STOP_REVIEW','STOP_REVIEW_DD','STOP_REVIEW_CLOSEOUT','STOP_REVIEW_CLOSEOUT_DD'])test(`check issuance binds approved wages and prevents duplicate payments (${variant})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ // These wage and benefit dates are historical; keep their signing clock explicit.
+ t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-13T16:00:00.000Z')})
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  const uuid=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,records={};let order=null,pdfBytes=Buffer.from('%PDF-1.4\nsynthetic retained check fixture\n%%EOF'),foreignDocument=false;let posts=0,clock='2026-09-18T12:00:00Z'
  let accountingFetcher=async()=>{throw new Error('Synthetic accounting not configured')}
@@ -55,7 +58,7 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
   if(options.method==='POST'){posts++;records[collection]={...JSON.parse(options.body),id:uuid(collection==='counterparties'?3:4),live_mode:true,...(collection==='external_accounts'?{account_details:[],routing_details:[]}: {})};return {ok:true,status:201,json:async()=>records[collection]}}
   return {ok:true,status:200,json:async()=>records[collection]?[records[collection]]:[]}
  }
- const h=await createHarness({payrollNow:()=>new Date(clock),paymentFetcher:providerFetcher,quickbooksFetcher:(...args)=>accountingFetcher(...args)})
+ const h=await createHarness({databaseNow:'2026-09-13T16:00:00.000Z',payrollNow:()=>new Date(clock),paymentFetcher:providerFetcher,quickbooksFetcher:(...args)=>accountingFetcher(...args)})
  t.after(async()=>{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
  const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH')
@@ -201,7 +204,7 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
   await api(`${nextBase}/issue`,{...body,fingerprint:nextCheck.fingerprint});assert.equal((await api(`${nextBase}/issue`,{action:'RECOVER'})).status,'SENT');assert.equal(posts,3)
   assert.equal((await api(issueRoute,body)).status,'CANCELLED_BEFORE_SUBMISSION');assert.equal(posts,3);return
  }
- if(['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONFLICT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_UNCERTAIN','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW','STOP_REVIEW_CLOSEOUT_RETRY','ISSUE','DOCUMENT','DELIVERY','RECOVERY','STOP_INITIAL_PAID','STOP_INITIAL_FOREIGN','STOP_INITIAL_RECONCILED','STOP_RELEASE_RACE','STOP_RELEASE_EVIDENCE','STOP_RELEASE_HISTORY','STOP_RELEASE_FOREIGN','STOP','STOP_RELEASE','STOP_REVIEW','STOP_REVIEW_DD','STOP_REVIEW_CLOSEOUT','STOP_REVIEW_CLOSEOUT_DD'].includes(variant)){
+ if(['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONFLICT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_UNCERTAIN','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT','STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW_CRASH','STOP_REVIEW_CLOSEOUT_RETRY_RENEW','STOP_REVIEW_CLOSEOUT_RETRY','ISSUE','DOCUMENT','DELIVERY','DELIVERY_TIED','DELIVERY_CLOCK_REGRESSED','RECOVERY','STOP_INITIAL_PAID','STOP_INITIAL_FOREIGN','STOP_INITIAL_RECONCILED','STOP_RELEASE_RACE','STOP_RELEASE_EVIDENCE','STOP_RELEASE_HISTORY','STOP_RELEASE_FOREIGN','STOP','STOP_RELEASE','STOP_REVIEW','STOP_REVIEW_DD','STOP_REVIEW_CLOSEOUT','STOP_REVIEW_CLOSEOUT_DD'].includes(variant)){
   const issueRoute=route.replace('/plan','/issue'),body={action:'SUBMIT',fingerprint:ready.fingerprint,reference:'Synthetic check issuance with no prior payment',confirmed:true,noPriorPaymentConfirmed:true}
   await api(issueRoute,{...body,noPriorPaymentConfirmed:false},'POST',400)
   await api(issueRoute,{action:'RECOVER'},'POST',409)
@@ -218,13 +221,13 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
   assert.equal((await api(route)).status,'NEEDS_REVIEW')
   assert.equal((await h.pool.query('SELECT * FROM payroll_check_issue')).rowCount,1)
   for(const table of ['payroll_check_issue','payroll_check_issue_observation'])await assert.rejects(h.pool.query(`DELETE FROM ${table}`),/append-only/)
-  if(['DOCUMENT','DELIVERY'].includes(variant)){
+  if(variant==='DOCUMENT'||variant.startsWith('DELIVERY')){
    const docRoute=route.replace('/plan','/document'),handoffRoute=route.replace('/plan','/delivery'),handoff={confirmed:true,deliveredInPerson:true,amountCents:5970,paymentDate:plan.paymentDate,reference:'Synthetic printed check handed to employee'}
    assert.equal((await api(docRoute)).status,'NOT_RETAINED')
    await api(docRoute,{action:'DOWNLOAD'},'POST',409)
    assert.equal((await api(docRoute,{action:'RETAIN'})).status,'RETAINED')
    assert.equal((await api(docRoute,{action:'RETAIN'})).reused,true)
-   if(variant==='DELIVERY')await api(handoffRoute,handoff,'POST',409)
+   if(variant.startsWith('DELIVERY'))await api(handoffRoute,handoff,'POST',409)
    const stored=(await h.pool.query('SELECT * FROM payroll_check_document')).rows[0]
    assert.equal(stored.encrypted_pdf.includes(Buffer.from('synthetic retained check fixture')),false)
    const download=async(facility=1)=>fetch(`${h.url}/api/admin/payroll${docRoute}`,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json','x-test-facility':String(facility)},body:JSON.stringify({action:'DOWNLOAD'})})
@@ -244,11 +247,15 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
    assert.ok(audit.length>=10);assert.equal(JSON.stringify(audit).includes('synthetic retained check fixture'),false)
    await api(`/runs/${run.id}/payment-closeout`,delivery,'POST',409)
    assert.equal((await h.pool.query('SELECT status FROM payroll_run WHERE id=$1',[run.id])).rows[0].status,'APPROVED')
-   if(variant==='DELIVERY'){
+   if(variant.startsWith('DELIVERY')){
     assert.deepEqual(await api('/check-receipts',undefined,'GET',200,true),[])
     await api(handoffRoute,{...handoff,deliveredInPerson:false},'POST',400)
     await api(handoffRoute,{...handoff,amountCents:5971},'POST',409)
     clock='2026-09-19T12:00:00Z';await api(handoffRoute,handoff,'POST',409);clock='2026-09-18T12:00:00Z'
+    if(variant==='DELIVERY_TIED'){
+     await api(docRoute,{action:'RETAIN'})
+     await assertCheckDocumentObservationOrder(h.pool,{id:stored.issue_id,amountCents:5970,paymentDate:plan.paymentDate})
+    }
     const saved=await Promise.all([api(handoffRoute,handoff),api(handoffRoute,handoff)]);assert.equal(saved.filter(r=>r.reused).length,1)
     assert.equal((await api(handoffRoute)).status,'DELIVERY_RETAINED');assert.equal((await h.pool.query('SELECT * FROM payroll_check_delivery')).rowCount,1)
     const receiptPath=`/runs/${run.id}/check-receipts`,handed=await api(receiptPath)
@@ -264,6 +271,12 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
     await assert.rejects(h.pool.query('DELETE FROM payroll_check_delivery'),/append-only/)
     await api(`/runs/${run.id}/payment-closeout`,delivery,'POST',409)
     const close={...delivery,checkPayments:delivery.checkPayments.map(c=>({...c,reference:handoff.reference}))}
+    if(variant==='DELIVERY_TIED'||variant==='DELIVERY_CLOCK_REGRESSED')await h.pool.query(`
+     CREATE FUNCTION check_observation_test_clock() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
+      NEW.created_at=(SELECT max(created_at) FROM payroll_check_document_check WHERE issue_id=NEW.issue_id)${variant==='DELIVERY_CLOCK_REGRESSED'?"-interval '1 second'":''}; RETURN NEW;
+     END $$;
+     CREATE TRIGGER check_observation_test_clock BEFORE INSERT ON payroll_check_issue_observation FOR EACH ROW EXECUTE FUNCTION check_observation_test_clock();
+    `)
     order.status='stopped';await api(issueRoute,{action:'RECOVER'});await api(`/runs/${run.id}/payment-closeout`,close,'POST',409)
     order.status='sent';await api(issueRoute,{action:'RECOVER'})
     await api(`/runs/${run.id}/payment-closeout`,close)
@@ -583,6 +596,7 @@ for(const variant of ['STOP_REVIEW_CLOSEOUT_RETRY_PREFLIGHT_CONTINUE_RENEW','STO
      await api(deliveryRoute,{...handoff,amountCents:5971},'POST',409)
      await api(deliveryRoute,{...handoff,deliveredInPerson:false},'POST',400)
      clock='2026-09-23T12:00:00Z';await api(deliveryRoute,handoff,'POST',409);clock='2026-09-22T12:00:00Z'
+     if(variant==='STOP_REVIEW')await assertCheckDocumentObservationOrder(h.pool,{replacement:true,id:again.id,amountCents:5970,paymentDate:'2026-09-22'})
      const deliveries=await Promise.all([api(deliveryRoute,handoff),api(deliveryRoute,handoff)]);assert.equal(deliveries.filter(r=>r.reused).length,1)
      await api(deliveryRoute,{...handoff,reference:'Synthetic conflicting handoff evidence'},'POST',409)
      await api(documentRoute,{action:'DOWNLOAD'},'POST',409)

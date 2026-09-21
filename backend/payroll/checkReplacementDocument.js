@@ -25,6 +25,8 @@ export async function processCheckReplacementDocument(pool,facility,runId,batchI
   const intent=JSON.parse(decryptDocument(row.encrypted_intent,checkReplacementContext(row.id)).toString()),connection=await readPayrollPaymentConnection(db,facility,intent.connectionId)
   if(connection.originatingAccountId!==intent.originatingAccountId||connection.mode!==intent.mode)throw fail('Retained check connection does not match.')
   const existing=(await db.query('SELECT * FROM payroll_check_replacement_document WHERE authorization_id=$1',[row.id])).rows[0]
+  // The connection lock serializes document proof with provider recovery.
+  const observationWatermark=(await db.query('SELECT COALESCE(max(id),0)::text AS id FROM payroll_check_replacement_observation WHERE authorization_id=$1',[row.id])).rows[0].id
   let result=action==='DOWNLOAD'&&!existing?{status:'NOT_RETAINED'}:await downloadPayrollDigitalCheck(intent,{...connection,fetcher},{allowedDownloadOrigins,now})
   if(result.status==='PDF_READY'){
    if(result.providerId!==first.provider_id)result={status:'CHECK_IDENTITY_CHANGED'}
@@ -47,7 +49,7 @@ export async function processCheckReplacementDocument(pool,facility,runId,batchI
   }
   await db.query('BEGIN')
   const status=result.status==='PDF_READY'?(action==='DOWNLOAD'?'DOWNLOADED':'RETAINED'):result.status
-  const metadata=result.status==='PDF_READY'?{providerId:result.providerId,documentId:result.documentId,sha256:result.sha256}:{}
+  const metadata=result.status==='PDF_READY'?{providerId:result.providerId,documentId:result.documentId,sha256:result.sha256,observationWatermark}:{}
   const check=(await db.query('INSERT INTO payroll_check_replacement_document_check(authorization_id,action,status,metadata,created_by,automatic) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[row.id,action,status,metadata,actorId,automatic])).rows[0]
   if(status==='RETAINED'&&!existing)await db.query('INSERT INTO payroll_check_replacement_document(authorization_id,provider_id,document_id,sha256,encrypted_pdf,source_check_id,created_by,automatic) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[row.id,result.providerId,result.documentId,result.sha256,encryptDocument(result.bytes,`payroll-check-replacement-document:${row.id}`),check.id,actorId,automatic])
   await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'CHECK_REPLACEMENT_DOCUMENT_CHECKED','check_replacement',$3,$4)",[facility,actorId,row.id,{checkId:Number(check.id),action,status,automatic}])

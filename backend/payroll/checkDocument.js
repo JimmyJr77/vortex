@@ -27,6 +27,8 @@ export async function processCheckDocument(pool,facility,runId,batchId,employeeI
   const existing=(await db.query('SELECT * FROM payroll_check_document WHERE issue_id=$1',[row.id])).rows[0]
   const delivered=action==='DOWNLOAD'&&(await db.query('SELECT issue_id FROM payroll_check_delivery WHERE issue_id=$1',[row.id])).rowCount>0
   if(delivered){await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'CHECK_DOCUMENT_ACCESS_REJECTED','check_issue',$3,$4)",[facility,actorId,row.id,{reason:'ALREADY_DELIVERED'}]);throw fail('This check has already been handed over. Recover its status instead of printing another copy.')}
+  // The connection lock serializes document proof with provider recovery.
+  const observationWatermark=(await db.query('SELECT COALESCE(max(id),0)::text AS id FROM payroll_check_issue_observation WHERE issue_id=$1',[row.id])).rows[0].id
   let result=action==='DOWNLOAD'&&!existing?{status:'NOT_RETAINED'}:await downloadPayrollDigitalCheck(intent,{...connection,fetcher},{allowedDownloadOrigins,now})
   if(result.status==='PDF_READY'){
    if(result.providerId!==first.provider_id)result={status:'CHECK_IDENTITY_CHANGED'}
@@ -49,7 +51,7 @@ export async function processCheckDocument(pool,facility,runId,batchId,employeeI
   }
   await db.query('BEGIN')
   const status=result.status==='PDF_READY'?(action==='DOWNLOAD'?'DOWNLOADED':'RETAINED'):result.status
-  const metadata=result.status==='PDF_READY'?{providerId:result.providerId,documentId:result.documentId,sha256:result.sha256}:{}
+  const metadata=result.status==='PDF_READY'?{providerId:result.providerId,documentId:result.documentId,sha256:result.sha256,observationWatermark}:{}
   const check=(await db.query('INSERT INTO payroll_check_document_check(issue_id,action,status,metadata,created_by,automatic) VALUES($1,$2,$3,$4,$5,$6) RETURNING id',[row.id,action,status,metadata,actorId,automatic])).rows[0]
   if(status==='RETAINED'&&!existing)await db.query('INSERT INTO payroll_check_document(issue_id,provider_id,document_id,sha256,encrypted_pdf,source_check_id,created_by,automatic) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',[row.id,result.providerId,result.documentId,result.sha256,encryptDocument(result.bytes,`payroll-check-document:${row.id}`),check.id,actorId,automatic])
   await db.query("INSERT INTO payroll_audit_log(facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES($1,$2,'CHECK_DOCUMENT_CHECKED','check_issue',$3,$4)",[facility,actorId,row.id,{checkId:Number(check.id),action,status,automatic}])

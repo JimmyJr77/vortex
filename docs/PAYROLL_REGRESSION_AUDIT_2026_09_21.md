@@ -58,3 +58,21 @@ Ten related invoice, contribution-matching and premium-posting/recovery tests su
 Prepared patch: `/tmp/payroll-carrier-revision-order.patch`; source candidate remains `/tmp/vortex-payroll-order-candidate`. The patch changes `benefitCarrierInvoice.js`, adds `carrierInvoiceRevisionOrder.test.js`, and corrects identity-specific assertions in `carrierPremiumPosting.test.js`. Both this and the bank-recovery patch pass a combined `git apply --check`. Neither is applied or deployed yet. Candidate-only environment-driven clock configuration in that temporary tree is experimental and intentionally excluded from both patches.
 
 At the latest checkpoint both original full runs are still active; the baseline's recorded 838 inputs remain unchanged. Continue polling sessions `50989` and `2111`, then apply and verify the two scoped patches after those runs finish. A full green result remains unproven.
+
+## Production publication of ordering fixes
+
+Commit `5c92ed3240d7bd536ef94e5b1e496e2ec880e683` was pushed to `main`. Render deployment `dep-daolahdbedkc73anm2rg` reported **Deploy succeeded | Live**. The public health endpoint returned `releaseCommit=5c92ed3240d7`, `status=OK`, `dbConnected=true`, and `payrollDocumentStorageReady=true`. Vercel deployment `dpl_9qpv8ccd3gfyMfeCZFJ8UoQq782k` reached READY for the same commit and includes the `vortexathletics.com` production alias.
+
+The employee-creation OPTIONS preflight returned HTTP 204 with `Access-Control-Allow-Origin: https://vortexathletics.com`, credentials allowed, and authorization/content-type headers permitted. This verifies the public preflight, not a real employee creation or provider transaction.
+
+## Subsequent check-document ordering investigation
+
+The historical check-delivery fixture now explicitly scopes both JavaScript signing time and database time to September 13; the payment clock still advances independently through its existing scenarios. A deterministic tied-observation case reproduced a genuine closeout defect: a stopped-check recovery sharing the document-check timestamp was ignored and the route finalized payroll (HTTP 200 rather than the required 409). Log: `/tmp/payroll-check-closeout-red.log`.
+
+The pending worktree fix records the latest provider-observation ID before each original/replacement document verification under the existing connection lock. A new additive migration uses this retained observation boundary instead of wall-clock comparisons in original/replacement delivery guards and original-check closeout readiness. Legacy document proofs without that boundary require fresh recovery or a new document proof when the latest observation is adverse. Retained document history remains immutable.
+
+Four focused document/delivery cases passed, including tied and backwards timestamps (`/tmp/payroll-check-closeout-green.log`; four selected passes, 46 intentionally filtered cases). This subsequent fix is not included in deployed commit `5c92ed32`. The expanded check suite and migration reinitialization checks are running in `/tmp/payroll-check-order-suite.log` (exec session `31888`); their result must be inspected before publication.
+
+Assumptions: observations within one check are ordered by their append-only IDs under the existing employer connection lock; historical signing fixtures must use an explicit historical clock; ambiguous legacy evidence should prompt recovery rather than permit payroll closeout. None of these checks initiates a live payment.
+
+The expanded check/migration run finished with **52 passes, zero failures/skips/cancellations**, in 253.0 seconds. Subsequent direct database guard checks passed in three selected workflow cases (`/tmp/payroll-check-order-guards.log`, 47 unrelated cases filtered). Those checks attempt original and replacement handoffs with equal/backwards observation timestamps, with and without the new document boundary, and verify rejection by the database trigger. Each probe rolls back its synthetic records. Normal verified handoff and closeout still complete afterward. `git diff --check` passed.
