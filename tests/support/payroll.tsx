@@ -1,3 +1,4 @@
+import YearEndPreparation from '../../src/components/payroll/YearEndPreparation'
 import SettlementPosting from '../../src/components/payroll/SettlementPosting'
 import { useState } from 'react'
 import OnboardingWorkspace from '../../src/components/payroll/OnboardingWorkspace'
@@ -10,4 +11,4 @@ function ChecklistRaceFixture() {
  return <div data-payroll-workspace><button onClick={()=>setRefresh(value=>value+1)}>Refresh from parent</button><OnboardingWorkspace refresh={refresh} employmentStatus="ONBOARDING" onChanged={async()=>{}} /></div>
 }
 const employee = new URLSearchParams(location.search).has('employee')
-createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('settlement-response') ? <SettlementPosting runId={1} /> : new URLSearchParams(location.search).has('checklist-race') ? <ChecklistRaceFixture /> : employee ? <PayrollEmployeePortal /> : <div className="min-h-screen bg-slate-100 p-6"><AdminPayroll /></div>)
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('year-end') ? <YearEndPreparation /> : new URLSearchParams(location.search).has('settlement-response') ? <SettlementPosting runId={1} /> : new URLSearchParams(location.search).has('checklist-race') ? <ChecklistRaceFixture /> : employee ? <PayrollEmployeePortal /> : <div className="min-h-screen bg-slate-100 p-6"><AdminPayroll /></div>)
