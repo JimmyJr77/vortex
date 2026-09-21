@@ -12,5 +12,12 @@ export function retirementAnnualInput(body){
  if(!['FIRST_COMPENSATION_LIMIT','DEFERRALS_CONTINUE'].includes(b.compensationCapTreatment))throw fail('Review how the plan treats deferrals after the annual compensation limit.')
  for(const key of retirementAnnualReferences)if(typeof b[key]!=='string'||b[key].trim().length<12||b[key].length>2000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(b[key]))throw fail('Retain supporting references for age, aggregation, balances, participant limits and compensation.')
  const facts={version:1,taxYear:2026,asOfDate:b.asOfDate,ageAtYearEnd:b.ageAtYearEnd,...Object.fromEntries(retirementAnnualAmounts.map(key=>[key,b[key]])),participantOrdinaryCapCents:b.participantOrdinaryCapCents,participantCatchUpCapCents:b.participantCatchUpCapCents,compensationCapTreatment:b.compensationCapTreatment,...Object.fromEntries(retirementAnnualReferences.map(key=>[key,b[key].trim()]))}
+ if(b.employerFunding!==undefined){
+  const funding=b.employerFunding,fields=['compensationCents','matchingCents','nonelectiveCents','reference']
+  if(!funding||typeof funding!=='object'||Array.isArray(funding)||Object.keys(funding).length!==fields.length||fields.some(key=>!Object.hasOwn(funding,key))||fields.slice(0,3).some(key=>!Number.isSafeInteger(funding[key])||funding[key]<0))throw fail('Review every external employer funding balance explicitly in nonnegative cents; unknown is not zero.')
+  if(typeof funding.reference!=='string'||funding.reference.trim().length<12||funding.reference.length>2000||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(funding.reference))throw fail('Retain the external employer compensation and contribution evidence reference.')
+  if(BigInt(funding.matchingCents)+BigInt(funding.nonelectiveCents)+BigInt(b.externalPlanOrdinaryDeferralsCents)>BigInt(b.externalAnnualAdditionsCents))throw fail('External annual additions must include this plan’s ordinary deferrals and employer matching and nonelective contributions.')
+  facts.employerFunding={compensationCents:funding.compensationCents,matchingCents:funding.matchingCents,nonelectiveCents:funding.nonelectiveCents,reference:funding.reference.trim()}
+ }
  return {...facts,fingerprint:createHash('sha256').update(JSON.stringify(facts)).digest('hex')}
 }
