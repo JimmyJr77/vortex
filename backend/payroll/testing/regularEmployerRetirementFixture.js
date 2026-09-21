@@ -4,7 +4,7 @@ import {retirementPlanFixture} from './retirementPlanFixture.js'
 import {retirementAnnualFixture} from './retirementAnnualFixture.js'
 
 // Use databaseNow / retirementNow on September 16 for the September 18 payroll.
-export async function regularEmployerRetirementFixture(h){
+export async function regularEmployerRetirementFixture(h,{declined=false}={}){
  const f=await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'}),{api,employee}=f
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),employerContributions:'MATCH_AND_NONELECTIVE',employerContributionTerms:'Synthetic employer funding terms.',employerFormula:{period:'PER_PAYROLL',matchCatchUp:false,matchTiers:[{upToBps:300,matchBps:10000}],nonelectiveBps:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Synthetic reviewed new hire entry terms.',vestingTerms:'Synthetic reviewed vesting schedule.'}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
@@ -14,7 +14,7 @@ export async function regularEmployerRetirementFixture(h){
  const path=`/employees/${employee.id}/retirement-eligibility/standard`,eligibility=await api(path)
  await api(path,{sourceFingerprint:eligibility.source.fingerprint,expectedRevision:0,requestKey:randomUUID(),confirmed:true,disposition:'ELIGIBLE',eligibleOn:'2026-09-09',methods:['PERCENTAGE'],reference:'Synthetic reviewed employee deferral eligibility',employeeExplanation:'Eligible to elect employee deferrals under reviewed terms.'})
  const proposal=(await api('/retirement',undefined,'GET',200,true)).plans[0].proposal
- await api('/retirement/standard/elections',{action:'ELECT',method:'PERCENTAGE',pretax:500,roth:200,signature:'Monthly Benefits',confirmed:true,effectiveOn:'2026-09-17',expectedRevision:0,requestKey:randomUUID(),proposalFingerprint:proposal.fingerprint},'POST',200,true)
+ await api('/retirement/standard/elections',{action:declined?'DECLINE':'ELECT',method:'PERCENTAGE',pretax:declined?0:500,roth:declined?0:200,signature:'Monthly Benefits',confirmed:true,effectiveOn:'2026-09-17',expectedRevision:0,requestKey:randomUUID(),proposalFingerprint:proposal.fingerprint},'POST',200,true)
  const processingPath='/retirement-plans/standard/processing-review',processing=await api(processingPath)
  await api(processingPath,{planRevisionId:processing.planRevisionId,expectedRevision:0,requestKey:randomUUID(),review:{disposition:'REVIEWED',catchUpAuthorized:false,confirmed:true,reference:'Synthetic reviewed employee deferral processing policies',policies:processing.policies}})
  return f
