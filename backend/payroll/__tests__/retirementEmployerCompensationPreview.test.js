@@ -23,6 +23,7 @@ test('normal payroll previews capped employer compensation before approval witho
  assert.equal(c.records[0].compensationCents,20000);assert.equal(c.records[0].proposed,true);assert.equal(c.runId,'PREVIEW')
  assert.equal(c.requiresApprovalReservation,true);assert.equal(c.requiresPayrollIntegration,true)
  assert.equal(c.eligibility.status,'REVIEW_REQUIRED');assert.equal(c.periodStart,'2026-09-01');assert.equal(c.periodEnd,'2026-09-15')
+ assert.equal(c.deferralPreview.status,'ELIGIBILITY_REVIEW_REQUIRED')
  assert.equal(preview.canApprove,false);assert.match(preview.warnings.find(w=>w.code==='RETIREMENT_PAYROLL_REVIEW').message,/\$100\.00.*No employer contribution has been reserved/)
  assert.equal(preview.employees[0].netPayCents,raw.netPayCents)
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_election')).rows[0].n,0)

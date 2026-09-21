@@ -3,11 +3,12 @@ import {compensationEvidence} from './employmentCompensation.js'
 import {retirementEmployerCompensationPreview} from './retirementEmployerCompensation.js'
 import {retirementEmployerEligibilityForPayroll} from './retirementEmployerEligibilityPeriod.js'
 import {retirementEmployerObligation} from './retirementEmployerCalculation.js'
+import {retirementEmployerDeferralPreview} from './retirementEmployerDeferralPreview.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
 
 // The payroll producer supplies the engine preview and scoped period ID.
 // Dates and employer eligibility come from records, not request overrides.
-export async function retirementEmployerFundingPreview(db,{facility,employeeId,planId,payDate,payrollPreview,payPeriodId,runId=null,runKind='REGULAR'}){
+export async function retirementEmployerFundingPreview(db,{facility,employeeId,planId,payDate,payrollPreview,payPeriodId,runId=null,runKind='REGULAR'},{rebuild}={}){
  const period=(await db.query(`SELECT p.id,p.period_start::text AS start,p.period_end::text AS end FROM payroll_pay_period p
  WHERE p.facility_id=$1 AND p.id=$2 AND ($3::bigint IS NULL OR EXISTS(
  SELECT 1 FROM payroll_run r WHERE r.id=$3 AND r.facility_id=p.facility_id AND r.pay_period_id=p.id))`,[facility,payPeriodId,runId])).rows[0]
@@ -25,13 +26,18 @@ export async function retirementEmployerFundingPreview(db,{facility,employeeId,p
    eligibility={status:'REVIEW_REQUIRED',message:error.message}
   }
  }
- const basis={version:1,compensationSourceFingerprint:compensation.sourceFingerprint,payPeriodId:String(period.id),periodStart:period.start,periodEnd:period.end,runKind,eligibility}
+ let deferralPreview={status:eligibility.status==='REVIEWED_FOR_PAY_PERIOD'?'NOT_REQUIRED_FOR_MATCHING':'ELIGIBILITY_REVIEW_REQUIRED'}
+ if(eligibility.status==='REVIEWED_FOR_PAY_PERIOD'&&eligibility.components.matching.eligible){
+  try{deferralPreview=await retirementEmployerDeferralPreview(db,{facility,employeeId,planId,payDate,payrollPreview,runId,runKind},rebuild)}
+  catch(error){if(![400,409].includes(error.status))throw error;deferralPreview={status:'REVIEW_REQUIRED',message:error.message}}
+ }
+ const basis={version:1,compensationSourceFingerprint:compensation.sourceFingerprint,payPeriodId:String(period.id),periodStart:period.start,periodEnd:period.end,runKind,eligibility,deferralPreview}
  const fundingSourceFingerprint=createHash('sha256').update(JSON.stringify(compensationEvidence(basis))).digest('hex')
  let obligationPreview=null
  if(eligibility.status==='REVIEWED_FOR_PAY_PERIOD'){
   const row=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND id=$3',[facility,planId,compensation.source.planRevisionId])).rows[0]
   if(!row||row.plan.fingerprint!==compensation.planFingerprint)throw fail('Employer formula changed while preparing the obligation preview.')
-  obligationPreview=retirementEmployerObligation({plan:row.plan,sourceFingerprint:fundingSourceFingerprint,eligibleCompensationCents:compensation.eligibleCompensationCents,matchingEligible:eligibility.components.matching.eligible,nonelectiveEligible:eligibility.components.nonelective.eligible})
+  obligationPreview=retirementEmployerObligation({plan:row.plan,sourceFingerprint:fundingSourceFingerprint,eligibleCompensationCents:compensation.eligibleCompensationCents,ordinaryDeferralsCents:deferralPreview.status==='CALCULATED_NOT_APPLIED'?deferralPreview.ordinaryDeferralsCents:null,catchUpDeferralsCents:deferralPreview.status==='CALCULATED_NOT_APPLIED'?deferralPreview.catchUpDeferralsCents:null,matchingEligible:eligibility.components.matching.eligible,nonelectiveEligible:eligibility.components.nonelective.eligible})
  }
  return {...compensation,...basis,fundingSourceFingerprint,obligationPreview,requiresEmployerEligibilityReview:eligibility.status!=='REVIEWED_FOR_PAY_PERIOD',requiresObligationCalculation:obligationPreview?.obligation.totalCents==null,requiresContributionCalculation:true}
 }

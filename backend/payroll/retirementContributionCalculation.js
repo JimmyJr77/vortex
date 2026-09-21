@@ -18,9 +18,15 @@ function allocate(pretax,roth,cap){
 const percentage=(cents,bps)=>Number((BigInt(cents)*BigInt(bps)+5000n)/10000n)
 // Pure proposed employee-deferral amounts. No ledger reservation, wage-tax
 // calculation, payment approval or provider transaction occurs here.
-export function retirementContributionCalculation({plan,annual,internal,election,payDate,runKind,compensation,compensation415Cents,availableDeductionCents,catchUpAuthorized,unusedPto}){
- const employerIssue=retirementEmployerProcessingIssue(plan)
+export function retirementContributionCalculation(input){
+ const employerIssue=retirementEmployerProcessingIssue(input.plan)
  if(employerIssue)throw fail(employerIssue)
+ return calculateDeferrals(input)
+}
+// Diagnostic amounts only. Employer-funded plans still cannot enter the
+// operational calculator above until their full funding path is integrated.
+export function retirementContributionPreview(input){return {...calculateDeferrals(input),previewOnly:true}}
+function calculateDeferrals({plan,annual,internal,election,payDate,runKind,compensation,compensation415Cents,availableDeductionCents,catchUpAuthorized,unusedPto}){
  if(!date(payDate)||!['REGULAR','OFF_CYCLE'].includes(runKind)||!valid(compensation415Cents)||!valid(availableDeductionCents)||typeof catchUpAuthorized!=='boolean')throw fail('Review the pay date, run kind, available pay and catch-up authorization.')
  const signed=retirementElectionInput({...election,confirmed:true},election?.proposal)
  if(signed.proposal.planFingerprint!==plan.fingerprint||signed.proposal.taxYear!==2026||signed.effectiveOn>payDate)throw fail('Select the applicable signed election and current plan for this payment.')

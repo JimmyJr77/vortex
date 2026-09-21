@@ -31,7 +31,7 @@ export async function retainRetirementRunLedger(db,facility,runId){
  for(const employee of run.calculation_snapshot?.employees||[]){
   for(const entry of employee.retirementPlans||[]){
    const c=entry.calculation
-   if(!entry.planId||c?.requiresPayrollIntegration!==false)throw fail('Retirement processing must be fully integrated before reserving contributions.')
+   if(!entry.planId||c?.requiresPayrollIntegration!==false||c.previewOnly===true)throw fail('Retirement processing must be fully integrated before reserving contributions.')
    if(c.payDate!==run.pay_date)throw fail('Retirement calculation pay date differs from the approved payroll.')
    for(const value of [c.ordinary?.pretax,c.ordinary?.roth,c.catchUp?.pretax,c.catchUp?.roth,c.planCompensationCents,c.compensation415Cents])add(0,value)
    const total=add(add(c.ordinary.pretax,c.ordinary.roth),add(c.catchUp.pretax,c.catchUp.roth))

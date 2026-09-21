@@ -30,7 +30,10 @@ export function registerRetirementProcessingReview(app,pool){
    const p=await plan(db,facility,req.params.planId)
    if(p.id!==b.planRevisionId)throw fail('Plan terms changed. Review current processing policies.',409)
    const employerIssue=retirementEmployerProcessingIssue(p.plan)
-   if(review.disposition==='REVIEWED'&&employerIssue)throw fail(employerIssue,409)
+   // A structured employer plan may retain employee-deferral policies for
+   // diagnostic calculation. The execution issue remains visible and the
+   // operational contribution/approval boundaries still reject employer pay.
+   if(review.disposition==='REVIEWED'&&employerIssue&&!p.plan.employerFormula)throw fail(employerIssue,409)
    if(review.catchUpAuthorized&&!p.plan.allowsCatchUp)throw fail('This plan does not permit catch-up contributions.')
    const latest=(await db.query('SELECT revision FROM payroll_retirement_processing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,req.params.planId])).rows[0]
    if((latest?.revision||0)!==b.expectedRevision)throw fail('Another processing review was saved. Reload history.',409)

@@ -1,0 +1,20 @@
+# Matching preview from signed employee deferrals
+
+Employer payroll previews now load the applicable signed employee election, current participant eligibility, annual source balances, internal contribution ledger and reviewed processing policies. The preview runs the existing deferral calculation, then rebuilds payroll with the proposed pretax/Roth deductions to recalculate taxes and required deductions. It verifies unchanged gross wages/reimbursements, exact proposed deductions, reconciled take-home pay, and sufficient wages excluding reimbursements. That diagnostic rebuild never replaces the payable payroll snapshot.
+
+Matching uses the checked ordinary/catch-up deferral amounts. A signed decline establishes known zero deferrals and zero matching while preserving a separately eligible nonelective obligation. An unaffordable election, missing source or missing processing review leaves matching unresolved and displays the corrective step. Missing employer eligibility is explicitly ELIGIBILITY_REVIEW_REQUIRED; it is not presented as proof that matching does not require employee deferrals.
+
+Structured employer plans can now retain REVIEWED employee-processing policies for these diagnostics. Unstructured employer terms still cannot do so. The existing execution warning remains visible, and the operational contribution calculator still rejects employer-funded payroll. Preview calculations carry `previewOnly: true` and `requiresPayrollIntegration: true`; the approval ledger explicitly rejects preview-only calculations even if the integration flag is incorrectly cleared.
+
+## Assumptions and remaining work
+
+- A signed election is not by itself an affordable payroll deduction. The internal rebuild must pass before its amounts are used for matching.
+- This is a proposed deferral calculation, not an applied withholding or reserved employer contribution. The original payroll take-home amount remains unchanged while employer funding is blocked.
+- The current annual-capacity calculation informs employee deferrals, but the complete employee/employer allocation still needs prior employer funding and combined annual-additions reconciliation. This preview does not resolve an excess by silently reducing employer obligations.
+- The full goal still requires employer reservations, statements, accounting, remittance, provider exceptions, annual true-up and off-cycle earning-period integration. Render deployment of these changes is not yet verified.
+
+## Verification
+
+**11 backend tests passed, 0 failed, 0 skipped**, 5.57 seconds (`/tmp/payroll-employer-deferral-preview-final-tests.log`). Actual isolated payroll APIs exercise a new hire with matching and nonelective eligibility, missing processing review, a retained structured-plan review with the execution warning still present, a 5% pretax/2% Roth election, tax/deduction rebuild, $14 proposed deferrals, $6 matching and $4 nonelective obligation on $200 compensation. The same test verifies unchanged payable net pay and zero ledger entries, rejection of an unaffordable 100% Roth election, and signed-decline zero matching. Existing operational calculations and the ledger remain tested, including explicit preview-only rejection. A final status refinement passed **2 additional targeted tests** in 3.05 seconds (`/tmp/payroll-employer-deferral-status-tests.log`); these overlap the earlier suite and are not a new full-suite count.
+
+**3 browser tests passed**, 16.9 seconds including build/startup (`/tmp/payroll-employer-deferral-preview-browser.log`). The actual mobile payroll view shows a $3 matching obligation and $2 nonelective obligation after the compensation cap, while retaining the no-reservation/approval warning. Processing review retry/concurrency and unstructured-employer suspension behavior also passed. Screenshot `/tmp/payroll-employer-compensation-preview-mobile.png` was inspected; no page errors or horizontal overflow occurred at 390px. Whitespace checks passed. No real employee, message, payment, reservation or provider write was performed.

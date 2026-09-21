@@ -40,12 +40,13 @@ export async function regularRetirementPayroll(db,facility,result,excludeRunId,r
    const planId=plans[0].plan_id
    const terms=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,planId])).rows[0]?.plan
    if(terms?.employerContributions!=='NONE'){
-    employee.employerCompensationPreview=await retirementEmployerFundingPreview(db,{facility,employeeId:employee.employeeId,planId,payDate:date,payrollPreview:employee,payPeriodId:result.period.id,runId:excludeRunId??null,runKind})
+    employee.employerCompensationPreview=await retirementEmployerFundingPreview(db,{facility,employeeId:employee.employeeId,planId,payDate:date,payrollPreview:employee,payPeriodId:result.period.id,runId:excludeRunId??null,runKind},{rebuild})
     const eligibility=employee.employerCompensationPreview.eligibility
     const finding=eligibility.status==='REVIEWED_FOR_PAY_PERIOD'?` Matching eligibility: ${eligibility.components.matching.eligible?'eligible':'not eligible'}. Nonelective eligibility: ${eligibility.components.nonelective.eligible?'eligible':'not eligible'}.`:` ${eligibility.message}`
     const obligation=employee.employerCompensationPreview.obligationPreview?.obligation
     const amounts=obligation?` Matching obligation: ${obligation.matchingCents===null?'awaiting employee deferral calculation':`$${(obligation.matchingCents/100).toFixed(2)}`}. Nonelective obligation: $${(obligation.nonelectiveCents/100).toFixed(2)}.`:''
-    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap.${finding}${amounts} Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
+    const deferralIssue=employee.employerCompensationPreview.deferralPreview.message
+    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap.${finding}${amounts}${deferralIssue?` ${deferralIssue}`:''} Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
    }
    const calculation=await retirementPayrollCalculation(db,{facility,employeeId:employee.employeeId,planId,payDate:date,runKind,payrollPreview:employee,excludeRunId})
    calculations.set(String(employee.employeeId),{planId,calculation});inputs[employee.employeeId]=calculation.retirement401k

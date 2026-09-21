@@ -1,17 +1,19 @@
 import {retirementPayrollWages} from './retirementPayrollWages.js'
 import {retirementPayrollSource} from './retirementPayrollSource.js'
 import {retirementInternalBalances} from './retirementLedger.js'
-import {retirementContributionCalculation} from './retirementContributionCalculation.js'
+import {retirementContributionCalculation,retirementContributionPreview} from './retirementContributionCalculation.js'
 // Caller supplies engine-derived wages and a locked/repeatable-read transaction.
 // Employee elections, annual sources and internal balances are always loaded
 // here from scoped records, never supplied as calculation overrides.
-export async function retirementPayrollCalculation(db,{facility,employeeId,planId,payDate,runKind,payrollPreview,excludeRunId=null}){
+export async function retirementPayrollCalculation(db,input){return calculate(db,input,retirementContributionCalculation)}
+export async function retirementPayrollDeferralPreview(db,input){return calculate(db,input,retirementContributionPreview)}
+async function calculate(db,{facility,employeeId,planId,payDate,runKind,payrollPreview,excludeRunId=null},contributionCalculator){
  const source=await retirementPayrollSource(db,facility,employeeId,planId,payDate)
  const wages=retirementPayrollWages(payrollPreview,source.plan)
  if(String(payrollPreview.employeeId)!==String(employeeId))throw Object.assign(new Error('Retirement wages belong to another employee.'),{status:409})
  const ledger=await retirementInternalBalances(db,facility,employeeId,planId,2026,{excludeRunId})
  if(ledger.unreconciledPayrollIds.length)throw Object.assign(new Error('Earlier payroll needs retirement compensation reconciliation before calculating contributions.'),{status:409})
- const calculation=retirementContributionCalculation({...source,internal:ledger.totals,payDate,runKind,...wages,availableDeductionCents:payrollPreview.grossPayCents,catchUpAuthorized:source.processingReview.catchUpAuthorized})
+ const calculation=contributionCalculator({...source,internal:ledger.totals,payDate,runKind,...wages,availableDeductionCents:payrollPreview.grossPayCents,catchUpAuthorized:source.processingReview.catchUpAuthorized})
  // Allocate pretax deferrals to included bonus wages proportionally; nearest
  // cent, with half-cent ties assigned to the bonus. Retain the exact policy.
  const bonusBasis=source.plan.compensation.BONUS?wages.compensation.BONUS:0

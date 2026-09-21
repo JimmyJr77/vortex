@@ -91,6 +91,8 @@ test('retirement ledger serializes approved reservations, rejects stale capacity
  const first=await createRun('2026-09-01','2026-09-15','2026-09-15',calc)
  const approve=async id=>{const db=await h.pool.connect();try{await db.query('BEGIN');await db.query('SELECT facility_id FROM payroll_settings WHERE facility_id=1 FOR UPDATE');await db.query("UPDATE payroll_run SET status='APPROVED' WHERE id=$1",[id]);const count=await retainRetirementRunLedger(db,1,id);await db.query('COMMIT');return count}catch(e){await db.query('ROLLBACK');throw e}finally{db.release()}}
  await assert.rejects(approve(first),/fully integrated/)
+ await h.pool.query('UPDATE payroll_run SET calculation_snapshot=$1 WHERE id=$2',[{employees:[{...orchestrated,retirementPlans:[{planId:'standard',calculation:{...ready,previewOnly:true}}]}]},first])
+ await assert.rejects(approve(first),/fully integrated/)
  await h.pool.query('UPDATE payroll_run SET calculation_snapshot=$1 WHERE id=$2',[{employees:[{...orchestrated,employeeId:e.id,retirementPlans:[{planId:'standard',calculation:{...ready,payDate:'2026-09-14'}}]}]},first])
  await assert.rejects(approve(first),/pay date differs/)
  // The database independently refuses an exact snapshot with the wrong date.
