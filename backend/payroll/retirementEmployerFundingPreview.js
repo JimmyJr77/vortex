@@ -1,7 +1,7 @@
 import {createHash} from 'node:crypto'
 import {compensationEvidence} from './employmentCompensation.js'
 import {retirementEmployerCompensationPreview} from './retirementEmployerCompensation.js'
-import {retirementEmployerEligibilityForPeriod} from './retirementEmployerEligibilityPeriod.js'
+import {retirementEmployerEligibilityForPayroll} from './retirementEmployerEligibilityPeriod.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
 
 // The payroll producer supplies the engine preview and scoped period ID.
@@ -17,7 +17,7 @@ export async function retirementEmployerFundingPreview(db,{facility,employeeId,p
  else if(runKind!=='REGULAR')eligibility={status:'REVIEW_REQUIRED',message:'Review the employer contribution earning period for this off-cycle payment.'}
  else{
   try{
-   const review=await retirementEmployerEligibilityForPeriod(db,{facility,employeeId,planId,periodStart:period.start,periodEnd:period.end})
+   const review=await retirementEmployerEligibilityForPayroll(db,{facility,employeeId,planId,periodStart:period.start,periodEnd:period.end,payrollPreview})
    eligibility={status:'REVIEWED_FOR_PAY_PERIOD',...review}
   }catch(error){
    if(![400,404,409].includes(error.status))throw error

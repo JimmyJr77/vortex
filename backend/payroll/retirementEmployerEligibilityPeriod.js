@@ -25,3 +25,34 @@ export async function retirementEmployerEligibilityForPeriod(db,{facility,employ
  const row=(await db.query('SELECT id,source_fingerprint,review FROM payroll_retirement_employer_eligibility WHERE facility_id=$1 AND employee_id=$2 AND plan_id=$3 ORDER BY revision DESC LIMIT 1',[facility,employeeId,planId])).rows[0]
  return employerEligibilityPeriod(source,row,periodStart,periodEnd)
 }
+
+export function employerPayrollEligibilityCoverage(source,payrollPreview,periodStart,periodEnd){
+ if(!day(periodStart)||!day(periodEnd)||periodStart>periodEnd)throw fail('Use the actual employer contribution period in 2026.')
+ const hire=source.hireDate
+ if(typeof hire!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(hire)||!Number.isFinite(Date.parse(hire))||new Date(hire).toISOString().slice(0,10)!==hire||hire>periodEnd)throw fail('Review the employment cycle covering these payroll earnings.')
+ if(hire<=periodStart)return {periodStart,periodEnd,payrollPeriodStart:periodStart,payrollPeriodEnd:periodEnd,clippedForNewHire:false}
+ const periods=source.employmentPeriods
+ if(!Array.isArray(periods))throw fail('Retain employment history before allocating new-hire eligibility coverage.')
+ const overlapping=periods.filter(p=>p.started_on<=periodEnd&&(!p.ended_on||p.ended_on>=periodStart))
+ if(overlapping.length!==1||overlapping[0].started_on!==hire||overlapping[0].ended_on&&overlapping[0].ended_on<periodEnd)throw fail('Review each employment cycle separately before allocating employer eligibility to this payroll.')
+ const segments=payrollPreview?.employmentCompensation
+ if(!Array.isArray(segments)||!segments.length||segments.some(s=>String(s.employeeId)!==String(source.employeeId)||s.employmentStart!==hire||!day(s.start)||!day(s.end)||s.start<hire||s.end>periodEnd||s.start>s.end||s.issue))throw fail('Retain complete dated engine compensation for the new-hire employment period.')
+ const ordered=[...segments].sort((a,b)=>a.start.localeCompare(b.start))
+ let next=hire
+ for(const segment of ordered){
+  if(segment.start!==next)throw fail('New-hire compensation coverage has a gap or overlap requiring review.')
+  next=new Date(Date.parse(segment.end)+86400000).toISOString().slice(0,10)
+ }
+ if(ordered.at(-1).end!==periodEnd)throw fail('New-hire compensation coverage does not reach the payroll period end.')
+ if(!Array.isArray(payrollPreview.payItems)||payrollPreview.payItems.some(i=>i.kind==='BONUS'||i.kind==='BONUS_OVERTIME'||i.correction||i.allocatedBonus||i.bonusAllocation||i.leavePayout||i.employmentStart&&i.employmentStart!==hire)||payrollPreview.authorizedSettlement)throw fail('Reconcile dated bonus, correction or other employment-cycle earnings before narrowing employer eligibility coverage.')
+ return {periodStart:hire,periodEnd,payrollPeriodStart:periodStart,payrollPeriodEnd:periodEnd,clippedForNewHire:true,employmentPeriodId:String(overlapping[0].id)}
+}
+
+export async function retirementEmployerEligibilityForPayroll(db,{facility,employeeId,planId,periodStart,periodEnd,payrollPreview}){
+ const source=await retirementEmployerEligibilitySource(db,facility,employeeId,planId)
+ const coverage=employerPayrollEligibilityCoverage(source,payrollPreview,periodStart,periodEnd)
+ const row=(await db.query('SELECT id,source_fingerprint,review FROM payroll_retirement_employer_eligibility WHERE facility_id=$1 AND employee_id=$2 AND plan_id=$3 ORDER BY revision DESC LIMIT 1',[facility,employeeId,planId])).rows[0]
+ const review=employerEligibilityPeriod(source,row,coverage.periodStart,coverage.periodEnd)
+ const basis={...review,coverage}
+ return {...basis,fingerprint:createHash('sha256').update(JSON.stringify(compensationEvidence(basis))).digest('hex')}
+}
