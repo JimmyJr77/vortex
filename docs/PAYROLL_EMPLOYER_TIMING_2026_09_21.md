@@ -14,4 +14,10 @@ The employer ledger fixture has both employee and employer contributions; it doe
 
 ## Assumptions and limits
 
-The supported employer schedule is funding with each payroll under independently reviewed plan/provider evidence. This does not assert that employee withholding deadlines are legal employer contribution deadlines. Annual true-up and other schedules still require implementation. The public timing UI has not yet been extended to collect this evidence. Payment authorization totals and combined delivery must be connected before removing the existing employer remittance gates. This increment is not production-verified, and the overall goal remains incomplete.
+The supported employer schedule is funding with each payroll under independently reviewed plan/provider evidence. This does not assert that employee withholding deadlines are legal employer contribution deadlines. Annual true-up and other schedules still require implementation. Payment authorization totals and combined delivery must be connected before removing the existing employer remittance gates. This increment is not production-verified, and the overall goal remains incomplete.
+
+## Admin setup follow-through
+
+The contribution timing form now offers an explicit employer schedule confirmation with a required separate evidence reference. Saved review history shows whether the employer schedule was reviewed and retains the evidence after reload. Editing the form clears the final review confirmation; an uncertain response retries the original retained request.
+
+The browser flow passed (one test, 1.2 minutes), covering lost-response retry without duplicate retention, exact employer evidence in the database, reload persistence, refreshed dates and suspension. No page errors or provider payment posts occurred. The mobile screenshot `/tmp/payroll-retirement-timing-mobile.png` was inspected and is readable. Browser log: `/tmp/payroll-employer-timing-browser.log`. TypeScript build checks also passed (`/tmp/payroll-employer-timing-types.log`). The existing Playwright browser harness was used; agent-browser was not available on PATH. The unrelated AdminAccess edit is excluded.
