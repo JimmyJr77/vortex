@@ -33,7 +33,7 @@ export async function retirementAllocationFile(db,facility,runId,input,{fetcher=
  const {history}=await retirementAllocationFormatHistory(db,facility,input.planId),format=history[0]
  if(!format||!format.currentPlan||format.format.disposition!=='VERIFIED')throw fail('Review the current recordkeeper allocation format before preparing a file.')
  if(format.format.columns.some(c=>employerAllocationFields.includes(c.field)))throw fail('Employer allocation columns require matching provider receipt and timing contracts before file preparation.')
- if(!preview.timing?.reviewId||['PLAN_CHANGED','SUSPENDED','REVIEW_REQUIRED','CALENDAR_REVIEW_REQUIRED','ADVANCE_SUBMISSION_REVIEW_REQUIRED'].includes(preview.timing.status))throw fail('Review current contribution timing before preparing recordkeeper allocations.')
+ if(!preview.timing?.reviewId||['PLAN_CHANGED','SUSPENDED','REVIEW_REQUIRED','EMPLOYER_TIMING_REVIEW_REQUIRED','CALENDAR_REVIEW_REQUIRED','ADVANCE_SUBMISSION_REVIEW_REQUIRED'].includes(preview.timing.status))throw fail('Review current contribution timing before preparing recordkeeper allocations.')
  const rows=[]
  for(const a of preview.allocations){const mapping=await readRetirementParticipantMapping(db,facility,a.employeeId,input.planId);if(mapping.id!==a.participantMapping.mappingId)throw fail('Participant mapping changed. Refresh the contribution review.');rows.push({...a,...mapping.identifiers,withheldDate:preview.withheldDate})}
  const csv=retirementAllocationCsv(format.format,rows)

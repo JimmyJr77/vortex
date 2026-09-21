@@ -60,7 +60,7 @@ export async function retirementRemittanceSources(db,facility,{beforeRunId=null,
      }
      if(allocationTotal&&!destinationStates.has(entry.planId))destinationStates.set(entry.planId,await retirementDestinationStatus(db,facility,entry.planId))
      const destinationReview=allocationTotal?destinationStates.get(entry.planId):{status:'NOT_REQUIRED'}
-     const timing=allocationTotal?await retirementTimingAssessment(db,facility,entry.planId,run.pay_date,{now}):{status:'NOT_REQUIRED'}
+     const timing=allocationTotal?await retirementTimingAssessment(db,facility,entry.planId,run.pay_date,{now,employerContributionsRequired:employerAmounts.employerMatchingCents>0||employerAmounts.employerNonelectiveCents>0}):{status:'NOT_REQUIRED'}
      if(allocationTotal&&!formatStates.has(entry.planId)){const row=(await retirementAllocationFormatHistory(db,facility,entry.planId)).history[0];formatStates.set(entry.planId,row?{formatId:row.id,status:!row.currentPlan?'PLAN_CHANGED':row.format.disposition}:{status:'REVIEW_REQUIRED'})}
      const allocationFormat=allocationTotal?formatStates.get(entry.planId):{status:'NOT_REQUIRED'}
      allocations.push({allocationFormat,timing,destinationReview,participantMapping,ledgerId:String(record.id),employeeId:String(row.employee_id),employeeName:`${row.legal_first_name} ${row.legal_last_name}`,planId:entry.planId,planName:c.planName||entry.planId,ordinaryPretaxCents:c.ordinary.pretax,ordinaryRothCents:c.ordinary.roth,catchUpPretaxCents:c.catchUp.pretax,catchUpRothCents:c.catchUp.roth,...employerAmounts,totalCents:allocationTotal})

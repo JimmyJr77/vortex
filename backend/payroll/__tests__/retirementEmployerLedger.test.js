@@ -1,3 +1,4 @@
+import {refreshRetirementTimingAlerts} from '../retirementTimingAlerts.js'
 import {retirementRemittanceSources} from '../retirementRemittanceSources.js'
 import {retirementRemittancePreview} from '../retirementRemittancePreview.js'
 import {retirementStatementSummary} from '../retirementStatement.js'
@@ -114,15 +115,28 @@ test('employer reservations retain exact approved evidence and consume shared an
  const statement={payItems:applied.payItems,retirement:retirementStatementSummary(applied),employeeName:'Monthly Benefits',employeeNumber:'SYNTHETIC',employer:{name:'Synthetic Employer'}}
  const statementRow=(await h.pool.query('UPDATE payroll_run_employee SET statement_snapshot=$1 WHERE payroll_run_id=$2 AND employee_id=$3 RETURNING id',[statement,run.id,employee.id])).rows[0]
  await h.pool.query("UPDATE payroll_run SET status='FINALIZED' WHERE id=$1",[run.id])
+ const timingPath='/retirement-plans/standard/timing',timing=await api(timingPath)
+ const timingPolicy={effectiveOn:'2026-01-01',disposition:'REVIEWED',depositBusinessDays:2,providerLeadBusinessDays:1,cutoffTime:'14:00',reference:'Reviewed actual payroll segregation and provider timing',confirmed:true,calendarConfirmed:true,earliestConfirmed:true}
+ await api(timingPath,{policy:timingPolicy,planRevisionId:timing.planRevisionId,expectedRevision:0,requestKey:randomUUID()})
+ assert.equal((await refreshRetirementTimingAlerts(h.pool,1,{now:new Date('2026-09-18T12:00:00Z')})).checked,1)
+ assert.match((await h.pool.query('SELECT message FROM payroll_alert WHERE dedupe_key=$1',[`retirement-timing-${run.id}-standard`])).rows[0].message,/employer timing review required/)
  const delivery=(await retirementRemittanceSources(h.pool,1,{runId:run.id,now:new Date('2026-09-18T12:00:00Z')})).items[0]
  assert.equal(delivery.status,'DELIVERY_UNVERIFIED',JSON.stringify(delivery))
  assert.equal(delivery.totalCents,2400)
+ assert.equal(delivery.allocations[0].timing.status,'EMPLOYER_TIMING_REVIEW_REQUIRED')
  assert.equal(delivery.allocations[0].employeeTotalCents,1400)
  assert.equal(delivery.allocations[0].employerMatchingCents,600)
  assert.equal(delivery.allocations[0].employerNonelectiveCents,400)
  assert.equal(delivery.allocations[0].totalCents,2400)
  assert.match(delivery.allocations[0].employerLedgerId,/^[1-9]\d*$/)
  await assert.rejects(retirementRemittancePreview(h.pool,1,run.id,{planId:'standard',sourceFingerprint:delivery.sourceFingerprint},{now:new Date('2026-09-18T12:00:00Z'),fetcher:async()=>{throw new Error('No provider call permitted')}}),/Employer contributions require reviewed/)
+ await api(timingPath,{policy:{...timingPolicy,employerFunding:{schedule:'WITH_PAYROLL',confirmed:true,reference:'Reviewed employer matching and nonelective funding with each payroll'}},planRevisionId:timing.planRevisionId,expectedRevision:1,requestKey:randomUUID()})
+ const reviewedDelivery=(await retirementRemittanceSources(h.pool,1,{runId:run.id,now:new Date('2026-09-18T12:06:00Z')})).items[0]
+ assert.equal(reviewedDelivery.allocations[0].timing.employerContributionsIncluded,true)
+ assert.equal(reviewedDelivery.allocations[0].timing.status,'UPCOMING')
+ assert.notEqual(reviewedDelivery.sourceFingerprint,delivery.sourceFingerprint)
+ assert.equal((await refreshRetirementTimingAlerts(h.pool,1,{now:new Date('2026-09-18T12:06:00Z')})).checked,1)
+ assert.equal((await h.pool.query('SELECT status FROM payroll_alert WHERE dedupe_key=$1',[`retirement-timing-${run.id}-standard`])).rows[0].status,'DISMISSED')
  const statementResponse=await fetch(`${h.url}/api/payroll/employee/pay-statements/${statementRow.id}.pdf`,{headers:{Authorization:'Bearer monthly-benefits-session'}})
  assert.equal(statementResponse.status,200)
  assert.equal(statementResponse.headers.get('content-type'),'application/pdf')

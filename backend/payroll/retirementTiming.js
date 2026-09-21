@@ -10,7 +10,13 @@ export function retirementTimingInput(input){
  const base={effectiveOn:input.effectiveOn,disposition:input.disposition,reference:input.reference.trim()}
  if(input.disposition==='SUSPENDED')return base
  if(!Number.isInteger(input.depositBusinessDays)||input.depositBusinessDays<0||input.depositBusinessDays>10||!Number.isInteger(input.providerLeadBusinessDays)||input.providerLeadBusinessDays<0||input.providerLeadBusinessDays>10||!/^([01]\d|2[0-3]):[0-5]\d$/.test(input.cutoffTime||'')||input.calendarConfirmed!==true||input.earliestConfirmed!==true)throw fail('Review actual segregation timing, provider lead time, cutoff and bank calendar applicability.')
- return {...base,depositBusinessDays:input.depositBusinessDays,providerLeadBusinessDays:input.providerLeadBusinessDays,cutoffTime:input.cutoffTime,timeZone:'America/New_York',calendar:'FEDERAL_RESERVE'}
+ let employerFunding
+ if(input.employerFunding!==undefined){
+  const e=input.employerFunding
+  if(!e||e.schedule!=='WITH_PAYROLL'||e.confirmed!==true||typeof e.reference!=='string'||e.reference.trim().length<20||e.reference.length>2000)throw fail('Review evidence that employer matching and nonelective contributions use this payroll deposit schedule.')
+  employerFunding={schedule:'WITH_PAYROLL',confirmed:true,reference:e.reference.trim()}
+ }
+ return {...base,...(employerFunding?{employerFunding}:{}),depositBusinessDays:input.depositBusinessDays,providerLeadBusinessDays:input.providerLeadBusinessDays,cutoffTime:input.cutoffTime,timeZone:'America/New_York',calendar:'FEDERAL_RESERVE'}
 }
 export function retirementTimingDates(policy,withheldDate,now=new Date()){
  if(!date(withheldDate)||!withheldDate.startsWith('2026-'))throw fail('Timing requires a supported actual withholding date.',409)
@@ -32,13 +38,14 @@ export async function retirementTimingHistory(db,facility,planId){
  const history=(await db.query('SELECT id,revision,plan_revision_id,policy,created_at FROM payroll_retirement_timing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC',[facility,planId])).rows
  return {planRevisionId:plan.id,history:history.map(r=>({...r,currentPlan:r.plan_revision_id===plan.id}))}
 }
-export async function retirementTimingAssessment(db,facility,planId,withheldDate,{now=new Date()}={}){
+export async function retirementTimingAssessment(db,facility,planId,withheldDate,{now=new Date(),employerContributionsRequired=false}={}){
  const {planRevisionId,history}=await retirementTimingHistory(db,facility,planId),row=history.find(r=>r.policy.effectiveOn<=withheldDate)
  if(!row)return {status:'REVIEW_REQUIRED',reviewId:null}
  const basis={reviewId:row.id,planRevisionId}
  if(!row.currentPlan)return {...basis,status:'PLAN_CHANGED'}
  if(row.policy.disposition==='SUSPENDED')return {...basis,status:'SUSPENDED'}
- return {...basis,...retirementTimingDates(row.policy,withheldDate,now)}
+ if(employerContributionsRequired&&(row.policy.employerFunding?.schedule!=='WITH_PAYROLL'||row.policy.employerFunding?.confirmed!==true))return {...basis,status:'EMPLOYER_TIMING_REVIEW_REQUIRED'}
+ return {...basis,...(employerContributionsRequired?{employerContributionsIncluded:true}:{}),...retirementTimingDates(row.policy,withheldDate,now)}
 }
 export function registerRetirementTimingRoutes(app,pool){
  const path='/api/admin/payroll/retirement-plans/:planId/timing'

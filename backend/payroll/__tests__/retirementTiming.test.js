@@ -20,6 +20,9 @@ test('reviewed timing applies bank holidays, lead time, DST offsets and exact cu
 })
 test('timing rejects invented defaults, invalid dates and unconfirmed capacity/calendar',()=>{
  for(const change of [{depositBusinessDays:null},{providerLeadBusinessDays:-1},{cutoffTime:'24:00'},{effectiveOn:'2026-02-30'},{confirmed:false},{calendarConfirmed:false},{earliestConfirmed:false}])assert.throws(()=>retirementTimingInput({...input,...change}))
+ for(const employerFunding of [null,{}, {schedule:'ANNUAL',confirmed:true,reference:input.reference},{schedule:'WITH_PAYROLL',confirmed:false,reference:input.reference}])assert.throws(()=>retirementTimingInput({...input,employerFunding}))
+ const employerFunding={schedule:'WITH_PAYROLL',confirmed:true,reference:'Reviewed plan requires matching and nonelective funding with each payroll'}
+ assert.deepEqual(retirementTimingInput({...input,employerFunding}).employerFunding,employerFunding)
  assert.deepEqual(retirementTimingInput({...input,disposition:'SUSPENDED'}),{effectiveOn:input.effectiveOn,disposition:'SUSPENDED',reference:input.reference})
 })
 test('timing reviews persist exact retries, invalidate sources and create scoped automatic deadline alerts',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
@@ -32,6 +35,7 @@ test('timing reviews persist exact retries, invalidate sources and create scoped
  const b={policy:input,planRevisionId:current.planRevisionId,expectedRevision:0,requestKey:randomUUID()},[a,c]=await Promise.all([api(path,b),api(path,b)])
  assert.equal(a.id,c.id);assert.equal((await api(path)).history.length,1)
  await api(path,{...b,policy:{...input,cutoffTime:'13:00'}},'POST',409)
+ assert.equal((await retirementTimingAssessment(h.pool,1,'standard','2026-09-18',{employerContributionsRequired:true})).status,'EMPLOYER_TIMING_REVIEW_REQUIRED')
  const changed=(await api('/retirement-remittance-sources')).items[0];assert.notEqual(changed.sourceFingerprint,initial.sourceFingerprint);assert.equal(changed.allocations[0].timing.depositDate,'2026-09-22')
  const before=new Date('2026-09-21T17:00:00Z');assert.equal((await refreshRetirementTimingAlerts(h.pool,2,{now:before})).checked,0)
  assert.equal((await refreshRetirementTimingAlerts(h.pool,1,{now:before})).checked,1)
@@ -46,4 +50,18 @@ test('timing reviews persist exact retries, invalidate sources and create scoped
  await assert.rejects(h.pool.query('UPDATE payroll_retirement_timing_review SET revision=4 WHERE id=$1',[a.id]),/immutable|append|cannot|not allowed/i)
  const response=await fetch(`${h.url}/api/admin/payroll/retirement-plans/standard/timing`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}});assert.equal(response.status,404)
  assert.equal(provider.posts(),0)
+})
+
+test('employer timing evidence is retained, assessed and invalidated with the current plan',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
+ const provider=retirementDestinationProvider(),h=await createHarness({paymentFetcher:provider.fetcher,retirementNow:()=>new Date('2026-09-11T12:00:00Z')});t.after(async()=>{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
+ const {api}=await retirementRemittanceFixture(h),path='/retirement-plans/standard/timing',current=await api(path)
+ const employerFunding={schedule:'WITH_PAYROLL',confirmed:true,reference:'Reviewed matching and nonelective funding with each payroll under plan terms'}
+ const body={policy:{...input,employerFunding},planRevisionId:current.planRevisionId,expectedRevision:0,requestKey:randomUUID()}
+ const [a,b]=await Promise.all([api(path,body),api(path,body)]);assert.equal(a.id,b.id)
+ assert.deepEqual((await api(path)).history[0].policy.employerFunding,employerFunding)
+ const assessment=await retirementTimingAssessment(h.pool,1,'standard','2026-09-18',{now:new Date('2026-09-18T12:00:00Z'),employerContributionsRequired:true})
+ assert.equal(assessment.status,'UPCOMING');assert.equal(assessment.employerContributionsIncluded,true);assert.equal(assessment.depositDate,'2026-09-22')
+ await api(path,{...body,policy:{...input,disposition:'SUSPENDED'},expectedRevision:1,requestKey:randomUUID()})
+ assert.equal((await retirementTimingAssessment(h.pool,1,'standard','2026-09-18',{employerContributionsRequired:true})).status,'SUSPENDED')
 })
