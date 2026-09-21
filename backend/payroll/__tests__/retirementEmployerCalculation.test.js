@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {retirementEmployerCalculation} from '../retirementEmployerCalculation.js'
+import {retirementEmployerCalculation,retirementEmployerObligation} from '../retirementEmployerCalculation.js'
 import {retirementPlanInput} from '../retirementPlanInput.js'
 import {retirementPlanFixture} from '../testing/retirementPlanFixture.js'
 function fixture({period='PER_PAYROLL',scope='MATCH_AND_NONELECTIVE',formula={}}={}){
@@ -79,4 +79,25 @@ test('matching and nonelective eligibility independently control obligations wit
  assert.equal(retirementEmployerCalculation({...input,matchingEligible:false,nonelectiveEligible:false}).obligation.totalCents,0)
  for(const patch of [{matchingEligible:undefined},{nonelectiveEligible:null},{matchingEligible:'true'}])assert.throws(()=>retirementEmployerCalculation({...input,...patch}),/eligibility findings/)
  assert.throws(()=>retirementEmployerCalculation({...fixture({scope:'MATCH'}),nonelectiveEligible:true}),/formula-consistent/)
+})
+
+test('obligation preview preserves unknown matching deferrals while calculating independent nonelective funding',()=>{
+ const input=fixture(),unknown={...input,ordinaryDeferralsCents:null,catchUpDeferralsCents:null}
+ const partial=retirementEmployerObligation(unknown)
+ assert.deepEqual(partial.obligation,{matchingCents:null,nonelectiveCents:2000,totalCents:null})
+ assert.equal(partial.status,'DEFERRAL_EVIDENCE_REQUIRED');assert.equal(partial.deferralEvidence,'REVIEW_REQUIRED')
+ assert.ok(partial.tiers.every(t=>t.matchingCents===null))
+ assert.equal(partial.requiresPriorFundingReview,true);assert.equal(partial.requiresAnnualAdditionsReview,true)
+ const zero=retirementEmployerObligation({...unknown,ordinaryDeferralsCents:0,catchUpDeferralsCents:0})
+ assert.equal(zero.obligation.matchingCents,0);assert.notEqual(zero.fingerprint,partial.fingerprint)
+ const noMatch=retirementEmployerObligation({...unknown,matchingEligible:false})
+ assert.equal(noMatch.obligation.totalCents,2000);assert.equal(noMatch.deferralEvidence,'NOT_REQUIRED')
+ assert.equal(noMatch.ordinaryDeferralsCents,null)
+ const complete=retirementEmployerObligation(input)
+ assert.deepEqual(complete.obligation,retirementEmployerCalculation(input).obligation)
+ assert.deepEqual(complete.tiers,retirementEmployerCalculation(input).tiers)
+ const withoutCatchup=retirementEmployerObligation({...fixture({formula:{matchCatchUp:false}}),catchUpDeferralsCents:null})
+ assert.equal(withoutCatchup.obligation.matchingCents,4000)
+ assert.equal(retirementEmployerObligation({...input,catchUpDeferralsCents:null}).obligation.matchingCents,null)
+ for(const value of [-1,'0',0.1,Number.MAX_SAFE_INTEGER+1])assert.throws(()=>retirementEmployerObligation({...unknown,ordinaryDeferralsCents:value}),{status:409})
 })

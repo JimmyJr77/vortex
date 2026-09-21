@@ -2,6 +2,7 @@ import {createHash} from 'node:crypto'
 import {compensationEvidence} from './employmentCompensation.js'
 import {retirementEmployerCompensationPreview} from './retirementEmployerCompensation.js'
 import {retirementEmployerEligibilityForPayroll} from './retirementEmployerEligibilityPeriod.js'
+import {retirementEmployerObligation} from './retirementEmployerCalculation.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
 
 // The payroll producer supplies the engine preview and scoped period ID.
@@ -26,5 +27,11 @@ export async function retirementEmployerFundingPreview(db,{facility,employeeId,p
  }
  const basis={version:1,compensationSourceFingerprint:compensation.sourceFingerprint,payPeriodId:String(period.id),periodStart:period.start,periodEnd:period.end,runKind,eligibility}
  const fundingSourceFingerprint=createHash('sha256').update(JSON.stringify(compensationEvidence(basis))).digest('hex')
- return {...compensation,...basis,fundingSourceFingerprint,requiresEmployerEligibilityReview:eligibility.status!=='REVIEWED_FOR_PAY_PERIOD',requiresContributionCalculation:true}
+ let obligationPreview=null
+ if(eligibility.status==='REVIEWED_FOR_PAY_PERIOD'){
+  const row=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND id=$3',[facility,planId,compensation.source.planRevisionId])).rows[0]
+  if(!row||row.plan.fingerprint!==compensation.planFingerprint)throw fail('Employer formula changed while preparing the obligation preview.')
+  obligationPreview=retirementEmployerObligation({plan:row.plan,sourceFingerprint:fundingSourceFingerprint,eligibleCompensationCents:compensation.eligibleCompensationCents,matchingEligible:eligibility.components.matching.eligible,nonelectiveEligible:eligibility.components.nonelective.eligible})
+ }
+ return {...compensation,...basis,fundingSourceFingerprint,obligationPreview,requiresEmployerEligibilityReview:eligibility.status!=='REVIEWED_FOR_PAY_PERIOD',requiresObligationCalculation:obligationPreview?.obligation.totalCents==null,requiresContributionCalculation:true}
 }

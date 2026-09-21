@@ -19,7 +19,28 @@ export function retirementEmployerCalculation({plan,sourceFingerprint,eligibleCo
  if(typeof matchingEligible!=='boolean'||typeof nonelectiveEligible!=='boolean'||matchingEligible&&retained.employerContributions==='NONELECTIVE'||nonelectiveEligible&&retained.employerContributions==='MATCH')throw fail('Use explicit, formula-consistent matching and nonelective eligibility findings for this period.')
  const values={eligibleCompensationCents,ordinaryDeferralsCents,catchUpDeferralsCents,priorMatchingCents,priorNonelectiveCents,annualAdditionsRemainingCents}
  if(Object.values(values).some(value=>!amount(value)))throw fail('Employer calculation requires explicit, nonnegative, safe integer source cents; unknown is not zero.')
- const compensation=BigInt(eligibleCompensationCents),deferrals=BigInt(ordinaryDeferralsCents)+(formula.matchCatchUp?BigInt(catchUpDeferralsCents):0n)
+ const computed=retirementEmployerObligation({plan,sourceFingerprint,eligibleCompensationCents,ordinaryDeferralsCents,catchUpDeferralsCents,matchingEligible,nonelectiveEligible})
+ const {obligation}=computed
+ const overfunding={matchingCents:Math.max(0,priorMatchingCents-obligation.matchingCents),nonelectiveCents:Math.max(0,priorNonelectiveCents-obligation.nonelectiveCents)}
+ const required={matchingCents:Math.max(0,obligation.matchingCents-priorMatchingCents),nonelectiveCents:Math.max(0,obligation.nonelectiveCents-priorNonelectiveCents)}
+ const totalCents=safe(BigInt(required.matchingCents)+BigInt(required.nonelectiveCents))
+ const excessCents=Math.max(0,totalCents-annualAdditionsRemainingCents),issues=[]
+ if(overfunding.matchingCents||overfunding.nonelectiveCents)issues.push('Prior employer funding exceeds the reviewed formula in one or more contribution types. Reconcile without offsetting matching against nonelective funding.')
+ if(excessCents)issues.push('The full employer contribution exceeds remaining annual-additions capacity. Reconcile employee and employer allocations; the obligation has not been silently reduced.')
+ const basis={version:1,planFingerprint:retained.fingerprint,sourceFingerprint,period:formula.period,...values,eligibilityConfirmed,matchingEligible,nonelectiveEligible,obligation,required:{...required,totalCents},overfunding,excessCents,tiers:computed.tiers,roundingPolicy:'TOTAL_HALF_UP_LARGEST_REMAINDER_EARLIER_TIER_TIE'}
+ return {...basis,status:issues.length?'RECONCILIATION_REQUIRED':'CALCULATED_NOT_AUTHORIZED',issues,proposed:issues.length?{...zero}:{...required,totalCents},fingerprint:createHash('sha256').update(JSON.stringify(basis)).digest('hex'),requiresPayrollIntegration:true}
+}
+
+// Formula obligation only: prior funding and annual-additions capacity are
+// separate. Null deferrals remain unknown; they are unnecessary for an
+// ineligible matching component or a nonelective-only formula.
+export function retirementEmployerObligation({plan,sourceFingerprint,eligibleCompensationCents,ordinaryDeferralsCents=null,catchUpDeferralsCents=null,matchingEligible,nonelectiveEligible}){
+ const retained=retirementPlanInput({...plan,confirmed:true}),formula=retained.employerFormula
+ if(!formula||retained.fingerprint!==plan.fingerprint||typeof sourceFingerprint!=='string'||!/^[a-f0-9]{64}$/.test(sourceFingerprint))throw fail('Use exact retained employer formula and source fingerprints.')
+ if(typeof matchingEligible!=='boolean'||typeof nonelectiveEligible!=='boolean'||matchingEligible&&retained.employerContributions==='NONELECTIVE'||nonelectiveEligible&&retained.employerContributions==='MATCH')throw fail('Use explicit, formula-consistent matching and nonelective eligibility findings for this period.')
+ if(!amount(eligibleCompensationCents)||[ordinaryDeferralsCents,catchUpDeferralsCents].some(value=>value!==null&&!amount(value)))throw fail('Employer obligation requires exact nonnegative source cents or explicit unknown deferrals.')
+ const matchingKnown=!matchingEligible||ordinaryDeferralsCents!==null&&(!formula.matchCatchUp||catchUpDeferralsCents!==null)
+ const compensation=BigInt(eligibleCompensationCents),deferrals=BigInt(ordinaryDeferralsCents??0)+(formula.matchCatchUp?BigInt(catchUpDeferralsCents??0):0n)
  const denominator=100000000n
  let lower=0n
  const tiers=formula.matchTiers.map((tier,index)=>{
@@ -36,13 +57,7 @@ export function retirementEmployerCalculation({plan,sourceFingerprint,eligibleCo
   tier.cents++;centsToAllocate--
  }
  const nonelective=nonelectiveEligible?round(compensation*BigInt(formula.nonelectiveBps),10000n):0n
- const obligation={matchingCents:safe(matching),nonelectiveCents:safe(nonelective),totalCents:safe(matching+nonelective)}
- const overfunding={matchingCents:Math.max(0,priorMatchingCents-obligation.matchingCents),nonelectiveCents:Math.max(0,priorNonelectiveCents-obligation.nonelectiveCents)}
- const required={matchingCents:Math.max(0,obligation.matchingCents-priorMatchingCents),nonelectiveCents:Math.max(0,obligation.nonelectiveCents-priorNonelectiveCents)}
- const totalCents=safe(BigInt(required.matchingCents)+BigInt(required.nonelectiveCents))
- const excessCents=Math.max(0,totalCents-annualAdditionsRemainingCents),issues=[]
- if(overfunding.matchingCents||overfunding.nonelectiveCents)issues.push('Prior employer funding exceeds the reviewed formula in one or more contribution types. Reconcile without offsetting matching against nonelective funding.')
- if(excessCents)issues.push('The full employer contribution exceeds remaining annual-additions capacity. Reconcile employee and employer allocations; the obligation has not been silently reduced.')
- const basis={version:1,planFingerprint:retained.fingerprint,sourceFingerprint,period:formula.period,...values,eligibilityConfirmed,matchingEligible,nonelectiveEligible,obligation,required:{...required,totalCents},overfunding,excessCents,tiers:tiers.map(({index,upToBps,matchBps,cents})=>({index,upToBps,matchBps,matchingCents:safe(cents)})),roundingPolicy:'TOTAL_HALF_UP_LARGEST_REMAINDER_EARLIER_TIER_TIE'}
- return {...basis,status:issues.length?'RECONCILIATION_REQUIRED':'CALCULATED_NOT_AUTHORIZED',issues,proposed:issues.length?{...zero}:{...required,totalCents},fingerprint:createHash('sha256').update(JSON.stringify(basis)).digest('hex'),requiresPayrollIntegration:true}
+ const obligation={matchingCents:matchingKnown?safe(matching):null,nonelectiveCents:safe(nonelective),totalCents:matchingKnown?safe(matching+nonelective):null}
+ const basis={version:1,planFingerprint:retained.fingerprint,sourceFingerprint,period:formula.period,eligibleCompensationCents,ordinaryDeferralsCents,catchUpDeferralsCents,matchingEligible,nonelectiveEligible,obligation,tiers:tiers.map(({index,upToBps,matchBps,cents})=>({index,upToBps,matchBps,matchingCents:matchingKnown?safe(cents):null})),roundingPolicy:'TOTAL_HALF_UP_LARGEST_REMAINDER_EARLIER_TIER_TIE'}
+ return {...basis,status:matchingKnown?'OBLIGATION_CALCULATED_NOT_AUTHORIZED':'DEFERRAL_EVIDENCE_REQUIRED',deferralEvidence:!matchingEligible?'NOT_REQUIRED':matchingKnown?'COMPLETE':'REVIEW_REQUIRED',fingerprint:createHash('sha256').update(JSON.stringify(basis)).digest('hex'),requiresPriorFundingReview:true,requiresAnnualAdditionsReview:true,requiresPayrollIntegration:true}
 }
