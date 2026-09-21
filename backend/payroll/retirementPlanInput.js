@@ -1,3 +1,4 @@
+import {retirementEmployerFormula} from './retirementEmployerFormula.js'
 import {createHash} from 'node:crypto'
 const fail=message=>Object.assign(new Error(message),{status:400})
 const text=(value,label,min,max,multiline=false)=>{if(typeof value!=='string'||value.trim().length<min||value.length>max||(multiline?/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/:/[\u0000-\u001f\u007f]/).test(value))throw fail(`Review ${label}.`);return value.trim()}
@@ -29,5 +30,6 @@ export function retirementPlanInput(body){
   if(!['CALENDAR_YEAR','NON_CALENDAR_YEAR','REVIEW_REQUIRED'].includes(p.limitationYear))throw fail('Review the retirement plan limitation year.')
   result.unusedPto={inServiceDeferrals:p.inServiceDeferrals,postSeveranceDeferrals:p.postSeveranceDeferrals,postSeverance415:p.postSeverance415,limitationYear:p.limitationYear,terms:text(p.terms,'unused PTO payout plan terms and supporting document reference',20,4000,true)}
  }
+ if(b.employerFormula!==undefined)result.employerFormula=retirementEmployerFormula(b.employerFormula,b.employerContributions)
  return {...result,fingerprint:createHash('sha256').update(JSON.stringify(result)).digest('hex')}
 }

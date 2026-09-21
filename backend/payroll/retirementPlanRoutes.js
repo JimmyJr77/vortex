@@ -21,7 +21,7 @@ export function registerRetirementPlanRoutes(app,pool,{now=()=>new Date()}={}){
  })
  app.get(base,async(req,res)=>{
   res.setHeader('Cache-Control','no-store')
-  try{res.json({success:true,data:{taxYear:2026,history:await retirementPlanHistory(pool,req.canonicalAccess.facilityId)}})}catch{res.status(500).json({success:false,message:'Unable to read retirement plan review history.'})}
+  try{res.json({success:true,data:{taxYear:2026,supportedPlanFields:['employerFormula'],history:await retirementPlanHistory(pool,req.canonicalAccess.facilityId)}})}catch{res.status(500).json({success:false,message:'Unable to read retirement plan review history.'})}
  })
  app.post(base,async(req,res)=>{
   res.setHeader('Cache-Control','no-store');const db=await pool.connect()

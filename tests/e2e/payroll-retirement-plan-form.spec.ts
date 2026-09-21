@@ -20,4 +20,8 @@ test('staged retirement plan form reviews terms and retries without duplicating 
  await expect(panel.getByRole('combobox',{name:'Roth deferrals',exact:true})).toHaveValue('true');await panel.getByRole('combobox',{name:'Roth deferrals',exact:true}).selectOption('false');await panel.getByRole('textbox',{name:'Administrator review reference',exact:true}).fill('Reviewed the revised plan Roth contribution feature and retained evidence')
  await panel.getByRole('checkbox',{name:'I reviewed these plan terms and retained supporting evidence. Unresolved features require further implementation and review.',exact:true}).check();await panel.getByRole('button',{name:'Retain retirement plan review',exact:true}).click();await expect(panel.getByRole('alert')).toHaveText('Synthetic lost plan save response');await panel.getByRole('button',{name:'Retain retirement plan review',exact:true}).click();await expect(panel.getByRole('status')).toContainText('Plan review retained.');expect(history).toHaveLength(2);expect(requests.size).toBe(1)
  await expect(panel).toContainText('Revision 2');await panel.screenshot({path:'/tmp/payroll-retirement-plan-form-mobile.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true)
+ await panel.getByRole('combobox',{name:'Employer contributions',exact:true}).selectOption('MATCH')
+ await expect(panel.getByRole('region',{name:'Employer funding formula',exact:true})).toHaveCount(0)
+ await expect(panel).toContainText('Structured employer formula setup requires the current payroll backend.')
+
 })
