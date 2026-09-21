@@ -1,3 +1,4 @@
+import {verifyEmployerRetirementPosting} from './retirementEmployerJournal.js'
 import {registerRetirementEmployerEligibility} from './retirementEmployerEligibility.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {registerRetirementReplacementSettlementReleasePreview} from './retirementReplacementSettlementReleasePreview.js'
@@ -1424,7 +1425,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
       const { rows } = await pool.query(`UPDATE payroll_accounting_mapping SET
         wages_expense_account=$1,employer_tax_expense_account=$2,reimbursement_expense_account=$3,
         tax_liability_account=$4,deduction_liability_account=$5,payroll_clearing_account=$6,
-        retirement_liability_account=$8,verified_by_bookkeeper=TRUE,updated_at=now() WHERE facility_id=$7 RETURNING *`, [
+        retirement_liability_account=$8,employer_retirement_expense_account=$9,verified_by_bookkeeper=TRUE,updated_at=now() WHERE facility_id=$7 RETURNING *`, [
         account('wagesExpenseAccount', 'Payroll:Wages Expense'),
         account('employerTaxExpenseAccount', 'Payroll:Employer Tax Expense'),
         account('reimbursementExpenseAccount', 'Employee Reimbursements'),
@@ -1433,6 +1434,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
         account('payrollClearingAccount', 'Payroll Clearing'),
         req.canonicalAccess.facilityId,
         body.retirementLiabilityAccount===undefined?before.rows[0]?.retirement_liability_account:clean(body.retirementLiabilityAccount,200)||null,
+        body.employerRetirementExpenseAccount===undefined?before.rows[0]?.employer_retirement_expense_account:clean(body.employerRetirementExpenseAccount,200)||null,
       ])
       await audit(pool, req, 'VERIFY', 'accounting_mapping', req.canonicalAccess.facilityId, before.rows[0], rows[0])
       res.json({ success: true, data: rows[0] })
@@ -1626,8 +1628,10 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
       const entries=journalEntries(run)
       await verifyBenefitPosting(pool,run)
       await verifyRetirementPosting(pool,run)
-      const accountNames={wages:run.wages_expense_account,employerTax:run.employer_tax_expense_account,reimbursements:run.reimbursement_expense_account,taxLiability:run.tax_liability_account,deductions:run.deduction_liability_account,clearing:run.payroll_clearing_account,retirement:run.retirement_liability_account}
+      await verifyEmployerRetirementPosting(pool,run)
+      const accountNames={wages:run.wages_expense_account,employerTax:run.employer_tax_expense_account,reimbursements:run.reimbursement_expense_account,taxLiability:run.tax_liability_account,deductions:run.deduction_liability_account,clearing:run.payroll_clearing_account,retirement:run.retirement_liability_account,employerRetirement:run.employer_retirement_expense_account}
       if(entries.some(([key])=>key==='retirement')&&(!accountNames.retirement||Object.entries(accountNames).some(([key,value])=>key!=='retirement'&&value===accountNames.retirement)))return res.status(409).json({success:false,message:'Verify a separate retirement liability account name before exporting retirement payroll.'})
+      if(entries.some(([key])=>key==='employerRetirement')&&(!accountNames.employerRetirement||Object.entries(accountNames).some(([key,value])=>key!=='employerRetirement'&&value===accountNames.employerRetirement)))return res.status(409).json({success:false,message:'Verify a separate employer retirement expense account name before exporting employer contributions.'})
       const journalDate=run.pay_date instanceof Date?run.pay_date.toISOString().slice(0,10):String(run.pay_date).slice(0,10)
       const journalRows = [
         ['Journal No.', 'Journal Date', 'Account Name', 'Debits', 'Credits', 'Description'],

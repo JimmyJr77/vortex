@@ -1,3 +1,4 @@
+import {employerRetirementJournalLines,verifyEmployerRetirementPosting} from './retirementEmployerJournal.js'
 import {retirementJournalLines,verifyRetirementPosting} from './retirementJournal.js'
 import { randomBytes, createHash } from 'node:crypto'
 import { encryptDocument, decryptDocument, vaultReady } from './onboarding.js'
@@ -40,6 +41,10 @@ async function verifyRetirementAccount(db,connection,retirement,fetcher){
  const result=await qbo(db,connection,`account/${encodeURIComponent(retirement)}`,{fetcher}),account=result.Account
  if(String(account?.Id)!==String(retirement)||account.Active!==true||account.AccountType!=='Other Current Liability'||account.CurrencyRef&&account.CurrencyRef.value!=='USD')throw fail('Retirement contributions require an active USD-compatible Other Current Liability account.',409)
 }
+async function verifyEmployerRetirementAccount(db,connection,id,fetcher){
+ const {Account:account}=await qbo(db,connection,`account/${encodeURIComponent(id)}`,{fetcher})
+ if(String(account?.Id)!==String(id)||account.Active!==true||account.AccountType!=='Expense'||account.CurrencyRef&&account.CurrencyRef.value!=='USD')throw fail('Employer retirement contributions require an active USD-compatible Expense account.',409)
+}
 function benefitJournalLines(run) {
  const employees=run.calculation_snapshot?.employees||[]
  const participating=employees.filter(e=>e.payItems?.some(i=>i.benefitDeduction))
@@ -63,8 +68,9 @@ function benefitJournalLines(run) {
 }
 export function journalEntries(run) {
  const retirement=retirementJournalLines(run),retirementCents=retirement.reduce((n,line)=>n+line[1],0)
+ const employerRetirement=employerRetirementJournalLines(run)
  const benefits=benefitJournalLines(run),benefitCents=benefits.reduce((n,line)=>n+line[1],0)
- const lines=[['wages',Number(run.gross_pay_cents),'Debit'],['employerTax',Number(run.employer_tax_cents),'Debit'],['reimbursements',Number(run.reimbursement_cents),'Debit'],['taxLiability',Number(run.employee_tax_cents)+Number(run.employer_tax_cents),'Credit'],['deductions',Number(run.deduction_cents)-benefitCents-retirementCents,'Credit'],...benefits,...retirement,['clearing',Number(run.net_pay_cents),'Credit']]
+ const lines=[['wages',Number(run.gross_pay_cents),'Debit'],['employerTax',Number(run.employer_tax_cents),'Debit'],['reimbursements',Number(run.reimbursement_cents),'Debit'],['taxLiability',Number(run.employee_tax_cents)+Number(run.employer_tax_cents),'Credit'],['deductions',Number(run.deduction_cents)-benefitCents-retirementCents,'Credit'],...benefits,...retirement,...employerRetirement,['clearing',Number(run.net_pay_cents),'Credit']]
  if(lines.some(([,amount])=>!Number.isSafeInteger(amount)||amount<0))throw fail('Journal amounts must be non-negative integer cents.')
  if(lines.reduce((sum,[,amount,posting])=>sum+(posting==='Debit'?amount:-amount),0)!==0)throw fail('Payroll journal does not balance.',409)
  if(!lines.some(([,amount])=>amount>0))throw fail('Cannot sync a zero-value payroll journal.',409)
@@ -73,6 +79,7 @@ export function journalEntries(run) {
 export function journalPayload(run,accounts) {
  const lines=journalEntries(run)
  if(lines.some(([key])=>key==='retirement')&&QUICKBOOKS_ACCOUNTS.some(key=>String(accounts[key])===String(accounts.retirement)))throw fail('Use a separate retirement contribution liability account.',409)
+ if(lines.some(([key])=>key==='employerRetirement')&&[...QUICKBOOKS_ACCOUNTS,'retirement'].some(key=>String(accounts[key])===String(accounts.employerRetirement)))throw fail('Use a separate employer retirement expense account.',409)
  for(const [key,amount] of lines)if(amount&&!/^\d+$/.test(String(accounts[key]||'')))throw fail(`Choose a QuickBooks account for ${key}.`)
  const date=run.pay_date instanceof Date?run.pay_date.toISOString().slice(0,10):String(run.pay_date).slice(0,10)
  return {TxnDate:date,DocNumber:`VTX-PAY-${run.id}`,PrivateNote:`Vortex payroll run ${run.id}`,Line:lines.filter(([,amount])=>amount>0).map(([key,amount,posting,description])=>({Amount:amount/100,Description:description||`Vortex payroll run ${run.id}`,DetailType:'JournalEntryLineDetail',JournalEntryLineDetail:{PostingType:posting,AccountRef:{value:String(accounts[key])}}}))}
@@ -105,7 +112,9 @@ export async function syncQuickbooksRun(pool,facility,runId,{fetcher=fetch,expec
    const payload=journalPayload(run,connection.account_ids)
    await verifyBenefitPosting(db,run)
    const retirementLines=await verifyRetirementPosting(db,run)
-   if(retirementLines?.length)await verifyRetirementAccount(db,connection,connection.account_ids.retirement,fetcher)
+   const employerLines=await verifyEmployerRetirementPosting(db,run)
+   if(employerLines.length)await verifyEmployerRetirementAccount(db,connection,connection.account_ids.employerRetirement,fetcher)
+   if(retirementLines?.length||employerLines.length)await verifyRetirementAccount(db,connection,connection.account_ids.retirement,fetcher)
    job=(await db.query(`INSERT INTO payroll_quickbooks_sync (facility_id,payroll_run_id,realm_id,request_id,payload,environment) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,[facility,runId,connection.realm_id,hash(`${facility}:${runId}:${connection.realm_id}:${connection.environment}`).slice(0,40),payload,connection.environment])).rows[0]
   }
   if(job.status==='SYNCED')await clearSyncAlert(db,facility,runId)
@@ -168,6 +177,12 @@ export function registerQuickbooksAdminRoutes(app,pool,{fetcher=fetch}={}) {
     if(!/^\d+$/.test(String(retirement))||Object.values(savedAccounts).includes(String(retirement)))throw fail('Choose a separate retirement contribution liability account.')
     await verifyRetirementAccount(db,connection,retirement,fetcher)
     savedAccounts.retirement=String(retirement)
+   }
+   const employerRetirement=accounts.employerRetirement===undefined?connection.account_ids?.employerRetirement:accounts.employerRetirement
+   if(employerRetirement!==undefined&&employerRetirement!==''){
+    if(!/^\d+$/.test(String(employerRetirement))||Object.values(savedAccounts).includes(String(employerRetirement)))throw fail('Choose a separate employer retirement expense account.')
+    await verifyEmployerRetirementAccount(db,connection,employerRetirement,fetcher)
+    savedAccounts.employerRetirement=String(employerRetirement)
    }
    const result=await db.query('UPDATE payroll_quickbooks_connection SET account_ids=$1,auto_sync=$2,updated_at=now() WHERE facility_id=$3 RETURNING realm_id,environment,account_ids,auto_sync',[savedAccounts,req.body.autoSync===true,req.canonicalAccess.facilityId])
    if(!result.rows.length)throw fail('Connect QuickBooks first.',409)

@@ -1,3 +1,4 @@
+import {verifyEmployerRetirementPosting} from '../retirementEmployerJournal.js'
 import {loadBasePreview} from '../registerRoutes.js'
 import {retainRetirementRunLedger,retirementInternalBalances} from '../retirementLedger.js'
 import {retirementEmployerApprovedCalculation,retainEmployerRetirementRunLedger} from '../retirementEmployerLedger.js'
@@ -58,7 +59,7 @@ test('employer reservations retain exact approved evidence and consume shared an
  const applied=rebuilt.preview.employees[0]
  applied.retirementPlans=[{planId:'standard',calculation:c}]
  const snapshot={...rebuilt.preview,employees:[applied]}
- await h.pool.query("UPDATE payroll_run SET status='APPROVED',calculation_snapshot=$1,deduction_cents=$2 WHERE id=$3",[snapshot,applied.totalDeductionCents,run.id])
+ await h.pool.query("UPDATE payroll_run SET status='APPROVED',calculation_snapshot=$1,deduction_cents=$2,net_pay_cents=$4,employee_tax_cents=$5 WHERE id=$3",[snapshot,applied.totalDeductionCents,run.id,applied.netPayCents,c.availablePayEvidence.employeeTaxCents])
  await h.pool.query('UPDATE payroll_run_employee SET regular_pay_cents=$1,overtime_pay_cents=$2,other_taxable_pay_cents=$3,paid_leave_cents=$4,net_pay_cents=$5,pretax_deduction_cents=$6,posttax_deduction_cents=$7 WHERE payroll_run_id=$8 AND employee_id=$9',[applied.regularPayCents,applied.overtimePayCents,applied.otherTaxablePayCents,applied.paidLeavePayCents,applied.netPayCents,applied.pretaxDeductionCents,applied.posttaxDeductionCents,run.id,employee.id])
  const db=await h.pool.connect()
  try{
@@ -79,6 +80,14 @@ test('employer reservations retain exact approved evidence and consume shared an
   await db.query('UPDATE payroll_run SET calculation_snapshot=$1 WHERE id=$2',[snapshot,run.id])
   assert.equal(await retainEmployerRetirementRunLedger(db,1,run.id),1)
   assert.equal(await retainEmployerRetirementRunLedger(db,1,run.id),0)
+  const accountingRun={id:run.id,facility_id:1,calculation_snapshot:snapshot}
+  const employerLines=await verifyEmployerRetirementPosting(db,accountingRun)
+  assert.equal(employerLines.filter(line=>line[2]==='Debit').reduce((n,line)=>n+line[1],0),1000)
+  const omitted=structuredClone(accountingRun);delete omitted.calculation_snapshot.employees[0].employerRetirementPlans
+  await assert.rejects(verifyEmployerRetirementPosting(db,omitted),/omits or duplicates/)
+  const altered=structuredClone(accountingRun);altered.calculation_snapshot.employees[0].employerRetirementPlans[0].calculation.sourceFingerprint='f'.repeat(64)
+  await assert.rejects(verifyEmployerRetirementPosting(db,altered),/exact retained/)
+
   const balances=await retirementInternalBalances(db,1,employee.id,'standard',2026)
   assert.equal(balances.totals.ordinaryDeferralsCents,1400)
   assert.equal(balances.totals.annualAdditionsCents,2400)
@@ -93,6 +102,12 @@ test('employer reservations retain exact approved evidence and consume shared an
  await assert.rejects(h.pool.query('DELETE FROM payroll_retirement_employer_run_ledger'),/append-only/)
  const retained=(await h.pool.query('SELECT * FROM payroll_retirement_employer_run_ledger')).rows[0]
  await assert.rejects(h.pool.query('INSERT INTO payroll_retirement_employer_run_ledger(facility_id,run_id,employee_id,plan_id,tax_year,calculation,matching_cents,nonelective_cents) VALUES(2,$1,$2,$3,2026,$4,$5,$6)',[run.id,employee.id,'standard',retained.calculation,600,400]),/exact approved/)
+ await api('/accounting-mapping',{verifiedByBookkeeper:true,retirementLiabilityAccount:'Retirement payable'},'PATCH')
+ const csv=()=>fetch(`${h.url}/api/admin/payroll/reports/quickbooks.csv?runId=${run.id}`,{headers:{Authorization:'Bearer payroll-test-admin'}})
+ assert.equal((await csv()).status,409)
+ await api('/accounting-mapping',{verifiedByBookkeeper:true,employerRetirementExpenseAccount:'Employer retirement expense'},'PATCH')
+ const exported=await csv();assert.equal(exported.status,200,await exported.clone().text())
+ const csvText=await exported.text();assert.match(csvText,/Employer retirement expense/);assert.match(csvText,/employer matching contributions/);assert.match(csvText,/employer nonelective contributions/)
  await h.pool.query("UPDATE payroll_run SET status='VOID' WHERE id=$1",[run.id])
  assert.equal((await retirementInternalBalances(h.pool,1,employee.id,'standard',2026)).totals.annualAdditionsCents,0)
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_employer_run_ledger')).rows[0].n,1)

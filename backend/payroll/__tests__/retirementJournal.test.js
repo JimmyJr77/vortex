@@ -44,3 +44,40 @@ test('retirement account mapping verifies provider evidence and preserves option
  assert.equal((await h.pool.query('SELECT account_ids FROM payroll_quickbooks_connection')).rows[0].account_ids.retirement,undefined)
  assert.equal(requests,4)
 })
+
+ test('employer contributions add balanced expense/liability lines without reducing employee net or other deductions',()=>{
+ const employerRun=structuredClone(run)
+ const proposed={matchingCents:3000,nonelectiveCents:2000,totalCents:5000}
+ const calculation={facilityId:'1',runId:'1',employeeId:'1',planId:'standard',requiresPayrollIntegration:false,previewOnly:false,contribution:{status:'CALCULATED_NOT_AUTHORIZED',issues:[],proposed,required:{...proposed}}}
+ employerRun.calculation_snapshot.employees[0].employerRetirementPlans=[{planId:'standard',calculation}]
+ const lines=journalEntries(employerRun)
+ assert.equal(lines.filter(l=>l[0]==='employerRetirement').reduce((n,l)=>n+l[1],0),5000)
+ assert.equal(lines.filter(l=>l[0]==='retirement').reduce((n,l)=>n+l[1],0),20000)
+ assert.equal(lines.find(l=>l[0]==='deductions')[1],1000)
+ assert.equal(lines.find(l=>l[0]==='clearing')[1],69000)
+ assert.equal(lines.reduce((n,l)=>n+(l[2]==='Debit'?l[1]:-l[1]),0),0)
+ assert.ok(journalPayload(employerRun,{...accounts,employerRetirement:'8'}).Line.some(l=>l.JournalEntryLineDetail.AccountRef.value==='8'&&l.JournalEntryLineDetail.PostingType==='Debit'))
+ assert.throws(()=>journalPayload(employerRun,accounts),/employerRetirement/)
+ assert.throws(()=>journalPayload(employerRun,{...accounts,employerRetirement:'7'}),/separate employer/)
+ calculation.previewOnly=true;assert.throws(()=>journalEntries(employerRun),/integrated/)
+ calculation.previewOnly=false;calculation.contribution.required.totalCents++;assert.throws(()=>journalEntries(employerRun),/reconcile/)
+ })
+
+test('employer expense mapping verifies provider account type, currency and legacy preservation',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const {createHarness}=await import('../testing/harness.js'),{encryptDocument}=await import('../onboarding.js')
+ const previous=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='c'.repeat(64);t.after(()=>{if(previous===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=previous})
+ let type='Expense',currency='USD',active=true
+ const h=await createHarness({quickbooksFetcher:async(url,options)=>{assert.equal(options.method,'GET');const id=String(url).split('/').at(-1);return new Response(JSON.stringify({Account:{Id:id,Active:active,AccountType:id==='7'?'Other Current Liability':type,CurrencyRef:{value:currency}}}),{status:200})}});t.after(()=>h.close())
+ await h.pool.query("INSERT INTO payroll_quickbooks_connection(facility_id,realm_id,environment,account_ids,encrypted_tokens) VALUES(1,'123','sandbox',$1,$2)",[{},encryptDocument(Buffer.from(JSON.stringify({access_token:'synthetic',expiresAt:Date.now()+3600000})),'quickbooks:1')])
+ const patch=accountIds=>fetch(`${h.url}/api/admin/payroll/quickbooks/mapping`,{method:'PATCH',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:JSON.stringify({accountIds,verified:true})})
+ const mapping={...accounts,employerRetirement:'8'}
+ assert.equal((await patch(mapping)).status,200)
+ assert.equal((await patch(accounts)).status,200)
+ assert.equal((await h.pool.query('SELECT account_ids FROM payroll_quickbooks_connection')).rows[0].account_ids.employerRetirement,'8')
+ type='Other Current Liability';assert.equal((await patch(mapping)).status,409)
+ type='Expense';currency='CAD';assert.equal((await patch(mapping)).status,409)
+ currency='USD';active=false;assert.equal((await patch(mapping)).status,409)
+ active=true;assert.equal((await patch({...mapping,employerRetirement:'1'})).status,400)
+ assert.equal((await patch({...mapping,employerRetirement:''})).status,200)
+ assert.equal((await h.pool.query('SELECT account_ids FROM payroll_quickbooks_connection')).rows[0].account_ids.employerRetirement,undefined)
+})

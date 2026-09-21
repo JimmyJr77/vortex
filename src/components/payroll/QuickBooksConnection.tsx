@@ -3,7 +3,7 @@ import SavedQuickbooksJournal, {type SavedJournal} from './SavedQuickbooksJourna
 import { useCallback, useEffect, useState } from 'react'
 import { adminApiRequest } from '../../utils/api'
 import { workforceButton, workforceInput } from './OnboardingWorkspace'
-const labels: Record<string,string> = {wages:'Wages expense',employerTax:'Employer tax expense',reimbursements:'Reimbursements expense',taxLiability:'Tax liabilities',deductions:'Deductions payable',clearing:'Payroll clearing',retirement:'Retirement contributions payable (required for retirement payroll)'}
+const labels: Record<string,string> = {wages:'Wages expense',employerTax:'Employer tax expense',reimbursements:'Reimbursements expense',taxLiability:'Tax liabilities',deductions:'Deductions payable',clearing:'Payroll clearing',retirement:'Retirement contributions payable (required for retirement payroll)',employerRetirement:'Employer retirement expense (required for employer contributions)'}
 type State = {configured:boolean;environment:string;connection:{realm_id:string;environment:string;account_ids:Record<string,string>;auto_sync:boolean}|null;jobs:SavedJournal[];nextCursor:string|null}
 async function api<T>(path:string,body?:unknown,method='POST'):Promise<T>{const res=await adminApiRequest(`/api/admin/payroll/quickbooks${path}`,body===undefined?{}:{method,body:JSON.stringify(body)});const json=await res.json();if(!res.ok)throw new Error(json.message||'QuickBooks request failed');return json.data}
 export default function QuickBooksConnection({runs}:{runs:Array<Record<string,unknown>>}) {

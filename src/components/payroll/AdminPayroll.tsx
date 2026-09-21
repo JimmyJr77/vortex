@@ -542,6 +542,7 @@ function BookkeepingPanel({ mapping, runs, selectedRunId, setSelectedRunId, busy
     taxLiabilityAccount: String(mapping?.tax_liability_account ?? 'Payroll:Tax Liabilities'),
     deductionLiabilityAccount: String(mapping?.deduction_liability_account ?? 'Payroll:Other Deductions Payable'),
     retirementLiabilityAccount: String(mapping?.retirement_liability_account ?? ''),
+    employerRetirementExpenseAccount: String(mapping?.employer_retirement_expense_account ?? ''),
     payrollClearingAccount: String(mapping?.payroll_clearing_account ?? 'Payroll Clearing'),
   })
   const verified = Boolean(mapping?.verified_by_bookkeeper)
