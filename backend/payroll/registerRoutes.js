@@ -448,7 +448,7 @@ async function loadPreview(pool,facilityId,payPeriodId,paymentDate=null,excluded
  const result=await includeAuthorizedCorrections(pool,facilityId,payPeriodId,paymentDate,excludedRunId,loadBasePreview)
  return regularRetirementPayroll(pool,facilityId,result,excludedRunId,inputs=>includeAuthorizedCorrections(pool,facilityId,payPeriodId,paymentDate,excludedRunId,(...args)=>{while(args.length<9)args.push(undefined);return loadBasePreview(...args,inputs)}))
 }
-async function loadBasePreview(pool, facilityId, payPeriodId, paymentDate = null, excludedRunId = null, skipHistoricalCoverage = false, timeOverride = null, additionalAdjustments = [], leaveCorrection = null, retirement401kByEmployee = {}) {
+export async function loadBasePreview(pool, facilityId, payPeriodId, paymentDate = null, excludedRunId = null, skipHistoricalCoverage = false, timeOverride = null, additionalAdjustments = [], leaveCorrection = null, retirement401kByEmployee = {}) {
   await ensureEmployerSetup(pool,facilityId)
   const [settingsResult, employeesResult, entriesResult, tasksResult, ytdResult, periodResult, adjustmentResult, leaveAccrualResult] = await Promise.all([
     pool.query('SELECT * FROM payroll_settings WHERE facility_id=$1', [facilityId]),

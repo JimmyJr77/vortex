@@ -16,6 +16,9 @@ export async function retirementInternalBalances(db,facility,employeeId,planId,y
   wages.set(String(row.run_id),c.compensation415Cents)
  }
  for(const amount of wages.values())totals.compensation415Cents=add(totals.compensation415Cents,amount)
+ const employerRows=(await db.query(`SELECT l.matching_cents,l.nonelective_cents FROM payroll_retirement_employer_run_ledger l JOIN payroll_run r ON r.id=l.run_id
+ WHERE l.facility_id=$1 AND l.employee_id=$2 AND l.tax_year=$3 AND r.status IN ('APPROVED','FINALIZED') AND ($4::bigint IS NULL OR r.id<>$4)`,[facility,employeeId,year,excludeRunId])).rows
+ for(const row of employerRows)totals.annualAdditionsCents=add(totals.annualAdditionsCents,add(Number(row.matching_cents),Number(row.nonelective_cents)))
  const missing=(await db.query(`SELECT r.id FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee e ON e.payroll_run_id=r.id
  WHERE r.facility_id=$1 AND e.employee_id=$2 AND r.status IN ('APPROVED','FINALIZED') AND EXTRACT(YEAR FROM COALESCE(r.payment_date,p.pay_date))=$3 AND ($4::bigint IS NULL OR r.id<>$4)
  AND r.run_kind<>'OFF_CYCLE_REIMBURSEMENT' AND NOT EXISTS(SELECT 1 FROM payroll_retirement_run_ledger l WHERE l.run_id=r.id AND l.employee_id=e.employee_id AND l.plan_id=$5) ORDER BY r.id`,[facility,employeeId,year,excludeRunId,planId])).rows
