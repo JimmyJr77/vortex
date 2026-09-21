@@ -1,3 +1,4 @@
+import {registerRetirementEmployerEligibility} from './retirementEmployerEligibility.js'
 import {loadOptionalMarylandAdditionalPeriod} from './loadMarylandAdditionalPeriod.js'
 import {registerRetirementReplacementSettlementReleasePreview} from './retirementReplacementSettlementReleasePreview.js'
 import {registerRetirementReplacementSettlementRelease} from './retirementReplacementSettlementRelease.js'
@@ -777,6 +778,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   registerRetirementDestinationRoutes(app,pool,{fetcher:paymentFetcher})
   registerRetirementProcessingReview(app,pool)
   registerRetirementEligibilityRoutes(app,pool)
+  registerRetirementEmployerEligibility(app,pool)
   registerRetirementAnnualSources(app,pool,{now})
   registerAdminRetirementElectionRoutes(app,pool)
   registerCarrierRemittanceRecipientRoutes(app,pool)
