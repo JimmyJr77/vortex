@@ -1,3 +1,4 @@
+import {retirementEmployerProcessingIssue} from './retirementEmployerProcessing.js'
 import {createHash,randomUUID} from 'node:crypto'
 const fail=(message,status=400)=>Object.assign(new Error(message),{status})
 const uuid=value=>typeof value==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value)
@@ -15,7 +16,7 @@ export function registerRetirementProcessingReview(app,pool){
  const plan=async(db,facility,id)=>{const row=(await db.query('SELECT id,plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,id])).rows[0];if(!row)throw fail('Retirement plan not found.',404);return row}
  app.get(path,async(req,res)=>{
   res.setHeader('Cache-Control','no-store');const db=await pool.connect()
-  try{await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const facility=req.canonicalAccess.facilityId,p=await plan(db,facility,req.params.planId),history=(await db.query('SELECT id,revision,plan_revision_id,review,created_at FROM payroll_retirement_processing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC',[facility,req.params.planId])).rows;await db.query('COMMIT');res.json({success:true,data:{planRevisionId:p.id,planName:p.plan.name,policies:retirementProcessingPolicies,history,status:history[0]?.plan_revision_id===p.id?history[0].review.disposition:'REVIEW_REQUIRED',executionStatus:'REGULAR_PAYROLL_SOURCE_REVIEW_REQUIRED'}})}catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to read retirement processing review.'})}finally{db.release()}
+  try{await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const facility=req.canonicalAccess.facilityId,p=await plan(db,facility,req.params.planId),history=(await db.query('SELECT id,revision,plan_revision_id,review,created_at FROM payroll_retirement_processing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC',[facility,req.params.planId])).rows;await db.query('COMMIT');res.json({success:true,data:{planRevisionId:p.id,planName:p.plan.name,policies:retirementProcessingPolicies,executionIssues:[retirementEmployerProcessingIssue(p.plan)].filter(Boolean),history,status:history[0]?.plan_revision_id===p.id?history[0].review.disposition:'REVIEW_REQUIRED',executionStatus:'REGULAR_PAYROLL_SOURCE_REVIEW_REQUIRED'}})}catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to read retirement processing review.'})}finally{db.release()}
  })
  app.post(path,async(req,res)=>{
   res.setHeader('Cache-Control','no-store');const db=await pool.connect()
@@ -28,6 +29,8 @@ export function registerRetirementProcessingReview(app,pool){
    if(prior){if(prior.request_fingerprint!==digest)throw fail('This request key belongs to another processing review.',409);await db.query('COMMIT');return res.json({success:true,data:{id:prior.id,reused:true}})}
    const p=await plan(db,facility,req.params.planId)
    if(p.id!==b.planRevisionId)throw fail('Plan terms changed. Review current processing policies.',409)
+   const employerIssue=retirementEmployerProcessingIssue(p.plan)
+   if(review.disposition==='REVIEWED'&&employerIssue)throw fail(employerIssue,409)
    if(review.catchUpAuthorized&&!p.plan.allowsCatchUp)throw fail('This plan does not permit catch-up contributions.')
    const latest=(await db.query('SELECT revision FROM payroll_retirement_processing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,req.params.planId])).rows[0]
    if((latest?.revision||0)!==b.expectedRevision)throw fail('Another processing review was saved. Reload history.',409)

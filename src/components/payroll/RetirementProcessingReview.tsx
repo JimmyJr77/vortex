@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useId,useRef,useState} from 'react'
 import {adminApiRequest} from '../../utils/api'
 type Review={disposition:string;catchUpAuthorized:boolean;reference:string;policies:Record<string,string>}
-type Data={planRevisionId:string;planName:string;policies:Record<string,string>;status:string;history:{id:string;revision:number;review:Review;created_at:string}[]}
+type Data={executionIssues?:string[];planRevisionId:string;planName:string;policies:Record<string,string>;status:string;history:{id:string;revision:number;review:Review;created_at:string}[]}
 const policyLabels:Record<string,string>={compensation415:'Annual-additions compensation uses reconciled standard gross wages.',allocation:'Limited contributions are allocated proportionally between pretax and Roth; a tied remainder cent goes to pretax.',bonusAllocation:'Pretax bonus allocation follows included wage proportions, rounded to the nearest cent; half-cent ties go to bonus.',affordability:'Taxes are recalculated before checking available wages. Reimbursements cannot cover a shortfall.',fixedElection:'Fixed-dollar elections apply to regular payroll only.'}
 export default function RetirementProcessingReview({planId}:{planId:string}){
  const id=useId()
@@ -23,7 +23,7 @@ export default function RetirementProcessingReview({planId}:{planId:string}){
   <button type="button" disabled={busy} onClick={()=>void load()} className="rounded border px-3 py-2">{requested?'Refresh processing history':'Load processing review'}</button>
   {error?<p role="alert">{error}</p>:null}{message?<p role="status">{message}</p>:null}
   {pending.current?<button type="button" disabled={busy} onClick={()=>void save(true)} className="rounded border px-3 py-2">Retry original processing review</button>:null}
-  {data?<><p>Current review: {data.status.replaceAll('_',' ')}</p><ul className="list-disc pl-5">{Object.keys(data.policies).map(key=><li key={key}>{policyLabels[key]||key}</li>)}</ul>
+  {data?<>{data.executionIssues?.length?<div role="alert" className="rounded border border-amber-300 bg-amber-50 p-3"><p className="font-bold">Payroll processing requires additional implementation</p><ul className="list-disc pl-5">{data.executionIssues.map(issue=><li key={issue}>{issue}</li>)}</ul></div>:null}<p>Current review: {data.status.replaceAll('_',' ')}</p><ul className="list-disc pl-5">{Object.keys(data.policies).map(key=><li key={key}>{policyLabels[key]||key}</li>)}</ul>
    <button type="button" disabled={busy||!!error} onClick={begin} className="rounded border px-3 py-2">Review current processing policies</button>
    {stale?<p role="alert">A source revision changed. Your draft is preserved. Start a review of the current policies before saving.</p>:null}
    {draft?<fieldset disabled={busy||stale||!!error} className="space-y-3"><legend className="font-bold">Administrator processing review</legend>

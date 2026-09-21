@@ -48,3 +48,12 @@ test('unused PTO uses separate reviewed eligible and annual-additions compensati
  const fixed=fixture({terms,choice:{method:'FIXED_PER_REGULAR_PAY',pretax:1000,roth:500}})
  assert.equal(retirementContributionCalculation({...fixed,runKind:'OFF_CYCLE',compensation,compensation415Cents:100000,unusedPto}).totalCents,0)
 })
+
+test('employer funding cannot silently disappear from an employee-only contribution proposal',()=>{
+ for(const employerContributions of ['MATCH','NONELECTIVE','MATCH_AND_NONELECTIVE','UNRESOLVED']){
+  const input=fixture({terms:{employerContributions,employerContributionTerms:'Retained employer funding formula requiring implementation.'}})
+  assert.throws(()=>retirementContributionCalculation(input),/Employer retirement contributions/)
+  const declined=fixture({terms:{employerContributions,employerContributionTerms:'Retained employer funding formula requiring implementation.'},choice:{action:'DECLINE',pretax:0,roth:0}})
+  assert.throws(()=>retirementContributionCalculation(declined),/Employer retirement contributions/)
+ }
+})

@@ -1,3 +1,4 @@
+import {retirementEmployerProcessingIssue} from './retirementEmployerProcessing.js'
 import {retirementAnnualCapacity} from './retirementAnnualCapacity.js'
 import {retirementElectionInput} from './retirementElectionInput.js'
 const fail=message=>Object.assign(new Error(message),{status:400})
@@ -18,6 +19,8 @@ const percentage=(cents,bps)=>Number((BigInt(cents)*BigInt(bps)+5000n)/10000n)
 // Pure proposed employee-deferral amounts. No ledger reservation, wage-tax
 // calculation, payment approval or provider transaction occurs here.
 export function retirementContributionCalculation({plan,annual,internal,election,payDate,runKind,compensation,compensation415Cents,availableDeductionCents,catchUpAuthorized,unusedPto}){
+ const employerIssue=retirementEmployerProcessingIssue(plan)
+ if(employerIssue)throw fail(employerIssue)
  if(!date(payDate)||!['REGULAR','OFF_CYCLE'].includes(runKind)||!valid(compensation415Cents)||!valid(availableDeductionCents)||typeof catchUpAuthorized!=='boolean')throw fail('Review the pay date, run kind, available pay and catch-up authorization.')
  const signed=retirementElectionInput({...election,confirmed:true},election?.proposal)
  if(signed.proposal.planFingerprint!==plan.fingerprint||signed.proposal.taxYear!==2026||signed.effectiveOn>payDate)throw fail('Select the applicable signed election and current plan for this payment.')
