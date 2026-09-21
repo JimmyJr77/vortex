@@ -32,7 +32,7 @@ export function registerRetirementProcessingReview(app,pool){
    const employerIssue=retirementEmployerProcessingIssue(p.plan)
    // A structured employer plan may retain employee-deferral policies for
    // diagnostic calculation. The execution issue remains visible and the
-   // operational contribution/approval boundaries still reject employer pay.
+   // integrated payroll approval separately validates and reserves employer funding.
    if(review.disposition==='REVIEWED'&&employerIssue&&!p.plan.employerFormula)throw fail(employerIssue,409)
    if(review.catchUpAuthorized&&!p.plan.allowsCatchUp)throw fail('This plan does not permit catch-up contributions.')
    const latest=(await db.query('SELECT revision FROM payroll_retirement_processing_review WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,req.params.planId])).rows[0]

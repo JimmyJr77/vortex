@@ -61,7 +61,7 @@ async function employerTerms(db,facility,employeeId,planId){
  if(!planRow||!annualRow||annualRow.plan_revision_id!==planRow.id)throw fail('Review current employer plan and annual sources before allocating compensation.')
  return {planRow,annualRow}
 }
-async function employerPayrollSources(db,facility,employeeId,planId){
+async function employerPayrollSources(db,facility,employeeId,planId,excludeRunId=null){
  const rows=(await db.query(`SELECT r.id FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id
  JOIN payroll_run_employee re ON re.payroll_run_id=r.id
  JOIN payroll_employee e ON e.id=re.employee_id AND e.facility_id=r.facility_id
@@ -69,7 +69,7 @@ async function employerPayrollSources(db,facility,employeeId,planId){
  AND EXTRACT(YEAR FROM COALESCE(r.payment_date,p.pay_date))=2026
  AND r.run_kind<>'OFF_CYCLE_REIMBURSEMENT' ORDER BY COALESCE(r.payment_date,p.pay_date),r.id`,[facility,employeeId])).rows
  const payrollSources=[]
- for(const row of rows)payrollSources.push(await retirementEmployerPayrollSource(db,{facility,employeeId,planId,runId:row.id}))
+ for(const row of rows.filter(r=>String(r.id)!==String(excludeRunId)))payrollSources.push(await retirementEmployerPayrollSource(db,{facility,employeeId,planId,runId:row.id}))
  return payrollSources
 }
 function retainedAllocation(planRow,annualRow,inputs){
@@ -85,15 +85,16 @@ export async function retirementEmployerCompensationPreview(db,{facility,employe
  const employee=(await db.query('SELECT id FROM payroll_employee WHERE facility_id=$1 AND id=$2',[facility,employeeId])).rows[0]
  if(!employee)throw fail('Employer compensation employee belongs to another workplace.')
  if(runId!==null){
-  const run=(await db.query(`SELECT r.status,COALESCE(r.payment_date,p.pay_date)::text AS payment_day FROM payroll_run r
+  const run=(await db.query(`SELECT r.status,r.calculation_snapshot,EXISTS(SELECT 1 FROM payroll_retirement_employer_run_ledger l WHERE l.facility_id=r.facility_id AND l.run_id=r.id AND l.employee_id=re.employee_id AND l.plan_id=$4) AS employer_reserved,COALESCE(r.payment_date,p.pay_date)::text AS payment_day FROM payroll_run r
    JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
-   WHERE r.facility_id=$1 AND r.id=$2 AND re.employee_id=$3`,[facility,runId,employeeId])).rows[0]
-  if(!run||!['DRAFT','REVIEW'].includes(run.status)||run.payment_day!==payDate)throw fail('Pre-approval employer compensation requires this employee’s unapproved payroll and matching payment date.')
+   WHERE r.facility_id=$1 AND r.id=$2 AND re.employee_id=$3`,[facility,runId,employeeId,planId])).rows[0]
+  const revalidation=run?.status==='APPROVED'&&run.employer_reserved&&run.calculation_snapshot?.employees?.some(e=>String(e.employeeId)===String(employeeId)&&e.employerContributionReview?.planId===planId)
+  if(!run||!['DRAFT','REVIEW'].includes(run.status)&&!revalidation||run.payment_day!==payDate)throw fail('Pre-approval employer compensation requires this employee’s unapproved payroll and matching payment date.')
  }
  const {planRow,annualRow}=await employerTerms(db,facility,employeeId,planId)
  const wages=retirementPayrollWages(payrollPreview,{compensation:{REGULAR:true,OVERTIME:true,BONUS:true,PAID_LEAVE:true}})
  const basis={version:1,status:'ENGINE_PAYROLL_INPUTS',facilityId:String(facility),employeeId:String(employeeId),planId,planFingerprint:planRow.plan.fingerprint,runId:runId===null?'PREVIEW':String(runId),runStatus:'PREVIEW',paymentDate:payDate,compensation:wages.compensation,compensation415Cents:wages.compensation415Cents,salaryCoveredLeave:payrollPreview.payItems.some(item=>item.kind==='PAID_LEAVE'&&item.includedInSalary),engineFingerprint:hash(payrollPreview)}
  const previewSource={...basis,fingerprint:hash(basis)}
- const payrollSources=await employerPayrollSources(db,facility,employeeId,planId)
+ const payrollSources=await employerPayrollSources(db,facility,employeeId,planId,runId)
  return {...retainedAllocation(planRow,annualRow,{payrollSources,previewSource,facility,employeeId,runId:basis.runId}),status:'COMPENSATION_PREVIEW',requiresApprovalReservation:true}
 }

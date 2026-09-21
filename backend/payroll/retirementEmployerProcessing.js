@@ -1,7 +1,6 @@
-// Retaining a textual formula does not implement employer funding. Keep this
-// gate until calculation, annual-additions reservation, accounting and delivery
-// all retain employer contributions separately from employee wage deductions.
+// Standalone employee deduction calculation cannot authorize employer funding.
+// The regular payroll producer separately binds eligibility, capacity and reservations.
 export function retirementEmployerProcessingIssue(plan) {
  if(plan?.employerContributions==='NONE')return null
- return 'Employer retirement contributions require implemented calculation, annual-limit reconciliation and remittance before this plan can process payroll. Retained formula text alone does not calculate employer funding.'
+ return 'Employer retirement contributions require the integrated payroll review of eligibility, formula obligations, annual limits and funding. Standalone employee deduction calculations cannot authorize employer contributions.'
 }

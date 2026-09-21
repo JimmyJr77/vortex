@@ -1,3 +1,4 @@
+import {employerRetirementApprovalReview} from './retirementEmployerApproval.js'
 import {retirementPayrollCalculation} from './retirementPayrollCalculation.js'
 import {retirementEmployerFundingPreview} from './retirementEmployerFundingPreview.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
@@ -41,6 +42,12 @@ export async function regularRetirementPayroll(db,facility,result,excludeRunId,r
    const terms=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,planId])).rows[0]?.plan
    if(terms?.employerContributions!=='NONE'){
     employee.employerCompensationPreview=await retirementEmployerFundingPreview(db,{facility,employeeId:employee.employeeId,planId,payDate:date,payrollPreview:employee,payPeriodId:result.period.id,runId:excludeRunId??null,runKind},{rebuild})
+    const review=await employerRetirementApprovalReview(db,facility,employee.employeeId,planId,employee.employerCompensationPreview)
+    if(review){
+     const calculation={...employee.employerCompensationPreview.deferralPreview.calculation,previewOnly:false}
+     calculations.set(String(employee.employeeId),{planId,calculation,employerContributionReview:review,employerCompensationPreview:employee.employerCompensationPreview});inputs[employee.employeeId]=calculation.retirement401k
+     continue
+    }
     const eligibility=employee.employerCompensationPreview.eligibility
     const finding=eligibility.status==='REVIEWED_FOR_PAY_PERIOD'?` Matching eligibility: ${eligibility.components.matching.eligible?'eligible':'not eligible'}. Nonelective eligibility: ${eligibility.components.nonelective.eligible?'eligible':'not eligible'}.`:` ${eligibility.message}`
     const obligation=employee.employerCompensationPreview.obligationPreview?.obligation
@@ -63,6 +70,11 @@ export async function regularRetirementPayroll(db,facility,result,excludeRunId,r
    block(before,'Retirement contributions cannot be covered by wages after taxes and required deductions. Review payroll and the signed election.');continue
   }
   if(employee.grossPayCents!==before.grossPayCents||employee.retirement401k?.pretaxCents!==c.pretaxCents||employee.retirement401k?.rothCents!==c.rothCents)throw fail('Retirement payroll inputs changed during recalculation.')
+  if(retained.employerContributionReview){
+   employee.employerContributionReview=retained.employerContributionReview;employee.employerCompensationPreview=retained.employerCompensationPreview
+   const o=retained.employerContributionReview.obligation,notice={employeeId:employee.employeeId,code:'EMPLOYER_RETIREMENT_CONTRIBUTION',severity:'info',blocking:false,message:`Employer retirement funding: $${(o.matchingCents/100).toFixed(2)} matching and $${(o.nonelectiveCents/100).toFixed(2)} nonelective, totaling $${(o.totalCents/100).toFixed(2)}. Approval reserves these employer amounts separately from employee deductions.`}
+   employee.warnings.push(notice);next.preview.warnings.push(notice)
+  }
   employee.retirementPlans=[{planId:retained.planId,calculation:{...c,requiresPayrollIntegration:false,availablePayEvidence:{version:1,grossPayCents:employee.grossPayCents,reimbursementCents:employee.reimbursementCents,netPayBeforeRetirementCents:before.netPayCents,netPayAfterRetirementCents:employee.netPayCents,wageNetAfterRetirementCents:employee.netPayCents-employee.reimbursementCents,employeeTaxCents:employee.socialSecurityTaxCents+employee.medicareTaxCents+employee.additionalMedicareTaxCents+employee.federalIncomeTaxCents+employee.stateIncomeTaxCents,totalDeductionCents:employee.totalDeductionCents}}}]
  }
  if(result.preview.warnings.some(w=>w.code==='RETIREMENT_PAYROLL_REVIEW'))return result
