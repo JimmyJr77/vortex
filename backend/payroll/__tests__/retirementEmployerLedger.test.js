@@ -1,3 +1,4 @@
+import {retirementStatementSummary} from '../retirementStatement.js'
 import {verifyEmployerRetirementPosting} from '../retirementEmployerJournal.js'
 import {loadBasePreview} from '../registerRoutes.js'
 import {retainRetirementRunLedger,retirementInternalBalances} from '../retirementLedger.js'
@@ -108,6 +109,14 @@ test('employer reservations retain exact approved evidence and consume shared an
  await api('/accounting-mapping',{verifiedByBookkeeper:true,employerRetirementExpenseAccount:'Employer retirement expense'},'PATCH')
  const exported=await csv();assert.equal(exported.status,200,await exported.clone().text())
  const csvText=await exported.text();assert.match(csvText,/Employer retirement expense/);assert.match(csvText,/employer matching contributions/);assert.match(csvText,/employer nonelective contributions/)
+ const statement={payItems:applied.payItems,retirement:retirementStatementSummary(applied),employeeName:'Monthly Benefits',employeeNumber:'SYNTHETIC',employer:{name:'Synthetic Employer'}}
+ const statementRow=(await h.pool.query('UPDATE payroll_run_employee SET statement_snapshot=$1 WHERE payroll_run_id=$2 AND employee_id=$3 RETURNING id',[statement,run.id,employee.id])).rows[0]
+ await h.pool.query("UPDATE payroll_run SET status='FINALIZED' WHERE id=$1",[run.id])
+ const statementResponse=await fetch(`${h.url}/api/payroll/employee/pay-statements/${statementRow.id}.pdf`,{headers:{Authorization:'Bearer monthly-benefits-session'}})
+ assert.equal(statementResponse.status,200)
+ assert.equal(statementResponse.headers.get('content-type'),'application/pdf')
+ assert.equal(Buffer.from(await statementResponse.arrayBuffer()).subarray(0,5).toString(),'%PDF-')
+ assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_audit_log WHERE action='STATEMENT_DOWNLOADED'")).rows[0].n,1)
  await h.pool.query("UPDATE payroll_run SET status='VOID' WHERE id=$1",[run.id])
  assert.equal((await retirementInternalBalances(h.pool,1,employee.id,'standard',2026)).totals.annualAdditionsCents,0)
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_employer_run_ledger')).rows[0].n,1)

@@ -28,3 +28,24 @@ test('retirement statement PDF renders the retained employee summary',async()=>{
  assert.equal(pdf.subarray(0,5).toString(),'%PDF-')
  if(process.env.RETIREMENT_STATEMENT_PDF_PATH)await writeFile(process.env.RETIREMENT_STATEMENT_PDF_PATH,pdf)
 })
+
+test('employer contribution statement is separate from net pay and excludes private funding evidence',async()=>{
+ const employed=structuredClone(employee),proposed={matchingCents:3000,nonelectiveCents:2000,totalCents:5000}
+ employed.employerRetirementPlans=[{planId:'standard',calculation:{facilityId:'1',runId:'101',employeeId:'1',planId:'standard',previewOnly:false,requiresPayrollIntegration:false,source:{privateReference:'Private funding review'},contribution:{status:'CALCULATED_NOT_AUTHORIZED',issues:[],proposed,required:{...proposed}}}}]
+ const summary=retirementStatementSummary(employed),withEmployer={...row,statement_snapshot:{...row.statement_snapshot,retirement:summary}}
+ const statement=statementLines(withEmployer)
+ assert.deepEqual(statement.employerContributions,[['Employer 401(k) matching','Employee retirement plan',3000],['Employer 401(k) nonelective','Employee retirement plan',2000]])
+ assert.equal(statement.lines.reduce((n,l)=>n+l[2],0),row.net_pay_cents)
+ assert.equal(JSON.stringify(summary).includes('privateReference'),false)
+ assert.equal(JSON.stringify(summary).includes('Private funding review'),false)
+ assert.equal(JSON.stringify(summary).includes('sourceFingerprint'),false)
+ const bad=structuredClone(withEmployer);bad.statement_snapshot.retirement.employerPlans[0].totalCents++
+ assert.throws(()=>statementLines(bad),/amounts do not reconcile/)
+ const duplicate=structuredClone(withEmployer);duplicate.statement_snapshot.retirement.employerPlans.push(duplicate.statement_snapshot.retirement.employerPlans[0])
+ assert.throws(()=>statementLines(duplicate),/identity/)
+ employed.employerRetirementPlans[0].calculation.previewOnly=true
+ assert.throws(()=>retirementStatementSummary(employed),/integrated/)
+ const pdf=await payStatementPdf({...withEmployer,id:101,period_start:'2026-09-01',period_end:'2026-09-15',pay_date:'2026-09-20',statement_snapshot:{...withEmployer.statement_snapshot,employeeName:'Synthetic Employee',employeeNumber:'TEST-101',employer:{name:'Synthetic Employer',address:'100 Example Street, Baltimore, MD',phone:'555-010-0000'}}})
+ assert.equal(pdf.subarray(0,5).toString(),'%PDF-')
+ if(process.env.EMPLOYER_RETIREMENT_STATEMENT_PDF_PATH)await writeFile(process.env.EMPLOYER_RETIREMENT_STATEMENT_PDF_PATH,pdf)
+})

@@ -1,4 +1,4 @@
-import {retirementStatementLines} from './retirementStatement.js'
+import {retirementStatementLines,employerRetirementStatementLines} from './retirementStatement.js'
 import PDFDocument from 'pdfkit'
 import { payrollEmployeeAuth } from './employeeAuth.js'
 
@@ -39,7 +39,7 @@ export function statementLines(row) {
  else for(const [name,key] of [['Other taxable pay','other_taxable_pay_cents'],['Reimbursements','reimbursement_cents'],['Pretax deductions','pretax_deduction_cents'],['Posttax deductions','posttax_deduction_cents'],['Garnishments','garnishment_cents']])if(Number(row[key]))lines.push([name,'',Number(row[key])*(name.includes('deduction')||name==='Garnishments'?-1:1)])
  lines.push(...retirementLines)
  if(!expenseOnly)for(const [name,key] of [['Federal income tax','federal_income_tax_cents'],['Maryland state and local income tax','state_income_tax_cents'],['Social Security','social_security_tax_cents'],['Medicare','medicare_tax_cents'],['Additional Medicare','additional_medicare_tax_cents']])lines.push([name,'Withheld',-Number(row[key]||0)])
- return {lines,gross}
+ return {lines,gross,employerContributions:employerRetirementStatementLines(row)}
 }
 export async function payStatementPdf(row) {
  const doc=new PDFDocument({size:'LETTER',margin:48,bufferPages:true,info:{Title:`Pay statement ${row.id}`,Author:'Vortex Payroll'}}),chunks=[]
@@ -52,7 +52,7 @@ export async function payStatementPdf(row) {
  doc.moveDown().font('Helvetica-Bold').fillColor('#0f172a').text(snapshot.employeeName||row.employee_name||'Employee')
  doc.font('Helvetica').fillColor('#475569').text(`Employee number: ${snapshot.employeeNumber||row.employee_number||'-'}`).text(`${snapshot.runKind?.startsWith('OFF_CYCLE_')?'Processing period':'Pay period'}: ${date(row.period_start)} through ${date(row.period_end)}`).text(`Pay date: ${date(row.pay_date)}    Statement: ${row.id}`)
  doc.moveDown(1.5)
- const {lines,gross}=statementLines(row)
+ const {lines,gross,employerContributions}=statementLines(row)
  for(const [name,detail,amount] of lines){
   const height=Math.max(34,doc.heightOfString(name,{width:330})+doc.heightOfString(detail,{width:330})+12)
   if(doc.y+height>680){doc.addPage();header()}
@@ -61,6 +61,22 @@ export async function payStatementPdf(row) {
  if(doc.y>630){doc.addPage();header()}
  doc.moveDown(.5).font('Helvetica').fontSize(11).fillColor('#475569').text(`Gross wages: ${dollars(gross)}`,48,doc.y,{width:516})
  doc.moveDown(.4).font('Helvetica-Bold').fontSize(19).fillColor('#047857').text(`Net pay: ${dollars(row.net_pay_cents)}`,48,doc.y,{width:516})
+ if(employerContributions.length){
+  if(doc.y+95>680){doc.addPage();header()}
+  doc.moveDown().font('Helvetica-Bold').fontSize(12).fillColor('#0f172a').text('Employer retirement contributions',48,doc.y,{width:516})
+  doc.moveDown(.4).font('Helvetica').fontSize(9).fillColor('#64748b').text('Not deducted from your pay or included in net pay. These amounts do not confirm a deposit to your retirement account.',48,doc.y,{width:516})
+  doc.moveDown(.7)
+  for(const [name,detail,amount] of employerContributions){
+   doc.font('Helvetica').fontSize(9)
+   const height=Math.max(38,doc.heightOfString(name,{width:350})+doc.heightOfString(detail,{width:350})+14)
+   if(doc.y+height>680){doc.addPage();header()}
+   const y=doc.y
+   doc.font('Helvetica-Bold').fontSize(10).fillColor('#0f172a').text(name,48,y,{width:350})
+   doc.font('Helvetica').fontSize(9).fillColor('#64748b').text(detail,48,doc.y+2,{width:350})
+   doc.font('Helvetica-Bold').fontSize(10).fillColor('#0f172a').text(dollars(amount),430,y,{width:134,align:'right'})
+   doc.y=y+height
+  }
+ }
  doc.moveDown(.8).font('Helvetica').fontSize(9).fillColor('#64748b').text('This statement records finalized payroll. It is not a negotiable check.',48,doc.y,{width:516})
  const range=doc.bufferedPageRange();for(let i=range.start;i<range.start+range.count;i++){doc.switchToPage(i);doc.fontSize(8).fillColor('#64748b').text(`Confidential employee pay statement | Page ${i+1} of ${range.count}`,48,730,{lineBreak:false})}
  doc.end();return completed

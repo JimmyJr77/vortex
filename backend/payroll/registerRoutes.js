@@ -1699,6 +1699,7 @@ export async function finalizePayrollRun(pool,{facilityId,actorId,runId,body},{n
         if(retained.reused&&run.status==='FINALIZED'){await client.query('COMMIT');return {...run,reused:true}}
       }else await assertNoActivePaymentBatch(client,req.canonicalAccess.facilityId,run.id)
       if (run.status !== 'APPROVED') { await client.query('ROLLBACK'); throw finalizationError('Only an approved run can be finalized.',409) }
+      await verifyEmployerRetirementPosting(client,run)
       const employees = await client.query('SELECT * FROM payroll_run_employee WHERE payroll_run_id=$1 FOR UPDATE', [run.id])
       if (employees.rows.some((row) => row.net_pay_cents === null)) { await client.query('ROLLBACK'); throw finalizationError('Every employee must have complete withholding and net pay.',409) }
       const current=await loadRunPreview(client,req.canonicalAccess.facilityId,run)
