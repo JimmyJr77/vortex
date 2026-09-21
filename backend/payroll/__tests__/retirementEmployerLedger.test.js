@@ -18,7 +18,7 @@ import {retirementAnnualFixture} from '../testing/retirementAnnualFixture.js'
 
 test('employer reservations retain exact approved evidence and consume shared annual capacity',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const key=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
- const provider=retirementDestinationProvider(),h=await createHistoricalHarness(t,{paymentFetcher:provider.fetcher},'2026-09-16T16:00:00.000Z');t.after(async()=>{await h.close();if(key===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=key})
+ const provider=retirementDestinationProvider(),h=await createHistoricalHarness(t,{paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-18T12:06:00Z')},'2026-09-16T16:00:00.000Z');t.after(async()=>{await h.close();if(key===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=key})
  const {api,employee,periods}=await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'})
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),employerContributions:'MATCH_AND_NONELECTIVE',employerContributionTerms:'Synthetic employer contribution obligation.',employerFormula:{period:'PER_PAYROLL',matchCatchUp:false,matchTiers:[{upToBps:300,matchBps:10000}],nonelectiveBps:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Synthetic reviewed new hire entry terms.',vestingTerms:'Synthetic reviewed vesting schedule.'}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
@@ -132,7 +132,7 @@ test('employer reservations retain exact approved evidence and consume shared an
  assert.equal(delivery.allocations[0].employerNonelectiveCents,400)
  assert.equal(delivery.allocations[0].totalCents,2400)
  assert.match(delivery.allocations[0].employerLedgerId,/^[1-9]\d*$/)
- await assert.rejects(retirementRemittancePreview(h.pool,1,run.id,{planId:'standard',sourceFingerprint:delivery.sourceFingerprint},{now:new Date('2026-09-18T12:00:00Z'),fetcher:async()=>{throw new Error('No provider call permitted')}}),/Employer contributions require reviewed/)
+ await assert.rejects(retirementRemittancePreview(h.pool,1,run.id,{planId:'standard',sourceFingerprint:delivery.sourceFingerprint},{now:new Date('2026-09-18T12:00:00Z'),fetcher:async()=>{throw new Error('No provider call permitted')}}),/Employer contributions require current reviewed/)
  await api(timingPath,{policy:{...timingPolicy,employerFunding:{schedule:'WITH_PAYROLL',confirmed:true,reference:'Reviewed employer matching and nonelective funding with each payroll'}},planRevisionId:timing.planRevisionId,expectedRevision:1,requestKey:randomUUID()})
  const reviewedDelivery=(await retirementRemittanceSources(h.pool,1,{runId:run.id,now:new Date('2026-09-18T12:06:00Z')})).items[0]
  assert.equal(reviewedDelivery.allocations[0].timing.employerContributionsIncluded,true)

@@ -1,3 +1,5 @@
+import {retirementReceiptContractHistory} from './retirementReceiptContract.js'
+import {retirementTimingAssessment} from './retirementTiming.js'
 import {createHash} from 'node:crypto'
 import {retirementRemittanceSources} from './retirementRemittanceSources.js'
 import {readRetirementParticipantMapping} from './retirementParticipantMapping.js'
@@ -13,7 +15,14 @@ export async function retirementRemittancePreview(db,facility,runId,input,{fetch
  if(source.status==='RECONCILIATION_REQUIRED'||source.sourceFingerprint!==input.sourceFingerprint)throw fail('Contribution or participant evidence changed. Refresh and reconcile the payroll source.')
  const selected=source.allocations.filter(a=>a.planId===input.planId&&a.totalCents>0)
  if(!selected.length)throw fail('This payroll has no positive contributions for the selected plan.')
- if(selected.some(a=>a.employerMatchingCents>0||a.employerNonelectiveCents>0))throw fail('Employer contributions require reviewed employer allocation, receipt and timing contracts before remittance preparation.')
+ const employerRequired=selected.some(a=>a.employerMatchingCents>0||a.employerNonelectiveCents>0)
+ let employerReceiptContractId=null,timing=selected[0].timing
+ if(employerRequired){
+  const receipt=await retirementReceiptContractHistory(db,facility,input.planId)
+  timing=await retirementTimingAssessment(db,facility,input.planId,source.paymentDate,{now,employerContributionsRequired:true})
+  if(receipt.status!=='CURRENT'||!receipt.employerContributionsIncluded||!timing.employerContributionsIncluded)throw fail('Employer contributions require current reviewed employer allocation, receipt and timing contracts before remittance preparation.')
+  employerReceiptContractId=receipt.history[0].id
+ }
  if(selected.some(a=>a.destinationReview.status==='ACCOUNT_REVIEW_REQUIRED'))throw fail('Retirement destination account review requires a successful current recheck before remittance preparation.')
  const plan=(await db.query('SELECT id,plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,input.planId])).rows[0]
  const destinationId=(await db.query('SELECT id FROM payroll_retirement_destination WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,input.planId])).rows[0]?.id
@@ -31,7 +40,7 @@ export async function retirementRemittancePreview(db,facility,runId,input,{fetch
  }
  const configuration=await readPayrollPaymentConnection(db,facility,connectionId),funding=await verifyModernTreasuryFundingAccount({...configuration,fetcher}),account=await readBusinessAccount({...configuration,fetcher},destination.destination.accountId)
  if(funding.status!=='VERIFIED'||account.status!=='VERIFIED'||account.account.fingerprint!==destination.destination.fingerprint)throw fail('Retirement destination or funding evidence changed or is unavailable. Recheck the account before remittance review.')
- const basis={version:1,facilityId:String(facility),runId:String(runId),planId:input.planId,planName:plan.plan.name,planRevisionId:plan.id,withheldDate:source.paymentDate,timing:selected[0].timing,sourceFingerprint:source.sourceFingerprint,destinationRevisionId:destination.id,destinationFingerprint:destination.fingerprint,fundingRevisionId:String(connectionId),destination:destination.masked_destination,allocations:mappings,amountCents:total}
+ const basis={version:1,facilityId:String(facility),runId:String(runId),planId:input.planId,planName:plan.plan.name,planRevisionId:plan.id,withheldDate:source.paymentDate,timing,...(employerReceiptContractId?{employerReceiptContractId}:{}),sourceFingerprint:source.sourceFingerprint,destinationRevisionId:destination.id,destinationFingerprint:destination.fingerprint,fundingRevisionId:String(connectionId),destination:destination.masked_destination,allocations:mappings,amountCents:total}
  return {...basis,status:'PREVIEW_ONLY',fingerprint:createHash('sha256').update(JSON.stringify(basis)).digest('hex'),remainingRequirements:['Review the plan deposit timing and provider submission cutoffs.','Set up how the recordkeeper receives and confirms employee allocations.','Review contributions made outside Vortex before authorizing payment.']}
 }
 export function registerRetirementRemittancePreviewRoutes(app,pool,{fetcher=fetch,now=()=>new Date()}={}){

@@ -1,3 +1,4 @@
+import {retirementReceiptContractHistory} from './retirementReceiptContract.js'
 import {createHmac} from 'node:crypto'
 import {retirementRemittancePreview} from './retirementRemittancePreview.js'
 import {retirementAllocationFormatHistory,allocationFields,employerAllocationFields} from './retirementAllocationFormat.js'
@@ -32,15 +33,22 @@ export async function retirementAllocationFile(db,facility,runId,input,{fetcher=
  const preview=await retirementRemittancePreview(db,facility,runId,input,{fetcher,now})
  const {history}=await retirementAllocationFormatHistory(db,facility,input.planId),format=history[0]
  if(!format||!format.currentPlan||format.format.disposition!=='VERIFIED')throw fail('Review the current recordkeeper allocation format before preparing a file.')
- if(format.format.columns.some(c=>employerAllocationFields.includes(c.field)))throw fail('Employer allocation columns require matching provider receipt and timing contracts before file preparation.')
+ const employerColumns=employerAllocationFields.every(field=>format.format.columns.some(c=>c.field===field))
+ let employerReceiptContractId=null
+ if(employerColumns){
+  const receipt=await retirementReceiptContractHistory(db,facility,input.planId)
+  if(receipt.status!=='CURRENT'||!receipt.employerContributionsIncluded)throw fail('Review the matching employer provider receipt contract before file preparation.')
+  employerReceiptContractId=receipt.history[0].id
+ }
  if(!preview.timing?.reviewId||['PLAN_CHANGED','SUSPENDED','REVIEW_REQUIRED','EMPLOYER_TIMING_REVIEW_REQUIRED','CALENDAR_REVIEW_REQUIRED','ADVANCE_SUBMISSION_REVIEW_REQUIRED'].includes(preview.timing.status))throw fail('Review current contribution timing before preparing recordkeeper allocations.')
+ const allocations=preview.allocations.map(a=>employerColumns?{...a,employerMatchingCents:a.employerMatchingCents??0,employerNonelectiveCents:a.employerNonelectiveCents??0}:a)
  const rows=[]
- for(const a of preview.allocations){const mapping=await readRetirementParticipantMapping(db,facility,a.employeeId,input.planId);if(mapping.id!==a.participantMapping.mappingId)throw fail('Participant mapping changed. Refresh the contribution review.');rows.push({...a,...mapping.identifiers,withheldDate:preview.withheldDate})}
+ for(const a of allocations){const mapping=await readRetirementParticipantMapping(db,facility,a.employeeId,input.planId);if(mapping.id!==a.participantMapping.mappingId)throw fail('Participant mapping changed. Refresh the contribution review.');rows.push({...a,...mapping.identifiers,withheldDate:preview.withheldDate})}
  const csv=retirementAllocationCsv(format.format,rows)
- const fingerprint=createHmac('sha256',Buffer.from(process.env.PAYROLL_DOCUMENT_KEY,'hex')).update(JSON.stringify({kind:'retirement-allocation-file',previewFingerprint:preview.fingerprint,formatId:format.id,csv})).digest('hex')
+ const fingerprint=createHmac('sha256',Buffer.from(process.env.PAYROLL_DOCUMENT_KEY,'hex')).update(JSON.stringify({kind:'retirement-allocation-file',previewFingerprint:preview.fingerprint,formatId:format.id,...(employerReceiptContractId?{employerReceiptContractId}:{}),csv})).digest('hex')
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now)
  const authorizationWindowOpen=today>=preview.withheldDate&&['UPCOMING','SUBMISSION_DUE_TODAY'].includes(preview.timing.status)&&new Date(now)<new Date(preview.timing.submissionAt)
- const summary={authorizationWindowOpen,fingerprint,formatId:format.id,formatRevision:format.revision,runId:preview.runId,planId:preview.planId,planName:preview.planName,planRevisionId:preview.planRevisionId,destinationRevisionId:preview.destinationRevisionId,fundingRevisionId:preview.fundingRevisionId,destination:preview.destination,withheldDate:preview.withheldDate,amountCents:preview.amountCents,rowCount:rows.length,columns:format.format.columns,amountFormat:format.format.amountFormat,dateFormat:format.format.dateFormat,includeHeader:format.format.includeHeader,timing:preview.timing,allocations:preview.allocations,status:'PREPARED_NOT_SENT'}
+ const summary={authorizationWindowOpen,fingerprint,...(employerReceiptContractId?{employerReceiptContractId}:{}),formatId:format.id,formatRevision:format.revision,runId:preview.runId,planId:preview.planId,planName:preview.planName,planRevisionId:preview.planRevisionId,destinationRevisionId:preview.destinationRevisionId,fundingRevisionId:preview.fundingRevisionId,destination:preview.destination,withheldDate:preview.withheldDate,amountCents:preview.amountCents,rowCount:rows.length,columns:format.format.columns,amountFormat:format.format.amountFormat,dateFormat:format.format.dateFormat,includeHeader:format.format.includeHeader,timing:preview.timing,allocations,status:'PREPARED_NOT_SENT'}
  return {summary,csv}
 }
 export function registerRetirementAllocationFileRoutes(app,pool,{fetcher=fetch,now=()=>new Date()}={}){
