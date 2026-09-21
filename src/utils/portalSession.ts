@@ -1,3 +1,5 @@
+import { MEMBER_ENROLLMENT_DRAFT_PREFIX } from './memberEnrollmentDrafts'
+
 export type PortalRole = string | { role?: string }
 export type PortalId = 'website' | 'admin' | 'coach' | 'member'
 
@@ -43,6 +45,13 @@ export function bestPortalForAccount(account: PortalAccount | null): PortalId {
 }
 
 export function clearPortalSession(): void {
+  try {
+    for (const key of Object.keys(sessionStorage)) {
+      if (key.startsWith(MEMBER_ENROLLMENT_DRAFT_PREFIX)) sessionStorage.removeItem(key)
+    }
+  } catch {
+    // Private browsing can disable session storage.
+  }
   localStorage.removeItem('vortex_member_token')
   localStorage.removeItem('vortex_member')
   localStorage.removeItem('vortex_admin')

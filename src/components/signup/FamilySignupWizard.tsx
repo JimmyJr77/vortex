@@ -922,12 +922,26 @@ export default function FamilySignupWizard({
   }
 
   const validateEnrollmentStep = () => {
+    const selectedSlots = new Set<string>()
     for (let i = 0; i < enrollments.length; i++) {
       if (!enrollments[i].memberClientId) {
         return `Select a family member for enrollment ${i + 1}.`
       }
       if (enrollments[i].classEventId !== '' && !enrollments[i].enrollmentStartDate) {
         return `Select an enrollment start date for enrollment ${i + 1}.`
+      }
+      const row = enrollments[i]
+      const slots = row.selectedSlotKeys.length > 0
+        ? row.selectedSlotKeys
+        : row.slotGroupId != null && row.timeSlotId != null
+          ? [slotOptionKey(row.slotGroupId, row.timeSlotId)]
+          : []
+      for (const slot of slots) {
+        const key = `${row.memberClientId}:${row.classEventId}:${slot}`
+        if (selectedSlots.has(key)) {
+          return 'This class time is selected more than once for the same family member. Choose a different family member or remove the duplicate enrollment.'
+        }
+        selectedSlots.add(key)
       }
     }
     return null
@@ -1386,6 +1400,11 @@ export default function FamilySignupWizard({
           <UserPlus className="w-4 h-4" /> Add enrollment
         </button>
       </div>
+      <p className="text-sm text-gray-600">
+        Each enrollment is for one family member. To enroll another child in the same class,
+        use “Enroll another family member in this class” below. Changing the family member
+        on an existing enrollment only changes who that enrollment is for.
+      </p>
       {enrollPrefill && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
           Pre-selected from scheduling: {enrollPrefill.programDisplayName || 'Program'}
@@ -1418,8 +1437,9 @@ export default function FamilySignupWizard({
           <div key={index} className="rounded-xl border border-gray-200 p-4 space-y-4">
             <div className="grid gap-3 md:grid-cols-2">
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Family member</label>
+                <label htmlFor={`enrollment-member-${index}`} className="block text-xs font-semibold text-gray-600 mb-1">Family member</label>
                 <select
+                  id={`enrollment-member-${index}`}
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.memberClientId}
                   onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
@@ -1495,6 +1515,21 @@ export default function FamilySignupWizard({
               </div>
             )}
 
+            {!isMinorStart && allAthletes.length > 1 && row.classEventId !== '' && (
+              <button
+                type="button"
+                onClick={() => setEnrollments((prev) => [...prev, {
+                  ...row,
+                  memberClientId: '',
+                  selectedSlotKeys: [...row.selectedSlotKeys],
+                  offeringIds: [...row.offeringIds],
+                }])}
+                className="block text-sm text-vortex-red font-semibold"
+              >
+                <UserPlus className="mr-1 inline h-4 w-4" />
+                Enroll another family member in this class
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))}

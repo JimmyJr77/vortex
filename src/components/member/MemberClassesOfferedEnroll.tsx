@@ -47,6 +47,14 @@ import OrderPricingSummary from '../pricing/OrderPricingSummary'
 import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
 import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 import { formatDateShort } from '../../utils/dateUtils'
+import {
+  emptyMemberEnrollmentDraft,
+  loadMemberEnrollmentDraft,
+  memberEnrollmentDraftKey,
+  saveMemberEnrollmentDraft,
+  type MemberEnrollmentCartItem as CartItem,
+  type MemberEnrollmentDraft,
+} from '../../utils/memberEnrollmentDrafts'
 
 export interface EnrollableMember {
   id: number
@@ -62,23 +70,6 @@ interface Props {
   defaultMemberId: number
   enrollments: MemberEnrollmentRow[]
   onEnrolled: () => void
-}
-
-interface CartItem {
-  cartKey: string
-  lineType: 'slot' | 'multi_class_pass'
-  classEventId?: number
-  formId?: number
-  slotGroupId?: number
-  timeSlotId?: number
-  classLabel?: string
-  scheduleLabel?: string
-  priceLabel?: string | null
-  programsId?: number
-  programName?: string
-  packageId?: string
-  packageLabel?: string
-  selectedPricingOptionKey?: ProgramPricingOptionKey
 }
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
@@ -105,7 +96,41 @@ function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSk
   return skillLevel == null || skillLevel === levelFilter
 }
 
-export default function MemberClassesOfferedEnroll({
+export default function MemberClassesOfferedEnroll(props: Props) {
+  const [selectedMemberId, setSelectedMemberId] = useState(Number(props.defaultMemberId))
+  const [drafts, setDrafts] = useState<Record<number, MemberEnrollmentDraft>>({})
+  const rememberDraft = useCallback((memberId: number, draft: MemberEnrollmentDraft) => {
+    setDrafts((current) => ({ ...current, [memberId]: draft }))
+  }, [])
+  const memberId = props.members.some((member) => Number(member.id) === selectedMemberId)
+    ? selectedMemberId
+    : Number(props.defaultMemberId)
+  const pendingMembers = props.members.filter((member) => (
+    drafts[member.id] ?? loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id))
+  ).cart.length > 0)
+
+  return (
+    <AthleteEnrollment
+      key={`${props.defaultMemberId}:${memberId}`}
+      {...props}
+      selectedMemberId={memberId}
+      initialDraft={drafts[memberId]}
+      onSelectMember={setSelectedMemberId}
+      onDraftChange={rememberDraft}
+      pendingMembers={pendingMembers}
+    />
+  )
+}
+
+interface AthleteEnrollmentProps extends Props {
+  selectedMemberId: number
+  initialDraft?: MemberEnrollmentDraft
+  onSelectMember: (memberId: number) => void
+  onDraftChange: (memberId: number, draft: MemberEnrollmentDraft) => void
+  pendingMembers: EnrollableMember[]
+}
+
+function AthleteEnrollment({
   apiUrl,
   memberToken,
   stripeEnabled = false,
@@ -114,18 +139,27 @@ export default function MemberClassesOfferedEnroll({
   defaultMemberId,
   enrollments,
   onEnrolled,
-}: Props) {
-  const [selectedMemberId, setSelectedMemberId] = useState<number>(Number(defaultMemberId))
+  selectedMemberId,
+  initialDraft,
+  onSelectMember,
+  onDraftChange,
+  pendingMembers,
+}: AthleteEnrollmentProps) {
+  // Remounting this panel on athlete changes isolates all state and in-flight
+  // requests. Drafts remain owned by their athlete, including across checkout.
+  const draftKey = memberEnrollmentDraftKey(defaultMemberId, selectedMemberId)
+  const [savedDraft] = useState(() => initialDraft ?? loadMemberEnrollmentDraft(draftKey))
   const [catalogs, setCatalogs] = useState<Record<number, CatalogState>>({})
-  const [cart, setCart] = useState<CartItem[]>([])
+  const [cart, setCart] = useState<CartItem[]>(savedDraft.cart)
   const [view, setView] = useState<'browse' | 'checkout' | 'done'>('browse')
 
   const [preview, setPreview] = useState<SignupOrderPreview | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewError, setPreviewError] = useState<string | null>(null)
+  const [previewAttempt, setPreviewAttempt] = useState(0)
 
   const [promoInput, setPromoInput] = useState('')
-  const [promoCodes, setPromoCodes] = useState<string[]>([])
+  const [promoCodes, setPromoCodes] = useState<string[]>(savedDraft.promoCodes)
 
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -133,7 +167,7 @@ export default function MemberClassesOfferedEnroll({
 
   const [selectedPricingByProgram, setSelectedPricingByProgram] = useState<
     Record<number, ProgramPricingOptionKey>
-  >({})
+  >(savedDraft.selectedPricingByProgram)
   const [membershipOffer, setMembershipOffer] = useState<AnnualMembershipOffer | null>(null)
   const [membershipLoading, setMembershipLoading] = useState(false)
   const [membershipCheckoutLoading, setMembershipCheckoutLoading] = useState(false)
@@ -147,9 +181,15 @@ export default function MemberClassesOfferedEnroll({
     'all',
   )
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
-  const [enrollmentStartDate, setEnrollmentStartDate] = useState('')
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState(savedDraft.enrollmentStartDate)
   const [startDateError, setStartDateError] = useState<string | null>(null)
   const startDateInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const draft = { cart, enrollmentStartDate, selectedPricingByProgram, promoCodes }
+    saveMemberEnrollmentDraft(draftKey, draft)
+    onDraftChange(selectedMemberId, draft)
+  }, [cart, enrollmentStartDate, selectedPricingByProgram, promoCodes, draftKey, selectedMemberId, onDraftChange])
 
   const classesWithForm = useMemo(() => {
     const out: Array<{
@@ -528,7 +568,7 @@ export default function MemberClassesOfferedEnroll({
   const selectedMember =
     members.find((m) => Number(m.id) === Number(selectedMemberId)) ?? members[0]
 
-  const goToCheckout = async () => {
+  const goToCheckout = () => {
     if (cart.length === 0) return
     if (cart.some((item) => item.lineType === 'slot') && !enrollmentStartDate) {
       setStartDateError('Select an enrollment start date before continuing.')
@@ -536,72 +576,53 @@ export default function MemberClassesOfferedEnroll({
       return
     }
     setView('checkout')
-    await runPreview(promoCodes)
   }
 
-  const runPreview = useCallback(
-    async (codes: string[]) => {
-      if (cart.length === 0) return
-      if (cart.some((item) => item.lineType === 'slot') && !enrollmentStartDate) return
-      setPreviewLoading(true)
-      setPreviewError(null)
+  // Any change invalidates the old quote. Only the latest request can publish
+  // its result, so slow pricing responses cannot price a different selection.
+  useEffect(() => {
+    let cancelled = false
+    setPreview(null)
+    setPreviewError(null)
+    if (view === 'done' || cart.length === 0 || (cart.some((item) => item.lineType === 'slot') && !enrollmentStartDate)) {
+      setPreviewLoading(false)
+      return
+    }
+    setPreviewLoading(true)
+    const timer = window.setTimeout(async () => {
       try {
-        const firstForm =
-          cart.find((c) => c.lineType === 'slot' && c.formId != null)?.formId ??
-          classesWithForm[0]?.formId
+        const firstForm = cart.find((item) => item.lineType === 'slot' && item.formId != null)?.formId
+          ?? classesWithForm[0]?.formId
         if (firstForm == null) throw new Error('Select a class or pass to continue')
-        const session = await loginSchedulingAuthFromMemberSession(
-          firstForm,
-          memberToken,
-          selectedMemberId,
-        )
+        const session = await loginSchedulingAuthFromMemberSession(firstForm, memberToken, selectedMemberId)
+        if (cancelled) return
         const result = await fetchSignupOrderPreview({
           formId: firstForm,
           signupAuthToken: session.signupAuthToken,
           signups: buildPreviewSignups(),
-          promoCodes: codes,
+          promoCodes,
         })
-        setPreview(result)
+        if (!cancelled) setPreview(result)
       } catch (err) {
-        setPreview(null)
-        setPreviewError(err instanceof Error ? err.message : 'Failed to load pricing')
+        if (!cancelled) setPreviewError(err instanceof Error ? err.message : 'Failed to load pricing')
       } finally {
-        setPreviewLoading(false)
+        if (!cancelled) setPreviewLoading(false)
       }
-    },
-    [cart, enrollmentStartDate, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm],
-  )
-
-  useEffect(() => {
-    if (view !== 'browse') return
-    if (cart.length === 0) {
-      setPreview(null)
-      setPreviewError(null)
-      setPreviewLoading(false)
-      return
+    }, view === 'checkout' ? 0 : 350)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
     }
-    const timer = window.setTimeout(() => {
-      void runPreview(promoCodes)
-    }, 350)
-    return () => window.clearTimeout(timer)
-  }, [view, cart, selectedMemberId, selectedPricingByProgram, promoCodes, runPreview])
+  }, [view, cart, enrollmentStartDate, memberToken, selectedMemberId, buildPreviewSignups, classesWithForm, promoCodes, previewAttempt])
 
-  const applyPromo = async () => {
+  const applyPromo = () => {
     const code = promoInput.trim()
-    if (!code || promoCodes.includes(code)) {
-      setPromoInput('')
-      return
-    }
-    const next = [...promoCodes, code]
-    setPromoCodes(next)
+    if (code && !promoCodes.includes(code)) setPromoCodes([...promoCodes, code])
     setPromoInput('')
-    await runPreview(next)
   }
 
-  const removePromo = async (code: string) => {
-    const next = promoCodes.filter((c) => c !== code)
-    setPromoCodes(next)
-    await runPreview(next)
+  const removePromo = (code: string) => {
+    setPromoCodes(promoCodes.filter((item) => item !== code))
   }
 
   const promoCodeSection = (
@@ -645,7 +666,7 @@ export default function MemberClassesOfferedEnroll({
   )
 
   const confirmEnrollment = async () => {
-    if (cart.length === 0) return
+    if (submitting || cart.length === 0 || !preview || previewLoading || previewError) return
     setSubmitting(true)
     setSubmitError(null)
     try {
@@ -699,6 +720,9 @@ export default function MemberClassesOfferedEnroll({
           })
           // Flush before leaving for Stripe so the event is not lost.
           void flushEvents({ useBeacon: true })
+          // The submitted athlete is handled by checkout. Keep every other
+          // athlete's draft for the return to the family portal.
+          saveMemberEnrollmentDraft(draftKey, emptyMemberEnrollmentDraft())
           window.location.href = checkout.url
           return
         }
@@ -750,10 +774,15 @@ export default function MemberClassesOfferedEnroll({
         </p>
         <button
           type="button"
-          onClick={() => setView('browse')}
+          onClick={() => {
+            const next = pendingMembers.find((member) => member.id !== selectedMemberId)
+              ?? members.find((member) => member.id !== selectedMemberId)
+            if (next) onSelectMember(Number(next.id))
+            else setView('browse')
+          }}
           className="mt-5 inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white"
         >
-          Back to classes
+          {members.length > 1 ? 'Enroll another athlete' : 'Back to classes'}
         </button>
       </div>
     )
@@ -765,6 +794,7 @@ export default function MemberClassesOfferedEnroll({
         <button
           type="button"
           onClick={() => setView('browse')}
+          disabled={submitting}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="w-4 h-4" /> Back to class selection
@@ -813,7 +843,14 @@ export default function MemberClassesOfferedEnroll({
             <Loader2 className="w-4 h-4 animate-spin" /> Calculating your pricing…
           </div>
         )}
-        {previewError && <div className="text-sm text-red-600">{previewError}</div>}
+        {previewError && (
+          <div className="space-y-2 text-sm text-red-600" role="alert">
+            <p>{previewError}</p>
+            <button type="button" onClick={() => setPreviewAttempt((attempt) => attempt + 1)} className="font-semibold underline">
+              Retry pricing
+            </button>
+          </div>
+        )}
         {preview && !previewLoading ? (
           <>
             <OrderPricingSummary preview={preview} promoCodeSection={promoCodeSection} />
@@ -833,7 +870,7 @@ export default function MemberClassesOfferedEnroll({
         <button
           type="button"
           onClick={confirmEnrollment}
-          disabled={submitting || cart.length === 0}
+          disabled={submitting || cart.length === 0 || !preview || previewLoading || Boolean(previewError)}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-3 text-sm font-bold text-white disabled:opacity-60 sm:w-auto"
         >
           {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -859,10 +896,11 @@ export default function MemberClassesOfferedEnroll({
           </p>
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Enroll athlete</label>
+          <label htmlFor="enroll-athlete" className="block text-xs font-semibold text-gray-600 mb-1">Enroll athlete</label>
           <select
+            id="enroll-athlete"
             value={selectedMemberId}
-            onChange={(e) => setSelectedMemberId(Number(e.target.value))}
+            onChange={(e) => onSelectMember(Number(e.target.value))}
             className="w-full sm:w-72 h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white"
           >
             {members.map((m) => (
@@ -871,6 +909,25 @@ export default function MemberClassesOfferedEnroll({
               </option>
             ))}
           </select>
+          <p className="mt-2 text-sm text-gray-600">
+            Choose classes for each athlete separately. Switching athletes keeps each person’s selections.
+            Complete checkout for one athlete at a time.
+          </p>
+          {pendingMembers.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2" aria-label="Athletes with selected classes">
+              {pendingMembers.map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  aria-pressed={Number(member.id) === selectedMemberId}
+                  onClick={() => onSelectMember(Number(member.id))}
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700"
+                >
+                  {member.label} — review selections
+                </button>
+              ))}
+            </div>
+          )}
         </div>
         <EnrollmentStartDateField
           id="member-enrollment-start-date"
@@ -1252,7 +1309,7 @@ export default function MemberClassesOfferedEnroll({
       <div className="sticky bottom-0 -mx-4 md:-mx-6 border-t border-gray-200 bg-white px-4 md:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 min-w-0">
           <span className="text-sm text-gray-600">
-            {cart.length} {cart.length === 1 ? 'item' : 'items'} selected
+            {cart.length} {cart.length === 1 ? 'item' : 'items'} selected for {selectedMember?.label}
           </span>
           {cart.length > 0 && (
             <div className="text-sm">

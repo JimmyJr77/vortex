@@ -5,7 +5,7 @@ import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import {
   BUSINESS_NAP,
   GOOGLE_MAPS_URL,
-  JACKRABBIT_CLASS_REGISTRATION_URL,
+  JACKRABBIT_PARENT_PORTAL_URL,
   TEAM_EMAIL,
   TEAM_PHONE,
 } from '../config/contact'
@@ -166,12 +166,12 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 )}
                 <li>
                   <a
-                    href={JACKRABBIT_CLASS_REGISTRATION_URL}
+                    href={JACKRABBIT_PARENT_PORTAL_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() =>
-                      trackOutboundClickEvent('legacy_registration_click', window.location.pathname, {
-                        destination: 'jackrabbit_registration',
+                      trackOutboundClickEvent('legacy_login_click', window.location.pathname, {
+                        destination: 'jackrabbit_login',
                         source: 'footer',
                       })
                     }
