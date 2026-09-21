@@ -55,4 +55,10 @@ export async function assertEmployerRemittanceReservation(h,api,run,delivery,pla
  await api('/retirement-plans/standard/receipt-contract',{action:'SUSPEND',expectedRevision:2,requestKey:randomUUID(),confirmed:true,reference:'Suspend synthetic receipt interpretation pending provider review'})
  await api(filePath,await sourceInput(),'POST',409)
 
+ const finalContract={...contract,employerContributionsConfirmed:true,columns:[...contract.columns,...fields.map(field=>({field,header:field}))]}
+ const reviewed=await api('/retirement-plans/standard/receipt-contract',{action:'REVIEW',planRevisionId,allocationFormatId:format.id,expectedRevision:3,requestKey:randomUUID(),contract:finalContract})
+ const finalSource=await sourceInput(),finalFile=await api(filePath,finalSource)
+ const finalAuthorization=await api(authPath,{...body,...finalSource,fileFingerprint:finalFile.fingerprint,requestKey:randomUUID()})
+ return {authorizationId:finalAuthorization.id,contractId:reviewed.id,contract:finalContract,runId:run.id,employeeId:delivery.allocations[0].employeeId}
+
 }

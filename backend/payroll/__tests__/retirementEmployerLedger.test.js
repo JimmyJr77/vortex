@@ -1,5 +1,9 @@
+import {employerContributionAccounting} from '../testing/employerContributionAccounting.js'
 import {assertEmployerRemittanceReservation} from '../testing/employerRemittanceReservation.js'
-import {retirementDestinationProvider} from '../testing/retirementDestinationProvider.js'
+import {retirementBankProvider} from '../testing/retirementBankProvider.js'
+import {createRetirementSftpServer} from '../testing/retirementSftpServer.js'
+import {verifyRetirementSftpConnection,transferRetirementAllocation,readRetirementSftpReceipt} from '../retirementSftpTransport.js'
+import {assertEmployerContributionDelivery} from '../testing/employerContributionDelivery.js'
 import {refreshRetirementTimingAlerts} from '../retirementTimingAlerts.js'
 import {retirementRemittanceSources} from '../retirementRemittanceSources.js'
 import {retirementRemittancePreview} from '../retirementRemittancePreview.js'
@@ -16,9 +20,10 @@ import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {retirementPlanFixture} from '../testing/retirementPlanFixture.js'
 import {retirementAnnualFixture} from '../testing/retirementAnnualFixture.js'
 
-test('employer reservations retain exact approved evidence and consume shared annual capacity',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+test('approved employer payroll reserves capacity and completes public contribution delivery, receipts and accounting',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const key=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
- const provider=retirementDestinationProvider(),h=await createHistoricalHarness(t,{paymentFetcher:provider.fetcher,remittanceNow:()=>new Date('2026-09-18T12:06:00Z')},'2026-09-16T16:00:00.000Z');t.after(async()=>{await h.close();if(key===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=key})
+ const server=await createRetirementSftpServer();let clock=new Date('2026-09-18T12:06:00Z')
+ const accounting=employerContributionAccounting(),provider=retirementBankProvider(),h=await createHistoricalHarness(t,{quickbooksFetcher:accounting.fetcher,paymentFetcher:provider.fetcher,remittanceNow:()=>clock,retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,file,options)=>transferRetirementAllocation(c,file,{...server.options,...options}),retirementReceiptReader:(c,receipt)=>readRetirementSftpReceipt(c,receipt,server.options)},'2026-09-16T16:00:00.000Z');t.after(async()=>{await h.close();await server.close();if(key===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=key})
  const {api,employee,periods}=await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'})
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),employerContributions:'MATCH_AND_NONELECTIVE',employerContributionTerms:'Synthetic employer contribution obligation.',employerFormula:{period:'PER_PAYROLL',matchCatchUp:false,matchTiers:[{upToBps:300,matchBps:10000}],nonelectiveBps:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Synthetic reviewed new hire entry terms.',vestingTerms:'Synthetic reviewed vesting schedule.'}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
@@ -145,8 +150,10 @@ test('employer reservations retain exact approved evidence and consume shared an
  assert.equal(statementResponse.headers.get('content-type'),'application/pdf')
  assert.equal(Buffer.from(await statementResponse.arrayBuffer()).subarray(0,5).toString(),'%PDF-')
  assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_audit_log WHERE action='STATEMENT_DOWNLOADED'")).rows[0].n,1)
- await assertEmployerRemittanceReservation(h,api,run,reviewedDelivery,timing.planRevisionId)
+ const reservation=await assertEmployerRemittanceReservation(h,api,run,reviewedDelivery,timing.planRevisionId)
  assert.equal(provider.posts(),0)
+ await assertEmployerContributionDelivery(h,api,reservation,server,provider,value=>{clock=new Date(value)})
+ await accounting.verify(h,api,reservation)
  await h.pool.query("UPDATE payroll_run SET status='VOID' WHERE id=$1",[run.id])
  assert.equal((await retirementInternalBalances(h.pool,1,employee.id,'standard',2026)).totals.annualAdditionsCents,0)
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_employer_run_ledger')).rows[0].n,1)
