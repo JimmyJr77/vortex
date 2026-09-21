@@ -39,7 +39,8 @@ test('run payment authorization retains a single reviewed plan and blocks manual
  await api(`/runs/${run.id}/status`,{status:'VOID'},'PATCH')
  assert.equal((await h.pool.query('SELECT * FROM payroll_payment_dispatch_attempt')).rowCount,0)
 })
-for(const variant of ['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','SCHEDULE','SCHEDULE_CANCEL','SCHEDULE_WITHDRAWN','SCHEDULE_RACE','SCHEDULE_EXPIRED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE','SWEEP','MIXED','CLOSEOUT','BANK_SETTLEMENT','ADMIN_ROUTE','ACCEPTED','LOST_RESPONSE','WRITE_INTERRUPTED','WITHDRAWN','BLOCKED_LOOKUP','BLOCKED_VERIFICATION','OBSERVED_AFTER_BLOCK','UNKNOWN_LOOKUP'])test(`direct-deposit dispatch retains authorized instructions and recovers safely (${variant})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const scenario of ['SETTLEMENT_UNSENT','SETTLEMENT_UNSENT_PENDING','SETTLEMENT_UNSENT_LEGACY','SETTLEMENT_UNSENT_EXISTING','REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTLEMENT_POSTING','SCHEDULE','SCHEDULE_CANCEL','SCHEDULE_WITHDRAWN','SCHEDULE_RACE','SCHEDULE_EXPIRED','AUTOMATIC','AUTO_CANCEL','AUTO_RACE','SWEEP','MIXED','CLOSEOUT','BANK_SETTLEMENT','ADMIN_ROUTE','ACCEPTED','LOST_RESPONSE','WRITE_INTERRUPTED','WITHDRAWN','BLOCKED_LOOKUP','BLOCKED_VERIFICATION','OBSERVED_AFTER_BLOCK','UNKNOWN_LOOKUP'])test(`direct-deposit dispatch retains authorized instructions and recovers safely (${scenario})`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const variant=scenario.startsWith('SETTLEMENT_UNSENT')?'SETTLEMENT_POSTING':scenario
  const previousKey=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`
  let routeFetcher,quickbooksFetcher
@@ -222,6 +223,62 @@ for(const variant of ['REPEAT_REPLACEMENT','REPEAT_REPLACEMENT_REGRESSED','SETTL
     const body={action:'SUBMIT',eventKey:prepared.items[0].key,fingerprint:prepared.fingerprint,reference:'Synthetic reviewed bank settlement journal',confirmed:true,noOtherPostingConfirmed:true}
     await api(posting,{...body,noOtherPostingConfirmed:false},'POST',400);assert.equal(qbo.posts,0)
     qbo.badGross=true;await api(posting,body,'POST',409);assert.equal(qbo.posts,0);assert.equal((await h.pool.query('SELECT * FROM payroll_settlement_journal')).rowCount,0);qbo.badGross=false
+    if(scenario.startsWith('SETTLEMENT_UNSENT')){
+     const transport=quickbooksFetcher;let queries=0,failQuery=1
+     quickbooksFetcher=async(url,options)=>{if(new URL(url).pathname.endsWith('/query')&&++queries===failQuery)throw new Error('Synthetic query failed before send');return transport(url,options)}
+     const first=await api(posting,body);assert.equal(first.result.status,'UNCERTAIN');assert.equal(qbo.posts,0)
+     const initial=(await h.pool.query('SELECT * FROM payroll_settlement_journal_observation WHERE journal_id=$1',[first.jobId])).rows[0]
+     assert.equal(initial.create_attempted,false);assert.equal(initial.retry_id,null)
+     prepared=await api(posting);let saved=prepared.jobs.find(j=>j.id===first.jobId);assert.equal(saved.retry.canRetry,true)
+     const retryBody=()=>({action:'RETRY_UNSENT',jobId:first.jobId,observationId:saved.retry.observationId,fingerprint:prepared.fingerprint,reference:'Synthetic reviewed proven unsent journal retry',confirmed:true,noOtherPostingConfirmed:true})
+     await api(posting,{...retryBody(),observationId:'0'},'POST',409)
+     await api(posting,{...retryBody(),confirmed:false},'POST',400)
+     const wrongScope=await fetch(`${h.url}/api/admin/payroll${posting}`,{method:'POST',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json','x-test-facility':'2'},body:JSON.stringify(retryBody())});assert.equal(wrongScope.status,409)
+     qbo.badGross=true;await api(posting,retryBody(),'POST',409);qbo.badGross=false;assert.equal(qbo.posts,0)
+     assert.equal((await h.pool.query('SELECT * FROM payroll_settlement_unsent_retry')).rowCount,0)
+     if(scenario==='SETTLEMENT_UNSENT_LEGACY'){
+      await h.pool.query("INSERT INTO payroll_settlement_journal_observation(journal_id,source,result) VALUES($1,'RECOVERY',$2)",[first.jobId,{status:'NOT_FOUND'}])
+      prepared=await api(posting);saved=prepared.jobs.find(j=>j.id===first.jobId);assert.equal(saved.retry.canRetry,false)
+      await api(posting,retryBody(),'POST',409)
+      const absent=(await h.pool.query("INSERT INTO payroll_settlement_journal_observation(journal_id,source,result,create_attempted) VALUES($1,'RECOVERY',$2,false) RETURNING id",[first.jobId,{status:'NOT_FOUND'}])).rows[0]
+      await assert.rejects(h.pool.query('INSERT INTO payroll_settlement_unsent_retry(id,journal_id,prior_submission_id,absence_observation_id,reference,created_by) VALUES($1,$2,$3,$4,$5,99)',[id(997),first.jobId,initial.id,absent.id,'Synthetic legacy observation cannot establish non-send']),/unknown, transmitted or conflicting/)
+      assert.equal(qbo.posts,0);return
+     }
+     if(scenario==='SETTLEMENT_UNSENT_EXISTING'){
+      const retained=(await h.pool.query('SELECT payload FROM payroll_settlement_journal WHERE id=$1',[first.jobId])).rows[0]
+      qbo.journals.set('101',{...retained.payload,Id:'101'})
+      const found=await api(posting,retryBody());assert.equal(found.result.status,'SYNCED');assert.equal(found.recovery,true);assert.equal(qbo.posts,0)
+      assert.equal((await h.pool.query('SELECT * FROM payroll_settlement_unsent_retry')).rowCount,0)
+      assert.equal((await h.pool.query("SELECT * FROM payroll_audit_log WHERE action='SETTLEMENT_RETRY_NOT_STARTED'")).rowCount,1)
+      assert.equal((await api(posting)).jobs.find(j=>j.id===first.jobId).retry.canRetry,false);return
+     }
+     if(scenario==='SETTLEMENT_UNSENT_PENDING'){
+      const absence=(await h.pool.query("INSERT INTO payroll_settlement_journal_observation(journal_id,source,result,create_attempted) VALUES($1,'RECOVERY',$2,false) RETURNING id",[first.jobId,{status:'NOT_FOUND'}])).rows[0]
+      await h.pool.query('INSERT INTO payroll_settlement_unsent_retry(id,journal_id,prior_submission_id,absence_observation_id,reference,created_by) VALUES($1,$2,$3,$4,$5,99)',[id(998),first.jobId,initial.id,absence.id,'Synthetic durable claim before interrupted worker'])
+      prepared=await api(posting);saved=prepared.jobs.find(j=>j.id===first.jobId);assert.equal(saved.retry.canRetry,false)
+      await api(posting,retryBody(),'POST',409);assert.equal(qbo.posts,0)
+      assert.equal((await api(posting,{action:'RECOVER',jobId:first.jobId})).result.status,'NOT_FOUND')
+      assert.equal((await api(posting)).jobs.find(j=>j.id===first.jobId).retry.canRetry,false)
+      await assert.rejects(h.pool.query('DELETE FROM payroll_settlement_unsent_retry'),/append-only/)
+      return
+     }
+     // First retry proves absence, commits its claim, then fails the second query.
+     failQuery=queries+2
+     const second=await api(posting,retryBody());assert.equal(second.result.status,'UNCERTAIN');assert.ok(second.retryId);assert.equal(qbo.posts,0)
+     prepared=await api(posting);saved=prepared.jobs.find(j=>j.id===first.jobId);assert.equal(saved.retry.canRetry,true);assert.equal(saved.retries.length,1)
+     assert.notEqual(saved.retry.observationId,String(initial.id))
+     const next=retryBody(),headers={Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'}
+     const raced=await Promise.all([1,2].map(()=>fetch(`${h.url}/api/admin/payroll${posting}`,{method:'POST',headers,body:JSON.stringify(next)})))
+     assert.deepEqual(raced.map(r=>r.status).sort(),[200,409]);assert.equal(qbo.posts,1)
+     prepared=await api(posting);saved=prepared.jobs.find(j=>j.id===first.jobId);assert.equal(saved.retry.canRetry,false);assert.equal(saved.retries.length,2)
+     assert.equal(saved.status,'UNCERTAIN') // provider accepted; response was lost
+     assert.equal((await api(posting,{action:'RECOVER',jobId:first.jobId})).result.status,'SYNCED');assert.equal(qbo.posts,1)
+     await api(posting,next,'POST',409);assert.equal(qbo.posts,1)
+     assert.equal((await h.pool.query('SELECT * FROM payroll_settlement_journal')).rowCount,1)
+     assert.equal((await h.pool.query('SELECT * FROM payroll_settlement_unsent_retry')).rowCount,2)
+     await assert.rejects(h.pool.query('INSERT INTO payroll_settlement_unsent_retry(id,journal_id,prior_submission_id,absence_observation_id,reference,created_by) VALUES($1,$2,$3,$3,$4,99)',[id(999),first.jobId,initial.id,'Synthetic attempt to bypass transmitted safeguard']),/unknown, transmitted or conflicting/)
+     return
+    }
     const first=await api(posting,body);assert.equal(first.result.status,'UNCERTAIN');assert.equal(qbo.posts,1);assert.equal((await h.pool.query('SELECT status FROM payroll_alert WHERE dedupe_key=$1',[`settlement-journal-${first.jobId}`])).rows[0].status,'OPEN')
     const returned={...settled.result,status:'RETURNED',settlementStatus:'EXCEPTION',settlementEvidence:[],returnEvidenceStatus:'BANK_CREDIT_POSTED',returnEvidence:{returnId:id(12),transactionId:id(13),lineItemId:id(14),postedDate:'2026-09-20',amountCents:plan.totals.directDepositCents}}
     await h.pool.query("INSERT INTO payroll_payment_observation(attempt_id,source,result) SELECT id,'RECOVERY',$2 FROM payroll_payment_dispatch_attempt WHERE instruction_id=$1",[instructionId,returned])

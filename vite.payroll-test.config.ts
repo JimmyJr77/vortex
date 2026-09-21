@@ -11,7 +11,9 @@ export default mergeConfig(base, defineConfig({
     outDir: 'dist-payroll-test',
     rollupOptions: { input: {
       app: fileURLToPath(new URL('./index.html', import.meta.url)),
+      retirementPlan: fileURLToPath(new URL('./tests/support/retirement-plan.html', import.meta.url)),
       payroll: fileURLToPath(new URL('./tests/support/payroll.html', import.meta.url)),
+      onboardingInputs: fileURLToPath(new URL('./tests/support/onboarding-inputs.html', import.meta.url)),
     } },
   },
   preview: { host: '127.0.0.1', port, strictPort: true },

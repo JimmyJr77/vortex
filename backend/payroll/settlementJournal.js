@@ -24,7 +24,7 @@ function normalized(journal){
 export function journalMatches(actual,expected){try{if(expected?.CurrencyRef?.value&&actual?.CurrencyRef?.value!==expected.CurrencyRef.value)return false;return JSON.stringify(normalized(actual))===JSON.stringify(normalized(expected))}catch{return false}}
 // The caller must commit a unique operation claim before allowCreate=true.
 // Once claimed, every retry defaults to query-only recovery.
-export async function resolveSettlementJournal(job,request,{allowCreate=false}={}){
+export async function resolveSettlementJournal(job,request,{allowCreate=false,onCreateAttempt=()=>{}}={}){
  if(!uuid(job?.id)||typeof request!=='function'||!/^VTXB-[A-Za-z0-9_-]{16}$/.test(job.payload?.DocNumber)||!journalMatches(job.payload,job.payload))throw fail()
  const receipt=journal=>/^[1-9]\d*$/.test(String(journal?.Id))&&journalMatches(journal,job.payload)?{status:'SYNCED',journalId:String(journal.Id)}:{status:'NEEDS_REVIEW'}
  try{
@@ -35,6 +35,7 @@ export async function resolveSettlementJournal(job,request,{allowCreate=false}={
   if(!Array.isArray(rows)||rows.length>1)return {status:'NEEDS_REVIEW'}
   if(rows.length)return receipt(rows[0])
   if(allowCreate!==true)return {status:'NOT_FOUND'}
+  onCreateAttempt()
   const result=await request(`journalentry?requestid=${job.id}`,{body:job.payload})
   return receipt(result.JournalEntry)
  }catch{return {status:'UNCERTAIN'}}

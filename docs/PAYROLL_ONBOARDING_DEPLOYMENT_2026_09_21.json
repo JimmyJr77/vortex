@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-09-21T21:16:44.936Z",
+  "health": {
+    "httpStatus": 200,
+    "status": "OK",
+    "releaseCommit": "1e544fc764be",
+    "dbConnected": true,
+    "payrollDocumentStorageReady": true,
+    "emailConfigured": true
+  },
+  "cors": [
+    {
+      "path": "/api/admin/payroll/employees",
+      "status": 204,
+      "origin": "https://vortexathletics.com",
+      "credentials": "true"
+    },
+    {
+      "path": "/api/admin/notifications",
+      "status": 204,
+      "origin": "https://vortexathletics.com",
+      "credentials": "true"
+    },
+    {
+      "path": "/api/admin/billing/cancellation-requests?status=pending",
+      "status": 204,
+      "origin": "https://vortexathletics.com",
+      "credentials": "true"
+    }
+  ],
+  "frontend": {
+    "deploymentId": "dpl_35yLyxS2Hpvx9vG5p8FLG7sB1F92",
+    "commit": "4bfd5a272acc378296f4713d50baff038ff796f4",
+    "state": "READY",
+    "alias": "vortexathletics.com"
+  },
+  "limitations": [
+    "Read-only health and CORS checks; no authenticated production onboarding or live provider transaction.",
+    "Backend remains on earlier commit; onboarding repair changed frontend only."
+  ]
+}

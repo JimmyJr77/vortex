@@ -1,0 +1,54 @@
+{
+  "baseCommit": "1e544fc7",
+  "candidate": "/tmp/vortex-settlement-unsent-candidate",
+  "result": {
+    "total": 209,
+    "passed": 206,
+    "failed": 2,
+    "didNotRun": 1,
+    "duration": "37.6m"
+  },
+  "log": "/tmp/payroll-static-full.log",
+  "logSha256": "99437d2b5edd1b7a3edc8bf6e0ad7fbda586cb246710c6606729be95a542dc86",
+  "inputFileCount": 3700,
+  "inputMismatches": [],
+  "failures": [
+    "\u2718  151 tests/e2e/payroll-retirement-plan-form.spec.ts:3:1 \u203a staged retirement plan form reviews terms and retries without duplicating a revision (30.0s)",
+    "\u2718  191 tests/e2e/payroll-static-entry.spec.ts:31:3 \u203a built payroll portal opens and reloads directly at /employee/payroll (0ms)"
+  ],
+  "didNotRun": "payroll-static-entry.spec.ts: preparer entry, beforeAll failed",
+  "diagnosis": {
+    "retirementPlanForm": "Static candidate build omitted tests/support/retirement-plan.html; request rendered homepage instead of fixture.",
+    "staticEntry": "Candidate omitted vercel.json; beforeAll failed before either entry could be exercised. Test also needs to select the static payroll build directory."
+  },
+  "nativeJourneys": "All four passed, including unassisted and linked-account rehire/second payroll.",
+  "limitations": [
+    "The full run remains 206 passed / 2 failed / 1 not run; three affected cases passed after setup corrections. These and three additional main tests are separate runs, not a single green 212-case run.",
+    "Earlier progress commentary after case151 used ordinal case numbers and overstated pass totals. This terminal result supersedes those counts.",
+    "Synthetic provider evidence does not prove live financial or agency acceptance."
+  ],
+  "focusedSetupCorrection": {
+    "result": "3 passed, 0 failed",
+    "duration": "14.9s including build/startup",
+    "log": "/tmp/payroll-static-setup-correction.log",
+    "logSha256": "cbb46d092b9424562236f3f5b17241d42929602d628cea324ad09f0f43745aaa",
+    "changes": [
+      "Build the retirement-plan HTML fixture.",
+      "Run direct-entry tests against dist-payroll-test selected by the payroll configuration.",
+      "Use main workspace, which contains the real vercel.json."
+    ],
+    "assertionsAndTimeouts": "unchanged"
+  },
+  "additionalMainChecks": [
+    {
+      "scope": "older/current backend response compatibility",
+      "passed": 2,
+      "log": "/tmp/payroll-settlement-compat.log"
+    },
+    {
+      "scope": "phone formatting and explicit account linking",
+      "passed": 1,
+      "log": "/tmp/payroll-phone-link-static.log"
+    }
+  ]
+}

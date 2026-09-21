@@ -9,7 +9,7 @@ import {resolve,extname,sep} from 'node:path'
 let server:Server,url:string
 test.beforeAll(async()=>{
  const config=JSON.parse(await readFile('vercel.json','utf8'))
- const root=resolve('dist')
+ const root=resolve(process.env.PAYROLL_BROWSER_BUILD_DIR || 'dist')
  const mime:Record<string,string>={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2','.ico':'image/x-icon'}
  server=createServer(async(req,res)=>{
   const pathname=new URL(req.url!,'http://localhost').pathname

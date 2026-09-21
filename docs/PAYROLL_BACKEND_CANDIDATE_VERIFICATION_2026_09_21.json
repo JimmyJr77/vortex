@@ -1,0 +1,30 @@
+{
+  "candidateBaseCommit": "1e544fc7",
+  "source": "/tmp/vortex-settlement-unsent-candidate",
+  "command": "PAYROLL_TEST_DATABASE_URL=<isolated-local-postgres> node --test --test-concurrency=1 backend/payroll/__tests__/*.test.js",
+  "nodeVersion": "22.17.1",
+  "result": {
+    "tests": 1007,
+    "pass": 1007,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "durationMs": 1204973.8065,
+  "log": "/tmp/payroll-candidate-full-backend.log",
+  "logSha256": "751386abddf34b9ef63dccd9847c2eeba84a28cac0c57cde28983c1bae2c01d0",
+  "inputManifest": "/tmp/payroll-static-full-inputs.json",
+  "recordedInputsChecked": 3700,
+  "candidateInputMismatches": [],
+  "backendFilesComparedWithMain": 2547,
+  "mainDifferences": [
+    "backend/payroll/__tests__/settlementUnsentProof.test.js"
+  ],
+  "differenceExplanation": "Main strengthens the adverse-evidence unit test with distinct IDs and a positive control; unchanged implementation. Its five-test focused run passed separately.",
+  "limitations": [
+    "Full browser result and separate setup rechecks are recorded in PAYROLL_STATIC_BROWSER_VERIFICATION_2026_09_21.json.",
+    "Main has separately tested UI guards for older backend payloads and extra browser coverage.",
+    "Synthetic provider tests do not establish live financial settlement or government acceptance."
+  ]
+}

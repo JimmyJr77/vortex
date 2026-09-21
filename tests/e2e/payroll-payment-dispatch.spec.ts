@@ -10,7 +10,8 @@ import {addMixedPaymentEmployees} from '../../backend/payroll/testing/mixedPayme
 import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {randomBytes} from 'node:crypto'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
-for(const variant of ['UNCERTAIN','PREFLIGHT_BLOCKED','BANK_SETTLEMENT','REPEAT_REPLACEMENT','SCHEDULE'])test(`admin resolves provider evidence without payroll being marked paid (${variant})`,async({page})=>{
+for(const scenario of ['SETTLEMENT_UNSENT','UNCERTAIN','PREFLIGHT_BLOCKED','BANK_SETTLEMENT','REPEAT_REPLACEMENT','SCHEDULE'])test(`admin resolves provider evidence without payroll being marked paid (${scenario})`,async({page})=>{
+ const variant=scenario==='SETTLEMENT_UNSENT'?'BANK_SETTLEMENT':scenario
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(60000);page.setDefaultTimeout(10000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  const id=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`
@@ -160,6 +161,27 @@ for(const variant of ['UNCERTAIN','PREFLIGHT_BLOCKED','BANK_SETTLEMENT','REPEAT_
    await expect(posting.getByRole('button',{name:'Post returned-credit journal',exact:true})).toBeDisabled()
    await expect(posting.getByRole('button',{name:'Post replacement withdrawal journal',exact:true})).toBeDisabled()
    await posting.getByLabel('Settlement posting reference',{exact:true}).fill('Synthetic reviewed bank journals and returns')
+   if(scenario==='SETTLEMENT_UNSENT'){
+    const transport=quickbooksFetcher!;let failQuery=true
+    quickbooksFetcher=async(url,options)=>{if(failQuery&&new URL(url).pathname.endsWith('/query')){failQuery=false;throw new Error('Synthetic pre-create query failure')}return transport(url,options)}
+    const confirmation=posting.getByLabel('I reviewed these movements and accounts, verified they have not already been recorded manually or by bank rules, and authorize the selected QuickBooks journal.',{exact:true})
+    await confirmation.check();await posting.getByRole('button',{name:'Post withdrawal journal',exact:true}).click()
+    await expect(posting.getByRole('status')).toContainText('UNCERTAIN');expect(qbo.posts).toBe(0)
+    const retry=posting.getByRole('button',{name:'Retry proven-unsent journal',exact:true})
+    await expect(retry).toBeVisible();await expect(retry).toBeDisabled()
+    await posting.getByLabel('Settlement posting reference',{exact:true}).fill('Reviewed original movement and confirmed no outside posting before retry')
+    await confirmation.check();await retry.click()
+    await expect(posting.getByRole('status')).toContainText('UNCERTAIN');expect(qbo.posts).toBe(1)
+    await expect(retry).toHaveCount(0);await expect(posting.getByText('Reviewed retry history (1)',{exact:true})).toBeVisible()
+    await posting.getByText('Reviewed retry history (1)',{exact:true}).click()
+    await expect(posting.getByText('Reviewed original movement and confirmed no outside posting before retry',{exact:true})).toBeVisible()
+    await posting.getByRole('button',{name:'Recover withdrawal journal',exact:true}).click()
+    await expect(posting.getByText('SYNCED · QuickBooks journal 101',{exact:true})).toBeVisible();expect(qbo.posts).toBe(1)
+    await posting.screenshot({path:'/tmp/payroll-settlement-unsent-retry-mobile.png'})
+    expect((await h.pool.query('SELECT * FROM payroll_settlement_unsent_retry')).rowCount).toBe(1)
+    expect((await h.pool.query('SELECT * FROM payroll_settlement_journal')).rowCount).toBe(1)
+    return
+   }
    if(variant==='BANK_SETTLEMENT'){
     const automationPath=`/runs/${run.id}/payment-accounting/automation`,state=await api(automationPath),body={enabled:true,expectedRevision:state.revision,fingerprint:state.fingerprint,reference:'Synthetic ordinary payroll automatic accounting',confirmed:true,noOtherPostingConfirmed:true}
     await api(automationPath,body)

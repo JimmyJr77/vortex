@@ -30,3 +30,19 @@ for(const variant of ['NORMAL','LOST_RESPONSE','WRONG_ACCOUNT','DUPLICATE','MISS
 })
 
 test('ambiguous query shapes and missing currency never qualify as confirmed journal evidence',async()=>{const job={id:id(4),payload:settlementJournalPayload(event,mapping,destination)};let posts=0;const request=async(path,options)=>{if(options?.body)posts++;return {}};assert.equal((await resolveSettlementJournal(job,request,{allowCreate:true})).status,'NEEDS_REVIEW');assert.equal(posts,0);const copy=structuredClone(job.payload);delete copy.CurrencyRef;assert.equal(journalMatches(copy,job.payload),false)})
+
+for (const stage of ['QUERY_FAILURE','BAD_QUERY','MATCH','CREATE_FAILURE','CREATE_SUCCESS','RECOVERY']) test(`settlement no-send evidence reflects the actual request boundary: ${stage}`,async()=>{
+ const job={id:id(4),payload:settlementJournalPayload(event,mapping,destination)}
+ let attempted=false,posts=0
+ const request=async(path,options)=>{
+  if(options?.body){posts++;assert.equal(attempted,true);if(stage==='CREATE_FAILURE')throw new Error('Synthetic uncertain create');return {JournalEntry:{...job.payload,Id:'55'}}}
+  if(stage==='QUERY_FAILURE')throw new Error('Synthetic query unavailable')
+  if(stage==='BAD_QUERY')return {}
+  if(stage==='MATCH')return {QueryResponse:{JournalEntry:[{...job.payload,Id:'55'}]}}
+  return {QueryResponse:{}}
+ }
+ const result=await resolveSettlementJournal(job,request,{allowCreate:stage!=='RECOVERY',onCreateAttempt:()=>{attempted=true}})
+ assert.equal(attempted,['CREATE_FAILURE','CREATE_SUCCESS'].includes(stage))
+ assert.equal(posts,attempted?1:0)
+ assert.equal(result.status,{QUERY_FAILURE:'UNCERTAIN',BAD_QUERY:'NEEDS_REVIEW',MATCH:'SYNCED',CREATE_FAILURE:'UNCERTAIN',CREATE_SUCCESS:'SYNCED',RECOVERY:'NOT_FOUND'}[stage])
+})

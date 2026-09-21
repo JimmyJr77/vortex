@@ -1,9 +1,12 @@
 import { defineConfig } from '@playwright/test'
 import base from './playwright.config'
 
+// The direct-entry test serves the same artifact built by this configuration.
+process.env.PAYROLL_BROWSER_BUILD_DIR ||= 'dist-payroll-test'
+
 const port = Number(process.env.PAYROLL_BROWSER_PORT || 4173)
 export default defineConfig(base, {
-  testMatch: 'payroll-*.spec.ts',
+  testMatch: ['payroll-*.spec.ts', 'onboarding-inputs.spec.ts'],
   fullyParallel: false,
   workers: 1,
   // Expose failures on the first attempt; retries must not mask regressions.
