@@ -12,7 +12,8 @@ export async function retirementRemittancePreview(db,facility,runId,input,{fetch
  if(!source)throw fail('Finalized retirement payroll not found.',404)
  if(source.status==='RECONCILIATION_REQUIRED'||source.sourceFingerprint!==input.sourceFingerprint)throw fail('Contribution or participant evidence changed. Refresh and reconcile the payroll source.')
  const selected=source.allocations.filter(a=>a.planId===input.planId&&a.totalCents>0)
- if(!selected.length)throw fail('This payroll has no positive employee contributions for the selected plan.')
+ if(!selected.length)throw fail('This payroll has no positive contributions for the selected plan.')
+ if(selected.some(a=>a.employerMatchingCents>0||a.employerNonelectiveCents>0))throw fail('Employer contributions require reviewed employer allocation, receipt and timing contracts before remittance preparation.')
  if(selected.some(a=>a.destinationReview.status==='ACCOUNT_REVIEW_REQUIRED'))throw fail('Retirement destination account review requires a successful current recheck before remittance preparation.')
  const plan=(await db.query('SELECT id,plan FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,input.planId])).rows[0]
  const destinationId=(await db.query('SELECT id FROM payroll_retirement_destination WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC LIMIT 1',[facility,input.planId])).rows[0]?.id

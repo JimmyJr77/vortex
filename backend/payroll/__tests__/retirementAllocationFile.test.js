@@ -45,3 +45,15 @@ test('reviewed allocations download exact reconciled amounts, hide identifiers i
  await api(path,{planId:'standard',sourceFingerprint:(await source()).sourceFingerprint},'POST',409)
  assert.equal(provider.posts(),0)
 })
+
+test('employer allocation columns preserve matching and nonelective cents and cannot be silently omitted',()=>{
+ const base=allocationFormatFixture(),extra=[{field:'employerMatchingCents',header:'Employer matching'},{field:'employerNonelectiveCents',header:'Employer nonelective'}]
+ const format=retirementAllocationFormatInput({...base,columns:[...base.columns,...extra]})
+ const row={providerPlanId:'001',participantId:'P1',withheldDate:'2026-09-18',ordinaryPretaxCents:1000,ordinaryRothCents:400,catchUpPretaxCents:0,catchUpRothCents:0,employerMatchingCents:600,employerNonelectiveCents:400,totalCents:2400}
+ assert.equal(retirementAllocationCsv(format,[row]).split('\r\n')[1],'"001","P1","2026-09-18","10.00","4.00","0.00","0.00","24.00","6.00","4.00"')
+ assert.throws(()=>retirementAllocationCsv(retirementAllocationFormatInput(base),[row]),/both employer contribution columns/)
+ assert.throws(()=>retirementAllocationCsv(format,[{...row,employerMatchingCents:undefined}]),/exact nonnegative/)
+ assert.throws(()=>retirementAllocationCsv(format,[{...row,totalCents:1400}]),/reconcile/)
+ assert.throws(()=>retirementAllocationFormatInput({...base,columns:[...base.columns,...extra.slice(0,1)]}),/all allocation columns/)
+ assert.throws(()=>retirementAllocationFormatInput({...base,columns:[...base.columns.slice(0,6),...extra]}),/all employee fields/)
+})

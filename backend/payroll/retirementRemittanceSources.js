@@ -1,3 +1,4 @@
+import {verifyEmployerRetirementPosting} from './retirementEmployerJournal.js'
 import {retirementAllocationFormatHistory} from './retirementAllocationFormat.js'
 import {retirementTimingAssessment} from './retirementTiming.js'
 import {retirementDestinationStatus} from './retirementDestination.js'
@@ -27,8 +28,10 @@ export async function retirementRemittanceSources(db,facility,{beforeRunId=null,
   const base={runId:String(run.id),paymentDate:run.pay_date,runKind:run.run_kind}
   try{
    await verifyRetirementPosting(db,run)
+   await verifyEmployerRetirementPosting(db,run)
    const posted=(await db.query(`SELECT re.*,e.legal_first_name,e.legal_last_name FROM payroll_run_employee re JOIN payroll_employee e ON e.id=re.employee_id AND e.facility_id=$2 WHERE re.payroll_run_id=$1 ORDER BY re.employee_id`,[run.id,facility])).rows
    const ledger=(await db.query('SELECT id,employee_id,plan_id,calculation FROM payroll_retirement_run_ledger WHERE facility_id=$1 AND run_id=$2 ORDER BY employee_id,plan_id',[facility,run.id])).rows
+   const employerLedger=(await db.query('SELECT id,employee_id,plan_id,calculation,matching_cents,nonelective_cents FROM payroll_retirement_employer_run_ledger WHERE facility_id=$1 AND run_id=$2 ORDER BY employee_id,plan_id',[facility,run.id])).rows
    const employees=run.calculation_snapshot?.employees
    if(!Array.isArray(employees)||!employees.length||!ledger.length)throw fail('Reconcile missing finalized retirement calculations or ledger records.')
    const allocations=[];let totalCents=0
@@ -44,22 +47,27 @@ export async function retirementRemittanceSources(db,facility,{beforeRunId=null,
     for(const entry of entries){
      const c=entry.calculation,record=retained.find(l=>l.plan_id===entry.planId)
      if(!record||c.payDate!==run.pay_date||c.retirement401k?.planType!=='STANDARD_401K')throw fail('Reconcile contribution payment date and plan treatment.')
-     totalCents=add(totalCents,c.totalCents)
+     const employer=employerLedger.find(l=>String(l.employee_id)===String(row.employee_id)&&l.plan_id===entry.planId)
+     const retainedPlan=(await db.query('SELECT plan FROM payroll_retirement_plan_revision WHERE id=$1 AND facility_id=$2 AND plan_id=$3',[c.source?.planRevisionId,facility,entry.planId])).rows[0]?.plan
+     if(!retainedPlan||retainedPlan.employerContributions!=='NONE'&&!employer)throw fail('Reconcile missing employer contribution reservations before preparing remittance.')
+     const employerAmounts=employer?{employerLedgerId:String(employer.id),employerMatchingCents:Number(employer.matching_cents),employerNonelectiveCents:Number(employer.nonelective_cents),employeeTotalCents:c.totalCents}:{}
+     const allocationTotal=add(c.totalCents,employer?add(employerAmounts.employerMatchingCents,employerAmounts.employerNonelectiveCents):0)
+     totalCents=add(totalCents,allocationTotal)
      let participantMapping={status:'NOT_REQUIRED'}
-     if(c.totalCents){
+     if(allocationTotal){
       try{const mapping=await readRetirementParticipantMapping(db,facility,row.employee_id,entry.planId);participantMapping={status:'VERIFIED',mappingId:mapping.id,sourceFingerprint:mapping.source.fingerprint,maskedIdentifiers:mapping.masked_identifiers}}
       catch(e){if(![409,503].includes(e.status))throw e;participantMapping={status:'REVIEW_REQUIRED'}}
      }
-     if(c.totalCents&&!destinationStates.has(entry.planId))destinationStates.set(entry.planId,await retirementDestinationStatus(db,facility,entry.planId))
-     const destinationReview=c.totalCents?destinationStates.get(entry.planId):{status:'NOT_REQUIRED'}
-     const timing=c.totalCents?await retirementTimingAssessment(db,facility,entry.planId,run.pay_date,{now}):{status:'NOT_REQUIRED'}
-     if(c.totalCents&&!formatStates.has(entry.planId)){const row=(await retirementAllocationFormatHistory(db,facility,entry.planId)).history[0];formatStates.set(entry.planId,row?{formatId:row.id,status:!row.currentPlan?'PLAN_CHANGED':row.format.disposition}:{status:'REVIEW_REQUIRED'})}
-     const allocationFormat=c.totalCents?formatStates.get(entry.planId):{status:'NOT_REQUIRED'}
-     allocations.push({allocationFormat,timing,destinationReview,participantMapping,ledgerId:String(record.id),employeeId:String(row.employee_id),employeeName:`${row.legal_first_name} ${row.legal_last_name}`,planId:entry.planId,planName:c.planName||entry.planId,ordinaryPretaxCents:c.ordinary.pretax,ordinaryRothCents:c.ordinary.roth,catchUpPretaxCents:c.catchUp.pretax,catchUpRothCents:c.catchUp.roth,totalCents:c.totalCents})
+     if(allocationTotal&&!destinationStates.has(entry.planId))destinationStates.set(entry.planId,await retirementDestinationStatus(db,facility,entry.planId))
+     const destinationReview=allocationTotal?destinationStates.get(entry.planId):{status:'NOT_REQUIRED'}
+     const timing=allocationTotal?await retirementTimingAssessment(db,facility,entry.planId,run.pay_date,{now}):{status:'NOT_REQUIRED'}
+     if(allocationTotal&&!formatStates.has(entry.planId)){const row=(await retirementAllocationFormatHistory(db,facility,entry.planId)).history[0];formatStates.set(entry.planId,row?{formatId:row.id,status:!row.currentPlan?'PLAN_CHANGED':row.format.disposition}:{status:'REVIEW_REQUIRED'})}
+     const allocationFormat=allocationTotal?formatStates.get(entry.planId):{status:'NOT_REQUIRED'}
+     allocations.push({allocationFormat,timing,destinationReview,participantMapping,ledgerId:String(record.id),employeeId:String(row.employee_id),employeeName:`${row.legal_first_name} ${row.legal_last_name}`,planId:entry.planId,planName:c.planName||entry.planId,ordinaryPretaxCents:c.ordinary.pretax,ordinaryRothCents:c.ordinary.roth,catchUpPretaxCents:c.catchUp.pretax,catchUpRothCents:c.catchUp.roth,...employerAmounts,totalCents:allocationTotal})
     }
    }
    if(allocations.length!==ledger.length)throw fail('Reconcile retirement ledger records missing from employee payroll.')
-   items.push({...base,status:totalCents?'DELIVERY_UNVERIFIED':'NO_EMPLOYEE_CONTRIBUTION',totalCents,allocations,sourceFingerprint:hash({facility:String(facility),runId:base.runId,paymentDate:run.pay_date,ledger,statements:posted.map(r=>({employeeId:String(r.employee_id),retirement:r.statement_snapshot?.retirement})),allocations}),issue:null})
+   items.push({...base,status:totalCents?'DELIVERY_UNVERIFIED':'NO_EMPLOYEE_CONTRIBUTION',totalCents,allocations,sourceFingerprint:hash({facility:String(facility),runId:base.runId,paymentDate:run.pay_date,ledger,...(employerLedger.length?{employerLedger}:{}),statements:posted.map(r=>({employeeId:String(r.employee_id),retirement:r.statement_snapshot?.retirement})),allocations}),issue:null})
   }catch(e){if(e.status!==409)throw e;items.push({...base,status:'RECONCILIATION_REQUIRED',totalCents:null,allocations:[],sourceFingerprint:null,issue:e.message})}
  }
  return {year:2026,items,nextCursor:runs.length>limit?String(runs[limit-1].id):null}

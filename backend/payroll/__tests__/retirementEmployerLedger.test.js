@@ -1,3 +1,5 @@
+import {retirementRemittanceSources} from '../retirementRemittanceSources.js'
+import {retirementRemittancePreview} from '../retirementRemittancePreview.js'
 import {retirementStatementSummary} from '../retirementStatement.js'
 import {verifyEmployerRetirementPosting} from '../retirementEmployerJournal.js'
 import {loadBasePreview} from '../registerRoutes.js'
@@ -112,6 +114,15 @@ test('employer reservations retain exact approved evidence and consume shared an
  const statement={payItems:applied.payItems,retirement:retirementStatementSummary(applied),employeeName:'Monthly Benefits',employeeNumber:'SYNTHETIC',employer:{name:'Synthetic Employer'}}
  const statementRow=(await h.pool.query('UPDATE payroll_run_employee SET statement_snapshot=$1 WHERE payroll_run_id=$2 AND employee_id=$3 RETURNING id',[statement,run.id,employee.id])).rows[0]
  await h.pool.query("UPDATE payroll_run SET status='FINALIZED' WHERE id=$1",[run.id])
+ const delivery=(await retirementRemittanceSources(h.pool,1,{runId:run.id,now:new Date('2026-09-18T12:00:00Z')})).items[0]
+ assert.equal(delivery.status,'DELIVERY_UNVERIFIED',JSON.stringify(delivery))
+ assert.equal(delivery.totalCents,2400)
+ assert.equal(delivery.allocations[0].employeeTotalCents,1400)
+ assert.equal(delivery.allocations[0].employerMatchingCents,600)
+ assert.equal(delivery.allocations[0].employerNonelectiveCents,400)
+ assert.equal(delivery.allocations[0].totalCents,2400)
+ assert.match(delivery.allocations[0].employerLedgerId,/^[1-9]\d*$/)
+ await assert.rejects(retirementRemittancePreview(h.pool,1,run.id,{planId:'standard',sourceFingerprint:delivery.sourceFingerprint},{now:new Date('2026-09-18T12:00:00Z'),fetcher:async()=>{throw new Error('No provider call permitted')}}),/Employer contributions require reviewed/)
  const statementResponse=await fetch(`${h.url}/api/payroll/employee/pay-statements/${statementRow.id}.pdf`,{headers:{Authorization:'Bearer monthly-benefits-session'}})
  assert.equal(statementResponse.status,200)
  assert.equal(statementResponse.headers.get('content-type'),'application/pdf')

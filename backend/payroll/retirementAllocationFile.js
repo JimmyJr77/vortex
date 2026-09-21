@@ -1,21 +1,26 @@
 import {createHmac} from 'node:crypto'
 import {retirementRemittancePreview} from './retirementRemittancePreview.js'
-import {retirementAllocationFormatHistory} from './retirementAllocationFormat.js'
+import {retirementAllocationFormatHistory,allocationFields,employerAllocationFields} from './retirementAllocationFormat.js'
 import {readRetirementParticipantMapping} from './retirementParticipantMapping.js'
 import {vaultReady} from './onboarding.js'
 const fail=(message,status=409)=>Object.assign(new Error(message),{status})
 const quote=x=>`"${String(x).replaceAll('"','""')}"`
 const safeIdentifier=x=>{if(typeof x!=='string'||!x||/[\u0000-\u001f\u007f]/.test(x)||/^[\s]*[=+@-]/.test(x))throw fail('A recordkeeper identifier needs a different verified export format; spreadsheet-active prefixes cannot be exported here.');return x}
 export function retirementAllocationCsv(format,rows){
+ const fields=format?.columns?.map(c=>c.field)||[]
+ if(!['CENTS','DOLLARS'].includes(format?.amountFormat)||!['ISO','US'].includes(format?.dateFormat)||typeof format?.includeHeader!=='boolean'||![allocationFields.length,allocationFields.length+employerAllocationFields.length].includes(fields.length)||new Set(fields).size!==fields.length||allocationFields.some(field=>!fields.includes(field))||fields.some(field=>![...allocationFields,...employerAllocationFields].includes(field)))throw fail('Use complete retained allocation columns and exact amount/date formats.')
+ const employerIncluded=employerAllocationFields.every(field=>format.columns.some(c=>c.field===field))
+ const categories=['ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents',...(employerIncluded?employerAllocationFields:[])]
  const result=[]
  if(format.includeHeader)result.push(format.columns.map(c=>quote(c.header)).join(','))
  for(const row of rows){
   const values={...row,providerPlanId:safeIdentifier(row.providerPlanId),participantId:safeIdentifier(row.participantId)}
-  for(const field of ['ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents','totalCents']){
+  if(!employerIncluded&&employerAllocationFields.some(field=>row[field]!==undefined&&row[field]!==0))throw fail('The reviewed allocation format must include both employer contribution columns.')
+  for(const field of [...categories,'totalCents']){
    const cents=row[field];if(!Number.isSafeInteger(cents)||cents<0)throw fail('Allocation amounts must be exact nonnegative cents.')
    values[field]=format.amountFormat==='CENTS'?String(cents):`${Math.floor(cents/100)}.${String(cents%100).padStart(2,'0')}`
   }
-  if(row.ordinaryPretaxCents+row.ordinaryRothCents+row.catchUpPretaxCents+row.catchUpRothCents!==row.totalCents)throw fail('Allocation categories do not reconcile to the employee total.')
+  if(!Number.isSafeInteger(categories.reduce((sum,field)=>sum+row[field],0))||categories.reduce((sum,field)=>sum+row[field],0)!==row.totalCents)throw fail('Allocation categories do not reconcile to the employee total.')
   if(!/^\d{4}-\d{2}-\d{2}$/.test(row.withheldDate)||!Number.isFinite(Date.parse(row.withheldDate))||new Date(row.withheldDate).toISOString().slice(0,10)!==row.withheldDate)throw fail('Review the actual withholding date before allocation.')
   if(format.dateFormat==='US')values.withheldDate=`${row.withheldDate.slice(5,7)}/${row.withheldDate.slice(8,10)}/${row.withheldDate.slice(0,4)}`
   result.push(format.columns.map(c=>quote(values[c.field])).join(','))
@@ -27,6 +32,7 @@ export async function retirementAllocationFile(db,facility,runId,input,{fetcher=
  const preview=await retirementRemittancePreview(db,facility,runId,input,{fetcher,now})
  const {history}=await retirementAllocationFormatHistory(db,facility,input.planId),format=history[0]
  if(!format||!format.currentPlan||format.format.disposition!=='VERIFIED')throw fail('Review the current recordkeeper allocation format before preparing a file.')
+ if(format.format.columns.some(c=>employerAllocationFields.includes(c.field)))throw fail('Employer allocation columns require matching provider receipt and timing contracts before file preparation.')
  if(!preview.timing?.reviewId||['PLAN_CHANGED','SUSPENDED','REVIEW_REQUIRED','CALENDAR_REVIEW_REQUIRED','ADVANCE_SUBMISSION_REVIEW_REQUIRED'].includes(preview.timing.status))throw fail('Review current contribution timing before preparing recordkeeper allocations.')
  const rows=[]
  for(const a of preview.allocations){const mapping=await readRetirementParticipantMapping(db,facility,a.employeeId,input.planId);if(mapping.id!==a.participantMapping.mappingId)throw fail('Participant mapping changed. Refresh the contribution review.');rows.push({...a,...mapping.identifiers,withheldDate:preview.withheldDate})}

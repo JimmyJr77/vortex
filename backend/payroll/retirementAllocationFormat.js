@@ -1,23 +1,25 @@
 import {createHash,randomUUID} from 'node:crypto'
 export const allocationFields=['providerPlanId','participantId','withheldDate','ordinaryPretaxCents','ordinaryRothCents','catchUpPretaxCents','catchUpRothCents','totalCents']
+export const employerAllocationFields=['employerMatchingCents','employerNonelectiveCents']
 const fail=(message,status=400)=>Object.assign(new Error(message),{status})
 const uuid=x=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(x)
 export function retirementAllocationFormatInput(b){
  if(!b||!['VERIFIED','SUSPENDED'].includes(b.disposition)||b.confirmed!==true||typeof b.reference!=='string'||b.reference.trim().length<20||b.reference.length>2000)throw fail('Confirm the recordkeeper format and retain its specification reference.')
  const base={disposition:b.disposition,reference:b.reference.trim()}
  if(b.disposition==='SUSPENDED')return base
- if(!['CENTS','DOLLARS'].includes(b.amountFormat)||!['ISO','US'].includes(b.dateFormat)||typeof b.includeHeader!=='boolean'||!Array.isArray(b.columns)||b.columns.length!==allocationFields.length)throw fail('Review all allocation columns, amount/date formats and header requirements.')
+ if(!['CENTS','DOLLARS'].includes(b.amountFormat)||!['ISO','US'].includes(b.dateFormat)||typeof b.includeHeader!=='boolean'||!Array.isArray(b.columns)||![allocationFields.length,allocationFields.length+employerAllocationFields.length].includes(b.columns.length))throw fail('Review all allocation columns, amount/date formats and header requirements.')
  const fields=new Set(),headers=new Set(),columns=b.columns.map(c=>{
-  if(!allocationFields.includes(c?.field)||fields.has(c.field)||typeof c.header!=='string'||!/^[A-Za-z][A-Za-z0-9 _().-]{0,79}$/.test(c.header)||headers.has(c.header.toLowerCase()))throw fail('Each allocation field needs a unique reviewed column and safe header.')
+  if(![...allocationFields,...employerAllocationFields].includes(c?.field)||fields.has(c.field)||typeof c.header!=='string'||!/^[A-Za-z][A-Za-z0-9 _().-]{0,79}$/.test(c.header)||headers.has(c.header.toLowerCase()))throw fail('Each allocation field needs a unique reviewed column and safe header.')
   fields.add(c.field);headers.add(c.header.toLowerCase());return {field:c.field,header:c.header}
  })
+ if(allocationFields.some(field=>!fields.has(field))||b.columns.length>allocationFields.length&&employerAllocationFields.some(field=>!fields.has(field)))throw fail('Retain all employee fields and both employer contribution columns together.')
  return {...base,amountFormat:b.amountFormat,dateFormat:b.dateFormat,includeHeader:b.includeHeader,columns,encoding:'UTF-8',delimiter:',',lineEnding:'CRLF'}
 }
 export async function retirementAllocationFormatHistory(db,facility,planId){
  const plan=(await db.query('SELECT id FROM payroll_retirement_plan_revision WHERE facility_id=$1 AND plan_id=$2 AND tax_year=2026 ORDER BY revision DESC LIMIT 1',[facility,planId])).rows[0]
  if(!plan)throw fail('Retirement plan not found.',404)
  const history=(await db.query('SELECT id,revision,plan_revision_id,format,created_at FROM payroll_retirement_allocation_format WHERE facility_id=$1 AND plan_id=$2 ORDER BY revision DESC',[facility,planId])).rows.map(r=>({...r,currentPlan:r.plan_revision_id===plan.id}))
- return {planRevisionId:plan.id,history}
+ return {planRevisionId:plan.id,history,supportedFields:[...allocationFields,...employerAllocationFields]}
 }
 export function registerRetirementAllocationFormatRoutes(app,pool){
  const base='/api/admin/payroll/retirement-plans/:planId/allocation-format'
