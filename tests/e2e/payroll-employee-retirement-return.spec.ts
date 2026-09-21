@@ -1,7 +1,6 @@
 import {checkRetirementReceipts} from '../../backend/payroll/retirementReceiptAutomation.js'
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {randomBytes} from 'node:crypto'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {createRetirementSftpServer} from '../../backend/payroll/testing/retirementSftpServer.js'
 import {retirementBankProvider} from '../../backend/payroll/testing/retirementBankProvider.js'
 import {retirementReceiptIntakeFixture} from '../../backend/payroll/testing/retirementReceiptIntakeFixture.js'
@@ -22,7 +21,7 @@ test('employee sees unresolved returned funding despite a retained participant p
   await expect(panel).toContainText('Deducted $14.00');await expect(panel).toContainText('Receipt status: POSTED');await expect(panel).toContainText('Provider-reported posted amount: $14.00')
   const bankPath=`/retirement-remittance-authorizations/${f.remittanceId}/dispatch`
   await f.api(bankPath,{action:'SUBMIT',confirmed:true,bankInstructionsReviewed:true,outsideActivityReviewed:true,reference:'Verified original funding and separate participant allocation delivery'})
-  provider.complete();await f.api(bankPath,{action:'RECOVER',confirmed:true});provider.returnedCredit();await f.api(bankPath,{action:'RECOVER',confirmed:true})
+  provider.complete();await f.api(bankPath,{action:'RECOVER',confirmed:true});provider.returnedCredit();const returned=await f.api(bankPath,{action:'RECOVER',confirmed:true});expect(returned.result.status).toBe('RETURNED');expect(returned.result.returnEvidenceStatus).toBe('BANK_CREDIT_POSTED')
   await expect(panel).toContainText('A contribution payment was returned or reversed.',{timeout:40000});await expect(panel).toContainText('Receipt status: REVIEW REQUIRED');
   provider.complete();await f.api(bankPath,{action:'RECOVER',confirmed:true});await panel.getByRole('button',{name:'Refresh retirement contributions',exact:true}).click();await expect(panel).toContainText('A contribution payment was returned or reversed.');expect(provider.posts()).toBe(1);
  await expect(panel).not.toContainText('Provider-reported posted amount: $14.00');await expect(panel).not.toContainText('PRIVATE-PARTICIPANT');await expect(panel).not.toContainText('Synthetic batch 1')

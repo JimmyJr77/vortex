@@ -1,9 +1,9 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {carrierRemittanceReturnFixture} from '../../backend/payroll/testing/carrierRemittanceReturnFixture.js'
 test('admin resolves a carrier return, authorizes a replacement and retains both histories',async({page})=>{
  test.setTimeout(90000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32)
- const f=await carrierRemittanceReturnFixture(),{h}=f;let loseReviewResponse=true
+ const f=await carrierRemittanceReturnFixture({harness:createHarness}),{h}=f;let loseReviewResponse=true
  try{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.clock.install();await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(loseReviewResponse&&u.pathname.endsWith('/return-review')&&route.request().method()==='POST'&&response.ok()){loseReviewResponse=false;return route.fulfill({status:503,json:{success:false,message:'Synthetic lost review response'}})}await route.fulfill({response})})

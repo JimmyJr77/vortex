@@ -1,8 +1,8 @@
 import {runSettlementAutomationSweep} from '../../backend/payroll/settlementAutomationScheduler.js'
 import {runCheckReplacementRecoverySweep} from '../../backend/payroll/checkReplacementRecoveryScheduler.js'
-import {test,expect,type Request} from '@playwright/test'
+import {type Request} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {randomBytes} from 'node:crypto'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {configureSettlementFixture} from '../../backend/payroll/testing/settlementFixture.js'
 import {runCheckIssueRecoverySweep} from '../../backend/payroll/checkIssueRecoveryScheduler.js'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
@@ -12,8 +12,8 @@ for(const variant of ['STOP_CLOSEOUT_RETRY_PREFLIGHT','STOP_CLOSEOUT_RETRY_RENEW
  const uuid=(n:number)=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`,records:Record<string,Record<string,unknown>>={};let order:Record<string,unknown>|null=null;let posts=0
  let tearingDown=false,lastPayrollActivity=0;const pendingPayrollRequests=new Set<Request>();
  const payrollRequest=(request:Request)=>new URL(request.url()).pathname.startsWith('/api/admin/payroll/');
- page.on('request',request=>{if(payrollRequest(request)){pendingPayrollRequests.add(request);lastPayrollActivity=Date.now()}});
- const finished=(request:Request)=>{if(pendingPayrollRequests.delete(request))lastPayrollActivity=Date.now()};page.on('requestfinished',finished);page.on('requestfailed',finished);
+ page.on('request',request=>{if(payrollRequest(request)){pendingPayrollRequests.add(request);lastPayrollActivity=performance.now()}});
+ const finished=(request:Request)=>{if(pendingPayrollRequests.delete(request))lastPayrollActivity=performance.now()};page.on('requestfinished',finished);page.on('requestfailed',finished);
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message))
  let accountingFetcher:(url:string,options:Record<string,unknown>)=>Promise<unknown>=async()=>{throw new Error('Synthetic accounting not configured')}
  let payrollDate='2026-09-18T12:00:00Z',preflight=false,cancelPatches=0,cancellationReadFails=false,cancelLookupFails=false
@@ -194,7 +194,8 @@ for(const variant of ['STOP_CLOSEOUT_RETRY_PREFLIGHT','STOP_CLOSEOUT_RETRY_RENEW
     await authorization.getByLabel('Replacement authorization or cancellation reference',{exact:true}).fill('Synthetic current replacement authorization')
     await authorization.getByRole('checkbox').check();await authorization.getByRole('button',{name:'Authorize reviewed replacement',exact:true}).click()
     await expect(authorization.getByText(`AUTHORIZED · 2026-09-22 · ${variant==='STOP_ACH'?'DIRECT_DEPOSIT':'CHECK'}`,{exact:true})).toBeVisible()
-    const replacementId=(await h.pool.query('SELECT id FROM payroll_check_replacement_authorization ORDER BY created_at DESC LIMIT 1')).rows[0].id
+    const replacementRows=await h.pool.query('SELECT id FROM payroll_check_replacement_authorization WHERE reference=$1',['Synthetic current replacement authorization']);expect(replacementRows.rowCount).toBe(1)
+    const replacementId=replacementRows.rows[0].id
     replacementExternal=`vortex_payroll_${variant==='STOP_ACH'?'':'check_'}${replacementId}`
     await authorization.getByRole('checkbox').check();await authorization.getByRole('button',{name:'Send authorized replacement',exact:true}).click()
     await expect(authorization).toContainText('Replacement status: UNCERTAIN')
@@ -379,6 +380,6 @@ for(const variant of ['STOP_CLOSEOUT_RETRY_PREFLIGHT','STOP_CLOSEOUT_RETRY_RENEW
   expect(posts).toBe(2);expect(errors).toEqual([])
  }finally{tearingDown=true;cancellationDelay.release?.();try{if(!page.isClosed()){
   // Drain trailing UI reads while their proxy is still installed; removing it first races receipt/stop refreshes.
-  await expect.poll(()=>pendingPayrollRequests.size===0&&Date.now()-lastPayrollActivity>=500,{timeout:5000}).toBe(true);await page.unrouteAll({behavior:'wait'});await page.close()
+  await expect.poll(()=>pendingPayrollRequests.size===0&&performance.now()-lastPayrollActivity>=500,{timeout:5000}).toBe(true);await page.unrouteAll({behavior:'wait'});await page.close()
  }}finally{await h.close();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}}
 })

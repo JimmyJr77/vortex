@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {generateKeyPairSync,sign} from 'node:crypto'
 import {carrierRemittanceFixture} from '../../backend/payroll/testing/carrierRemittanceFixture.js'
 import {runCarrierRemittanceSweep} from '../../backend/payroll/carrierRemittanceAutomation.js'
@@ -10,7 +10,7 @@ test('signed HTTP carrier return automatically appears and prevents another deli
  const keys=generateKeyPairSync('ec',{namedCurve:'prime256v1'}),publicKey=keys.publicKey.export({type:'spki',format:'pem'})
  let now=new Date('2026-09-17T12:00:02Z'),sends=0,mail:{to:string;idempotencyKey:string}|null=null
  const sender=async(input:{to:string;idempotencyKey:string})=>{sends++;mail=input;return {sent:true,messageId:'synthetic-accepted'}}
- const f=await carrierRemittanceFixture({sender,providerIntake:{publicKey:()=>publicKey,now:()=>now}}),{h}=f
+ const f=await carrierRemittanceFixture({harness:createHarness,sender,providerIntake:{publicKey:()=>publicKey,now:()=>now}}),{h}=f
  try{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.clock.install();await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})

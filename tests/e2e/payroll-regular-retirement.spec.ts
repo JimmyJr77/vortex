@@ -1,5 +1,4 @@
-import {test,expect} from '@playwright/test'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {regularRetirementFixture} from '../../backend/payroll/testing/regularRetirementFixture.js'
 test('admin previews, approves and finalizes regular payroll with pretax, Roth and monthly benefits',async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(120000);page.setDefaultTimeout(15000)

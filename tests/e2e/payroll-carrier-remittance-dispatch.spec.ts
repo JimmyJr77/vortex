@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {carrierRemittanceFixture} from '../../backend/payroll/testing/carrierRemittanceFixture.js'
 import {runCarrierRemittanceSweep} from '../../backend/payroll/carrierRemittanceAutomation.js'
 import {hashEmail} from '../../backend/email/emailDeliveryStore.js'
@@ -6,7 +6,7 @@ for(const recovered of [false,true])test(`carrier remittance automatically refre
  test.setTimeout(90000);page.setDefaultTimeout(15000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32);let sends=0,mail:{to:string;idempotencyKey:string}|null=null,failRead=false
  const sender=async(input:{to:string;idempotencyKey:string})=>{sends++;mail=input;if(sends===1)return {sent:false,skipped:true,reason:'cooldown'};if(recovered)throw new Error('Synthetic lost sender result');return {sent:true,messageId:'synthetic-accepted'}}
- const f=await carrierRemittanceFixture({sender}),{h}=f
+ const f=await carrierRemittanceFixture({harness:createHarness,sender}),{h}=f
  try{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.clock.install();await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'));await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url());if(failRead&&u.pathname.endsWith('/remittance-notices')&&route.request().method()==='GET')return route.fulfill({status:503,json:{success:false,message:'Synthetic history read failed'}});await route.fulfill({response:await route.fetch({url:`${h.url}${u.pathname}${u.search}`})})})
   await page.setViewportSize({width:390,height:1200});await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'Reports & QuickBooks',exact:true}).click();const invoices=page.getByRole('region',{name:'Carrier invoice reconciliation',exact:true});await invoices.getByLabel('Carrier coverage month',{exact:true}).fill('2026-09');await invoices.getByRole('button',{name:'Load carrier invoices',exact:true}).click();await invoices.getByText('Prepare carrier payment',{exact:true}).click();await invoices.getByText('Remittance delivery authorization',{exact:true}).click();const panel=invoices.getByRole('region',{name:'Carrier remittance delivery review',exact:true});await panel.getByRole('button',{name:'Load remittance delivery history',exact:true}).click();await expect(panel).toContainText('Notice authorized — pending delivery')

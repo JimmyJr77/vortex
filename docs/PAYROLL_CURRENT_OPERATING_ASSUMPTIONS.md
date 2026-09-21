@@ -1,5 +1,22 @@
 # Current payroll operating assumptions
 
+## Current review list — September 21, 2026
+
+These are implementation choices for review, not claims that every workflow or external service is verified. The older checkpoint narrative below remains historical; use `PAYROLL_REGRESSION_AUDIT_2026_09_21.md` and `PAYROLL_BACKEND_VERIFICATION_2026_09_21.json` for current test evidence.
+
+1. **Phone numbers:** inputs use ten US digits displayed as `###-###-####`. A pasted leading `+1` is removed. Extensions and other international number formats are outside this formatter's current behavior.
+2. **Existing accounts:** a hire opens a payroll invitation first, authenticates their existing Vortex account, and explicitly confirms linking it. Matching email or family membership alone does not link payroll records. The account must be active and belong to the same workplace; conflicting links are rejected.
+3. **Returning hires:** rehire preserves the employee identity and prior records while opening a fresh onboarding cycle. New cycles currently have 12 steps; the former availability checklist item is retired. Rehire does not imply fresh signatures or admin reviews are complete.
+4. **Secure documents:** native W-4, MW507 and I-9 work uses the backend's encrypted document storage. Production health currently reports that storage ready. Configuration readiness is separate from verifying a real person's submitted document.
+5. **Human inputs:** employees retain responsibility for their own choices and signatures. Hiring admins retain responsibility for review, examination findings and their own certifications. Automation may prepare, validate and track these steps; it does not invent attestations or examination evidence.
+6. **Authorization timing:** historical payroll tests must use explicit historical signing dates. A later authorization must not be treated as if it existed for an earlier payment. Verification fixes must not relax this production rule.
+7. **Record identity:** predecessor/successor relationships and retained record identities determine which review or payment cycle is current. Timestamp or UUID sorting alone must not choose between superseded and current evidence.
+8. **Uncertain provider outcomes:** recovery must inspect the retained operation before another payment, delivery or accounting write is considered. Test fixtures simulate lost responses, returns and competing actions rather than initiating real payments.
+9. **Testing isolation:** automated fixtures use localhost database schemas and synthetic provider identities, documents and responses. Historical calendar time and real elapsed time are separate: elapsed-time checks use a monotonic clock when calendar time is fixed.
+10. **Completion standard:** the 992-test backend suite is green for `aa6f7010`. The original browser baseline finished with 162 passes and 45 failures. Its fixture corrections are now integrated, with 47 focused passing checks and separate unchanged timeout controls; a fresh integrated browser run remains required. Neither those results nor a healthy deployment prove live bank settlement, real QuickBooks posting or agency acceptance. Those remain explicit completion limits.
+
+The detailed feature and operational assumptions below are retained for traceability and may describe earlier states. A historical statement that something was pending or unimplemented is not, by itself, the current product status.
+
 Checkpoint 524 (unresolved E-Verify continuation): The current recorded outcome, next action and admin-supplied review date are visible immediately when the case evidence view opens. Editing case details or replacing the PDF resets review confirmations. Pending-SSN/case-not-created records reject contradictory case references or closed-case claims. The full onboarding/payroll goal remains active.
 
 Checkpoint 523 (evidence-backed E-Verify results): Admins can retain a reviewed case-result PDF and an immutable outcome history from the employee I-9 evidence view. Authorized closure requires explicit verification and retained evidence; unresolved outcomes remain in progress with a next action/date. Generic note-only closure is blocked. E-Verify follow-ups remain visible but no longer automatically block earned payroll. The full goal remains active.

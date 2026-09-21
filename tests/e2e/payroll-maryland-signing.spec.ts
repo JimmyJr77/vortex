@@ -1,5 +1,4 @@
-import {test,expect} from '@playwright/test'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 test('admin proposes and employee signs Maryland withholding internally with safe response retry and decline',async({page,browser})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(120000);page.setDefaultTimeout(15000)

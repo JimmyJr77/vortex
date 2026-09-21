@@ -1,0 +1,23 @@
+{
+  "commit": "aa6f7010e87230258c35743667e5093817fc70ed",
+  "source": "/tmp/vortex-payroll-baseline-aa6f7010",
+  "scope": "All backend/payroll/__tests__/*.test.js, serial, isolated localhost PostgreSQL schemas",
+  "command": "node --test --test-concurrency=1 /tmp/vortex-payroll-baseline-aa6f7010/backend/payroll/__tests__/*.test.js",
+  "result": {
+    "tests": 992,
+    "pass": 992,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "durationMs": 1272714.811333,
+  "log": "/tmp/payroll-full-aa6f7010.log",
+  "logSha256": "f2e6dd3ef206b9d3035d73dd58f424f621c439e3c5a723422b97287fe9ea6cad",
+  "snapshotFilesComparedWithWorktree": 2622,
+  "sourceMismatches": [],
+  "limitations": [
+    "Browser suite is separate and still running with failures.",
+    "Synthetic providers do not prove live financial settlement or agency acceptance."
+  ]
+}

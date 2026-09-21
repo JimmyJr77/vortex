@@ -1,6 +1,5 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {readFile} from 'node:fs/promises'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 import {journalPayload} from '../../backend/payroll/quickbooks.js'
 test('admin reviews and downloads the exact retained benefit journal after disconnect',async({page})=>{

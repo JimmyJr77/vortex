@@ -1,5 +1,4 @@
-import {test,expect} from '@playwright/test'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 test('admin collects a monthly benefit contribution and employee statement identifies it once',async({page})=>{
  test.setTimeout(90000);page.setDefaultTimeout(15000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')

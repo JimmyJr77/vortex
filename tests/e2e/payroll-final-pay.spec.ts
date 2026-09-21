@@ -25,7 +25,7 @@ test('admin sees overdue final payroll and opens the matching period',async({pag
   await expect(rehire.getByText('The prior final-period payroll has not been finalized.',{exact:true})).toBeVisible()
   await expect(rehire.getByText('$25.00/hour',{exact:true})).toBeVisible()
   await expect(rehire.getByText('PTO: 8 hours',{exact:true})).toBeVisible()
-  await expect(rehire.getByText('Retained under this employee identity: 1 employment period and 13 onboarding steps.',{exact:true})).toBeVisible()
+  await expect(rehire.getByText('Retained under this employee identity: 1 employment period and 12 onboarding steps.',{exact:true})).toBeVisible()
   await page.setViewportSize({width:390,height:1200});await rehire.scrollIntoViewIfNeeded();await expect(rehire).toBeInViewport({ratio:1});await rehire.screenshot({path:'/tmp/payroll-rehire-review-mobile.png'})
   await rehire.getByLabel('Proposed rehire date',{exact:true}).fill('2099-09-08')
   await expect(rehire.getByRole('status')).toHaveCount(0)

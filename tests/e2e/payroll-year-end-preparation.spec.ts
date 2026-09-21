@@ -4,16 +4,24 @@ import {refreshW2NoticeDispatch} from '../../backend/payroll/w2NoticeDispatch.js
 import {createRequire} from 'node:module'
 import {readFile} from 'node:fs/promises'
 const {PDFDocument}=createRequire(new URL('../../backend/package.json',import.meta.url))('pdf-lib')
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {randomBytes,generateKeyPairSync,sign} from 'node:crypto'
 import {runW2ProviderEventSweep} from '../../backend/payroll/w2NoticeProviderScheduler.js'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
+const ActualDate=globalThis.Date
 for(const providerReturn of [false,true])test(`admin reviews annual inputs with masked identity and clears stale totals after errors (${providerReturn?'PROVIDER':'MANUAL'})`,async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000);page.setDefaultTimeout(15000)
  const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex');const h=await createHarness()
  try{
  const {api,employee,periods}=await monthlyBenefitsFixture(h)
+ // Only the original benefit signature is historical. Delivery events and
+ // minimum elapsed-time checks use the real clock after fixture preparation.
+ globalThis.Date=ActualDate
+ await h.pool.query(`CREATE OR REPLACE FUNCTION now() RETURNS timestamptz LANGUAGE sql STABLE AS $$ SELECT pg_catalog.now() $$; CREATE OR REPLACE FUNCTION clock_timestamp() RETURNS timestamptz LANGUAGE sql VOLATILE AS $$ SELECT pg_catalog.clock_timestamp() $$`)
+ await page.clock.setSystemTime(new ActualDate())
+ // The year-end employee session belongs to this later phase, not the
+ // expired session created during historical benefit setup.
+ await h.pool.query("UPDATE payroll_employee_session SET expires_at=clock_timestamp()+interval '1 day' WHERE employee_id=$1",[employee.id])
  const identity={identifier:'123456789',legalName:'Synthetic Annual Employer',firstName:'Monthly',lastName:'Benefits',address:{line1:'123 Test Street',city:'Bowie',state:'MD',postalCode:'20715',country:'US'},reference:'Synthetic verified filing identity source',confirmed:true,expectedRevision:0}
  await api('/filing-identity',identity,'POST',201);await api(`/employees/${employee.id}/filing-identity`,identity,'POST',201)
  await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))

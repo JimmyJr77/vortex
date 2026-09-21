@@ -8,8 +8,7 @@ import {recoverCarrierReversals} from '../../backend/payroll/carrierReversalReco
 import {recoverCarrierPremiums} from '../../backend/payroll/carrierPremiumRecovery.js'
 import {encryptDocument} from '../../backend/payroll/onboarding.js'
 import {syncQuickbooksRun} from '../../backend/payroll/quickbooks.js'
-import {test,expect} from '@playwright/test'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 test('admin matches carrier invoice contributions to finalized deductions',async({page})=>{
  test.setTimeout(600000);page.setDefaultTimeout(15000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')

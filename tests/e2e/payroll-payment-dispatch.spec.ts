@@ -7,9 +7,8 @@ import {dispatchPayrollInstruction} from '../../backend/payroll/paymentDispatch.
 import {loadRunPreview,payrollFingerprint} from '../../backend/payroll/registerRoutes.js'
 import {runPaymentRecoverySweep} from '../../backend/payroll/paymentRecoveryScheduler.js'
 import {addMixedPaymentEmployees} from '../../backend/payroll/testing/mixedPaymentEmployees.js'
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {randomBytes} from 'node:crypto'
-import {createHarness} from '../../backend/payroll/testing/harness.js'
 import {monthlyBenefitsFixture} from '../../backend/payroll/testing/monthlyBenefitsFixture.js'
 for(const variant of ['UNCERTAIN','PREFLIGHT_BLOCKED','BANK_SETTLEMENT','REPEAT_REPLACEMENT','SCHEDULE'])test(`admin resolves provider evidence without payroll being marked paid (${variant})`,async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(60000);page.setDefaultTimeout(10000)

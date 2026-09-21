@@ -1,11 +1,11 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {carrierRemittanceFixture} from '../../backend/payroll/testing/carrierRemittanceFixture.js'
 import {runCarrierRemittanceSweep} from '../../backend/payroll/carrierRemittanceAutomation.js'
 test('admin releases exhausted non-sends and separately authorizes a replacement',async({page})=>{
  test.setTimeout(90000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32);let sends=0,allowSend=false,loseResponse=true
  const sender=async()=>{sends++;return allowSend?{sent:true,messageId:'synthetic-accepted'}:{sent:false,skipped:true,reason:'category_disabled'}}
- const f=await carrierRemittanceFixture({sender}),{h}=f,sweep=()=>runCarrierRemittanceSweep(h.pool,{facility:1,now:f.now(),sender})
+ const f=await carrierRemittanceFixture({harness:createHarness,sender}),{h}=f,sweep=()=>runCarrierRemittanceSweep(h.pool,{facility:1,now:f.now(),sender})
  try{
   await h.pool.query('CREATE TABLE email_delivery(id BIGINT PRIMARY KEY,facility_id BIGINT,recipient_hash TEXT,category TEXT,stream TEXT,template_version TEXT,status TEXT,idempotency_key TEXT,created_at TIMESTAMPTZ,accepted_at TIMESTAMPTZ,bounced_at TIMESTAMPTZ,complained_at TIMESTAMPTZ)')
   for(let i=0;i<3;i++){await sweep();f.setNow(new Date(+f.now()+300001))}

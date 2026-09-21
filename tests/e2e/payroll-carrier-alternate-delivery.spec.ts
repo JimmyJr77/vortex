@@ -1,9 +1,9 @@
-import {test,expect} from '@playwright/test'
+import {test,expect,createHarness} from '../support/historicalPayrollTest'
 import {carrierRemittanceFixture} from '../../backend/payroll/testing/carrierRemittanceFixture.js'
 test('admin retains alternate delivery with safe retry and retracts after changed bank evidence',async({page})=>{
  test.setTimeout(90000);test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database')
  const prior=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='31'.repeat(32)
- const f=await carrierRemittanceFixture(),{h}=f;f.setNow('2026-09-20T12:00:00Z');let loseResponse=true
+ const f=await carrierRemittanceFixture({harness:createHarness}),{h}=f;f.setNow('2026-09-20T12:00:00Z');let loseResponse=true
  try{
   const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.clock.install();await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
   await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(loseResponse&&u.pathname.endsWith('/alternate-delivery')&&route.request().method()==='POST'&&response.ok()){loseResponse=false;return route.fulfill({status:503,json:{success:false,message:'Synthetic lost delivery review response'}})}await route.fulfill({response})})

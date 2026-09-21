@@ -41,9 +41,10 @@ test('admin creates a salaried hire and employee sees the annual salary in the p
   await expect(page.getByText('Annual salary',{exact:true})).toBeVisible()
   await expect(page.getByText('$80,000.00',{exact:true})).toBeVisible()
   await page.getByRole('button',{name:'Onboarding',exact:true}).click()
-  await page.getByText('Offer & wage notice acknowledgment',{exact:true}).click()
-  await expect(page.getByText('Office manager · $80,000.00 per year',{exact:true})).toBeVisible()
   const notice=page.locator('details').filter({has:page.getByText('Offer & wage notice acknowledgment',{exact:true})})
+  await notice.locator(':scope > summary').click()
+  await expect(page.getByText('Office manager · $80,000.00 per year',{exact:true})).toBeVisible()
+
   await expect(notice.getByText(/Weekly; 7-day pay periods anchored on 2026-08-03/)).toBeVisible()
   await notice.getByLabel('Your full name',{exact:true}).fill('Salary Browser')
   await notice.getByRole('checkbox').check()
