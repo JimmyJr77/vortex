@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {createHistoricalHarness} from '../testing/historicalHarness.js'
 import {regularRetirementFixture} from '../testing/regularRetirementFixture.js'
 import {retirementEmployerPayrollSource} from '../retirementEmployerPayrollSource.js'
+import {retirementEmployerCompensationSource} from '../retirementEmployerCompensation.js'
 
 test('employer payroll inputs derive from scoped retained wages, plan, ledger and employee statement',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const h=await createHistoricalHarness(t,{retirementNow:()=>new Date('2026-09-11T12:00:00Z')});t.after(()=>h.close())
@@ -14,6 +15,10 @@ test('employer payroll inputs derive from scoped retained wages, plan, ledger an
  await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH')
  const approved=await retirementEmployerPayrollSource(h.pool,args)
  assert.equal(approved.runStatus,'APPROVED')
+ // Existing employee-only plans cannot accidentally become employer funding
+ // sources. Client-supplied plan/annual/amount overrides are not authoritative.
+ await assert.rejects(retirementEmployerCompensationSource(h.pool,{...args,plan:{employerFormula:{}},annual:{employerFunding:{compensationCents:0}},eligibleCompensationCents:20000}),/current employer formula and explicit external/)
+ await assert.rejects(retirementEmployerCompensationSource(h.pool,{...args,facility:2}),/current employer plan and annual sources/)
  await api(`/runs/${run.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-EMPLOYER-SOURCE'})
  const source=await retirementEmployerPayrollSource(h.pool,args)
  assert.equal(source.status,'RECONCILED_PAYROLL_INPUTS');assert.equal(source.runStatus,'FINALIZED')
