@@ -1,0 +1,42 @@
+{
+  "commit": "ec69aa82ffb1b84fb6fa2d028f5a15f2daf050fe",
+  "result": {
+    "tests": 207,
+    "passed": 184,
+    "failed": 23,
+    "skipped": 0
+  },
+  "log": "/tmp/payroll-browser-ec69aa82.log",
+  "logSha256": "f1266bc0b378bd4005c401e8e31ab9e739969de33f811f527a22bc050c761dcc",
+  "inputFileCount": 3503,
+  "inputMismatches": [],
+  "failures": [
+    "tests/e2e/payroll-carrier-contributions.spec.ts:13:1 \u203a admin matches carrier invoice contributions to finalized deductions",
+    "tests/e2e/payroll-employee-retirement-return.spec.ts:8:1 \u203a employee sees unresolved returned funding despite a retained participant posting",
+    "tests/e2e/payroll-i9-different.spec.ts:15:65 \u203a admin signs different replacement documents (List A citizen)",
+    "tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: unassisted",
+    "tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: preparer-assisted",
+    "tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: multiple-preparers",
+    "tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: linked-account",
+    "tests/e2e/payroll-native-coverage.spec.ts:5:33 \u203a HOURLY-first native hourly payroll supplies historical coverage for subsequent salary settlement",
+    "tests/e2e/payroll-payment-connection.spec.ts:4:1 \u203a admin saves encrypted payment configuration and clears credentials and stale readiness",
+    "tests/e2e/payroll-retirement-allocation-delivery.spec.ts:9:1 \u203a admin authorizes an allocation, recovers lost upload and retains contribution reservation after a consumed file",
+    "tests/e2e/payroll-retirement-allocation.spec.ts:7:1 \u203a admin reviews recordkeeper format, retries a lost save, downloads exact allocations and suspends export",
+    "tests/e2e/payroll-retirement-assessment.spec.ts:8:1 \u203a admin compares bank and participant evidence and sees reconciliation reopen after a return",
+    "tests/e2e/payroll-retirement-dispatch-schedule.spec.ts:9:1 \u203a admin schedules bank and allocation dispatch, recovers lost save, cancels and renews before automatic submission",
+    "tests/e2e/payroll-retirement-participant.spec.ts:5:1 \u203a admin maps a retirement participant, recovers a lost response and suspends changed evidence",
+    "tests/e2e/payroll-retirement-pto.spec.ts:5:125 \u203a admin calculates retirement PTO, reviews state withholding and finalizes AGGREGATE MD_LUMP_SUM payroll",
+    "tests/e2e/payroll-retirement-receipt-intake.spec.ts:8:1 \u203a admin checks retained receipts with exact lost-response retry and regression history",
+    "tests/e2e/payroll-retirement-remittance-preview.spec.ts:6:1 \u203a admin previews exact retirement remittance and rejects stale mapping responses",
+    "tests/e2e/payroll-retirement-remittance-sources.spec.ts:4:1 \u203a admin reconciles finalized retirement deductions and sees changed evidence automatically",
+    "tests/e2e/payroll-retirement-settlement-automation.spec.ts:10:1 \u203a admin approval processes and recovers automatically without a manual post",
+    "tests/e2e/payroll-retirement-timing.spec.ts:6:1 \u203a retirement timing retains a lost-response retry and refreshes contribution dates and suspension",
+    "tests/e2e/payroll-standalone-bonus.spec.ts:50:37 \u203a admin settles earned bonus overtime with flat withholding",
+    "tests/e2e/payroll-w4-signing.spec.ts:10:37 \u203a employee completes W-4 internally, resumes and signs, then admin applies it: exemption=false",
+    "tests/e2e/payroll-year-end-preparation.spec.ts:12:42 \u203a admin reviews annual inputs with masked identity and clears stale totals after errors (MANUAL)"
+  ],
+  "limitations": [
+    "Non-green integrated run; individual candidate passes do not replace this result.",
+    "Retirement diagnostic reproduced a Vite connection-loss reload; other failures still need classification."
+  ]
+}

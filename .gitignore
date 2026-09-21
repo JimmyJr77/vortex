@@ -42,3 +42,6 @@ outputs/billing-audit-*/
 
 # Generated browser traces can exceed GitHub's file size limit
 test-results/**/trace.zip
+
+# Built payroll browser-test application
+dist-payroll-test/

@@ -130,7 +130,7 @@ for(const {name,authorizedWorker,rows,alternative} of scenarios)test(`admin sign
   await expect(work.getByText('You have unsaved replacement entries or examination notes.',{exact:true})).toHaveCount(0)
   expect((await h.pool.query('SELECT revision FROM payroll_i9_different_draft')).rows).toEqual([{revision:2}])
   await work.getByRole('button',{name:'Reload saved replacement (replaces unsaved entries)',exact:true}).click()
-  await expect(work.getByRole('status')).toContainText('Draft restored.')
+  await expect(work.getByRole('status').filter({hasText:'Draft restored. Signatures, consent and copy selections require fresh review.'})).toBeVisible()
   await work.getByRole('button',{name:'Prepare replacement certification',exact:true}).click()
   for(const [title,count] of packetParts){
    const viewer=work.getByRole('region',{name:`Official ${title} page review`,exact:true})

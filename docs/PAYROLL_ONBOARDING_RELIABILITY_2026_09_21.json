@@ -1,0 +1,35 @@
+{
+  "date": "2026-09-21",
+  "baseCommit": "1e544fc7",
+  "results": {
+    "focusedCandidate": "2 passed: List A citizen and native unassisted hire/rehire",
+    "nativeAndInitialRegression": "4 native journeys passed; 1 test interaction failed because submitted step was collapsed",
+    "correctedRegression": "1 passed",
+    "originalImplementationControl": "1 failed at retained SUBMITTED assertion; older response restored OPEN",
+    "integratedMainCommand": "1 passed; builds and serves static app on isolated port",
+    "typescript": "passed"
+  },
+  "logs": {
+    "/tmp/payroll-scoped-race.log": "cc02bf6b40b16dd208c16d83c7e6c3fb07c2419606b061f02166937a647252f3",
+    "/tmp/payroll-response-order.log": "158c4196edbd795cdeb12b93eebc6217ef0926548871ebf3ac80757123e31381",
+    "/tmp/payroll-response-order-corrected.log": "73470769c154dd32a12c3074be7c722460346c39a48dd1151755ca3a457b54a9",
+    "/tmp/payroll-response-order-baseline.log": "a897aab2de1701f63d428b60082da8d94d9ae53e58c9a23ba5cac929a91f30a7",
+    "/tmp/payroll-main-config.log": "91acc8af0e7a07ea347d12ef0d01625a8057b9bb0ce7eb7f401cf6ec1453c41e",
+    "/tmp/payroll-scoped-race-types.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "sourceSha256": {
+    "src/components/payroll/AdminPayroll.tsx": "9261d05db4455fab41ba487f9452935f6f473d4839e2038625f8a5cff149d555",
+    "src/components/payroll/PayrollEmployeePortal.tsx": "a92c36946f75de91ae241431ed878768bcac918b89a8c0c65d611a028e569e75",
+    "src/components/payroll/OnboardingWorkspace.tsx": "87a865a020252c7e0b662b9731265b0baa4f27cca7ffbef724f225c474ca231f",
+    "src/index.css": "fa5f18b2e5134e47fc70e8a1ff3e6c4137eeffcab13f5655ece387abae6260e7",
+    "tests/e2e/payroll-onboarding-response-order.spec.ts": "f3f37307233595109bb75f71999e00dc0c5a840945e8561c1997d9eac1587ba1",
+    "tests/support/payroll.tsx": "a9ae91fbed957f7c13a969398b41fa1249b645d9aab4b157a743ff260ec4d41c",
+    "vite.payroll-test.config.ts": "c4c740283f296ad6ce79df2b3014f09f82dc34b436753bfd39e94f0f05f315f5",
+    "playwright.payroll.config.ts": "77123784016e5986104da148407ad97d5515dd542339cb894a7373d41992ea43"
+  },
+  "limitations": [
+    "Full candidate 209-case browser run remains pending.",
+    "Native journey providers are synthetic; no live payment or QuickBooks acceptance is established.",
+    "Additional candidate QuickBooks recovery implementation is not part of this onboarding change."
+  ]
+}

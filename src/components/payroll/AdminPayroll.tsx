@@ -287,7 +287,7 @@ export default function AdminPayroll() {
   if (loading && !data) return <div className="flex min-h-[420px] items-center justify-center text-slate-500"><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading payroll workspace…</div>
 
   return (
-    <div className="space-y-5 pb-12">
+    <div data-payroll-workspace className="space-y-5 pb-12">
       <header className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-xl">
         <div className="grid gap-6 px-6 py-7 lg:grid-cols-[1.3fr_0.7fr] lg:px-8">
           <div>

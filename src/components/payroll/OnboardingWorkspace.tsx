@@ -12,7 +12,7 @@ import EmployeeBenefitsChoice from './EmployeeBenefitsChoice'
 import HiringBenefitsReview from './HiringBenefitsReview'
 import EmployeeAcknowledgments from './EmployeeAcknowledgments'
 import OnboardingHistory from './OnboardingHistory'
-import { useCallback, useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { workforceApi, type Packet, type OnboardingTask, type BenefitsReview } from '../../utils/workforceApi'
 
 export const workforceInput = 'mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900'
@@ -22,10 +22,15 @@ const labels: Record<string, string> = { legalFirstName: 'Legal first name', leg
 const sources: Record<string, string> = { W4: 'https://www.irs.gov/pub/irs-pdf/fw4.pdf', STATE_WITHHOLDING: 'https://www.marylandcomptroller.gov/content/dam/mdcomp/tax/forms/2026/mw507.pdf', I9: 'https://www.uscis.gov/i-9' }
 export default function OnboardingWorkspace({ employeeId, employmentStatus, onChanged, refresh=0 }: { refresh?:number; employeeId?: number; employmentStatus: string; onChanged: () => Promise<void> }) {
  const workspaceId=useId()
+ const packetRequest=useRef(0)
  const [data, setData] = useState<Packet | null>(null), [error, setError] = useState(''), [notice, setNotice] = useState(''), [busy, setBusy] = useState(false)
- const load = useCallback(async () => { setData(await workforceApi.packet(employeeId)) }, [employeeId])
- useEffect(() => { let live = true; workforceApi.packet(employeeId).then(next => { if (live) setData(next) }).catch(e => { if (live) setError(e.message) }); return () => { live = false } }, [employeeId,refresh])
- const act = async (work: () => Promise<unknown>, message: string) => { setBusy(true); setError(''); setNotice(''); try { await work(); await load(); await onChanged(); setNotice(message) } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save changes') } finally { setBusy(false) } }
+ const load = useCallback(async () => {
+  const request=++packetRequest.current
+  try{const next=await workforceApi.packet(employeeId);if(request===packetRequest.current)setData(next)}
+  catch(error){if(request===packetRequest.current)throw error}
+ }, [employeeId])
+ useEffect(() => { let live = true; void load().catch(e => { if (live) setError(e.message) }); return () => { live = false;packetRequest.current++ } }, [load,refresh])
+ const act = async (work: () => Promise<unknown>, message: string) => { packetRequest.current++;setBusy(true); setError(''); setNotice(''); try { await work(); await load(); await onChanged(); setNotice(message) } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save changes') } finally { setBusy(false) } }
  return <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm sm:p-5">
   <div><h2 className="text-xl font-black text-slate-950">{employeeId ? 'Hiring checklist & review' : 'Complete your onboarding'}</h2><p className="mt-1 text-sm text-slate-600">Each submission is saved and reviewed by your hiring admin. Save progress on unfinished steps and return later. Only submitted steps are ready for admin review.</p></div>
   <button type="button" disabled={busy} className="text-left text-sm font-bold underline disabled:opacity-50" onClick={()=>void act(()=>Promise.resolve(), 'Checklist refreshed.')}>Refresh checklist</button>

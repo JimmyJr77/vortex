@@ -29,6 +29,11 @@
     scroll-padding-top: var(--site-header-height);
   }
 
+  /* Keep focus targets stable while moving through long payroll forms. */
+  html:has([data-payroll-workspace]) {
+    scroll-behavior: auto;
+  }
+
   body {
     @apply font-sans text-gray-900 bg-white;
   }

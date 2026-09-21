@@ -34,7 +34,8 @@
     "pull-lfs": "bash scripts/pull-lfs.sh || echo 'Git LFS pull failed, continuing build'",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true PRERENDER_STRICT=true npm run postbuild && npm run test:seo-release"
+    "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true PRERENDER_STRICT=true npm run postbuild && npm run test:seo-release",
+    "test:e2e:payroll": "PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --config=playwright.payroll.config.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
