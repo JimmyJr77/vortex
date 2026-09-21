@@ -46,7 +46,9 @@ export async function regularRetirementPayroll(db,facility,result,excludeRunId,r
     const obligation=employee.employerCompensationPreview.obligationPreview?.obligation
     const amounts=obligation?` Matching obligation: ${obligation.matchingCents===null?'awaiting employee deferral calculation':`$${(obligation.matchingCents/100).toFixed(2)}`}. Nonelective obligation: $${(obligation.nonelectiveCents/100).toFixed(2)}.`:''
     const deferralIssue=employee.employerCompensationPreview.deferralPreview.message
-    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap.${finding}${amounts}${deferralIssue?` ${deferralIssue}`:''} Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
+    const capacity=employee.employerCompensationPreview.annualCapacityPreview
+    const capacityIssue=capacity.status==='GROSS_OBLIGATION_CAPACITY_SHORTFALL'?` The full employer obligation exceeds remaining annual contribution capacity by $${(capacity.excessCents/100).toFixed(2)}. Reconcile prior funding and allocations; the obligation has not been reduced.`:''
+    throw fail(`Employer retirement compensation preview: $${(employee.employerCompensationPreview.eligibleCompensationCents/100).toFixed(2)} after the annual compensation cap.${finding}${amounts}${deferralIssue?` ${deferralIssue}`:''}${capacityIssue} Employer funding is not ready for payroll approval. No employer contribution has been reserved.`)
    }
    const calculation=await retirementPayrollCalculation(db,{facility,employeeId:employee.employeeId,planId,payDate:date,runKind,payrollPreview:employee,excludeRunId})
    calculations.set(String(employee.employeeId),{planId,calculation});inputs[employee.employeeId]=calculation.retirement401k

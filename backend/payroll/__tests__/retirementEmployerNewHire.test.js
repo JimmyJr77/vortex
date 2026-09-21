@@ -53,6 +53,8 @@ test('a mid-period new hire can complete employer eligibility without a pre-empl
  assert.deepEqual(matched.obligationPreview.obligation,{matchingCents:600,nonelectiveCents:400,totalCents:1000})
  assert.equal(matchedPayroll.employees[0].netPayCents,preview.employees[0].netPayCents)
  assert.equal(matchedPayroll.canApprove,false)
+ assert.equal(matched.annualCapacityPreview.status,'GROSS_OBLIGATION_FITS_REVIEWED_CAPACITY')
+ assert.equal(matched.annualCapacityPreview.remainingAfterEmployeeDeferralsCents,18600)
  assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_run_ledger')).rows[0].n,0)
  await elect(0,10000,1)
  const unaffordable=(await api('/runs/preview',{payPeriodId:periods[0].id})).preview.employees[0].employerCompensationPreview
@@ -62,6 +64,15 @@ test('a mid-period new hire can complete employer eligibility without a pre-empl
  const declined=(await api('/runs/preview',{payPeriodId:periods[0].id})).preview.employees[0].employerCompensationPreview
  assert.equal(declined.deferralPreview.ordinaryDeferralsCents,0)
  assert.deepEqual(declined.obligationPreview.obligation,{matchingCents:0,nonelectiveCents:400,totalCents:400})
+ await api(annualPath,{planRevisionId:annual.planRevisionId,expectedRevision:1,requestKey:randomUUID(),facts:{...retirementAnnualFixture(),externalAnnualAdditionsCents:7200000,external415CompensationCents:10000000,employerFunding:{compensationCents:0,matchingCents:0,nonelectiveCents:0,reference:'Synthetic verified zero external employer amounts.'}}})
+ const limitedPayroll=(await api('/runs/preview',{payPeriodId:periods[0].id})).preview,limited=limitedPayroll.employees[0].employerCompensationPreview
+ assert.equal(limited.annualCapacityPreview.status,'GROSS_OBLIGATION_CAPACITY_SHORTFALL')
+ assert.equal(limited.annualCapacityPreview.remainingAfterEmployeeDeferralsCents,0)
+ assert.equal(limited.annualCapacityPreview.excessCents,400)
+ assert.equal(limited.obligationPreview.obligation.totalCents,400)
+ assert.equal(limitedPayroll.canApprove,false)
+ assert.match(limitedPayroll.warnings.find(w=>w.code==='RETIREMENT_PAYROLL_REVIEW').message,/exceeds remaining annual contribution capacity by \$4\.00/)
+ assert.equal((await h.pool.query('SELECT count(*)::int n FROM payroll_retirement_run_ledger')).rows[0].n,0)
  // A later plan entry within actual employment still needs dated allocation.
  await api(eligibilityPath,{...review,expectedRevision:2,requestKey:randomUUID(),nonelective:{...review.nonelective,eligibleOn:'2026-09-12'}})
  const later=(await api('/runs/preview',{payPeriodId:periods[0].id})).preview.employees[0].employerCompensationPreview

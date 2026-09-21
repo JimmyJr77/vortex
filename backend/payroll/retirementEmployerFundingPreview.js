@@ -4,6 +4,7 @@ import {retirementEmployerCompensationPreview} from './retirementEmployerCompens
 import {retirementEmployerEligibilityForPayroll} from './retirementEmployerEligibilityPeriod.js'
 import {retirementEmployerObligation} from './retirementEmployerCalculation.js'
 import {retirementEmployerDeferralPreview} from './retirementEmployerDeferralPreview.js'
+import {retirementEmployerAnnualPreview} from './retirementEmployerAnnualPreview.js'
 const fail=message=>Object.assign(new Error(message),{status:409})
 
 // The payroll producer supplies the engine preview and scoped period ID.
@@ -26,8 +27,8 @@ export async function retirementEmployerFundingPreview(db,{facility,employeeId,p
    eligibility={status:'REVIEW_REQUIRED',message:error.message}
   }
  }
- let deferralPreview={status:eligibility.status==='REVIEWED_FOR_PAY_PERIOD'?'NOT_REQUIRED_FOR_MATCHING':'ELIGIBILITY_REVIEW_REQUIRED'}
- if(eligibility.status==='REVIEWED_FOR_PAY_PERIOD'&&eligibility.components.matching.eligible){
+ let deferralPreview={status:'ELIGIBILITY_REVIEW_REQUIRED'}
+ if(eligibility.status==='REVIEWED_FOR_PAY_PERIOD'){
   try{deferralPreview=await retirementEmployerDeferralPreview(db,{facility,employeeId,planId,payDate,payrollPreview,runId,runKind},rebuild)}
   catch(error){if(![400,409].includes(error.status))throw error;deferralPreview={status:'REVIEW_REQUIRED',message:error.message}}
  }
@@ -39,5 +40,6 @@ export async function retirementEmployerFundingPreview(db,{facility,employeeId,p
   if(!row||row.plan.fingerprint!==compensation.planFingerprint)throw fail('Employer formula changed while preparing the obligation preview.')
   obligationPreview=retirementEmployerObligation({plan:row.plan,sourceFingerprint:fundingSourceFingerprint,eligibleCompensationCents:compensation.eligibleCompensationCents,ordinaryDeferralsCents:deferralPreview.status==='CALCULATED_NOT_APPLIED'?deferralPreview.ordinaryDeferralsCents:null,catchUpDeferralsCents:deferralPreview.status==='CALCULATED_NOT_APPLIED'?deferralPreview.catchUpDeferralsCents:null,matchingEligible:eligibility.components.matching.eligible,nonelectiveEligible:eligibility.components.nonelective.eligible})
  }
- return {...compensation,...basis,fundingSourceFingerprint,obligationPreview,requiresEmployerEligibilityReview:eligibility.status!=='REVIEWED_FOR_PAY_PERIOD',requiresObligationCalculation:obligationPreview?.obligation.totalCents==null,requiresContributionCalculation:true}
+ const annualCapacityPreview=retirementEmployerAnnualPreview({compensation,deferralPreview,obligationPreview,fundingSourceFingerprint})
+ return {...compensation,...basis,fundingSourceFingerprint,obligationPreview,annualCapacityPreview,requiresEmployerEligibilityReview:eligibility.status!=='REVIEWED_FOR_PAY_PERIOD',requiresObligationCalculation:obligationPreview?.obligation.totalCents==null,requiresContributionCalculation:true}
 }
