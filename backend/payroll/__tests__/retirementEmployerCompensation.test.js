@@ -75,3 +75,17 @@ test('capped compensation feeds the full employer obligation without changing em
  assert.equal(result.ordinaryDeferralsCents,0)
  assert.equal(result.status,'CALCULATED_NOT_AUTHORIZED')
 })
+test('proposed compensation consumes only remaining capacity and cannot masquerade as posted payroll',()=>{
+ const input=fixture(),current=input.payrollSources.shift()
+ const previewSource={...current,runId:'PREVIEW',status:'ENGINE_PAYROLL_INPUTS',runStatus:'PREVIEW'}
+ const r=employerCompensationAllocation({...input,runId:'PREVIEW',previewSource})
+ assert.equal(r.eligibleCompensationCents,40000);assert.equal(r.records.at(-1).proposed,true)
+ assert.equal(r.records[0].proposed,undefined)
+ assert.throws(()=>employerCompensationAllocation({...input,runId:'PREVIEW',payrollSources:[...input.payrollSources,previewSource]}),/must belong/)
+ assert.throws(()=>employerCompensationAllocation({...input,runId:'PREVIEW',previewSource:{...previewSource,runStatus:'APPROVED'}}),/must belong/)
+ assert.throws(()=>employerCompensationAllocation({...input,runId:'PREVIEW',previewSource:{...previewSource,paymentDate:'2026-09-14'}}),/Later approved payroll/)
+ const sameDay=employerCompensationAllocation({...input,runId:'PREVIEW',previewSource:{...previewSource,paymentDate:'2026-09-15'}})
+ assert.equal(sameDay.records.at(-1).runId,'PREVIEW')
+ const first=employerCompensationAllocation({...input,runId:'PREVIEW',payrollSources:[],previewSource})
+ assert.equal(first.eligibleCompensationCents,100000)
+})
