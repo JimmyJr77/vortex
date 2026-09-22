@@ -2,12 +2,18 @@
   "checkedAt": "2026-09-22T04:22:52.924364+00:00",
   "status": "PREPARED FOLLOW-UP; NOT YET EXECUTED; FROZEN FULL SUITE CONTINUES",
   "patch": "/tmp/payroll-filing-journey-form-preparation-followup.patch",
-  "patchSha256": "a8ab5a625dbb57547877444103b329bda81fee84a15ad8c6300ee9ee6e58fce9",
+  "patchSha256": "aa94b152e3cf8e6de8ddff1018ec77c58631503432f6991f7e6b542a189acad3",
   "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
   "failedJourney": "payroll-complete-journey.spec.ts",
   "failureContext": "/tmp/vortex-payroll-imported-integrated-b33a0825/test-results/payroll-complete-journey-h-f16de-rning-sign-in-use-real-APIs/error-context.md",
   "finding": "Journey changed from MD_UI to MD_MW506 and expected previous zero amounts to survive. New intentional form-change reset clears both amounts; required-field validation prevents submission.",
   "correction": "Use the target MW506 calendar card Prepare return comparison action and explicitly assert both expected zero totals before submission. Preserve RECORDED and NO TAX DUE assertions.",
   "alsoPrepared": "payroll-native-complete-journey.spec.ts contains the same stale step.",
-  "next": "After the frozen browser run finishes, run both corrected complete-journey files with the canonical connection follow-up; retain original full failures."
+  "next": "After the frozen browser run finishes, run both corrected complete-journey files with the canonical connection follow-up; retain original full failures.",
+  "lint": {
+    "exitCode": 0,
+    "log": "/tmp/payroll-imported-regression-followup-lint-final.log",
+    "earlierLog": "/tmp/payroll-imported-regression-followup-lint.log",
+    "correction": "Replaced three existing any annotations in the native journey QuickBooks assertions with the actual JournalLine fields."
+  }
 }

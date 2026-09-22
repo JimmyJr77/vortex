@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-09-22T04:27:15.378006+00:00",
+  "status": "PREPARED; DATABASE REGRESSION NOT RUN WHILE FROZEN FULL BACKEND IS ACTIVE",
+  "patch": "/tmp/payroll-income-basis-report-test-followup.patch",
+  "patchSha256": "7f17e90a8e3282314913818044783188a7a8ee4dbf58cc266e43aa726db68fe9",
+  "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+  "test": "backend/payroll/__tests__/incomeTaxWageBasis.test.js",
+  "originalFailures": [
+    "income-tax wage basis retention follows finalized withholding: manual=false",
+    "income-tax wage basis retention follows finalized withholding: manual=true"
+  ],
+  "finding": "Assertions used slice(-4) for income-tax columns. Imported-reporting columns were appended, so those positions now contain unrelated imported values.",
+  "correction": "Find each required income-tax CSV header explicitly, assert it exists, and retain the original amount/count/review-state assertions.",
+  "lintExitCode": 0,
+  "lintLog": "/tmp/payroll-imported-regression-followup-lint-final.log",
+  "next": "Run the corrected two cases and relevant reporting regressions after execution 7890 completes."
+}

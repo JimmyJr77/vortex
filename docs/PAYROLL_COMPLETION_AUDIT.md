@@ -2,6 +2,8 @@
 
 ## Current completion boundary — September 22, 2026 release
 
+The full backend run exposed two stale income-basis test assertions that select the final four CSV columns; appended imported-reporting fields changed that position. A separate correction selects required income-tax columns by header name, preserves every amount/count/review-state assertion and passes lint. **The corrected database cases have not run yet.** Full runs continue with their original inputs and failure evidence retained. See `PAYROLL_INCOME_BASIS_REPORT_FOLLOWUP_2026_09_22.json`.
+
 The active full browser run exposed a stale complete-journey step: switching from MD UI to MW506 now intentionally clears amounts, so its attempt to reuse prior zero totals never submits. The failure context retains the unmet RECORDED assertion after successful activation/payroll. A separate follow-up changes both old/native journeys to prepare the MW506 comparison from its calendar card and explicitly checks both zero totals; **that follow-up has not run yet**. The original full run continues unchanged. See `PAYROLL_FILING_JOURNEY_FOLLOWUP_2026_09_22.json`.
 
 Separate tax-receipt connection follow-up reproduced four unhandled acquisition failures and fixes them with controlled JSON responses. **Five focused tests passed** after the repair (baseline: one pass/four failures), with lint passing. This follow-up is outside the frozen full-suite inputs and is not deployed. Both full-suite execution handles remain active; all 4,639 source hashes remain unchanged. Preserve their original results and integrate this follow-up separately. See `PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json`.

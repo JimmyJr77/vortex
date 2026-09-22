@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-22T04:22:52.924364+00:00",
+  "checkedAt": "2026-09-22T04:27:15.378006+00:00",
   "status": "STRICT RELEASE BUILD PASSED; FROZEN FULL BACKEND AND BROWSER RUNS ACTIVE; NOT DEPLOYED",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
@@ -26,8 +26,8 @@
       "status": "RUNNING",
       "sessionId": 7890,
       "log": "/tmp/payroll-imported-integrated-full-backend.log",
-      "observedPasses": 466,
-      "observedFailureMarkers": 0,
+      "observedPasses": 729,
+      "observedFailureMarkers": 2,
       "scope": "383 payroll backend test files",
       "notFinalResult": true
     },
@@ -35,7 +35,7 @@
       "status": "RUNNING",
       "sessionId": 15165,
       "log": "/tmp/payroll-imported-integrated-full-browser.log",
-      "observedPasses": 69,
+      "observedPasses": 114,
       "observedFailureMarkers": 1,
       "scope": "232 configured payroll browser cases",
       "notFinalResult": true
@@ -49,5 +49,6 @@
   ],
   "separateFollowup": "PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json",
   "carrierJourney": "Full carrier-contribution browser journey passed in 8.2 minutes; no restart or test-input changes.",
-  "journeyFollowup": "PAYROLL_FILING_JOURNEY_FOLLOWUP_2026_09_22.json"
+  "journeyFollowup": "PAYROLL_FILING_JOURNEY_FOLLOWUP_2026_09_22.json",
+  "incomeBasisFollowup": "PAYROLL_INCOME_BASIS_REPORT_FOLLOWUP_2026_09_22.json"
 }
