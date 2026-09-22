@@ -1,6 +1,6 @@
 {
-  "recordedAt": "2026-09-22T02:20:47.587122+00:00",
-  "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
+  "recordedAt": "2026-09-22T02:27:07.169853+00:00",
+  "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
   "checks": {
@@ -190,6 +190,38 @@
         "backend/payroll/registerRoutes.js",
         "backend/payroll/__tests__/employmentTaxWageHistory.test.js"
       ]
+    },
+    "monthlyHealthCollection": {
+      "regression": {
+        "passed": 23,
+        "failed": 1,
+        "skipped": 0,
+        "log": "/tmp/payroll-health-monthly-verified.log",
+        "durationMs": 42235.740084
+      },
+      "afterTimestampRepair": {
+        "passed": 9,
+        "failed": 0,
+        "skipped": 0,
+        "log": "/tmp/payroll-health-monthly-proof-verified.log",
+        "durationMs": 17127.918625
+      },
+      "lint": "passed; /tmp/payroll-health-monthly-lint.log and final healthElection scoped check",
+      "coverage": [
+        "Signed qualified premium through three API payroll finalizations; September charge, same-month skip, October charge",
+        "Separate YTD wage bases retained without duplicate premium",
+        "Competing draft becomes stale after earlier monthly collection",
+        "Statement signed deduction lines sum to net pay",
+        "Pretax employee benefit contribution report and balanced QuickBooks journal construction",
+        "Missing or altered retained signature/amount proof rejected",
+        "Existing posttax benefits, database history, wage reconciliation and ordinary retirement regression"
+      ],
+      "repairs": [
+        "Updated outdated blanket pretax rejection assertion to require missing Section 125 qualification",
+        "Health deductions displayed with negative amounts on statements",
+        "Normalized retained election creation timestamp to ISO before approval fingerprinting"
+      ],
+      "limitation": "24 distinct cases covered across regression and repair runs; not one final all-green 24-case run. No real provider write or browser collection journey."
     }
   },
   "verifiedBehavior": [
@@ -232,7 +264,7 @@
     "backend/payroll/__tests__/healthPlanQualification.test.js": "3d4512e230d309a9554556b8ef13fd2acbdc0e299836925ac03365c42c3a5d72",
     "backend/payroll/__tests__/healthParticipantQualification.test.js": "bbe12c7e74cb8e5ae6a2be5f4609b69505bbf341be2c62b4464b64c98fdbc1d3",
     "backend/payroll/initTables.js": "a36acf812f35e9fca5426e4586be6b8dd74c5b9e730ca6d29bca93505592043a",
-    "backend/payroll/registerRoutes.js": "2ec8cf8e0b15791f57df17f0bd6d272658dcff7425c057433dcdbb276b014b22",
+    "backend/payroll/registerRoutes.js": "930697790cda22d4050bbbf4589d29651a44bcc0f6502d43b655eb97e6fe0b56",
     "backend/payroll/testing/harness.js": "00a94f489c6e5585b2e31bac8370a0edb7edfaa8f7d16c9bdb4db28817e4f7be",
     "src/components/payroll/HealthQualificationReview.tsx": "3e3d35e58f9e3993e57aeb7997f8a6f721a0ab01057e48c406ea1371f365a3b2",
     "src/components/payroll/BenefitPlanCatalog.tsx": "0a3e03bb08295dcbd795ad8a72b13fd1f6c638b17b3701542f45cd638ac8f68d",
@@ -241,7 +273,7 @@
     "tests/e2e/payroll-health-qualification.spec.ts": "b06589eb44f90111066c589a26f2b2b259cd4f6c59a0bfb603990eba935d109e",
     "backend/migrations/832_payroll_health_election.sql": "c868f608428be700a1916d51a852ad127eb26c1a380343328dbd317e56a4acec",
     "backend/payroll/healthPlanDisclosure.js": "e46aed6efdca94dbb159b3d112102d2a97aa6ec26c9228c2b73b0dbcc3b71982",
-    "backend/payroll/healthElection.js": "aeb01f934b0006d5dfd167579068572e8c453ae96ad34f1cbe296688ad609d97",
+    "backend/payroll/healthElection.js": "13dcf51854975c09971ce7995c8c414dcca253dfcd24c57f53be99964f88cc55",
     "backend/payroll/testing/healthElectionFixture.js": "cbb63d4069086c3307f0ab512b7422f39b3bfb5ef48a0b05d229eefc81fb65db",
     "backend/payroll/__tests__/healthElection.test.js": "040420acd1fb148fafb5a11915b782cc72b0275ed194071e8db3b28801caf96d",
     "backend/payroll/employeeRoutes.js": "d3cf3c5cb42f662ffc9e834cad352175d5147b9ad33b4155910cc77edda89c98",
@@ -251,28 +283,37 @@
     "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
     "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28",
     "backend/payroll/healthElectionProof.js": "0ca3cdaf2b581c0726818e76d001b679b87bb34dd056e1d307867dd479ce4c40",
-    "backend/payroll/healthPremiumAuthorization.js": "947dc63e4fdc2b7b1985da563cb4cecb48876724f49f248d68c3a64d87e8ee01",
+    "backend/payroll/healthPremiumAuthorization.js": "ffcde47bd8ae103c85228c357bb1de5b7c6c9c7473e5783f29b89d740af423e3",
     "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
     "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
     "backend/payroll/ficaWageReconciliation.js": "def0b1176c0d078b3029c383465cf7aca24ce64254a2ca4404574a6a86cba993",
     "backend/payroll/__tests__/healthWageReconciliation.test.js": "30c194f6e6b36ac47741e23a4775703940d881f50e4a0ecbb96e4995b41dcdc1",
     "backend/payroll/employmentTaxWageHistory.js": "9fe1eae7449563757c1756104d74d948fbf216e06a93152ec80a0d6022a53a8c",
-    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "56aeb4f1741a4d6e5697a99c985c08b4dd998f7200c28d7ace8cd4c9e8a15214"
+    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "56aeb4f1741a4d6e5697a99c985c08b4dd998f7200c28d7ace8cd4c9e8a15214",
+    "backend/payroll/monthlyBenefits.js": "93e37f302a5d4763b0c5b79f74c35619d1cbd498143514bbb7cf3fa39348d7b0",
+    "backend/payroll/benefitContinuation.js": "41202edccde72afe9f69458cc9bc7efd6a47a297b356b7c52b9e76ec29c283c0",
+    "backend/payroll/payStatement.js": "8bb431a2f8528ca25e568459b7b5a85c3483243945938ec3a12b0bcdcf126955",
+    "backend/payroll/benefitContributionReport.js": "902037da397150cb2454918711e64a9873493a997990b9c081f4e1ee2bd4fe0f",
+    "backend/payroll/quickbooks.js": "487faff3d046feefc704e837d0671e97f4083985738293afd628877c16c76d4f",
+    "backend/payroll/retirementStatement.js": "bbf49ed987385926898e0ce93a693d9140732608f0e54affa750abb7dbfe7cf8",
+    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "58b102b749f3dc0c287433d7c90b5388be2b3df3ff3522456d858d11695d52da",
+    "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45"
   },
   "requiredNextWork": [
-    "Connect the verified premium authorization resolver to monthly collection, approval reservations and payroll tax inputs. Signature proof checks and both admin/employee interfaces are implemented in the isolated candidate.",
-    "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
-    "Database loading, ordinary preview/approval/finalization and statement retention now use separate taxable history. Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
-    "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
-    "Update benefit/carrier reporting, QuickBooks, FICA/income-tax reconciliation, W-2 and periodic reports.",
-    "Verify browser qualification/election/payroll workflows and synthetic full provider journeys.",
-    "Support remaining benefit categories and employee/state/year exceptions; this initial classification is not full goal completion."
+    "Verify mixed health/retirement and multiple health/posttax plans through approval, finalization and statements; ordinary rebuild plumbing is connected but mixed API journeys remain.",
+    "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
+    "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
+    "Update employerBenefitFundingReport retained pretax fields, carrier funding/invoice paths, W-2 and periodic reports; employee contribution report and QuickBooks journal construction now have focused coverage.",
+    "Verify full browser qualification/election/payroll and synthetic provider delivery/accounting recovery before integration/deployment.",
+    "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
+    "Support remaining benefit categories and employee/state/year exceptions; this classification is not full goal completion."
   ],
   "additionalFinding": "Legacy FICA Math.round floating arithmetic can round 87500 cents times 0.009 down to 787 instead of exact 788. New health calculations use integer half-up arithmetic; ordinary legacy payroll and its reconciliation still need a separate repair and regression audit.",
   "assumptions": [
     "A signature is recorded within five minutes of the database-created election record, using the server clock; retry returns the original record.",
     "Later logout or session revocation does not withdraw an already signed election.",
     "Premium authorization resolution is not collection: the payroll caller must reserve the monthly deduction under its settings lock and reconcile taxable wage history.",
-    "Native 2026 Maryland history starts from zero only when prior committed records support that history; unexplained nonzero opening bases block calculation pending reconciliation."
+    "Native 2026 Maryland history starts from zero only when prior committed records support that history; unexplained nonzero opening bases block calculation pending reconciliation.",
+    "Regular monthly health premiums are allocated to ordinary wages by default. Explicit bonus allocations and insufficient ordinary-wage cases still require further workflow integration; no silent partial collection."
   ]
 }
