@@ -1,10 +1,10 @@
 {
-  "checkedAt": "2026-09-22T04:02:59.328671+00:00",
-  "status": "ISOLATED IMPORTED REPORTING AND TAX-LIABILITY EXPORT VERIFIED; FORM-SPECIFIC REPORTING AND BROAD INTEGRATION REMAIN",
+  "checkedAt": "2026-09-22T04:08:33.803437+00:00",
+  "status": "ISOLATED IMPORTED REPORTING, TAX-LIABILITY EXPORT AND FEDERAL FILING WAGE COMPARISONS VERIFIED; OTHER FORM DETAIL AND BROAD INTEGRATION REMAIN",
   "workspace": "/tmp/vortex-payroll-opening-history",
   "baseApplication": "7b1b7343",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
-  "patchSha256": "78ba7889ddfafd3dd5208ad9b14dbec54096492bed6f71a89ea8a7dad215caf8",
+  "patchSha256": "e0756319d462b7515b725c9ba11e5c72322e31460f25e583a3e829a48a1b3398",
   "sourceHashes": {
     "backend/payroll/historicalEmploymentTaxWages.js": "3326c3138c7ad3e71925d519ac08327f22cfe21ca3b5d967aef213948dc690f9",
     "backend/payroll/historicalEmploymentWageReview.js": "cc84a952debd31ab8c81492b5a79e5fe16b85f95c44213aa9fb454d33faa0e21",
@@ -19,24 +19,25 @@
     "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "f420c578ebc7961b787b88379659a48a57cec1b65a6fd06af53394c10d3b4d60",
     "src/components/payroll/HistoricalEmploymentWageReview.tsx": "cd9ce756e2e0e66ba0c1027ff21dce03328b1f8e62677b6ca065d2124b30ea2f",
     "src/components/payroll/AdminPayroll.tsx": "7e85dfccb5c56636836e87aa05f20f3baeb7f36e9f0a4c3c94f2742ef8c11309",
-    "tests/e2e/payroll-imported-wage-review.spec.ts": "b9609c38aeeda5b3ea210b8e729a5c992f884b88872d048d94551b2753629c21",
+    "tests/e2e/payroll-imported-wage-review.spec.ts": "9d4bd5fdf3facb2d01d472f7706cc7a508c37ccd132cb8bd69b9e25dd164fd10",
     "backend/payroll/historicalAnnualPaymentDetail.js": "1337132c011f629e439f5705e1aa4d2aae1a92924991e7e60fb4adc3f660f7e0",
     "backend/payroll/__tests__/historicalAnnualPaymentDetail.test.js": "e35ca910efcf341b722a081569a4ed7b5bdb2376aa732d13eccdf2811108a7c5",
     "backend/payroll/employeeSummary.js": "0e3fe7eb6f1cb9d584e8ded18ce870be6c65a02edf9aad306c0e94dcf189d94f",
     "backend/payroll/yearEndPreparation.js": "c1639a54730c2056712fdba046e2188b3be117a0355b0bb04778983c8ae26c70",
     "backend/payroll/historicalReportingEvidence.js": "bf166085f49ca5e8f7f3daac1f8192726efb2f2e472c8a0519cb80cae64bceaf",
-    "backend/payroll/historicalTaxRows.js": "9117a0bdde8da82f8a80d8b1bfae47e3bc6081b904b7ae8f0f60cfe2df2441ed",
+    "backend/payroll/historicalTaxRows.js": "d1b0f2abf3a658cdad5125fab340086abbf852e503b7cf67120d784830b26da3",
     "backend/payroll/readPayrollSnapshot.js": "b3bd4b70f070d2fc4e4dd24f7d96f154813723e504458dac417960e08c88b3b1",
     "backend/payroll/__tests__/historicalReportingExports.test.js": "7a7943d29a12e406a6d6acbec94986bd1d4d43bb1b4780cbcd35f75b7aad9e80",
-    "backend/payroll/taxReconciliation.js": "b11ab4f0cccb94b7d2d3af6a2dc84bc6f365ead0501116a8a94eac47d1f80c6d",
+    "backend/payroll/taxReconciliation.js": "33fcc3c1da389de88b76ac82ace6e7912c762a05e69747f16461b3c39afbfbd0",
     "backend/payroll/federalTaxCalendar.js": "22c15f18391b7890c07e213bd6524f0f40e058d2145150ba111df5aba9d21724",
     "backend/payroll/marylandWithholdingCalendar.js": "8ae67020aa05eb30eb629c70a370ab733b8d4113afa0d53e84e88d8580df8a2c",
     "backend/payroll/marylandUiCalendar.js": "ff7b6ba3391c130b23b7b3f866cc833c56a54986078d628c6abf209e82aca60c",
     "src/components/payroll/WageBasisReview.tsx": "c806e5e1f209432ba9bbb7b9428c70cac940eb74a2a0b24e7ced2ef796d86bad",
-    "src/components/payroll/TaxReconciliation.tsx": "aaf1bc00eea810fa5f88ed9459ce000b536f333fc6ee6cc2d2a21b521e66df69",
-    "src/utils/workforceApi.ts": "d066914a09e50889802c405bcd64311187a9e28cf5243b8bb1d88f6187589565",
+    "src/components/payroll/TaxReconciliation.tsx": "51e49b7cd14c9313229ab3938bb155c1a76356fe1b73962f77997585da3c1df1",
+    "src/utils/workforceApi.ts": "97abb7f47759903c8738b8cefc07a6445d05f655a1dc2ec20538b75112959737",
     "backend/payroll/taxLiabilityReport.js": "e71d7ea3a187c413c5792e97f1be281da1ad265012c0e25bc80870b6e21b6de6",
-    "backend/payroll/__tests__/taxLiabilityReport.test.js": "fe3f334f7c5dd6e0a3d9425772c017a22aebc8303c5001aa7750a3f7cc79c448"
+    "backend/payroll/__tests__/taxLiabilityReport.test.js": "fe3f334f7c5dd6e0a3d9425772c017a22aebc8303c5001aa7750a3f7cc79c448",
+    "backend/payroll/__tests__/federalFilingWages.test.js": "59ad14a4e7fea5cd17fcade4511f1c3d276769fb6049cbb6fc022452036aba84"
   },
   "implemented": [
     "Canonical per-employee/workplace 2026 imported-payment source including prior-year work paid in 2026",
@@ -73,7 +74,7 @@
     "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
   ],
   "remaining": [
-    "Complete form-specific reported-wage reconciliation and agency exports; current receipt reconciliation uses gross control totals.",
+    "Complete other form-specific reported fields and agency exports; IRS 941 line 2 and W-2/W-3 box 1 comparisons now use verified federal wages, while other forms still use gross control totals.",
     "Verify all dependent remittance/calendar/reporting paths and broad candidate regression before integration.",
     "Expand imported payment evidence beyond gross minus employee taxes: deductions, reimbursements, benefit components and unusual compensation remain unsupported.",
     "Reconcile previously paid native legacy gross-based taxes when imported bases conflict without rewriting paid evidence.",
@@ -260,6 +261,52 @@
       "Draft/review and voided runs excluded; approved reservations explicitly unpaid; finalized taxes unchanged.",
       "Quarterly paid-tax reconciliation continues to exclude approved runs.",
       "Mobile Reports download uses selected range and delivers expected CSV amounts."
+    ],
+    "notDeployed": true
+  },
+  "federalFilingWageVerification": {
+    "backend": {
+      "passed": 22,
+      "failed": 0,
+      "skipped": 0,
+      "logs": [
+        "/tmp/payroll-federal-filing-wages.log",
+        "/tmp/payroll-federal-filing-dependent.log"
+      ]
+    },
+    "browser": {
+      "passed": 2,
+      "failed": 0,
+      "durationSeconds": 14.9,
+      "log": "/tmp/payroll-federal-filing-browser-final.log",
+      "earlierFailureLog": "/tmp/payroll-federal-filing-browser.log",
+      "diagnosticRunLog": "/tmp/payroll-federal-filing-browser-trace.log",
+      "diagnosticRunStatus": "Interrupted after trace identified the unresolved exact label locator.",
+      "correction": "Added explicit Tax form aria-label; option text had prevented the exact label lookup. Kept original amount assertions and timeouts.",
+      "screenshot": "/tmp/payroll-form-specific-wages-mobile.png",
+      "visuallyInspected": true
+    },
+    "typescript": {
+      "command": "tsc -b",
+      "exitCode": 0,
+      "log": "/tmp/payroll-federal-filing-types.log"
+    },
+    "lint": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-federal-filing-lint.log"
+    },
+    "scope": [
+      "Native retained income-tax basis and explicit historical basis reviews feed federal reporting wages; imported annual detail supplies imported federal wages.",
+      "Pretax health payroll with 20000 gross cents compares federal forms to 7500 reporting cents.",
+      "Missing evidence is null, never gross or zero fallback; blocks new federal filing receipts.",
+      "Prior unversioned federal receipts require review; existing receipt evidence remains unchanged.",
+      "Mobile imported gross 1000.00 and federal wages 900.00 remain distinct; changing form clears amounts and confirmation.",
+      "Federal/Maryland calendars and health/retirement reporting regressions passed."
+    ],
+    "sources": [
+      "https://www.irs.gov/instructions/i941",
+      "https://www.irs.gov/instructions/iw2w3",
+      "https://labor.maryland.gov/unemployment-insurance/employer-agent/tax-rate.shtml"
     ],
     "notDeployed": true
   }
