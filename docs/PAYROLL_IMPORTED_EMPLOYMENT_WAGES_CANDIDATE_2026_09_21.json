@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-09-22T03:11:45.625874+00:00",
+  "status": "ISOLATED API FOUNDATION; NOT INTEGRATED, CONNECTED TO PAYROLL, OR DEPLOYED",
+  "workspace": "/tmp/vortex-payroll-opening-history",
+  "baseApplication": "7b1b7343",
+  "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
+  "patchSha256": "a26c9bb6b0799e9181a0fa24ce78891dafecec035988ddb86faca1e18ef094ca",
+  "sourceHashes": {
+    "backend/payroll/historicalEmploymentTaxWages.js": "914a465359840208afb5f0f50566c5bd9f3427ca1b9c14f082c35dfc47350dbd",
+    "backend/payroll/historicalEmploymentWageReview.js": "1795829d3aec84adf840625300d8956f520a0c8eb7119ba3a21c8b4fb731a32c",
+    "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "e1a4935ff4492a595a6c447c844afb54f5e3e92c237bf1d06ed09d262fe7dfd7",
+    "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "df8fefe1d523bcf037d8723178164700655cfcef694a327dba7db3a29fb26543",
+    "backend/migrations/833_payroll_historical_employment_wages.sql": "8ba79d44dbc435569576de3d63e228c9b1679be9919aeb36cca0102db496792b",
+    "backend/payroll/registerRoutes.js": "019997a4d86058125edddf2b6b1df09b68327843bb8206a599bbb74844ff0cf3",
+    "backend/payroll/initTables.js": "61e587a8aebea60d0d08443952e34b8d6953372dd987ccb81f38deee06bf5e0d",
+    "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a"
+  },
+  "implemented": [
+    "Canonical per-employee/workplace 2026 imported-payment source including prior-year work paid in 2026",
+    "Separate uncapped Social Security, Medicare, FUTA and Maryland unemployment wage findings for each payment",
+    "Immutable revision ledger and authenticated admin read/save endpoints with exact retry, competing-save and audit rollback protection",
+    "Unresolved and stale reviews remain explicit; no gross-wage fallback or production gate bypass"
+  ],
+  "checks": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 3905.09825,
+    "log": "/tmp/payroll-opening-history-review.log",
+    "lintExitCode": 0,
+    "lintLog": "/tmp/payroll-opening-history-lint.log"
+  },
+  "assumptions": [
+    "Imported wage bases refer to the same employer and employee, not wages from another employer.",
+    "Taxable wage bases are uncapped; annual caps are applied by the payroll engine after combining verified history.",
+    "Every imported payment in the selected 2026 history needs an explicit basis review tied to unchanged retained payment evidence.",
+    "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
+  ],
+  "remaining": [
+    "Connect current retained review to chronological imported/native taxable-wage reconciliation and frozen approval/statement evidence.",
+    "Handle changed reviews and payments, reservations, voids, historic native rows and report reconciliation without rewriting paid records.",
+    "Add the admin review form, original-request recovery and stale-draft handling.",
+    "Verify imported-to-native pretax payroll end to end, browser/mobile and year-end reporting.",
+    "Integrate migration 833 only after the complete flow is verified; the pending health release remains separate."
+  ]
+}
