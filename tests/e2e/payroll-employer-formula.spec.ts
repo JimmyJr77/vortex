@@ -63,7 +63,8 @@ test('admin retains and resumes structured employer tiers with exact recovery an
   await expect(panel.getByText('Matching tiers need increasing compensation ceilings up to 100% and matching rates from 0% to 1,000%.',{exact:true})).toBeVisible()
   history=(await api('/retirement-plans')).history;expect(history).toHaveLength(2)
   const processing=await api('/retirement-plans/standard/processing-review')
-  expect(processing.executionIssues.join(' ')).toContain('Employer retirement contributions require implemented calculation')
+  expect(processing.executionIssues.join(' ')).toContain('Employer retirement contributions require the integrated payroll review')
+  expect(processing.executionIssues.join(' ')).toContain('Standalone employee deduction calculations cannot authorize employer contributions.')
   expect(errors).toEqual([])
  }finally{try{if(!page.isClosed()){await page.unrouteAll({behavior:'ignoreErrors'});await page.close()}}finally{await h.close()}}
 })

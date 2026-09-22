@@ -15,6 +15,7 @@ export function w2DraftMapping(facility,employer,employee,determination){
  if(!applicability||applicability.status!=='CURRENT')issues.push('Record a current compensation applicability review.')
  else for(const [key,label] of Object.entries(compensationCategories))if(applicability.categories[key]!=='NOT_APPLICABLE'&&!(key==='retirement'&&['EMPLOYER_ONLY_PARTICIPATION','STANDARD_401K_DEFERRALS'].includes(applicability.categories[key])))issues.push(`${label}: ${applicability.categories[key]==='APPLICABLE'?'detailed reporting treatment is not implemented':'resolve applicability'}.`)
  if(employee.retirementContributions?.hasEmployeeDeferrals&&applicability?.categories.retirement!=='STANDARD_401K_DEFERRALS')issues.push('Retained employee retirement deferrals require detailed contribution-code reporting before W-2 approval.')
+ if(employee.retirementContributions?.hasEmployerContributions&&!['EMPLOYER_ONLY_PARTICIPATION','STANDARD_401K_DEFERRALS'].includes(applicability?.categories.retirement))issues.push('Retained employer contributions require an explicit retirement participation review before W-2 approval.')
  let retirementCodes=[]
  if(applicability?.categories.retirement==='STANDARD_401K_DEFERRALS')try{retirementCodes=retirementW2Codes(employee.retirementContributions)}catch(e){issues.push(e.message)}
  const wages=employee.wageInputs||{},tax=employee.withholding||{}

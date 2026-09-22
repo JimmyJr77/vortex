@@ -40,7 +40,7 @@ test('admin processing review retains retries and preserves drafts after concurr
  }finally{try{if(!page.isClosed()){await page.unrouteAll({behavior:'ignoreErrors'});await page.close()}}finally{await h.close()}}
 })
 
-test('employer contribution execution gap is visible before payroll and remains visible after suspension',async({page})=>{
+test('employer contribution integration requirements remain visible before payroll and after suspension',async({page})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000)
  const h=await createHarness(),errors:string[]=[]
  page.on('pageerror',e=>errors.push(e.message))
@@ -55,15 +55,17 @@ test('employer contribution execution gap is visible before payroll and remains 
   await page.getByRole('button',{name:'Load retirement plan history',exact:true}).click()
   const panel=page.getByRole('region',{name:'Processing review standard',exact:true})
   await panel.getByRole('button',{name:'Load processing review',exact:true}).click()
-  await expect(panel.getByRole('alert')).toContainText('Employer retirement contributions require implemented calculation')
+  await expect(panel.getByRole('alert')).toContainText('Payroll processing requirements')
+  await expect(panel.getByRole('alert')).not.toContainText('requires additional implementation')
+  await expect(panel.getByRole('alert')).toContainText('Employer retirement contributions require the integrated payroll review')
   await panel.getByRole('button',{name:'Review current processing policies',exact:true}).click()
   await panel.getByLabel('Processing disposition',{exact:true}).selectOption('SUSPENDED')
-  await panel.getByLabel('Processing review reference',{exact:true}).fill('Synthetic suspension until employer funding is implemented')
+  await panel.getByLabel('Processing review reference',{exact:true}).fill('Synthetic suspension pending integrated employer funding review')
   await panel.getByRole('checkbox').check()
   await panel.getByRole('button',{name:'Retain processing review',exact:true}).click()
   await expect(panel.getByRole('status')).toContainText('Processing review retained.')
   await expect(panel.getByText('Current review: SUSPENDED',{exact:true})).toBeVisible()
-  await expect(panel.getByRole('alert')).toContainText('Retained formula text alone does not calculate employer funding.')
+  await expect(panel.getByRole('alert')).toContainText('Standalone employee deduction calculations cannot authorize employer contributions.')
   await panel.screenshot({path:'/tmp/payroll-employer-processing-mobile.png'})
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)
   expect(errors).toEqual([])

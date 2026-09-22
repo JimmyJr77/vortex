@@ -22,6 +22,7 @@ export function registerCompensationApplicability(app,pool,prepare){
    const data=await prepare(db,facility),record=data.employees.find(e=>e.employeeId===employee)
    if(!record)throw fail('Employee annual payment inputs not found.',404)
    if(record.retirementContributions?.hasEmployeeDeferrals&&['NOT_APPLICABLE','EMPLOYER_ONLY_PARTICIPATION'].includes(input.categories.retirement))throw fail('Retained employee deferrals require applicable retirement contribution reporting.',409)
+   if(record.retirementContributions?.hasEmployerContributions&&input.categories.retirement==='NOT_APPLICABLE')throw fail('Retained employer contributions require an explicit retirement participation review.',409)
    if(record.sourceFingerprint!==input.sourceFingerprint||record.sourceStatus!=='READY_FOR_REVIEW')throw fail('Annual inputs changed or require reconciliation. Refresh annual preparation.',409)
    if(input.categories.retirement==='STANDARD_401K_DEFERRALS')try{retirementW2Codes(record.retirementContributions)}catch{throw fail('Reconcile standard 401(k) annual employee contributions before selecting this reporting treatment.',409)}
    const prior=record.compensationApplicabilityHistory[0]

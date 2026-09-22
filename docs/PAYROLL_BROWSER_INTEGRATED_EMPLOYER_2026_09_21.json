@@ -1,0 +1,31 @@
+{
+  "commit": "9b2262c48a5dd01c4ae26474d4d3138afd2e5452",
+  "result": {
+    "tests": 222,
+    "passed": 219,
+    "failed": 3,
+    "skipped": 0
+  },
+  "log": "/tmp/payroll-browser-current-full.log",
+  "logSha256": "ba3e961b2864310c66fb464db6f35646a51e6b8e597d1465d9f84639f2fd936f",
+  "inputManifest": "/tmp/payroll-browser-current-source-hashes.json",
+  "inputManifestSha256": "7cea89259701095e07cb9b34b4400a9de887c0ed335ad189b0bec6932a6b402d",
+  "inputFileCount": 3593,
+  "changedInputs": [],
+  "failures": [
+    "\u2718   71 tests/e2e/payroll-employer-compensation-preview.spec.ts:9:1 \u203a payroll preview shows capped employer compensation without presenting it as reserved funding (7.7s)",
+    "\u2718   74 tests/e2e/payroll-employer-formula.spec.ts:6:1 \u203a admin retains and resumes structured employer tiers with exact recovery and rejects contradictory ceilings (2.8s)",
+    "\u2718  163 tests/e2e/payroll-retirement-processing.spec.ts:43:1 \u203a employer contribution execution gap is visible before payroll and remains visible after suspension (6.9s)"
+  ],
+  "completeNativeJourneys": [
+    "\u2713  219 tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: unassisted (32.9s)",
+    "\u2713  220 tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: preparer-assisted (23.2s)",
+    "\u2713  221 tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: multiple-preparers (37.4s)",
+    "\u2713  222 tests/e2e/payroll-native-complete-journey.spec.ts:18:177 \u203a fresh invited hire completes native certificates, activation, payroll and returning access: linked-account (33.2s)"
+  ],
+  "limitations": [
+    "The three failures are preserved; isolated corrections are not counted as a green full run.",
+    "Two pool-after-close messages occurred during election-test teardown.",
+    "Synthetic providers do not prove live financial or agency acceptance."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "status": "Verified in main worktree; publication and deployment pending",
+  "browser": {
+    "passed": 9,
+    "failed": 0,
+    "includes": "Annual evidence, employer compensation preview, employer formula, two processing cases, four complete native hiring journeys"
+  },
+  "backend": {
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typescript": "tsc -b passed",
+  "logs": [
+    {
+      "path": "/tmp/payroll-yearend-integrated-browser.log",
+      "sha256": "15daccaadcb374540f3bd7dc50fa24df48a882ab27769ae302341f6002be1720"
+    },
+    {
+      "path": "/tmp/payroll-yearend-integrated-backend.log",
+      "sha256": "13fa16e8905c854614d9d45197cfed8f064cf738a6f2d54b3b7c72fff983a7f1"
+    },
+    {
+      "path": "/tmp/payroll-yearend-integrated-types.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limitations": [
+    "Full browser baseline remains 219 passes and three failures, preserved separately.",
+    "Live provider, government and real production hire acceptance remain unverified."
+  ]
+}

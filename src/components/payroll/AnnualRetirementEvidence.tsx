@@ -4,6 +4,9 @@ export type AnnualRetirementReport = {
   pretaxDeferrals: string
   rothDeferrals: string
   hasEmployeeDeferrals: boolean
+  hasEmployerContributions?: boolean
+  employerMatching?: string
+  employerNonelective?: string
   records: Array<{
     runId: string
     paymentDate: string
@@ -13,6 +16,8 @@ export type AnnualRetirementReport = {
     ordinaryRothCents: number
     catchUpPretaxCents: number
     catchUpRothCents: number
+    employerMatchingCents?: number
+    employerNonelectiveCents?: number
   }>
 }
 
@@ -29,8 +34,11 @@ export default function AnnualRetirementEvidence({ report }: { report?: AnnualRe
       <dl className="space-y-1">
         <div><dt className="inline">{report.year} pretax employee deferrals: </dt><dd className="inline font-semibold">${report.pretaxDeferrals}</dd></div>
         <div><dt className="inline">{report.year} Roth employee deferrals: </dt><dd className="inline font-semibold">${report.rothDeferrals}</dd></div>
+        {report.employerMatching !== undefined ? <div><dt className="inline">{report.year} employer matching obligations: </dt><dd className="inline font-semibold">${report.employerMatching}</dd></div> : null}
+        {report.employerNonelective !== undefined ? <div><dt className="inline">{report.year} employer nonelective obligations: </dt><dd className="inline font-semibold">${report.employerNonelective}</dd></div> : null}
       </dl>
       {report.hasEmployeeDeferrals ? <p>Review these amounts before confirming standard 401(k) reporting. The W-2 draft uses the reconciled totals after the required annual reviews.</p> : <p>These retained records contain no employee deferrals. Review plan participation separately.</p>}
+      {report.hasEmployerContributions ? <p>Employer funding is retained for these payrolls. Review actual plan participation and allocation evidence before confirming the W-2 retirement-plan checkbox. Employer obligations are separate from employee deferral codes and do not establish provider posting.</p> : null}
       <details>
         <summary className="cursor-pointer font-semibold">Review {report.records.length} retained payroll contribution records</summary>
         <ul className="mt-3 space-y-3">
@@ -41,6 +49,8 @@ export default function AnnualRetirementEvidence({ report }: { report?: AnnualRe
               <div><dt className="inline">Ordinary Roth: </dt><dd className="inline">{money(record.ordinaryRothCents)}</dd></div>
               <div><dt className="inline">Catch-up pretax: </dt><dd className="inline">{money(record.catchUpPretaxCents)}</dd></div>
               <div><dt className="inline">Catch-up Roth: </dt><dd className="inline">{money(record.catchUpRothCents)}</dd></div>
+              {record.employerMatchingCents !== undefined ? <div><dt className="inline">Employer matching obligation: </dt><dd className="inline">{money(record.employerMatchingCents)}</dd></div> : null}
+              {record.employerNonelectiveCents !== undefined ? <div><dt className="inline">Employer nonelective obligation: </dt><dd className="inline">{money(record.employerNonelectiveCents)}</dd></div> : null}
             </dl>
           </li>)}
         </ul>

@@ -1,6 +1,6 @@
 # Employer contribution annual-reporting candidate
 
-Status: tested in `/tmp/vortex-payroll-employer-yearend`, not applied to main or deployed. The current 222-case browser baseline is still active (exec session 41355, `/tmp/payroll-browser-current-full.log`). It began at `9b2262c4`; 3,593 source hashes in `/tmp/payroll-browser-current-source-hashes.json` remain unchanged at this checkpoint. Preserve that run; do not restart merely because a long case has not emitted output.
+Status: applied to main and verified in the real worktree; publication and deployment verification are next. The full baseline ended with 219 passes and three outdated browser expectations. All 3,593 baseline source hashes remained unchanged until it finished. The corrected combined run passed all nine cases, including all four complete native hiring journeys.
 
 ## Confirmed issue and correction
 
@@ -12,7 +12,7 @@ Source: [IRS 2026 W-2/W-3 instructions](https://www.irs.gov/instructions/iw2w3),
 
 ## Evidence
 
-The full isolated candidate backend regression subsequently completed: **1,063 passed, zero failures/skips**, 783.450 seconds. All 1,845 recorded inputs remained unchanged. Exact log and manifest hashes are in `PAYROLL_EMPLOYER_YEAR_END_BACKEND_VERIFICATION_2026_09_21.json`. The full main browser baseline remains active; two employer browser expectations were reproduced and corrected separately (`/tmp/payroll-employer-browser-expectations.patch`, two passing focused cases in `/tmp/payroll-employer-browser-correction.log`). Neither patch has been applied to main.
+The full isolated candidate backend regression subsequently completed: **1,063 passed, zero failures/skips**, 783.450 seconds. All 1,845 recorded inputs remained unchanged. Exact log and manifest hashes are in `PAYROLL_EMPLOYER_YEAR_END_BACKEND_VERIFICATION_2026_09_21.json`. The main browser baseline subsequently finished with 219 passes and three failures from outdated employer-processing expectations. Those corrections and the annual-reporting patch are now applied. The full baseline remains recorded as non-green; focused results do not rewrite it.
 
 - Both new candidate cases failed against unchanged code because employer contribution evidence was absent: `/tmp/payroll-employer-yearend-red.log`.
 - Final candidate backend regression: 29 passed, zero failures/skips, 44.535 seconds. `/tmp/payroll-employer-yearend-candidate-final-tests.log`. Includes public review rejection/recovery, annual mapping, normal/bonus/PTO deferrals, ledger and year-end preparation.
@@ -22,4 +22,4 @@ The full isolated candidate backend regression subsequently completed: **1,063 p
 - Patch: `/tmp/payroll-employer-yearend-candidate.patch`, SHA-256 `8cf7f06c7f2af67888290f1d8c97712d634e11e8ac51db85dcc5bc87d308004e`; `git apply --check` passes. Six candidate input hashes: `/tmp/payroll-employer-yearend-candidate-source.json`.
 - An intermediate public test lacked a synthetic document-encryption key and correctly received 503; the test setup was corrected, without weakening storage requirements.
 
-Next: retain the existing full-browser process until terminal, verify its source hashes and investigate failures; then apply the candidate patch, verify in the real worktree, publish and deploy. No live payment, hire or filing was generated. The overall goal remains incomplete.
+Integrated verification: nine browser cases passed in 2.5 minutes, ten focused backend tests passed in 7.233 seconds, and `tsc -b` passed. See `PAYROLL_YEAR_END_INTEGRATED_VERIFICATION_2026_09_21.json` for log hashes. Next: publish and verify deployment. No live payment, hire or filing was generated. The overall goal remains incomplete.
