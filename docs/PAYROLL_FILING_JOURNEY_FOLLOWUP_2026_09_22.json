@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-09-22T04:22:52.924364+00:00",
-  "status": "ALL SEVEN FOCUSED BROWSER CASES PASSED; ORIGINAL FULL RUN STILL ACTIVE; NOT DEPLOYED",
+  "status": "ALL FIVE ORIGINAL FAILURES CONFIRMED SAME CAUSE; ALL SEVEN CORRECTED FOLLOW-UP CASES PASSED",
   "patch": "/tmp/payroll-filing-journey-form-preparation-followup.patch",
   "patchSha256": "aa94b152e3cf8e6de8ddff1018ec77c58631503432f6991f7e6b542a189acad3",
   "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
@@ -9,7 +9,7 @@
   "finding": "Journey changed from MD_UI to MD_MW506 and expected previous zero amounts to survive. New intentional form-change reset clears both amounts; required-field validation prevents submission.",
   "correction": "Use the target MW506 calendar card Prepare return comparison action and explicitly assert both expected zero totals before submission. Preserve RECORDED and NO TAX DUE assertions.",
   "alsoPrepared": "payroll-native-complete-journey.spec.ts contains the same stale step.",
-  "next": "Preserve and inspect the original full browser result, then integrate and publish after addressing any additional findings.",
+  "next": "Publish verified integration and verify actual deployment readiness.",
   "lint": {
     "exitCode": 0,
     "log": "/tmp/payroll-imported-regression-followup-lint-final.log",

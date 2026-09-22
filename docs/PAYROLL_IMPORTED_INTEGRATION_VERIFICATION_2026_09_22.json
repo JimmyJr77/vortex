@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T04:40:40.919190+00:00",
-  "status": "FULL BACKEND 1137 PASS / 3 FAIL; CORRECTED FOCUSED 18 BACKEND AND 7 BROWSER PASS; ORIGINAL FULL BROWSER ACTIVE; NOT DEPLOYED",
+  "checkedAt": "2026-09-22T04:48:17.352706+00:00",
+  "status": "INTEGRATED AND VERIFIED FOR PUBLICATION; FULL ORIGINAL FAILURES RETAINED; DEPLOYMENT NOT YET VERIFIED",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
@@ -36,20 +36,24 @@
       "sourceHashesMatchAtCompletion": true
     },
     "browser": {
-      "status": "RUNNING",
+      "status": "COMPLETED",
       "sessionId": 15165,
       "log": "/tmp/payroll-imported-integrated-full-browser.log",
-      "observedPasses": 184,
-      "observedFailureMarkers": 1,
       "scope": "232 configured payroll browser cases",
-      "notFinalResult": true
+      "notFinalResult": false,
+      "passed": 227,
+      "failed": 5,
+      "skipped": 0,
+      "durationMinutes": 37.8,
+      "exitCode": 1,
+      "sourceHashesMatchAtCompletion": true,
+      "failureReview": "All five error contexts fail the same MW506 RECORDED assertion after changing form without entering newly cleared amounts; corrected original plus four native journeys all passed in the seven-case follow-up."
     }
   },
   "remaining": [
-    "Wait on existing execution handles; do not restart because of observation timeout.",
-    "Verify every frozen source hash after each full run, preserve all failures and repair in a separate follow-up.",
-    "Complete other form-specific fields, agency exports, expanded imported components and native legacy reconciliation.",
-    "Integrate/publish application and migration 833 only after adequate verification; overall goal remains incomplete."
+    "Verify published frontend/backend release, migration 833 startup and document storage/CORS readiness.",
+    "Complete other form-specific fields, agency exports, expanded imported payment components and native legacy reconciliation.",
+    "Real bank, QuickBooks and government acceptance remains separate from synthetic verification; full goal remains incomplete."
   ],
   "separateFollowup": "PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json",
   "carrierJourney": "Full carrier-contribution browser journey passed in 8.2 minutes; no restart or test-input changes.",
@@ -147,6 +151,6 @@
     "notPublished": true,
     "checkedAt": "2026-09-22T04:42:36.333269+00:00",
     "workspace": "/Users/jimmy_mac/Desktop/code/vortex",
-    "status": "APPLIED LOCALLY; NOT PUSHED OR DEPLOYED"
+    "status": "COMMITTED AS b6314098; READY TO PUSH; DEPLOYMENT PENDING"
   }
 }
