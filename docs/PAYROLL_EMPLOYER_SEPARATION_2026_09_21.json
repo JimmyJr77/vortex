@@ -1,0 +1,32 @@
+{
+  "change": "Employer eligibility coverage follows a single recorded employment interval ending during a regular payroll period.",
+  "verification": {
+    "tests": 51,
+    "passed": 51,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 22.117
+  },
+  "regressionBeforeFix": "All three new separation tests failed before implementation; both API cases isolated the employer eligibility blocker after a reviewed benefits waiver.",
+  "coverage": [
+    "Recorded start/end and complete contiguous engine compensation agree before narrowing assessment coverage.",
+    "Combined and employer-only public payroll preview, draft, review, approval and finalization retain exact employer ledger and statement amounts.",
+    "Reject missing, overlapping or out-of-period compensation; conflicting separation history; bonuses and settlements with separate earning-period requirements.",
+    "Existing employer contribution approval, calculations, eligibility, compensation, recurring payroll, annual reporting and ledger suites pass."
+  ],
+  "limitations": [
+    "Separation state is seeded in isolated database fixtures; this is not an end-to-end offboarding verification.",
+    "Benefit continuation deductions, multiple overlapping employment cycles, off-cycle earnings and annual true-up remain separate incomplete requirements.",
+    "No real employee, payment or provider write was used."
+  ],
+  "logs": [
+    {
+      "path": "/tmp/payroll-employer-separation-red.log",
+      "sha256": "16e7b6db19589e0c725fdf0c794b630c01f127c9a27993c39214655cc002f3ed"
+    },
+    {
+      "path": "/tmp/payroll-employer-separation-regression.log",
+      "sha256": "df8d6f6cb9f5fb58b24186fed1da377dda91265722256c27861009595499fd70"
+    }
+  ]
+}
