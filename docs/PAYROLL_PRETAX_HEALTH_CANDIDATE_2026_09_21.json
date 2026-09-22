@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:10:21.279116+00:00",
+  "recordedAt": "2026-09-22T02:12:49.668853+00:00",
   "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -138,6 +138,14 @@
       "durationMs": 15274.3965,
       "log": "/tmp/payroll-health-premium-authorization.log",
       "lint": "passed"
+    },
+    "healthWageReconciliation": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 2609.153584,
+      "log": "/tmp/payroll-health-wage-reconciliation-final.log",
+      "lint": "passed"
     }
   },
   "verifiedBehavior": [
@@ -157,7 +165,10 @@
     "Employees open employee-safe disclosures inside onboarding, elect or decline, recover interrupted signatures and read retained disclosure history.",
     "Changed election terms preserve the employee signature draft while blocking signing; current employee-scoped election listing includes retained plan history.",
     "Database insertion and payroll consumption require complete retained signature/consent proof and signing time within the reviewed deadline and creation window. Later session revocation does not erase valid consent.",
-    "Typed premium authorization resolves matching participant qualification, signed Section 125 election, exact coverage amount and deduction authorization; malformed amounts, missing consent, invalid bonus allocation and withdrawal are rejected."
+    "Typed premium authorization resolves matching participant qualification, signed Section 125 election, exact coverage amount and deduction authorization; malformed amounts, missing consent, invalid bonus allocation and withdrawal are rejected.",
+    "Income-tax wage reconciliation recognizes classified health premiums alone or alongside standard 401(k) deductions and checks exact deduction items and totals.",
+    "FICA reconciliation uses separate health-adjusted taxable bases and exact half-up arithmetic; approved reservations do not require fabricated paid statements.",
+    "Missing/duplicate health deduction lines, altered taxable amounts and mismatched physical totals fail reconciliation; the existing finalized FICA workflow still passes."
   ],
   "files": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
@@ -193,12 +204,16 @@
     "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
     "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28",
     "backend/payroll/healthElectionProof.js": "0ca3cdaf2b581c0726818e76d001b679b87bb34dd056e1d307867dd479ce4c40",
-    "backend/payroll/healthPremiumAuthorization.js": "947dc63e4fdc2b7b1985da563cb4cecb48876724f49f248d68c3a64d87e8ee01"
+    "backend/payroll/healthPremiumAuthorization.js": "947dc63e4fdc2b7b1985da563cb4cecb48876724f49f248d68c3a64d87e8ee01",
+    "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
+    "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
+    "backend/payroll/ficaWageReconciliation.js": "d30a23fa567f65ad0764e281a26994eb89819a9f823bf3c5cd8f661c4ef3e28f",
+    "backend/payroll/__tests__/healthWageReconciliation.test.js": "2a65db07b24d8084fa07cf1cea65b97054380b864315ae9f59ae7b6c13e93bdc"
   },
   "requiredNextWork": [
     "Connect the verified premium authorization resolver to monthly collection, approval reservations and payroll tax inputs. Signature proof checks and both admin/employee interfaces are implemented in the isolated candidate.",
     "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
-    "Reconcile prior taxable wages and approved reservations; never substitute gross wages or capped SS wages.",
+    "Build uncapped taxable-wage YTD accumulation and integrate approved reservations, including later runs with no new health collection. Health-aware per-row income/FICA reconciliation is implemented; never substitute gross or capped SS history.",
     "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
     "Update benefit/carrier reporting, QuickBooks, FICA/income-tax reconciliation, W-2 and periodic reports.",
     "Verify browser qualification/election/payroll workflows and synthetic full provider journeys.",
