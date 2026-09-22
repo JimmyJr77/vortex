@@ -1,0 +1,32 @@
+# Pretax health-benefit implementation basis
+
+Status: isolated candidate at `/tmp/vortex-payroll-pretax-health`; not enabled, integrated or deployed. This work does not complete the broader onboarding/payroll goal. Test results and remaining integration requirements are in `PAYROLL_PRETAX_HEALTH_CANDIDATE_2026_09_21.json`.
+
+## Sources checked September 21, 2026
+
+- [IRS Publication 15-B, 2026](https://www.irs.gov/publications/p15b): qualified accident/health benefits can receive employment-tax exclusions, but cafeteria-plan eligibility and benefit-specific exceptions matter. Long-term care, shareholder, self-insured reimbursement and discriminatory-plan cases cannot be treated as ordinary qualified health premiums by a catalog label.
+- [IRS cafeteria-plan guidance](https://www.irs.gov/government-entities/federal-state-local-governments/faqs-for-government-entities-regarding-cafeteria-plans): the employer needs a written plan describing benefits, eligibility and election rules. The admin workflow must retain the actual plan evidence and applicable participant findings before typed payroll components are generated.
+- [IRS Publication 15, 2026](https://www.irs.gov/publications/p15): employment-tax treatment depends on the qualified benefit. The ordinary 2026 Social Security cap is $184,500; employer Additional Medicare withholding starts above $200,000 of applicable wages. Gross compensation, uncapped taxable wages and capped taxable wages must remain distinct.
+- [Maryland Tax-General §10-905](https://mgaleg.maryland.gov/mgawebsite/laws/StatuteText?article=gtg&section=10-905): Maryland's withholding wage definition generally follows the cited federal wage provisions, with specified additions. Together with the next source, this supports the candidate's qualified health-premium reduction of Maryland income-tax wages.
+- [Maryland Comptroller income-tax FAQs](https://services.marylandcomptroller.gov/taxes/en/income-tax-faqs?id=kb_article_view&sysparm_article=KB0010059): qualified Section 125 contributions do not require a Maryland income addback.
+- [Maryland unemployment employer guide](https://www.labor.maryland.gov/employment/empguide/empguide.pdf), printed page 18: qualified Section 125 accident/health salary reductions are excluded; ordinary employee 401(k) deferrals remain taxable for unemployment. Separate health and retirement wage treatment is therefore required.
+
+## Implementation assumptions and boundaries
+
+The initial typed classification represents qualified Section 125 accident/health insurance premiums for the existing 2026 Maryland-resident wage engine. This is one implementation stage, not a redefinition of the full employee/benefit scope. FSA, HSA, dependent care, group life, long-term care, owner/shareholder, discriminatory-plan and other exceptional treatments need their own verified rules and workflows.
+
+A qualification fingerprint is retained provenance, not proof on its own. The server-side collection resolver must require current dated plan and participant review, explicit employee election and salary-reduction authorization. No HTTP endpoint currently accepts or enables the new typed input. Existing unsupported pretax guards remain in the deployed application.
+
+Health deductions and retirement deferrals have independently retained amounts and bonus allocations; combined deductions cannot exceed their corresponding wage categories. Gross pay is preserved. Health premiums reduce applicable FICA and unemployment bases; ordinary employee retirement deferrals do not. The candidate requires separate reconciled uncapped YTD tax bases, including on later payrolls with no new health collection. Existing gross-wage history is insufficient.
+
+The candidate passes 38 calculation/preview regressions and scoped lint. It still needs qualification UI/API/persistence, collection selection and reservations, historical wage reconciliation, the full approval/finalization path, statements, W-2/periodic reports, carrier and QuickBooks reconciliation, and browser/provider journey verification. It must not be deployed as completed pretax support before those are connected and verified.
+
+A rounding issue was also identified in the legacy FICA path: binary floating arithmetic rounds some exact half-cent amounts downward. The candidate health path uses integer half-up arithmetic. Ordinary legacy payroll and its reconciliation need a separate consistent repair; do not silently alter historical statements.
+
+## Qualification implementation checkpoint
+
+The isolated candidate now includes migration 831, encrypted written-plan PDF retention, immutable dated plan and participant reviews, exact retry recovery, concurrent-save guards and workplace-scoped document retrieval. All eight backend integration cases passed (9.49 seconds). Employer setup and the employee pay-review step now expose the respective controls in the candidate. TypeScript passed; scoped lint has zero errors and one existing `OnboardingWorkspace` ref-cleanup warning. The existing benefit-catalog journey and new qualification journey passed together (two browser cases, 19.6 seconds), including encrypted PDF download, exact retry recovery and preserving a draft after withdrawal. Initial dropdown/textarea label failures were fixed with explicit accessible labels; qualification controls were moved outside the status-keyed pay-review step so refreshes retain drafts. The final mobile-label follow-up passed its browser journey in 12.4 seconds; the 390-pixel view was inspected and the decision label fits.
+
+The dated plan and participant reviews apply across their retained intervals and are rechecked against current evidence. A future suspension does not invalidate an earlier applicable review; plan/source changes and employee authorization withdrawal invalidate dependent qualification. Admin confirmations remain actual human findings, not automated legal determinations.
+
+Before payroll enablement, also connect employee access to the qualified plan disclosures and an explicit Section 125 salary-reduction election bound to the applicable plan revision and election/change rules. The existing benefit-choice and wage-deduction signatures alone must not silently be treated as proof of every cafeteria-plan election requirement. Participant review currently checks those existing signatures; it remains an incomplete prerequisite, not a complete executable collection authorization.

@@ -1,6 +1,6 @@
 {
   "recordedAt": "2026-09-22T01:27:08.442559+00:00",
-  "status": "integrated and verified; publication and deployment pending",
+  "status": "integrated, committed, pushed and deployed",
   "candidateDirectory": "/tmp/vortex-payroll-dated-continuation",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
   "problem": "A future-dated waiver incorrectly blocked collection under retained earlier signed coverage for a separated employee.",
@@ -80,5 +80,86 @@
     },
     "typescript": "passed",
     "lint": "passed"
+  },
+  "release": {
+    "commit": "a69c9ea814308ee9d0d8c4ec4027e302dca3fcc1",
+    "render": {
+      "id": "dep-daou18ek1f9s738olrl0",
+      "status": "Live",
+      "startup": "2026-09-21 21:58:55 EDT Database tables initialized successfully",
+      "instance": "x4mjm",
+      "url": "https://dashboard.render.com/web/srv-d3vpuebipnbc739k9mv0/deploys/dep-daou18ek1f9s738olrl0?q=Database+tables+initialized"
+    },
+    "vercel": {
+      "id": "dpl_fYpr4biXcFCTzqDaeXN5fDJKsPFo",
+      "status": "READY",
+      "productionAlias": "vortexathletics.com"
+    },
+    "publicChecks": {
+      "recordedAt": "2026-09-22T01:59:47.336518+00:00",
+      "health": {
+        "status": 200,
+        "body": {
+          "status": "OK",
+          "buildId": "gymnastics-eval-list-2026-08-02",
+          "releaseCommit": "a69c9ea81430",
+          "timestamp": "2026-09-22T01:59:47.337Z",
+          "payrollDocumentStorageReady": true,
+          "emailConfigured": true,
+          "emailLayoutVersion": "v2-black-header-white-body",
+          "dbConnected": true,
+          "schemaMigrationsTracked": true,
+          "billingSchemaReady": true,
+          "accessSchemaReady": true,
+          "apiFeatures": {
+            "highlights": true,
+            "publicHighlights": true,
+            "scheduling": true,
+            "schedulingCalendar": true,
+            "schedulingAdditionalFees": true,
+            "schedulingFreePasses": true,
+            "schedulingBenefitSelections": true,
+            "memberPricingSummary": true,
+            "memberEnrollments": true,
+            "publicScheduling": true,
+            "dbQueries": true,
+            "schools": true,
+            "notes": true,
+            "adminEmailStatus": true,
+            "adminEmailTest": true,
+            "registrationInquiryOverhaul": true,
+            "schedulingEnrollSites": true,
+            "programPricingCostOptions": true,
+            "multiClassPassPackages": true,
+            "evergreenOfferings": true,
+            "needsEngineTemplates": true,
+            "needsEngineRequirements": true
+          }
+        }
+      },
+      "cors": [
+        {
+          "path": "/api/admin/payroll/employees",
+          "method": "POST",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        },
+        {
+          "path": "/api/admin/notifications",
+          "method": "GET",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        },
+        {
+          "path": "/api/admin/billing/cancellation-requests?status=pending",
+          "method": "GET",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        }
+      ]
+    }
   }
 }
