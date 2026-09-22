@@ -2,7 +2,15 @@
 
 ## Current completion boundary — September 22, 2026 release
 
-Final frozen browser result: **227 passed / 5 failed / 0 skipped** (37.8 minutes). All five failures share the outdated MW506 form-switching step; retained contexts confirm this for original, unassisted, one-preparer, multiple-preparer and linked-account journeys. All five corrected journeys passed in the separate seven-case integrated follow-up. Backend remains **1,137 passed / 3 failed**, with all three resolved in the separate 18-case follow-up. All 4,639 original and 4,640 follow-up source hashes match. Application integration is committed as `b6314098`; publication/deployment verification is next. Original full failures are retained and no fully green combined suite is claimed.
+Final frozen browser result: **227 passed / 5 failed / 0 skipped** (37.8 minutes). All five failures share the outdated MW506 form-switching step; retained contexts confirm this for original, unassisted, one-preparer, multiple-preparer and linked-account journeys. All five corrected journeys passed in the separate seven-case integrated follow-up. Backend remains **1,137 passed / 3 failed**, with all three resolved in the separate 18-case follow-up. All 4,639 original and 4,640 follow-up source hashes match. Application integration is committed as `b6314098` and pushed; backend deployment verification passed. Original full failures are retained and no fully green combined suite is claimed.
+
+Application commit `b6314098` is pushed on main through release `00990c93`, now verified **Live on Render and READY on Vercel** with production alias `vortexathletics.com`. Render deployment `dep-dap0j9h42hec738f7ck0` completed at 04:54:12 UTC. Instance `8c7j8` logged database-table initialization success at 04:54:01 UTC after the awaited transactional payroll initializer, including migration 833. This is startup-path evidence, not a direct production table query. Nonfatal unrelated coaching-identity migration warnings remain outside this payroll release.
+
+Live health at 04:54:36 UTC reports release `00990c936d90`, database connected, secure document storage ready and email configured. All three originally failing CORS preflights return 204 with the correct production origin, credentials, methods and request headers. These checks establish release availability; they do not establish a real employee or provider transaction.
+
+Remaining scope includes complete agency reporting/export fields, expanded imported deductions/benefits/reimbursements, legacy paid-tax evidence reconciliation, and actual bank/QuickBooks/recordkeeper/government acceptance. Synthetic tests do not establish those external outcomes. The full goal remains active.
+
+## Historical checkpoints — superseded where the current section differs
 
 The combined imported-payroll candidate and verified follow-ups are now **applied locally on main, not pushed or deployed**. All 36 changed source/test files match the verified follow-up snapshot exactly, and the unrelated AdminAccess working edit is byte-for-byte unchanged. The original full browser suite continues on its separate frozen snapshot; publication still awaits its final result and any additional repairs.
 
@@ -32,7 +40,6 @@ The frozen full browser suite completed **227 passed / 1 failed** with all 3,742
 
 Imported wage review remains isolated, including migration 833. Its admin mobile UI, exact retry, stale-review handling, imported-to-native payroll, separate annual tax limits, interleaved imported payments, approval reservations, void release and replacement finalization have passing focused evidence. The latest three chronology/limits cases passed. Annual income-tax/withholding detail, imported reporting and integration remain unfinished. Neither synthetic verification nor this deployment proves real bank, QuickBooks, recordkeeper or government acceptance. The full goal remains active.
 
-## Historical checkpoints — superseded where the current section differs
 
 The isolated imported-wage admin UI is now verified at 390px: exact-response retry retains one revision, competing reviews preserve the draft and disable stale saves, current-source review clears old amounts, and history remains readable. **One browser case and nine backend checks passed**, along with TypeScript and zero-warning scoped lint; the screenshot was inspected with no horizontal overflow or page errors. An explicit textarea label resolved a disabled-form lookup failure. The source, ledger, payroll integration and UI remain isolated; interleaved/void history and imported reporting still need verification before publication. See `PAYROLL_IMPORTED_EMPLOYMENT_WAGES_CANDIDATE_2026_09_21.json`.
 

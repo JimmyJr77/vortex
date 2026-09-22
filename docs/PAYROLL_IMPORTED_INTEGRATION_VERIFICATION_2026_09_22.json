@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T04:48:17.352706+00:00",
-  "status": "INTEGRATED AND VERIFIED FOR PUBLICATION; FULL ORIGINAL FAILURES RETAINED; DEPLOYMENT NOT YET VERIFIED",
+  "checkedAt": "2026-09-22T04:54:37.019681+00:00",
+  "status": "PUBLISHED AND VERIFIED LIVE; ORIGINAL FULL FAILURES RETAINED WITH PASSING FOCUSED REPAIRS; FULL GOAL INCOMPLETE",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
@@ -51,7 +51,6 @@
     }
   },
   "remaining": [
-    "Verify published frontend/backend release, migration 833 startup and document storage/CORS readiness.",
     "Complete other form-specific fields, agency exports, expanded imported payment components and native legacy reconciliation.",
     "Real bank, QuickBooks and government acceptance remains separate from synthetic verification; full goal remains incomplete."
   ],
@@ -148,9 +147,94 @@
     "adminAccessUnchanged": true,
     "adminAccessSha256": "5bb12f0f28e01059446694d8c9f30132a8f6eaff3942177267f261835db8c7c2",
     "patchSha256": "0a2aafcc391eb8a998039430d58b37ed83dd0fadc394c5e176bcecabd90caf3d",
-    "notPublished": true,
+    "notPublished": false,
     "checkedAt": "2026-09-22T04:42:36.333269+00:00",
     "workspace": "/Users/jimmy_mac/Desktop/code/vortex",
-    "status": "COMMITTED AS b6314098; READY TO PUSH; DEPLOYMENT PENDING"
+    "status": "PUSHED; RELEASE 00990c93 VERIFIED LIVE ON RENDER AND READY ON VERCEL"
+  },
+  "productionVerification": {
+    "checkedAt": "2026-09-22T04:54:37.019681+00:00",
+    "health": {
+      "status": "OK",
+      "buildId": "gymnastics-eval-list-2026-08-02",
+      "releaseCommit": "00990c936d90",
+      "timestamp": "2026-09-22T04:54:36.892Z",
+      "payrollDocumentStorageReady": true,
+      "emailConfigured": true,
+      "emailLayoutVersion": "v2-black-header-white-body",
+      "dbConnected": true,
+      "schemaMigrationsTracked": true,
+      "billingSchemaReady": true,
+      "accessSchemaReady": true,
+      "apiFeatures": {
+        "highlights": true,
+        "publicHighlights": true,
+        "scheduling": true,
+        "schedulingCalendar": true,
+        "schedulingAdditionalFees": true,
+        "schedulingFreePasses": true,
+        "schedulingBenefitSelections": true,
+        "memberPricingSummary": true,
+        "memberEnrollments": true,
+        "publicScheduling": true,
+        "dbQueries": true,
+        "schools": true,
+        "notes": true,
+        "adminEmailStatus": true,
+        "adminEmailTest": true,
+        "registrationInquiryOverhaul": true,
+        "schedulingEnrollSites": true,
+        "programPricingCostOptions": true,
+        "multiClassPassPackages": true,
+        "evergreenOfferings": true,
+        "needsEngineTemplates": true,
+        "needsEngineRequirements": true
+      }
+    },
+    "cors": [
+      {
+        "path": "/api/admin/billing/cancellation-requests?status=pending",
+        "method": "GET",
+        "status": 204,
+        "origin": "https://vortexathletics.com",
+        "credentials": "true",
+        "methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "headers": "Content-Type,Authorization,Idempotency-Key"
+      },
+      {
+        "path": "/api/admin/notifications",
+        "method": "GET",
+        "status": 204,
+        "origin": "https://vortexathletics.com",
+        "credentials": "true",
+        "methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "headers": "Content-Type,Authorization,Idempotency-Key"
+      },
+      {
+        "path": "/api/admin/payroll/employees",
+        "method": "POST",
+        "status": 204,
+        "origin": "https://vortexathletics.com",
+        "credentials": "true",
+        "methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+        "headers": "Content-Type,Authorization,Idempotency-Key"
+      }
+    ],
+    "render": {
+      "deploymentId": "dep-dap0j9h42hec738f7ck0",
+      "commit": "00990c936d904111a7d99766a04dd71c729a0f2e",
+      "status": "Deploy succeeded | Live",
+      "instance": "8c7j8",
+      "databaseTablesInitializedAt": "2026-09-22T04:54:01Z",
+      "liveAt": "2026-09-22T04:54:12Z",
+      "migrationEvidence": "Database tables initialized successfully follows awaited transactional initPayrollTables, including migration 833. No direct production table query performed.",
+      "otherStartupWarnings": "Unrelated coaching identity migrations logged nonfatal prerequisite/lineage failures; not repaired by this payroll release."
+    },
+    "vercel": {
+      "deploymentId": "dpl_CqNRoTvgfz2Uejc74XET5TAHam2d",
+      "commit": "00990c936d904111a7d99766a04dd71c729a0f2e",
+      "state": "READY",
+      "productionAlias": "vortexathletics.com"
+    }
   }
 }
