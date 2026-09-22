@@ -1,0 +1,84 @@
+{
+  "recordedAt": "2026-09-22T01:27:08.442559+00:00",
+  "status": "integrated and verified; publication and deployment pending",
+  "candidateDirectory": "/tmp/vortex-payroll-dated-continuation",
+  "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
+  "problem": "A future-dated waiver incorrectly blocked collection under retained earlier signed coverage for a separated employee.",
+  "behavior": "Resolve the same retained dated coverage as payroll; preserve subsequent withdrawal and require current carrier/admin review.",
+  "assumptions": [
+    "Payment date selects applicable reviewed coverage.",
+    "An admin review cannot replace employee deduction consent or override withdrawal.",
+    "Existing full-month, once-monthly posttax terms remain unchanged."
+  ],
+  "checks": {
+    "red": {
+      "passed": 0,
+      "failed": 2,
+      "log": "/tmp/payroll-dated-continuation-red.log"
+    },
+    "backend": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 28723.810291,
+      "log": "/tmp/payroll-dated-continuation-final-backend.log"
+    },
+    "browser": {
+      "passed": 4,
+      "failed": 0,
+      "durationSeconds": 21.3,
+      "log": "/tmp/payroll-dated-continuation-browser.log"
+    },
+    "typescript": "passed",
+    "lint": "passed",
+    "mobile": "390px screenshot inspected; readable, no overflow"
+  },
+  "files": {
+    "backend/payroll/monthlyBenefits.js": "b22891583075275e17f9537ef5b3b59da39d7c5a70fff5ca80e29e38204cb456",
+    "backend/payroll/benefitContinuation.js": "41202edccde72afe9f69458cc9bc7efd6a47a297b356b7c52b9e76ec29c283c0",
+    "backend/payroll/testing/datedBenefitContinuationFixture.js": "2e8aea0c58feccafabd682e7e24f8dd0014b3bd3217b31c8e16fbbe26cd7aa91",
+    "backend/payroll/__tests__/benefitContinuationDatedCoverage.test.js": "c8e3bb89de382dd71996a61fa416f8931acb4f96a163f84ce61723f070f39865",
+    "src/components/payroll/BenefitContinuationReview.tsx": "b6efb48699e675bfba39494060c2a92b531829812e6e5eebb8f2eba7b1a4473f",
+    "tests/e2e/payroll-benefit-continuation.spec.ts": "57b44adfcbcac816b623e9cb3fb08a49d39ffd6cb07ee8caaa21adb002a47130"
+  },
+  "fullBaseline": {
+    "backend": {
+      "passed": 1071,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 755037.219,
+      "unchangedInputs": 2512,
+      "log": "/tmp/payroll-continuation-full-backend.log"
+    },
+    "browser": {
+      "status": "passed",
+      "passed": 223,
+      "failed": 0,
+      "durationMinutes": 38.4,
+      "log": "/tmp/payroll-continuation-full-browser.log",
+      "unchangedInputs": 3712
+    }
+  },
+  "limitations": [
+    "No actual production hire, payment, provider delivery or accounting posting was performed.",
+    "Full regression precedes this correction; integrated focused verification recorded separately.",
+    "The full onboarding/payroll objective remains incomplete."
+  ],
+  "integratedChecks": {
+    "backend": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 23532.586042,
+      "log": "/tmp/payroll-dated-integrated-backend.log"
+    },
+    "browser": {
+      "passed": 2,
+      "failed": 0,
+      "durationSeconds": 17.2,
+      "log": "/tmp/payroll-dated-integrated-browser.log"
+    },
+    "typescript": "passed",
+    "lint": "passed"
+  }
+}

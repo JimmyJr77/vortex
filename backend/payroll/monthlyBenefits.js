@@ -35,7 +35,7 @@ export function priorMonthlyBenefitCollection(rows,employeeId,month){
  if(charges.length>1)throw new Error('More than one committed payroll collected benefits for this month. Reconcile the duplicate before continuing.')
  return charges[0]||null
 }
-async function priorCoverage(db,facility,employee,task,paymentDate){
+export async function priorBenefitCoverage(db,facility,employee,task,paymentDate){
  const history=(await db.query("SELECT id,snapshot FROM payroll_onboarding_revision WHERE facility_id=$1 AND employee_id=$2 AND task_id=$3 AND onboarding_cycle=$4 AND snapshot->'response'->'benefitsReview'->>'effectiveOn'<=$5 ORDER BY snapshot->'response'->'benefitsReview'->>'effectiveOn' DESC,id DESC",[facility,employee.id,task.id,task.onboarding_cycle,paymentDate])).rows
  const valid=history.find(row=>{const prior=row.snapshot,basis=prior.response?.paySetup?.basis;return prior.status==='COMPLETE'&&basis&&benefitsReviewCurrent(prior.response.benefitsReview,basis.benefitsPolicy,paymentDate,prior.response.benefitsElection,basis.benefitPlans||[])})
  if(!valid){if(history.some(row=>row.snapshot.response?.benefitsDeductionAuthorization)||typeof task.response?.benefitsDeductionAuthorization?.proposal?.startOn==='string'&&task.response.benefitsDeductionAuthorization.proposal.startOn<=paymentDate)throw new Error('Reconcile the retained prior benefits review before paying this earlier coverage period.');return null}
@@ -72,7 +72,7 @@ export async function applyMonthlyBenefits(db,facility,preview,rawEmployees,sett
    const effective=task.response?.benefitsReview?.effectiveOn
    if(effective&&paymentDate<effective){
     if(task.status!=='COMPLETE'||!benefitsReviewCurrent(task.response?.benefitsReview,benefitsTerms(settings.onboarding_policy),today,task.response?.benefitsElection,benefitPlans(settings.onboarding_policy)))throw new Error('Complete the current future-dated benefits review before using prior coverage.')
-    const previous=await priorCoverage(db,facility,raw,task,paymentDate)
+    const previous=await priorBenefitCoverage(db,facility,raw,task,paymentDate)
     if(!previous)continue
     datedCoverage={revisionId:previous.revisionId,changeEffectiveOn:effective}
     task=previous.task;data=previous.data

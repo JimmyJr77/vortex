@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useId,useState} from 'react'
 import {adminApiRequest} from '../../utils/api'
-type Source={fingerprint:string;employeeName:string;paymentDate:string;terminationDate:string;monthlyCents:number;issues:string[];authorization:{signature:string;signedAt:string;proposal?:{terms?:string}}|null;coverage:{planId:string;planName:string;monthlyCents:number;review:{coverageStart:string;coverageEnd:string}|null}[]}
+type Source={fingerprint:string;employeeName:string;paymentDate:string;terminationDate:string;monthlyCents:number;datedCoverage?:{changeEffectiveOn:string};issues:string[];authorization:{signature:string;signedAt:string;proposal?:{terms?:string}}|null;coverage:{planId:string;planName:string;monthlyCents:number;review:{coverageStart:string;coverageEnd:string}|null}[]}
 type Model={source:Source;status:string;history:{id:string;revision:number;review:{disposition:string;reference:string};created_at:string}[]}
 const money=(cents:number)=>(cents/100).toLocaleString('en-US',{style:'currency',currency:'USD'})
 async function request(path:string,body?:string){const r=await adminApiRequest(path,body?{method:'POST',headers:{'Content-Type':'application/json'},body}:undefined),b=await r.json();if(!r.ok||!b.success)throw Object.assign(new Error(b.message||'Unable to review benefit collection.'),{status:r.status});return b.data}
@@ -22,6 +22,7 @@ export default function BenefitContinuationReview({employeeId,employeeName,month
   {error?<p role="alert">{error}</p>:null}{message?<p role="status">{message}</p>:null}
   {pending?<button type="button" disabled={busy} onClick={()=>void save()} className="rounded border px-3 py-2">Retry original collection review</button>:null}
   {data&&basis?<><p>Review status: {data.status.replaceAll('_',' ')}. Separation: {data.source.terminationDate}. Signed monthly total: {money(data.source.monthlyCents)}.</p>
+   {data.source.datedCoverage?<p>This payment uses retained signed coverage before the benefits change effective {data.source.datedCoverage.changeEffectiveOn}.</p>:null}
    {data.source.issues.length?<ul role="alert" className="list-disc pl-5">{data.source.issues.map(issue=><li key={issue}>{issue}</li>)}</ul>:null}
    {data.source.authorization?<details><summary>Read retained employee deduction authorization</summary><p>Signed by {data.source.authorization.signature} · {new Date(data.source.authorization.signedAt).toLocaleString()}</p><p className="whitespace-pre-wrap break-words">{data.source.authorization.proposal?.terms||'Retained authorization terms need reconciliation.'}</p></details>:null}
    <ul>{data.source.coverage.map(item=><li key={item.planId}>{item.planName}: {money(item.monthlyCents)}{item.review?` · Carrier coverage ${item.review.coverageStart} through ${item.review.coverageEnd}`:' · Carrier evidence required'}</li>)}</ul>
