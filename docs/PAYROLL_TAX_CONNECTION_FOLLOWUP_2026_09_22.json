@@ -1,0 +1,26 @@
+{
+  "checkedAt": "2026-09-22T04:13:23.451236+00:00",
+  "status": "ISOLATED FOLLOW-UP VERIFIED; NOT IN FROZEN FULL SUITES OR DEPLOYED",
+  "patch": "/tmp/payroll-tax-reconciliation-connection-followup.patch",
+  "patchSha256": "82a1c9ca89cc977953a2a6baacc9f3e56e21a2e0edd3bdf51861295bdcf2903e",
+  "source": "/tmp/vortex-payroll-opening-history/backend/payroll/taxReconciliationConnectionCandidate.js",
+  "sourceSha256": "d53005ebc2d3bbb408b5b25ff1f3108a998dbcd8bc19304af51cc7ce28f05da5",
+  "test": "/tmp/vortex-payroll-opening-history/backend/payroll/__tests__/taxReconciliationConnectionCandidate.test.js",
+  "before": {
+    "passed": 1,
+    "failed": 4,
+    "log": "/tmp/payroll-tax-connection-before.log"
+  },
+  "after": {
+    "passed": 5,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/tmp/payroll-tax-connection-after.log"
+  },
+  "lint": {
+    "exitCode": 0,
+    "log": "/tmp/payroll-tax-connection-lint.log"
+  },
+  "change": "Acquire connection inside the write handler try block; rollback/release only an acquired connection. All four receipt write routes now return controlled JSON on connection failure.",
+  "integration": "Apply after imported candidate patch; do not change frozen snapshot while its two full suites run."
+}
