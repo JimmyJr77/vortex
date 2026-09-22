@@ -1,8 +1,14 @@
 # Payroll regression audit — September 21, 2026
 
-## Current verification checkpoint — main `ec69aa82`
+## Current verification checkpoint — published application `941e777c`
 
-This checkpoint supersedes the historical checkpoints below. The original onboarding/payroll goal remains active.
+The frozen health candidate finished with **227 passing / 1 failing browser cases**. All four complete native onboarding journeys passed, including existing-account linking and returning-hire cycles. The failure was an in-flight coverage request outliving retirement test database teardown; the corrected journey passed three consecutive runs. The original full backend result was **1,110 passing / 2 failing cases**, with route registration corrections subsequently passing in the 58-case integrated check. Integrated health/continuation browser checks passed eight cases; the clean application build, strict prerender and SEO checks passed. See `PAYROLL_HEALTH_INTEGRATED_VERIFICATION_2026_09_21.json` for exact sources, logs, repair evidence and verified live publication.
+
+These focused corrections do not convert the original full regression runs into all-green runs. The broader goal and external acceptance remain incomplete.
+
+## Historical verification checkpoint — main `ec69aa82`
+
+This historical checkpoint has been superseded by the current release evidence above. The original onboarding/payroll goal remains active.
 
 - Full backend regression at runtime commit `aa6f7010`: **992 passed, zero failed/skipped/cancelled**. The retained log hash was reverified against `PAYROLL_BACKEND_VERIFICATION_2026_09_21.json`. Commit `ec69aa82` changes browser tests and documentation only.
 - Original full browser baseline: **162 passed and 45 failed out of 207**. Its retained log hash was reverified against `PAYROLL_BROWSER_BASELINE_2026_09_21.json`. All four native complete journeys finished their persisted payroll/accounting assertions and cleanup: unassisted, single preparer, multiple preparers and existing-account link. The unassisted and linked-account cases also completed a second hiring/payroll cycle.

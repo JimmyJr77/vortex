@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T03:32:10.283408+00:00",
-  "status": "VERIFIED LOCALLY; READY FOR AUTHORIZED PUBLICATION",
+  "checkedAt": "2026-09-22T03:35:55.167121+00:00",
+  "status": "PUBLISHED; BACKEND LIVE AND FRONTEND READY AT 941e777c",
   "baseMain": "40173667",
   "integratedSourceHashes": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
@@ -149,9 +149,7 @@
     "correction": "Both namespace failures corrected and covered by integrated 58-test run; original result remains unchanged."
   },
   "remaining": [
-    "Publish integrated code only after reviewing full browser result.",
-    "Verify exact deployed backend/frontend revision, payroll initialization, storage readiness and original CORS paths.",
-    "Overall one-stop onboarding/payroll goal remains incomplete; expanded categories, exceptions and live provider/government acceptance are still required."
+    "Overall one-stop onboarding/payroll goal remains incomplete; imported history reporting, expanded categories, exceptions and live provider/government acceptance remain."
   ],
   "applicationCommit": "7b1b7343",
   "prepublicationLiveCheck": {
@@ -197,5 +195,77 @@
     "backend/payroll/employeeBenefitCoverage.js": "b6c3c917ce7bb015af77e4c965bed759caf6a322d4b6d4b3c7a392fb86f7e475",
     "backend/payroll/__tests__/employeeBenefitCoverage.test.js": "b6e6ab5ce1b551063c6f0d94f36175784d3fba026a80be0b7596ae2c209670ef",
     "tests/e2e/payroll-retirement-elections.spec.ts": "66e34ec3b8d6a2532811e0d65550d87bb45239d242b230ba3a9963cb9af4a68d"
+  },
+  "publication": {
+    "commit": "941e777c383187ed8679b5427f856eb71236434c",
+    "renderDeployment": "dep-daovdj6gekts73f7fstg",
+    "renderState": "Deploy succeeded | Live",
+    "instance": "f6kb7",
+    "databaseTablesInitializedAt": "2026-09-22T03:33:28Z",
+    "databaseInitializationCompleteAt": "2026-09-22T03:33:44Z",
+    "migrationEvidence": "The successful database tables initialization log follows awaited initPayrollTables, including transactional migrations 831 and 832. No direct production table query performed.",
+    "vercelDeployment": "dpl_4gXxZj4StubAjF4TQLSB2yxebjAe",
+    "vercelState": "READY",
+    "vercelProductionAlias": "vortexathletics.com",
+    "liveCheck": {
+      "checkedAt": "2026-09-22T03:35:21.801897+00:00",
+      "health": {
+        "status": "OK",
+        "buildId": "gymnastics-eval-list-2026-08-02",
+        "releaseCommit": "941e777c3831",
+        "timestamp": "2026-09-22T03:35:21.753Z",
+        "payrollDocumentStorageReady": true,
+        "emailConfigured": true,
+        "emailLayoutVersion": "v2-black-header-white-body",
+        "dbConnected": true,
+        "schemaMigrationsTracked": true,
+        "billingSchemaReady": true,
+        "accessSchemaReady": true,
+        "apiFeatures": {
+          "highlights": true,
+          "publicHighlights": true,
+          "scheduling": true,
+          "schedulingCalendar": true,
+          "schedulingAdditionalFees": true,
+          "schedulingFreePasses": true,
+          "schedulingBenefitSelections": true,
+          "memberPricingSummary": true,
+          "memberEnrollments": true,
+          "publicScheduling": true,
+          "dbQueries": true,
+          "schools": true,
+          "notes": true,
+          "adminEmailStatus": true,
+          "adminEmailTest": true,
+          "registrationInquiryOverhaul": true,
+          "schedulingEnrollSites": true,
+          "programPricingCostOptions": true,
+          "multiClassPassPackages": true,
+          "evergreenOfferings": true,
+          "needsEngineTemplates": true,
+          "needsEngineRequirements": true
+        }
+      },
+      "cors": [
+        {
+          "path": "/api/admin/payroll/employees",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        },
+        {
+          "path": "/api/admin/notifications",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        },
+        {
+          "path": "/api/admin/billing/cancellation-requests?status=pending",
+          "status": 204,
+          "allowOrigin": "https://vortexathletics.com",
+          "allowCredentials": "true"
+        }
+      ]
+    }
   }
 }

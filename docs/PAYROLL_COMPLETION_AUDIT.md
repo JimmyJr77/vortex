@@ -1,6 +1,14 @@
 # Payroll completion audit
 
-## Current completion boundary — integrated employer payroll
+## Current completion boundary — September 22, 2026 release
+
+Application commit **941e777c** is pushed to main and verified live on Render and READY on Vercel with the production domain. This publishes qualified pretax health elections, separate plan signatures, reconciled deductions and the coverage connection-failure fix. New-instance startup logged successful database table initialization after the awaited payroll migrations 831/832. Live health reports document storage, database and email ready; all three originally reported CORS preflights return 204 with the correct origin and credentials headers.
+
+The frozen full browser suite completed **227 passed / 1 failed** with all 3,742 source hashes unchanged. Its failure was a retirement-election teardown request continuing after database shutdown. Explicit request draining now passes that journey **three consecutive times**; coverage authorization and connection failure checks pass **3/3**. Earlier integrated verification passed **58 backend cases, 8 health/continuation browser cases, TypeScript and the clean strict production build**. The frozen full backend result remains **1,110 passed / 2 failed**, with the two route namespace failures corrected and covered by the focused integrated run. Focused repairs do not rewrite the original full-suite outcomes. See `PAYROLL_HEALTH_INTEGRATED_VERIFICATION_2026_09_21.json`.
+
+Imported wage review remains isolated, including migration 833. Its admin mobile UI, exact retry, stale-review handling, imported-to-native payroll, separate annual tax limits, interleaved imported payments, approval reservations, void release and replacement finalization have passing focused evidence. The latest three chronology/limits cases passed. Annual income-tax/withholding detail, imported reporting and integration remain unfinished. Neither synthetic verification nor this deployment proves real bank, QuickBooks, recordkeeper or government acceptance. The full goal remains active.
+
+## Historical checkpoints — superseded where the current section differs
 
 The isolated imported-wage admin UI is now verified at 390px: exact-response retry retains one revision, competing reviews preserve the draft and disable stale saves, current-source review clears old amounts, and history remains readable. **One browser case and nine backend checks passed**, along with TypeScript and zero-warning scoped lint; the screenshot was inspected with no horizontal overflow or page errors. An explicit textarea label resolved a disabled-form lookup failure. The source, ledger, payroll integration and UI remain isolated; interleaved/void history and imported reporting still need verification before publication. See `PAYROLL_IMPORTED_EMPLOYMENT_WAGES_CANDIDATE_2026_09_21.json`.
 
