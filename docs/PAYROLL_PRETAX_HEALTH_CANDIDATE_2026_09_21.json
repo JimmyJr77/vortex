@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:33:11.154533+00:00",
+  "recordedAt": "2026-09-22T02:38:03.545172+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -277,6 +277,37 @@
         "Tampered deductions, missing statement basis and altered health components fail reconciliation"
       ],
       "fixtureCorrection": "Initial fixture omitted the required bonus review timestamp; corrected before passing."
+    },
+    "healthBrowserPayrollJourney": {
+      "passed": 3,
+      "failed": 0,
+      "durationSeconds": 18.0,
+      "log": "/tmp/payroll-health-browser-full.log",
+      "types": "passed; /tmp/payroll-health-browser-types.log",
+      "lint": "passed; /tmp/payroll-health-browser-lint.log",
+      "coverage": [
+        "Internal employee disclosure reading and signing with original-request retry after simulated lost response",
+        "Admin payroll preview, draft, review, approval and finalization through UI",
+        "Retained federal, Maryland, Social Security and Medicare wage displays reflect 7500 taxable cents from 20000 gross less 12500 premium",
+        "Employee pretax contribution history and PDF statement download",
+        "Same-month second payroll preview shows no duplicate deduction",
+        "Decline and stale disclosure preserve correct signing restrictions",
+        "390px no horizontal overflow and no page errors"
+      ],
+      "visualArtifacts": [
+        "/tmp/payroll-health-admin-collection-mobile.png",
+        "/tmp/payroll-health-wage-bases-mobile.png",
+        "/tmp/payroll-health-contribution-history-mobile.png",
+        "/tmp/payroll-health-browser-statement.pdf",
+        "/tmp/payroll-health-browser-statement.png"
+      ],
+      "visualReview": "Screenshots and rendered PDF inspected: readable layouts, -$125 premium, $69.26 net pay, one page.",
+      "setupNotes": [
+        "agent-browser executable unavailable; used established Playwright payroll harness.",
+        "Initial invocation omitted PLAYWRIGHT_FORCE_ASYNC_LOADER; corrected. Development server with controlled clock did not render; established static payroll build passed.",
+        "PDF renderer required explicit local font configuration and a writable temporary font cache."
+      ],
+      "limitation": "Admin plan/participant qualification and disclosure are seeded via real APIs; this browser case begins with employee signing. No real production payment or carrier acceptance."
     }
   },
   "verifiedBehavior": [
@@ -336,7 +367,7 @@
     "tests/e2e/payroll-health-disclosure.spec.ts": "d4676910314a3d07d1522383354a037880d5b61fcfbec12906031a94d61108a0",
     "src/components/payroll/EmployeeHealthElection.tsx": "db60781fc7f9804a1a44843389fc8d666a91446a405c52487ed905623a4c0903",
     "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
-    "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28",
+    "tests/e2e/payroll-health-election.spec.ts": "dab1e028b43a593e8b270c6d49b86f19321b5127e9213fd99bbcf064cb13cb40",
     "backend/payroll/healthElectionProof.js": "0ca3cdaf2b581c0726818e76d001b679b87bb34dd056e1d307867dd479ce4c40",
     "backend/payroll/healthPremiumAuthorization.js": "ffcde47bd8ae103c85228c357bb1de5b7c6c9c7473e5783f29b89d740af423e3",
     "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
@@ -359,14 +390,15 @@
     "backend/payroll/__tests__/employerFundedBenefits.test.js": "83849382397129de73d50b0987fe686b2e8651c6522de4e74d0fdc1588f34d42",
     "backend/payroll/supplementalPaymentHistory.js": "9ac4e56e8320b93bd416cde7831afa5d580cb147e0bca8cf3e98e8578abc20b3",
     "backend/payroll/__tests__/retirementEmployerApproval.test.js": "99efed21ed579e9a81247df5c708d9448ecbd3c6578c226ac71cde5204ec8f9c",
-    "backend/payroll/__tests__/healthSupplementalHistory.test.js": "357a006a37d359e80bbb31466d58deb96075b5b0a2383bc0e3381e8afe6f5030"
+    "backend/payroll/__tests__/healthSupplementalHistory.test.js": "357a006a37d359e80bbb31466d58deb96075b5b0a2383bc0e3381e8afe6f5030",
+    "src/components/payroll/BenefitCollectionReview.tsx": "779c8fe76b8bf892ec74a42f9ac5132d5ed4bf1b595f31869616faf4f01e0075"
   },
   "requiredNextWork": [
     "Verify multiple health/posttax plans and remaining capacity/compensation exceptions. Ordinary retirement and employer matching/nonelective contributions with qualified health premiums now pass API/provider journeys.",
     "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
     "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
     "Complete carrier funding/invoice paths and full W-2/periodic reporting. Annual employee taxable-wage summaries, separate retirement contribution reporting and synthetic QuickBooks settlement now have health-aware coverage.",
-    "Verify full browser qualification/election/payroll and broader provider/correction scenarios before integration/deployment; the combined health/employer retirement synthetic delivery and settlement journey now reaches RECONCILED.",
+    "Extend browser coverage to combined retirement/multiple benefits and broader provider/correction scenarios. Employee health signing through admin payroll finalization, retained wage report, employee statement and duplicate prevention now passes the real UI/API journey; combined employer retirement synthetic settlement reaches RECONCILED.",
     "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
     "Support remaining benefit categories and employee/state/year exceptions; this classification is not full goal completion."
   ],
