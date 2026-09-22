@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:43:59.848286+00:00",
+  "recordedAt": "2026-09-22T02:46:42.180106+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -349,6 +349,27 @@
         "Existing tax reconciliation and approved-reservation paths pass"
       ],
       "limitation": "Applies to the candidate separate-wage path; legacy records without explicit rate evidence and external opening balances still require their supported review/integration work. No agency acceptance claimed."
+    },
+    "fullRegressionInProgress": {
+      "status": "RUNNING; no completion or deployment claimed",
+      "backend": {
+        "sessionId": 5782,
+        "scope": "all backend/payroll/__tests__/*.test.js; concurrency 2",
+        "databasePort": 55440,
+        "log": "/tmp/payroll-health-full-backend.log",
+        "inputManifest": "/tmp/payroll-health-full-backend-inputs.json",
+        "sourceHashCount": 2580
+      },
+      "browser": {
+        "sessionId": 49506,
+        "scope": "complete payroll browser suite; 228 configured cases; 1 worker",
+        "databasePort": 55439,
+        "frontendPort": 4180,
+        "log": "/tmp/payroll-health-full-browser.log",
+        "inputManifest": "/tmp/payroll-health-full-browser-inputs.json",
+        "sourceHashCount": 3742
+      },
+      "integrity": "Candidate source frozen during both runs; recheck manifests after completion. Main AdminAccess edit remains excluded. Latest main dated-continuation UI/test changes still need preservation during integration."
     }
   },
   "verifiedBehavior": [
