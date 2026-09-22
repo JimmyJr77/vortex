@@ -11,13 +11,18 @@ export async function taxLiabilityReport(db,facility,{start='2000-01-01',end='22
   const rows=[]
   for(const {year} of years)for(const row of await taxRows(client,facility,year,{includeApproved:true}))if(day(row.payment_date)>=start&&day(row.payment_date)<=end)rows.push(row)
   rows.sort((a,b)=>day(a.payment_date).localeCompare(day(b.payment_date))||String(a.employee_id).localeCompare(String(b.employee_id))||String(a.imported_evidence?.paymentId||a.run_id).localeCompare(String(b.imported_evidence?.paymentId||b.run_id)))
-  return [
-   ['Source','Run or imported payment','Employee ID','Pay date','Status','Federal income withholding','Maryland income withholding','Social Security employee and employer','Medicare employee and employer','Employer FUTA','Employer Maryland UI','Employee taxes','Employer taxes','Total calculated tax liability','Imported review ID','Imported source fingerprint','Payment and filing status'],
+  return taxLiabilityCsvRows(rows)
+ })
+}
+
+// Keep individual employee/employer components available for agency reconciliation.
+export function taxLiabilityCsvRows(rows){
+ return [
+   ['Source','Run or imported payment','Employee ID','Pay date','Status','Federal income withholding','Maryland income withholding','Social Security employee and employer','Medicare employee and employer','Employer FUTA','Employer Maryland UI','Employee taxes','Employer taxes','Total calculated tax liability','Imported review ID','Imported source fingerprint','Payment and filing status','Employee Social Security withholding','Employer Social Security tax','Employee regular Medicare withholding','Employer Medicare tax','Employee Additional Medicare withholding'],
    ...rows.map(row=>{
     const federal=BigInt(row.federal_income),maryland=BigInt(row.maryland),ss=BigInt(row.social_security),medicare=BigInt(row.medicare),additional=BigInt(row.additional_medicare),employerSs=BigInt(row.employer_social_security??row.social_security),employerMedicare=BigInt(row.employer_medicare??row.medicare),futa=BigInt(row.futa),ui=BigInt(row.md_ui)
     const employeeTax=federal+maryland+ss+medicare+additional,employerTax=employerSs+employerMedicare+futa+ui
-    return [row.imported_evidence?'IMPORTED':'NATIVE',row.imported_evidence?.paymentId||row.run_id,row.employee_id,day(row.payment_date),row.imported_evidence?'IMPORTED_PAID':row.status,...[federal,maryland,ss+employerSs,medicare+employerMedicare+additional,futa,ui,employeeTax,employerTax,employeeTax+employerTax].map(money),row.imported_evidence?.reviewId||'',row.imported_evidence?.sourceFingerprint||'',row.status==='APPROVED'?'Approved unpaid reservation; not a paid tax liability':'Reconcile separately with agency deposits and accepted returns']
+    return [row.imported_evidence?'IMPORTED':'NATIVE',row.imported_evidence?.paymentId||row.run_id,row.employee_id,day(row.payment_date),row.imported_evidence?'IMPORTED_PAID':row.status,...[federal,maryland,ss+employerSs,medicare+employerMedicare+additional,futa,ui,employeeTax,employerTax,employeeTax+employerTax].map(money),row.imported_evidence?.reviewId||'',row.imported_evidence?.sourceFingerprint||'',row.status==='APPROVED'?'Approved unpaid reservation; not a paid tax liability':'Reconcile separately with agency deposits and accepted returns',...[ss,employerSs,medicare,employerMedicare,additional].map(money)]
    }),
   ]
- })
 }

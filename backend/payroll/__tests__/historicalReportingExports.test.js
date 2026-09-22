@@ -27,6 +27,7 @@ test('reviewed imported exports select actual payment dates, retain component to
  const liability=Object.fromEntries(liabilityRows[0].map((key,i)=>[key,liabilityRows[1][i]]))
  assert.equal(liability.Source,'IMPORTED');assert.equal(liability.Status,'IMPORTED_PAID');assert.equal(liability['Pay date'],'2026-08-18')
  assert.equal(liability['Employee taxes'],'100.00');assert.equal(liability['Employer taxes'],'54.26');assert.equal(liability['Total calculated tax liability'],'154.26')
+ assert.equal(liability['Employee Social Security withholding'],'31.00');assert.equal(liability['Employer Social Security tax'],'31.01');assert.equal(liability['Employee regular Medicare withholding'],'7.25');assert.equal(liability['Employer Medicare tax'],'7.25');assert.equal(liability['Employee Additional Medicare withholding'],'0.00')
  assert.equal(liability['Social Security employee and employer'],'62.01');assert.ok(liability['Imported review ID']);assert.equal(liability['Imported source fingerprint'],state.source.fingerprint)
  assert.equal((await taxLiabilityReport(h.pool,2)).length,1)
  const exportUrl=`${h.url}/api/admin/payroll/reports/tax-liabilities.csv`
