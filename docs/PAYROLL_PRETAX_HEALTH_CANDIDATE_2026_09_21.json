@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:27:07.169853+00:00",
+  "recordedAt": "2026-09-22T02:29:27.755935+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -222,6 +222,32 @@
         "Normalized retained election creation timestamp to ISO before approval fingerprinting"
       ],
       "limitation": "24 distinct cases covered across regression and repair runs; not one final all-green 24-case run. No real provider write or browser collection journey."
+    },
+    "mixedHealthRetirement": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 5510.815708,
+      "log": "/tmp/payroll-health-retirement-mixed.log",
+      "coverage": [
+        "Qualified signed health premium with and without pretax/Roth retirement deferrals through three finalizations",
+        "Monthly deduction reservation and stale competing draft",
+        "Retained independent taxable wages, reconciled statements, benefit report and balanced journal entries"
+      ],
+      "repair": "Retirement wage classification now accepts a health deduction only after healthPremiumWageEvidence reconciles it; it does not treat the deduction as additional earnings."
+    },
+    "healthEmployerFunding": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 14684.12775,
+      "log": "/tmp/payroll-health-funding-mixed-regression.log",
+      "coverage": [
+        "Employer funding report retains earlier PRETAX and POSTTAX employee collections without duplicate premiums",
+        "Corrupt physical pretax amounts reject funding reconciliation",
+        "Existing employer-funded coverage variants and ordinary retirement payroll"
+      ],
+      "lint": "passed; /tmp/payroll-health-mixed-lint.log"
     }
   },
   "verifiedBehavior": [
@@ -296,14 +322,18 @@
     "backend/payroll/benefitContributionReport.js": "902037da397150cb2454918711e64a9873493a997990b9c081f4e1ee2bd4fe0f",
     "backend/payroll/quickbooks.js": "487faff3d046feefc704e837d0671e97f4083985738293afd628877c16c76d4f",
     "backend/payroll/retirementStatement.js": "bbf49ed987385926898e0ce93a693d9140732608f0e54affa750abb7dbfe7cf8",
-    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "58b102b749f3dc0c287433d7c90b5388be2b3df3ff3522456d858d11695d52da",
-    "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45"
+    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "faf2248fb915d7253c49f0656eeb616bebacfa880e484e8ad7df9c434e3c9968",
+    "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45",
+    "backend/payroll/retirementPayrollWages.js": "21f3c439cfe9678bd0c3935ed1e0098157a3c40461895b6d4346322498a010bb",
+    "backend/payroll/employerBenefitFundingReport.js": "7668bc2aec5956808c1e48307a3860a84f5bd73a896d4a05e85c04261e7e7c18",
+    "backend/payroll/testing/regularRetirementFixture.js": "76fce796d0a9f5d06abe90650841d94bcabc818b20c93a95c3fb1af76dbab167",
+    "backend/payroll/__tests__/employerFundedBenefits.test.js": "83849382397129de73d50b0987fe686b2e8651c6522de4e74d0fdc1588f34d42"
   },
   "requiredNextWork": [
-    "Verify mixed health/retirement and multiple health/posttax plans through approval, finalization and statements; ordinary rebuild plumbing is connected but mixed API journeys remain.",
+    "Verify multiple health/posttax plans, employer matching/nonelective retirement, capacity and compensation exceptions. Health plus ordinary pretax/Roth deferrals now passes the three-payroll API journey.",
     "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
     "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
-    "Update employerBenefitFundingReport retained pretax fields, carrier funding/invoice paths, W-2 and periodic reports; employee contribution report and QuickBooks journal construction now have focused coverage.",
+    "Complete carrier funding/invoice paths, W-2 and periodic reports; employee contributions, employer assumption of prior pretax contributions, and balanced QuickBooks journal construction have focused coverage.",
     "Verify full browser qualification/election/payroll and synthetic provider delivery/accounting recovery before integration/deployment.",
     "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
     "Support remaining benefit categories and employee/state/year exceptions; this classification is not full goal completion."
