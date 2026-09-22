@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:29:27.755935+00:00",
+  "recordedAt": "2026-09-22T02:33:11.154533+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -248,6 +248,35 @@
         "Existing employer-funded coverage variants and ordinary retirement payroll"
       ],
       "lint": "passed; /tmp/payroll-health-mixed-lint.log"
+    },
+    "healthEmployerDeliveryAndReporting": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 14467.180166,
+      "log": "/tmp/payroll-health-reporting-delivery-verified.log",
+      "coverage": [
+        "Pretax/posttax health plus employer matching and nonelective retirement contributions through public approval and finalization",
+        "Stale review and transaction rollback on synthetic reservation failure",
+        "Synthetic bank funding, SFTP allocation/receipt and QuickBooks settlement reach RECONCILED",
+        "Annual retirement reporting preserves only employee deferrals and separate employer contributions",
+        "Three-payroll employee summary reconciles reduced federal and Medicare wages with and without retirement",
+        "Existing supplemental history classification and imported-history guards"
+      ],
+      "repair": "Supplemental history now reconciles health premium evidence and separately applies explicit annual-bonus health allocations; missing or ambiguous evidence remains blocked. Two API cases reproduced the previous unclassified-premium error before repair.",
+      "lint": "passed; /tmp/payroll-health-reporting-delivery-lint.log"
+    },
+    "healthSupplementalAllocation": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 67.97675,
+      "log": "/tmp/payroll-health-supplemental-allocation.log",
+      "coverage": [
+        "Only the retained 2500-cent health allocation reduces the 50000-cent annual bonus history",
+        "Tampered deductions, missing statement basis and altered health components fail reconciliation"
+      ],
+      "fixtureCorrection": "Initial fixture omitted the required bonus review timestamp; corrected before passing."
     }
   },
   "verifiedBehavior": [
@@ -286,7 +315,7 @@
     "backend/migrations/831_payroll_health_plan_qualification.sql": "ffb74be08c5a373e519e990f49dd9eea97dc0600624d10f8bc7440d758344f55",
     "backend/payroll/healthPlanQualification.js": "fcbcf46cf3af3c54e4a5a630941d49fd3599f76ba98769b9285a931bc964beae",
     "backend/payroll/healthParticipantQualification.js": "a60c83e58c21c40b2a8d98e424d138aa4da54ce8d1af985f4f46a11d19a9bc75",
-    "backend/payroll/testing/healthQualificationFixture.js": "ad88d657008949e9fef8011643d68b6d52dd914c14b226877c078c0188920205",
+    "backend/payroll/testing/healthQualificationFixture.js": "d39a5ebeea85802c31826433c73fe4aafc9febff4009d023f5a7fd601e9004f4",
     "backend/payroll/__tests__/healthPlanQualification.test.js": "3d4512e230d309a9554556b8ef13fd2acbdc0e299836925ac03365c42c3a5d72",
     "backend/payroll/__tests__/healthParticipantQualification.test.js": "bbe12c7e74cb8e5ae6a2be5f4609b69505bbf341be2c62b4464b64c98fdbc1d3",
     "backend/payroll/initTables.js": "a36acf812f35e9fca5426e4586be6b8dd74c5b9e730ca6d29bca93505592043a",
@@ -300,7 +329,7 @@
     "backend/migrations/832_payroll_health_election.sql": "c868f608428be700a1916d51a852ad127eb26c1a380343328dbd317e56a4acec",
     "backend/payroll/healthPlanDisclosure.js": "e46aed6efdca94dbb159b3d112102d2a97aa6ec26c9228c2b73b0dbcc3b71982",
     "backend/payroll/healthElection.js": "13dcf51854975c09971ce7995c8c414dcca253dfcd24c57f53be99964f88cc55",
-    "backend/payroll/testing/healthElectionFixture.js": "cbb63d4069086c3307f0ab512b7422f39b3bfb5ef48a0b05d229eefc81fb65db",
+    "backend/payroll/testing/healthElectionFixture.js": "729d80ae3cafcce712f7b6289e2ee272f5fc7023a86d1d0b73150d2ae17244bc",
     "backend/payroll/__tests__/healthElection.test.js": "040420acd1fb148fafb5a11915b782cc72b0275ed194071e8db3b28801caf96d",
     "backend/payroll/employeeRoutes.js": "d3cf3c5cb42f662ffc9e834cad352175d5147b9ad33b4155910cc77edda89c98",
     "src/components/payroll/HealthPlanDisclosureSetup.tsx": "7bbca5e86f0650245f323c480a7322758b6ba943c12accdf64ce40e71c70dcce",
@@ -322,19 +351,22 @@
     "backend/payroll/benefitContributionReport.js": "902037da397150cb2454918711e64a9873493a997990b9c081f4e1ee2bd4fe0f",
     "backend/payroll/quickbooks.js": "487faff3d046feefc704e837d0671e97f4083985738293afd628877c16c76d4f",
     "backend/payroll/retirementStatement.js": "bbf49ed987385926898e0ce93a693d9140732608f0e54affa750abb7dbfe7cf8",
-    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "faf2248fb915d7253c49f0656eeb616bebacfa880e484e8ad7df9c434e3c9968",
+    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "291ae4f38da867478f97a11b5bfbcd11a4d239de05f717454533d5390498ff72",
     "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45",
     "backend/payroll/retirementPayrollWages.js": "21f3c439cfe9678bd0c3935ed1e0098157a3c40461895b6d4346322498a010bb",
     "backend/payroll/employerBenefitFundingReport.js": "7668bc2aec5956808c1e48307a3860a84f5bd73a896d4a05e85c04261e7e7c18",
     "backend/payroll/testing/regularRetirementFixture.js": "76fce796d0a9f5d06abe90650841d94bcabc818b20c93a95c3fb1af76dbab167",
-    "backend/payroll/__tests__/employerFundedBenefits.test.js": "83849382397129de73d50b0987fe686b2e8651c6522de4e74d0fdc1588f34d42"
+    "backend/payroll/__tests__/employerFundedBenefits.test.js": "83849382397129de73d50b0987fe686b2e8651c6522de4e74d0fdc1588f34d42",
+    "backend/payroll/supplementalPaymentHistory.js": "9ac4e56e8320b93bd416cde7831afa5d580cb147e0bca8cf3e98e8578abc20b3",
+    "backend/payroll/__tests__/retirementEmployerApproval.test.js": "99efed21ed579e9a81247df5c708d9448ecbd3c6578c226ac71cde5204ec8f9c",
+    "backend/payroll/__tests__/healthSupplementalHistory.test.js": "357a006a37d359e80bbb31466d58deb96075b5b0a2383bc0e3381e8afe6f5030"
   },
   "requiredNextWork": [
-    "Verify multiple health/posttax plans, employer matching/nonelective retirement, capacity and compensation exceptions. Health plus ordinary pretax/Roth deferrals now passes the three-payroll API journey.",
+    "Verify multiple health/posttax plans and remaining capacity/compensation exceptions. Ordinary retirement and employer matching/nonelective contributions with qualified health premiums now pass API/provider journeys.",
     "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
     "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
-    "Complete carrier funding/invoice paths, W-2 and periodic reports; employee contributions, employer assumption of prior pretax contributions, and balanced QuickBooks journal construction have focused coverage.",
-    "Verify full browser qualification/election/payroll and synthetic provider delivery/accounting recovery before integration/deployment.",
+    "Complete carrier funding/invoice paths and full W-2/periodic reporting. Annual employee taxable-wage summaries, separate retirement contribution reporting and synthetic QuickBooks settlement now have health-aware coverage.",
+    "Verify full browser qualification/election/payroll and broader provider/correction scenarios before integration/deployment; the combined health/employer retirement synthetic delivery and settlement journey now reaches RECONCILED.",
     "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
     "Support remaining benefit categories and employee/state/year exceptions; this classification is not full goal completion."
   ],
