@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:15:29.238127+00:00",
+  "recordedAt": "2026-09-22T02:20:47.587122+00:00",
   "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -155,6 +155,41 @@
       "log": "/tmp/payroll-health-history-verified.log",
       "lint": "passed",
       "initialCommand": "First unit command was launched from main, where candidate files do not exist; rerun from candidate succeeded."
+    },
+    "taxableHistoryDatabase": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "log": "/tmp/payroll-taxable-history-loader.log",
+      "durationMs": 2286.418833,
+      "coverage": [
+        "Actual native payroll finalization and facility scope",
+        "Automatic separate-history detection and subsequent preview, approval, finalization and statement retention",
+        "Excluded run handling and unchanged legacy path",
+        "Tampered history blocks preview; imported payroll requires opening-balance review"
+      ],
+      "limitation": "Separate-history mode on the first finalized run is synthetic test setup; this is not a collected pretax-premium journey."
+    },
+    "taxableHistoryRegression": {
+      "passed": 18,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 20629.53575,
+      "log": "/tmp/payroll-taxable-history-regression.log",
+      "coverage": [
+        "Monthly benefit finalization and recovery",
+        "Health engine calculations",
+        "Native FICA finalization",
+        "Income-tax wage reconciliation"
+      ]
+    },
+    "taxableHistoryLoaderLint": {
+      "status": "passed",
+      "files": [
+        "backend/payroll/employmentTaxWageHistory.js",
+        "backend/payroll/registerRoutes.js",
+        "backend/payroll/__tests__/employmentTaxWageHistory.test.js"
+      ]
     }
   },
   "verifiedBehavior": [
@@ -197,7 +232,7 @@
     "backend/payroll/__tests__/healthPlanQualification.test.js": "3d4512e230d309a9554556b8ef13fd2acbdc0e299836925ac03365c42c3a5d72",
     "backend/payroll/__tests__/healthParticipantQualification.test.js": "bbe12c7e74cb8e5ae6a2be5f4609b69505bbf341be2c62b4464b64c98fdbc1d3",
     "backend/payroll/initTables.js": "a36acf812f35e9fca5426e4586be6b8dd74c5b9e730ca6d29bca93505592043a",
-    "backend/payroll/registerRoutes.js": "2cd6b891f12a601e73815dba1a16da09afc46500ac9c373a778de4bf0c4fc8b5",
+    "backend/payroll/registerRoutes.js": "2ec8cf8e0b15791f57df17f0bd6d272658dcff7425c057433dcdbb276b014b22",
     "backend/payroll/testing/harness.js": "00a94f489c6e5585b2e31bac8370a0edb7edfaa8f7d16c9bdb4db28817e4f7be",
     "src/components/payroll/HealthQualificationReview.tsx": "3e3d35e58f9e3993e57aeb7997f8a6f721a0ab01057e48c406ea1371f365a3b2",
     "src/components/payroll/BenefitPlanCatalog.tsx": "0a3e03bb08295dcbd795ad8a72b13fd1f6c638b17b3701542f45cd638ac8f68d",
@@ -221,12 +256,13 @@
     "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
     "backend/payroll/ficaWageReconciliation.js": "def0b1176c0d078b3029c383465cf7aca24ce64254a2ca4404574a6a86cba993",
     "backend/payroll/__tests__/healthWageReconciliation.test.js": "30c194f6e6b36ac47741e23a4775703940d881f50e4a0ecbb96e4995b41dcdc1",
-    "backend/payroll/employmentTaxWageHistory.js": "17bbab442c318de8efe60c1de1d23aa57deefd6b28254837d49755c630a49902"
+    "backend/payroll/employmentTaxWageHistory.js": "9fe1eae7449563757c1756104d74d948fbf216e06a93152ec80a0d6022a53a8c",
+    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "56aeb4f1741a4d6e5697a99c985c08b4dd998f7200c28d7ace8cd4c9e8a15214"
   },
   "requiredNextWork": [
     "Connect the verified premium authorization resolver to monthly collection, approval reservations and payroll tax inputs. Signature proof checks and both admin/employee interfaces are implemented in the isolated candidate.",
     "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
-    "Integrate the uncapped taxable-wage history accumulator with database loading and approval/finalization. Add supported opening-balance/external-history review and employer-tax reconciliation; the current accumulator rejects incomplete retained history.",
+    "Database loading, ordinary preview/approval/finalization and statement retention now use separate taxable history. Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
     "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
     "Update benefit/carrier reporting, QuickBooks, FICA/income-tax reconciliation, W-2 and periodic reports.",
     "Verify browser qualification/election/payroll workflows and synthetic full provider journeys.",
