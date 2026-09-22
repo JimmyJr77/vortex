@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-22T04:13:23.451236+00:00",
+  "checkedAt": "2026-09-22T04:21:50.439980+00:00",
   "status": "STRICT RELEASE BUILD PASSED; FROZEN FULL BACKEND AND BROWSER RUNS ACTIVE; NOT DEPLOYED",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
@@ -26,7 +26,7 @@
       "status": "RUNNING",
       "sessionId": 7890,
       "log": "/tmp/payroll-imported-integrated-full-backend.log",
-      "observedPasses": 146,
+      "observedPasses": 427,
       "observedFailureMarkers": 0,
       "scope": "383 payroll backend test files",
       "notFinalResult": true
@@ -35,8 +35,8 @@
       "status": "RUNNING",
       "sessionId": 15165,
       "log": "/tmp/payroll-imported-integrated-full-browser.log",
-      "observedPasses": 25,
-      "observedFailureMarkers": 0,
+      "observedPasses": 61,
+      "observedFailureMarkers": 1,
       "scope": "232 configured payroll browser cases",
       "notFinalResult": true
     }
@@ -47,5 +47,6 @@
     "Complete other form-specific fields, agency exports, expanded imported components and native legacy reconciliation.",
     "Integrate/publish application and migration 833 only after adequate verification; overall goal remains incomplete."
   ],
-  "separateFollowup": "PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json"
+  "separateFollowup": "PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json",
+  "carrierJourney": "Full carrier-contribution browser journey passed in 8.2 minutes; no restart or test-input changes."
 }
