@@ -10,7 +10,7 @@ const semiDue=end=>{let date=end;for(let i=0;i<3;i++)date=nextFederalTaxBusiness
 export function calculateFederalDeposits(rows,{schedule,priorYearNextDay=false},deposits=[],today) {
  let mode=priorYearNextDay?'SEMIWEEKLY':schedule,group=null,triggered=false
  const daily=new Map(),obligations=[]
- for(const row of rows){const date=day(row.payment_date),amount=Number(row.federal_income)+2*Number(row.social_security)+2*Number(row.medicare)+Number(row.additional_medicare);daily.set(date,(daily.get(date)||0)+amount)}
+ for(const row of rows){const date=day(row.payment_date),amount=Number(row.federal_income)+Number(row.social_security)+Number(row.employer_social_security??row.social_security)+Number(row.medicare)+Number(row.employer_medicare??row.medicare)+Number(row.additional_medicare);daily.set(date,(daily.get(date)||0)+amount)}
  const flush=(dueOn,rule)=>{
   if(!group)return
   for(const [q,part] of group.parts)if(part.amount>0)obligations.push({key:`${part.first}:${part.last}:${dueOn}`,quarter:q,firstPayDate:part.first,lastPayDate:part.last,dueOn,rule,liabilityCents:part.amount,coveredCents:0,lateCoveredCents:0})
@@ -47,7 +47,7 @@ export async function federalTaxCalendar(db,facility,year) {
  const issues=[]
  if(year!==2026)issues.push('Federal deposit rules are currently verified for 2026. Verify the new tax year before using automated deadlines.')
  if(!record)issues.push('Verify the employer’s Form 941 deposit schedule and complete payroll history for this year.')
- if(legacy.rows[0].count)issues.push('Historical payments exist without complete daily federal tax liabilities. Resolve those tax records before relying on these deadlines.')
+ if(legacy.rows[0].count!==rows.filter(row=>row.imported_evidence).length)issues.push('Historical payments exist without complete daily federal tax liabilities. Resolve those tax records before relying on these deadlines.')
  const calculated=record&&year===2026?calculateFederalDeposits(rows,{schedule:record.schedule,priorYearNextDay:record.prior_year_next_day},deposits.rows,today):{obligations:[],effectiveSchedule:null,nextYearSemiweeklyRequired:false}
  const futaIssues=[...issues]
  const employer=settings.rows[0]?.employer_tax_config
@@ -58,7 +58,7 @@ export async function federalTaxCalendar(db,facility,year) {
 export function registerFederalTaxCalendarRoutes(app,pool) {
  app.get('/api/admin/payroll/federal-deposit-calendar',async(req,res)=>{
   const year=Number(req.query.year);if(!Number.isInteger(year)||year<2000||year>2200)return res.status(400).json({success:false,message:'Choose a valid tax year.'})
-  try{res.json({success:true,data:await federalTaxCalendar(pool,req.canonicalAccess.facilityId,year)})}catch{res.status(500).json({success:false,message:'Unable to load federal deposit calendar.'})}
+  try{res.json({success:true,data:await federalTaxCalendar(pool,req.canonicalAccess.facilityId,year)})}catch(e){res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load federal deposit calendar.'})}
  })
  app.post('/api/admin/payroll/federal-deposit-schedule',async(req,res)=>{
   const b=req.body||{}

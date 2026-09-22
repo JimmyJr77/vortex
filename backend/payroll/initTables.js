@@ -29,6 +29,7 @@ export async function initPayrollTables(pool) {
     await client.query(await fs.readFile(new URL('../migrations/830_payroll_benefit_continuation.sql', import.meta.url), 'utf8'))
     await client.query(await fs.readFile(new URL('../migrations/831_payroll_health_plan_qualification.sql', import.meta.url), 'utf8'))
     await client.query(await fs.readFile(new URL('../migrations/832_payroll_health_election.sql', import.meta.url), 'utf8'))
+    await client.query(await fs.readFile(new URL('../migrations/833_payroll_historical_employment_wages.sql', import.meta.url), 'utf8'))
     for(const facility of (await client.query('SELECT id FROM facility')).rows)await ensureEmployerSetup(client,facility.id)
     await client.query('COMMIT')
   } catch(error) {

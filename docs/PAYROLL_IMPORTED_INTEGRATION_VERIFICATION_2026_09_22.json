@@ -138,5 +138,15 @@
       "Existing-account hire, payroll, returning access and rehire."
     ],
     "scope": "Synthetic local APIs/providers; does not establish real bank, QuickBooks or agency acceptance. Original full browser results remain separate."
+  },
+  "localIntegration": {
+    "matchedFiles": 36,
+    "adminAccessUnchanged": true,
+    "adminAccessSha256": "5bb12f0f28e01059446694d8c9f30132a8f6eaff3942177267f261835db8c7c2",
+    "patchSha256": "0a2aafcc391eb8a998039430d58b37ed83dd0fadc394c5e176bcecabd90caf3d",
+    "notPublished": true,
+    "checkedAt": "2026-09-22T04:42:36.333269+00:00",
+    "workspace": "/Users/jimmy_mac/Desktop/code/vortex",
+    "status": "APPLIED LOCALLY; NOT PUSHED OR DEPLOYED"
   }
 }

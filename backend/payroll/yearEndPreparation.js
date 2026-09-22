@@ -1,3 +1,4 @@
+import {historicalReportingRange} from './historicalReportingEvidence.js'
 import {retirementAnnualReporting} from './retirementAnnualReporting.js'
 import {checkReplacementAnnualEvidence} from './checkReplacementReview.js'
 import {replacementAnnualEvidence} from './paymentReplacementReview.js'
@@ -20,7 +21,7 @@ export function combinedMedicareWithholding(regular,additional){
  return money(BigInt(regular.replace('.',''))+BigInt(additional.replace('.','')))
 }
 export async function yearEndPreparation(db,facility){
- const [headers,...rows]=await employeeSummaryCsv(db,facility,'2026-01-01','2026-12-31')
+ const [headers,...rows]=await employeeSummaryCsv(db,facility,'2026-01-01','2026-12-31',{nativeWageBasesOnly:true})
  const overtime=await overtimeReportingRecords(db,facility),paymentSources=await annualPaymentSources(db,facility)
  const replacementReviews=[...await replacementAnnualEvidence(db,facility),...await checkReplacementAnnualEvidence(db,facility)]
  const identities=(await db.query(`SELECT DISTINCT ON(subject_key) id,subject_key,employee_id,identifier_last4 FROM payroll_filing_identity WHERE facility_id=$1 ORDER BY subject_key,id DESC`,[facility])).rows
@@ -39,22 +40,29 @@ export async function yearEndPreparation(db,facility){
   if(filingIdentity.issue)issues.push(filingIdentity.issue)
   const review=filingIdentity.revision?(await db.query('SELECT id,decision,created_at FROM payroll_filing_identity_employee_review WHERE facility_id=$1 AND employee_id=$2 AND identity_id=$3 ORDER BY id DESC LIMIT 1',[facility,employeeId,filingIdentity.revision])).rows[0]:null
   if(review?.decision==='CORRECTION_REQUESTED')issues.push('Employee requested a correction to the current filing identity.')
-  const imports=Number(values['Imported payment count']);if(imports)issues.push('Imported payments require detailed annual reconciliation.')
+  const imports=Number(values['Imported payment count']),importedAnnual=imports?await historicalReportingRange(db,facility,employeeId,'2026-01-01','2026-12-31'):null
+  if(importedAnnual)issues.push(...importedAnnual.issues)
+  const importedTotals=importedAnnual?.totals,nativeCount=Number(values['Finalized run count'])
+  const combined=(native,key)=>{if(imports&&!importedTotals)return null;if(!nativeCount)native='0.00';if(typeof native!=='string'||!/^\d+\.\d{2}$/.test(native))return null;return money(BigInt(native.replace('.',''))+BigInt(importedTotals?.[key]||0))}
   if(values['Review status']==='INCOMPLETE FINALIZED TAX RECORDS')issues.push('Finalized withholding or net payment records are incomplete.')
-  if(!values['Retained Social Security taxable wages']||!values['Retained Medicare taxable wages'])issues.push(String(values['Wage-basis review']))
-  if(!values['Retained federal income-tax wages']||!values['Retained Maryland income-tax wages'])issues.push(String(values['Income-tax wage review']))
-  const overtimeComplete=!imports&&records.length===Number(values['Finalized run count'])&&records.length>0&&records.every(r=>r.qualificationStatus==='REVIEWED'&&r.qualifiedPremiumCents!==null)
+  if(nativeCount&&(!values['Retained Social Security taxable wages']||!values['Retained Medicare taxable wages']))issues.push(String(values['Wage-basis review']))
+  if(nativeCount&&(!values['Retained federal income-tax wages']||!values['Retained Maryland income-tax wages']))issues.push(String(values['Income-tax wage review']))
+  const overtimeComplete=(!imports||!!importedTotals)&&records.length===nativeCount&&(records.length>0||imports>0)&&records.every(r=>r.qualificationStatus==='REVIEWED'&&r.qualifiedPremiumCents!==null)
   if(!overtimeComplete)issues.push('Overtime qualification is missing, stale or unreconciled for one or more payments.')
-  const taxesComplete=values['Review status']!=='INCOMPLETE FINALIZED TAX RECORDS'&&!imports&&!!values['Retained Social Security taxable wages']&&!!values['Retained Medicare taxable wages']&&!!values['Retained federal income-tax wages']&&!!values['Retained Maryland income-tax wages']
+  const taxesComplete=(!imports||!!importedTotals)&&(!nativeCount||values['Review status']!=='INCOMPLETE FINALIZED TAX RECORDS'&&!!values['Retained Social Security taxable wages']&&!!values['Retained Medicare taxable wages']&&!!values['Retained federal income-tax wages']&&!!values['Retained Maryland income-tax wages'])
+  if(!taxesComplete)issues.push('Reconcile native and imported annual wage and withholding detail.')
+  const wageInputs={federal:combined(values['Retained federal income-tax wages'],'federalWagesCents'),maryland:combined(values['Retained Maryland income-tax wages'],'marylandWagesCents'),socialSecurity:combined(values['Retained Social Security taxable wages'],'socialSecurityReportedWagesCents'),medicare:combined(values['Retained Medicare taxable wages'],'medicareWagesCents')}
+  if(wageInputs.socialSecurity&&BigInt(wageInputs.socialSecurity.replace('.',''))>18450000n)issues.push('Combined native and imported Social Security reporting wages exceed the annual wage limit.')
+  const withholding=Object.fromEntries([['federal','Federal withholding','federalWithheldCents'],['maryland','Maryland withholding','marylandWithheldCents'],['socialSecurity','Employee Social Security','socialSecurityWithheldCents'],['medicare','Employee Medicare','medicareWithheldCents'],['additionalMedicare','Additional Medicare','additionalMedicareWithheldCents']].map(([key,column,importedKey])=>[key,taxesComplete?combined(values[column],importedKey):null]))
+  withholding.combinedMedicare=taxesComplete?combinedMedicareWithholding(withholding.medicare,withholding.additionalMedicare):null
   let benefitContributions=null
   try{const [benefitHeaders,...benefitRows]=await benefitContributionReport(db,facility,'2026-01-01','2026-12-31',employeeId);benefitContributions=benefitRows.map(row=>{const item=Object.fromEntries(benefitHeaders.map((header,index)=>[header,row[index]]));return {paymentDate:item['Payment date'],month:item['Contribution month'],planId:item['Plan ID'],planName:item.Plan,optionId:item['Option ID'],optionLabel:item['Coverage option'],employeeContribution:item['Employee contribution'],taxTreatment:item['Tax treatment'],runId:item['Payroll run'],authorizationFingerprint:item['Authorization fingerprint']}})}catch(e){if(e.status!==409)throw e;issues.push('Employee benefit contributions require reconciliation with retained payroll and deduction authorizations.')}
   let retirementContributions=null
   try{retirementContributions=await retirementAnnualReporting(db,facility,employeeId)}catch(e){if(e.status!==409)throw e;issues.push('Retirement contributions require reconciliation with finalized payroll, statements and ledger evidence.')}
   const prepared={...(retirementContributions?{retirementContributions}:{}),employeeId,employeeNumber:values['Employee #'],employeeName:values.Employee,filingIdentity,employeeIdentityReview:review?.decision||'NOT_REVIEWED',finalizedRunCount:Number(values['Finalized run count']),runIds:records.map(r=>r.runId),importedPaymentCount:imports,
-   wageInputs:{federal:values['Retained federal income-tax wages']||null,maryland:values['Retained Maryland income-tax wages']||null,socialSecurity:values['Retained Social Security taxable wages']||null,medicare:values['Retained Medicare taxable wages']||null},
-   withholding:{federal:taxesComplete?values['Federal withholding']:null,maryland:taxesComplete?values['Maryland withholding']:null,socialSecurity:taxesComplete?values['Employee Social Security']:null,medicare:taxesComplete?values['Employee Medicare']:null,additionalMedicare:taxesComplete?values['Additional Medicare']:null,combinedMedicare:taxesComplete?combinedMedicareWithholding(values['Employee Medicare'],values['Additional Medicare']):null},
+   wageInputs,withholding,...(importedAnnual?{importedAnnual}:{}),
    ...(replacementTaxReviews.length?{replacementTaxReviews}:{}),benefitContributions,benefitReportingNotice:'These are retained employee wage deductions only. They do not establish employer contributions, reportable health coverage cost or other benefit tax-form amounts.',
-   reviewedQualifiedOvertime:overtimeComplete?money(records.reduce((sum,r)=>sum+BigInt(r.qualifiedPremiumCents),0n)):null,issues,sourceStatus:issues.length?'NEEDS_RECONCILIATION':'READY_FOR_REVIEW'}
+   reviewedQualifiedOvertime:overtimeComplete?money(records.reduce((sum,r)=>sum+BigInt(r.qualifiedPremiumCents),BigInt(importedTotals?.qualifiedOvertimePremiumCents||0))):null,issues,sourceStatus:issues.length?'NEEDS_RECONCILIATION':'READY_FOR_REVIEW'}
   const sourceFingerprint=annualSourceFingerprint(facility,employer,prepared,paymentSources.get(String(employeeId))||{paid:[],imported:[]},records.map(r=>({runId:r.runId,sourceFingerprint:r.sourceFingerprint,reviewId:r.reviewId,qualificationStatus:r.qualificationStatus,qualifiedPremiumCents:r.qualifiedPremiumCents})),review?{id:String(review.id),decision:review.decision}:null)
   const history=(await db.query('SELECT id,source_fingerprint,reference,created_by,created_at FROM payroll_annual_input_review WHERE facility_id=$1 AND employee_id=$2 AND payment_year=2026 ORDER BY id DESC',[facility,employeeId])).rows
   employees.push({...prepared,sourceFingerprint,sourceVersion:1,compensationApplicabilityHistory:await compensationApplicabilityHistory(db,facility,employeeId,sourceFingerprint),healthClassificationHistory:await employeeHealthHistory(db,facility,employeeId,sourceFingerprint,healthCoverageReporting.revision),inputReviewHistory:history.map((item,index)=>({...item,status:item.source_fingerprint!==sourceFingerprint?'STALE':index===0?'CURRENT':'SUPERSEDED'}))})

@@ -13,7 +13,7 @@ test('database taxable history scopes native evidence and feeds later payroll ap
  const load=(facility=1,required=[employee.id],exclude=null)=>loadEmploymentTaxWageHistory(h.pool,facility,[employee.id],'2026-09-30',exclude,required)
  const initial=await load();assert.deepEqual(initial.warnings,[])
  assert.deepEqual(Object.values(initial.ytdTaxWagesByEmployee[employee.id]),[20000,20000,20000,20000])
- assert.deepEqual((await load(2)).evidenceByEmployee[employee.id],[])
+ const foreign=await load(2);assert.equal(foreign.evidenceByEmployee[employee.id],undefined);assert.equal(foreign.ytdTaxWagesByEmployee[employee.id],null);assert.equal(foreign.warnings[0].blocking,true);assert.match(foreign.warnings[0].message,/Employee not found/)
  assert.deepEqual((await load(1,[])).ytdTaxWagesByEmployee,{})
  assert.equal((await load(1,[employee.id],first.id)).ytdTaxWagesByEmployee[employee.id].medicareWagesCents,0)
  // Mark the verified zero-opening run as using separate native bases. This
@@ -42,7 +42,7 @@ test('database taxable history scopes native evidence and feeds later payroll ap
  const broken=await load(1,[]);assert.equal(broken.ytdTaxWagesByEmployee[employee.id],null);assert.equal(broken.warnings[0].blocking,true)
  const blocked=(await api('/runs/preview',{payPeriodId:periods[2].id})).preview
  assert.equal(blocked.canApprove,false);assert.ok(blocked.warnings.some(w=>w.code==='EMPLOYMENT_TAX_WAGE_HISTORY_REVIEW'))
- await h.pool.query(`INSERT INTO payroll_historical_payment(facility_id,employee_id,period_start,period_end,payment_date,method,gross_amount_cents,net_amount_cents) VALUES(1,$1,'2026-08-01','2026-08-15','2026-08-18','CHECK',10000,9000)`,[employee.id])
+ await h.pool.query(`INSERT INTO payroll_historical_payment(facility_id,employee_id,period_start,period_end,payment_date,method,gross_amount_cents,employee_tax_withheld_cents,net_amount_cents) VALUES(1,$1,'2026-08-01','2026-08-15','2026-08-18','CHECK',10000,1000,9000)`,[employee.id])
  assert.match((await load()).warnings[0].message,/opening balances/)
 
 })

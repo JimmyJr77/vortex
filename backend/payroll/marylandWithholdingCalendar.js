@@ -60,7 +60,7 @@ export async function marylandWithholdingCalendar(db,facility,year) {
  const config=configuration.rows[0]||null,today=settings.rows[0]?.today,issues=[]
  if(year!==2026)issues.push('Maryland withholding deadlines are currently verified for 2026 only.')
  if(!config)issues.push('Verify the Maryland withholding filing category and required reporting periods from the employer account notice.')
- if(taxes.legacyPayments)issues.push('Complete the historical wage and withholding reconciliation before relying on this calendar.')
+ if(taxes.legacyPayments>(taxes.reviewedImportedPayments||0))issues.push('Complete the historical wage and withholding reconciliation before relying on this calendar.')
  const calculated=calculateMarylandWithholdingCalendar(rows,taxes,config,today)
  if(config?.schedule==='ACCELERATED'&&taxes.filings.some(f=>f.form_type==='MD_MW506M'&&!['SUPERSEDED','VOID'].includes(f.status)&&!calculated.periods.some(p=>p.start===day(f.period_start)&&p.end===day(f.period_end))))issues.push('An accelerated return covers a different interval from the calculated threshold or monthly periods. Reconcile voluntary early returns and agency allocations before relying on these deadlines.')
  if(config&&rows.some(r=>!calculated.periods.some(p=>day(r.payment_date)>=p.start&&day(r.payment_date)<=p.end)))issues.push('Finalized payroll exists outside the verified reporting periods. Review the account schedule.')

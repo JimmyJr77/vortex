@@ -2,6 +2,8 @@
 
 ## Current completion boundary — September 22, 2026 release
 
+The combined imported-payroll candidate and verified follow-ups are now **applied locally on main, not pushed or deployed**. All 36 changed source/test files match the verified follow-up snapshot exactly, and the unrelated AdminAccess working edit is byte-for-byte unchanged. The original full browser suite continues on its separate frozen snapshot; publication still awaits its final result and any additional repairs.
+
 Integrated browser follow-up now passes **all seven cases** (2.5 minutes): original complete hiring, both imported-review cases and all four native hiring variants, including existing-account linking and rehire. Explicit MW506 preparation restores the recorded-return check without carrying amounts across forms. Four native trace archives passed CRC checks; the corrected MW506 screenshot was inspected; all 4,640 follow-up source hashes match. Original full browser regression still runs on its unchanged 4,639-file snapshot. No application deployment is claimed; its complete result remains required.
 
 Frozen full backend regression completed **1,137 passed / 3 failed / 0 skipped** (24.3 minutes), with all 4,639 source hashes unchanged. Two failures were CSV-position test assumptions; the third exposed changed-payroll status being hidden by the new generic wage-basis review state. Separate integrated corrections now pass **18 focused backend cases**, including all three failures and connection handling; scoped lint passes. This does not turn the original full run into a green result. Full browser regression remains active, and the prepared browser journey corrections are still unverified. The combined follow-up patch applies cleanly to main but remains unpublished.

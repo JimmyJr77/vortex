@@ -21,7 +21,7 @@ export async function marylandUiCalendar(db,facility,year) {
  if(year!==2026)issues.push('Maryland unemployment deadlines are currently verified for 2026 only.')
  if(!config)issues.push('Verify the quarters when this Maryland unemployment account requires reports and the standard payment schedule.')
  if(setting?.employer_tax_config?.verified!==true||setting.employer_tax_config.year!==year)issues.push('Verify the assigned Maryland contributory-employer rate in Employer setup.')
- if(taxes.legacyPayments)issues.push('Historical payments require complete unemployment wage and tax reconciliation before relying on this calendar.')
+ if(taxes.legacyPayments>(taxes.reviewedImportedPayments||0))issues.push('Historical payments require complete unemployment wage and tax reconciliation before relying on this calendar.')
  if(config&&taxes.quarters.some(q=>(q.quarter<config.first_quarter||q.quarter>config.last_quarter)&&(q.grossCents>0||q.agencies.find(a=>a.agency==='MD_UI').liabilityCents>0)))issues.push('Finalized payroll exists outside the verified reporting quarters. Review the account reporting range.')
  return {year,today:setting?.today,config,issues,reliable:issues.length===0,accountActive:setting?.md_ui_status==='ACTIVE',quarters:calculateMarylandUiCalendar(taxes,config,setting?.today)}
 }

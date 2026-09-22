@@ -3,6 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createHarness} from '../testing/harness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
+const incomeColumns=summary=>['Retained federal income-tax wages','Retained Maryland income-tax wages','Verified income-tax wage records','Income-tax wage review'].map(name=>{const index=summary[0].indexOf(name);assert.notEqual(index,-1,`Missing report column: ${name}`);return summary[1][index]})
 for(const manual of [false,true])test(`income-tax wage basis retention follows finalized withholding: manual=${manual}`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const h=await createHarness();t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
  const run=await api('/runs',{payPeriodId:periods[0].id},'POST',201)
@@ -28,13 +29,13 @@ for(const manual of [false,true])test(`income-tax wage basis retention follows f
   const saved=await api(path,body,'POST',201);assert.equal((await api(path,body)).reused,true)
   await api(path,{...body,marylandWagesCents:19999},'POST',409)
   const history=await api(path);assert.equal(history.reviews.length,1);assert.equal(history.reviews[0].current,true)
-  assert.deepEqual((await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31'))[1].slice(-4),['200.00','200.00',1,'RECONCILED INCOME-TAX WAGE BASES (1 reviewed record)'])
+  assert.deepEqual(incomeColumns(await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31')),['200.00','200.00',1,'RECONCILED INCOME-TAX WAGE BASES (1 reviewed record)'])
   assert.equal((await fetch(`${h.url}/api/admin/payroll${path}`,{headers:{Authorization:'Bearer payroll-test-admin','x-test-facility':'2'}})).status,404)
   assert.equal((await fetch(`${h.url}/api/admin/payroll${path}`)).status,401)
   await assert.rejects(h.pool.query('UPDATE payroll_income_tax_basis_review SET federal_wages_cents=0 WHERE id=$1',[saved.id]),/append-only/)
   await h.pool.query('UPDATE payroll_run_employee SET federal_income_tax_cents=federal_income_tax_cents+1 WHERE payroll_run_id=$1',[run.id])
   assert.equal((await api(path)).reviews[0].current,false)
-  const staleSummary=(await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31'))[1].slice(-4);assert.deepEqual(staleSummary.slice(0,3),['','',0]);assert.match(staleSummary[3],/stale or inconsistent/)
+  const staleSummary=incomeColumns(await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31'));assert.deepEqual(staleSummary.slice(0,3),['','',0]);assert.match(staleSummary[3],/stale or inconsistent/)
   await api(path,body,'POST',409)
   await h.pool.query('UPDATE payroll_run_employee SET federal_income_tax_cents=federal_income_tax_cents-1 WHERE payroll_run_id=$1',[run.id])
   await api(path,{...body,requestKey:'income-tax-basis-review-next',marylandWagesCents:19999},'POST',201)
@@ -45,7 +46,7 @@ for(const manual of [false,true])test(`income-tax wage basis retention follows f
   assert.equal((await h.pool.query("SELECT count(*)::int n FROM payroll_audit_log WHERE action='INCOME_TAX_BASIS_REVIEWED'")).rows[0].n,2)
  }
 
- const summary=await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31'),columns=summary[1].slice(-4)
+ const summary=await employeeSummaryCsv(h.pool,1,'2026-01-01','2026-12-31'),columns=incomeColumns(summary)
  assert.deepEqual(columns.slice(0,3),manual?['200.00','199.99',1]:['200.00','200.00',1])
  assert.match(columns[3],/RECONCILED INCOME-TAX/)
 })

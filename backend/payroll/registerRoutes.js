@@ -1,3 +1,5 @@
+import {taxLiabilityReport} from './taxLiabilityReport.js'
+import {registerHistoricalEmploymentWageReview} from './historicalEmploymentWageReview.js'
 import {loadEmploymentTaxWageHistory} from './employmentTaxWageHistory.js'
 import {registerHealthPlanDisclosure} from './healthPlanDisclosure.js'
 import {registerHealthParticipantQualification} from './healthParticipantQualification.js'
@@ -803,6 +805,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   registerCarrierRemittanceUnsentRelease(app,pool)
   registerBenefitCoverageLedger(app,pool)
   registerHealthParticipantQualification(app,pool)
+  registerHistoricalEmploymentWageReview(app,pool)
   registerHealthPlanDisclosure(app,pool)
   registerHealthPlanQualification(app,pool)
   registerBenefitContinuation(app,pool)
@@ -1528,7 +1531,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
     try{
       const rows=await employeeSummaryCsv(pool,req.canonicalAccess.facilityId,start,end)
       res.setHeader('Cache-Control','no-store')
-      res.json({success:true,data:{start,end,employees:rows.slice(1).map(row=>({employeeId:String(row[2]),employeeNumber:row[3],employeeName:row[4],finalizedRunCount:Number(row[6]),socialSecurityWages:row[29]||null,medicareWages:row[30]||null,additionalMedicareWages:row[31]||null,verifiedRunCount:row[32],review:row[33],federalWages:row[34]||null,marylandWages:row[35]||null,incomeVerifiedRunCount:row[36],incomeReview:row[37]}))}})
+      res.json({success:true,data:{start,end,employees:rows.slice(1).map(row=>({employeeId:String(row[2]),employeeNumber:row[3],employeeName:row[4],finalizedRunCount:Number(row[6]),socialSecurityWages:row[29]||null,medicareWages:row[30]||null,additionalMedicareWages:row[31]||null,verifiedRunCount:row[32],review:row[33],federalWages:row[34]||null,marylandWages:row[35]||null,incomeVerifiedRunCount:row[36],incomeReview:row[37],importedPaymentCount:Number(row[24]),importedDetailStatus:row[38]||null,verifiedImportedPaymentCount:Number(row[41])}))}})
     }catch(error){payrollError(res,error,'Unable to review retained wage bases')}
   })
 
@@ -1607,21 +1610,13 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   })
 
   app.get('/api/admin/payroll/reports/tax-liabilities.csv', async (req, res) => {
+    const filtered=req.query.start!==undefined||req.query.end!==undefined,start=isoDate(req.query.start),end=isoDate(req.query.end)
+    if(filtered&&(!start||!end||end<start))return res.status(400).json({success:false,message:'Valid start and end payment dates are required.'})
     try {
-      const { rows } = await pool.query(`SELECT r.id,COALESCE(r.payment_date,p.pay_date) AS pay_date,r.status,r.employee_tax_cents,r.employer_tax_cents,
-          (r.employee_tax_cents+r.employer_tax_cents)::bigint AS total_liability,t.*
-        FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id
-        CROSS JOIN LATERAL (SELECT SUM(re.federal_income_tax_cents)::bigint AS federal_income,
-          SUM(re.state_income_tax_cents)::bigint AS maryland_income,
-          SUM(re.social_security_tax_cents*2)::bigint AS combined_social_security,
-          SUM(re.medicare_tax_cents*2+re.additional_medicare_tax_cents)::bigint AS combined_medicare,
-          SUM(re.futa_tax_cents)::bigint AS futa,SUM(re.md_ui_tax_cents)::bigint AS maryland_ui
-          FROM payroll_run_employee re WHERE re.payroll_run_id=r.id) t
-        WHERE r.facility_id=$1 AND r.status IN ('APPROVED','FINALIZED') ORDER BY COALESCE(r.payment_date,p.pay_date),r.id`, [req.canonicalAccess.facilityId])
-      sendCsv(res, 'vortex-payroll-tax-liabilities.csv', [
-        ['Run','Pay date','Status','Federal income withholding','Maryland income withholding','Social Security employee and employer','Medicare employee and employer','Employer FUTA','Employer Maryland UI','Employee taxes','Employer taxes','Total calculated tax liability','Payment and filing status'],
-        ...rows.map(row=>[row.id,row.pay_date,row.status,...['federal_income','maryland_income','combined_social_security','combined_medicare','futa','maryland_ui','employee_tax_cents','employer_tax_cents','total_liability'].map(k=>(Number(row[k]||0)/100).toFixed(2)),'Reconcile separately with agency deposits and returns']),
-      ])
+      const rows=await taxLiabilityReport(pool,req.canonicalAccess.facilityId,filtered?{start,end}:{})
+      await audit(pool,req,'EXPORT','tax_liabilities',null,null,{start:filtered?start:null,end:filtered?end:null,recordCount:rows.length-1})
+      res.setHeader('Cache-Control','no-store')
+      sendCsv(res, 'vortex-payroll-tax-liabilities.csv', rows)
     } catch (error) { payrollError(res, error, 'Unable to export tax liabilities') }
   })
 

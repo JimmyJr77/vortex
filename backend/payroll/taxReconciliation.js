@@ -1,4 +1,10 @@
+import {reconcileIncomeTaxWageRows,reconcileApprovedIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
+import {readPayrollSnapshot} from './readPayrollSnapshot.js'
+import {compensationEvidence} from './employmentCompensation.js'
+import {historicalTaxRows} from './historicalTaxRows.js'
 import {verifyEmploymentTaxEvidence} from './employmentTaxEvidence.js'
+const federalWageForms=new Set(['IRS_941','W2_W3'])
+export const filingWages=(totals,form)=>federalWageForms.has(form)?totals.federalWagesCents:totals.grossCents
 const agencies=['IRS_941','IRS_FUTA','MD_WITHHOLDING','MD_UI']
 const formAgency={IRS_941:'IRS_941',IRS_940:'IRS_FUTA',MD_MW506:'MD_WITHHOLDING',MD_MW506M:'MD_WITHHOLDING',MD_MW508:'MD_WITHHOLDING',MD_UI:'MD_UI',W2_W3:'EMPLOYEE_FEDERAL'}
 const day=value=>value instanceof Date?value.toISOString().slice(0,10):String(value||'').slice(0,10)
@@ -8,27 +14,39 @@ const cents=value=>Number.isSafeInteger(value)&&value>=0
 export function summarizeTaxRows(rows,start,end) {
  const fields=['gross','federal_income','social_security','medicare','additional_medicare','futa','maryland','md_ui']
  for(const row of rows)if(fields.some(key=>!(typeof row[key]==='number'||typeof row[key]==='string'&&/^\d+$/.test(row[key]))||!Number.isSafeInteger(Number(row[key]))||Number(row[key])<0))throw fail('Finalized payroll tax amounts are incomplete or invalid. Reconcile the payroll records before reviewing or recording tax filings.',409)
+ for(const row of rows)for(const key of ['employer_social_security','employer_medicare'])if(row[key]!==undefined&&(!(typeof row[key]==='number'||typeof row[key]==='string'&&/^\d+$/.test(row[key]))||!Number.isSafeInteger(Number(row[key]))||Number(row[key])<0))throw fail('Imported employer tax amounts are incomplete or invalid.',409)
  const eligible=rows.filter(row=>day(row.payment_date)>=start&&day(row.payment_date)<=end)
- const total={grossCents:0,EMPLOYEE_FEDERAL:0,IRS_941:0,IRS_FUTA:0,MD_WITHHOLDING:0,MD_UI:0,employeeCount:new Set(eligible.map(r=>Number(r.employee_id))).size,payroll:[]}
+ const total={reportingBasisVersion:1,federalWagesCents:0,grossCents:0,EMPLOYEE_FEDERAL:0,IRS_941:0,IRS_FUTA:0,MD_WITHHOLDING:0,MD_UI:0,employeeCount:new Set(eligible.map(r=>Number(r.employee_id))).size,payroll:[]}
  for(const row of eligible){
-  const gross=Number(row.gross),federal=Number(row.federal_income)+2*Number(row.social_security)+2*Number(row.medicare)+Number(row.additional_medicare)
+  const gross=Number(row.gross),federal=Number(row.federal_income)+Number(row.social_security)+Number(row.employer_social_security??row.social_security)+Number(row.medicare)+Number(row.employer_medicare??row.medicare)+Number(row.additional_medicare)
+  if(row.federal_wages===null||row.federal_wages===undefined||!/^\d+$/.test(String(row.federal_wages))||!Number.isSafeInteger(Number(row.federal_wages))||Number(row.federal_wages)>gross)total.federalWagesCents=null
+  else if(total.federalWagesCents!==null){total.federalWagesCents+=Number(row.federal_wages);if(!Number.isSafeInteger(total.federalWagesCents))throw fail('Federal reporting wages exceed supported precision.',409)}
   total.EMPLOYEE_FEDERAL+=Number(row.federal_income)+Number(row.social_security)+Number(row.medicare)+Number(row.additional_medicare);total.grossCents+=gross;total.IRS_941+=federal;total.IRS_FUTA+=Number(row.futa);total.MD_WITHHOLDING+=Number(row.maryland);total.MD_UI+=Number(row.md_ui)
-  total.payroll.push([Number(row.run_id),Number(row.employee_id),day(row.payment_date),gross,federal,Number(row.futa),Number(row.maryland),Number(row.md_ui)])
+  total.payroll.push([Number(row.run_id),Number(row.employee_id),day(row.payment_date),gross,federal,Number(row.futa),Number(row.maryland),Number(row.md_ui),...(row.imported_evidence?[row.imported_evidence]:[])])
  }
  if(['grossCents','EMPLOYEE_FEDERAL','IRS_941','IRS_FUTA','MD_WITHHOLDING','MD_UI'].some(key=>!Number.isSafeInteger(total[key])))throw fail('Tax reconciliation totals exceed supported precision. Review the payroll records.',409)
- total.payroll.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);return total
+ total.payroll.sort((a,b)=>a[0]-b[0]||a[1]-b[1]||String(a[8]?.paymentId||'').localeCompare(String(b[8]?.paymentId||'')));return total
 }
-export async function taxRows(db,facility,year) {
- const rows=(await db.query(`SELECT re.*,r.status,r.calculation_snapshot,r.id AS run_id,re.employee_id,COALESCE(r.payment_date,p.pay_date) AS payment_date,
+export async function taxRows(db,facility,year,{includeApproved=false}={}) {
+ return readPayrollSnapshot(db,client=>retainedTaxRows(client,facility,year,includeApproved))
+}
+async function retainedTaxRows(db,facility,year,includeApproved) {
+ const rows=(await db.query(`SELECT re.*,r.facility_id,r.run_kind,pe.work_state,pe.residence_state,(SELECT to_jsonb(v) FROM payroll_income_tax_basis_review v WHERE v.facility_id=r.facility_id AND v.run_employee_id=re.id ORDER BY v.id DESC LIMIT 1) AS reviewed_income_basis,r.status,r.calculation_snapshot,r.id AS run_id,re.employee_id,COALESCE(r.payment_date,p.pay_date) AS payment_date,
  re.regular_pay_cents+re.overtime_pay_cents+re.other_taxable_pay_cents AS gross,
  re.federal_income_tax_cents AS federal_income,re.social_security_tax_cents AS social_security,
  re.medicare_tax_cents AS medicare,re.additional_medicare_tax_cents AS additional_medicare,
  re.futa_tax_cents AS futa,re.state_income_tax_cents AS maryland,re.md_ui_tax_cents AS md_ui
- FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
- WHERE r.facility_id=$1 AND r.status='FINALIZED' AND EXTRACT(YEAR FROM COALESCE(r.payment_date,p.pay_date))=$2`,[facility,year])).rows
- for(const row of rows)verifyEmploymentTaxEvidence(row)
- const fields=['run_id','employee_id','payment_date','gross','federal_income','social_security','medicare','additional_medicare','futa','maryland','md_ui']
- return rows.map(row=>Object.fromEntries(fields.map(key=>[key,row[key]])))
+ FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id JOIN payroll_employee pe ON pe.id=re.employee_id AND pe.facility_id=r.facility_id
+ WHERE r.facility_id=$1 AND r.status=ANY($3::text[]) AND EXTRACT(YEAR FROM COALESCE(r.payment_date,p.pay_date))=$2`,[facility,year,includeApproved?['APPROVED','FINALIZED']:['FINALIZED']])).rows
+ for(const row of rows){
+  verifyEmploymentTaxEvidence(row)
+  const basis=(row.status==='APPROVED'?reconcileApprovedIncomeTaxWageRows:reconcileIncomeTaxWageRows)([row]).get(String(row.employee_id))
+  row.federal_wages=basis?.verified===1&&!basis.issues.length?String(basis.federal):null
+ }
+ const fields=['federal_wages','status','run_id','employee_id','payment_date','gross','federal_income','social_security','medicare','additional_medicare','futa','maryland','md_ui']
+ const combinedRows=[...rows.map(row=>Object.fromEntries(fields.map(key=>[key,row[key]]))),...await historicalTaxRows(db,facility,year)]
+ summarizeTaxRows(combinedRows,`${year}-01-01`,`${year}-12-31`)
+ return combinedRows
 }
 export async function taxReconciliation(db,facility,year) {
  const [rows,deposits,filings,legacy]=await Promise.all([
@@ -40,7 +58,7 @@ export async function taxReconciliation(db,facility,year) {
  const quarters=[1,2,3,4].map(quarter=>{
   const start=`${year}-${String(quarter*3-2).padStart(2,'0')}-01`,end=new Date(Date.UTC(year,quarter*3,0)).toISOString().slice(0,10)
   const totals=summarizeTaxRows(rows,start,end)
-  return {quarter,start,end,grossCents:totals.grossCents,employeeCount:totals.employeeCount,agencies:agencies.map(agency=>{
+  return {quarter,start,end,grossCents:totals.grossCents,federalWagesCents:totals.federalWagesCents,employeeCount:totals.employeeCount,agencies:agencies.map(agency=>{
    const depositedCents=deposits.rows.filter(d=>d.status==='RECORDED'&&d.agency===agency&&d.tax_quarter===quarter).reduce((n,d)=>n+Number(d.amount_cents),0)
    return {agency,liabilityCents:totals[agency],depositedCents,balanceCents:totals[agency]-depositedCents}
   })}
@@ -49,25 +67,28 @@ export async function taxReconciliation(db,facility,year) {
  const filingData=filings.rows.map(f=>{
   const current=summarizeTaxRows(rows,day(f.period_start),day(f.period_end)),key=`${f.form_type}:${day(f.period_start)}:${day(f.period_end)}`
   const superseded=seen.has(key);if(!f.voided_at)seen.add(key)
-  const changed=JSON.stringify(current.payroll)!==JSON.stringify(f.payroll_snapshot.payroll)
-  const mismatch=Number(f.reported_wages_cents)!==current.grossCents||Number(f.reported_tax_cents)!==current[formAgency[f.form_type]]
-  return {...f,status:f.voided_at?'VOID':superseded?'SUPERSEDED':changed?'PAYROLL_CHANGED':mismatch?'TOTALS_DIFFER':legacy.rows[0].count?'LEGACY_REVIEW_REQUIRED':'MATCHED',currentWagesCents:current.grossCents,currentTaxCents:current[formAgency[f.form_type]]}
+  const changed=JSON.stringify(compensationEvidence(current.payroll))!==JSON.stringify(compensationEvidence(f.payroll_snapshot.payroll))
+  const wages=filingWages(current,f.form_type),needsBasis=wages===null||federalWageForms.has(f.form_type)&&f.payroll_snapshot.reportingBasisVersion!==1
+  const wageChanged=federalWageForms.has(f.form_type)&&f.payroll_snapshot.reportingBasisVersion===1&&f.payroll_snapshot.federalWagesCents!==wages
+  const mismatch=Number(f.reported_wages_cents)!==wages||Number(f.reported_tax_cents)!==current[formAgency[f.form_type]]
+  return {...f,status:f.voided_at?'VOID':superseded?'SUPERSEDED':changed?'PAYROLL_CHANGED':needsBasis?'WAGE_BASIS_REVIEW_REQUIRED':wageChanged?'PAYROLL_CHANGED':mismatch?'TOTALS_DIFFER':'MATCHED',currentWagesCents:wages,currentTaxCents:current[formAgency[f.form_type]]}
  })
- return {year,quarters,deposits:deposits.rows,filings:filingData,legacyPayments:legacy.rows[0].count,annual:summarizeTaxRows(rows,`${year}-01-01`,`${year}-12-31`)}
+ return {year,quarters,deposits:deposits.rows,filings:filingData,legacyPayments:legacy.rows[0].count,reviewedImportedPayments:rows.filter(row=>row.imported_evidence).length,annual:summarizeTaxRows(rows,`${year}-01-01`,`${year}-12-31`)}
 }
 export function registerTaxReconciliationRoutes(app,pool,{now=()=>new Date()}={}) {
  const today=settings=>new Intl.DateTimeFormat('en-CA',{timeZone:settings.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(now())
  const write=async(req,res,work)=>{
-  const db=await pool.connect()
-  try{await db.query('BEGIN');const settings=(await db.query('SELECT * FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[req.canonicalAccess.facilityId])).rows[0];if(!settings)throw fail('Employer not found.',404)
+  let db
+  try{db=await pool.connect();await db.query('BEGIN');const settings=(await db.query('SELECT * FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[req.canonicalAccess.facilityId])).rows[0];if(!settings)throw fail('Employer not found.',404)
    const result=await work(db,settings);await db.query('COMMIT');res.status(201).json({success:true,data:result})
-  }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||(e.code==='23505'?409:500)).json({success:false,message:e.status?e.message:e.code==='23505'?'This agency confirmation reference is already recorded.':'Unable to save tax reconciliation.'})}finally{db.release()}
+  }catch(e){await db?.query('ROLLBACK').catch(()=>{});res.status(e.status||(e.code==='23505'?409:500)).json({success:false,message:e.status?e.message:e.code==='23505'?'This agency confirmation reference is already recorded.':'Unable to save tax reconciliation.'})}finally{db?.release()}
  }
  const audit=(db,req,action,type,row)=>db.query(`INSERT INTO payroll_audit_log (facility_id,actor_user_id,action,entity_type,entity_id,after_data) VALUES ($1,$2,$3,$4,$5,$6)`,[req.canonicalAccess.facilityId,req.adminId,action,type,String(row.id),row])
  app.get('/api/admin/payroll/tax-reconciliation',async(req,res)=>{
   const year=Number(req.query.year)
   if(!Number.isInteger(year)||year<2000||year>2200)return res.status(400).json({success:false,message:'Choose a valid tax year.'})
-  try{res.json({success:true,data:await taxReconciliation(pool,req.canonicalAccess.facilityId,year)})}catch(e){res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load tax reconciliation.'})}
+  let db
+  try{db=await pool.connect();await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const data=await taxReconciliation(db,req.canonicalAccess.facilityId,year);await db.query('COMMIT');res.setHeader('Cache-Control','no-store');res.json({success:true,data})}catch(e){await db?.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load tax reconciliation.'})}finally{db?.release()}
  })
  app.post('/api/admin/payroll/tax-deposits',(req,res)=>write(req,res,async(db,settings)=>{
   const b=req.body||{},reference=String(b.reference||'').trim()
@@ -97,6 +118,7 @@ export function registerTaxReconciliationRoutes(app,pool,{now=()=>new Date()}={}
   if(['IRS_940','MD_MW508','W2_W3'].includes(b.formType)&&!annual)throw fail('This form requires a full calendar-year reporting period.')
   if(['IRS_941','MD_UI'].includes(b.formType)&&!quarterly)throw fail('This form requires a full calendar-quarter reporting period.')
   const snapshot=summarizeTaxRows(await taxRows(db,req.canonicalAccess.facilityId,Number(b.periodStart.slice(0,4))),b.periodStart,b.periodEnd)
+  if(filingWages(snapshot,b.formType)===null)throw fail('Reconcile retained federal reporting wages before recording this filing receipt.',409)
   const row=(await db.query(`INSERT INTO payroll_tax_filing (facility_id,form_type,period_start,period_end,filed_on,reference,reported_wages_cents,reported_tax_cents,payroll_snapshot,notes,created_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,[req.canonicalAccess.facilityId,b.formType,b.periodStart,b.periodEnd,b.filedOn,reference,b.reportedWagesCents,b.reportedTaxCents,snapshot,String(b.notes||'').slice(0,2000),req.adminId])).rows[0]
   await audit(db,req,'TAX_FILING_RECORDED','tax_filing',row);return row
  }))

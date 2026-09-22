@@ -1,3 +1,4 @@
+import {requireHistoricalEmploymentWages} from './historicalEmploymentWageReview.js'
 import {verifyEmploymentTaxEvidence} from './employmentTaxEvidence.js'
 import {reconcileFicaWageRows,reconcileApprovedFicaWageRows} from './ficaWageReconciliation.js'
 import {reconcileIncomeTaxWageRows,reconcileApprovedIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
@@ -5,10 +6,25 @@ import {healthPremiumWageEvidence} from './healthPremiumWageEvidence.js'
 const keys=['socialSecurityWagesCents','medicareWagesCents','futaWagesCents','marylandUnemploymentWagesCents']
 // Inputs must include every nonvoid committed payroll for the employee/year.
 // Approved amounts reserve wage bases but do not represent paid statements.
-export function employmentTaxWageHistory(rows,{employeeId,year,paymentDate,excludedRunId=null}){
+export function employmentTaxWageHistory(rows,{employeeId,year,paymentDate,excludedRunId=null,historicalEvidence=[]}){
  const fail=message=>{throw new Error(`Reconcile employment taxable-wage history: ${message}`)}
  if(year!==2026||!/^2026-\d{2}-\d{2}$/.test(paymentDate)||!Number.isFinite(Date.parse(paymentDate))||new Date(paymentDate).toISOString().slice(0,10)!==paymentDate)fail('use a valid supported payroll date.')
  const sums=Object.fromEntries(keys.map(key=>[key,0n])),seen=new Set(),evidence=[]
+ const imported=[...historicalEvidence].sort((a,b)=>a.paymentDate.localeCompare(b.paymentDate)||(BigInt(a.paymentId)<BigInt(b.paymentId)?-1:1)),importedIds=new Set()
+ for(const payment of imported){
+  if(payment.kind!=='IMPORTED'||String(payment.employeeId)!==String(employeeId)||!payment.reviewId||!payment.sourceFingerprint||!payment.reviewFingerprint)fail('imported wages lack a scoped retained review.')
+  if(!/^2026-\d{2}-\d{2}$/.test(payment.paymentDate)||!Number.isFinite(Date.parse(payment.paymentDate))||new Date(payment.paymentDate).toISOString().slice(0,10)!==payment.paymentDate||payment.paymentDate>paymentDate)fail('imported wage dates fall outside current payroll history.')
+  if(importedIds.has(String(payment.paymentId)))fail('duplicate imported wage evidence.');importedIds.add(String(payment.paymentId))
+  if(keys.some(key=>!Number.isSafeInteger(payment.wages?.[key])||payment.wages[key]<0))fail('invalid uncapped imported wage amount.')
+ }
+ let importedIndex=0
+ const includeImportedThrough=day=>{
+  while(importedIndex<imported.length&&imported[importedIndex].paymentDate<=day){
+   const payment=imported[importedIndex++]
+   for(const key of keys){sums[key]+=BigInt(payment.wages[key]);if(sums[key]>BigInt(Number.MAX_SAFE_INTEGER))fail('taxable wage totals exceed supported precision.')}
+   evidence.push(payment)
+  }
+ }
  const ordered=[...rows].sort((a,b)=>new Date(a.payment_date)-new Date(b.payment_date)||(BigInt(a.run_id)<BigInt(b.run_id)?-1:BigInt(a.run_id)>BigInt(b.run_id)?1:0))
  for(const row of ordered){
   if(String(row.employee_id)!==String(employeeId))fail('history contains another employee.')
@@ -18,6 +34,7 @@ export function employmentTaxWageHistory(rows,{employeeId,year,paymentDate,exclu
   const day=date.toISOString().slice(0,10)
   if(date.getUTCFullYear()!==year||day>paymentDate)fail('history falls outside the current payment order or year.')
   if(seen.has(String(row.run_id)))fail('duplicate payroll evidence.');seen.add(String(row.run_id))
+  includeImportedThrough(day)
   const approved=row.status==='APPROVED'
   const fica=(approved?reconcileApprovedFicaWageRows:reconcileFicaWageRows)([row]).get(String(employeeId))
   const income=(approved?reconcileApprovedIncomeTaxWageRows:reconcileIncomeTaxWageRows)([row]).get(String(employeeId))
@@ -34,7 +51,8 @@ export function employmentTaxWageHistory(rows,{employeeId,year,paymentDate,exclu
   for(const key of keys){if(!Number.isSafeInteger(wages[key])||wages[key]<0)fail('invalid uncapped wage amount.');sums[key]+=BigInt(wages[key]);if(sums[key]>BigInt(Number.MAX_SAFE_INTEGER))fail('taxable wage totals exceed supported precision.')}
   evidence.push({runId:String(row.run_id),paymentDate:day,status:row.status,wages})
  }
- return {ytd:Object.fromEntries(keys.map(key=>[key,Number(sums[key])])),evidence:evidence.sort((a,b)=>a.paymentDate.localeCompare(b.paymentDate)||a.runId.localeCompare(b.runId))}
+ includeImportedThrough(paymentDate)
+ return {ytd:Object.fromEntries(keys.map(key=>[key,Number(sums[key])])),evidence}
 }
 
 // The caller uses its payroll transaction so approval revalidation reads the
@@ -56,13 +74,10 @@ export async function loadEmploymentTaxWageHistory(db,facilityId,employeeIds,pay
   if(frozen?.health125||frozen?.ficaWageBasis?.employmentWageMode==='SEPARATE_YTD'||row.statement_snapshot?.ficaWageBasis?.employmentWageMode==='SEPARATE_YTD')required.add(String(row.employee_id))
  }
  const ytdTaxWagesByEmployee={},evidenceByEmployee={},warnings=[]
- const external=required.size?(await db.query(`SELECT DISTINCT employee_id FROM payroll_historical_payment
-   WHERE facility_id=$1 AND employee_id=ANY($2::bigint[]) AND payment_date<=$3::date
-   AND EXTRACT(YEAR FROM payment_date)=EXTRACT(YEAR FROM $3::date)`,[facilityId,[...required],day])).rows:[]
  for(const id of employeeIds.map(String).filter(id=>required.has(id))){
   try{
-   if(external.some(row=>String(row.employee_id)===id))throw new Error('Review separate employment taxable-wage opening balances for imported payroll before approval.')
-   const history=employmentTaxWageHistory(rows.filter(row=>String(row.employee_id)===id),{employeeId:id,year,paymentDate:day})
+   const historicalEvidence=await requireHistoricalEmploymentWages(db,facilityId,id,day)
+   const history=employmentTaxWageHistory(rows.filter(row=>String(row.employee_id)===id),{employeeId:id,year,paymentDate:day,historicalEvidence})
    ytdTaxWagesByEmployee[id]=history.ytd;evidenceByEmployee[id]=history.evidence
   }catch(error){
    // Invalid explicit history prevents the engine from silently using gross.
