@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:03:17.117268+00:00",
+  "recordedAt": "2026-09-22T02:06:58.843874+00:00",
   "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -98,6 +98,38 @@
       "typescript": "passed",
       "lint": "passed",
       "mobile": "390px screenshot inspected; no overflow; successful upload clears filename"
+    },
+    "employeeElectionUI": {
+      "browser": {
+        "passed": 3,
+        "failed": 0,
+        "durationSeconds": 16.8,
+        "log": "/tmp/payroll-employee-health-browser.log"
+      },
+      "backend": {
+        "passed": 6,
+        "failed": 0,
+        "durationMs": 11601.413875,
+        "log": "/tmp/payroll-employee-health-backend.log"
+      },
+      "typescript": "passed",
+      "lint": "zero errors; existing OnboardingWorkspace ref-cleanup warning",
+      "mobile": "390px elect and stale-draft screenshots inspected; PDF displayed internally; text, zoom and history available",
+      "combinedVerification": {
+        "backend": {
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0,
+          "durationMs": 16449.558209,
+          "log": "/tmp/payroll-employee-health-backend-final.log"
+        },
+        "browser": {
+          "passed": 5,
+          "failed": 0,
+          "durationSeconds": 22.5,
+          "log": "/tmp/payroll-employee-health-browser-final.log"
+        }
+      }
     }
   },
   "verifiedBehavior": [
@@ -113,7 +145,9 @@
     "Employee-safe plan disclosure PDFs remain separate from private admin plan evidence.",
     "Prospective employee elections bind disclosed terms, election window, signed authorization and current eligibility; declined or stale elections cannot authorize collection.",
     "Authenticated employees can retrieve their exact signed disclosure after later publication or authorization withdrawal.",
-    "Admin employee-disclosure publishing form retains separate PDF, plan-year dates and employee terms; interrupted responses recover the original request and concurrent publication preserves the unsaved draft."
+    "Admin employee-disclosure publishing form retains separate PDF, plan-year dates and employee terms; interrupted responses recover the original request and concurrent publication preserves the unsaved draft.",
+    "Employees open employee-safe disclosures inside onboarding, elect or decline, recover interrupted signatures and read retained disclosure history.",
+    "Changed election terms preserve the employee signature draft while blocking signing; current employee-scoped election listing includes retained plan history."
   ],
   "files": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
@@ -134,20 +168,23 @@
     "backend/payroll/testing/harness.js": "00a94f489c6e5585b2e31bac8370a0edb7edfaa8f7d16c9bdb4db28817e4f7be",
     "src/components/payroll/HealthQualificationReview.tsx": "3e3d35e58f9e3993e57aeb7997f8a6f721a0ab01057e48c406ea1371f365a3b2",
     "src/components/payroll/BenefitPlanCatalog.tsx": "0a3e03bb08295dcbd795ad8a72b13fd1f6c638b17b3701542f45cd638ac8f68d",
-    "src/components/payroll/OnboardingWorkspace.tsx": "08731efe53c5a3fa768bb666bb43f31ccdce8007b462dd96ca82b7a38a09c0f8",
+    "src/components/payroll/OnboardingWorkspace.tsx": "6a02346bbb8450ab04b76b08e751a72639c1ff485bf3c767bb4a4b4c639c1305",
     "src/utils/workforceApi.ts": "d82e68fbaa2675cf65991094dd438be53a2ca38dfdcf578e1cad3948656988c6",
     "tests/e2e/payroll-health-qualification.spec.ts": "b06589eb44f90111066c589a26f2b2b259cd4f6c59a0bfb603990eba935d109e",
     "backend/migrations/832_payroll_health_election.sql": "a7c84a2d55611d0c6ad6b3b3db343cf2bcc2014b62c8b4e34a4c189149891238",
     "backend/payroll/healthPlanDisclosure.js": "e46aed6efdca94dbb159b3d112102d2a97aa6ec26c9228c2b73b0dbcc3b71982",
-    "backend/payroll/healthElection.js": "41a2f9a8812d0b8c67b5523c2cc273c11a9d67037ad3a765f7ac73b688c92e92",
-    "backend/payroll/testing/healthElectionFixture.js": "09964cce0a84adbcb5b5806a20eec9d1f51e9b5bd35c322de68017972a0626f0",
-    "backend/payroll/__tests__/healthElection.test.js": "5b191676d8a94eb5164637f1c1fb450538cdc50cb091a78bff6d6b0f8dcdb315",
+    "backend/payroll/healthElection.js": "1ed22f6a061f007e38d9360d7bb22b398f5d6305a43a84dd4a4b7ae28fb34b4b",
+    "backend/payroll/testing/healthElectionFixture.js": "cbb63d4069086c3307f0ab512b7422f39b3bfb5ef48a0b05d229eefc81fb65db",
+    "backend/payroll/__tests__/healthElection.test.js": "67d3a60c43add60efadb70ce91ceceb58e9cd1182683ff70b0cc5d242046908c",
     "backend/payroll/employeeRoutes.js": "d3cf3c5cb42f662ffc9e834cad352175d5147b9ad33b4155910cc77edda89c98",
     "src/components/payroll/HealthPlanDisclosureSetup.tsx": "7bbca5e86f0650245f323c480a7322758b6ba943c12accdf64ce40e71c70dcce",
-    "tests/e2e/payroll-health-disclosure.spec.ts": "d4676910314a3d07d1522383354a037880d5b61fcfbec12906031a94d61108a0"
+    "tests/e2e/payroll-health-disclosure.spec.ts": "d4676910314a3d07d1522383354a037880d5b61fcfbec12906031a94d61108a0",
+    "src/components/payroll/EmployeeHealthElection.tsx": "db60781fc7f9804a1a44843389fc8d666a91446a405c52487ed905623a4c0903",
+    "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
+    "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28"
   },
   "requiredNextWork": [
-    "Build the employee disclosure/signing interface and strengthen retained signature proof checks before collection integration. Admin disclosure-publishing UI is implemented in the isolated candidate.",
+    "Strengthen retained signature proof checks, then connect server-qualified signed Section 125 elections to collection. Admin disclosure publishing and employee signing/declining/history interfaces are implemented in the isolated candidate.",
     "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
     "Reconcile prior taxable wages and approved reservations; never substitute gross wages or capped SS wages.",
     "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
