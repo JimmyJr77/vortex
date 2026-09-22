@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-09-22T04:27:15.378006+00:00",
-  "status": "PREPARED; DATABASE REGRESSION NOT RUN WHILE FROZEN FULL BACKEND IS ACTIVE",
+  "status": "VERIFIED IN INTEGRATED FOCUSED BACKEND RUN; NOT DEPLOYED",
   "patch": "/tmp/payroll-income-basis-report-test-followup.patch",
   "patchSha256": "7f17e90a8e3282314913818044783188a7a8ee4dbf58cc266e43aa726db68fe9",
   "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
@@ -13,5 +13,21 @@
   "correction": "Find each required income-tax CSV header explicitly, assert it exists, and retain the original amount/count/review-state assertions.",
   "lintExitCode": 0,
   "lintLog": "/tmp/payroll-imported-regression-followup-lint-final.log",
-  "next": "Run the corrected two cases and relevant reporting regressions after execution 7890 completes."
+  "next": "Run the corrected two cases and relevant reporting regressions after execution 7890 completes.",
+  "verification": {
+    "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 21037.26925,
+    "log": "/tmp/payroll-imported-integrated-backend-followup.log",
+    "lintExitCode": 0,
+    "lintLog": "/tmp/payroll-imported-integrated-followup-lint.log",
+    "changes": [
+      "Required income-tax report columns selected by header instead of position.",
+      "Changed posted payroll takes precedence over generic missing-wage-basis status; missing bases still block new receipts.",
+      "Connection acquisition is inside controlled error handling."
+    ],
+    "scope": "Includes all three full-run failed cases plus federal wage, imported reporting, tax reconciliation/liability and connection regressions. Does not replace the original full result."
+  }
 }

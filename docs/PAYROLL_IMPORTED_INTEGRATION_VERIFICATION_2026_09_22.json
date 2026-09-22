@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T04:27:15.378006+00:00",
-  "status": "STRICT RELEASE BUILD PASSED; FROZEN FULL BACKEND AND BROWSER RUNS ACTIVE; NOT DEPLOYED",
+  "checkedAt": "2026-09-22T04:35:56.070105+00:00",
+  "status": "FULL BACKEND COMPLETED 1137 PASS / 3 FAIL; CORRECTED FOCUSED 18 PASS; FULL BROWSER STILL ACTIVE; NOT DEPLOYED",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
@@ -23,19 +23,23 @@
   },
   "runs": {
     "backend": {
-      "status": "RUNNING",
+      "status": "COMPLETED",
       "sessionId": 7890,
       "log": "/tmp/payroll-imported-integrated-full-backend.log",
-      "observedPasses": 729,
-      "observedFailureMarkers": 2,
       "scope": "383 payroll backend test files",
-      "notFinalResult": true
+      "notFinalResult": false,
+      "passed": 1137,
+      "failed": 3,
+      "skipped": 0,
+      "durationMs": 1458606.728167,
+      "exitCode": 1,
+      "sourceHashesMatchAtCompletion": true
     },
     "browser": {
       "status": "RUNNING",
       "sessionId": 15165,
       "log": "/tmp/payroll-imported-integrated-full-browser.log",
-      "observedPasses": 114,
+      "observedPasses": 165,
       "observedFailureMarkers": 1,
       "scope": "232 configured payroll browser cases",
       "notFinalResult": true
@@ -50,5 +54,64 @@
   "separateFollowup": "PAYROLL_TAX_CONNECTION_FOLLOWUP_2026_09_22.json",
   "carrierJourney": "Full carrier-contribution browser journey passed in 8.2 minutes; no restart or test-input changes.",
   "journeyFollowup": "PAYROLL_FILING_JOURNEY_FOLLOWUP_2026_09_22.json",
-  "incomeBasisFollowup": "PAYROLL_INCOME_BASIS_REPORT_FOLLOWUP_2026_09_22.json"
+  "incomeBasisFollowup": "PAYROLL_INCOME_BASIS_REPORT_FOLLOWUP_2026_09_22.json",
+  "backendFollowup": {
+    "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 21037.26925,
+    "log": "/tmp/payroll-imported-integrated-backend-followup.log",
+    "lintExitCode": 0,
+    "lintLog": "/tmp/payroll-imported-integrated-followup-lint.log",
+    "changes": [
+      "Required income-tax report columns selected by header instead of position.",
+      "Changed posted payroll takes precedence over generic missing-wage-basis status; missing bases still block new receipts.",
+      "Connection acquisition is inside controlled error handling."
+    ],
+    "scope": "Includes all three full-run failed cases plus federal wage, imported reporting, tax reconciliation/liability and connection regressions. Does not replace the original full result."
+  },
+  "combinedFollowupCandidate": {
+    "patch": "/tmp/payroll-imported-integrated-final-candidate.patch",
+    "patchSha256": "0a2aafcc391eb8a998039430d58b37ed83dd0fadc394c5e176bcecabd90caf3d",
+    "sourceHashes": {
+      "backend/payroll/historicalEmploymentTaxWages.js": "3326c3138c7ad3e71925d519ac08327f22cfe21ca3b5d967aef213948dc690f9",
+      "backend/payroll/historicalEmploymentWageReview.js": "cc84a952debd31ab8c81492b5a79e5fe16b85f95c44213aa9fb454d33faa0e21",
+      "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "e1a4935ff4492a595a6c447c844afb54f5e3e92c237bf1d06ed09d262fe7dfd7",
+      "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "577e52d6e82aafa2e4a912be126252d63a3e91977ad0da7500c256251e37be66",
+      "backend/migrations/833_payroll_historical_employment_wages.sql": "8ba79d44dbc435569576de3d63e228c9b1679be9919aeb36cca0102db496792b",
+      "backend/payroll/registerRoutes.js": "6b82d60e922d6d060cd89366d372ce884bca39442df2ac30bfd245ff9945ef4e",
+      "backend/payroll/initTables.js": "61e587a8aebea60d0d08443952e34b8d6953372dd987ccb81f38deee06bf5e0d",
+      "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a",
+      "backend/payroll/employmentTaxWageHistory.js": "68fc16ecbff0da805f39e409bbf55e3ad649f21f7ddb282610990778e5128173",
+      "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "d5da5965b5f3dc51b349165dfda6d9b7456e7a12f60b4ac759eff57fabfdf3f2",
+      "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "f420c578ebc7961b787b88379659a48a57cec1b65a6fd06af53394c10d3b4d60",
+      "src/components/payroll/HistoricalEmploymentWageReview.tsx": "cd9ce756e2e0e66ba0c1027ff21dce03328b1f8e62677b6ca065d2124b30ea2f",
+      "src/components/payroll/AdminPayroll.tsx": "7e85dfccb5c56636836e87aa05f20f3baeb7f36e9f0a4c3c94f2742ef8c11309",
+      "tests/e2e/payroll-imported-wage-review.spec.ts": "9d4bd5fdf3facb2d01d472f7706cc7a508c37ccd132cb8bd69b9e25dd164fd10",
+      "backend/payroll/historicalAnnualPaymentDetail.js": "1337132c011f629e439f5705e1aa4d2aae1a92924991e7e60fb4adc3f660f7e0",
+      "backend/payroll/__tests__/historicalAnnualPaymentDetail.test.js": "e35ca910efcf341b722a081569a4ed7b5bdb2376aa732d13eccdf2811108a7c5",
+      "backend/payroll/employeeSummary.js": "0e3fe7eb6f1cb9d584e8ded18ce870be6c65a02edf9aad306c0e94dcf189d94f",
+      "backend/payroll/yearEndPreparation.js": "c1639a54730c2056712fdba046e2188b3be117a0355b0bb04778983c8ae26c70",
+      "backend/payroll/historicalReportingEvidence.js": "bf166085f49ca5e8f7f3daac1f8192726efb2f2e472c8a0519cb80cae64bceaf",
+      "backend/payroll/historicalTaxRows.js": "d1b0f2abf3a658cdad5125fab340086abbf852e503b7cf67120d784830b26da3",
+      "backend/payroll/readPayrollSnapshot.js": "b3bd4b70f070d2fc4e4dd24f7d96f154813723e504458dac417960e08c88b3b1",
+      "backend/payroll/__tests__/historicalReportingExports.test.js": "7a7943d29a12e406a6d6acbec94986bd1d4d43bb1b4780cbcd35f75b7aad9e80",
+      "backend/payroll/taxReconciliation.js": "b26d8c15ccb8ab349df86706ebe00ea4a84776b4e3059192df399db55078207d",
+      "backend/payroll/federalTaxCalendar.js": "22c15f18391b7890c07e213bd6524f0f40e058d2145150ba111df5aba9d21724",
+      "backend/payroll/marylandWithholdingCalendar.js": "8ae67020aa05eb30eb629c70a370ab733b8d4113afa0d53e84e88d8580df8a2c",
+      "backend/payroll/marylandUiCalendar.js": "ff7b6ba3391c130b23b7b3f866cc833c56a54986078d628c6abf209e82aca60c",
+      "src/components/payroll/WageBasisReview.tsx": "c806e5e1f209432ba9bbb7b9428c70cac940eb74a2a0b24e7ced2ef796d86bad",
+      "src/components/payroll/TaxReconciliation.tsx": "51e49b7cd14c9313229ab3938bb155c1a76356fe1b73962f77997585da3c1df1",
+      "src/utils/workforceApi.ts": "97abb7f47759903c8738b8cefc07a6445d05f655a1dc2ec20538b75112959737",
+      "backend/payroll/taxLiabilityReport.js": "e71d7ea3a187c413c5792e97f1be281da1ad265012c0e25bc80870b6e21b6de6",
+      "backend/payroll/__tests__/taxLiabilityReport.test.js": "fe3f334f7c5dd6e0a3d9425772c017a22aebc8303c5001aa7750a3f7cc79c448",
+      "backend/payroll/__tests__/federalFilingWages.test.js": "59ad14a4e7fea5cd17fcade4511f1c3d276769fb6049cbb6fc022452036aba84",
+      "backend/payroll/__tests__/taxReconciliationConnection.test.js": "1ef2e2a509e59aafcc027cdba1dac2b3ba82781ed24c3bc86813e2794d9f0089",
+      "backend/payroll/__tests__/incomeTaxWageBasis.test.js": "7dfaa4dbda0e3ff5910f5515e2eec1e230a48b6a20c94fcdfecb4fe57dff997e",
+      "tests/e2e/payroll-complete-journey.spec.ts": "f5d3c15183d7a249efb6cbe768b54c7b017e3d53eab543029cb30224c05a2134",
+      "tests/e2e/payroll-native-complete-journey.spec.ts": "f7d92332bf9800c38f6e25ac34d74b82e39f11767b50ce2eb346cc48bde52370"
+    },
+    "browserFollowupsVerified": false
+  }
 }
