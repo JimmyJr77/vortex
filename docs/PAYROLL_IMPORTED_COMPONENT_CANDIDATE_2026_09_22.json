@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-09-22T05:03:04.119823+00:00",
+  "status": "ISOLATED CANDIDATE; NOT INTEGRATED OR DEPLOYED",
+  "baseCommit": "d32a51dd7e3efc03980f11ecec8b802283e6fecf",
+  "workspace": "/tmp/vortex-imported-components-candidate",
+  "patch": "/tmp/payroll-imported-component-candidate.patch",
+  "patchSha256": "a0d1277209d268f86fcf9d3de6f919fb82938fd76941679e5d1c898202177a74",
+  "sourceHashes": {
+    "backend/payroll/importedPaymentBreakdown.js": "786db3a36f88b85e6456d32d35d9cf0daca48715d0bcee4429f0d5521e01fabc",
+    "backend/payroll/historicalEmploymentTaxWages.js": "a6dbe549c742a5e32dfd6accbd0c53ecc83cbed68445b30befd964b58397d3e1",
+    "backend/payroll/historicalAllocationPreview.js": "82ccf77656ae96373cc6127a48f06488d23693350914f73999bbf99b5c2613b2",
+    "backend/payroll/historicalPaymentEntry.js": "fa8b92169f37fcab4339708cb29a35c481bdebb2599cfedf729855c092ccb32b",
+    "backend/payroll/initTables.js": "1c1ee8e37057144db081b0aaafde0a73b1a0b434bb8d1bad4f6f4f4a7f0a9740",
+    "backend/payroll/testing/harness.js": "c4f6de8475539c78f0f2550a04b5c3ea70f2523b5db3b1fa97e7e9e4679ab871",
+    "backend/payroll/__tests__/importedPaymentBreakdown.test.js": "4df3e77e699198e46f07e55ba08a7936309807117c5eeaf77efe8d12be8fa87a",
+    "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "142cd8f4932522faa2f7e1b7949c5d233beed1e05c4a4dfcdf9e830bcde5c3b0",
+    "backend/payroll/__tests__/historicalAllocationPreview.test.js": "bcf4ed98b5da08897056e7a54b01bbabab494b9a98e2333770022e6fdb3dba79",
+    "backend/payroll/__tests__/historicalPaymentEntry.test.js": "601c27e2e59ae5f134285c3622b365d8fcb2e1a185a9d87ed3e70294b0f22149",
+    "backend/migrations/834_payroll_imported_payment_components.sql": "f463da3a9685d19543aef081b1aa42fee32f8ab0a60d1e03f7c70a3aae5aa1bc"
+  },
+  "sourceTests": {
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/tmp/payroll-imported-component-source-tests-final.log",
+    "priorAttempt": "One new test used the original function name instead of its imported alias; corrected and rerun. Original log retained at /tmp/payroll-imported-component-source-tests.log."
+  },
+  "integrationTests": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/tmp/payroll-imported-component-api-tests.log"
+  },
+  "lint": "Passed scoped lint for all changed JavaScript files.",
+  "requirementsRemaining": [
+    "Entry UI with component line items and source confirmation, reload/retry/mobile browser verification.",
+    "Show component totals in imported source and employee/export reporting.",
+    "Reconcile pretax health and retirement plan identities, annual retirement limits and year-end reporting before accepting those classifications into native payroll.",
+    "Preserve full component evidence in imported paid-coverage and downstream tax history; test stale changes across retained reviews.",
+    "Broader integration, release build, production migration and deployment verification."
+  ],
+  "assumptions": [
+    "Gross is wages only; reimbursements are separate cash components.",
+    "Tax treatment must be reviewed independently; cash arithmetic never establishes taxability.",
+    "Each positive component requires an identity, classification and original-register reference.",
+    "Withholding and deductions do not consume expense reimbursements.",
+    "Legacy absent component metadata retains the original wage-only shape and fingerprint.",
+    "Unsupported tax/benefit reporting must be resolved before candidate publication."
+  ]
+}
