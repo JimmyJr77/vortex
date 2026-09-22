@@ -28,5 +28,44 @@
       "path": "/tmp/payroll-employer-separation-regression.log",
       "sha256": "df8d6f6cb9f5fb58b24186fed1da377dda91265722256c27861009595499fd70"
     }
-  ]
+  ],
+  "release": {
+    "commit": "4468437ac18b5e1c3e6ea5a83751064df6d094fd",
+    "renderDeployment": "dep-daot4tjtqb8s73eh0mr0",
+    "renderStatus": "Deploy succeeded | Live",
+    "vercelDeployment": "dpl_CX7q88R6oynxwzwDxccXzKxsivuF",
+    "vercelStatus": "READY",
+    "productionAlias": "vortexathletics.com",
+    "checks": {
+      "checkedAt": "2026-09-22T00:58:53.306Z",
+      "health": {
+        "httpStatus": 200,
+        "status": "OK",
+        "releaseCommit": "4468437ac18b",
+        "dbConnected": true,
+        "payrollDocumentStorageReady": true,
+        "emailConfigured": true
+      },
+      "cors": [
+        {
+          "path": "/api/admin/payroll/employees",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        },
+        {
+          "path": "/api/admin/notifications",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        },
+        {
+          "path": "/api/admin/billing/cancellation-requests?status=pending",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        }
+      ]
+    }
+  }
 }
