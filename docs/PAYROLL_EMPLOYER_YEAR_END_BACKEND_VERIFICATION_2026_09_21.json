@@ -1,0 +1,26 @@
+{
+  "candidateDirectory": "/tmp/vortex-payroll-employer-yearend",
+  "baseApplicationCommit": "94bea3e71afb40bfc29ce316841ed33a8136fe9c",
+  "result": {
+    "tests": 1063,
+    "pass": 1063,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "durationMs": 783449.928667,
+  "log": "/tmp/payroll-employer-yearend-full-backend.log",
+  "logSha256": "9d1709afeb8d3ba32d08c8fa8bc2e89b35b06ef7d39aa63e68b12ed92cdc8c1c",
+  "inputs": "/tmp/payroll-employer-yearend-full-backend-inputs.json",
+  "inputManifestSha256": "f8dba3f36511271e20ea78af1c60a362d6a12ea83472580eb9afcac7c8f6e4ad",
+  "inputFileCount": 1845,
+  "changedInputs": [],
+  "patch": "/tmp/payroll-employer-yearend-candidate.patch",
+  "patchSha256": "8cf7f06c7f2af67888290f1d8c97712d634e11e8ac51db85dcc5bc87d308004e",
+  "status": "VERIFIED_CANDIDATE_NOT_APPLIED",
+  "limitations": [
+    "Full browser baseline remains active; this is not a terminal browser result.",
+    "No live payment, filing or new-hire transaction performed."
+  ]
+}

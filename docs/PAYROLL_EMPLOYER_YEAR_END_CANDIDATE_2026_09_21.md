@@ -12,6 +12,8 @@ Source: [IRS 2026 W-2/W-3 instructions](https://www.irs.gov/instructions/iw2w3),
 
 ## Evidence
 
+The full isolated candidate backend regression subsequently completed: **1,063 passed, zero failures/skips**, 783.450 seconds. All 1,845 recorded inputs remained unchanged. Exact log and manifest hashes are in `PAYROLL_EMPLOYER_YEAR_END_BACKEND_VERIFICATION_2026_09_21.json`. The full main browser baseline remains active; two employer browser expectations were reproduced and corrected separately (`/tmp/payroll-employer-browser-expectations.patch`, two passing focused cases in `/tmp/payroll-employer-browser-correction.log`). Neither patch has been applied to main.
+
 - Both new candidate cases failed against unchanged code because employer contribution evidence was absent: `/tmp/payroll-employer-yearend-red.log`.
 - Final candidate backend regression: 29 passed, zero failures/skips, 44.535 seconds. `/tmp/payroll-employer-yearend-candidate-final-tests.log`. Includes public review rejection/recovery, annual mapping, normal/bonus/PTO deferrals, ledger and year-end preparation.
 - Expanded real-API W-2 approval tests: 2 passed, zero failures/skips, 7.158 seconds (`/tmp/payroll-employer-yearend-candidate-w2-approval.log`). Both employer-only and combined cases complete health/input review, W-2 approval and encrypted six-page packet download. Omitted or category-redistributed employer evidence makes the annual source unreconciled, invalidates the retained W-2 approval, and blocks another approval. Restoration recovers exact reporting; voided runs leave annual totals while their employer ledger remains retained. Production code is unchanged from the 29-test candidate regression; only these test assertions were added.
