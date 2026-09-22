@@ -1,0 +1,54 @@
+{
+  "status": "Locally verified; publication and deployment pending",
+  "change": "Dated admin continuation review permits an existing signed posttax monthly benefit collection in regular payroll for a separated employee.",
+  "migration": "830_payroll_benefit_continuation.sql",
+  "backend": {
+    "regressionPassed": 27,
+    "combinedBenefitsAndRetirementPassed": 1,
+    "failed": 0,
+    "skipped": 0
+  },
+  "browser": {
+    "passed": 3,
+    "failed": 0,
+    "scope": "Final-pay review with lost-response retry and stale-draft recovery through payroll finalization; existing coverage and invoice/retraction workflows."
+  },
+  "typescript": "Passed",
+  "scopedLint": "Passed without warnings",
+  "screenshot": "/tmp/payroll-benefit-continuation-mobile.png",
+  "controls": [
+    "Existing employee signature, fixed monthly amount and once-monthly limit remain required.",
+    "Current carrier evidence for every authorized plan and consistent employment separation are required.",
+    "Payment date, authorization, employment and carrier evidence are fingerprinted; changed evidence and suspended reviews block finalization.",
+    "Competing revisions serialize, request keys recover lost responses, audit failure rolls back, and records are append-only and workplace-scoped.",
+    "No deductions are authorized by carrier evidence or admin confirmation alone."
+  ],
+  "limitations": [
+    "Only regular payroll under the existing posttax full-month authorization is supported. Pretax contributions, proration, arrears and rehire-cycle reconciliation remain separate requirements.",
+    "Separation records are seeded in synthetic fixtures; this does not prove a complete production offboarding journey.",
+    "No actual employee, provider payment or government filing was generated."
+  ],
+  "source": "https://dllr.state.md.us/labor/wagepay/wpdeductions.shtml",
+  "logs": [
+    {
+      "path": "/tmp/payroll-benefit-continuation-final-backend.log",
+      "sha256": "65091e269371adcfd92cb1d8ee07ba2fa1b64b26750a8a23589d4879404e707e"
+    },
+    {
+      "path": "/tmp/payroll-benefit-continuation-combined.log",
+      "sha256": "56fb4a93db9f6596221c478919a877955309f44a82041464ae32aa1cf5ac612e"
+    },
+    {
+      "path": "/tmp/payroll-benefit-continuation-final-browser.log",
+      "sha256": "c3fdea3746b38bc021478146763d3c3a16f5e64a6c05c596b860344008568794"
+    },
+    {
+      "path": "/tmp/payroll-benefit-continuation-final-types.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/payroll-benefit-continuation-final-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

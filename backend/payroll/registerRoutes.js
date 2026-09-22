@@ -1,3 +1,4 @@
+import {registerBenefitContinuation} from './benefitContinuation.js'
 import {integrateEmployerRetirementApproval} from './retirementEmployerApproval.js'
 import {verifyEmployerRetirementPosting} from './retirementEmployerJournal.js'
 import {registerRetirementEmployerEligibility} from './retirementEmployerEligibility.js'
@@ -787,6 +788,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
   registerCarrierRemittanceNoticeRoutes(app,pool,{sender:carrierNoticeSender,now})
   registerCarrierRemittanceUnsentRelease(app,pool)
   registerBenefitCoverageLedger(app,pool)
+  registerBenefitContinuation(app,pool)
   registerCarrierApplicationRoutes(app,pool,{now})
   registerPaymentConnectionRoutes(app, pool,{fetcher:paymentFetcher})
   registerCarrierPayeeRoutes(app,pool,{fetcher:paymentFetcher})

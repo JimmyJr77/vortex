@@ -1,3 +1,4 @@
+import {requireBenefitContinuation} from './benefitContinuation.js'
 import {benefitsReviewCurrent} from './benefitsReview.js'
 import {benefitsTerms,benefitPlans} from './benefitCatalog.js'
 import {createHash} from 'node:crypto'
@@ -101,10 +102,11 @@ export async function applyMonthlyBenefits(db,facility,preview,rawEmployees,sett
     continue
    }
    if(withdrawn)throw new Error('The employee withdrew this benefit deduction authorization. Review benefits funding and obtain a new authorization before collecting further deductions.')
-   if(raw.employment_status==='TERMINATED'||raw.employment_status==='ONBOARDING')throw new Error('Review benefit continuation and dated deduction coverage before collecting from a former employment period.')
+   if(raw.employment_status==='ONBOARDING')throw new Error('Review benefit continuation and dated deduction coverage before collecting from a former employment period.')
+   const continuation=raw.employment_status==='TERMINATED'?await requireBenefitContinuation(db,facility,employee.employeeId,paymentDate,authorization):null
    const taxes=[employee.federalIncomeTaxCents,employee.stateIncomeTaxCents,employee.socialSecurityTaxCents,employee.medicareTaxCents,employee.additionalMedicareTaxCents]
    if(taxes.every(n=>n!==null)&&employee.grossPayCents-taxes.reduce((n,v)=>n+Number(v),0)-employee.totalDeductionCents<basis.monthlyCents)problem('Available wages cannot cover the full authorized monthly benefit contribution. Reimbursements cannot fund this wage deduction; resolve collection before approval.')
-   employee.benefitCollection={version:1,status:'COLLECT_THIS_RUN',month,timezone:settings.timezone,signedDay,monthlyCents:basis.monthlyCents,authorization}
+   employee.benefitCollection={version:1,status:'COLLECT_THIS_RUN',month,timezone:settings.timezone,signedDay,monthlyCents:basis.monthlyCents,authorization,...(continuation?{continuation}:{})}
    for(const item of basis.items)employee.payItems.push({kind:'POSTTAX_DEDUCTION',name:`${item.planName} — ${item.optionLabel}`,amountCents:item.monthlyCents,benefitDeduction:{version:1,month,...item,authorizationFingerprint:authorization.proposalFingerprint}})
    employee.posttaxDeductionCents+=basis.monthlyCents;employee.totalDeductionCents+=basis.monthlyCents
    if(employee.netPayCents!==null)employee.netPayCents-=basis.monthlyCents

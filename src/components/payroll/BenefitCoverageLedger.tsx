@@ -1,3 +1,4 @@
+import BenefitContinuationReview from './BenefitContinuationReview'
 import {useEffect,useId,useRef,useState} from 'react'
 import {adminApiRequest} from '../../utils/api'
 type Review={id:string;revision:number;created_at:string;review:{disposition:string;carrier:string;reference:string;coverageStart:string|null;coverageEnd:string|null}}
@@ -45,5 +46,5 @@ export default function BenefitCoverageLedger(){
  const saved=async()=>{const data=await request(path);setModel(data);setRefreshIssue('');setError('');setMessage('Monthly carrier coverage review retained. Reload carrier invoices before matching this evidence.');return data}
  return <section aria-label="Monthly benefit coverage ledger" className="space-y-3 text-sm"><p>Review enrolled employees even before their first paycheck or during a no-pay month. Confirm actual covered dates with the carrier; published premiums are not invoice charges.</p><label className="block font-bold">Benefit coverage month<input type="month" value={month} disabled={busy} onChange={e=>{setMonth(e.target.value);setRequested(false);setModel(null);setMessage('');setError('');setRefreshIssue('')}} className="mt-1 block rounded border p-2"/></label><button type="button" disabled={busy||!month} onClick={()=>void load()} className="rounded border px-3 py-2 font-bold">{model?'Reload coverage and discard drafts':'Load monthly coverage'}</button>
   {error?<p role="alert">{error}</p>:null}{refreshIssue?<p role="alert">{refreshIssue}</p>:null}{message?<p role="status">{message}</p>:null}
-  {model&&!model.rows.length?<p>No retained enrolled benefit plans for this month.</p>:null}{model?.rows.map(row=><CoverageRow key={key(row)} row={row} disabled={busy||!!refreshIssue} onBusy={setBusy} onSaved={saved}/>)}</section>
+  {model&&!model.rows.length?<p>No retained enrolled benefit plans for this month.</p>:null}{model?.rows.map(row=><CoverageRow key={key(row)} row={row} disabled={busy||!!refreshIssue} onBusy={setBusy} onSaved={saved}/>)}{model?[...new Map(model.rows.filter(row=>row.employmentStatus==='TERMINATED').map(row=>[row.employeeId,row])).values()].map(row=><BenefitContinuationReview key={`${model.month}:${row.employeeId}`} employeeId={row.employeeId} employeeName={row.employeeName} month={model.month}/>):null}</section>
 }
