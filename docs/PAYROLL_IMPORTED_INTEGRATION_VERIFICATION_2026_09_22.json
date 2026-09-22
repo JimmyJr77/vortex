@@ -1,0 +1,50 @@
+{
+  "checkedAt": "2026-09-22T04:11:37.264336+00:00",
+  "status": "STRICT RELEASE BUILD PASSED; FROZEN FULL BACKEND AND BROWSER RUNS ACTIVE; NOT DEPLOYED",
+  "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
+  "baseCommit": "b33a0825",
+  "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
+  "patchSha256": "e0756319d462b7515b725c9ba11e5c72322e31460f25e583a3e829a48a1b3398",
+  "sourceManifest": "/tmp/payroll-imported-integrated-source-hashes.json",
+  "sourceCount": 4639,
+  "sourceHashesMatch": true,
+  "preserved": [
+    "Current main employeeBenefitCoverage connection fix",
+    "Current main retirement browser request draining",
+    "Committed AdminAccess version; unrelated working edit excluded"
+  ],
+  "build": {
+    "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+    "command": "npm run vercel-build",
+    "exitCode": 0,
+    "log": "/tmp/payroll-imported-integrated-release-build.log",
+    "indexableRoutes": 25,
+    "noindexRoutes": 11
+  },
+  "runs": {
+    "backend": {
+      "status": "RUNNING",
+      "sessionId": 7890,
+      "log": "/tmp/payroll-imported-integrated-full-backend.log",
+      "observedPasses": 82,
+      "observedFailureMarkers": 0,
+      "scope": "383 payroll backend test files",
+      "notFinalResult": true
+    },
+    "browser": {
+      "status": "RUNNING",
+      "sessionId": 15165,
+      "log": "/tmp/payroll-imported-integrated-full-browser.log",
+      "observedPasses": 25,
+      "observedFailureMarkers": 0,
+      "scope": "232 configured payroll browser cases",
+      "notFinalResult": true
+    }
+  },
+  "remaining": [
+    "Wait on existing execution handles; do not restart because of observation timeout.",
+    "Verify every frozen source hash after each full run, preserve all failures and repair in a separate follow-up.",
+    "Complete other form-specific fields, agency exports, expanded imported components and native legacy reconciliation.",
+    "Integrate/publish application and migration 833 only after adequate verification; overall goal remains incomplete."
+  ]
+}
