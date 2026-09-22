@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:12:49.668853+00:00",
+  "recordedAt": "2026-09-22T02:15:29.238127+00:00",
   "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -146,6 +146,15 @@
       "durationMs": 2609.153584,
       "log": "/tmp/payroll-health-wage-reconciliation-final.log",
       "lint": "passed"
+    },
+    "taxableHistoryAndFollowingPayroll": {
+      "passed": 15,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 2557.153625,
+      "log": "/tmp/payroll-health-history-verified.log",
+      "lint": "passed",
+      "initialCommand": "First unit command was launched from main, where candidate files do not exist; rerun from candidate succeeded."
     }
   },
   "verifiedBehavior": [
@@ -168,16 +177,19 @@
     "Typed premium authorization resolves matching participant qualification, signed Section 125 election, exact coverage amount and deduction authorization; malformed amounts, missing consent, invalid bonus allocation and withdrawal are rejected.",
     "Income-tax wage reconciliation recognizes classified health premiums alone or alongside standard 401(k) deductions and checks exact deduction items and totals.",
     "FICA reconciliation uses separate health-adjusted taxable bases and exact half-up arithmetic; approved reservations do not require fabricated paid statements.",
-    "Missing/duplicate health deduction lines, altered taxable amounts and mismatched physical totals fail reconciliation; the existing finalized FICA workflow still passes."
+    "Missing/duplicate health deduction lines, altered taxable amounts and mismatched physical totals fail reconciliation; the existing finalized FICA workflow still passes.",
+    "Later payroll with no new premium uses separate reconciled YTD employment tax bases and emits no repeated premium deduction.",
+    "Taxable history sums uncapped bases from native reconciled income/FICA records, includes approved reservations without statements, and rejects duplicate, cross-employee, void, future-year/payment-order or incomplete history.",
+    "Each retained prior wage basis must match the preceding committed history; unproven opening balances cannot silently become zero."
   ],
   "files": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
-    "backend/payroll/health125EmploymentTaxes.js": "b42f7153a0f45ecafd149ef2a34919f14e3ba233802299455b547e1d1dc213d5",
+    "backend/payroll/health125EmploymentTaxes.js": "0c227745bff4c03a9b98dc483b7fc840390f2b3c39f984b126d0e85dfb2d00a8",
     "backend/payroll/withholding2026.js": "d0f2550c0520a2d5bc6796906883e704e67b43bd49fadb8a58764027d40288f8",
-    "backend/payroll/payrollEngine.js": "3d7b0f07c3e47ed78543fb49cb3162c296a2a9690a71a4c16c2bd546c02c882a",
+    "backend/payroll/payrollEngine.js": "381e8262a1d212be066e99c34b97b6e52df1f8ee0ec39196a6da4933a2dc96ab",
     "backend/payroll/__tests__/health125TaxWages.test.js": "f4a0c0be4167990d418bc364481c12041840397e76ee2205352a60c8cdb76380",
     "backend/payroll/__tests__/health125EmploymentTaxes.test.js": "ca2ce98c820fa2910c70adaa3c2f2251c7d07d6c68382837108086c915460331",
-    "backend/payroll/__tests__/health125PayrollEngine.test.js": "97e7e5619ac084157e8d6f3dea5cdbbae2879eb4c69347de0377928b77715417",
+    "backend/payroll/__tests__/health125PayrollEngine.test.js": "9d256a8c6cb62804513656b1a20935c792c0792acb4268e1dc4e030c4d7a9c46",
     "backend/migrations/831_payroll_health_plan_qualification.sql": "ffb74be08c5a373e519e990f49dd9eea97dc0600624d10f8bc7440d758344f55",
     "backend/payroll/healthPlanQualification.js": "fcbcf46cf3af3c54e4a5a630941d49fd3599f76ba98769b9285a931bc964beae",
     "backend/payroll/healthParticipantQualification.js": "a60c83e58c21c40b2a8d98e424d138aa4da54ce8d1af985f4f46a11d19a9bc75",
@@ -207,13 +219,14 @@
     "backend/payroll/healthPremiumAuthorization.js": "947dc63e4fdc2b7b1985da563cb4cecb48876724f49f248d68c3a64d87e8ee01",
     "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
     "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
-    "backend/payroll/ficaWageReconciliation.js": "d30a23fa567f65ad0764e281a26994eb89819a9f823bf3c5cd8f661c4ef3e28f",
-    "backend/payroll/__tests__/healthWageReconciliation.test.js": "2a65db07b24d8084fa07cf1cea65b97054380b864315ae9f59ae7b6c13e93bdc"
+    "backend/payroll/ficaWageReconciliation.js": "def0b1176c0d078b3029c383465cf7aca24ce64254a2ca4404574a6a86cba993",
+    "backend/payroll/__tests__/healthWageReconciliation.test.js": "30c194f6e6b36ac47741e23a4775703940d881f50e4a0ecbb96e4995b41dcdc1",
+    "backend/payroll/employmentTaxWageHistory.js": "17bbab442c318de8efe60c1de1d23aa57deefd6b28254837d49755c630a49902"
   },
   "requiredNextWork": [
     "Connect the verified premium authorization resolver to monthly collection, approval reservations and payroll tax inputs. Signature proof checks and both admin/employee interfaces are implemented in the isolated candidate.",
     "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
-    "Build uncapped taxable-wage YTD accumulation and integrate approved reservations, including later runs with no new health collection. Health-aware per-row income/FICA reconciliation is implemented; never substitute gross or capped SS history.",
+    "Integrate the uncapped taxable-wage history accumulator with database loading and approval/finalization. Add supported opening-balance/external-history review and employer-tax reconciliation; the current accumulator rejects incomplete retained history.",
     "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
     "Update benefit/carrier reporting, QuickBooks, FICA/income-tax reconciliation, W-2 and periodic reports.",
     "Verify browser qualification/election/payroll workflows and synthetic full provider journeys.",
@@ -223,6 +236,7 @@
   "assumptions": [
     "A signature is recorded within five minutes of the database-created election record, using the server clock; retry returns the original record.",
     "Later logout or session revocation does not withdraw an already signed election.",
-    "Premium authorization resolution is not collection: the payroll caller must reserve the monthly deduction under its settings lock and reconcile taxable wage history."
+    "Premium authorization resolution is not collection: the payroll caller must reserve the monthly deduction under its settings lock and reconcile taxable wage history.",
+    "Native 2026 Maryland history starts from zero only when prior committed records support that history; unexplained nonzero opening bases block calculation pending reconciliation."
   ]
 }
