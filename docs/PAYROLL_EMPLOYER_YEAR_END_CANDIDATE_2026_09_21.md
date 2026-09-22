@@ -14,9 +14,10 @@ Source: [IRS 2026 W-2/W-3 instructions](https://www.irs.gov/instructions/iw2w3),
 
 - Both new candidate cases failed against unchanged code because employer contribution evidence was absent: `/tmp/payroll-employer-yearend-red.log`.
 - Final candidate backend regression: 29 passed, zero failures/skips, 44.535 seconds. `/tmp/payroll-employer-yearend-candidate-final-tests.log`. Includes public review rejection/recovery, annual mapping, normal/bonus/PTO deferrals, ledger and year-end preparation.
+- Expanded real-API W-2 approval tests: 2 passed, zero failures/skips, 7.158 seconds (`/tmp/payroll-employer-yearend-candidate-w2-approval.log`). Both employer-only and combined cases complete health/input review, W-2 approval and encrypted six-page packet download. Omitted or category-redistributed employer evidence makes the annual source unreconciled, invalidates the retained W-2 approval, and blocks another approval. Restoration recovers exact reporting; voided runs leave annual totals while their employer ledger remains retained. Production code is unchanged from the 29-test candidate regression; only these test assertions were added.
 - Candidate browser annual evidence display/refresh: 1 passed, 8.7 seconds including build. `/tmp/payroll-employer-yearend-candidate-browser.log`. Mobile rendering inspected; no page errors or overflow.
 - Candidate `tsc -b` passed: `/tmp/payroll-employer-yearend-candidate-types.log`.
-- Patch: `/tmp/payroll-employer-yearend-candidate.patch`, SHA-256 `f16b69473d1ed664844c2726f65ae63231640b66b99628af6bed946728f439fb`; `git apply --check` passes. Six candidate input hashes: `/tmp/payroll-employer-yearend-candidate-source.json`.
+- Patch: `/tmp/payroll-employer-yearend-candidate.patch`, SHA-256 `8cf7f06c7f2af67888290f1d8c97712d634e11e8ac51db85dcc5bc87d308004e`; `git apply --check` passes. Six candidate input hashes: `/tmp/payroll-employer-yearend-candidate-source.json`.
 - An intermediate public test lacked a synthetic document-encryption key and correctly received 503; the test setup was corrected, without weakening storage requirements.
 
 Next: retain the existing full-browser process until terminal, verify its source hashes and investigate failures; then apply the candidate patch, verify in the real worktree, publish and deploy. No live payment, hire or filing was generated. The overall goal remains incomplete.
