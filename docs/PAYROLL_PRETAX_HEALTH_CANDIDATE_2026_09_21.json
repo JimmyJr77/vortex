@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:41:12.118127+00:00",
+  "recordedAt": "2026-09-22T02:43:59.848286+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -332,6 +332,23 @@
       ],
       "visualReview": "Inspected populated employee copy and instruction page. Combined synthetic case shows boxes 1/16 65.00, boxes 3/5 75.00, D 10.00, AA 4.00, DD 575.00 and retirement participation checked. Six-page approved PDF has no remaining editable fields.",
       "limitation": "Synthetic review/approval is verified; this does not establish employee furnishing, agency filing/acceptance, every benefit type or all annual reporting exceptions."
+    },
+    "employmentTaxEvidence": {
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 11970.540708,
+      "log": "/tmp/payroll-health-employment-evidence-final.log",
+      "lint": "passed; /tmp/payroll-health-employment-evidence-lint.log",
+      "coverage": [
+        "Separate-wage payroll retains the verified employer rate configuration used in calculation",
+        "Recomputation checks retained taxable bases, employer/employee taxes, finalized statement evidence and physical payroll amounts",
+        "Later payroll history blocks altered Maryland UI; tax reports block altered FUTA",
+        "Missing or altered rate configuration and inconsistent statement history reject reconciliation",
+        "Three synthetic payments retain FUTA liability 210 cents and Maryland UI liability 910 cents on 35000 uncapped taxable cents",
+        "Existing tax reconciliation and approved-reservation paths pass"
+      ],
+      "limitation": "Applies to the candidate separate-wage path; legacy records without explicit rate evidence and external opening balances still require their supported review/integration work. No agency acceptance claimed."
     }
   },
   "verifiedBehavior": [
@@ -361,7 +378,7 @@
   ],
   "files": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
-    "backend/payroll/health125EmploymentTaxes.js": "0c227745bff4c03a9b98dc483b7fc840390f2b3c39f984b126d0e85dfb2d00a8",
+    "backend/payroll/health125EmploymentTaxes.js": "c717b5b6d6cd68fb13b08baba5f90e7a70f6cdd52ce7a52df31daada6749a47d",
     "backend/payroll/withholding2026.js": "d0f2550c0520a2d5bc6796906883e704e67b43bd49fadb8a58764027d40288f8",
     "backend/payroll/payrollEngine.js": "381e8262a1d212be066e99c34b97b6e52df1f8ee0ec39196a6da4933a2dc96ab",
     "backend/payroll/__tests__/health125TaxWages.test.js": "f4a0c0be4167990d418bc364481c12041840397e76ee2205352a60c8cdb76380",
@@ -397,16 +414,16 @@
     "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
     "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
     "backend/payroll/ficaWageReconciliation.js": "def0b1176c0d078b3029c383465cf7aca24ce64254a2ca4404574a6a86cba993",
-    "backend/payroll/__tests__/healthWageReconciliation.test.js": "30c194f6e6b36ac47741e23a4775703940d881f50e4a0ecbb96e4995b41dcdc1",
-    "backend/payroll/employmentTaxWageHistory.js": "9fe1eae7449563757c1756104d74d948fbf216e06a93152ec80a0d6022a53a8c",
-    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "56aeb4f1741a4d6e5697a99c985c08b4dd998f7200c28d7ace8cd4c9e8a15214",
+    "backend/payroll/__tests__/healthWageReconciliation.test.js": "6f61a04cb27da09095b2cbf31f4cf6f71aee0684bf6a009877a60d8bbcb2dc83",
+    "backend/payroll/employmentTaxWageHistory.js": "e6e311d257a4292b2e8138d1e5fd0ff9d1ba144c28c10c26671b86ffa5e9f37b",
+    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "538f8e3148c995b5de0387d27d0020be9a6a9033abc6f436664e6ea37f98dde7",
     "backend/payroll/monthlyBenefits.js": "93e37f302a5d4763b0c5b79f74c35619d1cbd498143514bbb7cf3fa39348d7b0",
     "backend/payroll/benefitContinuation.js": "41202edccde72afe9f69458cc9bc7efd6a47a297b356b7c52b9e76ec29c283c0",
     "backend/payroll/payStatement.js": "8bb431a2f8528ca25e568459b7b5a85c3483243945938ec3a12b0bcdcf126955",
     "backend/payroll/benefitContributionReport.js": "902037da397150cb2454918711e64a9873493a997990b9c081f4e1ee2bd4fe0f",
     "backend/payroll/quickbooks.js": "487faff3d046feefc704e837d0671e97f4083985738293afd628877c16c76d4f",
     "backend/payroll/retirementStatement.js": "bbf49ed987385926898e0ce93a693d9140732608f0e54affa750abb7dbfe7cf8",
-    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "291ae4f38da867478f97a11b5bfbcd11a4d239de05f717454533d5390498ff72",
+    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "ea8ddb3b3d106c17ff1673b6e7b7abb65cf9a06e3823a69ffddbbe5f9b65a558",
     "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45",
     "backend/payroll/retirementPayrollWages.js": "21f3c439cfe9678bd0c3935ed1e0098157a3c40461895b6d4346322498a010bb",
     "backend/payroll/employerBenefitFundingReport.js": "7668bc2aec5956808c1e48307a3860a84f5bd73a896d4a05e85c04261e7e7c18",
@@ -418,12 +435,14 @@
     "src/components/payroll/BenefitCollectionReview.tsx": "779c8fe76b8bf892ec74a42f9ac5132d5ed4bf1b595f31869616faf4f01e0075",
     "backend/payroll/overtimeSource.js": "793a812b5c4e0d2ae4ceb7d91120ff8f3ffa2141cb6dd069280710bf2fc24f3d",
     "backend/payroll/testing/regularEmployerRetirementFixture.js": "82d388b78b472757593f3c8832561ecd3e022899c1527ad9201c39514400a827",
-    "backend/payroll/__tests__/retirementEmployerAnnualReporting.test.js": "74fc1e4066ea50b0e28681fe5088207301924b25262687e0f0f547aad9f7240a"
+    "backend/payroll/__tests__/retirementEmployerAnnualReporting.test.js": "74fc1e4066ea50b0e28681fe5088207301924b25262687e0f0f547aad9f7240a",
+    "backend/payroll/employmentTaxEvidence.js": "419280564dfd0a2a45daa274cba9e7c793051c96c6474a40b7e7a740d8915983",
+    "backend/payroll/taxReconciliation.js": "2797fe67c3b4414664f79c5db6db1bf33086c7c62ba289c90d41c3ba46d5bb69"
   },
   "requiredNextWork": [
     "Verify multiple health/posttax plans and remaining capacity/compensation exceptions. Ordinary retirement and employer matching/nonelective contributions with qualified health premiums now pass API/provider journeys.",
     "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
-    "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
+    "Add supported opening-balance/external-history review and remaining legacy employer-tax reconciliation. Candidate separate-wage records now retain rates and recompute employer-tax evidence before later payrolls and tax reports; incomplete imported history remains blocked.",
     "Complete carrier funding/invoice paths, periodic reporting, and health-aware furnishing/filing/provider acceptance. Supported health plus retirement W-2 preparation, approval, stale-source rejection and populated PDF are now verified.",
     "Extend browser coverage to combined retirement/multiple benefits and broader provider/correction scenarios. Employee health signing through admin payroll finalization, retained wage report, employee statement and duplicate prevention now passes the real UI/API journey; combined employer retirement synthetic settlement reaches RECONCILED.",
     "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
