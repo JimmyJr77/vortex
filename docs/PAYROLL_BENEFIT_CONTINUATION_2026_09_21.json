@@ -1,5 +1,5 @@
 {
-  "status": "Locally verified; publication and deployment pending",
+  "status": "Committed, pushed and deployed as dedd0399; targeted verification passed; full backend regression remains active.",
   "change": "Dated admin continuation review permits an existing signed posttax monthly benefit collection in regular payroll for a separated employee.",
   "migration": "830_payroll_benefit_continuation.sql",
   "backend": {
@@ -50,5 +50,54 @@
       "path": "/tmp/payroll-benefit-continuation-final-lint.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
-  ]
+  ],
+  "release": {
+    "commit": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
+    "renderDeployment": "dep-daotbbrtqb8s73ehmvt0",
+    "renderStatus": "Deploy succeeded | Live",
+    "startup": "Database tables initialized successfully at September 21 9:12:10 PM EDT, instance fzfgl. The exact release awaits payroll migration 830 before startup completion; no direct production catalog audit was performed.",
+    "vercelDeployment": "dpl_8DxL5KLn544PzS4VmtykRRt23Dy8",
+    "vercelStatus": "READY",
+    "productionAlias": "vortexathletics.com",
+    "checks": {
+      "checkedAt": "2026-09-22T01:13:02.176Z",
+      "health": {
+        "httpStatus": 200,
+        "status": "OK",
+        "releaseCommit": "dedd0399628a",
+        "dbConnected": true,
+        "payrollDocumentStorageReady": true,
+        "emailConfigured": true
+      },
+      "cors": [
+        {
+          "path": "/api/admin/payroll/employees",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        },
+        {
+          "path": "/api/admin/notifications",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        },
+        {
+          "path": "/api/admin/billing/cancellation-requests?status=pending",
+          "status": 204,
+          "origin": "https://vortexathletics.com",
+          "credentials": "true"
+        }
+      ]
+    }
+  },
+  "fullBackendRegression": {
+    "status": "RUNNING at this checkpoint; poll the existing execution handle before further action.",
+    "sessionId": 8035,
+    "log": "/tmp/payroll-continuation-full-backend.log",
+    "inputManifest": "/tmp/payroll-continuation-full-backend-inputs.json",
+    "inputCount": 2512,
+    "changedInputsAtCheckpoint": [],
+    "instruction": "Preserve this run and its source inputs. No terminal suite result is claimed."
+  }
 }
