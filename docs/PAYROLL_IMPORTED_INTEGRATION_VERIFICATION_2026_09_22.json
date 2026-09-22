@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T04:35:56.070105+00:00",
-  "status": "FULL BACKEND COMPLETED 1137 PASS / 3 FAIL; CORRECTED FOCUSED 18 PASS; FULL BROWSER STILL ACTIVE; NOT DEPLOYED",
+  "checkedAt": "2026-09-22T04:40:40.919190+00:00",
+  "status": "FULL BACKEND 1137 PASS / 3 FAIL; CORRECTED FOCUSED 18 BACKEND AND 7 BROWSER PASS; ORIGINAL FULL BROWSER ACTIVE; NOT DEPLOYED",
   "workspace": "/tmp/vortex-payroll-imported-integrated-b33a0825",
   "baseCommit": "b33a0825",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
@@ -39,7 +39,7 @@
       "status": "RUNNING",
       "sessionId": 15165,
       "log": "/tmp/payroll-imported-integrated-full-browser.log",
-      "observedPasses": 165,
+      "observedPasses": 184,
       "observedFailureMarkers": 1,
       "scope": "232 configured payroll browser cases",
       "notFinalResult": true
@@ -112,6 +112,31 @@
       "tests/e2e/payroll-complete-journey.spec.ts": "f5d3c15183d7a249efb6cbe768b54c7b017e3d53eab543029cb30224c05a2134",
       "tests/e2e/payroll-native-complete-journey.spec.ts": "f7d92332bf9800c38f6e25ac34d74b82e39f11767b50ce2eb346cc48bde52370"
     },
-    "browserFollowupsVerified": false
+    "browserFollowupsVerified": true
+  },
+  "browserFollowup": {
+    "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "durationMinutes": 2.5,
+    "log": "/tmp/payroll-imported-integrated-browser-followup.log",
+    "sourceManifest": "/tmp/payroll-imported-followup-source-hashes.json",
+    "sourceCount": 4640,
+    "sourceHashesMatchAtCompletion": true,
+    "traceArchives": 4,
+    "traceCrcChecks": "All four native journey trace ZIPs passed.",
+    "screenshot": "/tmp/payroll-imported-followup-mw506.png",
+    "visuallyInspected": true,
+    "cases": [
+      "Original complete hiring journey with explicit MW506 calendar preparation.",
+      "Imported wage review without annual detail.",
+      "Imported annual/employer detail, export and form-specific comparison.",
+      "Native unassisted hire, payroll, statement, rehire and second payroll.",
+      "Native one-preparer hire and payroll.",
+      "Native multiple-preparer hire, payroll and certificate correction.",
+      "Existing-account hire, payroll, returning access and rehire."
+    ],
+    "scope": "Synthetic local APIs/providers; does not establish real bank, QuickBooks or agency acceptance. Original full browser results remain separate."
   }
 }

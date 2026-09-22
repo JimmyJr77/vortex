@@ -1,6 +1,6 @@
 {
   "checkedAt": "2026-09-22T04:22:52.924364+00:00",
-  "status": "PREPARED FOLLOW-UP; NOT YET EXECUTED; FROZEN FULL SUITE CONTINUES",
+  "status": "ALL SEVEN FOCUSED BROWSER CASES PASSED; ORIGINAL FULL RUN STILL ACTIVE; NOT DEPLOYED",
   "patch": "/tmp/payroll-filing-journey-form-preparation-followup.patch",
   "patchSha256": "aa94b152e3cf8e6de8ddff1018ec77c58631503432f6991f7e6b542a189acad3",
   "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
@@ -9,11 +9,36 @@
   "finding": "Journey changed from MD_UI to MD_MW506 and expected previous zero amounts to survive. New intentional form-change reset clears both amounts; required-field validation prevents submission.",
   "correction": "Use the target MW506 calendar card Prepare return comparison action and explicitly assert both expected zero totals before submission. Preserve RECORDED and NO TAX DUE assertions.",
   "alsoPrepared": "payroll-native-complete-journey.spec.ts contains the same stale step.",
-  "next": "After the frozen browser run finishes, run both corrected complete-journey files with the canonical connection follow-up; retain original full failures.",
+  "next": "Preserve and inspect the original full browser result, then integrate and publish after addressing any additional findings.",
   "lint": {
     "exitCode": 0,
     "log": "/tmp/payroll-imported-regression-followup-lint-final.log",
     "earlierLog": "/tmp/payroll-imported-regression-followup-lint.log",
     "correction": "Replaced three existing any annotations in the native journey QuickBooks assertions with the actual JournalLine fields."
+  },
+  "verification": {
+    "workspace": "/tmp/vortex-payroll-imported-release-build-b33a0825",
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0,
+    "durationMinutes": 2.5,
+    "log": "/tmp/payroll-imported-integrated-browser-followup.log",
+    "sourceManifest": "/tmp/payroll-imported-followup-source-hashes.json",
+    "sourceCount": 4640,
+    "sourceHashesMatchAtCompletion": true,
+    "traceArchives": 4,
+    "traceCrcChecks": "All four native journey trace ZIPs passed.",
+    "screenshot": "/tmp/payroll-imported-followup-mw506.png",
+    "visuallyInspected": true,
+    "cases": [
+      "Original complete hiring journey with explicit MW506 calendar preparation.",
+      "Imported wage review without annual detail.",
+      "Imported annual/employer detail, export and form-specific comparison.",
+      "Native unassisted hire, payroll, statement, rehire and second payroll.",
+      "Native one-preparer hire and payroll.",
+      "Native multiple-preparer hire, payroll and certificate correction.",
+      "Existing-account hire, payroll, returning access and rehire."
+    ],
+    "scope": "Synthetic local APIs/providers; does not establish real bank, QuickBooks or agency acceptance. Original full browser results remain separate."
   }
 }
