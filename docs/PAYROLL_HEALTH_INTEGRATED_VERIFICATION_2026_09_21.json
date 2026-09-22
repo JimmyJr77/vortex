@@ -1,6 +1,6 @@
 {
-  "checkedAt": "2026-09-22T03:02:59.556954+00:00",
-  "status": "INTEGRATED LOCALLY; NOT PUSHED OR DEPLOYED; FULL CANDIDATE BROWSER RUN STILL ACTIVE",
+  "checkedAt": "2026-09-22T03:32:10.283408+00:00",
+  "status": "VERIFIED LOCALLY; READY FOR AUTHORIZED PUBLICATION",
   "baseMain": "40173667",
   "integratedSourceHashes": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
@@ -127,6 +127,19 @@
         "Existing large bundle chunks",
         "Outdated browser compatibility datasets"
       ]
+    },
+    "retirementTeardownCorrection": {
+      "passed": 3,
+      "failed": 0,
+      "durationMinutes": 1.8,
+      "log": "/tmp/payroll-retirement-election-tracked-browser.log"
+    },
+    "coverageConnectionFailure": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 2525.353417,
+      "log": "/tmp/payroll-coverage-connection-test.log"
     }
   },
   "frozenFullBackend": {
@@ -136,7 +149,6 @@
     "correction": "Both namespace failures corrected and covered by integrated 58-test run; original result remains unchanged."
   },
   "remaining": [
-    "Full frozen candidate browser run session 49506 must finish; verify unchanged source manifest.",
     "Publish integrated code only after reviewing full browser result.",
     "Verify exact deployed backend/frontend revision, payroll initialization, storage readiness and original CORS paths.",
     "Overall one-stop onboarding/payroll goal remains incomplete; expanded categories, exceptions and live provider/government acceptance are still required."
@@ -171,5 +183,19 @@
         "allowCredentials": "true"
       }
     ]
+  },
+  "frozenFullBrowser": {
+    "passed": 227,
+    "failed": 1,
+    "durationMinutes": 38.9,
+    "log": "/tmp/payroll-health-full-browser.log",
+    "sourceFilesVerifiedUnchanged": 3742,
+    "failure": "Retirement election teardown closed the database while an authenticated coverage request was still running.",
+    "correctionStatus": "Explicit tracking drains all pending route operations before closing browser contexts and database. Three consecutive corrected retirement journeys passed."
+  },
+  "correctionSourceHashes": {
+    "backend/payroll/employeeBenefitCoverage.js": "b6c3c917ce7bb015af77e4c965bed759caf6a322d4b6d4b3c7a392fb86f7e475",
+    "backend/payroll/__tests__/employeeBenefitCoverage.test.js": "b6e6ab5ce1b551063c6f0d94f36175784d3fba026a80be0b7596ae2c209670ef",
+    "tests/e2e/payroll-retirement-elections.spec.ts": "66e34ec3b8d6a2532811e0d65550d87bb45239d242b230ba3a9963cb9af4a68d"
   }
 }

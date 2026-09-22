@@ -5,12 +5,13 @@ export function employeeCoverageSummary(ledger,employeeId){
 }
 export function registerEmployeeBenefitCoverage(app,pool){
  app.get('/api/payroll/employee/benefit-coverage',payrollEmployeeAuth(pool),async(req,res)=>{
-  res.setHeader('Cache-Control','no-store');const db=await pool.connect()
+  res.setHeader('Cache-Control','no-store');let db
   try{
+   db=await pool.connect()
    await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
    const session=req.payrollEmployee,ledger=await benefitCoverageLedger(db,session.facility_id,req.query.month)
    const data=employeeCoverageSummary(ledger,session.employee_id)
    await db.query('COMMIT');res.json({success:true,data})
-  }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load your monthly benefit coverage.'})}finally{db.release()}
+  }catch(e){if(db)await db.query('ROLLBACK').catch(()=>{});res.status(e.status||500).json({success:false,message:e.status?e.message:'Unable to load your monthly benefit coverage.'})}finally{db?.release()}
  })
 }

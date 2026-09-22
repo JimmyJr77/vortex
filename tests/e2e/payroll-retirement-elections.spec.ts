@@ -6,6 +6,7 @@ import {hashPayrollToken} from '../../backend/payroll/employeeAuth.js'
 test('employee signs and changes retirement election with exact retry and admin visibility',async({browser})=>{
  test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated local payroll database');test.setTimeout(120000)
  const h=await createHarness({retirementNow:()=>new Date('2026-09-11T12:00:00Z')}),ec=await browser.newContext({viewport:{width:390,height:1000}}),ac=await browser.newContext(),employee=await ec.newPage(),admin=await ac.newPage();let lose=true
+ const pendingRoutes=new Set<Promise<void>>()
  try{
   const api=async(path:string,body?:unknown)=>{const r=await fetch(`${h.url}/api/admin/payroll${path}`,{method:body?'POST':'GET',headers:{Authorization:'Bearer payroll-test-admin','Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});const json=await r.json();expect(r.ok,JSON.stringify(json)).toBe(true);return json.data}
   const e=await api('/employees',{employeeNumber:'ELECTION-BROWSER',legalFirstName:'Synthetic',legalLastName:'Employee',hireDate:'2026-09-01',hourlyRateCents:2500})
@@ -14,7 +15,15 @@ test('employee signs and changes retirement election with exact retry and admin 
   const path=`/employees/${e.id}/retirement-eligibility/standard`,source=(await api(path)).source
   await api(path,{sourceFingerprint:source.fingerprint,expectedRevision:0,requestKey:randomUUID(),confirmed:true,disposition:'ELIGIBLE',eligibleOn:'2026-09-01',methods:['PERCENTAGE'],reference:'Private administrator service review reference',employeeExplanation:'Eligible under the reviewed service and entry requirements.'})
   await ec.addInitScript(()=>sessionStorage.setItem('vortex_payroll_employee_session_v1','election-browser-session'));await ac.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
-  for(const context of [ec,ac])for(const prefix of ['admin/payroll','payroll/employee'])await context.route(`**/api/${prefix}/**`,async route=>{const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(u.pathname.endsWith('/retirement/standard/elections')&&route.request().method()==='POST'&&lose){lose=false;expect(response.ok()).toBe(true);return route.fulfill({status:503,json:{success:false,message:'Synthetic lost election response'}})}await route.fulfill({response})})
+  for(const context of [ec,ac])for(const prefix of ['admin/payroll','payroll/employee'])await context.route(`**/api/${prefix}/**`,async route=>{
+   const operation=(async()=>{
+    const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`})
+    if(u.pathname.endsWith('/retirement/standard/elections')&&route.request().method()==='POST'&&lose){lose=false;expect(response.ok()).toBe(true);await route.fulfill({status:503,json:{success:false,message:'Synthetic lost election response'}});return}
+    await route.fulfill({response})
+   })()
+   pendingRoutes.add(operation)
+   try{await operation}finally{pendingRoutes.delete(operation)}
+  })
   await employee.goto('/tests/support/payroll.html?employee=1');await employee.getByRole('button',{name:'Onboarding',exact:true}).click()
   const panel=employee.getByRole('region',{name:'My retirement elections',exact:true})
   await panel.getByRole('button',{name:'Review current election terms',exact:true}).click()
@@ -39,8 +48,10 @@ test('employee signs and changes retirement election with exact retry and admin 
   await employee.getByRole('button',{name:'Pay statements',exact:true}).click();await expect(employee.getByRole('region',{name:'My retirement elections',exact:true}).getByText('Election revision 2',{exact:false})).toBeVisible()
  await Promise.all([employee.waitForLoadState('networkidle'),admin.waitForLoadState('networkidle')])
  }finally{
-  // All business assertions finish before teardown. Ignore only route callbacks
-  // still finishing as their browser contexts are removed.
-  await ec.unrouteAll({behavior:'ignoreErrors'});await ac.unrouteAll({behavior:'ignoreErrors'});await ec.close();await ac.close();await h.close()
+  // Stop routing first, then drain backend work before closing its pool.
+  // Only teardown route errors are ignored; business assertions still fail normally.
+  await ec.unrouteAll({behavior:'ignoreErrors'});await ac.unrouteAll({behavior:'ignoreErrors'})
+  await Promise.allSettled([...pendingRoutes])
+  await ec.close();await ac.close();await h.close()
  }
 })

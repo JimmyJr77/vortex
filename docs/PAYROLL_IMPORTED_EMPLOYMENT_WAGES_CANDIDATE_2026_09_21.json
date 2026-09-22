@@ -4,7 +4,7 @@
   "workspace": "/tmp/vortex-payroll-opening-history",
   "baseApplication": "7b1b7343",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
-  "patchSha256": "8c63e40beaf62e97833f129346083873a41976b15f1bc1a06cbf1a648ceb8247",
+  "patchSha256": "962cb87957914ce3298a9b2af48c1533790ce1eee38e82d3d34a14a5129d9107",
   "sourceHashes": {
     "backend/payroll/historicalEmploymentTaxWages.js": "7780c175a0bfebbd4d20fa531ba8acebdd16b0f4ae89c7c9a51a30959e8adbcb",
     "backend/payroll/historicalEmploymentWageReview.js": "dfddc0c270c467f476a2aab77a74ce42e2fddcee63e10ba1ba623ab94fcde251",
@@ -16,7 +16,7 @@
     "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a",
     "backend/payroll/employmentTaxWageHistory.js": "68fc16ecbff0da805f39e409bbf55e3ad649f21f7ddb282610990778e5128173",
     "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "d5da5965b5f3dc51b349165dfda6d9b7456e7a12f60b4ac759eff57fabfdf3f2",
-    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "b5843b9401d952f3aa506bde6ea6110ece4bb06d1cc6a317e2d47818020057e0",
+    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "88e1888df480cd0215c5d27082890ec6e262f2134ab84a4dccc522275423d208",
     "src/components/payroll/HistoricalEmploymentWageReview.tsx": "669931899d9ba7606c89b736f612c2eae96864ca39a43fe19d97501660af7ade",
     "src/components/payroll/AdminPayroll.tsx": "cfb14aaf8ef0f144067142b83c57afb89c35e7b6d8710ff790a86f2b6e14263f",
     "tests/e2e/payroll-imported-wage-review.spec.ts": "6368aa8682f73ff0e9f3a48afc6eb8cd24edd35169f3dfd6e06b4f62f5480f59"
@@ -50,7 +50,6 @@
     "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
   ],
   "remaining": [
-    "Verify interleaved imported/native payment dates, approval reservations and void/replacement histories.",
     "Verify reports/year-end/agency outputs across imported and native payments; imported aggregate withheld taxes still lack complete filing components.",
     "Reconcile previously paid native legacy gross-based taxes when reviewed imported bases differ; do not rewrite paid evidence.",
     "Integrate migration 833 only after the complete flow is verified; pending health release remains separate."
@@ -106,5 +105,14 @@
       "log": "/tmp/payroll-opening-history-ui-lint.log"
     },
     "resolvedVerificationIssue": "Added explicit accessible textarea label after exact label lookup failed for a disabled stale form; snapshot showed draft content was retained."
+  },
+  "chronologicalVerification": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 7026.397584,
+    "log": "/tmp/payroll-opening-history-interleaved.log",
+    "lintExitCode": 0,
+    "scope": "Imported payment before first native payroll, another imported payment between native payroll dates, stale source blocking, full history review, approved wage reservation, void release, replacement finalization and separate tax limits."
   }
 }

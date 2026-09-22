@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {randomUUID} from 'node:crypto'
 import {hashPayrollToken} from '../employeeAuth.js'
-import {employeeCoverageSummary} from '../employeeBenefitCoverage.js'
+import {employeeCoverageSummary,registerEmployeeBenefitCoverage} from '../employeeBenefitCoverage.js'
 import {createHarness} from '../testing/harness.js'
 import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 test('employee coverage uses a strict public projection and removes stale carrier determinations',()=>{
@@ -26,4 +26,14 @@ test('authenticated employee reads only own coverage and current review status',
  await api('/benefit-coverage?month=2026-99',undefined,'GET',400,true)
  const unauth=await fetch(`${h.url}/api/payroll/employee/benefit-coverage?month=2026-09`);assert.equal(unauth.status,401)
  await h.pool.query('UPDATE payroll_employee_session SET revoked_at=now() WHERE employee_id=$1',[employee.id]);await api('/benefit-coverage?month=2026-09',undefined,'GET',401,true)
+})
+
+test('coverage connection failure returns a controlled response without exposing database details',async()=>{
+ let handler
+ registerEmployeeBenefitCoverage({get:(_path,_auth,route)=>{handler=route}},{connect:async()=>{throw new Error('Synthetic private database connection failure')}})
+ const response={headers:{},setHeader(name,value){this.headers[name]=value},status(code){this.code=code;return this},json(body){this.body=body;return this}}
+ await handler({payrollEmployee:{facility_id:1,employee_id:7},query:{month:'2026-09'}},response)
+ assert.equal(response.code,500)
+ assert.equal(response.headers['Cache-Control'],'no-store')
+ assert.deepEqual(response.body,{success:false,message:'Unable to load your monthly benefit coverage.'})
 })
