@@ -351,7 +351,7 @@
       "limitation": "Applies to the candidate separate-wage path; legacy records without explicit rate evidence and external opening balances still require their supported review/integration work. No agency acceptance claimed."
     },
     "fullRegressionInProgress": {
-      "status": "RUNNING; no completion or deployment claimed",
+      "status": "Backend completed with 1110 passed and 2 route-registration failures; browser remains running. Corrections verified separately in portable follow-up.",
       "backend": {
         "sessionId": 5782,
         "scope": "all backend/payroll/__tests__/*.test.js; concurrency 2",
@@ -370,6 +370,18 @@
         "sourceHashCount": 3742
       },
       "integrity": "Candidate source frozen during both runs; recheck manifests after completion. Main AdminAccess edit remains excluded. Latest main dated-continuation UI/test changes still need preservation during integration."
+    },
+    "fullBackendCompleted": {
+      "passed": 1110,
+      "failed": 2,
+      "skipped": 0,
+      "durationMs": 807160.973416,
+      "sourceIntegrity": {
+        "sourceCount": 2580,
+        "changed": []
+      },
+      "log": "/tmp/payroll-health-full-backend.log",
+      "followupEvidence": "PAYROLL_HEALTH_MULTIPLAN_FOLLOWUP_2026_09_21.json"
     }
   },
   "verifiedBehavior": [

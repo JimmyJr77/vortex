@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-22T02:52:59.514302+00:00",
+  "checkedAt": "2026-09-22T02:58:22.018977+00:00",
   "candidate": "/tmp/vortex-payroll-pretax-health",
   "status": "ISOLATED FOLLOW-UP VERIFIED; NOT INTEGRATED OR DEPLOYED",
   "tests": {
@@ -36,9 +36,52 @@
     }
   },
   "remaining": [
-    "Integrate portable follow-up fixtures/tests after the frozen full runs finish.",
-    "Complete and inspect full backend and browser regression results.",
-    "Preserve latest main dated benefit continuation UI/tests during candidate integration.",
+    "Finish the still-running full browser regression and retain original backend failures alongside corrected verification.",
+    "Integrate seven-file portable follow-up with candidate after full runs and recheck impacted browser flows.",
+    "Integration preview covers 61 candidate files with no conflicts; preserve current main continuation UI/tests.",
     "Production provider and government acceptance remains unverified."
-  ]
+  ],
+  "portableFollowup": {
+    "workspace": "/tmp/vortex-payroll-health-multiplan-portable",
+    "patch": "/tmp/payroll-health-multiplan-portable.patch",
+    "patchSha256": "1e23c0a4b7262263fbdce270378d77640628675def10323cca9897f94a680bfa",
+    "sourceHashes": {
+      "backend/payroll/testing/healthQualificationFixture.js": "ec246d823c197bec23cf8158ca3654f9a43b2466128e617011019cfb51bc795e",
+      "backend/payroll/testing/healthElectionFixture.js": "053852d209589015815697b0add903a0164d961f3f1f173a3604afa9384195ee",
+      "backend/payroll/testing/monthlyMultiPlanFixture.js": "084f079b11e235147d95645a4f3149c4530447f2c802f8a95829fe2e90ae58aa",
+      "backend/payroll/__tests__/healthMultiplePlans.test.js": "c5dd2f47fc1068fbfd762dff49d09da454fb7f04f1926094c3dbce6178fd129e",
+      "backend/payroll/__tests__/payrollRoutes.test.js": "fcf2c0bad4e61a17eaf4f11a133d2cb343e61166da19274acd147c6ae7af3946",
+      "backend/payroll/healthPlanDisclosure.js": "ab467a97c0e5f572afafd94bb4ca22acbd6da4ea9d73aa4cdd52565bed9b7792",
+      "backend/payroll/employeeRoutes.js": "7dae19143bb54a06e609734d91cdfd2eaf25d9266e432ef062b135cc8186a489"
+    },
+    "combinedVerification": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 22845.07,
+      "log": "/tmp/payroll-health-route-separation.log"
+    },
+    "lint": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-health-route-separation-lint.log"
+    },
+    "additionalCoverage": [
+      "Two pretax deductions match carrier invoice allocations; retries do not duplicate and over-allocation is rejected.",
+      "Altered retained pretax wages invalidate carrier invoice evidence.",
+      "Concurrent two-plan approval reserves once; void releases deductions and taxable wages for a replacement."
+    ],
+    "routeCorrection": "The full frozen backend run found failures in both namespace checks. Split employee disclosure registration from admin disclosure registration and added six explicit health endpoints to the employee route allowlist. Existing authentication remains required. Correction is in the portable follow-up only."
+  },
+  "frozenBackendResult": {
+    "passed": 1110,
+    "failed": 2,
+    "skipped": 0,
+    "durationMs": 807160.973416,
+    "log": "/tmp/payroll-health-full-backend.log",
+    "failures": [
+      "payroll routes stay inside the authenticated admin namespace",
+      "employee payroll portal exposes a separate narrow route surface"
+    ],
+    "correction": "Portable follow-up: 17 passed, 0 failed; not yet integrated."
+  }
 }
