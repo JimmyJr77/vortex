@@ -1,25 +1,29 @@
 {
-  "checkedAt": "2026-09-22T03:20:57.848729+00:00",
-  "status": "ISOLATED ADMIN UI AND IMPORTED-TO-NATIVE PAYROLL VERIFIED; BROADER HISTORY/REPORTING AND INTEGRATION REMAIN",
+  "checkedAt": "2026-09-22T03:47:06.833743+00:00",
+  "status": "ISOLATED IMPORTED ANNUAL DETAIL, W-2 APPROVAL AND EMPLOYEE DOWNLOAD VERIFIED; REPORTING EXPORTS/AGENCY OUTPUTS AND INTEGRATION REMAIN",
   "workspace": "/tmp/vortex-payroll-opening-history",
   "baseApplication": "7b1b7343",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
-  "patchSha256": "962cb87957914ce3298a9b2af48c1533790ce1eee38e82d3d34a14a5129d9107",
+  "patchSha256": "0108a8fc91a2ddcef16f2527c856bb95ac735634f6b13782e4ebb312dae53256",
   "sourceHashes": {
-    "backend/payroll/historicalEmploymentTaxWages.js": "7780c175a0bfebbd4d20fa531ba8acebdd16b0f4ae89c7c9a51a30959e8adbcb",
-    "backend/payroll/historicalEmploymentWageReview.js": "dfddc0c270c467f476a2aab77a74ce42e2fddcee63e10ba1ba623ab94fcde251",
+    "backend/payroll/historicalEmploymentTaxWages.js": "3326c3138c7ad3e71925d519ac08327f22cfe21ca3b5d967aef213948dc690f9",
+    "backend/payroll/historicalEmploymentWageReview.js": "368b7ee996704a892a376edd30c35045a324e9ffe8a1bff1a1289dfe7eb5b2c1",
     "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "e1a4935ff4492a595a6c447c844afb54f5e3e92c237bf1d06ed09d262fe7dfd7",
-    "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "df8fefe1d523bcf037d8723178164700655cfcef694a327dba7db3a29fb26543",
+    "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "577e52d6e82aafa2e4a912be126252d63a3e91977ad0da7500c256251e37be66",
     "backend/migrations/833_payroll_historical_employment_wages.sql": "8ba79d44dbc435569576de3d63e228c9b1679be9919aeb36cca0102db496792b",
     "backend/payroll/registerRoutes.js": "019997a4d86058125edddf2b6b1df09b68327843bb8206a599bbb74844ff0cf3",
     "backend/payroll/initTables.js": "61e587a8aebea60d0d08443952e34b8d6953372dd987ccb81f38deee06bf5e0d",
     "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a",
     "backend/payroll/employmentTaxWageHistory.js": "68fc16ecbff0da805f39e409bbf55e3ad649f21f7ddb282610990778e5128173",
     "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "d5da5965b5f3dc51b349165dfda6d9b7456e7a12f60b4ac759eff57fabfdf3f2",
-    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "88e1888df480cd0215c5d27082890ec6e262f2134ab84a4dccc522275423d208",
-    "src/components/payroll/HistoricalEmploymentWageReview.tsx": "669931899d9ba7606c89b736f612c2eae96864ca39a43fe19d97501660af7ade",
+    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "f420c578ebc7961b787b88379659a48a57cec1b65a6fd06af53394c10d3b4d60",
+    "src/components/payroll/HistoricalEmploymentWageReview.tsx": "6c884f1eb34796bc820e7888218003d09860f6bfada9c6d5f40f58860fca5204",
     "src/components/payroll/AdminPayroll.tsx": "cfb14aaf8ef0f144067142b83c57afb89c35e7b6d8710ff790a86f2b6e14263f",
-    "tests/e2e/payroll-imported-wage-review.spec.ts": "6368aa8682f73ff0e9f3a48afc6eb8cd24edd35169f3dfd6e06b4f62f5480f59"
+    "tests/e2e/payroll-imported-wage-review.spec.ts": "492f542510032d5578d168daf83e4d10a6d353102572c4d96355077397a8dc10",
+    "backend/payroll/historicalAnnualPaymentDetail.js": "9eeecea4c8a0e9857747302b712317ca3462f362b51599cae35e8d4c4508af1b",
+    "backend/payroll/__tests__/historicalAnnualPaymentDetail.test.js": "4ced3ca5bf74965f4c51da9f8d84c0e834c94f2fdba7ab91d78cf51473059411",
+    "backend/payroll/employeeSummary.js": "c2b4f3a8d217edadcfa4be57dc135bf3e813465155ed3d1266bbb69408b3137a",
+    "backend/payroll/yearEndPreparation.js": "73002c130be47a931d11fa573721208ce9ef71314fde024e194aab96c063baab"
   },
   "implemented": [
     "Canonical per-employee/workplace 2026 imported-payment source including prior-year work paid in 2026",
@@ -32,7 +36,10 @@
     "Admin form under Historical wage records with per-payment separate tax bases and retained review history",
     "Original-request retry after lost successful response; scope selection locks during pending writes",
     "Competing reviews preserve drafts, disable stale saves and require fresh source/amount review",
-    "Multiline review references are accepted; input uses exact decimal-to-cent conversion"
+    "Multiline review references are accepted; input uses exact decimal-to-cent conversion",
+    "Optional original-register annual detail per imported payment with exact withholding-total reconciliation and explicit zeroes",
+    "Combined reviewed imported and native annual wages/withholding/overtime; stale and contradictory history blocks annual inputs",
+    "Imported-only W-2 approval, encrypted PDF retention, employee electronic consent and protected document download verified in isolation"
   ],
   "checks": {
     "passed": 11,
@@ -50,9 +57,10 @@
     "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
   ],
   "remaining": [
-    "Verify reports/year-end/agency outputs across imported and native payments; imported aggregate withheld taxes still lack complete filing components.",
-    "Reconcile previously paid native legacy gross-based taxes when reviewed imported bases differ; do not rewrite paid evidence.",
-    "Integrate migration 833 only after the complete flow is verified; pending health release remains separate."
+    "Connect reviewed imported detail to reconciliation exports, wage-basis views, quarterly and agency outputs without mixing uncapped opening balances with reporting wages.",
+    "Expand imported payment evidence beyond gross minus aggregate withheld taxes: other deductions, reimbursements, employer taxes and benefit components remain unsupported.",
+    "Reconcile previously paid native legacy gross-based taxes when imported bases conflict; do not rewrite paid evidence.",
+    "Integrate migration 833 and source changes after complete reporting verification and broader regression; no imported follow-up code is live."
   ],
   "payrollVerification": {
     "combinedRun": {
@@ -114,5 +122,48 @@
     "log": "/tmp/payroll-opening-history-interleaved.log",
     "lintExitCode": 0,
     "scope": "Imported payment before first native payroll, another imported payment between native payroll dates, stale source blocking, full history review, approved wage reservation, void release, replacement finalization and separate tax limits."
+  },
+  "annualDetailVerification": {
+    "backendRegression": {
+      "passed": 29,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 48736.498041,
+      "log": "/tmp/payroll-imported-annual-reporting-final.log"
+    },
+    "importedOnlyW2Followup": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 7379.26575,
+      "log": "/tmp/payroll-imported-annual-w2-furnishing.log",
+      "scope": "Retained imported annual detail, filing identities, annual input review, compensation and health determinations, W-2 box mapping, encrypted approval, six-page flattened PDF, employee electronic proof/consent, portal publication, byte-identical protected employee download, unauthorized denial, stale approval after unresolved review."
+    },
+    "browser": {
+      "passed": 2,
+      "failed": 0,
+      "durationSeconds": 13.9,
+      "log": "/tmp/payroll-imported-annual-browser-recovery.log",
+      "scope": "Opening-only and annual-detail mobile entry, rejected withholding split correction, lost successful response exact retry, payroll preview, annual totals, preserved stale draft and review history",
+      "screenshot": "/tmp/payroll-imported-annual-review-mobile.png",
+      "visuallyInspected": true
+    },
+    "typescriptExitCode": 0,
+    "typescriptLog": "/tmp/payroll-imported-annual-types-final.log",
+    "lintExitCode": 0,
+    "lintLogs": [
+      "/tmp/payroll-imported-annual-lint-final.log",
+      "/tmp/payroll-imported-annual-w2-lint.log"
+    ],
+    "corrections": [
+      "Returned wage-history warnings now block annual preparation when imported bases conflict with native paid evidence.",
+      "Native missing-basis warnings apply only when native finalized records exist; imported-only reporting uses explicit reviewed imported detail.",
+      "Server validation errors remain visible and editable after refresh; browser checks a rejected withholding split correction."
+    ],
+    "sources": [
+      "https://www.irs.gov/instructions/iw2w3",
+      "https://www.irs.gov/newsroom/questions-and-answers-about-the-new-deduction-for-qualified-overtime-compensation",
+      "https://www.irs.gov/businesses/small-businesses-self-employed/questions-and-answers-for-the-additional-medicare-tax"
+    ]
   }
 }
