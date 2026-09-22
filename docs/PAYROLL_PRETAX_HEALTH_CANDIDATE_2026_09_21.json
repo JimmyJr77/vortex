@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:38:03.545172+00:00",
+  "recordedAt": "2026-09-22T02:41:12.118127+00:00",
   "status": "isolated qualified monthly health collection candidate; not integrated or deployed; wider reporting, mixed benefits/retirement and exceptions remain incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -308,6 +308,30 @@
         "PDF renderer required explicit local font configuration and a writable temporary font cache."
       ],
       "limitation": "Admin plan/participant qualification and disclosure are seeded via real APIs; this browser case begins with employee signing. No real production payment or carrier acceptance."
+    },
+    "healthW2Approval": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 16072.7675,
+      "log": "/tmp/payroll-health-w2-regression-final.log",
+      "lint": "passed; /tmp/payroll-health-w2-lint.log",
+      "coverage": [
+        "Public annual preparation, compensation applicability, health-reporting classification, annual input review and W-2 approval",
+        "Qualified health premiums with combined employee/employer retirement and employer-only contributions",
+        "Federal/Maryland wage boxes reduced by health and pretax retirement; Social Security/Medicare boxes reduced by health only",
+        "Employee retirement codes D and AA remain distinct from reviewed health code DD",
+        "Altered physical health deduction invalidates prior approval and blocks renewed approval; restoring evidence restores current status",
+        "Existing salary/correction/hourly overtime reporting regression"
+      ],
+      "repair": "Overtime qualification recognizes a health deduction only when income-tax payroll and statement evidence reconcile; two health W-2 cases reproduced the rejection before repair.",
+      "artifacts": [
+        "/tmp/payroll-health-approved-w2.pdf",
+        "/tmp/payroll-health-approved-w2-page1.png",
+        "/tmp/payroll-health-approved-w2-page2.png"
+      ],
+      "visualReview": "Inspected populated employee copy and instruction page. Combined synthetic case shows boxes 1/16 65.00, boxes 3/5 75.00, D 10.00, AA 4.00, DD 575.00 and retirement participation checked. Six-page approved PDF has no remaining editable fields.",
+      "limitation": "Synthetic review/approval is verified; this does not establish employee furnishing, agency filing/acceptance, every benefit type or all annual reporting exceptions."
     }
   },
   "verifiedBehavior": [
@@ -391,13 +415,16 @@
     "backend/payroll/supplementalPaymentHistory.js": "9ac4e56e8320b93bd416cde7831afa5d580cb147e0bca8cf3e98e8578abc20b3",
     "backend/payroll/__tests__/retirementEmployerApproval.test.js": "99efed21ed579e9a81247df5c708d9448ecbd3c6578c226ac71cde5204ec8f9c",
     "backend/payroll/__tests__/healthSupplementalHistory.test.js": "357a006a37d359e80bbb31466d58deb96075b5b0a2383bc0e3381e8afe6f5030",
-    "src/components/payroll/BenefitCollectionReview.tsx": "779c8fe76b8bf892ec74a42f9ac5132d5ed4bf1b595f31869616faf4f01e0075"
+    "src/components/payroll/BenefitCollectionReview.tsx": "779c8fe76b8bf892ec74a42f9ac5132d5ed4bf1b595f31869616faf4f01e0075",
+    "backend/payroll/overtimeSource.js": "793a812b5c4e0d2ae4ceb7d91120ff8f3ffa2141cb6dd069280710bf2fc24f3d",
+    "backend/payroll/testing/regularEmployerRetirementFixture.js": "82d388b78b472757593f3c8832561ecd3e022899c1527ad9201c39514400a827",
+    "backend/payroll/__tests__/retirementEmployerAnnualReporting.test.js": "74fc1e4066ea50b0e28681fe5088207301924b25262687e0f0f547aad9f7240a"
   },
   "requiredNextWork": [
     "Verify multiple health/posttax plans and remaining capacity/compensation exceptions. Ordinary retirement and employer matching/nonelective contributions with qualified health premiums now pass API/provider journeys.",
     "Complete annual-bonus premium allocation, void/replacement, changed qualification/withdrawal and coverage exceptions with browser and API journeys.",
     "Add supported opening-balance/external-history review and employer-tax reconciliation; incomplete retained history remains blocked.",
-    "Complete carrier funding/invoice paths and full W-2/periodic reporting. Annual employee taxable-wage summaries, separate retirement contribution reporting and synthetic QuickBooks settlement now have health-aware coverage.",
+    "Complete carrier funding/invoice paths, periodic reporting, and health-aware furnishing/filing/provider acceptance. Supported health plus retirement W-2 preparation, approval, stale-source rejection and populated PDF are now verified.",
     "Extend browser coverage to combined retirement/multiple benefits and broader provider/correction scenarios. Employee health signing through admin payroll finalization, retained wage report, employee statement and duplicate prevention now passes the real UI/API journey; combined employer retirement synthetic settlement reaches RECONCILED.",
     "Integrate the candidate with current main and complete full regression; the dated-continuation backend correction was carried into the isolated candidate.",
     "Support remaining benefit categories and employee/state/year exceptions; this classification is not full goal completion."
