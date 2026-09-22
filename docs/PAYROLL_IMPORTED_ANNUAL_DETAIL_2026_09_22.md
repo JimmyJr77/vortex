@@ -21,3 +21,13 @@ Reviewed sources on September 22, 2026:
 9. This stage uses the existing 2026 Maryland reporting workflow. Other states/years and unsupported payment categories remain part of the full goal.
 
 The implementation remains isolated at `/tmp/vortex-payroll-opening-history`; migration 833 and this follow-up are not live. Final verification evidence is recorded separately after its active checks complete. Quarterly/agency reconciliation, reconciliation exports, a complete imported-to-W-2 approval/furnishing journey, broader regressions and integration remain required.
+
+## Reporting follow-up
+
+Reviewed imported amounts now feed payment-date-filtered wage-basis reports and employee CSV exports. Imported withholding stays in explicitly separate columns from native taxes. The review ID and source fingerprint are retained in the export. Pool-based reporting reads use repeatable-read snapshots; a tested concurrent update preserves the active report and makes the next read stale.
+
+Optional employer Social Security, Medicare, FUTA and Maryland unemployment entries require explicit zeroes, amounts and an original-register reference. Tax reconciliation and federal deposit deadlines use those actual employer amounts, without assuming they equal employee withholding. [IRS Form 941 instructions](https://www.irs.gov/instructions/i941) distinguish employer and employee shares; Additional Medicare remains an employee-only component. The broader rules for credits, adjustments and unusual compensation still require separate implementation.
+
+The latest focused run passed 26 backend checks and two mobile browser cases. An imported receipt initially matches retained payment/review evidence; another review revision changes that evidence. Source comparison canonicalizes JSON object key order. Mobile entry, rejected amount recovery, exact retry, report totals and the Compliance inclusion notice passed. TypeScript and scoped lint passed; the mobile wage view was inspected.
+
+Remaining: form-specific reported wage reconciliation (the receipt workflow still uses gross control totals), tax-liability and agency exports, dependent remittance/calendar coverage, expanded payment components and broad integration/regression. The candidate remains isolated and unpublished.

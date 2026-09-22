@@ -1,29 +1,40 @@
 {
-  "checkedAt": "2026-09-22T03:47:06.833743+00:00",
-  "status": "ISOLATED IMPORTED ANNUAL DETAIL, W-2 APPROVAL AND EMPLOYEE DOWNLOAD VERIFIED; REPORTING EXPORTS/AGENCY OUTPUTS AND INTEGRATION REMAIN",
+  "checkedAt": "2026-09-22T03:56:43.987134+00:00",
+  "status": "ISOLATED IMPORTED REPORTING EXPORTS, QUARTERLY LIABILITY RECONCILIATION, CALENDARS AND MOBILE REPORTS VERIFIED; FORM-SPECIFIC REPORTING AND BROAD INTEGRATION REMAIN",
   "workspace": "/tmp/vortex-payroll-opening-history",
   "baseApplication": "7b1b7343",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
-  "patchSha256": "0108a8fc91a2ddcef16f2527c856bb95ac735634f6b13782e4ebb312dae53256",
+  "patchSha256": "79bc6c92c7673c4277c0933a2ed5154ce07fb293de29b91618be9fc2a5318d4e",
   "sourceHashes": {
     "backend/payroll/historicalEmploymentTaxWages.js": "3326c3138c7ad3e71925d519ac08327f22cfe21ca3b5d967aef213948dc690f9",
-    "backend/payroll/historicalEmploymentWageReview.js": "368b7ee996704a892a376edd30c35045a324e9ffe8a1bff1a1289dfe7eb5b2c1",
+    "backend/payroll/historicalEmploymentWageReview.js": "cc84a952debd31ab8c81492b5a79e5fe16b85f95c44213aa9fb454d33faa0e21",
     "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "e1a4935ff4492a595a6c447c844afb54f5e3e92c237bf1d06ed09d262fe7dfd7",
     "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "577e52d6e82aafa2e4a912be126252d63a3e91977ad0da7500c256251e37be66",
     "backend/migrations/833_payroll_historical_employment_wages.sql": "8ba79d44dbc435569576de3d63e228c9b1679be9919aeb36cca0102db496792b",
-    "backend/payroll/registerRoutes.js": "019997a4d86058125edddf2b6b1df09b68327843bb8206a599bbb74844ff0cf3",
+    "backend/payroll/registerRoutes.js": "bba185834dc2ae6dadc08dfebb24830bbf52f1ee499f1398e7544925d4eb46dd",
     "backend/payroll/initTables.js": "61e587a8aebea60d0d08443952e34b8d6953372dd987ccb81f38deee06bf5e0d",
     "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a",
     "backend/payroll/employmentTaxWageHistory.js": "68fc16ecbff0da805f39e409bbf55e3ad649f21f7ddb282610990778e5128173",
     "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "d5da5965b5f3dc51b349165dfda6d9b7456e7a12f60b4ac759eff57fabfdf3f2",
     "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "f420c578ebc7961b787b88379659a48a57cec1b65a6fd06af53394c10d3b4d60",
-    "src/components/payroll/HistoricalEmploymentWageReview.tsx": "6c884f1eb34796bc820e7888218003d09860f6bfada9c6d5f40f58860fca5204",
+    "src/components/payroll/HistoricalEmploymentWageReview.tsx": "cd9ce756e2e0e66ba0c1027ff21dce03328b1f8e62677b6ca065d2124b30ea2f",
     "src/components/payroll/AdminPayroll.tsx": "cfb14aaf8ef0f144067142b83c57afb89c35e7b6d8710ff790a86f2b6e14263f",
-    "tests/e2e/payroll-imported-wage-review.spec.ts": "492f542510032d5578d168daf83e4d10a6d353102572c4d96355077397a8dc10",
-    "backend/payroll/historicalAnnualPaymentDetail.js": "9eeecea4c8a0e9857747302b712317ca3462f362b51599cae35e8d4c4508af1b",
-    "backend/payroll/__tests__/historicalAnnualPaymentDetail.test.js": "4ced3ca5bf74965f4c51da9f8d84c0e834c94f2fdba7ab91d78cf51473059411",
-    "backend/payroll/employeeSummary.js": "c2b4f3a8d217edadcfa4be57dc135bf3e813465155ed3d1266bbb69408b3137a",
-    "backend/payroll/yearEndPreparation.js": "73002c130be47a931d11fa573721208ce9ef71314fde024e194aab96c063baab"
+    "tests/e2e/payroll-imported-wage-review.spec.ts": "ecb04670e16af860622a54495fa302ef4b31d008833aa10a3fe77b7b00c6dfbc",
+    "backend/payroll/historicalAnnualPaymentDetail.js": "1337132c011f629e439f5705e1aa4d2aae1a92924991e7e60fb4adc3f660f7e0",
+    "backend/payroll/__tests__/historicalAnnualPaymentDetail.test.js": "e35ca910efcf341b722a081569a4ed7b5bdb2376aa732d13eccdf2811108a7c5",
+    "backend/payroll/employeeSummary.js": "0e3fe7eb6f1cb9d584e8ded18ce870be6c65a02edf9aad306c0e94dcf189d94f",
+    "backend/payroll/yearEndPreparation.js": "c1639a54730c2056712fdba046e2188b3be117a0355b0bb04778983c8ae26c70",
+    "backend/payroll/historicalReportingEvidence.js": "bf166085f49ca5e8f7f3daac1f8192726efb2f2e472c8a0519cb80cae64bceaf",
+    "backend/payroll/historicalTaxRows.js": "9117a0bdde8da82f8a80d8b1bfae47e3bc6081b904b7ae8f0f60cfe2df2441ed",
+    "backend/payroll/readPayrollSnapshot.js": "b3bd4b70f070d2fc4e4dd24f7d96f154813723e504458dac417960e08c88b3b1",
+    "backend/payroll/__tests__/historicalReportingExports.test.js": "7726a2f798e323992c78e2b27b1c38851fb6d7e405d8b6882d7eb0a95df07284",
+    "backend/payroll/taxReconciliation.js": "64c5cc3510ebfbef125ec745090579a276dcc749455af836fe79e830295e5e68",
+    "backend/payroll/federalTaxCalendar.js": "22c15f18391b7890c07e213bd6524f0f40e058d2145150ba111df5aba9d21724",
+    "backend/payroll/marylandWithholdingCalendar.js": "8ae67020aa05eb30eb629c70a370ab733b8d4113afa0d53e84e88d8580df8a2c",
+    "backend/payroll/marylandUiCalendar.js": "ff7b6ba3391c130b23b7b3f866cc833c56a54986078d628c6abf209e82aca60c",
+    "src/components/payroll/WageBasisReview.tsx": "c806e5e1f209432ba9bbb7b9428c70cac940eb74a2a0b24e7ced2ef796d86bad",
+    "src/components/payroll/TaxReconciliation.tsx": "aaf1bc00eea810fa5f88ed9459ce000b536f333fc6ee6cc2d2a21b521e66df69",
+    "src/utils/workforceApi.ts": "d066914a09e50889802c405bcd64311187a9e28cf5243b8bb1d88f6187589565"
   },
   "implemented": [
     "Canonical per-employee/workplace 2026 imported-payment source including prior-year work paid in 2026",
@@ -39,7 +50,10 @@
     "Multiline review references are accepted; input uses exact decimal-to-cent conversion",
     "Optional original-register annual detail per imported payment with exact withholding-total reconciliation and explicit zeroes",
     "Combined reviewed imported and native annual wages/withholding/overtime; stale and contradictory history blocks annual inputs",
-    "Imported-only W-2 approval, encrypted PDF retention, employee electronic consent and protected document download verified in isolation"
+    "Imported-only W-2 approval, encrypted PDF retention, employee electronic consent and protected document download verified in isolation",
+    "Payment-date-filtered reviewed imported reporting exports with retained source proof and separate imported withholding columns",
+    "Explicit original employer tax entry and independent federal/state liability reconciliation",
+    "Snapshot-consistent reporting during concurrent source updates; reviewed imported counts visible on mobile Reports and Compliance"
   ],
   "checks": {
     "passed": 11,
@@ -57,10 +71,11 @@
     "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
   ],
   "remaining": [
-    "Connect reviewed imported detail to reconciliation exports, wage-basis views, quarterly and agency outputs without mixing uncapped opening balances with reporting wages.",
-    "Expand imported payment evidence beyond gross minus aggregate withheld taxes: other deductions, reimbursements, employer taxes and benefit components remain unsupported.",
-    "Reconcile previously paid native legacy gross-based taxes when imported bases conflict; do not rewrite paid evidence.",
-    "Integrate migration 833 and source changes after complete reporting verification and broader regression; no imported follow-up code is live."
+    "Complete form-specific reported-wage reconciliation and tax-liability/agency exports; current receipt reconciliation uses gross control totals.",
+    "Verify all dependent remittance/calendar/reporting paths and broad candidate regression before integration.",
+    "Expand imported payment evidence beyond gross minus employee taxes: deductions, reimbursements, benefit components and unusual compensation remain unsupported.",
+    "Reconcile previously paid native legacy gross-based taxes when imported bases conflict without rewriting paid evidence.",
+    "Integrate migration 833 and the isolated source changes only after verification; this follow-up is not live."
   ],
   "payrollVerification": {
     "combinedRun": {
@@ -164,6 +179,48 @@
       "https://www.irs.gov/instructions/iw2w3",
       "https://www.irs.gov/newsroom/questions-and-answers-about-the-new-deduction-for-qualified-overtime-compensation",
       "https://www.irs.gov/businesses/small-businesses-self-employed/questions-and-answers-for-the-additional-medicare-tax"
+    ]
+  },
+  "reportingVerification": {
+    "backend": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 24224.5605,
+      "log": "/tmp/payroll-imported-reporting-snapshot.log"
+    },
+    "browser": {
+      "passed": 2,
+      "failed": 0,
+      "durationSeconds": 16.6,
+      "log": "/tmp/payroll-imported-reporting-browser-final.log",
+      "screenshot": "/tmp/payroll-imported-reporting-bases-mobile.png",
+      "visuallyInspected": true,
+      "width": 390
+    },
+    "typescriptExitCode": 0,
+    "typescriptLog": "/tmp/payroll-imported-reporting-types.log",
+    "lintExitCode": 0,
+    "lintLogs": [
+      "/tmp/payroll-imported-reporting-lint.log",
+      "/tmp/payroll-imported-reporting-snapshot-lint.log"
+    ],
+    "scope": [
+      "CSV retains imported withholding components separately from native amounts and retains review ID/source fingerprint.",
+      "Reporting wage bases combine reviewed native/imported payments for the actual selected payment range.",
+      "Original employer Social Security, Medicare, FUTA and Maryland UI tax amounts require separate explicit entries and source confirmation.",
+      "Quarterly liabilities and federal deposit calendars use actual employer amounts; test deliberately retains a one-cent employer/employee difference to prove no employee-tax doubling.",
+      "Accepted local filing receipt initially matches; a new review revision invalidates the old payroll evidence even when its totals are unchanged.",
+      "A concurrent source update leaves the active CSV read consistent; the following export detects stale evidence, including changes outside the selected quarter.",
+      "Mobile admin entry, validation correction, exact retry, retained history, Reports wage bases and Compliance imported-liability notice passed."
+    ],
+    "corrections": [
+      "Canonicalized retained JSON evidence because PostgreSQL key order otherwise falsely marked unchanged imported filing receipts PAYROLL_CHANGED.",
+      "Scoped the Compliance browser locator to Payroll sections navigation because the reports page also has a Compliance export button."
+    ],
+    "remaining": [
+      "Form-specific reported wage totals and agency export completeness still need review; the current receipt reconciliation uses gross control totals.",
+      "Tax-liabilities export and all dependent remittance/reporting paths need broader integrated verification."
     ]
   }
 }
