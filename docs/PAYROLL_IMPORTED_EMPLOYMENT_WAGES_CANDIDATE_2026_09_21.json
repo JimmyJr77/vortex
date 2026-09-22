@@ -1,12 +1,12 @@
 {
-  "checkedAt": "2026-09-22T03:15:47.547780+00:00",
-  "status": "ISOLATED API AND PAYROLL FLOW VERIFIED; ADMIN UI, BROADER REPORTING AND INTEGRATION REMAIN",
+  "checkedAt": "2026-09-22T03:20:57.848729+00:00",
+  "status": "ISOLATED ADMIN UI AND IMPORTED-TO-NATIVE PAYROLL VERIFIED; BROADER HISTORY/REPORTING AND INTEGRATION REMAIN",
   "workspace": "/tmp/vortex-payroll-opening-history",
   "baseApplication": "7b1b7343",
   "patch": "/tmp/payroll-imported-employment-wages-candidate.patch",
-  "patchSha256": "e1a8648adb2b521f83e24f6560a6bb25b5c2e71dc678863b8b0672804b9ad4e6",
+  "patchSha256": "8c63e40beaf62e97833f129346083873a41976b15f1bc1a06cbf1a648ceb8247",
   "sourceHashes": {
-    "backend/payroll/historicalEmploymentTaxWages.js": "914a465359840208afb5f0f50566c5bd9f3427ca1b9c14f082c35dfc47350dbd",
+    "backend/payroll/historicalEmploymentTaxWages.js": "7780c175a0bfebbd4d20fa531ba8acebdd16b0f4ae89c7c9a51a30959e8adbcb",
     "backend/payroll/historicalEmploymentWageReview.js": "dfddc0c270c467f476a2aab77a74ce42e2fddcee63e10ba1ba623ab94fcde251",
     "backend/payroll/__tests__/historicalEmploymentTaxWages.test.js": "e1a4935ff4492a595a6c447c844afb54f5e3e92c237bf1d06ed09d262fe7dfd7",
     "backend/payroll/__tests__/historicalEmploymentWageReview.test.js": "df8fefe1d523bcf037d8723178164700655cfcef694a327dba7db3a29fb26543",
@@ -16,7 +16,10 @@
     "backend/payroll/testing/harness.js": "a1bd3a81ac1239bc9d7fd70a7cb3a7b71bffee48f3372ff80d11c4c6fe13b61a",
     "backend/payroll/employmentTaxWageHistory.js": "68fc16ecbff0da805f39e409bbf55e3ad649f21f7ddb282610990778e5128173",
     "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "d5da5965b5f3dc51b349165dfda6d9b7456e7a12f60b4ac759eff57fabfdf3f2",
-    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "b5843b9401d952f3aa506bde6ea6110ece4bb06d1cc6a317e2d47818020057e0"
+    "backend/payroll/__tests__/healthImportedEmploymentHistory.test.js": "b5843b9401d952f3aa506bde6ea6110ece4bb06d1cc6a317e2d47818020057e0",
+    "src/components/payroll/HistoricalEmploymentWageReview.tsx": "669931899d9ba7606c89b736f612c2eae96864ca39a43fe19d97501660af7ade",
+    "src/components/payroll/AdminPayroll.tsx": "cfb14aaf8ef0f144067142b83c57afb89c35e7b6d8710ff790a86f2b6e14263f",
+    "tests/e2e/payroll-imported-wage-review.spec.ts": "6368aa8682f73ff0e9f3a48afc6eb8cd24edd35169f3dfd6e06b4f62f5480f59"
   },
   "implemented": [
     "Canonical per-employee/workplace 2026 imported-payment source including prior-year work paid in 2026",
@@ -25,7 +28,11 @@
     "Unresolved and stale reviews remain explicit; no gross-wage fallback or production gate bypass",
     "Current retained reviews feed chronological imported and native employment taxable-wage history",
     "Imported review identity and per-payment wages are retained in payroll approval evidence and finalized employee statements",
-    "Changed review invalidates a draft; changed bases conflicting with paid payroll block subsequent approval"
+    "Changed review invalidates a draft; changed bases conflicting with paid payroll block subsequent approval",
+    "Admin form under Historical wage records with per-payment separate tax bases and retained review history",
+    "Original-request retry after lost successful response; scope selection locks during pending writes",
+    "Competing reviews preserve drafts, disable stale saves and require fresh source/amount review",
+    "Multiline review references are accepted; input uses exact decimal-to-cent conversion"
   ],
   "checks": {
     "passed": 11,
@@ -43,7 +50,6 @@
     "Current imported-payment entry supports gross minus withheld taxes equaling net; more complex imported deductions remain unsupported."
   ],
   "remaining": [
-    "Add admin imported-wage review UI, retry recovery, stale-draft handling and browser/mobile verification.",
     "Verify interleaved imported/native payment dates, approval reservations and void/replacement histories.",
     "Verify reports/year-end/agency outputs across imported and native payments; imported aggregate withheld taxes still lack complete filing components.",
     "Reconcile previously paid native legacy gross-based taxes when reviewed imported bases differ; do not rewrite paid evidence.",
@@ -71,5 +77,34 @@
       "Foreign employee/workplace scope now blocks instead of returning zero history.",
       "Historical synthetic payment now retains withheld taxes so gross minus taxes equals net."
     ]
+  },
+  "uiVerification": {
+    "browser": {
+      "passed": 1,
+      "failed": 0,
+      "durationSeconds": 11.9,
+      "log": "/tmp/payroll-opening-history-ui-browser.log",
+      "screenshot": "/tmp/payroll-imported-wage-review-mobile.png",
+      "visuallyInspected": true,
+      "width": 390,
+      "horizontalOverflow": false,
+      "pageErrors": 0
+    },
+    "backend": {
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 5932.076125,
+      "log": "/tmp/payroll-opening-history-ui-backend.log"
+    },
+    "typescript": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-opening-history-ui-types.log"
+    },
+    "lint": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-opening-history-ui-lint.log"
+    },
+    "resolvedVerificationIssue": "Added explicit accessible textarea label after exact label lookup failed for a disabled stale form; snapshot showed draft content was retained."
   }
 }
