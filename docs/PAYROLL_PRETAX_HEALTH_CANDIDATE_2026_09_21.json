@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T02:06:58.843874+00:00",
+  "recordedAt": "2026-09-22T02:10:21.279116+00:00",
   "status": "isolated qualification UI/API and tax-preview candidate; not integrated or deployed; executable pretax collection remains incomplete",
   "candidateDirectory": "/tmp/vortex-payroll-pretax-health",
   "baseApplication": "dedd0399628a2aa9f26d9e0e156d23ae255dd705",
@@ -130,6 +130,14 @@
           "log": "/tmp/payroll-employee-health-browser-final.log"
         }
       }
+    },
+    "signatureAndPremiumAuthorization": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 15274.3965,
+      "log": "/tmp/payroll-health-premium-authorization.log",
+      "lint": "passed"
     }
   },
   "verifiedBehavior": [
@@ -147,7 +155,9 @@
     "Authenticated employees can retrieve their exact signed disclosure after later publication or authorization withdrawal.",
     "Admin employee-disclosure publishing form retains separate PDF, plan-year dates and employee terms; interrupted responses recover the original request and concurrent publication preserves the unsaved draft.",
     "Employees open employee-safe disclosures inside onboarding, elect or decline, recover interrupted signatures and read retained disclosure history.",
-    "Changed election terms preserve the employee signature draft while blocking signing; current employee-scoped election listing includes retained plan history."
+    "Changed election terms preserve the employee signature draft while blocking signing; current employee-scoped election listing includes retained plan history.",
+    "Database insertion and payroll consumption require complete retained signature/consent proof and signing time within the reviewed deadline and creation window. Later session revocation does not erase valid consent.",
+    "Typed premium authorization resolves matching participant qualification, signed Section 125 election, exact coverage amount and deduction authorization; malformed amounts, missing consent, invalid bonus allocation and withdrawal are rejected."
   ],
   "files": {
     "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
@@ -171,20 +181,22 @@
     "src/components/payroll/OnboardingWorkspace.tsx": "6a02346bbb8450ab04b76b08e751a72639c1ff485bf3c767bb4a4b4c639c1305",
     "src/utils/workforceApi.ts": "d82e68fbaa2675cf65991094dd438be53a2ca38dfdcf578e1cad3948656988c6",
     "tests/e2e/payroll-health-qualification.spec.ts": "b06589eb44f90111066c589a26f2b2b259cd4f6c59a0bfb603990eba935d109e",
-    "backend/migrations/832_payroll_health_election.sql": "a7c84a2d55611d0c6ad6b3b3db343cf2bcc2014b62c8b4e34a4c189149891238",
+    "backend/migrations/832_payroll_health_election.sql": "c868f608428be700a1916d51a852ad127eb26c1a380343328dbd317e56a4acec",
     "backend/payroll/healthPlanDisclosure.js": "e46aed6efdca94dbb159b3d112102d2a97aa6ec26c9228c2b73b0dbcc3b71982",
-    "backend/payroll/healthElection.js": "1ed22f6a061f007e38d9360d7bb22b398f5d6305a43a84dd4a4b7ae28fb34b4b",
+    "backend/payroll/healthElection.js": "aeb01f934b0006d5dfd167579068572e8c453ae96ad34f1cbe296688ad609d97",
     "backend/payroll/testing/healthElectionFixture.js": "cbb63d4069086c3307f0ab512b7422f39b3bfb5ef48a0b05d229eefc81fb65db",
-    "backend/payroll/__tests__/healthElection.test.js": "67d3a60c43add60efadb70ce91ceceb58e9cd1182683ff70b0cc5d242046908c",
+    "backend/payroll/__tests__/healthElection.test.js": "040420acd1fb148fafb5a11915b782cc72b0275ed194071e8db3b28801caf96d",
     "backend/payroll/employeeRoutes.js": "d3cf3c5cb42f662ffc9e834cad352175d5147b9ad33b4155910cc77edda89c98",
     "src/components/payroll/HealthPlanDisclosureSetup.tsx": "7bbca5e86f0650245f323c480a7322758b6ba943c12accdf64ce40e71c70dcce",
     "tests/e2e/payroll-health-disclosure.spec.ts": "d4676910314a3d07d1522383354a037880d5b61fcfbec12906031a94d61108a0",
     "src/components/payroll/EmployeeHealthElection.tsx": "db60781fc7f9804a1a44843389fc8d666a91446a405c52487ed905623a4c0903",
     "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
-    "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28"
+    "tests/e2e/payroll-health-election.spec.ts": "9b7b8a6e7b39a51287072ba62a9c32bc9917240fadb1729ff1e7d02879e64e28",
+    "backend/payroll/healthElectionProof.js": "0ca3cdaf2b581c0726818e76d001b679b87bb34dd056e1d307867dd479ce4c40",
+    "backend/payroll/healthPremiumAuthorization.js": "947dc63e4fdc2b7b1985da563cb4cecb48876724f49f248d68c3a64d87e8ee01"
   },
   "requiredNextWork": [
-    "Strengthen retained signature proof checks, then connect server-qualified signed Section 125 elections to collection. Admin disclosure publishing and employee signing/declining/history interfaces are implemented in the isolated candidate.",
+    "Connect the verified premium authorization resolver to monthly collection, approval reservations and payroll tax inputs. Signature proof checks and both admin/employee interfaces are implemented in the isolated candidate.",
     "Resolve signed coverage into typed collection components, reserving once-monthly deductions within existing approval locking.",
     "Reconcile prior taxable wages and approved reservations; never substitute gross wages or capped SS wages.",
     "Connect regular payroll builder, retirement rebuilds, statements, approval/finalization revalidation and void/replacement behavior.",
@@ -192,5 +204,10 @@
     "Verify browser qualification/election/payroll workflows and synthetic full provider journeys.",
     "Support remaining benefit categories and employee/state/year exceptions; this initial classification is not full goal completion."
   ],
-  "additionalFinding": "Legacy FICA Math.round floating arithmetic can round 87500 cents times 0.009 down to 787 instead of exact 788. New health calculations use integer half-up arithmetic; ordinary legacy payroll and its reconciliation still need a separate repair and regression audit."
+  "additionalFinding": "Legacy FICA Math.round floating arithmetic can round 87500 cents times 0.009 down to 787 instead of exact 788. New health calculations use integer half-up arithmetic; ordinary legacy payroll and its reconciliation still need a separate repair and regression audit.",
+  "assumptions": [
+    "A signature is recorded within five minutes of the database-created election record, using the server clock; retry returns the original record.",
+    "Later logout or session revocation does not withdraw an already signed election.",
+    "Premium authorization resolution is not collection: the payroll caller must reserve the monthly deduction under its settings lock and reconcile taxable wage history."
+  ]
 }
