@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-09-22T02:52:59.514302+00:00",
+  "candidate": "/tmp/vortex-payroll-pretax-health",
+  "status": "ISOLATED FOLLOW-UP VERIFIED; NOT INTEGRATED OR DEPLOYED",
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 8536.04725,
+    "log": "/tmp/payroll-health-multiple-followup.log",
+    "cases": [
+      "Medical pretax plus dental after-tax, three finalized payrolls across two months",
+      "Separate medical and dental pretax qualification and signed elections; three finalized payrolls",
+      "Dental participant suspension rejects reviewed payroll approval while preserving medical election and retained dental history"
+    ]
+  },
+  "assumptions": [
+    "Each pretax plan requires its own qualification, disclosure and signed election.",
+    "Monthly premiums collect once per plan and coverage month.",
+    "Suspended eligibility blocks approval; it does not delete retained consent history."
+  ],
+  "followupFiles": {
+    "/tmp/payroll-health-followup/multipleBenefits.test.js": "4196d28a06a0760f0ae18eb8a332a3a1406bb77c6bcfa68e9b19bdb17fc5f95c",
+    "/tmp/payroll-health-followup/healthElectionFixture.js": "053852d209589015815697b0add903a0164d961f3f1f173a3604afa9384195ee",
+    "/tmp/payroll-health-followup/healthQualificationFixture.js": "ec246d823c197bec23cf8158ca3654f9a43b2466128e617011019cfb51bc795e",
+    "/tmp/payroll-health-followup/monthlyBenefitsFixture.js": "767e74aaae1f6236b82aa184729d4e9d50d8efe94000e403ba9f3090ceb55c0c"
+  },
+  "frozenRegressionIntegrity": {
+    "backend": {
+      "sourceCount": 2580,
+      "changed": []
+    },
+    "browser": {
+      "sourceCount": 3742,
+      "changed": []
+    }
+  },
+  "remaining": [
+    "Integrate portable follow-up fixtures/tests after the frozen full runs finish.",
+    "Complete and inspect full backend and browser regression results.",
+    "Preserve latest main dated benefit continuation UI/tests during candidate integration.",
+    "Production provider and government acceptance remains unverified."
+  ]
+}
