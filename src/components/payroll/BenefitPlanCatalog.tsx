@@ -1,3 +1,5 @@
+import HealthPlanDisclosureSetup from './HealthPlanDisclosureSetup'
+import HealthQualificationReview from './HealthQualificationReview'
 import {useState} from 'react'
 import {workforceApi,type BenefitPlan,type BenefitOption} from '../../utils/workforceApi'
 const input='mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm'
@@ -18,5 +20,5 @@ export default function BenefitPlanCatalog({catalog,onChanged}:{catalog:string;o
  <label className="block text-sm font-semibold">Plan & rate verification source<input className={input} required minLength={12} maxLength={2000} value={source} onChange={e=>{setSource(e.target.value);setConfirmed(false)}}/></label>
  <label className="flex items-start gap-2 text-sm"><input type="checkbox" required checked={confirmed} onChange={e=>setConfirmed(e.target.checked)}/>I verified the plan terms, coverage options, monthly costs and published tax treatment.</label>
  <button className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40" disabled={!confirmed}>Publish benefit plans</button>
- </fieldset></form></section>
+ </fieldset></form>{(baseline?JSON.parse(baseline) as BenefitPlan[]:[]).filter(p=>p.options.some(o=>o.taxTreatment==='PRETAX'&&o.employeeCostCents>0)).map(p=><div key={p.id}><HealthQualificationReview planId={p.id} planName={p.name}/><HealthPlanDisclosureSetup planId={p.id} planName={p.name}/></div>)}</section>
 }

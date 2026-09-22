@@ -15,6 +15,7 @@ test('payroll routes stay inside the authenticated admin namespace', () => {
   }
   registerPayrollRoutes(app, {})
   assert.ok(registered.length >= 15)
+  for(const method of ['GET','POST'])assert.ok(registered.some(route=>route.path==='/api/admin/payroll/health-plan-qualification/:planId/disclosures'&&route.method===method))
   assert.ok(registered.some(route=>route.path==='/api/admin/payroll/runs/:id/retirement-remittance/preview'&&route.method==='POST'))
   assert.ok(registered.some(route=>route.path==='/api/admin/payroll/retirement-remittance-sources'&&route.method==='GET'))
   for(const [method,suffix] of [['GET',''],['POST',''],['POST','/preview'],['POST','/:id/verify'],['POST','/:id/suspend']])assert.ok(registered.some(route=>route.path===`/api/admin/payroll/retirement-plans/:planId/destination${suffix}`&&route.method===method))
@@ -81,6 +82,12 @@ test('employee payroll portal exposes a separate narrow route surface', () => {
     '/api/payroll/employee/onboarding/:taskId',
     '/api/payroll/employee/onboarding/:taskId/acknowledgments',
     '/api/payroll/employee/benefits-election',
+    '/api/payroll/employee/health-elections',
+    '/api/payroll/employee/health-plans/:planId/election',
+    '/api/payroll/employee/health-plans/:planId/election',
+    '/api/payroll/employee/health-plans/:planId/election/:electionId/document',
+    '/api/payroll/employee/health-plans/:planId/disclosure',
+    '/api/payroll/employee/health-plans/:planId/disclosure/document',
     '/api/payroll/employee/retirement',
     '/api/payroll/employee/retirement-contributions',
     '/api/payroll/employee/retirement/:planId/elections',

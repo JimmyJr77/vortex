@@ -73,10 +73,10 @@ test('monthly deductions skip zero wages and cannot be funded by reimbursements'
  await api(`/employees/${employee.id}/adjustments`,{kind:'REIMBURSEMENT',name:'Synthetic expense reimbursement',amountCents:20000,activeFrom:'2026-09-01',activeTo:'2026-09-15',status:'ACTIVE',authorizationReference:'Synthetic verified business expense',taxTreatmentVerified:true},'POST',201)
  result=await preview();assert.equal(result.canApprove,false);assert.ok(result.employees[0].netPayCents>0);assert.ok(result.warnings.some(w=>w.code==='BENEFIT_DEDUCTION_REVIEW'&&w.message.includes('Reimbursements cannot fund')))
 })
-test('pretax and missing benefit authorizations block automatic collection',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+test('unqualified pretax benefits and missing authorizations block automatic collection',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h,{taxTreatment:'PRETAX'})
  const preview=async()=>(await api('/runs/preview',{payPeriodId:periods[0].id})).preview
- let result=await preview();assert.equal(result.canApprove,false);assert.equal(result.deductionCents,0);assert.ok(result.warnings.some(w=>w.message.includes('Pretax benefit deductions')))
+ let result=await preview();assert.equal(result.canApprove,false);assert.equal(result.deductionCents,0);assert.ok(result.warnings.some(w=>w.code==='BENEFIT_DEDUCTION_REVIEW'&&w.message.includes('Section 125 eligibility')))
  await h.pool.query("UPDATE payroll_onboarding_task SET response=response-'benefitsDeductionAuthorization' WHERE employee_id=$1 AND task_key='PAY_REVIEW'",[employee.id])
  result=await preview();assert.equal(result.canApprove,false);assert.ok(result.warnings.some(w=>w.message.includes('current signed benefit deduction authorization')))
 })

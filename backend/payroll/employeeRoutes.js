@@ -1,3 +1,5 @@
+import {registerEmployeeHealthPlanDisclosure} from './healthPlanDisclosure.js'
+import {registerHealthElection} from './healthElection.js'
 import {registerPayrollAccountLink} from './accountLink.js'
 import {registerEmployeeMarylandAgreementSigning} from './marylandAgreementSigning.js'
 import {registerEmployeeRetirementContributions} from './employeeRetirementContributions.js'
@@ -102,6 +104,8 @@ export function registerPayrollEmployeeRoutes(app, pool, {paymentFetcher=fetch,r
   registerEmployeeReplacementReceiptRoutes(app,pool)
   registerEmployeeCheckReceiptRoutes(app,pool)
   registerEmployeeBenefitCoverage(app,pool)
+  registerEmployeeHealthPlanDisclosure(app,pool)
+  registerHealthElection(app,pool)
   registerRetirementElectionRoutes(app,pool,{now:retirementNow})
   registerEmployeeRetirementContributions(app,pool)
   const auth = payrollEmployeeAuth(pool)

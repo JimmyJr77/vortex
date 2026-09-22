@@ -1,3 +1,4 @@
+import {healthElectionFixture} from '../testing/healthElectionFixture.js'
 import {employerBenefitFundingReport} from '../employerBenefitFundingReport.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -49,13 +50,17 @@ for(const {future,authorize,withdraw=true} of [{future:false,authorize:true},{fu
  }
 
 })
-test('employer funding reconciliation retains earlier employee collections without subtracting or duplicating premiums',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
- const h=await createHistoricalHarness(t);t.after(()=>h.close());const {api,employee,periods}=await monthlyBenefitsFixture(h)
+for(const treatment of ['POSTTAX','PRETAX'])test(`employer funding reconciliation retains earlier ${treatment} collections without subtracting or duplicating premiums`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='1b'.repeat(32);t.after(()=>{if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old})
+ const h=await createHistoricalHarness(t,{},'2026-09-16T16:00:00.000Z');t.after(()=>h.close())
+ const fixture=treatment==='PRETAX'?await healthElectionFixture(h):await monthlyBenefitsFixture(h),{api,employee,periods}=fixture
+ if(treatment==='PRETAX')await api(fixture.path,fixture.electionBody,'POST',200,true)
  const finalize=async(period,paymentDate)=>{const run=await api('/runs',{payPeriodId:period.id},'POST',201);await api(`/runs/${run.id}/status`,{status:'REVIEW'},'PATCH');await api(`/runs/${run.id}/status`,{status:'APPROVED'},'PATCH');await api(`/runs/${run.id}/finalize`,{paymentDate,paymentConfirmationReference:'SYNTHETIC-FUNDING-RECONCILIATION'});return run}
  const first=await finalize(periods[0],'2026-09-18'),packet=await api('/onboarding',undefined,'GET',200,true),task=packet.tasks.find(t=>t.task_key==='PAY_REVIEW')
  await api(`/employees/${employee.id}/onboarding/${task.id}/review`,{status:'COMPLETE',note:'Employer assumes health funding after the first payment',paySetupFingerprint:packet.paySetup.fingerprint,benefitsReview:{disposition:'ENROLLED_EMPLOYER_FUNDED',effectiveOn:'2026-09-20',summary:'Employer funds continued group medical enrollment.',evidenceReference:'Synthetic excluded group health review',confirmed:true,employerFundingConfirmed:true,fundingTreatment:'EXCLUDED_GROUP_HEALTH_PREMIUM'}})
  await finalize(periods[1],'2026-09-30')
  const path='/reports/employer-benefit-funding?start=2026-09-30&end=2026-09-30',funding=(await api(path)).funding
  assert.equal(funding.length,1);assert.equal(funding[0].employeeCollectedCents,12500);assert.equal(funding[0].employeeCollection.runId,Number(first.id));assert.equal(funding[0].items[0].employerMonthlyCents,57500)
- await h.pool.query('UPDATE payroll_run_employee SET posttax_deduction_cents=posttax_deduction_cents+1 WHERE payroll_run_id=$1',[first.id]);await api(path,undefined,'GET',409)
+ const field=treatment==='PRETAX'?'pretax_deduction_cents':'posttax_deduction_cents'
+ await h.pool.query(`UPDATE payroll_run_employee SET ${field}=${field}+1 WHERE payroll_run_id=$1`,[first.id]);await api(path,undefined,'GET',409)
 })

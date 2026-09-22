@@ -3,7 +3,7 @@ import type {PDFDocumentProxy} from 'pdfjs-dist'
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import officialFormUrl from '../../../backend/payroll/forms/irs-w4-2026.pdf?url'
 
-export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCount=5,sourceUrl=officialFormUrl,editionLabel='2026',reviewTitle}:{pdfBase64?:string;onDisplayed?:(page:number)=>Promise<void>;formName?:string;pageCount?:number;sourceUrl?:string;editionLabel?:string;reviewTitle?:string}){
+export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCount=5,sourceUrl=officialFormUrl,editionLabel='2026',reviewTitle,official=true}:{pdfBase64?:string;onDisplayed?:(page:number)=>Promise<void>;formName?:string;pageCount?:number;sourceUrl?:string;editionLabel?:string;reviewTitle?:string;official?:boolean}){
  const [pdf,setPdf]=useState<PDFDocumentProxy|null>(null),[page,setPage]=useState(1),[attempt,setAttempt]=useState(0),[ready,setReady]=useState(0),[error,setError]=useState(''),[text,setText]=useState(''),[zoom,setZoom]=useState(1)
  const [fields,setFields]=useState<Array<{id:string;label:string;value:string}>>([])
  const canvas=useRef<HTMLCanvasElement>(null)
@@ -49,13 +49,13 @@ export default function W4PdfReview({pdfBase64,onDisplayed,formName='W-4',pageCo
   return()=>{live=false;cancel?.()}
  },[pdf,page,onDisplayed,attempt])
  const select=(value:number)=>{setReady(0);setError('');setText('');setFields([]);setPage(value);setAttempt(current=>current+1)}
- return <section aria-label={`Official ${formName} page review`} className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-3">
+ return <section aria-label={`${official?'Official ':''}${formName} page review`} className="space-y-3 rounded-xl border border-slate-300 bg-slate-50 p-3">
   <p className="font-bold">{pdfBase64?(reviewTitle||`Review your completed ${formName}`):`Official ${editionLabel} ${formName}, instructions and worksheets`}</p>
   <nav aria-label={`${formName} pages`} className="flex flex-wrap gap-2">{Array.from({length:pageCount},(_,index)=>index+1).map(n=><button type="button" key={n} aria-current={page===n?'page':undefined} className={`rounded-lg border px-3 py-2 text-sm ${page===n?'bg-slate-950 text-white':'bg-white'}`} onClick={()=>select(n)}>Page {n}</button>)}</nav>
   <p role="status" className="text-sm">{ready===page?`Page ${page} of ${pageCount} displayed${onDisplayed?' and review visit saved':''}.`:'Loading page…'}</p>
   {error?<p role="alert" className="text-sm text-red-800">{error}</p>:null}
   <label className="block text-sm">Page zoom<select value={zoom} onChange={e=>setZoom(Number(e.target.value))} className="ml-2 rounded border bg-white p-2"><option value={1}>Fit width</option><option value={1.5}>150%</option><option value={2}>200%</option><option value={3}>300%</option></select></label>
-  <div tabIndex={0} role="region" aria-label={`${formName} page image; scroll horizontally when zoomed`} className="overflow-auto rounded border bg-white"><canvas ref={canvas} aria-label={`Official ${formName} page ${page}`} style={{width:`${zoom*100}%`,maxWidth:'none',height:'auto'}} /></div>
+  <div tabIndex={0} role="region" aria-label={`${formName} page image; scroll horizontally when zoomed`} className="overflow-auto rounded border bg-white"><canvas ref={canvas} aria-label={`${official?'Official ':''}${formName} page ${page}`} style={{width:`${zoom*100}%`,maxWidth:'none',height:'auto'}} /></div>
   {text?<details><summary className="cursor-pointer text-sm font-semibold">Read page {page} text</summary><p className="mt-2 whitespace-pre-wrap text-sm leading-6">{text}</p>{fields.length?<div className="mt-3"><p className="font-semibold">Entered form values</p><dl className="space-y-2 text-sm">{fields.map(field=><div key={field.id}><dt className="font-semibold break-words">{field.label}</dt><dd className="whitespace-pre-wrap break-words">{field.value}</dd></div>)}</dl></div>:null}</details>:null}
  </section>
 }

@@ -1,3 +1,6 @@
+import {healthElectionProofCurrent} from './healthElectionProof.js'
+import {resolveHealthPremiumAuthorization} from './healthPremiumAuthorization.js'
+import {healthPremiumWageEvidence} from './healthPremiumWageEvidence.js'
 import {requireBenefitContinuation} from './benefitContinuation.js'
 import {benefitsReviewCurrent} from './benefitsReview.js'
 import {benefitsTerms,benefitPlans} from './benefitCatalog.js'
@@ -25,8 +28,23 @@ export function priorMonthlyBenefitCollection(rows,employeeId,month){
   const collection=frozen.benefitCollection,saved=collection?.authorization,basis=retainedAuthorization(saved)
   const signedDay=new Intl.DateTimeFormat('en-CA',{timeZone:collection.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(saved.signedAt))
   if(collection.status!=='COLLECT_THIS_RUN'||typeof collection.timezone!=='string'||collection.signedDay!==signedDay||day(row.payment_date)<signedDay||day(row.payment_date)<basis.startOn||day(row.payment_date).slice(0,7)!==month)throw new Error('Reconcile the benefit collection date against the signed authorization.')
-  if(Number(basis.employeeId)!==Number(employeeId)||items.some(i=>i.kind!=='POSTTAX_DEDUCTION'||i.benefitDeduction.month!==month||i.benefitDeduction.authorizationFingerprint!==saved.proposalFingerprint||i.amountCents!==i.benefitDeduction.monthlyCents)||!same(amounts(items.map(i=>i.benefitDeduction)),amounts(basis.items)))throw new Error('Monthly benefit deductions do not match their retained authorization.')
+  if(Number(basis.employeeId)!==Number(employeeId)||items.some(i=>i.kind!==(i.benefitDeduction.taxTreatment==='PRETAX'?'HEALTH_SECTION125_PRETAX':'POSTTAX_DEDUCTION')||i.benefitDeduction.month!==month||i.benefitDeduction.authorizationFingerprint!==saved.proposalFingerprint||i.amountCents!==i.benefitDeduction.monthlyCents)||!same(amounts(items.map(i=>i.benefitDeduction)),amounts(basis.items)))throw new Error('Monthly benefit deductions do not match their retained authorization.')
+  const health=healthPremiumWageEvidence(frozen)
+  if(basis.items.some(i=>i.taxTreatment==='PRETAX')){
+   const evidence=collection.healthEvidence
+   if(!Array.isArray(evidence)||evidence.length!==basis.items.filter(i=>i.taxTreatment==='PRETAX').length||new Set(evidence.map(e=>e.planId)).size!==evidence.length)throw new Error('Missing retained signed health collection evidence.')
+   for(const item of basis.items.filter(i=>i.taxTreatment==='PRETAX')){
+    const proof=evidence.find(e=>e.planId===item.planId),election=proof?.election,proposal=election?.proposal
+    const {fingerprint,...source}=proposal||{}
+    const hash=createHash('sha256').update(JSON.stringify(compensationEvidence(source))).digest('hex')
+    if(!proposal||!healthElectionProofCurrent(election,proposal,proof.timeZone,proof.electionCreatedAt)||day(row.payment_date)<proposal.effectiveOn||day(row.payment_date)>proposal.effectiveThrough||fingerprint!==hash||proof.electionFingerprint!==hash||election.action!=='ELECT'||election.confirmed!==true||election.disclosureConfirmed!==true||election.electionRulesConfirmed!==true||proposal.authorizationFingerprint!==saved.proposalFingerprint||String(proposal.employeeId)!==String(employeeId)||proposal.planId!==item.planId||proposal.optionId!==item.optionId||proposal.monthlyCents!==item.monthlyCents)throw new Error('Signed health collection evidence differs from the retained premium.')
+   }
+   if(!health||!same(amounts(items.filter(i=>i.kind==='HEALTH_SECTION125_PRETAX').map(i=>i.benefitDeduction)),amounts(basis.items.filter(i=>i.taxTreatment==='PRETAX'))))throw new Error('Reconcile retained pretax health collection evidence.')
+   if(!same(health.items.map(i=>({planId:i.planId,amount:i.deductionCents})),basis.items.filter(i=>i.taxTreatment==='PRETAX').map(i=>({planId:i.planId,amount:i.monthlyCents})).sort((a,b)=>a.planId.localeCompare(b.planId))))throw new Error('Health premium amounts differ from the signed collection.')
+  }
   const retirement=retirementStatementSummary(frozen)
+  const pretax=(health?.deductionCents||0)+(retirement?retirement.plans.reduce((n,p)=>n+p.ordinaryPretaxCents+p.catchUpPretaxCents,0):0)
+  if(health&&(pretax!==Number(row.pretax_deduction_cents)||pretax!==frozen.pretaxDeductionCents))throw new Error('Pretax benefit deduction totals do not reconcile to committed payroll.')
   const roth=retirement?retirement.plans.reduce((n,p)=>n+p.ordinaryRothCents+p.catchUpRothCents,0):0
   const total=frozen.payItems.filter(i=>i.kind==='POSTTAX_DEDUCTION').reduce((n,i)=>n+Number(i.amountCents),roth)
   if(!Number.isSafeInteger(total)||total!==Number(row.posttax_deduction_cents)||total!==Number(frozen.posttaxDeductionCents))throw new Error('Monthly benefit deduction totals do not reconcile to the committed payroll.')
@@ -54,7 +72,7 @@ export async function applyMonthlyBenefits(db,facility,preview,rawEmployees,sett
  if(!ids.length)return
  const tasks=(await db.query("SELECT * FROM payroll_onboarding_task WHERE facility_id=$1 AND employee_id=ANY($2::bigint[]) AND task_key='PAY_REVIEW'",[facility,ids])).rows
  if(!tasks.some(t=>t.response?.benefitsDeductionAuthorization||['ENROLLED','ENROLLED_EMPLOYER_FUNDED'].includes(t.response?.benefitsReview?.disposition)&&t.response?.benefitsElection?.selections?.some(s=>s.employeeCostCents>0)))return
- const prior=(await db.query(`SELECT r.id,r.status,r.run_kind,COALESCE(r.payment_date,p.pay_date) AS payment_date,r.calculation_snapshot,re.employee_id,re.posttax_deduction_cents
+ const prior=(await db.query(`SELECT r.id,r.status,r.run_kind,COALESCE(r.payment_date,p.pay_date) AS payment_date,r.calculation_snapshot,re.employee_id,re.posttax_deduction_cents,re.pretax_deduction_cents
  FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
  WHERE r.facility_id=$1 AND re.employee_id=ANY($2::bigint[]) AND r.status IN ('APPROVED','FINALIZED') AND r.id IS DISTINCT FROM $3::bigint
  AND to_char(COALESCE(r.payment_date,p.pay_date),'YYYY-MM')=$4 ORDER BY r.id`,[facility,ids,excludedRunId,month])).rows
@@ -89,7 +107,7 @@ export async function applyMonthlyBenefits(db,facility,preview,rawEmployees,sett
    const authorization=data.saved,basis=retainedAuthorization(authorization)
    const signedDay=new Intl.DateTimeFormat('en-CA',{timeZone:settings.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(authorization.signedAt))
    if(paymentDate<signedDay||paymentDate<basis.startOn)continue
-   if(basis.items.some(i=>i.taxTreatment!=='POSTTAX'))throw new Error('Pretax benefit deductions require verified taxable-wage calculations before automatic collection is available.')
+   if(basis.items.some(i=>!['POSTTAX','PRETAX'].includes(i.taxTreatment)))throw new Error('Review unsupported benefit tax treatment before collecting deductions.')
    const collected=priorMonthlyBenefitCollection(prior.filter(r=>Number(r.employee_id)===Number(employee.employeeId)),employee.employeeId,month)
    if(collected){
     if(collected.paymentDate>paymentDate||!same(amounts(collected.items),amounts(basis.items)))throw new Error('A different or later benefit deduction is already committed for this month. Reconcile the coverage change or payment order before continuing.')
@@ -104,12 +122,23 @@ export async function applyMonthlyBenefits(db,facility,preview,rawEmployees,sett
    if(withdrawn)throw new Error('The employee withdrew this benefit deduction authorization. Review benefits funding and obtain a new authorization before collecting further deductions.')
    if(raw.employment_status==='ONBOARDING')throw new Error('Review benefit continuation and dated deduction coverage before collecting from a former employment period.')
    const continuation=raw.employment_status==='TERMINATED'?await requireBenefitContinuation(db,facility,employee.employeeId,paymentDate,authorization):null
+   const resolved=await resolveHealthPremiumAuthorization(db,facility,employee.employeeId,paymentDate,authorization)
+   if(resolved.health125&&!employee.health125){employee.pendingHealth125=resolved.health125;continue}
+   if(resolved.health125&&!same(resolved.health125.items,employee.health125.items))throw new Error('Health premium calculation differs from current signed coverage.')
+   const posttaxCents=basis.items.filter(i=>i.taxTreatment==='POSTTAX').reduce((n,i)=>n+i.monthlyCents,0)
    const taxes=[employee.federalIncomeTaxCents,employee.stateIncomeTaxCents,employee.socialSecurityTaxCents,employee.medicareTaxCents,employee.additionalMedicareTaxCents]
-   if(taxes.every(n=>n!==null)&&employee.grossPayCents-taxes.reduce((n,v)=>n+Number(v),0)-employee.totalDeductionCents<basis.monthlyCents)problem('Available wages cannot cover the full authorized monthly benefit contribution. Reimbursements cannot fund this wage deduction; resolve collection before approval.')
-   employee.benefitCollection={version:1,status:'COLLECT_THIS_RUN',month,timezone:settings.timezone,signedDay,monthlyCents:basis.monthlyCents,authorization,...(continuation?{continuation}:{})}
-   for(const item of basis.items)employee.payItems.push({kind:'POSTTAX_DEDUCTION',name:`${item.planName} — ${item.optionLabel}`,amountCents:item.monthlyCents,benefitDeduction:{version:1,month,...item,authorizationFingerprint:authorization.proposalFingerprint}})
-   employee.posttaxDeductionCents+=basis.monthlyCents;employee.totalDeductionCents+=basis.monthlyCents
-   if(employee.netPayCents!==null)employee.netPayCents-=basis.monthlyCents
+   if(taxes.every(n=>n!==null)&&employee.grossPayCents-taxes.reduce((n,v)=>n+Number(v),0)-employee.totalDeductionCents<posttaxCents)problem('Available wages cannot cover the full authorized monthly benefit contribution. Reimbursements cannot fund this wage deduction; resolve collection before approval.')
+   employee.benefitCollection={version:1,status:'COLLECT_THIS_RUN',month,timezone:settings.timezone,signedDay,monthlyCents:basis.monthlyCents,authorization,...(resolved.health125?{healthEvidence:resolved.evidence}:{}),...(continuation?{continuation}:{})}
+   for(const item of basis.items){
+    const benefitDeduction={version:1,month,...item,authorizationFingerprint:authorization.proposalFingerprint}
+    if(item.taxTreatment==='PRETAX'){
+     const line=employee.payItems.find(i=>i.kind==='HEALTH_SECTION125_PRETAX'&&i.health125.planId===item.planId)
+     if(!line||line.amountCents!==item.monthlyCents)throw new Error('Missing calculated health premium deduction.')
+     line.benefitDeduction=benefitDeduction;line.name=`${item.planName} — ${item.optionLabel}`
+    }else employee.payItems.push({kind:'POSTTAX_DEDUCTION',name:`${item.planName} — ${item.optionLabel}`,amountCents:item.monthlyCents,benefitDeduction})
+   }
+   employee.posttaxDeductionCents+=posttaxCents;employee.totalDeductionCents+=posttaxCents
+   if(employee.netPayCents!==null)employee.netPayCents-=posttaxCents
   }catch(e){problem(e.message)}finally{if(datedCoverage&&employee.benefitCollection)employee.benefitCollection.datedCoverage=datedCoverage}
  }
  preview.deductionCents=preview.employees.reduce((n,e)=>n+e.totalDeductionCents,0)

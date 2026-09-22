@@ -56,7 +56,7 @@ function benefitJournalLines(run) {
  const grouped=new Map()
  for(const employee of participating) {
   let collected
-  try {collected=priorMonthlyBenefitCollection([{...run,payment_date:date,posttax_deduction_cents:employee.posttaxDeductionCents}],employee.employeeId,date.slice(0,7))}
+  try {collected=priorMonthlyBenefitCollection([{...run,payment_date:date,posttax_deduction_cents:employee.posttaxDeductionCents,pretax_deduction_cents:employee.pretaxDeductionCents}],employee.employeeId,date.slice(0,7))}
   catch(e){throw fail(e.message,409)}
   for(const item of collected.items){
    const key=JSON.stringify([item.planId,item.optionId,date.slice(0,7),item.planName,item.optionLabel])
@@ -87,10 +87,10 @@ export function journalPayload(run,accounts) {
 export async function verifyBenefitPosting(db,run) {
  const benefitEmployees=(run.calculation_snapshot?.employees||[]).filter(e=>e.payItems?.some(i=>i.benefitDeduction))
    if(benefitEmployees.length){
-    const posted=(await db.query('SELECT employee_id,posttax_deduction_cents FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows
+    const posted=(await db.query('SELECT employee_id,posttax_deduction_cents,pretax_deduction_cents FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows
     for(const employee of benefitEmployees){
      const matches=posted.filter(r=>Number(r.employee_id)===Number(employee.employeeId))
-     if(matches.length!==1||Number(matches[0].posttax_deduction_cents)!==Number(employee.posttaxDeductionCents))throw fail('Posted benefit deductions do not reconcile to the finalized employee evidence.',409)
+     if(matches.length!==1||Number(matches[0].posttax_deduction_cents)!==Number(employee.posttaxDeductionCents)||Number(matches[0].pretax_deduction_cents)!==Number(employee.pretaxDeductionCents))throw fail('Posted benefit deductions do not reconcile to the finalized employee evidence.',409)
     }
    }
 }

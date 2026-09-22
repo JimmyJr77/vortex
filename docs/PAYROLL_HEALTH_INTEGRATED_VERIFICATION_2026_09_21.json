@@ -1,0 +1,129 @@
+{
+  "checkedAt": "2026-09-22T03:02:59.556954+00:00",
+  "status": "INTEGRATED LOCALLY; NOT PUSHED OR DEPLOYED; FULL CANDIDATE BROWSER RUN STILL ACTIVE",
+  "baseMain": "40173667",
+  "integratedSourceHashes": {
+    "backend/payroll/health125TaxWages.js": "5ec890464ec31ef63c728be4986dedf7cc849f143ec49504c4daf4ef6481f893",
+    "backend/payroll/health125EmploymentTaxes.js": "c717b5b6d6cd68fb13b08baba5f90e7a70f6cdd52ce7a52df31daada6749a47d",
+    "backend/payroll/withholding2026.js": "d0f2550c0520a2d5bc6796906883e704e67b43bd49fadb8a58764027d40288f8",
+    "backend/payroll/payrollEngine.js": "381e8262a1d212be066e99c34b97b6e52df1f8ee0ec39196a6da4933a2dc96ab",
+    "backend/payroll/__tests__/health125TaxWages.test.js": "f4a0c0be4167990d418bc364481c12041840397e76ee2205352a60c8cdb76380",
+    "backend/payroll/__tests__/health125EmploymentTaxes.test.js": "ca2ce98c820fa2910c70adaa3c2f2251c7d07d6c68382837108086c915460331",
+    "backend/payroll/__tests__/health125PayrollEngine.test.js": "9d256a8c6cb62804513656b1a20935c792c0792acb4268e1dc4e030c4d7a9c46",
+    "backend/migrations/831_payroll_health_plan_qualification.sql": "ffb74be08c5a373e519e990f49dd9eea97dc0600624d10f8bc7440d758344f55",
+    "backend/payroll/healthPlanQualification.js": "fcbcf46cf3af3c54e4a5a630941d49fd3599f76ba98769b9285a931bc964beae",
+    "backend/payroll/healthParticipantQualification.js": "a60c83e58c21c40b2a8d98e424d138aa4da54ce8d1af985f4f46a11d19a9bc75",
+    "backend/payroll/testing/healthQualificationFixture.js": "ec246d823c197bec23cf8158ca3654f9a43b2466128e617011019cfb51bc795e",
+    "backend/payroll/__tests__/healthPlanQualification.test.js": "3d4512e230d309a9554556b8ef13fd2acbdc0e299836925ac03365c42c3a5d72",
+    "backend/payroll/__tests__/healthParticipantQualification.test.js": "bbe12c7e74cb8e5ae6a2be5f4609b69505bbf341be2c62b4464b64c98fdbc1d3",
+    "backend/payroll/initTables.js": "a36acf812f35e9fca5426e4586be6b8dd74c5b9e730ca6d29bca93505592043a",
+    "backend/payroll/registerRoutes.js": "930697790cda22d4050bbbf4589d29651a44bcc0f6502d43b655eb97e6fe0b56",
+    "backend/payroll/testing/harness.js": "00a94f489c6e5585b2e31bac8370a0edb7edfaa8f7d16c9bdb4db28817e4f7be",
+    "src/components/payroll/HealthQualificationReview.tsx": "3e3d35e58f9e3993e57aeb7997f8a6f721a0ab01057e48c406ea1371f365a3b2",
+    "src/components/payroll/BenefitPlanCatalog.tsx": "0a3e03bb08295dcbd795ad8a72b13fd1f6c638b17b3701542f45cd638ac8f68d",
+    "src/components/payroll/OnboardingWorkspace.tsx": "6a02346bbb8450ab04b76b08e751a72639c1ff485bf3c767bb4a4b4c639c1305",
+    "src/utils/workforceApi.ts": "d82e68fbaa2675cf65991094dd438be53a2ca38dfdcf578e1cad3948656988c6",
+    "tests/e2e/payroll-health-qualification.spec.ts": "b06589eb44f90111066c589a26f2b2b259cd4f6c59a0bfb603990eba935d109e",
+    "backend/migrations/832_payroll_health_election.sql": "c868f608428be700a1916d51a852ad127eb26c1a380343328dbd317e56a4acec",
+    "backend/payroll/healthPlanDisclosure.js": "ab467a97c0e5f572afafd94bb4ca22acbd6da4ea9d73aa4cdd52565bed9b7792",
+    "backend/payroll/healthElection.js": "13dcf51854975c09971ce7995c8c414dcca253dfcd24c57f53be99964f88cc55",
+    "backend/payroll/testing/healthElectionFixture.js": "053852d209589015815697b0add903a0164d961f3f1f173a3604afa9384195ee",
+    "backend/payroll/__tests__/healthElection.test.js": "040420acd1fb148fafb5a11915b782cc72b0275ed194071e8db3b28801caf96d",
+    "backend/payroll/employeeRoutes.js": "7dae19143bb54a06e609734d91cdfd2eaf25d9266e432ef062b135cc8186a489",
+    "src/components/payroll/HealthPlanDisclosureSetup.tsx": "7bbca5e86f0650245f323c480a7322758b6ba943c12accdf64ce40e71c70dcce",
+    "tests/e2e/payroll-health-disclosure.spec.ts": "d4676910314a3d07d1522383354a037880d5b61fcfbec12906031a94d61108a0",
+    "src/components/payroll/EmployeeHealthElection.tsx": "db60781fc7f9804a1a44843389fc8d666a91446a405c52487ed905623a4c0903",
+    "src/components/payroll/W4PdfReview.tsx": "2516874a617629dfc42d8245b72668dc5c7f6f521895aa5036e6e77c81d38478",
+    "tests/e2e/payroll-health-election.spec.ts": "dab1e028b43a593e8b270c6d49b86f19321b5127e9213fd99bbcf064cb13cb40",
+    "backend/payroll/healthElectionProof.js": "0ca3cdaf2b581c0726818e76d001b679b87bb34dd056e1d307867dd479ce4c40",
+    "backend/payroll/healthPremiumAuthorization.js": "ffcde47bd8ae103c85228c357bb1de5b7c6c9c7473e5783f29b89d740af423e3",
+    "backend/payroll/healthPremiumWageEvidence.js": "ed331b3ad804a09d290db4256ce0331b1953e4890b2b4ce3312bf7ff92dd2083",
+    "backend/payroll/incomeTaxWageReconciliation.js": "634a46136648a4e283cb5dea0d27beb8b6c779aa7b0523cd1ce4cead2bfa334d",
+    "backend/payroll/ficaWageReconciliation.js": "def0b1176c0d078b3029c383465cf7aca24ce64254a2ca4404574a6a86cba993",
+    "backend/payroll/__tests__/healthWageReconciliation.test.js": "6f61a04cb27da09095b2cbf31f4cf6f71aee0684bf6a009877a60d8bbcb2dc83",
+    "backend/payroll/employmentTaxWageHistory.js": "e6e311d257a4292b2e8138d1e5fd0ff9d1ba144c28c10c26671b86ffa5e9f37b",
+    "backend/payroll/__tests__/employmentTaxWageHistory.test.js": "538f8e3148c995b5de0387d27d0020be9a6a9033abc6f436664e6ea37f98dde7",
+    "backend/payroll/monthlyBenefits.js": "93e37f302a5d4763b0c5b79f74c35619d1cbd498143514bbb7cf3fa39348d7b0",
+    "backend/payroll/benefitContinuation.js": "41202edccde72afe9f69458cc9bc7efd6a47a297b356b7c52b9e76ec29c283c0",
+    "backend/payroll/payStatement.js": "8bb431a2f8528ca25e568459b7b5a85c3483243945938ec3a12b0bcdcf126955",
+    "backend/payroll/benefitContributionReport.js": "902037da397150cb2454918711e64a9873493a997990b9c081f4e1ee2bd4fe0f",
+    "backend/payroll/quickbooks.js": "487faff3d046feefc704e837d0671e97f4083985738293afd628877c16c76d4f",
+    "backend/payroll/retirementStatement.js": "bbf49ed987385926898e0ce93a693d9140732608f0e54affa750abb7dbfe7cf8",
+    "backend/payroll/__tests__/healthMonthlyCollection.test.js": "ea8ddb3b3d106c17ff1673b6e7b7abb65cf9a06e3823a69ffddbbe5f9b65a558",
+    "backend/payroll/__tests__/monthlyBenefits.test.js": "50af2736225651f3ab4dd4f8ce224267eabb928da86fb7fccb2809290cdd2b45",
+    "backend/payroll/retirementPayrollWages.js": "21f3c439cfe9678bd0c3935ed1e0098157a3c40461895b6d4346322498a010bb",
+    "backend/payroll/employerBenefitFundingReport.js": "7668bc2aec5956808c1e48307a3860a84f5bd73a896d4a05e85c04261e7e7c18",
+    "backend/payroll/testing/regularRetirementFixture.js": "76fce796d0a9f5d06abe90650841d94bcabc818b20c93a95c3fb1af76dbab167",
+    "backend/payroll/__tests__/employerFundedBenefits.test.js": "83849382397129de73d50b0987fe686b2e8651c6522de4e74d0fdc1588f34d42",
+    "backend/payroll/supplementalPaymentHistory.js": "9ac4e56e8320b93bd416cde7831afa5d580cb147e0bca8cf3e98e8578abc20b3",
+    "backend/payroll/__tests__/retirementEmployerApproval.test.js": "99efed21ed579e9a81247df5c708d9448ecbd3c6578c226ac71cde5204ec8f9c",
+    "backend/payroll/__tests__/healthSupplementalHistory.test.js": "357a006a37d359e80bbb31466d58deb96075b5b0a2383bc0e3381e8afe6f5030",
+    "src/components/payroll/BenefitCollectionReview.tsx": "779c8fe76b8bf892ec74a42f9ac5132d5ed4bf1b595f31869616faf4f01e0075",
+    "backend/payroll/overtimeSource.js": "793a812b5c4e0d2ae4ceb7d91120ff8f3ffa2141cb6dd069280710bf2fc24f3d",
+    "backend/payroll/testing/regularEmployerRetirementFixture.js": "82d388b78b472757593f3c8832561ecd3e022899c1527ad9201c39514400a827",
+    "backend/payroll/__tests__/retirementEmployerAnnualReporting.test.js": "74fc1e4066ea50b0e28681fe5088207301924b25262687e0f0f547aad9f7240a",
+    "backend/payroll/employmentTaxEvidence.js": "419280564dfd0a2a45daa274cba9e7c793051c96c6474a40b7e7a740d8915983",
+    "backend/payroll/taxReconciliation.js": "2797fe67c3b4414664f79c5db6db1bf33086c7c62ba289c90d41c3ba46d5bb69",
+    "backend/payroll/testing/monthlyMultiPlanFixture.js": "084f079b11e235147d95645a4f3149c4530447f2c802f8a95829fe2e90ae58aa",
+    "backend/payroll/__tests__/healthMultiplePlans.test.js": "c5dd2f47fc1068fbfd762dff49d09da454fb7f04f1926094c3dbce6178fd129e",
+    "backend/payroll/__tests__/payrollRoutes.test.js": "fcf2c0bad4e61a17eaf4f11a133d2cb343e61166da19274acd147c6ae7af3946",
+    "tests/e2e/payroll-health-multiple-plans.spec.ts": "50ba67f699cae0672d66303661f83a12de2ba0dc0e357bce688b853503548f02"
+  },
+  "preserved": [
+    "Unrelated src/components/AdminAccess.tsx edit unchanged and excluded from commit",
+    "Latest main dated benefit continuation UI and browser tests retained"
+  ],
+  "checks": {
+    "backend": {
+      "passed": 58,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 56792.449042,
+      "log": "/tmp/payroll-health-integrated-backend.log",
+      "scope": "health*.test.js, payrollRoutes, dated and ordinary benefit continuation, continuation retirement, employer retirement annual reporting"
+    },
+    "browser": {
+      "passed": 7,
+      "failed": 0,
+      "durationSeconds": 32.2,
+      "log": "/tmp/payroll-health-integrated-browser.log",
+      "scope": "Health qualification, disclosure, employee election including payroll finalization, and both current/prior dated continuation paths"
+    },
+    "multiplePlanBrowser": {
+      "passed": 1,
+      "failed": 0,
+      "durationSeconds": 12.9,
+      "log": "/tmp/payroll-health-integrated-multiplan-browser.log",
+      "screenshot": "/tmp/payroll-health-multiple-plans-mobile.png",
+      "visuallyInspected": true,
+      "scope": "Separate medical/dental signatures, blocked preview until both signed, reload and both retained disclosures at 390px with no overflow/page errors"
+    },
+    "typescript": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-health-integrated-types.log"
+    },
+    "lint": {
+      "exitCode": 0,
+      "errors": 0,
+      "warnings": 1,
+      "existingWarning": "OnboardingWorkspace packetRequest.current effect cleanup",
+      "log": "/tmp/payroll-health-integrated-lint.log"
+    },
+    "newBrowserLint": {
+      "exitCode": 0,
+      "log": "/tmp/payroll-health-multiplan-browser-lint.log"
+    }
+  },
+  "frozenFullBackend": {
+    "passed": 1110,
+    "failed": 2,
+    "skipped": 0,
+    "correction": "Both namespace failures corrected and covered by integrated 58-test run; original result remains unchanged."
+  },
+  "remaining": [
+    "Full frozen candidate browser run session 49506 must finish; verify unchanged source manifest.",
+    "Publish integrated code only after reviewing full browser result.",
+    "Verify exact deployed backend/frontend revision, payroll initialization, storage readiness and original CORS paths.",
+    "Overall one-stop onboarding/payroll goal remains incomplete; expanded categories, exceptions and live provider/government acceptance are still required."
+  ]
+}

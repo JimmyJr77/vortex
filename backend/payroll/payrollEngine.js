@@ -1,3 +1,4 @@
+import {health125EmploymentTaxes} from './health125EmploymentTaxes.js'
 import {authorizedSettlementEarnings} from './authorizedSettlementEarnings.js'
 import {splitCompensationEarnings} from './splitCompensation.js'
 import {salaryExtraStraightTime} from './fixedSalaryAgreement.js'
@@ -140,6 +141,8 @@ export function buildEmployeePreview({
   taxYear = 2026,
   employerTaxConfig,
   retirement401k,
+  health125,
+  ytdTaxWages,
   weightedSettlements = null,
   payPeriod = null,
 }) {
@@ -260,25 +263,33 @@ export function buildEmployeePreview({
   if(settlement){regularPayCents=settlement.regularPayCents;overtimePayCents=settlement.overtimePayCents;regularMinutes=settlement.regularMinutes;overtimeMinutes=settlement.overtimeMinutes;allocated=settlement.entries;rateBreakdown=[];workweekPayments=settlement.workweekPayments;workweekEarnings=settlement.evidence.map(e=>({...e,scope:'COMPLETE_WORKWEEK'}))}
   const grossPayCents = regularPayCents + overtimePayCents + otherTaxablePayCents
   const remainingSocialSecurityBase = Math.max(0, PAYROLL_TAX_REFERENCE.socialSecurityWageBaseCents - ytdSocialSecurityWagesCents)
-  const socialSecurityTaxableCents = Math.min(grossPayCents, remainingSocialSecurityBase)
-  const socialSecurityTaxCents = Math.round(socialSecurityTaxableCents * PAYROLL_TAX_REFERENCE.socialSecurityEmployeeRate)
-  const medicareTaxCents = Math.round(grossPayCents * PAYROLL_TAX_REFERENCE.medicareEmployeeRate)
-  const additionalMedicareTaxableCents = Math.max(0, ytdSocialSecurityWagesCents + grossPayCents - PAYROLL_TAX_REFERENCE.additionalMedicareWithholdingThresholdCents)
+  let socialSecurityTaxableCents = Math.min(grossPayCents, remainingSocialSecurityBase)
+  let socialSecurityTaxCents = Math.round(socialSecurityTaxableCents * PAYROLL_TAX_REFERENCE.socialSecurityEmployeeRate)
+  let medicareTaxCents = Math.round(grossPayCents * PAYROLL_TAX_REFERENCE.medicareEmployeeRate)
+  let additionalMedicareTaxableCents = Math.max(0, ytdSocialSecurityWagesCents + grossPayCents - PAYROLL_TAX_REFERENCE.additionalMedicareWithholdingThresholdCents)
     - Math.max(0, ytdSocialSecurityWagesCents - PAYROLL_TAX_REFERENCE.additionalMedicareWithholdingThresholdCents)
-  const additionalMedicareTaxCents = Math.round(additionalMedicareTaxableCents * PAYROLL_TAX_REFERENCE.additionalMedicareEmployeeRate)
+  let additionalMedicareTaxCents = Math.round(additionalMedicareTaxableCents * PAYROLL_TAX_REFERENCE.additionalMedicareEmployeeRate)
 
   let employerTaxes={futaTaxCents:0,mdUiTaxCents:0}
   if(employerTaxConfig!==undefined)try {employerTaxes=employerTaxes2026({grossCents:grossPayCents,ytdWagesCents:ytdSocialSecurityWagesCents,config:employerTaxConfig,year:taxYear,workState:employee.workState,pretaxDeductionCents})}catch(error){warnings.push(warning('EMPLOYER_TAX_SETUP_REQUIRED','critical',error.message,true))}
+  let healthEmployment=null
+  if(health125!==undefined||ytdTaxWages!==undefined)try{
+    healthEmployment=health125EmploymentTaxes({grossCents:grossPayCents,annualBonusCents:adjustments.filter(a=>a.kind==='BONUS'&&a.taxTreatmentVerified&&a.bonusReview?.paymentType==='ANNUAL_LUMP_SUM').reduce((sum,a)=>sum+Number(a.amountCents),0),health125,retirement:retirement401k,year:taxYear,workState:employee.workState,residenceState:employee.residenceState,ytd:ytdTaxWages,employerTaxConfig})
+    ;({socialSecurityTaxableCents,socialSecurityTaxCents,medicareTaxCents,additionalMedicareTaxableCents,additionalMedicareTaxCents}=healthEmployment)
+    employerTaxes={futaWagesCents:healthEmployment.futaWagesCents,mdUiWagesCents:healthEmployment.mdUiWagesCents,futaTaxCents:healthEmployment.futaTaxCents,mdUiTaxCents:healthEmployment.mdUiTaxCents}
+  }catch(error){warnings.push(warning('HEALTH_TAX_WAGE_REVIEW','critical',error.message,true))}
   let withholding = null
-  try { withholding=calculateWithholding2026({grossPayCents,paymentDate:payPeriod?.pay_date?new Date(payPeriod.pay_date).toISOString().slice(0,10):undefined,election:taxElection,payFrequency,year:taxYear,workState:employee.workState,residenceState:employee.residenceState,pretaxDeductionCents,retirement401k,regularWagesCents:regularPayCents+overtimePayCents+salaryExtra.amountCents+paidLeavePayCents,leavePayoutCents:adjustments.filter(a=>a.kind==='LEAVE_PAYOUT'&&a.taxTreatmentVerified).reduce((sum,a)=>sum+Number(a.amountCents),0),hasBonus:adjustments.some(a=>a.kind==='BONUS'),annualBonusCents:adjustments.filter(a=>a.kind==='BONUS'&&a.taxTreatmentVerified&&a.bonusReview?.paymentType==='ANNUAL_LUMP_SUM').reduce((sum,a)=>sum+Number(a.amountCents),0),bonusReviewComplete:adjustments.filter(a=>a.kind==='BONUS').every(a=>a.taxTreatmentVerified&&a.bonusReview?.verifiedAt&&a.bonusReview?.paymentType==='ANNUAL_LUMP_SUM'),ytdWagesCents:ytdSocialSecurityWagesCents}) }
+  try { withholding=calculateWithholding2026({grossPayCents,paymentDate:payPeriod?.pay_date?new Date(payPeriod.pay_date).toISOString().slice(0,10):undefined,election:taxElection,payFrequency,year:taxYear,workState:employee.workState,residenceState:employee.residenceState,pretaxDeductionCents,retirement401k,health125,regularWagesCents:regularPayCents+overtimePayCents+salaryExtra.amountCents+paidLeavePayCents,leavePayoutCents:adjustments.filter(a=>a.kind==='LEAVE_PAYOUT'&&a.taxTreatmentVerified).reduce((sum,a)=>sum+Number(a.amountCents),0),hasBonus:adjustments.some(a=>a.kind==='BONUS'),annualBonusCents:adjustments.filter(a=>a.kind==='BONUS'&&a.taxTreatmentVerified&&a.bonusReview?.paymentType==='ANNUAL_LUMP_SUM').reduce((sum,a)=>sum+Number(a.amountCents),0),bonusReviewComplete:adjustments.filter(a=>a.kind==='BONUS').every(a=>a.taxTreatmentVerified&&a.bonusReview?.verifiedAt&&a.bonusReview?.paymentType==='ANNUAL_LUMP_SUM'),ytdWagesCents:ytdSocialSecurityWagesCents}) }
   catch(error) { warnings.push(warning('WITHHOLDING_ENGINE_NOT_CONFIGURED','critical',error.message,true)) }
-  // Only validated typed retirement treatment changes deductions. Generic
-  // pretax adjustments remain unsupported, and failed withholding blocks pay.
+  // Only classified, validated benefits and retirement change pretax totals.
+  // Generic pretax adjustments remain unsupported.
   const retirementWages=withholding?.incomeTaxWageBasis?.retirement401k
   if(retirementWages){
     pretaxDeductionCents+=retirementWages.pretaxCents
     posttaxDeductionCents+=retirementWages.rothCents
   }
+  const healthWages=withholding?.incomeTaxWageBasis?.health125
+  if(healthWages)pretaxDeductionCents+=healthWages.deductionCents
   const netPayCents=withholding?grossPayCents+reimbursementCents-pretaxDeductionCents-posttaxDeductionCents-garnishmentCents-socialSecurityTaxCents-medicareTaxCents-additionalMedicareTaxCents-withholding.federalIncomeTaxCents-withholding.stateIncomeTaxCents:null
   if(netPayCents!==null && netPayCents<0)warnings.push(warning('NEGATIVE_NET_PAY','critical','Taxes and deductions exceed available pay.',true))
 
@@ -311,6 +322,8 @@ export function buildEmployeePreview({
     totalDeductionCents: pretaxDeductionCents + posttaxDeductionCents + garnishmentCents,
     grossPayCents,
     ...(retirementWages?{retirement401k:retirementWages}:{}),
+    ...(healthWages?{health125:healthWages}:{}),
+    ...(healthEmployment?{health125EmploymentTaxes:healthEmployment}:{}),
     federalIncomeTaxCents: withholding?.federalIncomeTaxCents ?? null,
     stateIncomeTaxCents: withholding?.stateIncomeTaxCents ?? null,
     withholdingMethod: withholding?.method ?? null,
@@ -318,8 +331,8 @@ export function buildEmployeePreview({
     payItems: [...(split?.payItems||[]).map(item=>({...item,taxTreatmentVerified:true})),...(!split&&salaryExtra.amountCents>0?[{kind:'SALARY_EXTRA_STRAIGHT_TIME',name:'Additional salary straight-time wages',amountCents:salaryExtra.amountCents,minutes:salaryExtra.minutes,taxTreatmentVerified:true}]:[]),...adjustments].filter(a=>a.taxTreatmentVerified).map(a=>({kind:a.kind,name:a.name,amountCents:salary&&a.kind==='PAID_LEAVE'?0:a.amountCents,minutes:a.minutes,...(a.employmentStart?{employmentStart:a.employmentStart}:{}),...(a.salaryStandardWeeklyHours?{salaryStandardWeeklyHours:a.salaryStandardWeeklyHours}:{}),...(a.federalSupplemental===true?{federalSupplemental:true}:{}),...(a.sourceRequestId?{sourceRequestId:a.sourceRequestId}:{}),...(a.leavePayout?{leavePayout:a.leavePayout}:{}),...(a.allocatedLeave?{allocatedLeave:a.allocatedLeave}:{}),...(a.allocatedBonus?{allocatedBonus:a.allocatedBonus}:{}),...(a.correction?{correction:a.correction}:{}),...(a.bonusAdjustmentId?{bonusAdjustmentId:a.bonusAdjustmentId}:{}),...(a.bonusAllocation?{bonusAllocation:a.bonusAllocation}:{}),...(a.bonusReview?{bonusReview:{version:a.bonusReview.version,classification:a.bonusReview.classification,paymentType:a.bonusReview.paymentType,verifiedAt:a.bonusReview.verifiedAt}}:{}),...((salary&&a.kind==='PAID_LEAVE'||a.includedInSalary===true)?{includedInSalary:true}:{})})).concat(retirementWages?[
       {kind:'RETIREMENT_401K_PRETAX',name:'401(k) pretax employee deferral',amountCents:retirementWages.pretaxCents},
       {kind:'RETIREMENT_401K_ROTH',name:'401(k) Roth employee deferral',amountCents:retirementWages.rothCents},
-    ].filter(item=>item.amountCents>0):[]),
-    ficaWageBasis: {version:1,calculationReference:PAYROLL_TAX_REFERENCE.version,grossWagesCents:grossPayCents,ytdWagesBeforeCents:ytdSocialSecurityWagesCents,socialSecurityWageBaseCents:PAYROLL_TAX_REFERENCE.socialSecurityWageBaseCents,additionalMedicareThresholdCents:PAYROLL_TAX_REFERENCE.additionalMedicareWithholdingThresholdCents,socialSecurityTaxableCents,medicareTaxableCents:grossPayCents,additionalMedicareTaxableCents},
+    ].filter(item=>item.amountCents>0):[]).concat((healthWages?.items||[]).filter(item=>item.deductionCents>0).map(item=>({kind:'HEALTH_SECTION125_PRETAX',name:'Section 125 health premium',amountCents:item.deductionCents,health125:item}))),
+    ficaWageBasis: {version:1,calculationReference:PAYROLL_TAX_REFERENCE.version,grossWagesCents:grossPayCents,ytdWagesBeforeCents:ytdSocialSecurityWagesCents,socialSecurityWageBaseCents:PAYROLL_TAX_REFERENCE.socialSecurityWageBaseCents,additionalMedicareThresholdCents:PAYROLL_TAX_REFERENCE.additionalMedicareWithholdingThresholdCents,socialSecurityTaxableCents,medicareTaxableCents:healthEmployment?.medicareTaxableCents??grossPayCents,additionalMedicareTaxableCents,...(healthEmployment?{...(healthEmployment.health125?{health125:healthEmployment.health125}:{}),employmentWageMode:'SEPARATE_YTD',ytdTaxWages:healthEmployment.ytd}:{})},
     socialSecurityTaxCents,
     medicareTaxCents,
     additionalMedicareTaxCents,
@@ -332,12 +345,14 @@ export function buildEmployeePreview({
   }
 }
 
-export function buildPayrollPreview({ settings, employees, entries, complianceTasks = [], ytdByEmployee = {}, priorApprovedMinutesByEmployee = {}, priorApprovedSegmentsByEmployee = {}, weightedSettlementsByEmployee = {}, retirement401kByEmployee = {}, adjustments = [], taxYear = 2026, payPeriod = null }) {
+export function buildPayrollPreview({ settings, employees, entries, complianceTasks = [], ytdByEmployee = {}, priorApprovedMinutesByEmployee = {}, priorApprovedSegmentsByEmployee = {}, weightedSettlementsByEmployee = {}, retirement401kByEmployee = {}, health125ByEmployee = {}, ytdTaxWagesByEmployee = {}, adjustments = [], taxYear = 2026, payPeriod = null }) {
   const employeePreviews = employees.map((employee) => buildEmployeePreview({
     employee,
     payPeriod,
     taxElection: employee.taxElection,
     retirement401k: retirement401kByEmployee[employee.id],
+    health125: health125ByEmployee[employee.id],
+    ytdTaxWages: ytdTaxWagesByEmployee[employee.id],
     employerTaxConfig: settings.employerTaxConfig ?? null,
     weightedSettlements:weightedSettlementsByEmployee[employee.id]??null,
     taxYear,

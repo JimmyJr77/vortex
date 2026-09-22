@@ -1,3 +1,4 @@
+import {health125TaxWages} from './health125TaxWages.js'
 import {verifyMarylandAdditionalAllocation} from './marylandAdditionalAllocation.js'
 import {marylandElectionFingerprint} from './marylandElectionFingerprint.js'
 import {retirement401kTaxWages} from './retirement401kTaxWages.js'
@@ -79,7 +80,7 @@ export function assertNativeMW507Date(election,paymentDate){
  const valid=v=>typeof v==='string'&&/^2026-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v
  if(!valid(election.mw507Source.receivedOn)||!valid(paymentDate)||paymentDate<election.mw507Source.receivedOn)throw new Error('The signed 2026 MW507 requires a 2026 payment date on or after its received date. Select the applicable historical certificate before using earlier or later-year payments.')
 }
-export function calculateWithholding2026({grossPayCents,election,payFrequency,year,workState,residenceState,paymentDate,pretaxDeductionCents=0,retirement401k,hasBonus=false,annualBonusCents=0,bonusReviewComplete=false,ytdWagesCents=0,leavePayoutCents=0,regularWagesCents=0}) {
+export function calculateWithholding2026({grossPayCents,election,payFrequency,year,workState,residenceState,paymentDate,pretaxDeductionCents=0,retirement401k,health125,hasBonus=false,annualBonusCents=0,bonusReviewComplete=false,ytdWagesCents=0,leavePayoutCents=0,regularWagesCents=0}) {
  if(election?.w4ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed W-4 before calculating withholding.')
  if(election?.mw507ReviewRequired)throw new Error('Review and save tax elections from the latest employee-signed MW507 before calculating withholding.')
  assertNativeW4ExemptionDate(election,paymentDate)
@@ -90,7 +91,9 @@ export function calculateWithholding2026({grossPayCents,election,payFrequency,ye
  if(hasBonus&&election.maryland?.exempt===true)throw new Error('An annual bonus with a Maryland withholding exemption needs separately verified treatment.')
  if(hasBonus&&(!bonusReviewComplete||!Number.isSafeInteger(annualBonusCents)||annualBonusCents<=0||grossPayCents<=annualBonusCents||!Number.isSafeInteger(ytdWagesCents)||ytdWagesCents+grossPayCents>100000000))throw new Error('Annual bonuses require verified classification, concurrent regular wages, and cumulative wages no greater than $1 million for this automatic method.')
  const retirement=retirement401k===undefined?null:retirement401kTaxWages({...retirement401k,grossCents:grossPayCents,annualBonusCents:hasBonus?annualBonusCents:0,year,workState,residenceState})
- const federalWagesCents=retirement?.federalWagesCents??grossPayCents,marylandRegularWagesCents=retirement?.marylandRegularWagesCents??grossPayCents-(hasBonus?annualBonusCents:0),marylandAnnualBonusWagesCents=retirement?.marylandAnnualBonusWagesCents??(hasBonus?annualBonusCents:0)
+ const health=health125===undefined?null:health125TaxWages({grossCents:grossPayCents,annualBonusCents:hasBonus?annualBonusCents:0,year,workState,residenceState,health125,retirement})
+ const wages=health||retirement
+ const federalWagesCents=wages?.federalWagesCents??grossPayCents,marylandRegularWagesCents=wages?.marylandRegularWagesCents??grossPayCents-(hasBonus?annualBonusCents:0),marylandAnnualBonusWagesCents=wages?.marylandAnnualBonusWagesCents??(hasBonus?annualBonusCents:0)
  const allocation=election.marylandAdditionalAllocation
  if(allocation?.error)throw new Error(allocation.error)
  if(allocation)verifyMarylandAdditionalAllocation(allocation,{requestedAdditionalCents:election.maryland.extraWithholdingCents??0,electionFingerprint:marylandElectionFingerprint(election.maryland),payFrequency})
@@ -99,5 +102,5 @@ export function calculateWithholding2026({grossPayCents,election,payFrequency,ye
  const stateTotal=BigInt(regularState.totalCents)+BigInt(annualBonusTaxCents)
  if(stateTotal>BigInt(Number.MAX_SAFE_INTEGER))throw new Error('Maryland withholding exceeds safe cent precision.')
  const stateTaxComponents={version:1,method:'REGULAR_PERIOD',payFrequency,regularBaseCents:regularState.baseCents,annualBonusTaxCents,requestedAdditionalCents:election.maryland.extraWithholdingCents??0,...(allocation?{allocation}:{}),appliedAdditionalCents:regularState.appliedAdditionalCents,totalCents:Number(stateTotal),exempt:election.maryland.exempt===true,electionFingerprint:marylandElectionFingerprint(election.maryland)}
- return {incomeTaxWageBasis:{version:1,source:'NATIVE_ENGINE',stateTaxComponents,year,workState,residenceState,grossWagesCents:grossPayCents,federalWagesCents,marylandWagesCents:retirement?.marylandWagesCents??grossPayCents,marylandRegularWagesCents,marylandAnnualBonusWagesCents,pretaxDeductionCents:retirement?.pretaxCents??0,...(retirement?{retirement401k:retirement}:{})},federalIncomeTaxCents:federalWithholding2026(federalWagesCents,election.federal,FREQUENCIES[payFrequency].periods),stateIncomeTaxCents:Number(stateTotal),method:withholdingVersionFor(payFrequency)+(hasBonus?'-federal-aggregate-md-annual-bonus-9.70':'')+(leavePayoutCents?'-pto-aggregate':'')+(retirement?'-401k':'')}
+ return {incomeTaxWageBasis:{version:1,source:'NATIVE_ENGINE',stateTaxComponents,year,workState,residenceState,grossWagesCents:grossPayCents,federalWagesCents,marylandWagesCents:wages?.marylandWagesCents??grossPayCents,marylandRegularWagesCents,marylandAnnualBonusWagesCents,pretaxDeductionCents:(retirement?.pretaxCents??0)+(health?.deductionCents??0),...(health?{health125:health}:{}),...(retirement?{retirement401k:retirement}:{})},federalIncomeTaxCents:federalWithholding2026(federalWagesCents,election.federal,FREQUENCIES[payFrequency].periods),stateIncomeTaxCents:Number(stateTotal),method:withholdingVersionFor(payFrequency)+(hasBonus?'-federal-aggregate-md-annual-bonus-9.70':'')+(leavePayoutCents?'-pto-aggregate':'')+(retirement?'-401k':'')+(health?'-section125-health':'')}
 }

@@ -3,8 +3,8 @@ import {randomUUID} from 'node:crypto'
 import {monthlyBenefitsFixture} from './monthlyBenefitsFixture.js'
 import {retirementPlanFixture} from './retirementPlanFixture.js'
 import {retirementAnnualFixture} from './retirementAnnualFixture.js'
-export async function regularRetirementFixture(h,{includeBonus=false,hourlyRateCents=2500,unusedPto}={}){
- const {api,employee,periods}=await monthlyBenefitsFixture(h,{hourlyRateCents})
+export async function regularRetirementFixture(h,{includeBonus=false,hourlyRateCents=2500,unusedPto,existingFixture}={}){
+ const {api,employee,periods}=existingFixture||await monthlyBenefitsFixture(h,{hourlyRateCents})
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),...(unusedPto?{unusedPto}:{}),compensation:{...retirementPlanFixture().compensation,BONUS:includeBonus}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
  await api(annualPath,{planRevisionId:annual.planRevisionId,expectedRevision:0,requestKey:randomUUID(),facts:retirementAnnualFixture()})

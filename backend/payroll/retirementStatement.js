@@ -27,7 +27,7 @@ export function retirementStatementLines(row){
   for(const [key,label] of [['ordinaryPretaxCents','401(k) pretax'],['ordinaryRothCents','401(k) Roth'],['catchUpPretaxCents','401(k) pretax catch-up'],['catchUpRothCents','401(k) Roth catch-up']])if(p[key])lines.push([label,p.planName.slice(0,200),-p[key]])
  }
  const sum=kind=>(snapshot.payItems||[]).filter(i=>i.kind===kind).reduce((n,i)=>add(n,i.amountCents),0)
- if(sum(kinds[0])!==pretax||sum(kinds[1])!==roth||!valid(Number(row.pretax_deduction_cents))||!valid(Number(row.posttax_deduction_cents))||add(pretax,sum('PRETAX_DEDUCTION'))!==Number(row.pretax_deduction_cents)||add(roth,sum('POSTTAX_DEDUCTION'))!==Number(row.posttax_deduction_cents))throw fail('Retirement statement does not reconcile to payroll deductions.')
+ if(sum(kinds[0])!==pretax||sum(kinds[1])!==roth||!valid(Number(row.pretax_deduction_cents))||!valid(Number(row.posttax_deduction_cents))||add(pretax,add(sum('PRETAX_DEDUCTION'),sum('HEALTH_SECTION125_PRETAX')))!==Number(row.pretax_deduction_cents)||add(roth,sum('POSTTAX_DEDUCTION'))!==Number(row.posttax_deduction_cents))throw fail('Retirement statement does not reconcile to payroll deductions.')
  return lines
 }
 

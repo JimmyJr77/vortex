@@ -1,3 +1,6 @@
+import {retirementAnnualReporting} from '../retirementAnnualReporting.js'
+import {healthElectionFixture} from '../testing/healthElectionFixture.js'
+import {statementLines} from '../payStatement.js'
 import {employerContributionAccounting} from '../testing/employerContributionAccounting.js'
 import {assertEmployerRemittanceReservation} from '../testing/employerRemittanceReservation.js'
 import {retirementBankProvider} from '../testing/retirementBankProvider.js'
@@ -12,11 +15,12 @@ import {monthlyBenefitsFixture} from '../testing/monthlyBenefitsFixture.js'
 import {retirementPlanFixture} from '../testing/retirementPlanFixture.js'
 import {retirementAnnualFixture} from '../testing/retirementAnnualFixture.js'
 
-test('regular public employer payroll rejects stale review, rolls back failures and completes delivery and accounting',{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
+for(const taxTreatment of ['POSTTAX','PRETAX'])test(`regular employer payroll completes approval, delivery and accounting with ${taxTreatment} health premiums`,{skip:!process.env.PAYROLL_TEST_DATABASE_URL},async t=>{
  const key=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY=randomBytes(32).toString('hex')
  const server=await createRetirementSftpServer();let clock=new Date('2026-09-18T12:06:00Z')
  const accounting=employerContributionAccounting(),provider=retirementBankProvider(),h=await createHistoricalHarness(t,{quickbooksFetcher:accounting.fetcher,paymentFetcher:provider.fetcher,remittanceNow:()=>clock,retirementSftpVerifier:c=>verifyRetirementSftpConnection(c,server.options),retirementAllocationTransfer:(c,file,options)=>transferRetirementAllocation(c,file,{...server.options,...options}),retirementReceiptReader:(c,receipt)=>readRetirementSftpReceipt(c,receipt,server.options)},'2026-09-16T16:00:00.000Z');t.after(async()=>{await h.close();await server.close();if(key===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=key})
- const {api,employee,periods}=await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'})
+ const fixture=taxTreatment==='PRETAX'?await healthElectionFixture(h,{benefitsOptions:{hireDate:'2026-09-09'}}):await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'}),{api,employee,periods}=fixture
+ if(taxTreatment==='PRETAX')await api(fixture.path,fixture.electionBody,'POST',200,true)
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),employerContributions:'MATCH_AND_NONELECTIVE',employerContributionTerms:'Synthetic employer contribution obligation.',employerFormula:{period:'PER_PAYROLL',matchCatchUp:false,matchTiers:[{upToBps:300,matchBps:10000}],nonelectiveBps:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Synthetic reviewed new hire entry terms.',vestingTerms:'Synthetic reviewed vesting schedule.'}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
  await api(annualPath,{planRevisionId:annual.planRevisionId,expectedRevision:0,requestKey:randomUUID(),facts:{...retirementAnnualFixture(),employerFunding:{compensationCents:0,matchingCents:0,nonelectiveCents:0,reference:'Synthetic verified zero external employer amounts.'}}})
@@ -84,6 +88,13 @@ test('regular public employer payroll rejects stale review, rolls back failures 
  assert.equal(finalized.status,'FINALIZED')
  const statement=(await h.pool.query('SELECT statement_snapshot FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows[0].statement_snapshot
  assert.equal(statement.retirement.employerPlans[0].totalCents,1000)
+ const posted=(await h.pool.query('SELECT * FROM payroll_run_employee WHERE payroll_run_id=$1',[run.id])).rows[0]
+ assert.equal(statementLines(posted).lines.reduce((sum,line)=>sum+line[2],0),Number(posted.net_pay_cents))
+ assert.equal(Number(posted.pretax_deduction_cents),taxTreatment==='PRETAX'?13500:1000)
+ assert.equal(Number(posted.posttax_deduction_cents),taxTreatment==='PRETAX'?400:12900)
+ const annualReport=await retirementAnnualReporting(h.pool,1,employee.id)
+ assert.equal(annualReport.pretaxDeferrals,'10.00');assert.equal(annualReport.rothDeferrals,'4.00')
+ assert.equal(annualReport.employerMatching,'6.00');assert.equal(annualReport.employerNonelective,'4.00')
  assert.equal(provider.posts(),0)
  const timingPath='/retirement-plans/standard/timing',timing=await api(timingPath)
  await api(timingPath,{planRevisionId:timing.planRevisionId,expectedRevision:0,requestKey:randomUUID(),policy:{effectiveOn:'2026-01-01',disposition:'REVIEWED',depositBusinessDays:2,providerLeadBusinessDays:1,cutoffTime:'14:00',reference:'Reviewed payroll segregation and provider timing for combined contributions',confirmed:true,calendarConfirmed:true,earliestConfirmed:true,employerFunding:{schedule:'WITH_PAYROLL',confirmed:true,reference:'Reviewed employer matching and nonelective funding with each payroll'}}})

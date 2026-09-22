@@ -4,8 +4,8 @@ import {retirementPlanFixture} from './retirementPlanFixture.js'
 import {retirementAnnualFixture} from './retirementAnnualFixture.js'
 
 // Use databaseNow / retirementNow on September 16 for the September 18 payroll.
-export async function regularEmployerRetirementFixture(h,{declined=false}={}){
- const f=await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'}),{api,employee}=f
+export async function regularEmployerRetirementFixture(h,{declined=false,existingFixture}={}){
+ const f=existingFixture||await monthlyBenefitsFixture(h,{hireDate:'2026-09-09'}),{api,employee}=f
  await api('/retirement-plans',{plan:{...retirementPlanFixture(),employerContributions:'MATCH_AND_NONELECTIVE',employerContributionTerms:'Synthetic employer funding terms.',employerFormula:{period:'PER_PAYROLL',matchCatchUp:false,matchTiers:[{upToBps:300,matchBps:10000}],nonelectiveBps:200,compensation:{REGULAR:true,OVERTIME:true,BONUS:false,PAID_LEAVE:true},eligibilityTerms:'Synthetic reviewed new hire entry terms.',vestingTerms:'Synthetic reviewed vesting schedule.'}},expectedRevision:0,requestKey:randomUUID()})
  const annualPath=`/employees/${employee.id}/retirement-annual-sources/standard`,annual=await api(annualPath)
  await api(annualPath,{planRevisionId:annual.planRevisionId,expectedRevision:0,requestKey:randomUUID(),facts:{...retirementAnnualFixture(),employerFunding:{compensationCents:0,matchingCents:0,nonelectiveCents:0,reference:'Synthetic verified zero external employer funding'}}})

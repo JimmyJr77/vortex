@@ -1,3 +1,5 @@
+import EmployeeHealthElection from './EmployeeHealthElection'
+import HealthQualificationReview from './HealthQualificationReview'
 import PrivateFormInput from '../common/PrivateFormInput'
 import I9EmployerRecords from './I9EmployerRecords'
 import I9EmployerDraft from './I9EmployerDraft'
@@ -42,6 +44,8 @@ export default function OnboardingWorkspace({ employeeId, employmentStatus, onCh
    {data.policy.firstDayInstructions ? <div className="rounded-xl bg-blue-50 p-4 text-sm"><h3 className="font-bold">Your first day</h3><p className="mt-2 whitespace-pre-wrap">{data.policy.firstDayInstructions}</p></div> : null}
    {data.policy.payrollProviderUrl ? <a href={data.policy.payrollProviderUrl} target="_blank" rel="noreferrer" className="inline-block font-bold text-blue-700 underline">Open secure payroll provider</a> : null}
    {data.tasks.map(task => <TaskStep key={`${task.id}-${task.status}-${task.task_key==='HANDBOOK'?JSON.stringify([data.policy.handbookText,data.policy.benefitsText]):task.task_key==='WAGE_NOTICE'?JSON.stringify(data.wageTerms):task.task_key==='PAY_REVIEW'?data.paySetup?.fingerprint:''}`} taskId={`${workspaceId}-task-${task.id}`} task={task} packet={data} employmentStatus={employmentStatus} employeeId={employeeId} busy={busy} act={act} />)}
+   {employeeId?(data.benefitsDeduction?.proposal?.items||data.benefitsDeduction?.saved?.proposal?.items||[]).filter(item=>item.taxTreatment==='PRETAX').map(item=><HealthQualificationReview key={`${employeeId}-${item.planId}`} employeeId={employeeId} planId={item.planId} planName={item.planName}/>):null}
+   {!employeeId?<EmployeeHealthElection readOnly={!['ACTIVE','ONBOARDING'].includes(employmentStatus)}/>:null}
    {employeeId && employmentStatus === 'ONBOARDING' ? <button type="button" disabled={busy || !data.readiness.ready} onClick={() => void act(() => workforceApi.activate(employeeId), 'Onboarding complete. Employee activated.')} className={workforceButton}>Complete onboarding & activate employee</button> : null}
   </>}
  </section>

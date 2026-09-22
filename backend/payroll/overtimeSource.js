@@ -1,3 +1,4 @@
+import {reconcileIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
 import {correctionPremiumEvidence} from './correctionOvertimeSource.js'
 import {salaryPaidPremium} from './salaryOvertimeSource.js'
 import {compensationEvidence} from './employmentCompensation.js'
@@ -20,9 +21,13 @@ export function paidOvertimeReview(row){
   if(statement.payType!=='SALARY'||!same(source.salaryCalculation,statement.salaryCalculation)||source.workweekPayments?.length)fail('Retained salary calculation does not reconcile.')
   try{premium=salaryPaidPremium(source)}catch(e){fail(e.message)}
  }else if(!safe(total)||total!==posted[0]+posted[1])fail('Regular and overtime wages require complete workweek payment allocation.')
- const items=Array.isArray(source.payItems)?source.payItems:[],known=['BONUS','BONUS_OVERTIME','PAID_LEAVE','LEAVE_PAYOUT','REIMBURSEMENT','PRETAX_DEDUCTION','POSTTAX_DEDUCTION','GARNISHMENT','SALARY_EXTRA_STRAIGHT_TIME','WAGE_CORRECTION','RETIREMENT_401K_PRETAX','RETIREMENT_401K_ROTH']
+ const items=Array.isArray(source.payItems)?source.payItems:[],known=['BONUS','BONUS_OVERTIME','PAID_LEAVE','LEAVE_PAYOUT','REIMBURSEMENT','PRETAX_DEDUCTION','POSTTAX_DEDUCTION','GARNISHMENT','SALARY_EXTRA_STRAIGHT_TIME','WAGE_CORRECTION','RETIREMENT_401K_PRETAX','RETIREMENT_401K_ROTH','HEALTH_SECTION125_PRETAX']
  if(items.some(item=>item.kind?.startsWith('RETIREMENT_'))||source.retirementPlans?.length||source.retirement401k||statement.retirement){
   try{const summary=retirementStatementSummary(source);if(!summary||!same(summary,statement.retirement))throw new Error('mismatch');retirementStatementLines(row)}catch{fail('Retirement deductions do not reconcile to retained payroll and statement evidence.')}
+ }
+ if(source.health125||source.incomeTaxWageBasis?.health125||items.some(item=>item.kind==='HEALTH_SECTION125_PRETAX')){
+  const reconciled=reconcileIncomeTaxWageRows([row]).get(String(row.employee_id))
+  if(reconciled?.verified!==1||reconciled.issues.length)fail('Health deductions do not reconcile to retained payroll and statement evidence.')
  }
  if(items.some(item=>!known.includes(item.kind)))fail('Correction or other earnings require separate premium reconciliation.')
  const taxableItems=items.filter(item=>['BONUS','BONUS_OVERTIME','PAID_LEAVE','LEAVE_PAYOUT','SALARY_EXTRA_STRAIGHT_TIME','WAGE_CORRECTION'].includes(item.kind))

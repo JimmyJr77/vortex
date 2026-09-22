@@ -1,3 +1,4 @@
+import {healthPremiumWageEvidence} from './healthPremiumWageEvidence.js'
 import {retirementStatementSummary} from './retirementStatement.js'
 import {retirement401kTaxWages} from './retirement401kTaxWages.js'
 import {incomeTaxReviewSource} from './incomeTaxBasisReview.js'
@@ -39,16 +40,19 @@ function reconcileIncomeTaxWageEvidence(rows,approved){
   const basis=frozen.incomeTaxWageBasis
   if(!basis||(!approved&&!row.statement_snapshot?.incomeTaxWageBasis)){fail('income-tax wage basis missing or manually changed');continue}
   if((!approved&&!same(basis,row.statement_snapshot.incomeTaxWageBasis))||basis.version!==1||basis.source!=='NATIVE_ENGINE'||basis.year!==2026||new Date(row.payment_date).getUTCFullYear()!==2026||basis.workState!=='MD'||basis.residenceState!=='MD'){fail('unsupported or inconsistent income-tax wage basis');continue}
+  let health
+  try{health=healthPremiumWageEvidence(frozen)}catch{fail('health income-tax wage evidence does not reconcile');continue}
   let incomeGross=gross
   if(basis.retirement401k){
    try{
     const summary=retirementStatementSummary(frozen)
     const annualBonusCents=(frozen.payItems||[]).filter(i=>i.kind==='BONUS'&&i.bonusReview?.paymentType==='ANNUAL_LUMP_SUM').reduce((sum,i)=>sum+i.amountCents,0)
     const expected=retirement401kTaxWages({...basis.retirement401k,grossCents:gross,annualBonusCents,year:basis.year,workState:basis.workState,residenceState:basis.residenceState})
-    if(!summary||(!approved&&!same(summary,row.statement_snapshot.retirement))||!same(expected,basis.retirement401k)||!same(expected,frozen.retirement401k)||!cents(row.pretax_deduction_cents)||Number(row.pretax_deduction_cents)!==expected.pretaxCents||frozen.pretaxDeductionCents!==expected.pretaxCents||basis.pretaxDeductionCents!==expected.pretaxCents||basis.marylandRegularWagesCents!==expected.marylandRegularWagesCents||basis.marylandAnnualBonusWagesCents!==expected.marylandAnnualBonusWagesCents)throw new Error('mismatch')
+    if(!summary||(!approved&&!same(summary,row.statement_snapshot.retirement))||!same(expected,basis.retirement401k)||!same(expected,frozen.retirement401k)||!cents(row.pretax_deduction_cents)||Number(row.pretax_deduction_cents)!==expected.pretaxCents+(health?.deductionCents||0)||frozen.pretaxDeductionCents!==expected.pretaxCents+(health?.deductionCents||0)||basis.pretaxDeductionCents!==expected.pretaxCents+(health?.deductionCents||0)||basis.marylandRegularWagesCents!==(health||expected).marylandRegularWagesCents||basis.marylandAnnualBonusWagesCents!==(health||expected).marylandAnnualBonusWagesCents)throw new Error('mismatch')
     incomeGross=expected.federalWagesCents
    }catch{fail('retirement income-tax wage evidence does not reconcile');continue}
-  }else if(basis.pretaxDeductionCents!==0||Number(row.pretax_deduction_cents||0)!==0||frozen.retirement401k||frozen.retirementPlans?.length||frozen.payItems?.some(i=>i.kind?.startsWith('RETIREMENT_'))){fail('unsupported pretax or missing retirement wage evidence');continue}
+  }else if(basis.pretaxDeductionCents!==(health?.deductionCents||0)||Number(row.pretax_deduction_cents||0)!==(health?.deductionCents||0)||health&&frozen.pretaxDeductionCents!==health.deductionCents||frozen.retirement401k||frozen.retirementPlans?.length||frozen.payItems?.some(i=>i.kind?.startsWith('RETIREMENT_'))){fail('unsupported pretax or missing retirement wage evidence');continue}
+  if(health)incomeGross=health.federalWagesCents
   if(['grossWagesCents','federalWagesCents','marylandWagesCents','marylandRegularWagesCents','marylandAnnualBonusWagesCents'].some(k=>!Number.isSafeInteger(basis[k])||basis[k]<0)||basis.grossWagesCents!==gross||basis.federalWagesCents!==incomeGross||basis.marylandWagesCents!==incomeGross||basis.marylandRegularWagesCents+basis.marylandAnnualBonusWagesCents!==incomeGross){fail('income-tax wage inputs do not reconcile');continue}
   if(frozen.federalIncomeTaxCents!==Number(row.federal_income_tax_cents)||frozen.stateIncomeTaxCents!==Number(row.state_income_tax_cents)){fail('posted withholding differs from retained calculation');continue}
   result.verified++;result.federal+=BigInt(basis.federalWagesCents);result.maryland+=BigInt(basis.marylandWagesCents)

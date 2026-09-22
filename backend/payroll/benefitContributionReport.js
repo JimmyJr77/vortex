@@ -1,7 +1,7 @@
 import {priorMonthlyBenefitCollection} from './monthlyBenefits.js'
 const date=value=>new Date(value).toISOString().slice(0,10)
 export async function benefitContributionReport(db,facility,start,end,employeeId=null){
- const rows=(await db.query(`SELECT r.id,r.status,r.run_kind,r.calculation_snapshot,COALESCE(r.payment_date,p.pay_date) AS payment_date,re.employee_id,re.posttax_deduction_cents
+ const rows=(await db.query(`SELECT r.id,r.status,r.run_kind,r.calculation_snapshot,COALESCE(r.payment_date,p.pay_date) AS payment_date,re.employee_id,re.posttax_deduction_cents,re.pretax_deduction_cents
  FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
  WHERE r.facility_id=$1 AND r.status='FINALIZED' AND ($4::bigint IS NULL OR re.employee_id=$4)
  AND COALESCE(r.payment_date,p.pay_date)>=date_trunc('month',$2::date)

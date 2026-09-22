@@ -6,7 +6,7 @@ const day=value=>new Date(value).toISOString().slice(0,10)
 const canonical=value=>JSON.stringify(compensationEvidence(value))
 const fail=()=>{throw Object.assign(new Error('Employer benefit funding evidence needs reconciliation with the retained enrollment and finalized payroll.'),{status:409})}
 export async function employerBenefitFundingReport(db,facility,start,end){
- const rows=(await db.query(`SELECT r.id,r.status,r.run_kind,r.calculation_snapshot,COALESCE(r.payment_date,p.pay_date) AS payment_date,re.employee_id,re.posttax_deduction_cents
+ const rows=(await db.query(`SELECT r.id,r.status,r.run_kind,r.calculation_snapshot,COALESCE(r.payment_date,p.pay_date) AS payment_date,re.employee_id,re.posttax_deduction_cents,re.pretax_deduction_cents
  FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
  WHERE r.facility_id=$1 AND r.status='FINALIZED' AND COALESCE(r.payment_date,p.pay_date)>=date_trunc('month',$2::date)
  AND COALESCE(r.payment_date,p.pay_date)<date_trunc('month',$3::date)+interval '1 month'

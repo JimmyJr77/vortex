@@ -1,3 +1,4 @@
+import {healthPremiumWageEvidence} from './healthPremiumWageEvidence.js'
 import {reconcileMarylandPaymentHistory} from './marylandPaymentHistory.js'
 import {createHash} from 'node:crypto'
 import {reconcileIncomeTaxWageRows} from './incomeTaxWageReconciliation.js'
@@ -6,7 +7,7 @@ const day=value=>value instanceof Date?value.toISOString().slice(0,10):String(va
 const safe=value=>(typeof value==='number'||typeof value==='string'&&/^(0|[1-9][0-9]*)$/.test(value))&&Number.isSafeInteger(Number(value))&&Number(value)>=0
 const supplemental=new Set(['BONUS','LEAVE_PAYOUT','WAGE_CORRECTION'])
 const ordinary=new Set(['BONUS_OVERTIME','SALARY_EXTRA_STRAIGHT_TIME','PAID_LEAVE'])
-const nontaxable=new Set(['REIMBURSEMENT','POSTTAX_DEDUCTION','GARNISHMENT'])
+const nontaxable=new Set(['REIMBURSEMENT','POSTTAX_DEDUCTION','GARNISHMENT','HEALTH_SECTION125_PRETAX'])
 export function reconcileSupplementalPayments(rows,paymentDate){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(paymentDate))||!Number.isFinite(Date.parse(paymentDate))||day(new Date(paymentDate))!==paymentDate)throw new Error('Use a valid payment date for supplemental wage history.')
  const year=Number(day(paymentDate).slice(0,4)),issues=[],evidence=[]
@@ -26,7 +27,9 @@ export function reconcileSupplementalPayments(rows,paymentDate){
   const items=snapshot?.payItems
   if(!Array.isArray(items)&&Number(row.other_taxable_pay_cents)!==0)errors.push('additional earnings lack itemization')
   const hasRetirement=!!snapshot?.retirement401k||!!snapshot?.retirementPlans?.length||Array.isArray(items)&&items.some(i=>i.kind?.startsWith('RETIREMENT_'))
-  let taxableItems=0,supplementalCents=0,incomeTaxGrossCents=gross,retirementSupplementalPretaxCents=0
+  let health=null
+  try{health=healthPremiumWageEvidence(snapshot)}catch{errors.push('health premiums require reconciled wage and deduction evidence')}
+  let taxableItems=0,supplementalCents=0,incomeTaxGrossCents=gross,retirementSupplementalPretaxCents=0,healthSupplementalPretaxCents=0
   for(const item of Array.isArray(items)?items:[]){
    if(!safe(item.amountCents)){errors.push('a pay item has an invalid amount');continue}
    const amount=Number(item.amountCents)
@@ -48,12 +51,19 @@ export function reconcileSupplementalPayments(rows,paymentDate){
    else if(basis.pretaxCents>0&&(items||[]).some(i=>(supplemental.has(i.kind)&&i.kind!=='BONUS'||i.kind==='BONUS_OVERTIME'&&i.federalSupplemental===true)&&Number(i.amountCents)>0))errors.push('retirement deferrals require explicit allocation to each supplemental wage category')
    else if(!safe(basis.pretaxAnnualBonusCents)||basis.pretaxAnnualBonusCents>supplementalCents)errors.push('retirement supplemental-wage allocation does not reconcile')
    else{incomeTaxGrossCents=Number(reconciled.federal);retirementSupplementalPretaxCents=basis.pretaxAnnualBonusCents;supplementalCents-=basis.pretaxAnnualBonusCents}
-  }else if(Number(row.pretax_deduction_cents||0)!==0)errors.push('pretax deductions require reconciled income-tax wage allocation')
+  }else if(!health&&Number(row.pretax_deduction_cents||0)!==0)errors.push('pretax deductions require reconciled income-tax wage allocation')
+  if(health){
+   const reconciled=reconcileIncomeTaxWageRows([row]).get(String(row.employee_id))
+   if(reconciled?.verified!==1||reconciled.issues.length)errors.push('health income-tax wages require reconciled payroll and statement evidence')
+   else if(health.deductionCents>0&&(items||[]).some(i=>(supplemental.has(i.kind)&&i.kind!=='BONUS'||i.kind==='BONUS_OVERTIME'&&i.federalSupplemental===true)&&Number(i.amountCents)>0))errors.push('health premiums require explicit allocation to each supplemental wage category')
+   else if(!safe(health.annualBonusDeductionCents)||health.annualBonusDeductionCents>supplementalCents)errors.push('health supplemental-wage allocation does not reconcile')
+   else{incomeTaxGrossCents=Number(reconciled.federal);healthSupplementalPretaxCents=health.annualBonusDeductionCents;supplementalCents-=healthSupplementalPretaxCents}
+  }
   if(errors.length){issues.push({runId:Number(row.run_id),messages:errors});continue}
   if(rowYear===year)ytdSupplementalCents+=supplementalCents
   const qualifiesForFlat=grossSupplementalCents===0&&incomeTaxGrossCents>0&&Number(row.federal_income_tax_cents)>0
   regularWithholdingVerified ||= qualifiesForFlat
-  evidence.push({runKind:row.run_kind??null,payPeriodId:row.pay_period_id==null?null:Number(row.pay_period_id),payFrequency:row.frequency??null,periodStart:row.period_start?day(row.period_start):null,periodEnd:row.period_end?day(row.period_end):null,runId:Number(row.run_id),employeeId:Number(row.employee_id),paymentDate:date,grossCents:gross,...(hasRetirement?{incomeTaxGrossCents,retirementPretaxCents:snapshot.retirement401k.pretaxCents,retirementSupplementalPretaxCents}:{}),supplementalCents,federalIncomeTaxCents:Number(row.federal_income_tax_cents),withholdingVerifiedAt:new Date(row.withholding_verified_at).toISOString(),qualifiesForFlat})
+  evidence.push({runKind:row.run_kind??null,payPeriodId:row.pay_period_id==null?null:Number(row.pay_period_id),payFrequency:row.frequency??null,periodStart:row.period_start?day(row.period_start):null,periodEnd:row.period_end?day(row.period_end):null,runId:Number(row.run_id),employeeId:Number(row.employee_id),paymentDate:date,grossCents:gross,...(hasRetirement?{incomeTaxGrossCents,retirementPretaxCents:snapshot.retirement401k.pretaxCents,retirementSupplementalPretaxCents}:{}),...(health?{incomeTaxGrossCents,healthPretaxCents:health.deductionCents,healthSupplementalPretaxCents}:{}),supplementalCents,federalIncomeTaxCents:Number(row.federal_income_tax_cents),withholdingVerifiedAt:new Date(row.withholding_verified_at).toISOString(),qualifiesForFlat})
  }
  if(!Number.isSafeInteger(ytdSupplementalCents))issues.push({runId:null,messages:['cumulative supplemental wages exceed safe precision']})
  evidence.sort((a,b)=>a.paymentDate.localeCompare(b.paymentDate)||a.runId-b.runId)

@@ -1,0 +1,45 @@
+import {test,expect} from '@playwright/test'
+import {mock} from 'node:test'
+import {createHarness} from '../../backend/payroll/testing/harness.js'
+import {healthQualificationFixture} from '../../backend/payroll/testing/healthQualificationFixture.js'
+test('admin retains encrypted written plan and employee eligibility internally with lost-response recovery',async({page})=>{
+ test.skip(!process.env.PAYROLL_TEST_DATABASE_URL,'Requires isolated payroll database');test.setTimeout(90000);page.setDefaultTimeout(15000)
+ mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-16T16:00:00.000Z')})
+ const old=process.env.PAYROLL_DOCUMENT_KEY;process.env.PAYROLL_DOCUMENT_KEY='1a'.repeat(32)
+ const h=await createHarness({databaseNow:'2026-09-16T16:00:00.000Z'}),errors:string[]=[];let losePlan=true,loseEmployee=true
+ try{
+  const {api,employee,bytes}=await healthQualificationFixture(h,{retainPlan:false})
+  await page.clock.install();page.on('pageerror',e=>errors.push(e.message));await page.addInitScript(()=>localStorage.setItem('adminToken','payroll-test-admin'))
+  await page.route('**/api/admin/payroll/**',async route=>{const u=new URL(route.request().url()),response=await route.fetch({url:`${h.url}${u.pathname}${u.search}`});if(route.request().method()==='POST'&&response.ok()){if(losePlan&&u.pathname.includes('/health-plan-qualification/')){losePlan=false;return route.fulfill({status:503,json:{success:false,message:'Synthetic lost plan review response'}})}if(loseEmployee&&u.pathname.includes('/health-qualification/')){loseEmployee=false;return route.fulfill({status:503,json:{success:false,message:'Synthetic lost employee review response'}})}}await route.fulfill({response})})
+  await page.setViewportSize({width:390,height:1100});await page.goto('/tests/support/payroll.html');await page.getByRole('button',{name:'Employer setup',exact:true}).click()
+  const plan=page.getByRole('region',{name:'Written-plan health qualification Medical',exact:true})
+  await plan.getByLabel('Qualification effective date',{exact:true}).fill('2026-09-01');await plan.getByLabel('Qualification through date',{exact:true}).fill('2027-08-31');await plan.getByRole('button',{name:'Load health qualification',exact:true}).click()
+  await expect(plan).toContainText('NEEDS REVIEW');await plan.getByLabel('Health qualification decision',{exact:true}).selectOption('QUALIFIED')
+  await plan.getByLabel('Written plan and qualification evidence PDF',{exact:true}).setInputFiles({name:'synthetic-written-plan.pdf',mimeType:'application/pdf',buffer:bytes})
+  await expect(plan).toContainText('PDF selected for encrypted retention.')
+  await plan.getByLabel('Health qualification review reference',{exact:true}).fill('Synthetic written plan qualification and dated administrator findings')
+  for(const check of await plan.getByRole('checkbox').all())await check.check()
+  await plan.getByRole('button',{name:'Retain health qualification',exact:true}).click();await expect(plan.getByRole('alert')).toHaveText('Synthetic lost plan review response')
+  await expect(plan.getByLabel('Qualification effective date',{exact:true})).toBeDisabled();await plan.getByRole('button',{name:'Retry original health review',exact:true}).click()
+  await expect(plan.getByRole('status')).toContainText('Health qualification review retained');expect((await h.pool.query('SELECT count(*)::int n FROM payroll_health_plan_qualification')).rows[0].n).toBe(1)
+  await plan.getByText('Health qualification history',{exact:true}).click();const downloadEvent=page.waitForEvent('download');await plan.getByRole('button',{name:'Download written plan · revision 1 (1 page)',exact:true}).click();const stream=await(await downloadEvent).createReadStream(),chunks:Buffer[]=[];for await(const chunk of stream!)chunks.push(Buffer.from(chunk));expect(Buffer.concat(chunks)).toEqual(bytes)
+  await plan.screenshot({path:'/tmp/payroll-health-plan-qualification-mobile.png'})
+  await page.getByRole('button',{name:'People & onboarding',exact:true}).click()
+  const step=page.locator('details').filter({has:page.getByText('Pay, classification & benefits review',{exact:true})});await step.locator('summary').first().click()
+  const participant=page.getByRole('region',{name:'Employee health qualification Medical',exact:true})
+  await participant.getByLabel('Qualification effective date',{exact:true}).fill('2026-09-18');await participant.getByLabel('Qualification through date',{exact:true}).fill('2026-12-31');await participant.getByRole('button',{name:'Load health qualification',exact:true}).click()
+  await participant.getByLabel('Health qualification decision',{exact:true}).selectOption('ELIGIBLE');await participant.getByText('Read employee’s signed health deduction terms',{exact:true}).click();await expect(participant).toContainText('Medical — Family: $125.00 per month (pretax).')
+  await participant.getByLabel('Permitted health election basis',{exact:true}).selectOption('INITIAL_ENROLLMENT');await participant.getByLabel('Health election signing deadline',{exact:true}).fill('2026-09-18');await participant.getByLabel('Employee-facing election explanation',{exact:true}).fill('Initial enrollment under the retained plan; sign by the stated deadline.')
+  await participant.getByLabel('Health qualification review reference',{exact:true}).fill('Synthetic participant, ownership, covered-person and election findings')
+  for(const check of await participant.getByRole('checkbox').all())await check.check()
+  await participant.getByRole('button',{name:'Retain health qualification',exact:true}).click();await expect(participant.getByRole('alert')).toHaveText('Synthetic lost employee review response');await participant.getByRole('button',{name:'Retry original health review',exact:true}).click();await expect(participant.getByRole('status')).toContainText('Health qualification review retained')
+  expect((await h.pool.query('SELECT count(*)::int n FROM payroll_health_participant_qualification')).rows[0].n).toBe(1)
+  await participant.getByLabel('Health qualification decision',{exact:true}).selectOption('ELIGIBLE');await participant.getByLabel('Health qualification review reference',{exact:true}).fill('Keep this unfinished eligibility review after the employee withdraws')
+  const state=await api(`/employees/${employee.id}/health-qualification/medical?paymentDate=2026-09-18`)
+  await api('/benefits-deduction-authorization/withdraw',{confirmed:true,requestKey:'browser-health-withdrawal',authorizationRequestKey:state.source.authorization.requestKey,onboardingCycle:1},'POST',200,true)
+  await page.clock.fastForward(30001);await expect(participant).toContainText('Qualification evidence changed. Your draft is preserved')
+  await expect(participant.getByLabel('Health qualification review reference',{exact:true})).toHaveValue('Keep this unfinished eligibility review after the employee withdraws')
+  await participant.getByRole('button',{name:'Use current qualification evidence',exact:true}).click();await expect(participant.getByRole('button',{name:'Retain health qualification',exact:true})).toBeDisabled()
+  await participant.screenshot({path:'/tmp/payroll-health-participant-qualification-mobile.png'});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(errors).toEqual([])
+ }finally{await page.unrouteAll({behavior:'wait'}).catch(()=>{});await page.close().catch(()=>{});await h.close();mock.timers.reset();if(old===undefined)delete process.env.PAYROLL_DOCUMENT_KEY;else process.env.PAYROLL_DOCUMENT_KEY=old}
+})

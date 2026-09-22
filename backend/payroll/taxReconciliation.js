@@ -1,3 +1,4 @@
+import {verifyEmploymentTaxEvidence} from './employmentTaxEvidence.js'
 const agencies=['IRS_941','IRS_FUTA','MD_WITHHOLDING','MD_UI']
 const formAgency={IRS_941:'IRS_941',IRS_940:'IRS_FUTA',MD_MW506:'MD_WITHHOLDING',MD_MW506M:'MD_WITHHOLDING',MD_MW508:'MD_WITHHOLDING',MD_UI:'MD_UI',W2_W3:'EMPLOYEE_FEDERAL'}
 const day=value=>value instanceof Date?value.toISOString().slice(0,10):String(value||'').slice(0,10)
@@ -18,13 +19,16 @@ export function summarizeTaxRows(rows,start,end) {
  total.payroll.sort((a,b)=>a[0]-b[0]||a[1]-b[1]);return total
 }
 export async function taxRows(db,facility,year) {
- return (await db.query(`SELECT r.id AS run_id,re.employee_id,COALESCE(r.payment_date,p.pay_date) AS payment_date,
+ const rows=(await db.query(`SELECT re.*,r.status,r.calculation_snapshot,r.id AS run_id,re.employee_id,COALESCE(r.payment_date,p.pay_date) AS payment_date,
  re.regular_pay_cents+re.overtime_pay_cents+re.other_taxable_pay_cents AS gross,
  re.federal_income_tax_cents AS federal_income,re.social_security_tax_cents AS social_security,
  re.medicare_tax_cents AS medicare,re.additional_medicare_tax_cents AS additional_medicare,
  re.futa_tax_cents AS futa,re.state_income_tax_cents AS maryland,re.md_ui_tax_cents AS md_ui
  FROM payroll_run r JOIN payroll_pay_period p ON p.id=r.pay_period_id JOIN payroll_run_employee re ON re.payroll_run_id=r.id
  WHERE r.facility_id=$1 AND r.status='FINALIZED' AND EXTRACT(YEAR FROM COALESCE(r.payment_date,p.pay_date))=$2`,[facility,year])).rows
+ for(const row of rows)verifyEmploymentTaxEvidence(row)
+ const fields=['run_id','employee_id','payment_date','gross','federal_income','social_security','medicare','additional_medicare','futa','maryland','md_ui']
+ return rows.map(row=>Object.fromEntries(fields.map(key=>[key,row[key]])))
 }
 export async function taxReconciliation(db,facility,year) {
  const [rows,deposits,filings,legacy]=await Promise.all([
