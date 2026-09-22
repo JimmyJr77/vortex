@@ -112,6 +112,21 @@
     "newBrowserLint": {
       "exitCode": 0,
       "log": "/tmp/payroll-health-multiplan-browser-lint.log"
+    },
+    "cleanProductionBuild": {
+      "commit": "7b1b7343",
+      "workspace": "/tmp/vortex-health-release-7b1b7343",
+      "command": "npm run vercel-build",
+      "exitCode": 0,
+      "strictPrerender": true,
+      "seoIndexableRoutes": 25,
+      "seoNoindexRoutes": 11,
+      "log": "/tmp/payroll-health-clean-production-build.log",
+      "includesUnrelatedAdminAccessEdit": false,
+      "warnings": [
+        "Existing large bundle chunks",
+        "Outdated browser compatibility datasets"
+      ]
     }
   },
   "frozenFullBackend": {
@@ -125,5 +140,36 @@
     "Publish integrated code only after reviewing full browser result.",
     "Verify exact deployed backend/frontend revision, payroll initialization, storage readiness and original CORS paths.",
     "Overall one-stop onboarding/payroll goal remains incomplete; expanded categories, exceptions and live provider/government acceptance are still required."
-  ]
+  ],
+  "applicationCommit": "7b1b7343",
+  "prepublicationLiveCheck": {
+    "checkedAt": "2026-09-22T03:05:19.445657+00:00",
+    "health": {
+      "status": 200,
+      "releaseCommit": "a69c9ea81430",
+      "payrollDocumentStorageReady": true,
+      "dbConnected": true,
+      "emailConfigured": true
+    },
+    "cors": [
+      {
+        "path": "/api/admin/payroll/employees",
+        "status": 204,
+        "allowOrigin": "https://vortexathletics.com",
+        "allowCredentials": "true"
+      },
+      {
+        "path": "/api/admin/notifications",
+        "status": 204,
+        "allowOrigin": "https://vortexathletics.com",
+        "allowCredentials": "true"
+      },
+      {
+        "path": "/api/admin/billing/cancellation-requests?status=pending",
+        "status": 204,
+        "allowOrigin": "https://vortexathletics.com",
+        "allowCredentials": "true"
+      }
+    ]
+  }
 }
