@@ -12,13 +12,13 @@ export async function employeeRetirementContributions(db,facility,employeeId,{be
   if(!source||source.status==='RECONCILIATION_REQUIRED'){items.push({runId:String(run.id),status:'REVIEW_REQUIRED',contributions:[]});continue}
   const contributions=[]
   for(const a of source.allocations.filter(a=>String(a.employeeId)===String(employeeId))){
-   const row={planName:a.planName,amountCents:a.totalCents,status:a.totalCents?'RECEIPT_UNVERIFIED':'NO_CONTRIBUTION',fundingStatus:'NO_RETURN_RECORDED',postedCents:null,reportedCents:null,providerRecordedAt:null,checkedAt:null,replacement:null}
+   const row={planName:a.planName,amountCents:a.totalCents,employeeAmountCents:a.employeeTotalCents??a.totalCents,employerMatchingCents:a.employerMatchingCents??0,employerNonelectiveCents:a.employerNonelectiveCents??0,status:a.totalCents?'RECEIPT_UNVERIFIED':'NO_CONTRIBUTION',fundingStatus:'NO_RETURN_RECORDED',postedCents:null,reportedCents:null,providerRecordedAt:null,checkedAt:null,replacement:null}
    if(a.totalCents)try{
     const deliveries=(await db.query(`SELECT d.id,d.remittance_id,parent.basis FROM payroll_retirement_allocation_authorization d JOIN payroll_retirement_remittance_authorization parent ON parent.id=d.remittance_id WHERE d.facility_id=$1 AND parent.facility_id=$1 AND parent.run_id=$2 AND parent.plan_id=$3 AND NOT EXISTS(SELECT 1 FROM payroll_retirement_allocation_cancellation c WHERE c.authorization_id=d.id) AND NOT EXISTS(SELECT 1 FROM payroll_retirement_remittance_cancellation c WHERE c.authorization_id=parent.id)`,[facility,run.id,a.planId])).rows
     if(deliveries.length>1)throw new Error('Ambiguous contribution delivery')
     if(deliveries.length){
      const d=deliveries[0],original=d.basis.allocations.filter(p=>String(p.employeeId)===String(employeeId))
-     if(original.length!==1||fields.some(k=>original[0][k]!==a[k]))throw new Error('Contribution evidence changed')
+     if(original.length!==1||fields.some(k=>original[0][k]!==a[k])||['employerMatchingCents','employerNonelectiveCents'].some(k=>(original[0]?.[k]??0)!==(a[k]??0)))throw new Error('Contribution evidence changed')
      const binding=await retirementReceiptBindingState(db,facility,d.remittance_id,d.id),observation=(await db.query('SELECT id,binding_id,decision,summary,encrypted_result,created_at FROM payroll_retirement_receipt_observation WHERE facility_id=$1 AND allocation_id=$2 ORDER BY sequence DESC LIMIT 1',[facility,d.id])).rows[0]
      if(observation){
       row.checkedAt=new Date(observation.created_at).toISOString()

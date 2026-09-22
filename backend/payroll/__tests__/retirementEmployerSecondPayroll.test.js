@@ -1,3 +1,4 @@
+import {employeeRetirementContributions} from '../employeeRetirementContributions.js'
 import {retirementRemittanceSources} from '../retirementRemittanceSources.js'
 import {refreshRetirementTimingAlerts} from '../retirementTimingAlerts.js'
 import test from 'node:test'
@@ -20,6 +21,11 @@ for(const declined of [false,true])test(`second ${declined?'employer-only':'comb
  const first=await approve(periods[0])
  await api(`/runs/${first.id}/finalize`,{paymentDate:'2026-09-18',paymentConfirmationReference:'SYNTHETIC-FIRST-EMPLOYER-PAYROLL'})
  assert.equal((await balances()).totals.annualAdditionsCents,total)
+ const contribution=(await employeeRetirementContributions(h.pool,1,employee.id)).items[0].contributions[0]
+ assert.equal(contribution.employeeAmountCents,declined?0:1400)
+ assert.equal(contribution.employerMatchingCents,declined?0:600)
+ assert.equal(contribution.employerNonelectiveCents,400)
+ assert.equal(contribution.amountCents,total)
  t.mock.timers.setTime(Date.parse('2026-09-30T16:00:00.000Z'))
  await h.pool.query("CREATE OR REPLACE FUNCTION now() RETURNS timestamptz LANGUAGE sql STABLE AS $$ SELECT '2026-09-30T16:00:00Z'::timestamptz $$; CREATE OR REPLACE FUNCTION clock_timestamp() RETURNS timestamptz LANGUAGE sql VOLATILE AS $$ SELECT '2026-09-30T16:00:00Z'::timestamptz $$")
  const eligibilityPath=`/employees/${employee.id}/retirement-employer-eligibility/standard`,eligibility=await api(eligibilityPath)

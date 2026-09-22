@@ -128,4 +128,4 @@ export const employeePayrollApi = {
   },
 }
 
-export type EmployeeRetirementContribution={runId:string;paymentDate?:string;status:string;contributions:{planName:string;amountCents:number;status:string;fundingStatus:string;postedCents:number|null;reportedCents:number|null;providerRecordedAt:string|null;checkedAt:string|null;replacement?:{status:string;postedCents:number|null;receiptCheckedAt:string|null;accountingStatus:string;caseStatus:string}|null}[]}
+export type EmployeeRetirementContribution={runId:string;paymentDate?:string;status:string;contributions:{planName:string;amountCents:number;employeeAmountCents?:number;employerMatchingCents?:number;employerNonelectiveCents?:number;status:string;fundingStatus:string;postedCents:number|null;reportedCents:number|null;providerRecordedAt:string|null;checkedAt:string|null;replacement?:{status:string;postedCents:number|null;receiptCheckedAt:string|null;accountingStatus:string;caseStatus:string}|null}[]}
