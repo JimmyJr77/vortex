@@ -1,0 +1,53 @@
+{
+  "checkedAt": "2026-09-22T00:51:14.307Z",
+  "health": {
+    "httpStatus": 200,
+    "status": "OK",
+    "releaseCommit": "84f9fade6da6",
+    "dbConnected": true,
+    "payrollDocumentStorageReady": true,
+    "emailConfigured": true,
+    "schemaMigrationsTracked": true,
+    "billingSchemaReady": true,
+    "accessSchemaReady": true
+  },
+  "cors": [
+    {
+      "path": "/api/admin/payroll/employees",
+      "method": "POST",
+      "status": 204,
+      "allowOrigin": "https://vortexathletics.com",
+      "allowCredentials": "true"
+    },
+    {
+      "path": "/api/admin/notifications",
+      "method": "GET",
+      "status": 204,
+      "allowOrigin": "https://vortexathletics.com",
+      "allowCredentials": "true"
+    },
+    {
+      "path": "/api/admin/billing/cancellation-requests?status=pending",
+      "method": "GET",
+      "status": 204,
+      "allowOrigin": "https://vortexathletics.com",
+      "allowCredentials": "true"
+    }
+  ],
+  "applicationCommit": "84f9fade6da6835b1175b359f9169df8c6239609",
+  "render": {
+    "deployment": "dep-daot11tg1s2s738ipcqg",
+    "status": "Deploy succeeded | Live",
+    "url": "https://dashboard.render.com/web/srv-d3vpuebipnbc739k9mv0/deploys/dep-daot11tg1s2s738ipcqg"
+  },
+  "vercel": {
+    "deployment": "dpl_2YXKtudhR7DkeDvJaYkndMgq3US1",
+    "status": "READY",
+    "alias": "vortexathletics.com",
+    "commit": "84f9fade6da6835b1175b359f9169df8c6239609"
+  },
+  "limitations": [
+    "Read-only health/CORS checks do not prove real employee onboarding or live provider acceptance.",
+    "Existing coaching migration warnings were observed during startup; no claim that all platform migrations are clean."
+  ]
+}

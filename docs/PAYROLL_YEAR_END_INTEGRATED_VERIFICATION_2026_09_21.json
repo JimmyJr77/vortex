@@ -1,5 +1,5 @@
 {
-  "status": "Verified in main worktree; publication and deployment pending",
+  "status": "Verified, committed and pushed as 84f9fade; Render and Vercel deployments verified",
   "browser": {
     "passed": 9,
     "failed": 0,
@@ -28,5 +28,6 @@
   "limitations": [
     "Full browser baseline remains 219 passes and three failures, preserved separately.",
     "Live provider, government and real production hire acceptance remain unverified."
-  ]
+  ],
+  "releaseEvidence": "PAYROLL_RELEASE_2026_09_21_84f9fade.json"
 }

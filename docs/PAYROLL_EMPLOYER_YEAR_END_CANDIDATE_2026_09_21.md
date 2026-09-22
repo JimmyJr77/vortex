@@ -1,6 +1,6 @@
 # Employer contribution annual-reporting candidate
 
-Status: applied to main and verified in the real worktree; publication and deployment verification are next. The full baseline ended with 219 passes and three outdated browser expectations. All 3,593 baseline source hashes remained unchanged until it finished. The corrected combined run passed all nine cases, including all four complete native hiring journeys.
+Status: applied, verified, committed and pushed to main as `84f9fade`; both Render and Vercel deployments are verified live. The full baseline ended with 219 passes and three outdated browser expectations. All 3,593 baseline source hashes remained unchanged until it finished. The corrected combined run passed all nine cases, including all four complete native hiring journeys.
 
 ## Confirmed issue and correction
 
@@ -22,4 +22,4 @@ The full isolated candidate backend regression subsequently completed: **1,063 p
 - Patch: `/tmp/payroll-employer-yearend-candidate.patch`, SHA-256 `8cf7f06c7f2af67888290f1d8c97712d634e11e8ac51db85dcc5bc87d308004e`; `git apply --check` passes. Six candidate input hashes: `/tmp/payroll-employer-yearend-candidate-source.json`.
 - An intermediate public test lacked a synthetic document-encryption key and correctly received 503; the test setup was corrected, without weakening storage requirements.
 
-Integrated verification: nine browser cases passed in 2.5 minutes, ten focused backend tests passed in 7.233 seconds, and `tsc -b` passed. See `PAYROLL_YEAR_END_INTEGRATED_VERIFICATION_2026_09_21.json` for log hashes. Next: publish and verify deployment. No live payment, hire or filing was generated. The overall goal remains incomplete.
+Integrated verification: nine browser cases passed in 2.5 minutes, ten focused backend tests passed in 7.233 seconds, and `tsc -b` passed. See `PAYROLL_YEAR_END_INTEGRATED_VERIFICATION_2026_09_21.json` for log hashes. Publication and read-only deployment checks completed; see `PAYROLL_RELEASE_2026_09_21_84f9fade.json`. No live payment, hire or filing was generated. The overall goal remains incomplete.
