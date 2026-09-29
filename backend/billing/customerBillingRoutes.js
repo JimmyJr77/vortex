@@ -386,6 +386,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           actorUserId: actorId(req),
           chargeId: Number(req.params.chargeId),
           finalAmountCents: req.body?.finalAmountCents,
+          description: req.body?.description,
           promoCode: req.body?.promoCode,
           appliesTo: req.body?.appliesTo,
           reason: req.body?.reason,

@@ -798,3 +798,39 @@ test('household-owned annual renewal pricing is restored locally without touchin
   assert.equal(result.remoteCollectorQuarantined, true)
   assert.equal(remoteReads, 0)
 })
+
+test('a custom bill description-only edit is audited without changing its financial amount', async () => {
+  const charge = { id: 91, family_billing_account_id: 7, member_id: 11, source_type: 'manual', amount_cents: 15000, description: 'Old description' }
+  const updates = []
+  const account = { id: 7, family_id: 44 }
+  const client = {
+    async query(sql, params) {
+      const text = String(sql)
+      if (text.includes('pg_advisory_') || ['BEGIN', 'COMMIT', 'ROLLBACK'].includes(text)) return { rows: [] }
+      if (text.includes('FOR UPDATE')) return { rows: [{ ...charge }] }
+      if (text.includes('FROM billing_monthly_invoice_line')) return { rows: [] }
+      if (text.includes('UPDATE billing_charge')) { updates.push({ text, params }); return { rows: [] } }
+      if (text.includes('INSERT INTO billing_account_activity')) { updates.push({ text, params }); return { rows: [{ id: 1 }] } }
+      if (text.includes('SUM(amount_cents)')) return { rows: [{ cents: 0 }] }
+      throw new Error(`Unexpected description edit query: ${text}`)
+    },
+    release() {},
+  }
+  const pool = {
+    async connect() { return client },
+    async query(sql) {
+      if (String(sql).includes('FROM family')) return { rows: [account] }
+      if (String(sql).includes('SELECT * FROM billing_charge')) return { rows: [charge] }
+      throw new Error(`Unexpected query: ${sql}`)
+    },
+  }
+  const result = await adjustCustomerBillingCharge(pool, { familyId: 44, chargeId: 91, finalAmountCents: 15000, description: 'September tuition', reason: 'Clarify bill', idempotencyKey: 'rename-test' })
+  assert.equal(result.effectiveAmountCents, 15000)
+  assert.equal(result.charge.description, 'September tuition')
+  assert.equal(result.adjustment, null)
+  assert.equal(result.replayed, false)
+  assert.equal(updates.length, 2)
+  assert.deepEqual(updates[0].params, ['September tuition', 91, 7])
+  assert.match(updates[0].text, /originalDescription/)
+  assert.equal(updates[1].params[7], 'billing_charge_description_changed')
+})

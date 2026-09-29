@@ -961,7 +961,7 @@ function TransactionsPanel({
               const canRefund = canManage && row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
               const canModifyBill = canManage && row.entryKind === 'charge' && row.amountCents >= 0 && (
                 (row.entryType === 'recurring' && Boolean(row.details.subscriptionId)) ||
-                row.details.sourceType === 'additional_fee'
+                ['additional_fee', 'manual'].includes(String(row.details.sourceType))
               )
               const canSendPaymentRequest = canModifyBill && row.remainingAmountCents > 0
               const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
@@ -1390,7 +1390,7 @@ export default function AdminCustomerBilling({
 
   const modifyCourseCharge = (row: BillingTransaction) => {
     if (!overview) return
-    if (row.details.sourceType === 'additional_fee') {
+    if (['additional_fee', 'manual'].includes(String(row.details.sourceType))) {
       setChargeToModify(row)
       return
     }

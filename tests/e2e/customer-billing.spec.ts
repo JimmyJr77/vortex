@@ -993,7 +993,7 @@ test.describe('Account Billing & Enrollments administration', () => {
 
     await page.getByRole('button', { name: 'Custom charge' }).click()
     await page.getByLabel('Description').fill('Private lesson')
-    await page.getByRole('spinbutton', { name: /^Exact amount/ }).fill('75.00')
+    await page.getByRole('textbox', { name: /^Exact amount/ }).fill('75.00')
     await page.getByText('Charge saved card', { exact: true }).click()
     await page.getByLabel('Authorization note').fill('Alex Rivera approved this exact amount by phone.')
     await page.getByText('I confirm authorization for exactly $75.00 on this attempt.').click()
@@ -1172,4 +1172,74 @@ test('beginning-of-month cancellation previews a full-month credit before confir
   await expect(dialog.getByText('Full-month account credit', { exact: true })).toBeVisible()
   await expect(dialog.getByText('2026-09-01', { exact: true })).toBeVisible()
   await expect(dialog.getByRole('button', { name: 'Confirm cancellation', exact: true })).toBeVisible()
+})
+
+test('custom charge history supports description and amount edits, deletion, and emailing the bill', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+  await openCustomerBilling(page, captured)
+  const changes: Array<Record<string, unknown>> = []
+  let emailed = false
+  const bill = { entryKind: 'charge', entryType: 'one_time', refId: 221, memberId: 11, memberName: 'Jordan Rivera', description: 'September custom tuition', amountCents: 15000, remainingAmountCents: 15000, occurredAt: '2026-09-29T12:00:00Z', status: 'unpaid', runningBalanceCents: 15000, details: { sourceType: 'manual' } }
+  await page.route('**/api/admin/customer-billing/families/42/transactions*', (route) => route.fulfill({ json: { success: true, data: { rows: [bill], nextCursor: null } } }))
+  await page.route('**/api/admin/customer-billing/families/42/charges/221/adjustments', async (route) => {
+    const change = route.request().postDataJSON()
+    changes.push(change)
+    bill.description = change.description
+    bill.amountCents = change.finalAmountCents
+    bill.remainingAmountCents = change.finalAmountCents
+    await route.fulfill({ json: { success: true, data: {} } })
+  })
+  await page.route('**/api/admin/customer-billing/families/42/charges/221/payment-request', async (route) => {
+    emailed = true
+    await route.fulfill({ json: { success: true, data: { recipientEmail: 'billing@example.com', amountCents: 15000 } } })
+  })
+  await findRiveraAccount(page)
+  await page.getByRole('button', { name: 'Send payment request for September custom tuition' }).click()
+  await expect.poll(() => emailed).toBe(true)
+  await page.getByRole('row').filter({ hasText: 'September custom tuition' }).getByRole('button', { name: 'Modify', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Modify bill' })
+  await dialog.getByLabel('Description', { exact: true }).fill('Corrected tuition')
+  await dialog.getByRole('spinbutton', { name: /^Charge amount/ }).fill('155.00')
+  await dialog.getByLabel('Reason', { exact: true }).fill('Correct description and amount')
+  await dialog.getByRole('button', { name: 'Save bill modification' }).click()
+  await expect.poll(() => changes.length).toBe(1)
+  expect(changes[0]).toMatchObject({ description: 'Corrected tuition', finalAmountCents: 15500, appliesTo: 'current_term' })
+  await page.getByRole('row').filter({ hasText: 'Corrected tuition' }).getByRole('button', { name: 'Modify', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Delete amount' }).click()
+  await expect(dialog.getByRole('spinbutton', { name: /^Charge amount/ })).toHaveValue('0.00')
+  await dialog.getByRole('button', { name: 'Save bill modification' }).click()
+  await expect.poll(() => changes.length).toBe(2)
+  expect(changes[1].finalAmountCents).toBe(0)
+  await expect(page.getByRole('button', { name: 'Payment request unavailable because Corrected tuition is paid' })).toBeDisabled()
+  await page.screenshot({ path: 'artifacts/custom-charge-history.png', fullPage: true })
+})
+
+test('dashboard stacks current owed revenue above collected and shows two future months', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+  await openCustomerBilling(page, captured)
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(error.message))
+  await page.route('**/api/admin/dashboard', (route) => route.fulfill({ json: { success: true, data: {
+    permissions: { canViewEnrollment: true, canViewBilling: true, canViewWaivers: true }, generatedAt: '2026-09-29T12:00:00Z', enrollment: null, mediaReleaseOptOuts: null,
+    billing: { revenueByMonth: [
+      { key: '2026-04', label: 'Apr', amountCents: 300000 }, { key: '2026-05', label: 'May', amountCents: 350000 },
+      { key: '2026-06', label: 'Jun', amountCents: 400000 }, { key: '2026-07', label: 'Jul', amountCents: 450000 },
+      { key: '2026-08', label: 'Aug', amountCents: 500000 }, { key: '2026-09', label: 'Sep', amountCents: 600000 },
+    ], revenueForecast: [
+      { key: '2026-09', label: 'Sep', owedCents: 150000, expectedCents: 750000 },
+      { key: '2026-10', label: 'Oct', owedCents: 0, expectedCents: 800000 },
+      { key: '2026-11', label: 'Nov', owedCents: 0, expectedCents: 850000 },
+    ], scheduledMonthlyTuitionCents: 800000, dropInsThisMonth: 0, dropInRevenueCents: 0, activeAnnualMemberships: 12, withoutCard: [], withoutMonthlyBilling: [] },
+  } } }))
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('vortex:navigate-notification', { detail: { portal: 'admin', group: 'dashboard', section: 'dashboard' } })))
+  await expect(page.getByRole('heading', { name: 'Collected & expected revenue' })).toBeVisible()
+  const september = page.getByLabel('Sep: $6,000.00 collected, $7,500.00 total', { exact: true })
+  await expect(september).toBeVisible()
+  const collectedHeight = await september.locator('.bg-vortex-red').evaluate((element) => element.getBoundingClientRect().height)
+  const totalHeight = await september.locator('.bg-red-200').evaluate((element) => element.getBoundingClientRect().height)
+  expect(collectedHeight / totalHeight).toBeCloseTo(0.8, 1)
+  await expect(page.getByLabel('Oct: $0.00 collected, $8,000.00 projected', { exact: true })).toBeVisible()
+  await expect(page.getByLabel('Nov: $0.00 collected, $8,500.00 projected', { exact: true })).toBeVisible()
+  expect(errors).toEqual([])
+  await page.screenshot({ path: 'artifacts/revenue-dashboard.png', fullPage: true })
 })

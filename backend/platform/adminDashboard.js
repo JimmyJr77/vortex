@@ -1,3 +1,5 @@
+import { loadRevenueForecast } from './adminRevenueForecast.js'
+
 const ACTIVE_SIGNUPS_CTE = `
   WITH active_signups AS (
     SELECT
@@ -150,7 +152,7 @@ async function enrollmentDashboard(pool, facilityId) {
 }
 
 async function billingDashboard(pool, facilityId, now) {
-  const [revenue, tuition, dropIns, memberships, withoutCard, withoutBilling] = await Promise.all([
+  const [revenue, tuition, dropIns, memberships, withoutCard, withoutBilling, forecast] = await Promise.all([
     safeQuery(pool, `
       SELECT to_char(date_trunc('month', payment.paid_at), 'YYYY-MM') AS month_key,
              COALESCE(SUM(payment.amount_cents), 0)::int AS amount_cents
@@ -159,6 +161,7 @@ async function billingDashboard(pool, facilityId, now) {
       JOIN family ON family.id = account.family_id
       WHERE payment.paid_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
         AND family.facility_id = $1
+        AND payment.external_status IN ('settled', 'succeeded')
       GROUP BY date_trunc('month', payment.paid_at)
       ORDER BY date_trunc('month', payment.paid_at)`, [facilityId]),
     safeQuery(pool, `
@@ -222,11 +225,16 @@ async function billingDashboard(pool, facilityId, now) {
       HAVING COUNT(*) FILTER (WHERE subscription.id IS NULL) > 0
       ORDER BY missing_schedule_count DESC, active_signups.last_name, active_signups.first_name
       LIMIT 50`, [facilityId]),
+    loadRevenueForecast(pool, facilityId, now),
   ])
 
   const dropIn = dropIns.rows[0] ?? {}
+  const revenueByMonth = buildRevenueMonths(revenue.rows, now)
   return {
-    revenueByMonth: buildRevenueMonths(revenue.rows, now),
+    revenueByMonth,
+    revenueForecast: forecast.map((month, index) => ({ ...month, expectedCents: index === 0
+      ? month.owedCents + (revenueByMonth.at(-1)?.amountCents ?? 0)
+      : month.expectedCents })),
     scheduledMonthlyTuitionCents: numeric(tuition.rows[0]?.amount_cents),
     dropInsThisMonth: numeric(dropIn.total),
     dropInRevenueCents: numeric(dropIn.amount_cents),

@@ -49,6 +49,7 @@ interface DashboardData {
   }
   billing: null | {
     revenueByMonth: Array<{ key: string; label: string; amountCents: number }>
+    revenueForecast?: Array<{ key: string; label: string; owedCents: number; expectedCents: number }>
     scheduledMonthlyTuitionCents: number
     dropInsThisMonth: number
     dropInRevenueCents: number
@@ -141,22 +142,33 @@ function ExceptionList({
   )
 }
 
-function RevenueBars({ rows }: { rows: NonNullable<DashboardData['billing']>['revenueByMonth'] }) {
-  const max = Math.max(1, ...rows.map((row) => row.amountCents))
+function RevenueBars({ billing }: { billing: NonNullable<DashboardData['billing']> }) {
+  const rows = billing.revenueByMonth.map((row) => ({
+    ...row,
+    expectedCents: billing.revenueForecast?.find((month) => month.key === row.key)?.expectedCents ?? row.amountCents,
+    upcoming: false,
+  })).concat((billing.revenueForecast?.slice(1) ?? []).map((month) => ({
+    ...month, amountCents: 0, upcoming: true,
+  })))
+  const max = Math.max(1, ...rows.map((row) => row.expectedCents))
   return (
-    <div className="mt-5 grid h-44 grid-cols-6 items-end gap-3">
-      {rows.map((row) => {
-        const percentage = Math.max(row.amountCents > 0 ? 8 : 0, Math.round((row.amountCents / max) * 100))
-        return (
-          <div key={row.key} className="flex h-full min-w-0 flex-col justify-end gap-2 text-center">
-            <p className="truncate text-[11px] font-bold text-gray-700">{row.amountCents ? money(row.amountCents) : '—'}</p>
-            <div className="flex h-28 items-end rounded-t-lg bg-gray-100">
-              <div className="w-full rounded-t-lg bg-vortex-red transition-all" style={{ height: `${percentage}%` }} />
+    <div className="mt-5 overflow-x-auto">
+      <div className="grid min-w-[600px] items-end gap-3" style={{ gridTemplateColumns: `repeat(${rows.length}, minmax(0, 1fr))` }}>
+        {rows.map((row) => (
+          <div key={row.key} className="min-w-0 text-center" aria-label={`${row.label}: ${money(row.amountCents)} collected, ${money(row.expectedCents)} ${row.upcoming ? 'projected' : 'total'}`}>
+            <p className="text-[11px] font-bold text-gray-700">{money(row.expectedCents)}</p>
+            <div className="mt-2 flex h-28 items-end rounded-t-lg bg-gray-50" title={`${money(row.amountCents)} collected · ${money(Math.max(0, row.expectedCents - row.amountCents))} ${row.upcoming ? 'projected' : 'owed'}`}>
+              <div className="flex w-full flex-col justify-end overflow-hidden rounded-t-lg bg-red-200" style={{ height: `${row.expectedCents / max * 100}%` }}>
+                <div className="w-full bg-vortex-red" style={{ height: `${row.expectedCents ? row.amountCents / row.expectedCents * 100 : 0}%` }} />
+              </div>
             </div>
-            <p className="text-xs font-semibold text-gray-500">{row.label}</p>
+            <p className="mt-2 text-xs font-semibold text-gray-500">{row.label}</p>
+            <p className="text-[10px] text-gray-400">{row.upcoming ? 'Projected' : 'Collected'}</p>
+            <p className="text-[10px] text-gray-600">{row.upcoming ? money(row.expectedCents) : money(row.amountCents)}</p>
           </div>
-        )
-      })}
+        ))}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-4 text-xs text-gray-600"><span className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-vortex-red" />Collected</span><span className="flex items-center gap-2"><span className="h-3 w-3 rounded bg-red-200" />Owed / projected</span></div>
     </div>
   )
 }
@@ -331,12 +343,13 @@ export default function AdminDashboard({
         </> : null}
 
         {data.billing ? <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
             <StatCard label="Collected this month" value={money(data.billing.revenueByMonth.at(-1)?.amountCents ?? 0)} detail="Settled payments recorded this calendar month" icon={BadgeDollarSign} tone="green" />
+            <StatCard label="Expected this month" value={money(data.billing.revenueForecast?.[0]?.expectedCents ?? data.billing.revenueByMonth.at(-1)?.amountCents ?? 0)} detail={`${money(data.billing.revenueForecast?.[0]?.owedCents ?? 0)} still owed on this month’s bills, plus collected revenue`} icon={BadgeDollarSign} />
             <StatCard label="Scheduled monthly tuition" value={money(data.billing.scheduledMonthlyTuitionCents)} detail="Active local class billing schedules" icon={CreditCard} tone="blue" />
             <StatCard label="Drop-ins this month" value={data.billing.dropInsThisMonth} detail={`${money(data.billing.dropInRevenueCents)} in drop-in payments`} icon={CalendarDays} tone="amber" />
           </div>
-          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><h3 className="font-bold text-gray-950">Collected revenue</h3><p className="mt-1 text-xs text-gray-500">Settled billing payments for the last six calendar months.</p><RevenueBars rows={data.billing.revenueByMonth} /></section>
+          <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><h3 className="font-bold text-gray-950">Collected &amp; expected revenue</h3><p className="mt-1 text-xs text-gray-500">Six months of collected payments, plus this month’s unpaid bills. The next two months project enrollment pricing, scheduled annual renewals, and posted bills; future totals may change.</p><RevenueBars billing={data.billing} /></section>
           <div className="grid gap-6 xl:grid-cols-3">
             <ExceptionList title="Active athletes without a membership" description="Enrolled athletes without an individual paid-through annual membership." rows={data.enrollment?.withoutMembership ?? []} empty="Every active athlete has an annual membership." actionLabel="Open billing" onAction={onOpenCustomerBilling} />
             <ExceptionList title="No card on file for auto-pay" description="Active class families without a remote Stripe class subscription. Review the payment method." rows={data.billing.withoutCard} empty="Every active class family has remote auto-pay." actionLabel="Open billing" onAction={onOpenCustomerBilling} />

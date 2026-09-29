@@ -675,6 +675,7 @@ export async function adjustCustomerBillingCharge(pool, {
   actorUserId = null,
   chargeId,
   finalAmountCents = null,
+  description = undefined,
   promoCode = null,
   appliesTo = 'current_term',
   reason,
@@ -687,6 +688,10 @@ export async function adjustCustomerBillingCharge(pool, {
   const charge = await loadCharge(pool, account.id, chargeId)
   if (Number(charge.amount_cents) <= 0 || ['credit', 'refund_offset', 'charge_adjustment'].includes(String(charge.source_type))) {
     throw new Error('Only a positive bill can be modified.')
+  }
+  const newDescription = description === undefined ? null : String(description).trim()
+  if (newDescription !== null && (!newDescription || charge.source_type !== 'manual')) {
+    throw new Error('A non-empty description can only be set for a custom charge.')
   }
   const note = String(reason ?? '').trim()
   if (!note) throw new Error('A reason is required when modifying a bill.')
@@ -805,6 +810,27 @@ export async function adjustCustomerBillingCharge(pool, {
         throw new Error('This bill is reserved by an active collection attempt. Modify it after that collection is resolved.')
       }
 
+      const descriptionChanged = newDescription !== null && newDescription !== lockedCharge.description
+      if (descriptionChanged) {
+        await db.query(
+          `UPDATE billing_charge SET description = $1,
+             metadata = COALESCE(metadata, '{}'::jsonb) || jsonb_build_object(
+               'originalDescription', COALESCE(metadata->>'originalDescription', description))
+           WHERE id = $2 AND family_billing_account_id = $3`,
+          [newDescription, lockedCharge.id, account.id],
+        )
+        await recordBillingActivity(db, {
+          eventKey: `billing-charge-description:${lockedCharge.id}:${randomUUID()}`,
+          accountId: account.id, memberId: lockedCharge.member_id, chargeId: lockedCharge.id,
+          eventType: 'billing_charge_description_changed',
+          summary: 'Custom charge description updated.',
+          beforeValue: { description: lockedCharge.description },
+          afterValue: { description: newDescription, reason: note },
+          actorUserId, actorType: 'admin',
+        })
+        lockedCharge.description = newDescription
+      }
+
       const prior = await db.query(
         `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
            FROM billing_charge
@@ -818,7 +844,7 @@ export async function adjustCustomerBillingCharge(pool, {
       if (difference === 0) {
         await db.query('COMMIT')
         transactionOpen = false
-        return { account, charge: lockedCharge, adjustment: null, effectiveAmountCents: effectiveAmount, replayed: true }
+        return { account, charge: lockedCharge, adjustment: null, effectiveAmountCents: effectiveAmount, replayed: !descriptionChanged }
       }
 
       const requestKey = String(idempotencyKey ?? '').trim()
@@ -1329,7 +1355,7 @@ export async function createCustomerBillingCustomCharge(pool, {
     const sameRequest =
       Number(charge.member_id ?? 0) === Number(scopedMemberId ?? 0) &&
       Number(charge.amount_cents) === amount &&
-      String(charge.description) === label &&
+      String(charge.metadata?.originalDescription ?? charge.description) === label &&
       String(charge.service_period_start ?? '').slice(0, 10) === String(periodStart ?? '').slice(0, 10) &&
       String(charge.service_period_end ?? '').slice(0, 10) === String(periodEnd ?? '').slice(0, 10)
     if (!sameRequest) throw new Error('The custom-charge request key was reused with different charge details.')

@@ -688,7 +688,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
             {newStaffSource === 'member' ? (
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
-                  Search members
+                  Member account
                   <input
                     autoFocus
                     type="search"
@@ -698,25 +698,34 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
                   />
                 </label>
-                <label className="block text-sm font-medium text-gray-700">
-                  Member account
-                  <select
-                    value={newStaffMemberId}
-                    onChange={(event) => setNewStaffMemberId(event.target.value)}
-                    disabled={loading}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                  >
-                    <option value="">{loading ? 'Loading members…' : 'Select a member account'}</option>
-                    {matchingMembers.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.fullName} — {member.email || member.username || `Member #${member.memberId}`}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {!loading && matchingMembers.length === 0 && (
-                  <p className="text-sm text-gray-500">No matching member accounts without staff access.</p>
-                )}
+                <fieldset className="max-h-56 overflow-y-auto rounded-lg border border-gray-200">
+                  <legend className="sr-only">Matching member accounts</legend>
+                  {loading ? (
+                    <p role="status" className="px-3 py-3 text-sm text-gray-500">Loading members…</p>
+                  ) : matchingMembers.length === 0 ? (
+                    <p role="status" className="px-3 py-3 text-sm text-gray-500">No matching member accounts without staff access.</p>
+                  ) : matchingMembers.map((member) => (
+                    <label
+                      key={member.id}
+                      className={`flex cursor-pointer items-center gap-3 border-b border-gray-100 px-3 py-3 last:border-b-0 hover:bg-gray-50 ${newStaffMemberId === String(member.id) ? 'bg-red-50' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="new-staff-member"
+                        value={member.id}
+                        checked={newStaffMemberId === String(member.id)}
+                        onChange={() => setNewStaffMemberId(String(member.id))}
+                        className="accent-vortex-red"
+                      />
+                      <span className="min-w-0">
+                        <span className="block break-words text-sm font-medium text-gray-900">{member.fullName}</span>
+                        <span className="block break-words text-xs text-gray-500">
+                          {member.email || member.username || `Member #${member.memberId}`}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </fieldset>
                 <p className="text-sm text-gray-500">The member will use their existing login. Their member access and password will stay the same.</p>
               </div>
             ) : (

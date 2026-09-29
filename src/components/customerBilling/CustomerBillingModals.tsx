@@ -640,7 +640,7 @@ export function CustomChargeModal({
           <input value={description} onChange={(event) => setDescription(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="Private lesson, equipment fee, account correction…" />
         </label>
         <label className="block text-sm font-medium text-gray-700">Exact amount
-          <div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0.01" step="0.01" value={amount} onChange={(event) => { setAmount(event.target.value); setConfirmed(false) }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div>
+          <div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="text" inputMode="decimal" value={amount} onChange={(event) => { setAmount(event.target.value); setConfirmed(false) }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div>
         </label>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm font-medium text-gray-700">Service period start<input type="date" value={servicePeriodStart} onChange={(event) => setServicePeriodStart(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label>
@@ -772,6 +772,8 @@ export function ModifyChargeModal({
   onClose: () => void
   onSaved: (message: string) => void
 }) {
+  const isCustom = charge.details.sourceType === 'manual'
+  const [description, setDescription] = useState(charge.description)
   const [amount, setAmount] = useState((charge.amountCents / 100).toFixed(2))
   const [adjustmentKind, setAdjustmentKind] = useState<'manual_price' | 'discount_code'>('manual_price')
   const [promoCode, setPromoCode] = useState('')
@@ -799,6 +801,7 @@ export function ModifyChargeModal({
         body: JSON.stringify({
           finalAmountCents: usingManualPrice ? finalAmountCents : null,
           promoCode: usingManualPrice ? null : promoCode.trim(),
+          description: isCustom ? description.trim() : undefined,
           appliesTo,
           reason: reason.trim(),
         }),
@@ -810,7 +813,7 @@ export function ModifyChargeModal({
           ? 'Future annual membership renewal pricing was updated in Stripe.'
           : 'Future annual membership renewal pricing was saved and will apply when the athlete renews.')
       } else {
-        onSaved(differenceCents < 0 ? 'Bill reduced with a linked account credit.' : differenceCents > 0 ? 'Bill increased with a linked ledger debit.' : 'Bill already has that effective amount.')
+        onSaved(isCustom ? 'Custom charge updated. Amount corrections remain in account history.' : differenceCents < 0 ? 'Bill reduced with a linked account credit.' : differenceCents > 0 ? 'Bill increased with a linked ledger debit.' : 'Bill already has that effective amount.')
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Bill modification failed.')
@@ -820,20 +823,21 @@ export function ModifyChargeModal({
   }
 
   return (
-    <ModalShell title="Modify bill" subtitle={`${charge.description} · original bill ${money(charge.amountCents)}`} onClose={onClose}>
+    <ModalShell title="Modify bill" subtitle={`${charge.description} · current amount ${money(charge.amountCents)}`} onClose={onClose}>
       <div className="space-y-4">
-        <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">Current-term changes preserve the original bill and post a linked credit or debit. Renewal changes do not affect today’s account balance.</p>
+        <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">{isCustom ? 'Edit the description or amount. Deleting the amount sets it to $0 with a linked credit, preserving account history.' : 'Current-term changes preserve the original bill and post a linked credit or debit. Renewal changes do not affect today’s account balance.'}</p>
+        {isCustom ? <label className="block text-sm font-medium text-gray-700">Description<input value={description} onChange={(event) => setDescription(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label> : null}
         {existingAnnotations.length > 0 ? <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-800"><strong className="block">Existing discounts and adjustments</strong><div className="mt-2 space-y-1 text-xs">{existingAnnotations.map((annotation, index) => { const amountCents = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'adjustment'}-${index}`}>{annotation.code ?? annotation.label ?? 'Adjustment'} · {amountCents < 0 ? '−' : '+'}{money(Math.abs(amountCents))}</div> })}</div></div> : null}
         {onRecallBill ? <button type="button" disabled={working} onClick={onRecallBill} className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">Recall unpaid bill</button> : null}
-        <fieldset>
+        {!isCustom ? <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-800">Change</legend>
           <div className="grid gap-2 sm:grid-cols-2">
             <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${usingManualPrice ? 'border-gray-950 bg-gray-50' : 'border-gray-200'}`}><input type="radio" name="annual-fee-change-kind" checked={usingManualPrice} onChange={() => setAdjustmentKind('manual_price')} className="mt-1" /><span><strong className="block text-sm">Set final price</strong><span className="text-xs text-gray-500">Enter the exact annual-fee amount, including $0.</span></span></label>
             <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${!usingManualPrice ? 'border-gray-950 bg-gray-50' : 'border-gray-200'}`}><input type="radio" name="annual-fee-change-kind" checked={!usingManualPrice} onChange={() => setAdjustmentKind('discount_code')} className="mt-1" /><span><strong className="block text-sm">Tuition discount code</strong><span className="text-xs text-gray-500">Validates a code configured for annual memberships.</span></span></label>
           </div>
-        </fieldset>
+        </fieldset> : null}
         {usingManualPrice ? (
-          <label className="block text-sm font-medium text-gray-700">Effective annual-fee amount
+          <label className="block text-sm font-medium text-gray-700">{isCustom ? 'Charge amount' : 'Effective annual-fee amount'}
             <div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0" step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div>
           </label>
         ) : (
@@ -841,18 +845,19 @@ export function ModifyChargeModal({
             <input value={promoCode} onChange={(event) => setPromoCode(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 uppercase" placeholder="Enter code" autoCapitalize="characters" />
           </label>
         )}
-        <fieldset>
+        {!isCustom ? <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-800">Apply to</legend>
           <div className="space-y-2">
             <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${appliesTo === 'current_term' ? 'border-gray-950 bg-gray-50' : 'border-gray-200'}`}><input type="radio" name="annual-fee-apply-to" checked={appliesTo === 'current_term'} onChange={() => setAppliesTo('current_term')} className="mt-1" /><span><strong className="block text-sm">Current term</strong><span className="text-xs text-gray-500">Adjust this year’s existing annual-fee bill now.</span></span></label>
             <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 ${appliesTo === 'renewals' ? 'border-gray-950 bg-gray-50' : 'border-gray-200'}`}><input type="radio" name="annual-fee-apply-to" checked={appliesTo === 'renewals'} onChange={() => setAppliesTo('renewals')} className="mt-1" /><span><strong className="block text-sm">Future renewals</strong><span className="text-xs text-gray-500">Use this price or code on this athlete’s next annual auto-renewal; the yearly Stripe subscription is updated without proration.</span></span></label>
           </div>
-        </fieldset>
+        </fieldset> : null}
+        {isCustom ? <button type="button" disabled={working} onClick={() => { setAmount('0.00'); setReason((value) => value || 'Delete custom charge amount') }} className="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-700">Delete amount</button> : null}
         <label className="block text-sm font-medium text-gray-700">Reason<textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="Why this bill amount is being corrected" /></label>
-        {usingManualPrice && appliesTo === 'current_term' && Number.isFinite(finalAmountCents) ? <div className="rounded-lg bg-gray-50 p-3 text-sm"><span className="text-gray-500">Ledger effect: </span><strong>{differenceCents < 0 ? `${money(Math.abs(differenceCents))} future credit` : differenceCents > 0 ? `${money(differenceCents)} additional amount due` : 'No change'}</strong></div> : null}
+        {usingManualPrice && appliesTo === 'current_term' && Number.isFinite(finalAmountCents) ? <div className="rounded-lg bg-gray-50 p-3 text-sm"><span className="text-gray-500">Ledger effect: </span><strong>{differenceCents < 0 ? `${money(Math.abs(differenceCents))} bill reduction / account credit` : differenceCents > 0 ? `${money(differenceCents)} additional amount due` : 'No change'}</strong></div> : null}
         {!usingManualPrice ? <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">The code is validated by the server against annual-membership rules, eligibility, dates, and redemption limits before it is applied.</div> : null}
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-        <button type="button" onClick={() => void submit()} disabled={working || !reason.trim() || (usingManualPrice ? !Number.isFinite(finalAmountCents) || finalAmountCents < 0 : !promoCode.trim())} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{appliesTo === 'renewals' ? ' Save renewal pricing' : ' Save bill modification'}</button>
+        <button type="button" onClick={() => void submit()} disabled={working || (isCustom && !description.trim()) || !reason.trim() || (usingManualPrice ? !Number.isFinite(finalAmountCents) || finalAmountCents < 0 : !promoCode.trim())} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{appliesTo === 'renewals' ? ' Save renewal pricing' : ' Save bill modification'}</button>
         {onTransferMembership ? <div className="border-t border-gray-200 pt-4"><button type="button" disabled={working} onClick={onTransferMembership} className="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">Change ownership of this membership</button></div> : null}
       </div>
     </ModalShell>

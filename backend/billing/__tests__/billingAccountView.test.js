@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { buildLedgerFallback, buildBillingAccountView, summarizeCustomerBalanceCards } from '../billingAccountView.js'
 
-test('customer balance cards separate open charges, current recurring tuition, and credits', () => {
+test('customer balance cards apply available credits to open debt before reporting future credits', () => {
   const cards = summarizeCustomerBalanceCards({
     recurringBillingMonth: '2026-09',
     subscriptions: [
@@ -23,12 +23,14 @@ test('customer balance cards separate open charges, current recurring tuition, a
     payments: [{ remaining_amount_cents: 250 }],
   })
 
+  // The $10 ledger credit and $2.50 unapplied payment offset the $100
+  // outstanding debt; neither remains available to spend on a future bill.
   assert.deepEqual(cards, {
-    outstandingBalanceCents: 10000,
+    outstandingBalanceCents: 8750,
     monthlyRecurringCents: 12750,
     monthlyRecurringDiscountCents: 4500,
     currentRecurringSatisfiedCents: 12750,
-    futureCreditsCents: 1250,
+    futureCreditsCents: 0,
   })
 })
 
