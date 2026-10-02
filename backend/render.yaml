@@ -51,6 +51,14 @@ services:
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO
         value: billing@vortexathletics.com
+      - key: BILLING_HOUSEHOLD_INVOICE_ENABLED
+        value: "true"
+      - key: BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED
+        value: "true"
+      - key: BILLING_COLLECTION_CUTOVER_ENABLED
+        value: "true"
+      - key: BILLING_CANONICAL_READ_MODE
+        value: active
       - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
         value: disabled
       - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
@@ -108,17 +116,15 @@ services:
       - key: DAILY_ROSTER_EMAIL
         value: team@vortexathletics.com
   - type: cron
-    name: vortex-recurring-billing
+    name: vortex-stripe-reconciliation
     runtime: node
     branch: main
     autoDeployTrigger: commit
     rootDir: backend
-    # Daily ledger preparation retries missed turnover without collecting money.
-    # Do not deploy/run post-only while a no-billing hold is in effect.
-    # Use --review-only during that hold; --collect explicitly enables collection.
-    schedule: "10 6 * * *"
+    schedule: "15 7 * * *"
     buildCommand: npm install
-    startCommand: npm run billing:recurring -- --review-only
+    # One collector job: reconcile receipts first, then post and collect due bills.
+    startCommand: npm run billing:daily
     envVars:
       - key: NODE_ENV
         value: production
@@ -130,44 +136,12 @@ services:
         sync: false
       - key: BILLING_HOUSEHOLD_INVOICE_ENABLED
         value: "true"
-      - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
-        value: disabled
-      - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
-        value: household_only
-      - key: BILLING_ALERT_EMAIL
-        value: billing@vortexathletics.com
-      - key: BILLING_REPLY_TO
-        value: billing@vortexathletics.com
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        sync: false
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
-      - key: SMTP_FROM
-        sync: false
-      - key: SMTP_REPLY_TO
-        sync: false
-  - type: cron
-    name: vortex-stripe-reconciliation
-    runtime: node
-    branch: main
-    autoDeployTrigger: commit
-    rootDir: backend
-    schedule: "15 7 * * *"
-    buildCommand: npm install
-    startCommand: npm run stripe:reconcile
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        sync: false
-      - key: STRIPE_ENABLED
+      - key: BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED
         value: "true"
-      - key: STRIPE_SECRET_KEY
-        sync: false
+      - key: BILLING_COLLECTION_CUTOVER_ENABLED
+        value: "true"
+      - key: BILLING_CANONICAL_READ_MODE
+        value: active
       - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
         value: disabled
       - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE

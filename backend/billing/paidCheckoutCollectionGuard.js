@@ -1,3 +1,4 @@
+import { findFullyRefundedWaivedCheckout } from './refundedCheckoutDischarge.js'
 /**
  * Return an active enrollment Checkout reservation whose immutable total
  * includes an existing household balance in addition to its new purchase. A
@@ -112,7 +113,7 @@ export function completedPaidCheckoutFulfillmentIsExact(proof) {
  * charges before reconciliation and make them collectible again.
  */
 export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
-  return db.query(
+  const result = await db.query(
     `WITH completed_owner AS (
        SELECT 'enrollment'::text AS owner_kind,
               pending.id AS owner_id,
@@ -203,6 +204,7 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
      )
      SELECT owner.owner_kind,
             owner.owner_id,
+            owner.stripe_checkout_session_id,
             owner.expected_payment_cents,
             owner.purchase_target_cents,
             payment.id AS payment_id,
@@ -367,7 +369,13 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
        ) tagged_unfunded ON TRUE
       ORDER BY owner.owner_kind, owner.owner_id`,
     [Number(accountId)],
-  ).then((result) => result.rows.find((row) => (
-    !completedPaidCheckoutFulfillmentIsExact(row)
-  )) ?? null)
+  )
+  for (const row of result.rows) {
+    if (completedPaidCheckoutFulfillmentIsExact(row)) continue
+    if (row.payment_id && typeof row.stripe_checkout_session_id === 'string' && row.purchase_target_cents === row.expected_payment_cents
+      && await findFullyRefundedWaivedCheckout(db, { accountId,
+        sessionId: row.stripe_checkout_session_id, paymentId: row.payment_id, amountCents: row.expected_payment_cents })) continue
+    return row
+  }
+  return null
 }

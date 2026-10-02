@@ -1,4 +1,6 @@
-import { finalizeRefundLedgerTreatment } from '../customerBillingPayments.js'
+import { findFullyRefundedWaivedCheckout } from '../refundedCheckoutDischarge.js'
+import { completeEnrollmentAutoBilling } from '../enrollmentAutoBilling.js'
+import { finalizeRefundLedgerTreatment, collectLedgerChargeWithSavedCard, checkoutAmountForBillingCharge } from '../customerBillingPayments.js'
 import { previewCustomerBillingEnrollmentCancellation } from '../customerBillingEnrollmentCancellation.js'
 import { reassessBillingAllocations } from '../reassessBillingAllocations.js'
 import test from 'node:test'
@@ -67,6 +69,75 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
   })
   t.after(async () => { await db.end() })
 
+  await t.test('initial enrollment saved-card collection is exact and replay cannot collect twice', async () => {
+    await db.query("UPDATE family_billing_account SET stripe_customer_id='cus_fixture' WHERE id=1")
+    const bill = await charge(1,10000,{source_type:'scheduling_signup',source_id:'1',service_period_start:'2026-10-01',service_period_end:'2026-10-31'})
+    const account = (await db.query('SELECT * FROM family_billing_account WHERE id=1')).rows[0]
+    assert.equal(await checkoutAmountForBillingCharge(db,{account,charge:bill,requireManualCharge:false}),10000)
+    await assert.rejects(checkoutAmountForBillingCharge(db,{account:{id:2},charge:bill,requireManualCharge:false}),/already paid/)
+    let creates=0
+    const method={id:'pm_fixture',type:'card',customer:'cus_fixture',card:{exp_month:12,exp_year:2035,last4:'4242',brand:'visa'}}
+    const stripe={customers:{retrieve:async()=>({id:'cus_fixture',invoice_settings:{default_payment_method:method}})},
+      paymentMethods:{retrieve:async()=>method},paymentIntents:{create:async(params)=>{
+        creates++;assert.equal(params.amount,10000);assert.equal(params.off_session,true)
+        return {id:'pi_fixture',object:'payment_intent',created:1790856000,status:'succeeded',amount:10000,amount_received:10000,
+          currency:'usd',customer:'cus_fixture',payment_method:method,latest_charge:{id:'ch_fixture',created:1790856000,paid:true,status:'succeeded'},metadata:params.metadata}
+      }}}
+    const options={account,charge:bill,stripeClient:stripe,attemptKey:'initial-fixture',
+      authorization:{source:'enrollment_automatic_billing',date:'2026-10-01',note:'Fixture enrollment',confirmed:true,confirmedAmountCents:10000}}
+    const first=await collectLedgerChargeWithSavedCard(db,options)
+    assert.ok(first.payment.id)
+    const replay=await collectLedgerChargeWithSavedCard(db,options)
+    assert.equal(Number(replay.payment.id),Number(first.payment.id))
+    assert.equal(creates,1)
+    assert.equal((await db.query('SELECT count(*)::int n FROM billing_payment')).rows[0].n,1)
+    assert.equal((await db.query('SELECT SUM(amount_cents)::int n FROM billing_payment_application')).rows[0].n,10000)
+  })
+
+  await t.test('automatic enrollment collects only its own unpaid initial and annual bills', async () => {
+    await db.query("UPDATE family_billing_account SET stripe_customer_id='cus_fixture' WHERE id=1")
+    const run=await insert('billing_migration_run',{migration_key:'fixture',mode:'shadow'})
+    await insert('billing_account_migration',{billing_migration_run_id:run.id,family_billing_account_id:1,state:'verified',verified_at:new Date(),cutover_month:'2026-01-01'})
+    await insert('scheduling_form',{id:1,title:'Fixture'})
+    await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed'})
+    await charge(1,10000,{source_type:'scheduling_signup',source_id:'1'})
+    await charge(2,8500,{source_type:'additional_fee',source_id:'1:1:2027-10-01'})
+    await charge(3,5000,{source_type:'scheduling_signup',source_id:'2',stripe_checkout_session_id:'cs_existing'})
+    await charge(4,15000,{source_type:'billing_subscription',source_id:'1:2026-11',metadata:{provisionalBilling:true}})
+    let creates=0
+    const method={id:'pm_fixture',type:'card',customer:'cus_fixture',card:{exp_month:12,exp_year:2035,last4:'4242',brand:'visa'}}
+    const stripe={customers:{retrieve:async()=>({id:'cus_fixture',invoice_settings:{default_payment_method:method}})},
+      paymentMethods:{retrieve:async()=>method},paymentIntents:{create:async(params)=>{
+        creates++;return {id:`pi_fixture_${creates}`,object:'payment_intent',status:'succeeded',amount:params.amount,
+          amount_received:params.amount,currency:'usd',customer:'cus_fixture',payment_method:method,
+          latest_charge:{id:`ch_fixture_${creates}`,created:1790856000,paid:true,status:'succeeded'},metadata:params.metadata}
+      }}}
+    const options={accountId:1,signupIds:[1],stripe,environment:{BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED:'true'}}
+    assert.equal((await completeEnrollmentAutoBilling(db,options)).paymentCount,2)
+    assert.equal((await completeEnrollmentAutoBilling(db,options)).paymentCount,0)
+    assert.equal(creates,2)
+    assert.equal((await db.query('SELECT SUM(amount_cents)::int n FROM billing_payment')).rows[0].n,18500)
+    assert.deepEqual((await db.query('SELECT DISTINCT billing_charge_id::int id FROM billing_payment_application ORDER BY id')).rows.map(r=>r.id),[1,2])
+  })
+
+  await t.test('fully refunded waived Checkout requires full refund, zero applications and no remaining bill', async () => {
+    await charge(1,11500,{stripe_checkout_session_id:'cs_refunded'})
+    await payment(1,11500)
+    await db.query("UPDATE billing_payment SET external_processor='stripe',stripe_payment_intent_id='pi_returned',stripe_checkout_session_id='cs_refunded' WHERE id=1")
+    const options={accountId:1,sessionId:'cs_refunded',paymentId:1,amountCents:11500}
+    assert.equal(await findFullyRefundedWaivedCheckout(db,options),null)
+    await charge(2,-11500,{source_type:'charge_adjustment',related_charge_id:1})
+    assert.equal(await findFullyRefundedWaivedCheckout(db,options),null)
+    await insert('billing_refund',{family_billing_account_id:1,payment_id:1,amount_cents:11500,
+      stripe_refund_id:'re_returned',external_status:'succeeded',ledger_treatment:'return_overpayment'})
+    assert.equal(Number((await findFullyRefundedWaivedCheckout(db,options)).id),1)
+    await allocation(1,1,1)
+    assert.equal(await findFullyRefundedWaivedCheckout(db,options),null)
+    await db.query('DELETE FROM billing_payment_application')
+    await db.query('UPDATE billing_charge SET amount_cents=-11000 WHERE id=2')
+    assert.equal(await findFullyRefundedWaivedCheckout(db,options),null)
+  })
+
   await t.test('real charge schema supports provisional recalculation and September replay after October posting', async () => {
     await insert('scheduling_form',{id:1,title:'Synthetic class'})
     await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-08-01'})
@@ -86,6 +157,42 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     const replay=await reconcileCanonicalRecurringChargesForMonth(db,{...options,billingMonth:'2026-09-01',apply:false})
     assert.equal(replay.verified,true)
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,2)
+  })
+
+  await t.test('month-boundary catch-up repairs uncollected provisional bills and retires obsolete lines', async () => {
+    await insert('scheduling_form',{id:1,title:'Synthetic enrollment'})
+    await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-09-01'})
+    await insert('billing_subscription',{id:1,family_billing_account_id:1,member_id:1,
+      source_type:'scheduling_signup',source_id:'1',description:'Synthetic enrollment',status:'active',
+      monthly_amount_cents:15000,net_monthly_cents:15000,discount_amount_cents:0,
+      start_date:'2026-09-01',next_bill_date:'2026-11-01',anchor_day:1})
+    await charge(1,14000,{source_type:'billing_subscription',source_id:'1:2026-10',subscription_id:1,
+      charge_type:'recurring',billing_interval:'month',service_period_start:'2026-10-01',service_period_end:'2026-10-31',metadata:{provisionalBilling:true}})
+    await charge(2,9000,{source_type:'billing_subscription',source_id:'retired:2026-10',
+      charge_type:'recurring',billing_interval:'month',service_period_start:'2026-10-01',service_period_end:'2026-10-31',metadata:{provisionalBilling:true}})
+    const options={accountId:1,billingMonth:'2026-10-01',facilityTimeZone:'America/New_York',
+      now:new Date('2026-10-02T12:00:00Z'),apply:true,recurringRun:true,
+      pricingResolver:async()=>({lines:[{signupId:1,subscriptionId:1,memberId:1,description:'Synthetic enrollment',grossCents:15000,discountCents:0,netCents:15000}]})}
+    assert.equal((await reconcileCanonicalRecurringChargesForMonth(db,options)).verified,true)
+    assert.equal((await reconcileCanonicalRecurringChargesForMonth(db,options)).verified,true)
+    const rows=(await db.query('SELECT * FROM billing_charge ORDER BY id')).rows
+    assert.equal(rows.length,2)
+    assert.equal(rows[0].amount_cents,15000)
+    assert.equal(rows[1].amount_cents,0)
+    assert.equal(rows[1].collection_status,'none')
+    assert.equal(rows[1].metadata.provisionalBillingVoided,true)
+  })
+
+  await t.test('month-boundary catch-up preserves a paid provisional bill', async () => {
+    await charge(1,14000,{source_type:'billing_subscription',source_id:'retired:2026-10',
+      charge_type:'recurring',billing_interval:'month',service_period_start:'2026-10-01',service_period_end:'2026-10-31',metadata:{provisionalBilling:true}})
+    await payment(1,14000)
+    await allocation(1,1,14000)
+    await assert.rejects(reconcileCanonicalRecurringChargesForMonth(db,{
+      accountId:1,billingMonth:'2026-10-01',facilityTimeZone:'America/New_York',
+      now:new Date('2026-10-02T12:00:00Z'),apply:true,pricingResolver:async()=>({lines:[]}),
+    }))
+    assert.equal((await db.query('SELECT amount_cents FROM billing_charge WHERE id=1')).rows[0].amount_cents,14000)
   })
 
   await t.test('reconciliation actor obeys the real activity CHECK constraint', async () => {

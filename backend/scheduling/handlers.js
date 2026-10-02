@@ -32,7 +32,7 @@ import { buildSignupOrderPreview, loadMemberScopeSignups, pricingScopeKey, Weekl
 import { persistDiscountSnapshot } from './discountEngine.js'
 import { persistSignupCharges } from './persistSignupCharges.js'
 import { getStripeClient } from '../billing/stripeBilling.js'
-import { createEnrollmentStripeSubscriptions } from '../billing/stripeEnrollmentCheckout.js'
+import { createEnrollmentStripeSubscriptions, createEnrollmentAnnualMembershipSubscriptions } from '../billing/stripeEnrollmentCheckout.js'
 import {
   safeCancelSubscriptionsForSource,
   safeReactivateSubscriptionForSource,
@@ -4297,7 +4297,7 @@ export function createSchedulingHandlers(pool) {
               },
             })
           } catch (previewErr) {
-            console.warn('[scheduling] admin signup billing preview:', previewErr.message)
+            throw new Error(`Enrollment billing could not be priced: ${previewErr.message}`)
           }
 
           const signupResult = await insertSignupForMember(client, {
@@ -4321,6 +4321,23 @@ export function createSchedulingHandlers(pool) {
             await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
           }
 
+          if (signupResult.signupStatus === 'confirmed') {
+            await persistSignupCharges(client, {
+              memberId,
+              signups: [
+                {
+                  signupId: signupResult.signupId,
+                  formId: value.formId,
+                  slotGroupId: value.slotGroupId,
+                  timeSlotId: firstOccurrence.id,
+                  formTitle: detail.title,
+                  slotLabel: signupResult.slotLabel,
+                },
+              ],
+              preview: billingPreview,
+            })
+          }
+
           await client.query('COMMIT')
 
           if (createdNewStubMemberId) {
@@ -4330,21 +4347,6 @@ export function createSchedulingHandlers(pool) {
           const { signupId, signupStatus, positions, pricing } = signupResult
           if (signupStatus === 'confirmed') {
             try {
-              await persistSignupCharges(pool, {
-                memberId,
-                signups: [
-                  {
-                    signupId,
-                    formId: value.formId,
-                    slotGroupId: value.slotGroupId,
-                    timeSlotId: firstOccurrence.id,
-                    formTitle: detail.title,
-                    slotLabel: signupResult.slotLabel,
-                  },
-                ],
-                preview: billingPreview,
-              })
-
               const accountRes = await pool.query(
                 `SELECT fba.id, m.family_id
                  FROM member m
@@ -4369,7 +4371,19 @@ export function createSchedulingHandlers(pool) {
               if (familyId != null) {
                 await syncFamilyEnrollmentDiscounts(pool, Number(familyId))
               }
+              if (accountId != null) {
+                await createEnrollmentAnnualMembershipSubscriptions(pool, null, {
+                  preview: billingPreview, stripeSession: null, familyBillingAccountId: Number(accountId), memberId,
+                })
+                const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
+                const billing = await completeEnrollmentAutoBilling(pool, { accountId: Number(accountId), signupIds: [signupId] })
+                if (billing.status !== 'complete' && billing.status !== 'feature_disabled') {
+                  await recordEnrollmentAutoBillingAttention(pool, { memberId, signupIds: [signupId], reason: billing.status })
+                }
+              }
             } catch (billingErr) {
+              const { recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
+              await recordEnrollmentAutoBillingAttention(pool, { memberId, signupIds: [signupId], reason: billingErr.message })
               console.warn('[scheduling] admin signup recurring billing:', billingErr.message)
             }
           }

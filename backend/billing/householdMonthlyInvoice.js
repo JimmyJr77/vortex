@@ -547,11 +547,15 @@ async function inspectRemoteHouseholdInvoicePaymentBinding(stripe, {
       issues.push({ code: 'remote_invoice_default_payment_mismatch' })
     } else {
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
-      const expectedIntentStatus = expectedStatus === 'paid' ? 'succeeded' : 'requires_payment_method'
+      // Finalizing an invoice with a saved method can attach that method and
+      // leave the intent awaiting confirmation. No funds have moved in either
+      // pre-confirmation state; processing/action/capture states still block.
+      const expectedIntentStatuses = expectedStatus === 'paid'
+        ? ['succeeded'] : ['requires_payment_method', 'requires_confirmation']
       const expectedAmountReceived = expectedStatus === 'paid' ? Number(totalCents) : 0
       if (
         paymentIntent?.id !== paymentIntentId
-        || paymentIntent?.status !== expectedIntentStatus
+        || !expectedIntentStatuses.includes(paymentIntent?.status)
         || stripeObjectId(paymentIntent?.customer) !== String(stripeCustomerId)
         || String(paymentIntent?.currency ?? '').toLowerCase() !== 'usd'
         || !Number.isSafeInteger(paymentIntent?.amount)

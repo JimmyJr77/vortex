@@ -2906,3 +2906,24 @@ test('household invoice creation is fail-closed before any query or injected Str
   assert.equal(queried, false)
   assert.deepEqual(stripe.calls, [])
 })
+
+test('a finalized saved-method invoice awaiting confirmation can collect exactly once', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture({ payErrorAfterRemotePaid: new Error('response interrupted') })
+  const retrieve = stripe.paymentIntents.retrieve.bind(stripe.paymentIntents)
+  stripe.paymentIntents.retrieve = async (id) => {
+    const intent = await retrieve(id)
+    if (intent.status === 'requires_payment_method') intent.status = 'requires_confirmation'
+    return intent
+  }
+  const options = {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York', household_monthly_billing_enabled: true },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' }, stripeClient: stripe,
+  }
+  await createHouseholdMonthlyInvoice(pool, options)
+  await createHouseholdMonthlyInvoice(pool, options)
+  assert.equal(pool.invoice.status, 'paid')
+  assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
+})

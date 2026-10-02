@@ -97,7 +97,7 @@ async function reconcileProvisionalTargetCharges(db, {
             SET amount_cents = 0,
                 gross_amount_cents = 0,
                 discount_amount_cents = 0,
-                collection_status = 'cancelled',
+                collection_status = 'none',
                 metadata = COALESCE(metadata, '{}'::jsonb)
                   || '{"customerAuditVisibility":"suppressed","provisionalBillingVoided":true}'::jsonb
           WHERE id = $1
@@ -797,12 +797,19 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
     const options = { refreshPricing: recurringRun, respectHistoricalCharges: recurringRun && !provisional }
     const expected = expectedLinesFromPricing(pricing, subscriptions, period, options)
     let comparison = compareTargetCharges(expected.lines, charges, period, options)
-    if (apply && provisional) {
+    // Uncollected pre-posted bills remain provisional after the month turns.
+    // Repair them against current enrollment before attempting collection;
+    // immutable paid/reserved bills remain protected by the mutability check.
+    // Never reinterpret an ordinary initial-period charge as a provisional bill.
+    const mutableCandidates = provisional
+      ? charges
+      : charges.filter((charge) => charge.metadata?.provisionalBilling === true)
+    if (apply && mutableCandidates.length > 0) {
       await reconcileProvisionalTargetCharges(client, {
         accountId,
         period,
         expectedLines: expected.lines,
-        charges,
+        charges: mutableCandidates,
       })
       charges = await loadTargetCharges(client, { accountId, period, facilityTimeZone })
       comparison = compareTargetCharges(expected.lines, charges, period, options)

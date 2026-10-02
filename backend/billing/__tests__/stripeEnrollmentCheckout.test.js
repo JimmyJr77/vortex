@@ -2120,3 +2120,21 @@ test('paid enrollment rechecks current authorization after winning the collectio
   assert.equal(calls.some(({ text }) => /SET status = 'processing'/.test(text)), false)
   assert.equal(calls.filter(({ text }) => /INSERT INTO stripe_billing_alert/.test(text)).length, 1)
 })
+
+
+test('re-enrollment preserves an existing annual renewal opt-out', async () => {
+  const writes=[]
+  const pool={query:async(sql)=>{
+    if(sql.includes('SELECT first_name'))return {rows:[{first_name:'Opted',last_name:'Out'}]}
+    if(sql.includes('SELECT id, stripe_subscription_id'))return {rows:[{id:9,stripe_subscription_id:null,auto_renewal:false}]}
+    if(sql.includes('UPDATE billing_subscription'))writes.push(sql)
+    return {rows:[]}
+  }}
+  const result=await createEnrollmentAnnualMembershipSubscriptions(pool,null,{
+    preview:{additionalFees:{items:[{feeId:1,name:'Annual fee',grossAmountCents:8500,triggerType:'once_per_year'}]}},
+    familyBillingAccountId:8,memberId:12,purchasedAt:new Date('2026-10-01T12:00:00Z'),environment:{},
+  })
+  assert.equal(result[0].autoRenewal,false)
+  assert.equal(writes.length,1)
+  assert.doesNotMatch(writes[0],/auto_renewal\s*=\s*TRUE/)
+})

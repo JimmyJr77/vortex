@@ -2704,3 +2704,33 @@ test('boundary outage recovery detaches still-matching local links after remote 
   assert.ok(calls.find((call) => /SET stripe_subscription_id = NULL/.test(call.text)))
   assert.ok(calls.find((call) => call.text === 'COMMIT'))
 })
+
+test('explicit forward adoption can establish first-invoice authority only after a clean collector inventory', async () => {
+  const invoices = []
+  const db = { async query(sql) {
+    const text = String(sql)
+    if (/SELECT \* FROM family_billing_account/.test(text)) return { rows: [{ id: 9,
+      stripe_customer_id: 'cus_9', household_monthly_billing_enabled: false }] }
+    if (/SELECT id, status, next_bill_date/.test(text) || /SELECT invoice\.\*/.test(text)
+      || /SELECT \* FROM billing_account_migration_item/.test(text)) return { rows: [] }
+    if (text.includes('canonical-billing:collectible-balance')) return { rows: [{ collectible_balance_cents: 15000 }] }
+    throw new Error(`Unexpected query: ${text}`)
+  } }
+  const options = { migration: { id: 44, family_billing_account_id: 9,
+    cutover_month: '2026-10-01', parity_snapshot: { timezone: 'America/New_York' } },
+    stripe: { invoices: { async list() { return { data: invoices, has_more: false } },
+      async listLineItems() { return { data: [], has_more: false } } } },
+    now: new Date('2026-10-02T12:00:00Z'), requireHouseholdCollectionActive: false,
+    inspectCollectorInventory: true, paymentMethodReadiness: { ready: true },
+    recurringChargeInspector: async () => ({ verified: true, issues: [], expectedChargeCount: 1 }),
+  }
+  assert.equal((await verifyCanonicalBillingAccount(db, options)).verified, false)
+  options.allowUnpublishedInitialInvoice = true
+  assert.equal((await verifyCanonicalBillingAccount(db, options)).verified, true)
+  assert.equal((await verifyCanonicalBillingAccount(db, { ...options, inspectCollectorInventory: false })).verified, false)
+  invoices.push({ id: 'in_competing', status: 'open',
+    metadata: { householdMonthlyInvoice: 'true', billingMonth: '2026-10' } })
+  const conflict = await verifyCanonicalBillingAccount(db, options)
+  assert.equal(conflict.verified, false)
+  assert.ok(conflict.issues.some((issue) => issue.code === 'unexpected_target_month_stripe_invoice'))
+})

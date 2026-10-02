@@ -1198,3 +1198,38 @@ test('paid household verification rejects extra open and duplicate paid Invoice 
     assert.equal(result.snapshot.paymentIntentId, null)
   }
 })
+
+
+test('collector inventory ignores settled zero trial invoices and uses explicit historical line periods', async () => {
+  const start = Date.parse('2026-10-01T04:00:00Z') / 1000
+  const end = Date.parse('2026-11-01T04:00:00Z') / 1000
+  const trial = { id: 'in_trial', status: 'paid', total: 0, amount_paid: 0, amount_remaining: 0,
+    period_start: start, period_end: end }
+  const historical = { id: 'in_september', status: 'paid', total: 15000,
+    period_start: start - 86400 * 60, period_end: end + 86400 * 300 }
+  const lines = {
+    in_trial: [{ id: 'il_trial', amount: 0, period: { start, end: end + 86400 * 300 },
+      parent: { subscription_item_details: { subscription: 'sub_cancelled_trial' } } }],
+    in_september: [{ id: 'il_september', amount: 15000, period: { start: start - 86400 * 30, end: start } }],
+  }
+  const invoices = [trial, historical]
+  const stripe = { invoices: {
+    async list() { return { data: invoices, has_more: false } },
+    async listLineItems(id) { return { data: lines[id], has_more: false } },
+  } }
+  const inspect = () => inspectStripeCustomerBillingMonthCollectors(stripe, {
+    stripeCustomerId: 'cus_1', billingMonth: '2026-10-01', facilityTimezone: 'America/New_York',
+  })
+  assert.equal((await inspect()).snapshot.collectorCount, 0)
+  // A nonzero paid invoice overlapping October must still block recollection.
+  lines.in_september[0].period.end = end
+  assert.equal((await inspect()).snapshot.collectorCount, 1)
+  // Zero totals from offsetting positive/negative charges are not free trials.
+  lines.in_september[0].period.end = start
+  lines.in_trial[0].amount = 15000
+  assert.equal((await inspect()).snapshot.collectorCount, 1)
+  // A draft zero-value trial can change before finalization and still blocks.
+  lines.in_trial[0].amount = 0
+  trial.status = 'draft'
+  assert.equal((await inspect()).snapshot.collectorCount, 1)
+})

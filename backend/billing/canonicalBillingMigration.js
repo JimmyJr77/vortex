@@ -4199,10 +4199,11 @@ async function inspectForwardAdoptionAccount(db, stripe, {
     stripe,
     now,
     billingMonth: targetMonth,
-    inspectCollectorInventory: false,
+    inspectCollectorInventory: true,
     requireHouseholdCollectionActive: false,
     allowPaymentMethodRequired: true,
     allowFutureRecurringChargeDeferral: true,
+    allowUnpublishedInitialInvoice: true,
     allowInactiveLocalLegacyLinks: true,
     paymentMethodReadiness,
   })
@@ -4913,6 +4914,7 @@ export async function verifyCanonicalBillingAccount(db, {
   requireHouseholdCollectionActive = true,
   allowPaymentMethodRequired = false,
   allowFutureRecurringChargeDeferral = false,
+  allowUnpublishedInitialInvoice = false,
   allowInactiveLocalLegacyLinks = false,
   paymentMethodReadiness = null,
   recurringChargeInspector = reconcileCanonicalRecurringChargesForMonth,
@@ -5156,7 +5158,13 @@ export async function verifyCanonicalBillingAccount(db, {
     // prior payments fully allocate it. Missing recurring charges are already
     // rejected by recurringChargeParity; only a positive collectible remainder
     // requires a household invoice here.
-    if (Number(collectibleBalanceCents) > 0 && !paymentMethodMayRemainRequired) {
+    // Forward adoption establishes the authority required to publish the first
+    // invoice. Requiring publication first creates a circular prerequisite.
+    // Only that explicit pre-activation inspection may defer publication, and
+    // it must inventory Stripe collectors below before accepting the account.
+    const publicationDeferred = allowUnpublishedInitialInvoice === true
+      && requireHouseholdCollectionActive === false && inspectCollectorInventory === true
+    if (Number(collectibleBalanceCents) > 0 && !paymentMethodMayRemainRequired && !publicationDeferred) {
       issues.push({ code: 'household_invoice_missing', message: 'A collectible balance exists but no target-month household invoice was created.', openChargeCents: cents(collectibleBalanceCents) })
     }
   }

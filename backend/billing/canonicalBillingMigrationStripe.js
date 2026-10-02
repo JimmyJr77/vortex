@@ -1011,6 +1011,12 @@ export async function inspectStripeCustomerBillingMonthCollectors(stripe, {
   const candidates = []
   for (const invoice of invoices) {
     const lines = await listStripeInvoiceLines(stripe, invoice)
+    // Settled zero-value trial invoices neither collected tuition nor retain
+    // money to collect. Keep nonzero paid invoices in the overlap check: they
+    // can prove the target service period has already been paid elsewhere.
+    if (invoice.status === 'paid' && invoice.total === 0
+      && invoice.amount_paid === 0 && invoice.amount_remaining === 0
+      && lines.every((line) => line.amount === 0)) continue
     const directSubscriptionId = objectId(invoice.subscription)
     const invoicePeriodMatches = periodsOverlap(
       invoice.period_start,
@@ -1050,7 +1056,8 @@ export async function inspectStripeCustomerBillingMonthCollectors(stripe, {
       (
         directSubscriptionId == null &&
         invoicePeriodMatches &&
-        authoritativeTargetPeriodLines.length === 0
+        authoritativeTargetPeriodLines.length === 0 &&
+        lines.length === 0
       )
     )
     if (

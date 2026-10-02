@@ -616,3 +616,26 @@ test('pauseCreditForLine returns zero credit when no sessions remain after pause
   assert.equal(result.remainingClasses, 0)
   assert.equal(result.creditCents, 0)
 })
+
+test('missing preview recovery reconstructs calendar proration and keeps household discounts', async () => {
+  const { buildPersistedEnrollmentBillingPreview } = await import('../persistedEnrollmentBillingPreview.js')
+  const source = { id: 4, member_id: 9, family_id: 7, form_id: 1, slot_group_id: 2,
+    time_slot_id: 3, enrollment_start_date: '2026-07-08' }
+  const db = { async query(sql) {
+    if (sql.includes('SELECT signup.*')) return { rows: [source] }
+    if (sql.includes('SELECT ts.*')) return { rows: [slotRow()] }
+    throw new Error(`Unexpected query: ${sql}`)
+  } }
+  const options = { familyId: 7, memberId: 9,
+    signups: [{ signupId: 4, formId: 1, slotGroupId: 2, timeSlotId: 3 }],
+    pricingResolver: async () => ({ lines: [{ signupId: 4, grossCents: 15000, discountCents: 2250, netCents: 12750 }] }),
+  }
+  const preview = await buildPersistedEnrollmentBillingPreview(db, options)
+  assert.equal(preview.firstMonth.items[0].ratio, 0.75)
+  assert.equal(preview.firstMonth.items[0].proratedCents, 9563)
+  assert.equal(preview.firstMonth.items[0].firstServicePeriodEnd, '2026-07-31')
+  assert.equal(preview.discounts.lines[0].applied[0].amountCents, 2250)
+  await assert.rejects(buildPersistedEnrollmentBillingPreview(db, { ...options, memberId: 10 }), /exact household/)
+  await assert.rejects(buildPersistedEnrollmentBillingPreview(db, { ...options,
+    pricingResolver: async () => ({ lines: [] }) }), /purchase preview is required/)
+})

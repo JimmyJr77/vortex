@@ -1,4 +1,4 @@
-import { ensureRecurringEnrollmentMappings } from '../billing/recurringEnrollmentMappings.js'
+import { buildPersistedEnrollmentBillingPreview } from './persistedEnrollmentBillingPreview.js'
 /**
  * Bridge created scheduling signups into the persisted family billing ledger.
  *
@@ -158,7 +158,7 @@ async function persistSignupPricingSnapshots(pool, preview, signups) {
         ],
       )
     } catch (error) {
-      console.warn('[scheduling] persist signup pricing snapshot:', error?.message ?? error)
+      throw error
     }
   }
 }
@@ -245,19 +245,23 @@ export async function persistSignupCharges(pool, {
   try {
     const res = await pool.query('SELECT family_id FROM member WHERE id = $1', [memberId])
     familyId = res.rows[0]?.family_id != null ? Number(res.rows[0].family_id) : null
-  } catch {
-    familyId = null
+  } catch (error) {
+    throw error
   }
-  if (familyId == null) return { charges: 0, subscriptions: 0 }
+  if (familyId == null) throw new Error('An enrollment billing household is required.')
 
   const account = await loadOrCreateUnassignedBillingAccount(pool, familyId)
-  if (!account) return { charges: 0, subscriptions: 0 }
+  if (!account) throw new Error('An enrollment billing account is required.')
+
+  if (preview == null) {
+    preview = await buildPersistedEnrollmentBillingPreview(pool, { familyId, memberId, signups })
+  }
 
   await persistSignupPricingSnapshots(pool, preview, signups)
   try {
     await persistRecurringOrderPromoAssignment(pool, preview, signups)
   } catch (error) {
-    console.warn('[scheduling] persist recurring order promo:', error?.message ?? error)
+    throw error
   }
 
   const firstMonth = preview?.firstMonth?.enabled ? preview.firstMonth : null
@@ -273,12 +277,10 @@ export async function persistSignupCharges(pool, {
     const slotKey = `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId ?? 'none'}`
     const line = lineChargeForSlot(preview, slotKey)
     if (line == null) {
-      const source=(await pool.query('SELECT enrollment_start_date,created_at FROM scheduling_signup WHERE id=$1',[signup.signupId])).rows[0]
-      const date=source?.enrollment_start_date??source?.created_at
-      if(!date)throw new Error('Enrollment billing needs a start date.')
-      const dateText=date instanceof Date?date.toISOString():String(date)
-      await ensureRecurringEnrollmentMappings(pool,{accountId:account.id,billingMonth:`${dateText.slice(0,7)}-01`})
-      continue
+      // An explicit membership-only purchase has no new tuition lines.
+      if (Array.isArray(preview.newSignups) && preview.newSignups.length === 0
+        && preview.additionalFees?.enabled === true) continue
+      throw new Error(`Enrollment ${signup.signupId} is missing its initial billing price.`)
     }
 
     const description = chargeDescription(preview, signup)
@@ -424,7 +426,7 @@ export async function persistSignupCharges(pool, {
             firstMonthItem: fm,
           })
         } catch (err) {
-          console.warn('[scheduling] persistSignupCharges prepaid credit:', err.message)
+          throw err
         }
       }
     }
@@ -487,7 +489,7 @@ export async function persistSignupCharges(pool, {
       })
     } catch (err) {
       if (err?.code === 'PAID_CHECKOUT_CHARGE_BINDING_CONFLICT') throw err
-      console.warn('[scheduling] persistSignupCharges order discount:', err.message)
+      throw err
     }
   }
 
@@ -566,7 +568,7 @@ export async function persistSignupCharges(pool, {
       }
     } catch (err) {
       if (err?.code === 'PAID_CHECKOUT_CHARGE_BINDING_CONFLICT') throw err
-      console.warn('[scheduling] persistSignupCharges additional fee charge:', err.message)
+      throw err
     }
 
     if (fee.promoRuleId != null && feeDiscount > 0) {
@@ -582,7 +584,7 @@ export async function persistSignupCharges(pool, {
           [fee.promoRuleId],
         )
       } catch (err) {
-        console.warn('[scheduling] persistSignupCharges fee promo redemption:', err.message)
+        throw err
       }
     }
 
@@ -599,7 +601,7 @@ export async function persistSignupCharges(pool, {
         [fee.feeId, memberId, firstSignupId, renewsOnKey, feeChargeId, effectivePurchasedAt],
       )
     } catch (err) {
-      console.warn('[scheduling] persistSignupCharges waived fee redemption:', err.message)
+      throw err
     }
   }
 

@@ -2046,7 +2046,7 @@ export async function computeAdditionalFeesLayer(
       redeemedPeriodKeys,
       membershipPromo,
     })
-  } catch {
-    return empty
+  } catch (error) {
+    throw new Error(`Additional enrollment fees could not be priced: ${error.message}`)
   }
 }

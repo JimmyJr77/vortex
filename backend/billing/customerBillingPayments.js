@@ -5,6 +5,7 @@ import {
   createPaymentMethodSetupSession,
   ensureStripeCustomer,
   getStripeClient,
+  prepareStripePaymentRecord,
   stripeEnabled,
 } from './stripeBilling.js'
 import {
@@ -1076,8 +1077,10 @@ export async function checkoutAmountForBillingCharge(pool, { account, charge, re
          JOIN billing_monthly_invoice invoice ON invoice.id = line.billing_monthly_invoice_id
          WHERE line.billing_charge_id = charge.id
            AND invoice.status = ANY($2::text[])
-       ) AS reserved_on_monthly_invoice`,
-    [charge.id, HOUSEHOLD_INVOICE_RESERVING_STATUSES],
+       ) AS reserved_on_monthly_invoice
+     FROM billing_charge charge
+     WHERE charge.id = $1 AND charge.family_billing_account_id = $3`,
+    [charge.id, HOUSEHOLD_INVOICE_RESERVING_STATUSES, account.id],
   )
   if (result.rows[0]?.reserved_on_monthly_invoice) {
     throw new Error('This bill is already included in a household monthly invoice and cannot receive a separate payment request.')
@@ -1630,7 +1633,31 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
   })
 }
 
-export async function collectCustomChargeWithSavedCard(pool, {
+export async function collectCustomChargeWithSavedCard(pool, options) {
+  assertCustomCharge(options.charge)
+  return collectExactLedgerChargeWithSavedCard(pool, { ...options, requireManualCharge: true })
+}
+
+/** Exact initial/recurring bills use the same durable reservation as custom bills.
+ * Callers must supply the existing amount-specific authorization contract. */
+export async function collectLedgerChargeWithSavedCard(pool, options) {
+  assertAutomaticLedgerCharge(options.charge)
+  return collectExactLedgerChargeWithSavedCard(pool, { ...options, requireManualCharge: false })
+}
+
+export function assertAutomaticLedgerCharge(charge) {
+  if (!charge || !['scheduling_signup', 'billing_subscription', 'additional_fee'].includes(charge.source_type)
+    || !Number.isSafeInteger(Number(charge.amount_cents)) || Number(charge.amount_cents) <= 0
+    || !String(charge.source_id ?? '').trim()
+    || charge.metadata?.allocationRetired === true
+    || charge.metadata?.provisionalBilling === true) {
+    throw new Error('Automatic exact collection requires a positive, non-provisional enrollment or membership bill.')
+  }
+}
+
+async function collectExactLedgerChargeWithSavedCard(pool, {
+  requireManualCharge,
+  stripeClient = null,
   account,
   charge,
   authorization,
@@ -1639,9 +1666,8 @@ export async function collectCustomChargeWithSavedCard(pool, {
   actorUserId,
   attemptKey = null,
 }) {
-  assertCustomCharge(charge)
-  if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
-  const stripe = await getStripeClient()
+  if (!stripeClient && !stripeEnabled()) throw new Error('Stripe is not enabled.')
+  const stripe = stripeClient ?? await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
   const requestKey = String(attemptKey || randomUUID())
   return withBillingAccountCollectionLock(pool, account.id, async (db) => {
@@ -1659,7 +1685,8 @@ export async function collectCustomChargeWithSavedCard(pool, {
       if (!payment) throw new Error('This charge is marked paid but its payment application needs reconciliation.')
       return { intent: null, payment, replayed: true }
     }
-    assertCollectibleCustomCharge(currentCharge)
+    if (requireManualCharge) assertCollectibleCustomCharge(currentCharge)
+    else assertAutomaticLedgerCharge(currentCharge)
     const existing = await loadBillingPaymentAttemptByRequestKey(db, {
       accountId: account.id,
       attemptType: 'charge_saved_card',
@@ -1674,7 +1701,7 @@ export async function collectCustomChargeWithSavedCard(pool, {
       throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
     }
     const amountCents = existing?.amount_cents
-      ?? await checkoutAmountForBillingCharge(db, { account, charge: currentCharge, requireManualCharge: true })
+      ?? await checkoutAmountForBillingCharge(db, { account, charge: currentCharge, requireManualCharge })
     const auth = validateAuthorization(authorization, amountCents)
     const reservation = existing ?? await reserveBillingPaymentAttempt(db, {
       accountId: account.id,
@@ -1755,6 +1782,7 @@ export async function collectCustomChargeWithSavedCard(pool, {
         paymentIntentId: intent.id,
         amountCents: intent.amount_received || intent.amount,
         customerId,
+        preparePaymentFunction: (args) => prepareStripePaymentRecord(args, { stripe }),
       })
       if (settlement?.conflicted) {
         throw new Error(`Stripe payment settlement requires reconciliation: ${settlement.reason}`)
@@ -1849,6 +1877,7 @@ export async function collectCustomChargeWithSavedCard(pool, {
       }
       let fallback = null
       try {
+        if (!requireManualCharge) throw new Error('Automatic billing leaves declined bills outstanding without creating another collector.')
         fallback = await createCustomChargeCheckoutSession(db, {
           account,
           charge: currentCharge,

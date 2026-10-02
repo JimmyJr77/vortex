@@ -1,3 +1,4 @@
+import { recordBillingActivity } from './billingActivity.js'
 /**
  * Stripe Checkout for member enrollment — pay-then-commit flow.
  * See docs/STRIPE_CATALOG_INTEGRATION.md Phase 2.
@@ -902,7 +903,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
 
     const existing = await pool.query(
       `
-        SELECT id, stripe_subscription_id
+        SELECT id, stripe_subscription_id, auto_renewal
         FROM billing_subscription
         WHERE source_type = $1 AND source_id = $2 AND status <> 'cancelled'
         LIMIT 1
@@ -937,6 +938,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
       ? Math.max(0, Math.round(Number(renewalInstruction.final_amount_cents) || 0))
       : standardAmountCents
 
+    let autoRenewal = existing.rows[0]?.auto_renewal !== false
     let billingSubId = existing.rows[0]?.id != null ? Number(existing.rows[0].id) : null
     if (billingSubId == null) {
       const ins = await pool.query(
@@ -950,10 +952,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
           DO UPDATE SET
             description = EXCLUDED.description,
             next_bill_date = EXCLUDED.next_bill_date,
-            auto_renewal = CASE
-              WHEN billing_subscription.stripe_subscription_id IS NULL THEN TRUE
-              ELSE billing_subscription.auto_renewal
-            END,
+            auto_renewal = billing_subscription.auto_renewal,
             updated_at = now()
           RETURNING id, stripe_subscription_id, auto_renewal
         `,
@@ -970,10 +969,11 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
         ],
       )
       billingSubId = Number(ins.rows[0].id)
+      autoRenewal = ins.rows[0].auto_renewal !== false
     } else {
       await pool.query(
         `UPDATE billing_subscription
-         SET next_bill_date = $2, description = $3, auto_renewal = TRUE, updated_at = now()
+         SET next_bill_date = $2, description = $3, updated_at = now()
          WHERE id = $1 AND stripe_subscription_id IS NULL`,
         [billingSubId, renewsOn, productName],
       )
@@ -995,7 +995,7 @@ export async function createEnrollmentAnnualMembershipSubscriptions(
       stripeSubscriptionId: null,
       renewsOn,
       amountCents,
-      autoRenewal: true,
+      autoRenewal,
       status: 'local_only',
     })
   }
@@ -2171,6 +2171,28 @@ async function settleCompletedEnrollmentCheckout(pool, {
   const preview = typeof pending.preview_snapshot === 'string'
     ? JSON.parse(pending.preview_snapshot)
     : pending.preview_snapshot
+  if (Number(pending.due_now_cents) === computeEnrollmentCheckoutPurchaseCents(preview)) {
+    const { findFullyRefundedWaivedCheckout } = await import('./refundedCheckoutDischarge.js')
+    const discharged = await withBillingAccountCollectionLock(pool, Number(pending.family_billing_account_id), async (db) => {
+      const refunded = await findFullyRefundedWaivedCheckout(db, {
+        accountId: pending.family_billing_account_id, sessionId: stripeSession.id,
+        paymentId: payment.id, amountCents: pending.due_now_cents,
+      })
+      if (!refunded) return null
+      const result = await db.query(`UPDATE billing_payment SET external_status='settled',
+        note=REPLACE(COALESCE(note,''),$2,'') WHERE id=$1 RETURNING *`,
+      [payment.id, `[paid-checkout-fulfillment-pending:${stripeSession.id}]`])
+      await recordBillingActivity(db, {
+        eventKey: `fully-refunded-waived-checkout:${payment.id}`, accountId: Number(pending.family_billing_account_id),
+        paymentId: Number(payment.id), eventType: 'refunded_checkout_reconciled',
+        summary: 'The original payment was fully refunded and every purchase bill was waived; no cash remains collectible.',
+        details: { amountCents: Number(pending.due_now_cents), pendingEnrollmentId: Number(pending.id) },
+        stripeObjectId: stripeSession.id, actorType: 'system',
+      })
+      return result.rows[0]
+    })
+    if (discharged) return discharged
+  }
   const payload = parsePendingPayload(pending.payload)
   const signupIds = await findExistingSignupIdsForEnrollmentPayload(
     pool,
@@ -2780,6 +2802,18 @@ async function runEnrollmentPostCommitSideEffects(pool, {
       console.error('[billing] preserve annual membership renewal schedule after enrollment commit:', err)
     }
   }
+  if (familyBillingAccountId && signupIds.length) {
+    const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('./enrollmentAutoBilling.js')
+    try {
+      const result = await completeEnrollmentAutoBilling(pool, { accountId: Number(familyBillingAccountId), signupIds })
+      if (!['complete', 'feature_disabled'].includes(result.status)) {
+        await recordEnrollmentAutoBillingAttention(pool, { memberId, signupIds, reason: result.status })
+      }
+    } catch (error) {
+      await recordEnrollmentAutoBillingAttention(pool, { memberId, signupIds, reason: error.message })
+    }
+  }
+
 }
 
 /** Re-run ledger bridge when signup batch charge persistence was skipped/failed. */

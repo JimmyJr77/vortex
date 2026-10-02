@@ -1,4 +1,5 @@
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
+import { bindEqualValueClassTransferCheckout } from './classTransferCheckoutBinding.js'
 import { recordBillingActivity } from './billingActivity.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
@@ -783,6 +784,12 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       replacementChargeId,
       effectiveDate: request.effectiveDate,
       reason: request.reason,
+    })
+    await bindEqualValueClassTransferCheckout(client, {
+      accountId: Number(context.family_billing_account_id),
+      sourceChargeId: preview.sourceRelatedChargeId,
+      replacementChargeId,
+      adjustmentChargeId: sourceAdjustmentChargeId,
     })
 
     committed = {
