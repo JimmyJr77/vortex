@@ -11,6 +11,7 @@ import {
   listHouseholdMonthlyInvoices,
   recordAndApplyHouseholdMonthlyInvoicePayment,
   stripeInvoiceIsPaid,
+  hardDeclineRequiresNewPaymentMethod,
 } from '../householdMonthlyInvoice.js'
 
 test('Stripe paid status is authoritative when the legacy paid boolean is absent', () => {
@@ -2926,4 +2927,28 @@ test('a finalized saved-method invoice awaiting confirmation can collect exactly
   await createHouseholdMonthlyInvoice(pool, options)
   assert.equal(pool.invoice.status, 'paid')
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
+})
+
+
+test('hard declines require a different saved payment method, while soft declines retain normal retry policy', () => {
+  const intent={last_payment_error:{decline_code:'lost_card',payment_method:{id:'pm_old'}}}
+  assert.equal(hardDeclineRequiresNewPaymentMethod(intent,'pm_old'),true)
+  assert.equal(hardDeclineRequiresNewPaymentMethod(intent,'pm_new'),false)
+  assert.equal(hardDeclineRequiresNewPaymentMethod({last_payment_error:{decline_code:'lost_card'}},'pm_new'),true)
+  assert.equal(hardDeclineRequiresNewPaymentMethod({last_payment_error:{decline_code:'insufficient_funds',payment_method:'pm_old'}},'pm_old'),false)
+})
+
+test('hard-declined invoice cannot dispatch a second charge to the same default method', async () => {
+  const pool=resumePool({status:'open'})
+  const stripe=stripeFixture({remoteStatus:'open'})
+  const options={account:{id:8,family_id:6,stripe_customer_id:'cus_8',facility_timezone:'America/New_York',household_monthly_billing_enabled:true},
+    billingMonth:'2026-09-01',environment:{BILLING_HOUSEHOLD_INVOICE_ENABLED:'true'},stripeClient:stripe}
+  await createHouseholdMonthlyInvoice(pool,options)
+  const attemptedAt=pool.invoice.payment_attempted_at
+  const retrieve=stripe.paymentIntents.retrieve.bind(stripe.paymentIntents)
+  stripe.paymentIntents.retrieve=async(...args)=>({...await retrieve(...args),last_payment_error:{decline_code:'lost_card',payment_method:'pm_8'}})
+  await assert.rejects(createHouseholdMonthlyInvoice(pool,options),error=>error.code==='household_hard_decline_new_payment_method_required')
+  assert.equal(stripe.payRequests.length,1)
+  assert.equal(pool.invoice.payment_attempted_at,attemptedAt)
+  assert.equal(pool.invoice.status,'failed')
 })

@@ -1379,7 +1379,20 @@ function automaticAttemptAllowed(invoice, {
   return false
 }
 
-async function priorPaymentAttemptCanAdvance(stripe, invoice) {
+const HARD_DECLINE_CODES = new Set([
+  'incorrect_number', 'lost_card', 'pickup_card', 'stolen_card',
+  'revocation_of_authorization', 'revocation_of_all_authorizations',
+  'authentication_required', 'highest_risk_level', 'transaction_not_allowed',
+])
+
+export function hardDeclineRequiresNewPaymentMethod(intent, paymentMethodId) {
+  const failure = intent?.last_payment_error
+  if (!HARD_DECLINE_CODES.has(failure?.decline_code ?? failure?.code)) return false
+  const failedMethod = stripeObjectId(failure?.payment_method) || stripeObjectId(intent?.payment_method)
+  return !failedMethod || !paymentMethodId || failedMethod === paymentMethodId
+}
+
+async function priorPaymentAttemptCanAdvance(stripe, invoice, paymentMethodId) {
   const priorAttempt = paymentAttemptDate(invoice.payment_attempted_at)
   if (
     priorAttempt
@@ -1398,7 +1411,14 @@ async function priorPaymentAttemptCanAdvance(stripe, invoice) {
     throw new Error(`Cannot verify failed payment intent ${invoice.stripe_payment_intent_id}; household invoice retry stopped.`)
   }
   const intent = await stripe.paymentIntents.retrieve(invoice.stripe_payment_intent_id)
-  if (intent?.status === 'requires_payment_method') return true
+  if (intent?.status === 'requires_payment_method') {
+    if (hardDeclineRequiresNewPaymentMethod(intent, paymentMethodId)) {
+      const error = new Error('A new default payment method is required before this invoice can be retried.')
+      error.code = 'household_hard_decline_new_payment_method_required'
+      throw error
+    }
+    return true
+  }
   throw new Error(
     `Payment intent ${invoice.stripe_payment_intent_id} is ${intent?.status || 'unknown'}; household invoice retry stopped to prevent duplicate collection.`,
   )
@@ -1406,6 +1426,7 @@ async function priorPaymentAttemptCanAdvance(stripe, invoice) {
 
 async function reservePaymentAttempt(pool, invoice, stripe, {
   automaticAttemptPolicy = null,
+  paymentMethodId = null,
   now = new Date(),
   facilityTimeZone,
 } = {}) {
@@ -1419,7 +1440,7 @@ async function reservePaymentAttempt(pool, invoice, stripe, {
     throw error
   }
   const priorAttempt = paymentAttemptDate(invoice.payment_attempted_at)
-  const priorFailureConfirmed = await priorPaymentAttemptCanAdvance(stripe, invoice)
+  const priorFailureConfirmed = await priorPaymentAttemptCanAdvance(stripe, invoice, paymentMethodId)
   const attemptedAt = !priorAttempt || priorFailureConfirmed
     ? new Date(Math.max(new Date(now).getTime(), paymentAttemptDate(priorAttempt)?.getTime() ?? 0) + 1)
     : priorAttempt
@@ -1812,11 +1833,18 @@ async function pushInvoiceToStripe(pool, {
   // Preserve the pre-publication status for retry eligibility: the local row is
   // deliberately moved to open before the boundary checks, but a fifth-day
   // retry is authorized only when its prior state was a confirmed failure.
-  const paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe, {
-    automaticAttemptPolicy,
-    now,
-    facilityTimeZone,
-  })
+  let paymentAttempt
+  try {
+    paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe, {
+      automaticAttemptPolicy, paymentMethodId: boundary.paymentMethodId, now, facilityTimeZone,
+    })
+  } catch (error) {
+    if (error.code === 'household_hard_decline_new_payment_method_required') {
+      await markInvoice(pool, invoice.id, { status: 'failed', failure_message: error.message })
+      await createPaymentMethodAlert(pool, account.id, { ...invoice, failure_message: error.message })
+    }
+    throw error
+  }
   try {
     const paid = await stripe.invoices.pay(
       remote.id,
