@@ -385,9 +385,14 @@ export async function processRecurringBillingAccount(db, account, {
     })
     // A first-of-month collection may catch up once if the worker was down and
     // no current-month invoice exists. A confirmed failure is retried exactly
-    // once on the facility's fifth day. Existing payment-method-required or
-    // unknown/processing invoices are deliberately not retried by the worker.
-    const shouldAttemptInitial = clock.isMonthBoundary || !existingInvoice
+    // once on the facility's fifth day. A bill that never reached Stripe may
+    // resume its first attempt after a default method is added. Unknown or
+    // already-attempted outcomes are not reopened by this readiness check.
+    const awaitingFirstPaymentMethod = existingInvoice?.status === 'payment_method_required'
+      && Number(existingInvoice.automatic_attempt_count ?? 0) === 0
+      && !existingInvoice.payment_attempted_at
+      && !existingInvoice.stripe_payment_intent_id
+    const shouldAttemptInitial = clock.isMonthBoundary || !existingInvoice || awaitingFirstPaymentMethod
     const shouldAttemptRetry = clock.dayOfMonth === 5
       && existingInvoice?.status === 'failed'
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 1

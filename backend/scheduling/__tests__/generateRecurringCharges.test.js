@@ -674,3 +674,26 @@ test('strict lifecycle processors receive each facility civil date at the UTC bo
     assert.equal(pauseDate, expectedDate)
   }
 })
+
+
+test('a missing-method invoice resumes only its never-started first payment after setup', async () => {
+  const cases=[
+    {status:'payment_method_required',automatic_attempt_count:0,expected:['initial']},
+    {status:'payment_method_required',automatic_attempt_count:1,expected:[]},
+    {status:'payment_method_required',automatic_attempt_count:0,payment_attempted_at:'2026-10-01',expected:[]},
+    {status:'payment_method_required',automatic_attempt_count:0,stripe_payment_intent_id:'pi_unknown',expected:[]},
+    {status:'open',automatic_attempt_count:0,expected:[]},
+    {status:'paid',automatic_attempt_count:1,expected:[]},
+  ]
+  for(const {expected,...invoice} of cases) {
+    const fixture=recurringAccountFixture({due:[],invoice:{id:803,...invoice}})
+    const attempts=[]
+    await processRecurringBillingAccount(fixture.db,ACCOUNT,{
+      asOfTimestamp:new Date('2026-10-02T16:00:00Z'),
+      clock:recurringBillingClock('2026-10-02T16:00:00Z',ACCOUNT.facility_timezone),
+      ...safeProcessors({recurringChargeReconciler:async()=>({verified:true,postedChargeIds:[]}),
+        invoiceFactory:async(_db,options)=>{attempts.push(options.automaticAttemptPolicy);return {created:false}}}),
+    })
+    assert.deepEqual(attempts,expected)
+  }
+})
