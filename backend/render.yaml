@@ -58,7 +58,7 @@ services:
       - key: BILLING_COLLECTION_CUTOVER_ENABLED
         value: "true"
       - key: BILLING_CANONICAL_READ_MODE
-        value: active
+        value: shadow
       - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
         value: disabled
       - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
@@ -141,7 +141,7 @@ services:
       - key: BILLING_COLLECTION_CUTOVER_ENABLED
         value: "true"
       - key: BILLING_CANONICAL_READ_MODE
-        value: active
+        value: shadow
       - key: BILLING_STRIPE_SUBSCRIPTION_CREATION_MODE
         value: disabled
       - key: BILLING_CLASS_SUBSCRIPTION_CREATION_MODE
