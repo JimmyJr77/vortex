@@ -1248,6 +1248,32 @@ export default function AdminCustomerBilling({
     void loadFamily(result.familyId, result.memberId)
   }
 
+  const dismissAlert = async (alertId: number) => {
+    setDismissedAlertIds((current) => new Set([...current, alertId]))
+    setError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/stripe/billing-alerts/${alertId}/resolve`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          resolutionNote: 'Dismissed from the customer billing account after administrative review.',
+        }),
+      })
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'Billing alert could not be dismissed.')
+      setOverview((current) => current == null
+        ? current
+        : { ...current, alerts: current.alerts.filter((alert) => alert.id !== alertId) })
+      setSuccess('Billing alert dismissed.')
+    } catch (caught) {
+      setDismissedAlertIds((current) => {
+        const next = new Set(current)
+        next.delete(alertId)
+        return next
+      })
+      setError(caught instanceof Error ? caught.message : 'Billing alert could not be dismissed.')
+    }
+  }
+
   const chooseMember = (memberId: number | null) => {
     if (!overview || selectedMemberId === memberId) return
     setSelectedMemberId(memberId)
@@ -1715,7 +1741,7 @@ export default function AdminCustomerBilling({
               </details>
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-2 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-2 text-sm text-gray-500">No reusable default card found.</p>}</div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
             </div>
-            {overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length})</div><div className="space-y-1">{overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="ml-auto shrink-0 text-xs">{localDate(alert.createdAt)}</span><button type="button" onClick={() => setDismissedAlertIds((current) => new Set([...current, alert.id]))} className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">Dismiss</button></div>)}</div></div> : null}
+            {overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length})</div><div className="space-y-1">{overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="ml-auto shrink-0 text-xs">{localDate(alert.createdAt)}</span>{canManage ? <button type="button" onClick={() => void dismissAlert(alert.id)} className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">Dismiss</button> : null}</div>)}</div></div> : null}
           </section>
 
           <EnrollmentSection enrollments={visibleEnrollments} waitlists={visibleWaitlists} canManage={canManage} onChangePrice={setPriceEnrollment} onRetrySync={(adjustment) => void retryAdjustmentSync(adjustment)} onRevoke={(adjustment) => void revokeAdjustment(adjustment)} onNewEnrollment={() => setNewEnrollmentOpen(true)} />

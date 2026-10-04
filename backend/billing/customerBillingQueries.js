@@ -722,6 +722,7 @@ export async function resolveAddressedBillingAlerts(pool, {
   householdCardRequired,
   householdMonthlyBillingEnabled = false,
 }) {
+  const resolvedAlertIds = []
   try {
     // A household account intentionally retains a local schedule per
     // enrollment. Once household collection is enabled, an old per-enrollment
@@ -791,6 +792,71 @@ export async function resolveAddressedBillingAlerts(pool, {
           )`,
       [accountId],
     )
+    // A completed enrollment Checkout can remain visible after a later class
+    // transfer temporarily made its payment applications look unrelated. Once
+    // the same settled payment and the charges tagged to the Checkout balance
+    // exactly again, the old reconciliation alert is no longer actionable.
+    const durableOwnerResolution = await pool.query(
+      `UPDATE stripe_billing_alert alert
+          SET resolved_at = now(),
+              action_status = 'resolved',
+              resolution_note = 'Automatically resolved after the completed enrollment payment and its exact Checkout charges reconciled.',
+              updated_at = now()
+        WHERE alert.family_billing_account_id = $1
+          AND alert.alert_type = 'durable_stripe_owner_reconciliation_failed'
+          AND alert.resolved_at IS NULL
+          AND EXISTS (
+            SELECT 1
+              FROM stripe_pending_enrollment enrollment
+              JOIN billing_payment payment
+                ON payment.family_billing_account_id = enrollment.family_billing_account_id
+               AND payment.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+               AND payment.amount_cents = enrollment.due_now_cents
+               AND payment.external_processor = 'stripe'
+               AND payment.external_status IN ('settled', 'succeeded')
+             WHERE enrollment.family_billing_account_id = alert.family_billing_account_id
+               AND enrollment.status = 'completed'
+               AND alert.stripe_event_id =
+                 'reconciliation:durable-owner:enrollment:' || enrollment.id::text || ':' || enrollment.stripe_checkout_session_id
+               AND COALESCE((
+                 SELECT SUM(CASE
+                   WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                   ELSE application.amount_cents
+                 END)::bigint
+                   FROM billing_payment_application application
+                  WHERE application.billing_payment_id = payment.id
+               ), 0) = enrollment.due_now_cents
+               AND COALESCE((
+                 SELECT SUM(tagged_charge.amount_cents)::bigint
+                   FROM billing_charge tagged_charge
+                  WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                    AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+               ), 0) > 0
+               AND COALESCE((
+                 SELECT SUM(CASE
+                   WHEN application.application_kind = 'reversal' THEN -application.amount_cents
+                   ELSE application.amount_cents
+                 END)::bigint
+                   FROM billing_payment_application application
+                   JOIN billing_payment settled_payment
+                     ON settled_payment.id = application.billing_payment_id
+                    AND settled_payment.family_billing_account_id = enrollment.family_billing_account_id
+                    AND settled_payment.external_status IN ('settled', 'succeeded')
+                   JOIN billing_charge tagged_charge
+                     ON tagged_charge.id = application.billing_charge_id
+                  WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                    AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+               ), 0) = COALESCE((
+                 SELECT SUM(tagged_charge.amount_cents)::bigint
+                   FROM billing_charge tagged_charge
+                  WHERE tagged_charge.family_billing_account_id = enrollment.family_billing_account_id
+                    AND tagged_charge.stripe_checkout_session_id = enrollment.stripe_checkout_session_id
+               ), 0)
+          )
+        RETURNING alert.id`,
+      [accountId],
+    )
+    resolvedAlertIds.push(...durableOwnerResolution.rows.map((row) => Number(row.id)))
     // Annual memberships now renew through the local household ledger. This
     // historic warning only described a retired Stripe-subscription path and
     // must not keep resurfacing for a paid membership.
@@ -811,9 +877,11 @@ export async function resolveAddressedBillingAlerts(pool, {
           )`,
       [accountId],
     )
+    return resolvedAlertIds
   } catch (error) {
     // Alert reconciliation is never allowed to make the account page fail.
     if (error?.code !== '42P01' && error?.code !== '42703') throw error
+    return []
   }
 }
 
@@ -1199,7 +1267,7 @@ export async function buildCustomerBillingOverview(pool, {
     : subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
-  await resolveAddressedBillingAlerts(pool, {
+  const automaticallyResolvedAlertIds = await resolveAddressedBillingAlerts(pool, {
     accountId: account.id,
     paymentMethodAvailable: paymentMethod.available,
     householdCardRequired,
@@ -1208,15 +1276,16 @@ export async function buildCustomerBillingOverview(pool, {
   const resolveEnrollmentAutopayAlerts =
     householdMonthlyBillingEnabled || paymentMethod.available || !householdCardRequired
   const resolveMonthlyInvoicePaymentMethodAlerts = paymentMethod.available || !householdCardRequired
-  const resolvedAlertIds = new Set(
-    alertsResult.rows
+  const resolvedAlertIds = new Set([
+    ...alertsResult.rows
       .filter((row) => (
         isRetiredAnnualMembershipStripeSetupAlert(row) ||
         (resolveEnrollmentAutopayAlerts && row.alert_type === 'enrollment_autopay_setup_required') ||
         (resolveMonthlyInvoicePaymentMethodAlerts && row.alert_type === 'monthly_invoice_payment_method_required')
       ))
       .map((row) => Number(row.id)),
-  )
+    ...automaticallyResolvedAlertIds,
+  ])
   const annualMemberships = annualMembershipRows.map((membership) => ({
     ...membership,
     lifetimeMember: hasLifetimeOwnerWaiver === true,

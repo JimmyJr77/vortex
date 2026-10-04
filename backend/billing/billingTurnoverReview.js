@@ -85,7 +85,28 @@ export async function recordBillingTurnoverReview(db, review) {
         (stripe_event_id, family_billing_account_id, alert_type, severity, message, details)
         VALUES ($1, $2, 'billing_turnover_incomplete', 'critical', $3, $4::jsonb)
         ON CONFLICT (stripe_event_id) DO UPDATE SET message = EXCLUDED.message,
-          details = EXCLUDED.details, resolved_at = NULL, action_status = 'open', updated_at = now()`,
+          details = EXCLUDED.details,
+          resolved_at = CASE
+            WHEN stripe_billing_alert.action_status = 'suspended' THEN stripe_billing_alert.resolved_at
+            WHEN stripe_billing_alert.details IS DISTINCT FROM EXCLUDED.details THEN NULL
+            ELSE stripe_billing_alert.resolved_at
+          END,
+          action_status = CASE
+            WHEN stripe_billing_alert.action_status = 'suspended' THEN 'suspended'
+            WHEN stripe_billing_alert.details IS DISTINCT FROM EXCLUDED.details THEN 'open'
+            ELSE stripe_billing_alert.action_status
+          END,
+          resolved_by_user_id = CASE
+            WHEN stripe_billing_alert.details IS DISTINCT FROM EXCLUDED.details
+              AND stripe_billing_alert.action_status <> 'suspended' THEN NULL
+            ELSE stripe_billing_alert.resolved_by_user_id
+          END,
+          resolution_note = CASE
+            WHEN stripe_billing_alert.details IS DISTINCT FROM EXCLUDED.details
+              AND stripe_billing_alert.action_status <> 'suspended' THEN NULL
+            ELSE stripe_billing_alert.resolution_note
+          END,
+          updated_at = now()`,
       [key, row.accountId, `Billing turnover for ${row.billingMonth.slice(0, 7)} requires attention.`, JSON.stringify(row)])
     }
   }

@@ -277,7 +277,7 @@ test('a usable household payment method resolves stale enrollment autopay alerts
     householdCardRequired: true,
   })
 
-  assert.equal(queries.length, 3)
+  assert.equal(queries.length, 4)
   assert.deepEqual(queries[0].params, [
     19,
     ['enrollment_autopay_setup_required', 'monthly_invoice_payment_method_required'],
@@ -288,8 +288,12 @@ test('a usable household payment method resolves stale enrollment autopay alerts
   assert.deepEqual(queries[1].params, [19])
   assert.match(queries[1].sql, /alert\.alert_type = 'webhook_failure'/)
   assert.deepEqual(queries[2].params, [19])
-  assert.match(queries[2].sql, /membership_autorenewal_setup_required/)
-  assert.match(queries[2].sql, /Annual Fee is paid, but automatic yearly renewal is not connected to Stripe/)
+  assert.match(queries[2].sql, /durable_stripe_owner_reconciliation_failed/)
+  assert.match(queries[2].sql, /stripe_pending_enrollment/)
+  assert.match(queries[2].sql, /application\.application_kind = 'reversal'/)
+  assert.deepEqual(queries[3].params, [19])
+  assert.match(queries[3].sql, /membership_autorenewal_setup_required/)
+  assert.match(queries[3].sql, /Annual Fee is paid, but automatic yearly renewal is not connected to Stripe/)
 })
 
 test('household billing resolves stale per-enrollment alerts before a card is saved', async () => {
@@ -306,7 +310,7 @@ test('household billing resolves stale per-enrollment alerts before a card is sa
     householdMonthlyBillingEnabled: true,
   })
 
-  assert.equal(queries.length, 3)
+  assert.equal(queries.length, 4)
   assert.deepEqual(queries[0].params, [
     10910,
     ['enrollment_autopay_setup_required'],
@@ -330,13 +334,15 @@ test('reconciled payment facts close only the matching stale webhook alert', asy
     householdCardRequired: true,
   })
 
-  assert.equal(queries.length, 2)
+  assert.equal(queries.length, 3)
   assert.deepEqual(queries[0].params, [10903])
   assert.match(queries[0].sql, /alert\.alert_type = 'webhook_failure'/)
   assert.match(queries[0].sql, /allocation\.applied_cents = NULLIF\(substring\(alert\.message FROM 'received \(\[0-9\]\+\)'/)
   assert.match(queries[0].sql, /payment\.amount_cents = NULLIF\(substring\(alert\.message FROM 'received \(\[0-9\]\+\)'/)
   assert.deepEqual(queries[1].params, [10903])
-  assert.match(queries[1].sql, /annual_membership_autorenewal_setup_required/)
+  assert.match(queries[1].sql, /durable_stripe_owner_reconciliation_failed/)
+  assert.deepEqual(queries[2].params, [10903])
+  assert.match(queries[2].sql, /annual_membership_autorenewal_setup_required/)
 })
 
 test('retired annual Stripe setup alerts are resolved and hidden immediately', () => {
