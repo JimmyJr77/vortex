@@ -235,7 +235,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
        FROM family f
        JOIN member m ON ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'f.id' })}
        JOIN scheduling_signup signup ON signup.member_id = m.id
-       JOIN scheduling_form form ON form.id = signup.form_id AND form.facility_id = f.facility_id
+       JOIN scheduling_form form ON form.id = signup.form_id
        JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
        LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
       WHERE f.facility_id = $1 AND signup.status = 'confirmed'

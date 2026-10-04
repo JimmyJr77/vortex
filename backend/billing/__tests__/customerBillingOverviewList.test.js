@@ -214,3 +214,18 @@ test('overview reports enrollment and month filters without requiring a billing 
     [true, true, false], [false, false, true], [true, false, false], [false, false, false],
   ])
 })
+
+
+test('enrollment query scopes through households without assuming scheduling forms have a facility column', async () => {
+  const queries = []
+  const pool = { query: async (sql, params) => {
+    queries.push({ sql, params })
+    return { rows: [] }
+  } }
+  await listCustomerBillingOverviews(pool, { facilityId: 7 })
+  const enrollmentQuery = queries.find(({ sql }) => sql.includes('JOIN scheduling_signup signup'))
+  assert.ok(enrollmentQuery)
+  assert.match(enrollmentQuery.sql, /WHERE f\.facility_id = \$1/)
+  assert.deepEqual(enrollmentQuery.params, [7])
+  assert.doesNotMatch(enrollmentQuery.sql, /form\.facility_id/)
+})
