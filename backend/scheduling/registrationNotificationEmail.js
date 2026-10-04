@@ -27,6 +27,32 @@ function safeRegistrationDetails(details) {
     .map(([key, value]) => ({ label: detailLabel(key), value: String(value) }))
 }
 
+// A family may enroll several athletes at once. Keep each athlete's details in
+// their own alert, and isolate failures from the family's receipt/welcome flow.
+export async function notifyFamilyEnrollmentRegistrations(pool, receipts, {
+  send = sendRegistrationNotification,
+  logger = console,
+} = {}) {
+  const byMember = new Map()
+  for (const receipt of receipts) {
+    const id = Number(receipt.schedulingSignupId)
+    if (!Number.isSafeInteger(id) || id <= 0) continue
+    const key = receipt.memberId ?? id
+    if (!byMember.has(key)) byMember.set(key, new Set())
+    byMember.get(key).add(id)
+  }
+  for (const ids of byMember.values()) {
+    try {
+      const result = await send(pool, { signupIds: [...ids] })
+      if (!result?.sent && result?.reason !== 'duplicate') {
+        logger.warn('[signup] team registration alert not sent:', result?.reason || 'unknown')
+      }
+    } catch (error) {
+      logger.warn('[signup] team registration alert failed:', error?.message || error)
+    }
+  }
+}
+
 export async function sendRegistrationNotification(pool, {
   signupIds,
   paidCents = null,

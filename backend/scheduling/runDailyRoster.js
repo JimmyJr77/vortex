@@ -26,6 +26,9 @@ try {
     athleteCount: result.roster.athleteCount,
     delivery: result.delivery,
   }))
+  if (!result.delivery?.sent && result.delivery?.reason !== 'duplicate') {
+    throw new Error(`Daily roster was not sent: ${result.delivery?.reason || 'unknown'}`)
+  }
 } catch (error) {
   console.error('[daily-roster] Fatal:', error)
   process.exitCode = 1

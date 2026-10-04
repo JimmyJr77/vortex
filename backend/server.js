@@ -107,6 +107,7 @@ import { ensureCoachingWhyLayerSchema } from './platform/ensureCoachingWhyLayerS
 import { ensureCoachingNeedsEngineSchema } from './platform/ensureCoachingNeedsEngineSchema.js'
 import { logWarn, reportError } from './observability/logger.js'
 import { startAccountInviteReminderScheduler } from './email/accountInviteReminderService.js'
+import { startDailyRosterScheduler } from './scheduling/dailyRosterScheduler.js'
 import { startMessageThreadAutoArchiveScheduler } from './platform/messageThreadAutoArchiveService.js'
 import { startPaymentFactAuditScheduler } from './billing/paymentFactAuditScheduler.js'
 import { registerEmailPool } from './email/emailDeliveryStore.js'
@@ -12218,6 +12219,7 @@ const startServer = async () => {
     server.listen(PORT, () => {
         console.log(`[Server ${workerId}] 🚀 Server running on port ${PORT} (worker ${workerId})`)
         registerEmailPool(pool)
+        startDailyRosterScheduler(pool)
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
         startPaymentFactAuditScheduler(pool)

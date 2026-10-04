@@ -60,6 +60,10 @@ services:
         sync: false
       - key: EMAIL_REPLY_TO
         value: frontdesk@vortexathletics.com
+      - key: DAILY_ROSTER_SCHEDULER_ENABLED
+        value: "true"
+      - key: DAILY_ROSTER_EMAIL
+        value: team@vortexathletics.com
       - key: BILLING_ALERT_EMAIL
         value: billing@vortexathletics.com
       - key: BILLING_REPLY_TO

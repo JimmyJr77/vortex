@@ -71,19 +71,20 @@ export function isEmailConfigured() {
   return Boolean(smtpUser() && smtpPass())
 }
 
+export function isSmtpAuthenticationFailure(err) {
+  return String(err?.code) === 'EAUTH' || [530, 534, 535, 538].includes(Number(err?.responseCode))
+}
+
 /** Map nodemailer/Gmail errors to a short admin-facing message (no secrets). */
 export function formatEmailError(err) {
   const msg = String(err?.message || err || '')
-  const code = String(err?.code || '')
-  const responseCode = Number(err?.responseCode || 0)
 
   if (!smtpUser() || !smtpPass()) {
     return 'Email is not configured on the server. Set SMTP_USER and SMTP_PASS in Render environment variables.'
   }
 
   if (
-    code === 'EAUTH' ||
-    responseCode === 535 ||
+    isSmtpAuthenticationFailure(err) ||
     /535|BadCredentials|Username and Password not accepted|Invalid login/i.test(msg)
   ) {
     return (
@@ -305,6 +306,10 @@ export async function sendEmail({
     return { sent: false, skipped: true, reason: 'duplicate' }
   }
 
+  if (category === 'daily_roster' && !delivery.id) {
+    throw new Error('Unable to retain the daily roster delivery before sending.')
+  }
+
   if(category==='payroll_w2_notice'&&noticeTracking&&!delivery.id)throw new Error('Unable to retain the W-2 provider delivery before sending.')
   if(category==='payroll_carrier_remittance'&&!delivery.id)return {sent:false,skipped:true,reason:'delivery_log_unavailable'}
 
@@ -338,14 +343,14 @@ export async function sendEmail({
     })
     return { sent: true, messageId: info?.messageId }
   } catch (err) {
-    if (String(err?.code) === 'EAUTH' || Number(err?.responseCode) === 535) {
+    if (isSmtpAuthenticationFailure(err)) {
       transporter = null
     }
     const code = Number(err?.responseCode) || null
     // SMTP auth errors are 5xx responses too, but they say nothing about the
     // recipient address. Never turn a sender-configuration error into a global
     // recipient suppression.
-    const isSmtpAuthFailure = String(err?.code) === 'EAUTH' || code === 535
+    const isSmtpAuthFailure = isSmtpAuthenticationFailure(err)
     const isHardBounce = !isSmtpAuthFailure && code != null && code >= 500 && code < 600
     await updateDeliveryStatus(delivery.id, isHardBounce ? 'bounced' : 'failed', {
       smtpCode: code != null ? String(code) : null,
@@ -381,7 +386,7 @@ export function resolveValidatedReplyTo(explicit, category) {
 /** Short, non-sensitive failure classification for the delivery log. */
 function classifyFailure(err) {
   const code = Number(err?.responseCode) || 0
-  if (code === 535 || String(err?.code) === 'EAUTH') return 'auth_failed'
+  if (isSmtpAuthenticationFailure(err)) return 'auth_failed'
   if (String(err?.code) === 'EENVELOPE') return 'recipient_rejected'
   if (code >= 500 && code < 600) return 'permanent_failure'
   if (code >= 400 && code < 500) return 'temporary_failure'

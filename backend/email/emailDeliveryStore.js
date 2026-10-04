@@ -139,7 +139,14 @@ export async function recordDelivery({
          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, $12, $13, $14,
          CASE WHEN $11 = 'accepted' THEN now() ELSE NULL END
        )
-       ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
+       ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL
+       ${category === 'daily_roster' && status === 'queued' ? `DO UPDATE
+         SET status = 'queued', provider_reason = NULL, smtp_code = NULL,
+             updated_at = now(), attempt_count = email_delivery.attempt_count + 1
+         WHERE EXCLUDED.status = 'queued'
+           AND email_delivery.category = 'daily_roster'
+           AND EXCLUDED.category = 'daily_roster'
+           AND email_delivery.status IN ('failed', 'suppressed')` : 'DO NOTHING'}
        RETURNING id`,
       [
         facilityId, memberId, invitationId, category, stream, templateVersion,

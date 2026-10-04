@@ -17,6 +17,7 @@ import {
 import { countActiveFamilyMembers } from '../email/memberContact.js'
 import { verifyEnrollmentReceiptToken } from '../email/enrollmentReceiptService.js'
 import { sendDropInConfirmationNotifications } from '../scheduling/dropInNotificationEmail.js'
+import { notifyFamilyEnrollmentRegistrations } from '../scheduling/registrationNotificationEmail.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { ensureSignupSchema } from './ensureSignupSchema.js'
 import { seedCanonicalWaivers } from './seedCanonicalWaivers.js'
@@ -1431,6 +1432,8 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
   // Best-effort welcome, enrollment receipts, guardian alerts, and email verification after signup commits.
   const sendPostSignupNotifications = async (result) => {
     if (!result) return
+
+    await notifyFamilyEnrollmentRegistrations(pool, result.enrollmentReceipts || [])
 
     if (!result.skipWelcome) {
       try {
