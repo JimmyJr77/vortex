@@ -542,6 +542,39 @@ test('overpayment refund cannot exceed the household credit balance', async () =
   )
 })
 
+test('applied-credit refund targets its original paid charge without creating another credit', async () => {
+  const pool = {
+    async query(sql, params = []) {
+      if (sql.includes('FROM billing_payment WHERE id')) {
+        return { rows: [{ id: 311, amount_cents: 29750, stripe_payment_intent_id: 'pi_october' }] }
+      }
+      if (sql.includes('FROM billing_refund WHERE payment_id')) return { rows: [{ cents: 0 }] }
+      if (sql.includes('AS balance_cents')) return { rows: [{ balance_cents: -8500 }] }
+      if (sql.includes('SELECT * FROM billing_charge WHERE id')) {
+        if (Number(params[0]) === 337) {
+          return { rows: [{ id: 337, amount_cents: -8500, charge_type: 'credit', related_charge_id: 319, description: 'Twisters credit' }] }
+        }
+        return { rows: [{ id: 319, amount_cents: 8500, charge_type: 'recurring', description: 'Twisters October tuition' }] }
+      }
+      if (sql.includes('FROM billing_payment_application')) return { rows: [{ cents: 8500 }] }
+      if (sql.includes("ledger_treatment = 'return_credit'")) return { rows: [{ cents: 0 }] }
+      throw new Error(`Unexpected applied-credit preview query: ${sql}`)
+    },
+  }
+
+  const preview = await previewCustomerBillingRefund(pool, {
+    account: { id: 10921 },
+    paymentId: 311,
+    amountCents: 8500,
+    ledgerTreatment: 'return_credit',
+    relatedChargeId: 337,
+  })
+
+  assert.equal(preview.relatedCharge.id, 337)
+  assert.equal(preview.currentBalanceCents, -8500)
+  assert.equal(preview.resultingBalanceCents, 0)
+})
+
 test('custom charge request keys reuse one immutable ledger charge', async () => {
   let storedCharge = null
   let activityWrites = 0

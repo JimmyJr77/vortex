@@ -15,6 +15,9 @@ export interface BillingOverviewFamily {
   monthlyRecurringCents: number
   futureCreditsCents: number
   accountBalanceCents: number
+  enrolled: boolean
+  currentMonthRecurring: boolean
+  upcomingMonthRecurring: boolean
   autopay: boolean
   autopayStatus: 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict' | 'not_applicable'
   autopayEffectiveMonth: string | null
@@ -50,44 +53,10 @@ function cardLabel(card: BillingOverviewFamily['cardOnFile']) {
 }
 
 function autopayPresentation(family: BillingOverviewFamily) {
-  const effective = billingMonthAbbreviation(family.autopayEffectiveMonth) ?? family.autopayEffectiveMonth
-  switch (family.autopayStatus) {
-    case 'ready':
-      return {
-        label: 'Ready',
-        className: 'bg-emerald-50 text-emerald-800',
-        title: `Verified household autopay${effective ? ` beginning ${effective}` : ''}.`,
-      }
-    case 'payment_method_required':
-      return {
-        label: 'Payment method needed',
-        className: 'bg-amber-50 text-amber-800',
-        title: 'Household billing is verified, but no reusable customer-owned Card or Link payment method is available.',
-      }
-    case 'scheduled_later':
-      return {
-        label: 'Scheduled later',
-        className: 'bg-blue-50 text-blue-800',
-        title: `Household autopay is verified for ${effective ?? 'a future billing month'}.`,
-      }
-    case 'legacy_collector_conflict':
-      return {
-        label: 'Legacy conflict',
-        className: 'bg-red-50 text-red-800',
-        title: 'An active legacy Stripe collector conflicts with household autopay and must be reviewed.',
-      }
-    case 'not_applicable':
-      return {
-        label: 'No recurring classes',
-        className: 'bg-gray-100 text-gray-600',
-        title: 'No current billable recurring enrollment requires household autopay.',
-      }
-    default:
-      return {
-        label: 'Migration needed',
-        className: 'bg-gray-100 text-gray-700',
-        title: 'Household autopay does not yet have verified canonical migration evidence.',
-      }
+  return {
+    label: family.autopay ? 'Autopay' : 'Not Enrolled',
+    className: family.autopay ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-100 text-gray-700',
+    title: family.autopay ? 'Actively enrolled in autopay.' : 'Not actively enrolled in autopay.',
   }
 }
 
@@ -96,6 +65,8 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+  const [recurringFilter, setRecurringFilter] = useState('all')
+  const [sort, setSort] = useState({ key: 'familyName', direction: 'asc' as 'asc' | 'desc' })
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -119,11 +90,43 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
   const families = useMemo(() => {
     const rows = payload?.families ?? []
     const search = query.trim().toLocaleLowerCase()
-    if (!search) return rows
-    return rows.filter((family) => family.familyName.toLocaleLowerCase().includes(search))
-  }, [payload, query])
+    const value = (family: BillingOverviewFamily, key: string): string | number => {
+      if (key.startsWith('month:')) return family.months[key.slice(6)]?.billedCents ?? 0
+      if (key === 'autopay') return autopayPresentation(family).label
+      if (key === 'enrolled') return family.enrolled ? 'Yes' : 'No'
+      if (key === 'cardOnFile') return cardLabel(family.cardOnFile)
+      const field = family[key as keyof BillingOverviewFamily]
+      return typeof field === 'number' || typeof field === 'string' ? field : ''
+    }
+    return rows.filter((family) =>
+      family.familyName.toLocaleLowerCase().includes(search)
+      && (recurringFilter === 'all'
+        || (recurringFilter === 'current' ? family.currentMonthRecurring : family.upcomingMonthRecurring)),
+    ).sort((left, right) => {
+      const a = value(left, sort.key)
+      const b = value(right, sort.key)
+      let comparison = typeof a === 'number' && typeof b === 'number'
+        ? a - b : String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' })
+      if (!comparison && sort.key.startsWith('month:')) {
+        const month = sort.key.slice(6)
+        comparison = (left.months[month]?.paidCents ?? 0) - (right.months[month]?.paidCents ?? 0)
+      }
+      return comparison * (sort.direction === 'asc' ? 1 : -1) || left.familyId - right.familyId
+    })
+  }, [payload, query, recurringFilter, sort])
 
   const months = payload?.months ?? []
+  const columnCount = 9 + months.length
+  const header = (key: string, label: string, sticky = false) => (
+    <th key={key} scope="col" aria-sort={sort.key === key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+      className={`whitespace-nowrap px-5 py-3 ${sticky ? 'sticky left-0 z-20 bg-gray-50' : ''}`}>
+      <button type="button" className="inline-flex items-center gap-2 text-left uppercase hover:text-gray-950"
+        title={key.startsWith('month:') ? 'Sort by bill amount, then paid amount' : `Sort by ${label}`}
+        onClick={() => setSort((previous) => ({ key, direction: previous.key === key && previous.direction === 'asc' ? 'desc' : 'asc' }))}>
+        {label}<span aria-hidden="true">{sort.key === key ? (sort.direction === 'asc' ? '↑' : '↓') : '↕'}</span>
+      </button>
+    </th>
+  )
   const upcomingLabel = billingMonthAbbreviation(payload?.upcomingMonth) ?? 'Upcoming'
 
   return (
@@ -132,7 +135,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
         <div>
           <h2 className="font-display text-2xl font-bold text-gray-950">Billing Overview</h2>
           <p className="mt-1 text-sm text-gray-600">
-            All member families with year-to-date collections, balances, upcoming recurring, verified household autopay readiness, and saved payment method.
+            Monthly billing and payments, upcoming balances, class enrollment, and autopay status.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -146,6 +149,15 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
               className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-black"
             />
           </label>
+          <label className="text-sm text-gray-700">
+            <span className="sr-only">Active recurring classes</span>
+            <select aria-label="Active recurring classes" value={recurringFilter} onChange={(event) => setRecurringFilter(event.target.value)}
+              className="min-h-10 rounded-lg border border-gray-300 bg-white px-3 py-2">
+              <option value="all">All families</option>
+              <option value="current">Active recurring — {billingMonthAbbreviation(months[1]) ?? 'current month'}</option>
+              <option value="upcoming">Active recurring — {upcomingLabel}</option>
+            </select>
+          </label>
           <button
             type="button"
             onClick={() => void load()}
@@ -158,37 +170,36 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
         </div>
       </div>
       {error && <div className="mx-5 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
-      <div className="overflow-x-auto">
-        <table className="min-w-[1280px] w-full text-sm">
+      <div className="overflow-x-auto" role="region" aria-label="Billing overview table" tabIndex={0}>
+        <table className="min-w-[1280px] w-full text-sm whitespace-nowrap">
           <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
             <tr>
-              <th className="px-5 py-3">Family</th>
-              <th className="px-5 py-3">YTD {payload?.year ?? ''}</th>
-              {months.map((month) => (
-                <th key={month} className="px-5 py-3">{billingMonthAbbreviation(month)} bill / paid</th>
-              ))}
-              <th className="px-5 py-3">Outstanding</th>
-              <th className="px-5 py-3">{upcomingLabel} recurring</th>
-              <th className="px-5 py-3">Future credits</th>
-              <th className="px-5 py-3">Account balance</th>
-              <th className="px-5 py-3">Household autopay</th>
-              <th className="px-5 py-3">Payment method</th>
+              {header('familyName', 'Family', true)}
+              {header('enrolled', 'Enrolled')}
+              {header('yearToDatePaidCents', `YTD ${payload?.year ?? ''}`)}
+              {months.map((month) => header(`month:${month}`, `${billingMonthAbbreviation(month)} bill / paid`))}
+              {header('outstandingBalanceCents', `${upcomingLabel} outstanding`)}
+              {header('monthlyRecurringCents', `${upcomingLabel} recurring`)}
+              {header('futureCreditsCents', `${upcomingLabel} credits`)}
+              {header('accountBalanceCents', `${upcomingLabel} balance`)}
+              {header('autopay', 'Autopay')}
+              {header('cardOnFile', 'Payment method')}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {loading && !payload ? (
               <tr>
-                <td colSpan={11} className="px-5 py-10 text-center text-sm text-gray-500">
+                <td colSpan={columnCount} className="px-5 py-10 text-center text-sm text-gray-500">
                   <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" />Loading billing overview…</span>
                 </td>
               </tr>
             ) : families.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-5 py-10 text-center text-sm text-gray-500">No member families match this view.</td>
+                <td colSpan={columnCount} className="px-5 py-10 text-center text-sm text-gray-500">No member families match this view.</td>
               </tr>
             ) : families.map((family) => (
-              <tr key={family.familyId} className="hover:bg-gray-50">
-                <td className="px-5 py-3">
+              <tr key={family.familyId} className="group hover:bg-gray-50">
+                <td className="sticky left-0 z-10 max-w-64 whitespace-normal bg-white px-5 py-3 shadow-[1px_0_0_0_#e5e7eb] group-hover:bg-gray-50">
                   <button
                     type="button"
                     onClick={() => onOpenFamily(family.familyId, family.memberId)}
@@ -197,6 +208,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
                     {family.familyName}
                   </button>
                 </td>
+                <td className="px-5 py-3">{family.enrolled ? 'Yes' : 'No'}</td>
                 <td className="px-5 py-3 font-semibold text-gray-900">{money(family.yearToDatePaidCents)}</td>
                 {months.map((month) => (
                   <td key={month} className="px-5 py-3 tabular-nums text-gray-800">{billPaid(family.months[month])}</td>

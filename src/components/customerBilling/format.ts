@@ -64,7 +64,7 @@ export function currentMonthInput(): string {
 
 export function statusTone(status: string): string {
   const normalized = status.toLowerCase()
-  if (['active', 'confirmed', 'healthy', 'paid', 'succeeded', 'synced', 'issued', 'household_monthly', 'legacy_stripe_subscription'].includes(normalized)) {
+  if (['active', 'applied', 'confirmed', 'healthy', 'paid', 'succeeded', 'synced', 'issued', 'household_monthly', 'legacy_stripe_subscription'].includes(normalized)) {
     return 'bg-emerald-50 text-emerald-700 border-emerald-200'
   }
   if (['failed', 'critical', 'cancelled', 'void', 'unpaid'].includes(normalized)) {

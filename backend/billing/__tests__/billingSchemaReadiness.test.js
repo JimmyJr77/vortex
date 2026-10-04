@@ -120,6 +120,7 @@ test('required billing schema reports ready only when every request dependency e
   assert.ok(REQUIRED_BILLING_MIGRATIONS.includes('798_checkout_fulfillment_idempotency.sql'))
   assert.ok(REQUIRED_BILLING_MIGRATIONS.includes('799_billing_payment_stripe_invoice_link.sql'))
   assert.ok(REQUIRED_BILLING_MIGRATIONS.includes('809_billing_migration_item_upsert_evidence.sql'))
+  assert.ok(REQUIRED_BILLING_MIGRATIONS.includes('834_refund_applied_account_credit.sql'))
   assert.ok(REQUIRED_BILLING_RELATIONS.includes('billing_legacy_endpoint_monitor'))
   assert.ok(REQUIRED_BILLING_RELATIONS.includes('billing_legacy_endpoint_traffic'))
   assert.ok(REQUIRED_BILLING_RELATIONS.includes('drop_in_registration'))

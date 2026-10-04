@@ -1968,8 +1968,8 @@ export async function previewCustomerBillingRefund(pool, {
   relatedChargeId = null,
 }) {
   const amount = positiveCents(amountCents, 'Refund amount')
-  if (!['reverse_charge', 'return_overpayment'].includes(ledgerTreatment)) {
-    throw new Error('Choose whether the refund reverses a charge or returns an unapplied overpayment.')
+  if (!['reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
+    throw new Error('Choose whether the refund reverses a charge, returns an unapplied overpayment, or pays back an applied credit.')
   }
   const payment = await pool.query(
     `SELECT * FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
@@ -2009,6 +2009,45 @@ export async function previewCustomerBillingRefund(pool, {
     )
     if (Number(prior.rows[0]?.cents ?? 0) + amount > Math.max(0, Number(relatedCharge.amount_cents))) {
       throw new Error('Refund exceeds the remaining reversible amount on the selected charge.')
+    }
+  } else if (ledgerTreatment === 'return_credit') {
+    if (!relatedChargeId) throw new Error('Select the applied credit that this refund pays back.')
+    relatedCharge = await loadCharge(pool, account.id, relatedChargeId)
+    const originalChargeId = Number(relatedCharge.related_charge_id)
+    if (
+      Number(relatedCharge.amount_cents) >= 0
+      || relatedCharge.charge_type !== 'credit'
+      || !Number.isInteger(originalChargeId)
+      || originalChargeId <= 0
+    ) {
+      throw new Error('The selected transaction is not a refundable applied credit.')
+    }
+    const originalCharge = await loadCharge(pool, account.id, originalChargeId)
+    if (Number(originalCharge.amount_cents) <= 0) {
+      throw new Error('The applied credit is not linked to a valid billed charge.')
+    }
+    const appliedFromPayment = await pool.query(
+      `SELECT COALESCE(SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END), 0)::int AS cents
+       FROM billing_payment_application
+       WHERE billing_payment_id = $1 AND billing_charge_id = $2`,
+      [payment.id, originalCharge.id],
+    )
+    if (amount > Number(appliedFromPayment.rows[0]?.cents ?? 0)) {
+      throw new Error('Refund amount exceeds this payment’s remaining application to the credited charge.')
+    }
+    const prior = await pool.query(
+      `SELECT COALESCE(SUM(amount_cents), 0)::int AS cents
+       FROM billing_refund
+       WHERE related_charge_id = $1 AND ledger_treatment = 'return_credit'
+         AND external_status IN ('pending', 'succeeded', 'reconciliation_required')`,
+      [relatedCharge.id],
+    )
+    if (Number(prior.rows[0]?.cents ?? 0) + amount > Math.abs(Number(relatedCharge.amount_cents))) {
+      throw new Error('Refund exceeds the remaining value of the selected credit.')
+    }
+    const accountCreditCents = Math.max(0, -currentBalanceCents)
+    if (amount > accountCreditCents) {
+      throw new Error('Refund exceeds the household’s current account credit.')
     }
   } else {
     const overpaymentCents = Math.max(0, -currentBalanceCents)

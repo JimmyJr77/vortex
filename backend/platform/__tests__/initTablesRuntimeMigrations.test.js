@@ -61,6 +61,7 @@ test('platform boot includes every schema contract required by current Admin rou
     '809_billing_migration_item_upsert_evidence.sql',
     '810_billing_payment_fact_audit_jobs.sql',
     '811_billing_monthly_invoice_automatic_attempts.sql',
+    '834_refund_applied_account_credit.sql',
   ])
 })
 

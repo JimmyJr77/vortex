@@ -4,9 +4,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  enrollmentActiveOn,
+  listCustomerBillingOverviews,
   familyAutopayStatus,
   familyAutopayScheduled,
-  lastThreeBillingMonths,
+  overviewBillingMonths,
   paymentMethodReadyForBillingMonth,
   yearToDateBounds,
 } from '../customerBillingOverviewList.js'
@@ -28,10 +30,10 @@ test('monthly paid totals follow settled charge applications instead of payment 
   )
 })
 
-test('last three billing months are the completed months before the current billing month', () => {
+test('overview shows the previous and current billing months', () => {
   assert.deepEqual(
-    lastThreeBillingMonths(new Date('2026-09-03T16:00:00.000Z')),
-    ['2026-06', '2026-07', '2026-08'],
+    overviewBillingMonths(new Date('2026-09-03T16:00:00.000Z')),
+    ['2026-08', '2026-09'],
   )
 })
 
@@ -170,4 +172,45 @@ test('autopay payment-method readiness covers the month and customer that will b
     customerId: 'cus_1',
     paymentMethod: { id: 'pm_link', type: 'link', customerId: 'cus_1' },
   }, '2026-10-01'), false)
+})
+
+
+test('overview months rotate at the facility month boundary including January', () => {
+  assert.deepEqual(overviewBillingMonths(new Date('2027-01-01T04:59:00Z')), ['2026-11', '2026-12'])
+  assert.deepEqual(overviewBillingMonths(new Date('2027-01-01T05:00:00Z')), ['2026-12', '2027-01'])
+})
+
+test('upcoming month is next calendar month even before the fifth', async () => {
+  const pool = { query: async () => ({ rows: [] }) }
+  const overview = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date('2026-10-01T16:00:00Z') })
+  assert.deepEqual(overview.months, ['2026-09', '2026-10'])
+  assert.equal(overview.upcomingMonth, '2026-11')
+})
+
+test('enrolled reflects active service today including free and one-time classes', () => {
+  const row = { status: 'confirmed', enrollment_start_date: '2026-10-01', form_end_date: '2026-10-31', pricing_breakdown: { billingType: 'one_time' } }
+  assert.equal(enrollmentActiveOn(row, '2026-10-04'), true)
+  assert.equal(enrollmentActiveOn(row, '2026-09-30'), false)
+  assert.equal(enrollmentActiveOn(row, '2026-11-01'), false)
+  assert.equal(enrollmentActiveOn({ ...row, pause_effective_date: '2026-10-04' }, '2026-10-04'), false)
+  assert.equal(enrollmentActiveOn({ ...row, cancel_effective_date: '2026-10-04' }, '2026-10-04'), false)
+  assert.equal(enrollmentActiveOn({ ...row, status: 'cancelled' }, '2026-10-04'), false)
+  assert.equal(enrollmentActiveOn({ ...row, orphaned_at: '2026-10-03' }, '2026-10-04'), false)
+})
+
+
+test('overview reports enrollment and month filters without requiring a billing account or paid tuition', async () => {
+  const families = [1, 2, 3, 4].map((id) => ({ family_id: id, billing_account_id: null, facility_timezone: 'America/New_York' }))
+  const enrollments = [
+    { family_id: 1, status: 'confirmed', enrollment_start_date: '2026-10-01', cancel_effective_date: '2026-11-01' },
+    { family_id: 2, status: 'confirmed', enrollment_start_date: '2026-11-01' },
+    { family_id: 3, status: 'confirmed', enrollment_start_date: '2026-10-01', pricing_breakdown: { billingType: 'one_time' } },
+  ]
+  let calls = 0
+  const pool = { query: async () => ({ rows: calls++ === 0 ? families : enrollments }) }
+  const overview = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date('2026-10-04T16:00:00Z') })
+  assert.deepEqual(overview.families.map(({ enrolled, currentMonthRecurring, upcomingMonthRecurring }) =>
+    [enrolled, currentMonthRecurring, upcomingMonthRecurring]), [
+    [true, true, false], [false, false, true], [true, false, false], [false, false, false],
+  ])
 })

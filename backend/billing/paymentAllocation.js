@@ -969,6 +969,28 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
   ).then((result) => result.rows[0] ?? null)
   if (!payment) throw new Error('Refund payment does not belong to this household account.')
 
+  const returnCredit = refund.ledger_treatment === 'return_credit'
+  let targetChargeId = refund.related_charge_id == null ? null : Number(refund.related_charge_id)
+  if (returnCredit) {
+    const credit = await db.query(
+      `SELECT id, related_charge_id, amount_cents, charge_type
+         FROM billing_charge
+        WHERE id = $1 AND family_billing_account_id = $2
+        FOR UPDATE`,
+      [targetChargeId, Number(refund.family_billing_account_id)],
+    ).then((result) => result.rows[0] ?? null)
+    targetChargeId = Number(credit?.related_charge_id)
+    if (
+      !credit
+      || Number(credit.amount_cents) >= 0
+      || credit.charge_type !== 'credit'
+      || !Number.isInteger(targetChargeId)
+      || targetChargeId <= 0
+    ) {
+      throw new Error(`Refund #${refund.id} is not linked to a valid applied credit.`)
+    }
+  }
+
   const applications = await db.query(
     `SELECT application.*
        FROM billing_payment_application application
@@ -976,7 +998,7 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
         AND application.application_kind = 'application'
       ORDER BY (application.billing_charge_id = $2) DESC, application.created_at DESC, application.id DESC
       FOR UPDATE OF application`,
-    [Number(refund.payment_id), refund.related_charge_id == null ? null : Number(refund.related_charge_id)],
+    [Number(refund.payment_id), targetChargeId],
   )
   const applicationIds = applications.rows.map((row) => Number(row.id))
   const priorReversals = applicationIds.length > 0
@@ -1020,11 +1042,12 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
     }
   }
   const reverseCharge = refund.ledger_treatment === 'reverse_charge'
-  if (reverseCharge && (!refund.related_charge_id || Number(refund.related_charge_id) <= 0)) {
+  const targetedRefund = reverseCharge || returnCredit
+  if (targetedRefund && (!targetChargeId || targetChargeId <= 0)) {
     throw new Error(`Refund #${refund.id} is missing its selected charge.`)
   }
-  if (reverseCharge && [...refundReversalByApplication.keys()].some((applicationId) => (
-    Number(applicationById.get(applicationId)?.billing_charge_id) !== Number(refund.related_charge_id)
+  if (targetedRefund && [...refundReversalByApplication.keys()].some((applicationId) => (
+    Number(applicationById.get(applicationId)?.billing_charge_id) !== Number(targetChargeId)
   ))) {
     const error = new Error(`Refund #${refund.id} has a reversal outside its selected charge.`)
     error.code = 'REFUND_APPLICATION_REVERSAL_SPILL'
@@ -1077,9 +1100,9 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
 
   let remaining = targetReversalCents - alreadyReversedForRefundCents
   const reversals = [...refundReversalByApplication.values()]
-  const eligibleApplications = reverseCharge
+  const eligibleApplications = targetedRefund
     ? applications.rows.filter((application) => (
-      Number(application.billing_charge_id) === Number(refund.related_charge_id)
+      Number(application.billing_charge_id) === Number(targetChargeId)
     ))
     : applications.rows
   const availableEligibleCents = eligibleApplications.reduce((sum, application) => (
@@ -1090,11 +1113,11 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
   ), 0)
   if (remaining > availableEligibleCents) {
     const error = new Error(
-      reverseCharge
+      targetedRefund
         ? `Refund #${refund.id} no longer has enough application on its selected charge.`
         : `Refund #${refund.id} cannot restore the selected payment's application invariant.`,
     )
-    error.code = reverseCharge
+    error.code = targetedRefund
       ? 'REFUND_SELECTED_CHARGE_APPLICATION_DRIFT'
       : 'REFUND_APPLICATION_REVERSAL_INCOMPLETE'
     throw error

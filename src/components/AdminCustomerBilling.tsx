@@ -53,6 +53,11 @@ interface ContactDraft {
   billingZip: string
 }
 
+interface RefundTarget {
+  payment: Pick<BillingTransaction, 'refId' | 'amountCents'>
+  credit?: BillingTransaction
+}
+
 const EMPTY_CONTACT: ContactDraft = {
   payerMemberId: null,
   billingEmail: '',
@@ -936,7 +941,7 @@ function TransactionsPanel({
   onLoadMore: () => void
   onExport: () => void
   onRefund: (row: BillingTransaction) => void
-  onResendReceipt: (row: BillingTransaction) => void
+  onResendReceipt: (row: BillingTransaction, refundId?: number) => void
   onSendPaymentRequest: (row: BillingTransaction) => void
   onModifyBill: (row: BillingTransaction) => void
 }) {
@@ -946,7 +951,7 @@ function TransactionsPanel({
       <div className="grid gap-2 border-b border-gray-200 bg-gray-50 p-4 md:grid-cols-[minmax(180px,1fr)_repeat(4,minmax(120px,auto))_auto]">
         <input value={filters.search} onChange={(event) => onFilterChange('search', event.target.value)} placeholder="Description or reference" className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" />
         <select value={filters.type} onChange={(event) => onFilterChange('type', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All types</option><option value="charge">All charges</option><option value="recurring">Recurring</option><option value="one_time">One-time</option><option value="adjustment">Adjustments</option><option value="credit">Credits</option><option value="payment">Payments</option><option value="refund">Refunds</option></select>
-        <select value={filters.status} onChange={(event) => onFilterChange('status', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All statuses</option><option value="paid">Paid</option><option value="partially_paid">Partially paid</option><option value="settled">Settled</option><option value="succeeded">Succeeded</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="unpaid">Unpaid</option></select>
+        <select value={filters.status} onChange={(event) => onFilterChange('status', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"><option value="">All statuses</option><option value="applied">Applied</option><option value="paid">Paid</option><option value="partially_paid">Partially paid</option><option value="settled">Settled</option><option value="succeeded">Succeeded</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="unpaid">Unpaid</option></select>
         <input type="date" value={filters.from} onChange={(event) => onFilterChange('from', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" aria-label="Transactions from date" />
         <input type="date" value={filters.through} onChange={(event) => onFilterChange('through', event.target.value)} className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm" aria-label="Transactions through date" />
         <div className="flex gap-2"><button type="button" onClick={onApplyFilters} className="inline-flex items-center gap-1 rounded-lg bg-gray-950 px-3 py-2 text-sm font-semibold text-white"><Filter className="h-4 w-4" /> Apply</button><button type="button" onClick={onExport} className="rounded-lg border border-gray-300 bg-white p-2 text-gray-700" aria-label="Export filtered transactions"><Download className="h-4 w-4" /></button></div>
@@ -958,7 +963,22 @@ function TransactionsPanel({
             {rows.map((row) => {
               const key = `${row.entryKind}-${row.refId}`
               const isExpanded = expanded === key
-              const canRefund = canManage && row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
+              const refundablePayments = Array.isArray(row.details.refundablePayments)
+                ? row.details.refundablePayments as Array<Record<string, unknown>>
+                : []
+              const refundableCreditCents = Number(row.details.refundableAmountCents ?? 0)
+              const returnedRefundId = Number(row.details.returnedRefundId ?? 0)
+              const canRefundPayment = row.entryKind === 'payment' && Boolean(row.details.stripePaymentIntentId)
+              const canRefundCredit = row.entryKind === 'charge'
+                && row.entryType === 'credit'
+                && refundableCreditCents > 0
+                && refundablePayments.length > 0
+              const canRefund = canManage && (canRefundPayment || canRefundCredit)
+              const canEmailReturnedCredit = canManage
+                && row.entryKind === 'charge'
+                && row.entryType === 'credit'
+                && Number.isInteger(returnedRefundId)
+                && returnedRefundId > 0
               const canModifyBill = canManage && row.entryKind === 'charge' && row.amountCents >= 0 && (
                 (row.entryType === 'recurring' && Boolean(row.details.subscriptionId)) ||
                 ['additional_fee', 'manual'].includes(String(row.details.sourceType))
@@ -993,7 +1013,7 @@ function TransactionsPanel({
                     <td className="px-4 py-3 text-xs font-semibold text-gray-700">{discountAnnotations.length > 0 ? <div className="space-y-1">{discountAnnotations.map((annotation, index) => { const amount = Number(annotation.amountCents ?? 0); return <div key={`${annotation.code ?? annotation.label ?? 'discount'}-${index}`}>{annotation.code ?? annotation.label ?? 'Discount'} · {amount < 0 ? '−' : '+'}{money(Math.abs(amount))}</div> })}</div> : discountCode ? <code>{discountCode}</code> : discountBenefit || '—'}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${row.amountCents < 0 ? 'text-emerald-700' : 'text-gray-950'}`}>{money(row.amountCents)}</td>
                     <td className="px-4 py-3 text-right font-semibold text-gray-950">{money(row.runningBalanceCents)}</td>
-                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canModifyBill ? <button type="button" onClick={() => onSendPaymentRequest(row)} disabled={!canSendPaymentRequest} className="rounded bg-gray-950 p-1.5 text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500" aria-label={canSendPaymentRequest ? `Send payment request for ${row.description}` : `Payment request unavailable because ${row.description} is paid`} title={canSendPaymentRequest ? 'Send payment request' : 'Paid in full'}><Mail className="h-3.5 w-3.5" /></button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Refund</button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded bg-gray-950 p-1.5 text-white" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
+                    <td className="px-4 py-3"><div className="flex justify-end gap-1">{canModifyBill ? <button type="button" onClick={() => onModifyBill(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Modify</button> : null}{canModifyBill ? <button type="button" onClick={() => onSendPaymentRequest(row)} disabled={!canSendPaymentRequest} className="rounded bg-gray-950 p-1.5 text-white disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500" aria-label={canSendPaymentRequest ? `Send payment request for ${row.description}` : `Payment request unavailable because ${row.description} is paid`} title={canSendPaymentRequest ? 'Send payment request' : 'Paid in full'}><Mail className="h-3.5 w-3.5" /></button> : null}{canRefund ? <button type="button" onClick={() => onRefund(row)} className="rounded bg-gray-950 px-2 py-1 text-xs font-semibold text-white">Refund</button> : null}{canEmailReturnedCredit ? <button type="button" onClick={() => onResendReceipt(row, returnedRefundId)} className="rounded bg-gray-950 p-1.5 text-white" aria-label="Resend credit refund receipt" title="Resend refund receipt"><Mail className="h-3.5 w-3.5" /></button> : null}{canManage && ['payment', 'refund'].includes(row.entryKind) && ['settled', 'succeeded'].includes(row.status) ? <button type="button" onClick={() => onResendReceipt(row)} className="rounded bg-gray-950 p-1.5 text-white" aria-label={`Resend ${row.entryKind} receipt`}><Mail className="h-3.5 w-3.5" /></button> : null}</div></td>
                   </tr>
                   {isExpanded ? <tr className="border-t border-gray-100 bg-gray-50"><td /><td colSpan={9} className="px-4 py-4"><div className="grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-4">{Object.entries(row.details).filter(([, value]) => value != null && value !== '').map(([label, value]) => <div key={label} className={Array.isArray(value) ? 'sm:col-span-2 lg:col-span-4' : ''}><span className="block font-semibold uppercase tracking-wide text-gray-400">{auditDetailLabel(label)}</span><AuditDetailValue label={label} value={value} /></div>)}</div></td></tr> : null}
                 </Fragment>
@@ -1073,7 +1093,7 @@ export default function AdminCustomerBilling({
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
   const [externalPaymentOpen, setExternalPaymentOpen] = useState(false)
   const [passToAdjust, setPassToAdjust] = useState<CustomerBillingOverview['bundlePasses'][number] | null>(null)
-  const [refundPayment, setRefundPayment] = useState<BillingTransaction | null>(null)
+  const [refundTarget, setRefundTarget] = useState<RefundTarget | null>(null)
   const [contactDraft, setContactDraft] = useState<ContactDraft>(EMPTY_CONTACT)
   const [editingContact, setEditingContact] = useState(false)
   const [newEnrollmentOpen, setNewEnrollmentOpen] = useState(false)
@@ -1275,7 +1295,7 @@ export default function AdminCustomerBilling({
     setBalanceCollectionOpen(false)
     setExternalPaymentOpen(false)
     setPassToAdjust(null)
-    setRefundPayment(null)
+    setRefundTarget(null)
     void refresh(message.replace(url ?? '__no_url__', '').trim())
   }
 
@@ -1361,6 +1381,32 @@ export default function AdminCustomerBilling({
     () => transactions.filter((row) => row.entryKind === 'charge' && row.amountCents > 0),
     [transactions],
   )
+
+  const openRefund = (row: BillingTransaction) => {
+    if (row.entryKind === 'payment') {
+      setRefundTarget({ payment: row })
+      return
+    }
+    const refundablePayments = Array.isArray(row.details.refundablePayments)
+      ? row.details.refundablePayments as Array<Record<string, unknown>>
+      : []
+    const payment = refundablePayments.find((candidate) => (
+      Number.isInteger(Number(candidate.paymentId))
+      && Number(candidate.paymentId) > 0
+      && Number(candidate.applicableAmountCents) > 0
+    ))
+    if (!payment) {
+      setError('This credit is not linked to a refundable Stripe card payment.')
+      return
+    }
+    setRefundTarget({
+      payment: {
+        refId: Number(payment.paymentId),
+        amountCents: Number(payment.paymentAmountCents ?? payment.applicableAmountCents),
+      },
+      credit: row,
+    })
+  }
 
   const [billToRecall, setBillToRecall] = useState<{ chargeId: number; amountCents: number } | null>(null)
 
@@ -1517,17 +1563,17 @@ export default function AdminCustomerBilling({
     }
   }
 
-  const resendReceipt = async (row: BillingTransaction) => {
+  const resendReceipt = async (row: BillingTransaction, refundId?: number) => {
     if (!overview) return
     setSaving(true)
     setError(null)
     try {
-      const endpoint = row.entryKind === 'payment'
+      const endpoint = row.entryKind === 'payment' && !refundId
         ? `/api/admin/customer-billing/families/${overview.account.familyId}/payments/${row.refId}/resend-receipt`
-        : `/api/admin/customer-billing/families/${overview.account.familyId}/refunds/${row.refId}/resend-receipt`
+        : `/api/admin/customer-billing/families/${overview.account.familyId}/refunds/${refundId ?? row.refId}/resend-receipt`
       const response = await adminApiRequest(endpoint, {
         method: 'POST',
-        headers: { 'Idempotency-Key': `receipt-${row.entryKind}-${row.refId}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}` },
+        headers: { 'Idempotency-Key': `receipt-${refundId ? 'refund' : row.entryKind}-${refundId ?? row.refId}-${globalThis.crypto?.randomUUID?.() ?? Date.now()}` },
       })
       const body = await jsonBody(response)
       if (!response.ok) throw new Error(body.message || 'Receipt could not be resent.')
@@ -1678,7 +1724,7 @@ export default function AdminCustomerBilling({
 
           <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 px-5 py-4"><div><h2 className="text-lg font-bold text-gray-950">Account History</h2><p className="text-sm text-gray-500">Financial line items and administrative history remain separate but linked.</p></div><div className="flex rounded-lg bg-gray-100 p-1"><button type="button" onClick={() => setAuditTab('transactions')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'transactions' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Transactions</button><button type="button" onClick={() => setAuditTab('activity')} className={`rounded-md px-3 py-1.5 text-sm font-semibold ${auditTab === 'activity' ? 'bg-white text-gray-950 shadow-sm' : 'text-gray-500'}`}>Activity</button></div></div>
-            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={setRefundPayment} onResendReceipt={(row) => void resendReceipt(row)} onSendPaymentRequest={(row) => void sendBillPaymentRequest(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
+            {auditTab === 'transactions' ? <TransactionsPanel rows={transactions} members={overview.members} filters={transactionFilters} hasMore={Boolean(transactionCursor)} loading={auditLoading} canManage={canManage} onFilterChange={(key, value) => setTransactionFilters((current) => ({ ...current, [key]: value }))} onApplyFilters={() => { setTransactionCursor(null); setActivityCursor(null); void loadAudits(overview.account.familyId, selectedMemberId, false).catch((caught) => setError(caught instanceof Error ? caught.message : 'Filters failed.')) }} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'transactions').catch((caught) => setError(caught instanceof Error ? caught.message : 'More transactions failed to load.'))} onExport={() => void exportTransactions()} onRefund={openRefund} onResendReceipt={(row, refundId) => void resendReceipt(row, refundId)} onSendPaymentRequest={(row) => void sendBillPaymentRequest(row)} onModifyBill={modifyCourseCharge} /> : <ActivityPanel rows={activityRows} hasMore={Boolean(activityCursor)} loading={auditLoading} onLoadMore={() => void loadAudits(overview.account.familyId, selectedMemberId, 'activity').catch((caught) => setError(caught instanceof Error ? caught.message : 'More activity failed to load.'))} />}
           </section>
 
         </>
@@ -1701,7 +1747,7 @@ export default function AdminCustomerBilling({
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
       {swapEnrollment && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={swapEnrollment.memberId} swapEnrollment={swapEnrollment} onClose={() => setSwapEnrollment(null)} onCreated={(message) => { setSwapEnrollment(null); void refresh(message) }} /> : null}
       {memberSwapEnrollment && overview ? <EnrollmentMemberReassignmentModal enrollment={memberSwapEnrollment} members={overview.members} onClose={() => setMemberSwapEnrollment(null)} onSaved={(message) => { setMemberSwapEnrollment(null); void refresh(message) }} /> : null}
-      {refundPayment && overview ? <RefundModal familyId={overview.account.familyId} payment={refundPayment} charges={refundableCharges} onClose={() => setRefundPayment(null)} onSaved={handleSaved} /> : null}
+      {refundTarget && overview ? <RefundModal familyId={overview.account.familyId} payment={refundTarget.payment} credit={refundTarget.credit} charges={refundableCharges} onClose={() => setRefundTarget(null)} onSaved={handleSaved} /> : null}
 
       {saving ? <div className="fixed bottom-5 right-5 z-[210] inline-flex items-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-xl"><Loader2 className="h-4 w-4 animate-spin" /> Updating billing account…</div> : null}
     </div>

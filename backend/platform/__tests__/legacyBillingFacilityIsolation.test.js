@@ -267,7 +267,7 @@ test('legacy Stripe refund creation delegates to the canonical exact-payment ope
 
   const keyRead = refundWrite.indexOf("req.get('Idempotency-Key')")
   const paymentValidation = refundWrite.indexOf('An exact Stripe paymentId is required')
-  const treatmentValidation = refundWrite.indexOf("['reverse_charge', 'return_overpayment'].includes(ledgerTreatment)")
+  const treatmentValidation = refundWrite.indexOf("['reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)")
   const accountLookup = refundWrite.indexOf('loadBillingAccountForFacility')
   const refundMutation = refundWrite.indexOf('createCustomerBillingRefund(pool,')
   assert.ok(keyRead >= 0)
@@ -277,7 +277,7 @@ test('legacy Stripe refund creation delegates to the canonical exact-payment ope
   assert.ok(accountLookup < refundMutation)
   assert.match(refundWrite, /\^\[A-Za-z0-9_\.:-\]\{8,120\}\$/)
   assert.match(refundWrite, /An exact Stripe paymentId is required/)
-  assert.match(refundWrite, /\['reverse_charge', 'return_overpayment'\]\.includes\(ledgerTreatment\)/)
+  assert.match(refundWrite, /\['reverse_charge', 'return_overpayment', 'return_credit'\]\.includes\(ledgerTreatment\)/)
   assert.match(refundWrite, /idempotencyKey: `legacy-refund:\$\{clientRequestKey\}`/)
   assert.doesNotMatch(refundWrite, /createBillingRefund\(pool,|recordBillingActivityBestEffort/)
 })

@@ -1080,7 +1080,7 @@ ALTER TABLE "billing_access_action" ADD CONSTRAINT "billing_access_action_pkey" 
 ALTER TABLE "billing_access_action" ADD CONSTRAINT "billing_access_action_status_check" CHECK ((status = ANY (ARRAY['processing'::text, 'succeeded'::text, 'failed'::text])));
 ALTER TABLE "billing_refund" ADD CONSTRAINT "billing_refund_amount_cents_check" CHECK ((amount_cents > 0));
 ALTER TABLE "billing_refund" ADD CONSTRAINT "billing_refund_exception_category_check" CHECK (((exception_category IS NULL) OR ((exception_category)::text = ANY ((ARRAY['duplicate_charge'::character varying, 'vortex_cancellation'::character varying, 'medical'::character varying, 'relocation'::character varying, 'owner_discretion'::character varying])::text[]))));
-ALTER TABLE "billing_refund" ADD CONSTRAINT "billing_refund_ledger_treatment_check" CHECK (((ledger_treatment IS NULL) OR (ledger_treatment = ANY (ARRAY['reverse_charge'::text, 'return_overpayment'::text]))));
+ALTER TABLE "billing_refund" ADD CONSTRAINT "billing_refund_ledger_treatment_check" CHECK (((ledger_treatment IS NULL) OR (ledger_treatment = ANY (ARRAY['reverse_charge'::text, 'return_overpayment'::text, 'return_credit'::text]))));
 ALTER TABLE "billing_refund" ADD CONSTRAINT "billing_refund_pkey" PRIMARY KEY (id);
 ALTER TABLE "programs" ADD CONSTRAINT "program_categories_facility_id_name_key" UNIQUE (facility_id, name);
 ALTER TABLE "programs" ADD CONSTRAINT "program_categories_pkey" PRIMARY KEY (id);

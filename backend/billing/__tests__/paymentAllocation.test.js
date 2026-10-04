@@ -400,6 +400,54 @@ test('return-overpayment reverses only the selected payment over-application and
   assert.deepEqual(replay.map((row) => row.amount_cents), [2000])
 })
 
+test('return-credit reverses only the payment application on the credited charge', async () => {
+  const applications = [
+    { id: 101, billing_payment_id: 311, billing_charge_id: 319, amount_cents: 8500, application_kind: 'application', created_at: '2026-10-01T12:00:00Z' },
+    { id: 102, billing_payment_id: 311, billing_charge_id: 320, amount_cents: 12750, application_kind: 'application', created_at: '2026-10-01T12:00:01Z' },
+  ]
+  const inserted = []
+  const db = {
+    async query(sql, params = []) {
+      const text = String(sql)
+      if (/FROM billing_payment\s+WHERE/.test(text)) return { rows: [{ id: 311, family_billing_account_id: 10921, amount_cents: 29750 }] }
+      if (text.includes('SELECT id, related_charge_id, amount_cents, charge_type')) {
+        return { rows: [{ id: 337, related_charge_id: 319, amount_cents: -8500, charge_type: 'credit' }] }
+      }
+      if (text.includes('SELECT application.*')) return { rows: applications }
+      if (text.includes('SELECT reversal.*')) return { rows: [] }
+      if (text.includes('INSERT INTO billing_payment_application')) {
+        const row = {
+          id: 201,
+          billing_payment_id: params[0],
+          billing_charge_id: params[1],
+          amount_cents: params[2],
+          application_kind: 'reversal',
+          reverses_application_id: params[3],
+          idempotency_key: params[4],
+        }
+        inserted.push(row)
+        return { rows: [row] }
+      }
+      throw new Error(`Unexpected return-credit query: ${text}`)
+    },
+  }
+
+  const reversals = await reverseRefundedApplicationsLocked(db, {
+    refund: {
+      id: 88,
+      family_billing_account_id: 10921,
+      payment_id: 311,
+      related_charge_id: 337,
+      ledger_treatment: 'return_credit',
+      amount_cents: 8500,
+    },
+  })
+
+  assert.equal(reversals.length, 1)
+  assert.equal(inserted[0].billing_charge_id, 319)
+  assert.equal(inserted[0].amount_cents, 8500)
+})
+
 test('reverse-charge fails closed rather than spilling onto another charge application', async () => {
   const applications = [
     { id: 101, billing_payment_id: 9, billing_charge_id: 41, amount_cents: 5000, application_kind: 'application', created_at: '2026-08-30T12:00:00Z' },

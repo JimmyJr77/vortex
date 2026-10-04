@@ -1,13 +1,12 @@
 import { buildCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import {
-  upcomingRecurringPricingMonth,
   loadDefaultPaymentMethodSummary,
 } from './customerBillingQueries.js'
 import {
   addBillingMonths,
   billingMonthInTimeZone,
 } from './customerBillingPricing.js'
-import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
+import { enrollmentBillsInPeriod, resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { classifyStripePaymentMethodReadiness } from './stripePaymentMethodReadiness.js'
 
@@ -23,9 +22,21 @@ function monthKey(value) {
   return match ? match[1] : null
 }
 
-export function lastThreeBillingMonths(asOf = new Date(), timeZone = 'America/New_York') {
+export function overviewBillingMonths(asOf = new Date(), timeZone = 'America/New_York') {
   const current = billingMonthInTimeZone(asOf, timeZone) ?? String(asOf.toISOString()).slice(0, 7)
-  return [3, 2, 1].map((offset) => String(addBillingMonths(current, -offset)).slice(0, 7))
+  return [1, 0].map((offset) => String(addBillingMonths(current, -offset)).slice(0, 7))
+}
+
+// Enrollment is independent of price and includes one-time classes.
+export function enrollmentActiveOn(row, today) {
+  const date = (value) => value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '').slice(0, 10)
+  if (row.status !== 'confirmed' || row.orphaned_at) return false
+  const starts = [row.enrollment_start_date ?? row.created_at,
+    row.offering_start_date ?? row.group_active_start ?? row.form_start_date]
+  const end = row.offering_end_date ?? row.group_active_end ?? row.form_end_date
+  return starts.every((value) => !value || date(value) <= today)
+    && (!end || date(end) >= today)
+    && [row.cancel_effective_date, row.pause_effective_date].every((value) => !value || date(value) > today)
 }
 
 export function yearToDateBounds(asOf = new Date(), timeZone = 'America/New_York') {
@@ -204,15 +215,44 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   // the overview agrees with the account page and the billing worker around
   // UTC day boundaries.
   const facilityTimeZone = String(families.rows[0]?.facility_timezone || 'America/New_York')
-  const pricingMonth = upcomingRecurringPricingMonth(asOf, facilityTimeZone)
-  const months = lastThreeBillingMonths(asOf, facilityTimeZone)
+  const months = overviewBillingMonths(asOf, facilityTimeZone)
+  const pricingMonth = String(addBillingMonths(months[1], 1)).slice(0, 7)
   const { year, start: yearStart } = yearToDateBounds(asOf, facilityTimeZone)
   const monthStart = `${months[0]}-01`
-  const currentMonthStart = `${pricingMonth}-01`
+  const upcomingMonthStart = `${pricingMonth}-01`
 
   const accountIds = families.rows
     .map((row) => Number(row.billing_account_id))
-    .filter((id) => Number.isFinite(id))
+    .filter((id) => Number.isFinite(id) && id > 0)
+
+  const enrollmentResult = await pool.query(
+    `SELECT signup.*, f.id AS family_id,
+            form.start_date AS form_start_date, form.end_date AS form_end_date,
+            slot_group.active_start AS group_active_start,
+            slot_group.active_end AS group_active_end,
+            offering.start_date AS offering_start_date,
+            offering.end_date AS offering_end_date
+       FROM family f
+       JOIN member m ON ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'f.id' })}
+       JOIN scheduling_signup signup ON signup.member_id = m.id
+       JOIN scheduling_form form ON form.id = signup.form_id AND form.facility_id = f.facility_id
+       JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
+       LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
+      WHERE f.facility_id = $1 AND signup.status = 'confirmed'
+        AND signup.orphaned_at IS NULL`,
+    [normalizedFacilityId],
+  )
+  const enrollmentsByFamily = groupByAccount(enrollmentResult.rows, 'family_id')
+  const dateParts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: facilityTimeZone, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).formatToParts(asOf)
+  const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type).value).join('-')
+  for (const row of families.rows) {
+    const enrollments = enrollmentsByFamily.get(Number(row.family_id)) ?? []
+    row.enrolled = enrollments.some((enrollment) => enrollmentActiveOn(enrollment, today))
+    row.current_month_recurring = enrollments.some((enrollment) => enrollmentBillsInPeriod(enrollment, months[1]))
+    row.upcoming_month_recurring = enrollments.some((enrollment) => enrollmentBillsInPeriod(enrollment, pricingMonth))
+  }
 
   const emptyMonths = () => Object.fromEntries(months.map((month) => [month, { billedCents: 0, paidCents: 0, source: 'none' }]))
 
@@ -259,7 +299,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
          ), 0)::bigint AS year_to_date_paid_cents
        FROM family_billing_account account
       WHERE account.id = ANY($1::bigint[])`,
-      [accountIds, yearStart, currentMonthStart],
+      [accountIds, yearStart, upcomingMonthStart],
     ),
     pool.query(
       `SELECT DISTINCT ON (invoice.family_billing_account_id, to_char(invoice.billing_month, 'YYYY-MM'))
@@ -274,7 +314,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         AND invoice.billing_month < $3::date
         AND invoice.status <> 'void'
       ORDER BY invoice.family_billing_account_id, to_char(invoice.billing_month, 'YYYY-MM'), invoice.id DESC`,
-      [accountIds, monthStart, currentMonthStart],
+      [accountIds, monthStart, upcomingMonthStart],
     ),
     pool.query(
       `SELECT charge.family_billing_account_id,
@@ -286,7 +326,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
         GROUP BY 1, 2`,
-      [accountIds, monthStart, currentMonthStart],
+      [accountIds, monthStart, upcomingMonthStart],
     ),
     pool.query(
       `WITH payment_application_totals AS (
@@ -326,7 +366,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
         GROUP BY 1, 2`,
-      [accountIds, monthStart, currentMonthStart],
+      [accountIds, monthStart, upcomingMonthStart],
     ),
     pool.query(
       `WITH application_totals AS (
@@ -550,7 +590,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         // This column reflects payment collection for current recurring
         // tuition. Historical balances and inactive households do not need a
         // household-autopay migration merely to appear in the overview.
-        requiresHouseholdAutopay: (recurringByFamily.get(Number(row.family_id)) ?? 0) > 0,
+        requiresHouseholdAutopay: row.current_month_recurring || row.upcoming_month_recurring,
       })
       return serializeFamilyRow(row, {
         yearToDatePaidCents: cents(totals.year_to_date_paid_cents),
@@ -585,6 +625,9 @@ function serializeFamilyRow(row, metrics) {
     monthlyRecurringCents: metrics.monthlyRecurringCents,
     futureCreditsCents: metrics.futureCreditsCents,
     accountBalanceCents: metrics.accountBalanceCents,
+    enrolled: row.enrolled === true,
+    currentMonthRecurring: row.current_month_recurring === true,
+    upcomingMonthRecurring: row.upcoming_month_recurring === true,
     autopay: metrics.autopay,
     autopayStatus: metrics.autopayStatus ?? 'migration_required',
     autopayEffectiveMonth: metrics.autopayEffectiveMonth ?? null,

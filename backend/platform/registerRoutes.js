@@ -2634,10 +2634,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       })
     }
     const ledgerTreatment = String(req.body?.ledgerTreatment ?? '')
-    if (!['reverse_charge', 'return_overpayment'].includes(ledgerTreatment)) {
+    if (!['reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
       return res.status(400).json({
         success: false,
-        message: 'Choose whether the refund reverses a charge or returns an unapplied overpayment.',
+        message: 'Choose whether the refund reverses a charge, returns an unapplied overpayment, or pays back an applied credit.',
       })
     }
     const account = await loadBillingAccountForFacility(pool, {

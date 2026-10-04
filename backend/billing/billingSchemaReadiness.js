@@ -31,6 +31,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '809_billing_migration_item_upsert_evidence.sql',
   '810_billing_payment_fact_audit_jobs.sql',
   '811_billing_monthly_invoice_automatic_attempts.sql',
+  '834_refund_applied_account_credit.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -85,6 +86,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '809_billing_migration_item_upsert_evidence.sql',
   '810_billing_payment_fact_audit_jobs.sql',
   '811_billing_monthly_invoice_automatic_attempts.sql',
+  '834_refund_applied_account_credit.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([

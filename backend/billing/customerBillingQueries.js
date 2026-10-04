@@ -1442,6 +1442,7 @@ export async function listCustomerBillingTransactions(pool, {
          c.created_at::timestamptz AS occurred_at,
          CASE
            WHEN c.source_type IN ('membership_transfer_cancelled', 'membership_bill_recalled') THEN 'cancelled'
+           WHEN c.charge_type = 'credit' AND c.amount_cents < 0 THEN 'applied'
            WHEN c.amount_cents = 0
              AND COALESCE(c.gross_amount_cents, 0) > 0
              AND COALESCE(c.discount_amount_cents, 0) = COALESCE(c.gross_amount_cents, 0) THEN 'paid'
@@ -1491,6 +1492,18 @@ export async function listCustomerBillingTransactions(pool, {
            'createdByUserId', c.created_by_user_id,
            'appliedAmountCents', (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)),
            'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0))),
+           'returnedAmountCents', CASE
+             WHEN c.charge_type = 'credit' AND c.amount_cents < 0
+               THEN COALESCE(returned_credit_refunds.refunded_cents, 0)
+             ELSE NULL
+           END,
+           'refundableAmountCents', CASE
+             WHEN c.charge_type = 'credit' AND c.amount_cents < 0
+               THEN GREATEST(0, -c.amount_cents - COALESCE(returned_credit_refunds.refunded_cents, 0))
+             ELSE NULL
+           END,
+           'returnedRefundId', returned_credit_refunds.latest_refund_id,
+           'refundablePayments', credit_refundable_payments.items,
            'paymentApplications', charge_applications.items,
            'metadata', c.metadata
          )) AS details
@@ -1572,6 +1585,37 @@ export async function listCustomerBillingTransactions(pool, {
               AND adjustment.service_period_start = c.service_period_start
             )
        ) charge_adjustments ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT
+           COALESCE(SUM(refund.amount_cents), 0)::int AS refunded_cents,
+           (MAX(refund.id) FILTER (WHERE refund.external_status = 'succeeded'))::bigint AS latest_refund_id
+         FROM billing_refund refund
+         WHERE refund.related_charge_id = c.id
+           AND refund.ledger_treatment = 'return_credit'
+           AND refund.external_status IN ('pending', 'succeeded', 'reconciliation_required')
+       ) returned_credit_refunds ON TRUE
+       LEFT JOIN LATERAL (
+         SELECT jsonb_agg(jsonb_build_object(
+           'paymentId', effective.payment_id,
+           'paymentAmountCents', effective.payment_amount_cents,
+           'applicableAmountCents', effective.applicable_amount_cents
+         ) ORDER BY effective.applicable_amount_cents DESC, effective.payment_id DESC) AS items
+         FROM (
+           SELECT
+             payment.id AS payment_id,
+             payment.amount_cents AS payment_amount_cents,
+             SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS applicable_amount_cents
+           FROM billing_payment_application application
+           JOIN billing_payment payment ON payment.id = application.billing_payment_id
+           WHERE c.charge_type = 'credit'
+             AND c.amount_cents < 0
+             AND application.billing_charge_id = c.related_charge_id
+             AND payment.stripe_payment_intent_id IS NOT NULL
+             AND payment.external_status IN ('settled', 'succeeded')
+           GROUP BY payment.id, payment.amount_cents
+           HAVING SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END) > 0
+         ) effective
+       ) credit_refundable_payments ON TRUE
        WHERE c.family_billing_account_id = $1
          -- Keep erroneous system-generated correction rows available to the
          -- immutable internal ledger/activity trail, without surfacing them
@@ -2030,7 +2074,8 @@ export async function listMemberCustomerBillingTransactions(pool, {
             TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
             CASE
               WHEN page.entry_kind <> 'charge' THEN page.entry_status
-              WHEN page.amount_cents <= 0 THEN 'paid'
+              WHEN page.entry_type = 'credit' AND page.amount_cents < 0 THEN 'applied'
+              WHEN page.amount_cents = 0 THEN 'paid'
               WHEN (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)) >= GREATEST(
                 0,
                 page.amount_cents

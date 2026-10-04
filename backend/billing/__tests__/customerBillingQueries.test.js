@@ -226,6 +226,8 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
   assert.match(householdTransactionQuery, /direct_price_adjustment\.kind = 'fixed_final_price'/)
   assert.match(householdTransactionQuery, /adjustment_price_adjustment\.promo_code/)
   assert.match(householdTransactionQuery, /Neutralized duplicate local record; remote Stripe payment belongs to billing_payment/)
+  assert.match(householdTransactionQuery, /c\.charge_type = 'credit' AND c\.amount_cents < 0 THEN 'applied'/)
+  assert.match(householdTransactionQuery, /refund\.ledger_treatment = 'return_credit'/)
   assert.match(
     householdTransactionQuery,
     /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
@@ -239,7 +241,8 @@ test('refund offsets reduce effective due amounts in annual and transaction disp
     },
   }, { accountId: 19 })
   assert.match(memberQueries[1], /adjustment\.source_type IN \('charge_adjustment', 'refund_offset'\)/)
-  assert.match(memberQueries[1], /WHEN page\.amount_cents <= 0 THEN 'paid'/)
+  assert.match(memberQueries[1], /WHEN page\.entry_type = 'credit' AND page\.amount_cents < 0 THEN 'applied'/)
+  assert.match(memberQueries[1], /WHEN page\.amount_cents = 0 THEN 'paid'/)
   assert.match(
     memberQueries[1],
     /c\.amount_cents = 0\s+AND COALESCE\(c\.gross_amount_cents, 0\) > 0\s+AND COALESCE\(c\.discount_amount_cents, 0\) = COALESCE\(c\.gross_amount_cents, 0\) THEN 'paid'/,
