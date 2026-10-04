@@ -25,6 +25,20 @@ test('the Render Blueprint retains the separate deploy migration gate', async ()
   assert.match(webService, /startCommand: npm start/)
 })
 
+test('the Render Blueprint declares Stripe webhook verification and usable billing email credentials', async () => {
+  const blueprint = await fs.readFile(renderBlueprintUrl, 'utf8')
+  const webService = blueprint.split('  - type: cron', 1)[0]
+  const reconciliationService = blueprint.split('    name: vortex-stripe-reconciliation', 2)[1]
+
+  assert.match(webService, /- key: STRIPE_ENABLED\s+value: "true"/)
+  assert.match(webService, /- key: STRIPE_SECRET_KEY\s+sync: false/)
+  assert.match(webService, /- key: STRIPE_WEBHOOK_SECRET\s+sync: false/)
+  assert.match(webService, /- key: STRIPE_WEBHOOK_SECRET_TEST\s+sync: false/)
+  assert.match(webService, /- key: STRIPE_WEBHOOK_SECRETS\s+sync: false/)
+  assert.match(reconciliationService, /- key: SMTP_PASS\s+sync: false/)
+  assert.doesNotMatch(reconciliationService, /- key: SMTP_PASSWORD\b/)
+})
+
 test('the deploy migration CLI uses the complete release migration list', async () => {
   const source = await fs.readFile(deployMigrationCliUrl, 'utf8')
 

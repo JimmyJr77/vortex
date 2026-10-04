@@ -35,6 +35,19 @@ services:
         value: https://www.vortexathletics.com
       - key: PUBLIC_APP_URL
         value: https://www.vortexathletics.com
+      - key: STRIPE_ENABLED
+        value: "true"
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      # The live endpoint secret. Keep sandbox/rotation secrets in the
+      # comma-separated STRIPE_WEBHOOK_SECRETS value below so both Stripe
+      # modes can deliver safely to the same URL.
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET_TEST
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRETS
+        sync: false
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
@@ -158,9 +171,9 @@ services:
         sync: false
       - key: SMTP_USER
         sync: false
-      - key: SMTP_PASSWORD
+      - key: SMTP_PASS
         sync: false
       - key: SMTP_FROM
         sync: false
-      - key: SMTP_REPLY_TO
-        sync: false
+      - key: EMAIL_REPLY_TO
+        value: billing@vortexathletics.com

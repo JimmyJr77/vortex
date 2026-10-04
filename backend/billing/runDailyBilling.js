@@ -17,7 +17,16 @@ async function run(relativePath, args = []) {
 
 try {
   const reconciliation = await run('./runStripeReconciliation.js')
-  process.exitCode = reconciliation || await run('../scheduling/runRecurringCharges.js', ['--collect'])
+  if (reconciliation) {
+    console.error(`[billing:daily] reconciliation stage exited with status ${reconciliation}; collection was not started.`)
+    process.exitCode = reconciliation
+  } else {
+    const collection = await run('../scheduling/runRecurringCharges.js', ['--collect'])
+    if (collection) {
+      console.error(`[billing:daily] recurring collection stage exited with status ${collection}; review the quarantined account details above.`)
+    }
+    process.exitCode = collection
+  }
 } catch (error) {
   console.error('[billing:daily] failed:', error.message)
   process.exitCode = 1

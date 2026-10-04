@@ -557,8 +557,16 @@ function normalizeWebhookSecret(value) {
 
 function webhookSigningSecrets() {
   const secrets = []
-  const primary = normalizeWebhookSecret(process.env.STRIPE_WEBHOOK_SECRET)
-  if (primary) secrets.push(primary)
+  // Production historically stored the live and sandbox endpoint secrets in
+  // separate named variables. Keep both first-class while also accepting the
+  // comma-separated rotation list below.
+  for (const value of [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET_TEST,
+  ]) {
+    const secret = normalizeWebhookSecret(value)
+    if (secret && !secrets.includes(secret)) secrets.push(secret)
+  }
   const extra = process.env.STRIPE_WEBHOOK_SECRETS ?? ''
   for (const part of extra.split(',')) {
     const secret = normalizeWebhookSecret(part)
