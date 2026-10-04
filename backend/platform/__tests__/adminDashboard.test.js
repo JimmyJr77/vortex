@@ -126,3 +126,17 @@ test('dashboard lists members without an accepted media release with active stud
   }])
   assert.match(queries.find((sql) => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /ORDER BY is_active_student DESC/)
 })
+
+
+test('expected current revenue uses net collections plus unpaid bills', async () => {
+  const pool = { query: async (sql) => {
+    if (sql.includes('WITH revenue_movements AS')) return { rows: [{ month_key: '2026-10', amount_cents: 531688 }] }
+    if (sql.includes('c.amount_cents + COALESCE(adjustments.cents, 0) AS amount_cents')) {
+      return { rows: [{ month_key: '2026-10', amount_cents: 191500, remaining_cents: 191500 }] }
+    }
+    return { rows: [] }
+  } }
+  const dashboard = await getAdminDashboard(pool, { facilityId: 7, canViewBilling: true, now: new Date('2026-10-04T16:00:00Z') })
+  assert.equal(dashboard.billing.revenueByMonth.at(-1).amountCents, 531688)
+  assert.equal(dashboard.billing.revenueForecast[0].expectedCents, 723188)
+})

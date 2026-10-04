@@ -220,6 +220,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   const { year, start: yearStart } = yearToDateBounds(asOf, facilityTimeZone)
   const monthStart = `${months[0]}-01`
   const upcomingMonthStart = `${pricingMonth}-01`
+  const reportingEnd = `${String(addBillingMonths(pricingMonth, 1)).slice(0, 7)}-01`
 
   const accountIds = families.rows
     .map((row) => Number(row.billing_account_id))
@@ -265,6 +266,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
       families: families.rows.map((row) => serializeFamilyRow(row, {
         yearToDatePaidCents: 0,
         months: emptyMonths(),
+        upcomingPaidCents: 0,
         outstandingBalanceCents: 0,
         monthlyRecurringCents: 0,
         futureCreditsCents: 0,
@@ -314,7 +316,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         AND invoice.billing_month < $3::date
         AND invoice.status <> 'void'
       ORDER BY invoice.family_billing_account_id, to_char(invoice.billing_month, 'YYYY-MM'), invoice.id DESC`,
-      [accountIds, monthStart, upcomingMonthStart],
+      [accountIds, monthStart, reportingEnd],
     ),
     pool.query(
       `SELECT charge.family_billing_account_id,
@@ -326,7 +328,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
         GROUP BY 1, 2`,
-      [accountIds, monthStart, upcomingMonthStart],
+      [accountIds, monthStart, reportingEnd],
     ),
     pool.query(
       `WITH payment_application_totals AS (
@@ -366,7 +368,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
         GROUP BY 1, 2`,
-      [accountIds, monthStart, upcomingMonthStart],
+      [accountIds, monthStart, reportingEnd],
     ),
     pool.query(
       `WITH application_totals AS (
@@ -595,6 +597,14 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
       return serializeFamilyRow(row, {
         yearToDatePaidCents: cents(totals.year_to_date_paid_cents),
         months: monthValues,
+        upcomingPaidCents: Math.max(
+          monthLookup(paymentsByMonth, accountId, pricingMonth, 'paid_cents'),
+          monthBillPaid(
+            invoiceRows.find((item) => monthKey(item.billing_month) === pricingMonth),
+            monthLookup(chargesByMonth, accountId, pricingMonth, 'billed_cents'),
+            monthLookup(paymentsByMonth, accountId, pricingMonth, 'paid_cents'),
+          ).paidCents,
+        ),
         outstandingBalanceCents: snapshot?.outstandingBalanceCents ?? 0,
         monthlyRecurringCents: recurringByFamily.get(Number(row.family_id)) ?? 0,
         futureCreditsCents: snapshot?.futureCreditsCents ?? 0,
@@ -621,6 +631,7 @@ function serializeFamilyRow(row, metrics) {
     memberId: Number(row.payer_id ?? row.first_member_id ?? 0) || null,
     yearToDatePaidCents: metrics.yearToDatePaidCents,
     months: metrics.months,
+    upcomingPaidCents: metrics.upcomingPaidCents,
     outstandingBalanceCents: metrics.outstandingBalanceCents,
     monthlyRecurringCents: metrics.monthlyRecurringCents,
     futureCreditsCents: metrics.futureCreditsCents,

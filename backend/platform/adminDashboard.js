@@ -1,4 +1,5 @@
 import { loadRevenueForecast } from './adminRevenueForecast.js'
+import { settledRefundPredicate } from '../billing/billingLedgerSql.js'
 
 const ACTIVE_SIGNUPS_CTE = `
   WITH active_signups AS (
@@ -151,19 +152,37 @@ async function enrollmentDashboard(pool, facilityId) {
   }
 }
 
-async function billingDashboard(pool, facilityId, now) {
-  const [revenue, tuition, dropIns, memberships, withoutCard, withoutBilling, forecast] = await Promise.all([
-    safeQuery(pool, `
-      SELECT to_char(date_trunc('month', payment.paid_at), 'YYYY-MM') AS month_key,
-             COALESCE(SUM(payment.amount_cents), 0)::int AS amount_cents
+// Cash collections are net of completed refunds in the month the refund was
+// recorded, even when the original payment belongs to an earlier month.
+export async function loadNetCollectedRevenue(pool, facilityId, now = new Date()) {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1)).toISOString()
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString()
+  return safeQuery(pool, `
+    WITH revenue_movements AS (
+      SELECT payment.paid_at AS occurred_at, payment.amount_cents
       FROM billing_payment payment
       JOIN family_billing_account account ON account.id = payment.family_billing_account_id
       JOIN family ON family.id = account.family_id
-      WHERE payment.paid_at >= date_trunc('month', CURRENT_DATE) - INTERVAL '5 months'
-        AND family.facility_id = $1
+      WHERE family.facility_id = $1
         AND payment.external_status IN ('settled', 'succeeded')
-      GROUP BY date_trunc('month', payment.paid_at)
-      ORDER BY date_trunc('month', payment.paid_at)`, [facilityId]),
+        AND payment.paid_at >= $2::timestamptz AND payment.paid_at < $3::timestamptz
+      UNION ALL
+      SELECT refund.created_at AS occurred_at, -refund.amount_cents
+      FROM billing_refund refund
+      JOIN family_billing_account account ON account.id = refund.family_billing_account_id
+      JOIN family ON family.id = account.family_id
+      WHERE family.facility_id = $1 AND ${settledRefundPredicate('refund')}
+        AND refund.created_at >= $2::timestamptz AND refund.created_at < $3::timestamptz
+    )
+    SELECT to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM') AS month_key,
+           SUM(amount_cents)::int AS amount_cents
+    FROM revenue_movements
+    GROUP BY 1 ORDER BY 1`, [facilityId, start, end])
+}
+
+async function billingDashboard(pool, facilityId, now) {
+  const [revenue, tuition, dropIns, memberships, withoutCard, withoutBilling, forecast] = await Promise.all([
+    loadNetCollectedRevenue(pool, facilityId, now),
     safeQuery(pool, `
       SELECT COALESCE(SUM(net_monthly_cents), 0)::int AS amount_cents
       FROM billing_subscription subscription

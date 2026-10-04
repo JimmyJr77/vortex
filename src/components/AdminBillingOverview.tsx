@@ -13,6 +13,7 @@ export interface BillingOverviewFamily {
   months: Record<string, { billedCents: number; paidCents: number; source: string }>
   outstandingBalanceCents: number
   monthlyRecurringCents: number
+  upcomingPaidCents: number
   futureCreditsCents: number
   accountBalanceCents: number
   enrolled: boolean
@@ -116,7 +117,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
   }, [payload, query, recurringFilter, sort])
 
   const months = payload?.months ?? []
-  const columnCount = 9 + months.length
+  const columnCount = 10 + months.length
   const header = (key: string, label: string, sticky = false) => (
     <th key={key} scope="col" aria-sort={sort.key === key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
       className={`whitespace-nowrap px-5 py-3 ${sticky ? 'sticky left-0 z-20 bg-gray-50' : ''}`}>
@@ -180,7 +181,8 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
               {months.map((month) => header(`month:${month}`, `${billingMonthAbbreviation(month)} bill / paid`))}
               {header('outstandingBalanceCents', `${upcomingLabel} outstanding`)}
               {header('monthlyRecurringCents', `${upcomingLabel} recurring`)}
-              {header('futureCreditsCents', `${upcomingLabel} credits`)}
+              {header('futureCreditsCents', 'Credits')}
+              {header('upcomingPaidCents', `${upcomingLabel} paid`)}
               {header('accountBalanceCents', `${upcomingLabel} balance`)}
               {header('autopay', 'Autopay')}
               {header('cardOnFile', 'Payment method')}
@@ -218,6 +220,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
                 </td>
                 <td className="px-5 py-3 font-semibold text-gray-900">{money(family.monthlyRecurringCents)}</td>
                 <td className="px-5 py-3 text-gray-800">{money(family.futureCreditsCents)}</td>
+                <td className="px-5 py-3 font-semibold tabular-nums text-gray-900">{money(family.upcomingPaidCents ?? 0)}</td>
                 <td className={`px-5 py-3 font-semibold ${family.accountBalanceCents > 0 ? 'text-red-700' : family.accountBalanceCents < 0 ? 'text-emerald-700' : 'text-gray-900'}`}>
                   {money(family.accountBalanceCents)}
                 </td>

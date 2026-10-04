@@ -229,3 +229,24 @@ test('enrollment query scopes through households without assuming scheduling for
   assert.deepEqual(enrollmentQuery.params, [7])
   assert.doesNotMatch(enrollmentQuery.sql, /form\.facility_id/)
 })
+
+
+test('upcoming paid includes partial applications and paid invoices while history remains two months', async () => {
+  for (const invoiceStatus of ['open', 'paid']) {
+    const calls = []
+    const pool = { query: async (sql, params) => {
+      calls.push({ sql, params })
+      if (sql.includes('fba.payer_member_id,')) return { rows: [{ family_id: 1, billing_account_id: 10, facility_timezone: 'America/New_York' }] }
+      if (sql.includes('SELECT DISTINCT ON (invoice.')) return { rows: [{ family_billing_account_id: 10, billing_month: '2026-11', total_cents: 10000, status: invoiceStatus, amount_paid_cents: 0 }] }
+      if (sql.includes('WITH payment_application_totals AS')) return { rows: [{ family_billing_account_id: 10, billing_month: '2026-11', paid_cents: 2500 }] }
+      return { rows: [] }
+    } }
+    const result = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date('2026-10-04T16:00:00Z') })
+    assert.equal(result.families[0].upcomingPaidCents, invoiceStatus === 'paid' ? 10000 : 2500)
+    assert.deepEqual(Object.keys(result.families[0].months), ['2026-09', '2026-10'])
+    const payments = calls.find(({ sql }) => sql.includes('WITH payment_application_totals AS'))
+    assert.deepEqual(payments.params, [[10], '2026-09-01', '2026-12-01'])
+    const ytd = calls.find(({ sql }) => sql.includes('AS year_to_date_paid_cents'))
+    assert.deepEqual(ytd.params, [[10], '2026-01-01', '2026-11-01'])
+  }
+})
