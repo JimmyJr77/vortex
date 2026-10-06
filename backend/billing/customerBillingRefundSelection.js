@@ -1,4 +1,4 @@
-import { previewCustomerBillingRefund, createCustomerBillingRefund } from './customerBillingPayments.js'
+import { assertCurrentRefundTreatment, previewCustomerBillingRefund, createCustomerBillingRefund } from './customerBillingPayments.js'
 import { allocateHouseholdPaymentsLocked } from './paymentAllocation.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import { recordBillingActivity } from './billingActivity.js'
@@ -63,7 +63,8 @@ function selectedIds(ids) {
 }
 
 export async function previewSelectedChargeRefund(db, options) {
-  if (!['return_payment','reverse_charge'].includes(options.ledgerTreatment)) throw new Error('Select a payment refund treatment.')
+  assertCurrentRefundTreatment(options.ledgerTreatment)
+  if (options.ledgerTreatment !== 'return_payment') throw new Error('Select a payment refund treatment.')
   const ids=selectedIds(options.relatedChargeIds)
   const available=await listPaymentRefundCharges(db,options)
   const selected=ids.map(id=>{
@@ -86,8 +87,9 @@ export async function previewSelectedChargeRefund(db, options) {
 // Freeze the complete selection before the first processor call, so retries of a
 // partially completed batch resume the same amounts and cannot change its scope.
 export async function createSelectedChargeRefund(pool, options, { createRefundFunction = createCustomerBillingRefund } = {}) {
+  assertCurrentRefundTreatment(options.ledgerTreatment)
   const ids=selectedIds(options.relatedChargeIds)
-  if (!options.idempotencyKey || !['return_payment','reverse_charge'].includes(options.ledgerTreatment)) throw new Error('A stable charge-refund request is required.')
+  if (!options.idempotencyKey || options.ledgerTreatment !== 'return_payment') throw new Error('A stable charge-refund request is required.')
   const request={accountId:Number(options.account.id),paymentId:Number(options.paymentId),chargeIds:ids,
     amountCents:Number(options.amountCents),ledgerTreatment:options.ledgerTreatment,actorUserId:Number(options.actorUserId),
     reason:String(options.reason??'').trim(),exceptionCategory:String(options.exceptionCategory??''),evidenceNote:String(options.evidenceNote??'').trim()}

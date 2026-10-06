@@ -516,17 +516,17 @@ function refundPreviewPool({ balanceCents = 2500, refundedCents = 2000, chargeAm
   }
 }
 
-test('refund preview preserves account balance when a related charge is reversed', async () => {
+test('refund preview restores the amount owed when its payment is returned', async () => {
   const preview = await previewCustomerBillingRefund(refundPreviewPool(), {
     account: { id: 1 },
     paymentId: 9,
     amountCents: 3000,
-    ledgerTreatment: 'reverse_charge',
+    ledgerTreatment: 'return_payment',
     relatedChargeId: 4,
   })
   assert.equal(preview.remainingRefundableCents, 8000)
   assert.equal(preview.currentBalanceCents, 2500)
-  assert.equal(preview.resultingBalanceCents, 2500)
+  assert.equal(preview.resultingBalanceCents, 5500)
   assert.equal(preview.relatedCharge.id, 4)
 })
 

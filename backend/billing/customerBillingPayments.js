@@ -1963,6 +1963,17 @@ async function accountBalance(pool, accountId) {
   return Number(result.rows[0]?.balance_cents ?? 0)
 }
 
+// Old clients must refresh rather than silently refunding and waiving tuition.
+// Historical records remain supported by ledger finalization and repair only.
+export function assertCurrentRefundTreatment(ledgerTreatment) {
+  if (ledgerTreatment === 'reverse_charge') {
+    const error = new Error('This refund form is outdated. Refresh the page and choose “Refund payment; keep charges due” before submitting again.')
+    error.statusCode = 409
+    error.code = 'REFUND_TREATMENT_RETIRED'
+    throw error
+  }
+}
+
 export async function previewCustomerBillingRefund(pool, {
   account,
   paymentId,
@@ -1970,9 +1981,10 @@ export async function previewCustomerBillingRefund(pool, {
   ledgerTreatment,
   relatedChargeId = null,
 }) {
+  assertCurrentRefundTreatment(ledgerTreatment)
   const amount = positiveCents(amountCents, 'Refund amount')
-  if (!['return_payment', 'reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
-    throw new Error('Choose whether the refund reverses a charge, returns an unapplied overpayment, or pays back an applied credit.')
+  if (!['return_payment', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
+    throw new Error('Choose whether the refund returns a payment, returns an unapplied overpayment, or pays back an applied credit.')
   }
   const payment = await pool.query(
     `SELECT * FROM billing_payment WHERE id = $1 AND family_billing_account_id = $2`,
@@ -1991,8 +2003,8 @@ export async function previewCustomerBillingRefund(pool, {
   if (amount > remainingRefundableCents) throw new Error('Refund exceeds the remaining refundable card payment amount.')
   const currentBalanceCents = await accountBalance(pool, account.id)
   let relatedCharge = null
-  if (['return_payment', 'reverse_charge'].includes(ledgerTreatment)) {
-    if (!relatedChargeId) throw new Error('Select the charge that this refund reverses or waives.')
+  if (ledgerTreatment === 'return_payment') {
+    if (!relatedChargeId) throw new Error('Select the charge whose payment is being refunded.')
     relatedCharge = await loadCharge(pool, account.id, relatedChargeId)
     const appliedFromPayment = await pool.query(
       `SELECT COALESCE(SUM(CASE WHEN application_kind = 'reversal' THEN -amount_cents ELSE amount_cents END), 0)::int AS cents
@@ -2066,9 +2078,7 @@ export async function previewCustomerBillingRefund(pool, {
       ? { id: Number(relatedCharge.id), description: relatedCharge.description, amountCents: Number(relatedCharge.amount_cents) }
       : null,
     currentBalanceCents,
-    resultingBalanceCents: ledgerTreatment === 'reverse_charge'
-      ? currentBalanceCents
-      : currentBalanceCents + amount,
+    resultingBalanceCents: currentBalanceCents + amount,
   }
 }
 
@@ -2412,6 +2422,7 @@ export async function createCustomerBillingRefund(pool, {
   idempotencyKey = null,
   collectionLockHeld = false,
 }) {
+  assertCurrentRefundTreatment(ledgerTreatment)
   if (!stripeEnabled()) throw new Error('Stripe is not enabled; card refunds cannot be submitted.')
   const refundReason = String(reason ?? '').trim()
   if (!refundReason) throw new Error('A refund reason is required.')

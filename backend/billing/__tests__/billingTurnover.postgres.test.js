@@ -504,7 +504,7 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await allocation(1,1,12750)
     await allocation(1,2,12750)
     const options={account:{id:1},paymentId:1,relatedChargeIds:[2,1],amountCents:25500,
-      ledgerTreatment:'reverse_charge',actorUserId:1,reason:'Early billing',exceptionCategory:'owner_discretion',
+      ledgerTreatment:'return_payment',actorUserId:1,reason:'Early billing',exceptionCategory:'owner_discretion',
       evidenceNote:'Approved test',idempotencyKey:'selection-test'}
     assert.deepEqual((await listPaymentRefundCharges(db,options)).charges.map(c=>c.id),[1,2])
     const preview=await previewSelectedChargeRefund(db,options)
@@ -525,7 +525,7 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
         if(input.relatedChargeId===2 && interrupt) throw new Error('Simulated connection interruption')
         processorCalls++
         refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,related_charge_id:input.relatedChargeId,
-          ledger_treatment:'reverse_charge',amount_cents:input.amountCents,external_status:'succeeded',
+          ledger_treatment:input.ledgerTreatment,amount_cents:input.amountCents,external_status:'succeeded',
           stripe_refund_id:`re_selection_${input.relatedChargeId}`,request_key:input.idempotencyKey})
       }
       refund=await finalizeRefundLedgerTreatment(client,refund,{collectionLockHeld:true,actorType:'system',stripeClient:null})
@@ -542,8 +542,8 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal(replay.replayed,true)
     assert.equal(processorCalls,2)
     assert.equal((await listPaymentRefundCharges(db,options)).charges.length,0)
-    assert.equal((await db.query("SELECT count(*)::int n FROM billing_charge WHERE source_type='refund_offset'")).rows[0].n,2)
-    assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,8500)
+    assert.equal((await db.query("SELECT count(*)::int n FROM billing_charge WHERE source_type='refund_offset'")).rows[0].n,0)
+    assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,34000)
   })
 
   await t.test('payment refund keeps tuition and discounts unchanged, restores unpaid balance, and never creates a credit', async () => {
