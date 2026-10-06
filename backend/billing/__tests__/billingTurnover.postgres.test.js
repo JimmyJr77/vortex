@@ -1,3 +1,5 @@
+import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
+import { findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
 import { findFullyRefundedWaivedCheckout } from '../refundedCheckoutDischarge.js'
 import { completeEnrollmentAutoBilling } from '../enrollmentAutoBilling.js'
 import { finalizeRefundLedgerTreatment, collectLedgerChargeWithSavedCard, checkoutAmountForBillingCharge } from '../customerBillingPayments.js'
@@ -184,6 +186,33 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
       assert.deepEqual(rows.map(row=>Number(row.billing_charge_id)),[2])
     })
   }
+
+  await t.test('paid then waived membership releases cash to other bills without a second payment', async () => {
+    await charge(1,8500,{stripe_checkout_session_id:'cs_waived'})
+    await charge(2,-8500,{source_type:'charge_adjustment',related_charge_id:1})
+    await charge(3,28500)
+    await payment(1,8500)
+    await db.query("UPDATE billing_payment SET external_processor='stripe',stripe_payment_intent_id='pi_paid',stripe_checkout_session_id='cs_waived' WHERE id=1")
+    const options={accountId:1,sessionId:'cs_waived',paymentId:1,amountCents:8500}
+    assert.equal(await findFulfilledThenWaivedCheckout(db,options),null,'an unfulfilled purchase cannot be released')
+    const app=await insert('billing_payment_application',{billing_payment_id:1,billing_charge_id:1,amount_cents:8500,application_kind:'application',allocation_reason:'annual_membership_checkout_exact'})
+    assert.equal(await findFulfilledThenWaivedCheckout(db,options),null,'original cash must be released first')
+    await insert('billing_payment_application',{billing_payment_id:1,billing_charge_id:1,amount_cents:8500,application_kind:'reversal',reverses_application_id:app.id,allocation_reason:'effective_charge_reallocation'})
+    assert.equal(Number((await findFulfilledThenWaivedCheckout(db,options)).id),1)
+    await insert('annual_membership_checkout_request',{family_billing_account_id:1,payer_member_id:1,request_key:'waiver',request_fingerprint:'a'.repeat(64),pricing_snapshot:{},pricing_snapshot_hash:'b'.repeat(64),currency:'usd',expected_amount_cents:8500,stripe_checkout_session_id:'cs_waived',status:'completed'})
+    assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db,1),null)
+    const allocated=await allocateHouseholdPaymentsLocked(db,{accountId:1,restoreMembershipCredits:false,updateEntitlements:false})
+    assert.equal(allocated.blocked,undefined)
+    assert.equal(Number(allocated.applications[0].billing_charge_id),3)
+    assert.equal(Number(allocated.applications[0].amount_cents),8500)
+    assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db,1),null)
+    assert.equal((await db.query('SELECT SUM(amount_cents)::int cents FROM billing_charge')).rows[0].cents-8500,20000)
+    await db.query('UPDATE billing_charge SET amount_cents=-8000 WHERE id=2')
+    assert.ok(await findCompletedPaidCheckoutFulfillmentGap(db,1),'partial waiver remains protected')
+    await db.query('UPDATE billing_charge SET amount_cents=-8500 WHERE id=2')
+    await insert('billing_refund',{family_billing_account_id:1,payment_id:1,amount_cents:8500,external_status:'succeeded'})
+    assert.equal(await findFulfilledThenWaivedCheckout(db,options),null,'refunded cash cannot be reused')
+  })
 
   await t.test('fully refunded waived Checkout requires full refund, zero applications and no remaining bill', async () => {
     await charge(1,11500,{stripe_checkout_session_id:'cs_refunded'})

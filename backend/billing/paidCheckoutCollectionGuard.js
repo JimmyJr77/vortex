@@ -1,3 +1,4 @@
+import { findFulfilledThenWaivedCheckout } from './waivedCheckoutReallocation.js'
 import { findFullyRefundedWaivedCheckout } from './refundedCheckoutDischarge.js'
 /**
  * Return an active enrollment Checkout reservation whose immutable total
@@ -375,6 +376,11 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
     if (row.payment_id && typeof row.stripe_checkout_session_id === 'string' && row.purchase_target_cents === row.expected_payment_cents
       && await findFullyRefundedWaivedCheckout(db, { accountId,
         sessionId: row.stripe_checkout_session_id, paymentId: row.payment_id, amountCents: row.expected_payment_cents })) continue
+    if (row.payment_id && Number(row.tagged_application_cents) === 0
+      && !row.has_active_invoice_reservation && !row.has_active_payment_attempt && !row.has_escaped_session_credit
+      && Number(row.refunded_purchase_cents) === 0 && row.purchase_target_cents === row.expected_payment_cents
+      && await findFulfilledThenWaivedCheckout(db, { accountId, sessionId: row.stripe_checkout_session_id,
+        paymentId: row.payment_id, amountCents: row.expected_payment_cents })) continue
     return row
   }
   return null
