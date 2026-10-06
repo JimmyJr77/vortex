@@ -250,3 +250,11 @@ test('upcoming paid includes partial applications and paid invoices while histor
     assert.deepEqual(ytd.params, [[10], '2026-01-01', '2026-11-01'])
   }
 })
+
+test('verified future autopay is enrolled before the collection start month', () => {
+  assert.equal(familyAutopayScheduled({
+    householdMonthlyBillingEnabled: true, cardOnFile: true,
+    hasLegacyStripeSubscription: false, hasVerifiedHouseholdMigration: true,
+    effectiveCollectionMonth: '2026-11-01', billingMonth: '2026-10-01',
+  }), true)
+})

@@ -1,3 +1,4 @@
+import { listCustomerBillingOverviews } from '../customerBillingOverviewList.js'
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund, correctRefundToPreserveClassCharge } from '../customerBillingRefundSelection.js'
 import { findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
@@ -72,6 +73,28 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await db.query(`DROP SCHEMA ${quote(`turnover_${process.pid}_${index}`)} CASCADE`)
   })
   t.after(async () => { await db.end() })
+
+  await t.test('overview nets a waived membership into its original month and retains applied payments', async () => {
+    await charge(1,38000,{service_period_start:'2026-10-01'})
+    await charge(2,8500,{service_period_start:'2026-10-01'})
+    await charge(3,-8500,{source_type:'charge_adjustment',related_charge_id:2,service_period_start:'2026-11-01'})
+    await payment(1,38000)
+    await allocation(1,1,38000)
+    // Execute the actual overview aggregate queries against PostgreSQL.
+    const aggregates=[]
+    const scoped={query:async(sql,params)=>{
+      if(sql.includes('fba.payer_member_id,')) return {rows:[{family_id:1,billing_account_id:1,facility_timezone:'America/New_York'}]}
+      if(sql.includes('AS billed_cents') || sql.includes('WITH payment_application_totals AS')) {
+        aggregates.push(sql)
+        return db.query(sql,params)
+      }
+      return {rows:[]}
+    }}
+    const overview=await listCustomerBillingOverviews(scoped,{facilityId:1,asOf:new Date('2026-10-06T16:00:00Z')})
+    assert.equal(aggregates.length,2)
+    assert.deepEqual(overview.families[0].months['2026-10'],{billedCents:38000,paidCents:38000,source:'ledger'})
+    assert.equal(overview.families[0].upcomingPaidCents,0)
+  })
 
   await t.test('initial enrollment saved-card collection is exact and replay cannot collect twice', async () => {
     await db.query("UPDATE family_billing_account SET stripe_customer_id='cus_fixture' WHERE id=1")

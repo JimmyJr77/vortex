@@ -66,7 +66,7 @@ export function familyAutopayStatus({
 }
 
 export function familyAutopayScheduled(input) {
-  return familyAutopayStatus(input) === 'ready'
+  return ['ready', 'scheduled_later'].includes(familyAutopayStatus(input))
 }
 
 export function paymentMethodReadyForBillingMonth(summary, billingMonth) {
@@ -102,6 +102,34 @@ function groupByAccount(rows, key = 'family_billing_account_id') {
   }
   return grouped
 }
+
+// Fold adjustments into the original bill and reporting month, matching account history.
+// The adjustment rows must not then be counted again as independent bills.
+const overviewAdjustmentJoin = `
+  LEFT JOIN LATERAL (
+    SELECT SUM(adjustment.amount_cents)::bigint AS amount_cents
+    FROM billing_charge adjustment
+    WHERE adjustment.family_billing_account_id = charge.family_billing_account_id
+      AND (
+        (adjustment.related_charge_id = charge.id
+          AND adjustment.source_type IN ('charge_adjustment', 'refund_offset'))
+        OR (adjustment.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+          AND adjustment.subscription_id = charge.subscription_id
+          AND adjustment.service_period_start = charge.service_period_start)
+      )
+  ) adjustment ON TRUE`
+
+const overviewBaseBillPredicate = `
+  NOT (charge.related_charge_id IS NOT NULL
+    AND charge.source_type IN ('charge_adjustment', 'refund_offset'))
+  AND NOT (charge.source_type IN ('price_adjustment', 'price_adjustment_reversal')
+    AND EXISTS (
+      SELECT 1 FROM billing_charge base_charge
+      WHERE base_charge.family_billing_account_id = charge.family_billing_account_id
+        AND base_charge.subscription_id = charge.subscription_id
+        AND base_charge.service_period_start = charge.service_period_start
+        AND base_charge.charge_type = 'recurring'
+    ))`
 
 function monthBillPaid(invoiceRow, chargeCents, paymentCents) {
   if (invoiceRow) {
@@ -321,12 +349,14 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     pool.query(
       `SELECT charge.family_billing_account_id,
               to_char(COALESCE(charge.service_period_start, charge.created_at::date), 'YYYY-MM') AS billing_month,
-              SUM(GREATEST(charge.amount_cents, 0))::bigint AS billed_cents
+              SUM(GREATEST(charge.amount_cents + COALESCE(adjustment.amount_cents, 0), 0))::bigint AS billed_cents
          FROM billing_charge charge
+         ${overviewAdjustmentJoin}
         WHERE charge.family_billing_account_id = ANY($1::bigint[])
           AND COALESCE(charge.service_period_start, charge.created_at::date) >= $2::date
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
+          AND ${overviewBaseBillPredicate}
         GROUP BY 1, 2`,
       [accountIds, monthStart, reportingEnd],
     ),
@@ -356,10 +386,11 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
        SELECT charge.family_billing_account_id,
               to_char(COALESCE(charge.service_period_start, charge.created_at::date), 'YYYY-MM') AS billing_month,
               SUM(LEAST(
-                GREATEST(charge.amount_cents, 0),
+                GREATEST(charge.amount_cents + COALESCE(adjustment.amount_cents, 0), 0),
                 GREATEST(0, COALESCE(payment.paid_cents, 0) + COALESCE(credit.credit_cents, 0))
               ))::bigint AS paid_cents
          FROM billing_charge charge
+         ${overviewAdjustmentJoin}
          LEFT JOIN payment_application_totals payment ON payment.billing_charge_id = charge.id
          LEFT JOIN credit_application_totals credit ON credit.billing_charge_id = charge.id
         WHERE charge.family_billing_account_id = ANY($1::bigint[])
@@ -367,6 +398,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
           AND COALESCE(charge.service_period_start, charge.created_at::date) >= $2::date
           AND COALESCE(charge.service_period_start, charge.created_at::date) < $3::date
           AND COALESCE(charge.metadata->>'customerAuditVisibility', '') <> 'suppressed'
+          AND ${overviewBaseBillPredicate}
         GROUP BY 1, 2`,
       [accountIds, monthStart, reportingEnd],
     ),
@@ -609,7 +641,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         monthlyRecurringCents: recurringByFamily.get(Number(row.family_id)) ?? 0,
         futureCreditsCents: snapshot?.futureCreditsCents ?? 0,
         accountBalanceCents: snapshot?.balanceCents ?? 0,
-        autopay: autopayStatus === 'ready',
+        autopay: ['ready', 'scheduled_later'].includes(autopayStatus),
         autopayStatus,
         autopayEffectiveMonth: effectiveCollectionMonth,
         cardOnFile: {
