@@ -54,10 +54,21 @@ function cardLabel(card: BillingOverviewFamily['cardOnFile']) {
 }
 
 function autopayPresentation(family: BillingOverviewFamily) {
-  return {
-    label: family.autopay ? 'Autopay' : 'Not Enrolled',
-    className: family.autopay ? 'bg-emerald-50 text-emerald-800' : 'bg-gray-100 text-gray-700',
-    title: family.autopay ? 'Actively enrolled in autopay.' : 'Not actively enrolled in autopay.',
+  const readyStyle = 'bg-emerald-50 text-emerald-800'
+  const actionStyle = 'bg-amber-50 text-amber-800'
+  switch (family.autopayStatus) {
+    case 'ready':
+      return { label: 'Autopay', className: readyStyle, title: 'Actively enrolled in autopay.' }
+    case 'scheduled_later':
+      return { label: 'Autopay', className: readyStyle, title: 'Enrolled in autopay.' }
+    case 'payment_method_required':
+      return { label: 'Payment method required', className: actionStyle, title: 'Add a valid saved payment method to enable automatic collection.' }
+    case 'legacy_collector_conflict':
+      return { label: 'Autopay needs review', className: actionStyle, title: 'A conflicting billing subscription must be reconciled before household autopay is ready.' }
+    case 'not_applicable':
+      return { label: 'No autopay needed', className: 'bg-gray-100 text-gray-700', title: 'This household has no billable recurring tuition.' }
+    default:
+      return { label: 'Not Enrolled', className: 'bg-gray-100 text-gray-700', title: 'Household autopay setup is incomplete.' }
   }
 }
 
