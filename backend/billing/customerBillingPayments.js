@@ -1971,7 +1971,7 @@ export async function previewCustomerBillingRefund(pool, {
   relatedChargeId = null,
 }) {
   const amount = positiveCents(amountCents, 'Refund amount')
-  if (!['reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
+  if (!['return_payment', 'reverse_charge', 'return_overpayment', 'return_credit'].includes(ledgerTreatment)) {
     throw new Error('Choose whether the refund reverses a charge, returns an unapplied overpayment, or pays back an applied credit.')
   }
   const payment = await pool.query(
@@ -1991,7 +1991,7 @@ export async function previewCustomerBillingRefund(pool, {
   if (amount > remainingRefundableCents) throw new Error('Refund exceeds the remaining refundable card payment amount.')
   const currentBalanceCents = await accountBalance(pool, account.id)
   let relatedCharge = null
-  if (ledgerTreatment === 'reverse_charge') {
+  if (['return_payment', 'reverse_charge'].includes(ledgerTreatment)) {
     if (!relatedChargeId) throw new Error('Select the charge that this refund reverses or waives.')
     relatedCharge = await loadCharge(pool, account.id, relatedChargeId)
     const appliedFromPayment = await pool.query(

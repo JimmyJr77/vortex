@@ -1,4 +1,5 @@
 import { previewCustomerBillingRefund, createCustomerBillingRefund } from './customerBillingPayments.js'
+import { allocateHouseholdPaymentsLocked } from './paymentAllocation.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import { recordBillingActivity } from './billingActivity.js'
 
@@ -31,7 +32,7 @@ export async function listPaymentRefundCharges(db, { account, paymentId }) {
          SELECT SUM(refund.amount_cents) FILTER (WHERE refund.payment_id=$1) AS payment_cents,
                 SUM(refund.amount_cents) AS charge_cents
            FROM billing_refund refund
-          WHERE refund.related_charge_id=charge.id AND refund.ledger_treatment='reverse_charge'
+          WHERE refund.related_charge_id=charge.id AND refund.ledger_treatment IN ('reverse_charge','return_payment')
             AND refund.external_status IN ('pending','reconciliation_required')
             AND NOT EXISTS (SELECT 1 FROM billing_charge offset_charge
               WHERE offset_charge.source_type='refund_offset' AND offset_charge.source_id='refund:' || refund.id)
@@ -62,7 +63,7 @@ function selectedIds(ids) {
 }
 
 export async function previewSelectedChargeRefund(db, options) {
-  if (options.ledgerTreatment!=='reverse_charge') throw new Error('Charge selections require reverse or waive treatment.')
+  if (!['return_payment','reverse_charge'].includes(options.ledgerTreatment)) throw new Error('Select a payment refund treatment.')
   const ids=selectedIds(options.relatedChargeIds)
   const available=await listPaymentRefundCharges(db,options)
   const selected=ids.map(id=>{
@@ -77,7 +78,8 @@ export async function previewSelectedChargeRefund(db, options) {
   for (const charge of selected) previews.push(await previewCustomerBillingRefund(db,{
     ...options, relatedChargeId:charge.id, amountCents:charge.refundableAmountCents,
   }))
-  return {...previews[0],amountCents,relatedCharge:null,relatedCharges:selected,remainingRefundableCents:available.remainingRefundableCents}
+  return {...previews[0],amountCents,relatedCharge:null,relatedCharges:selected,remainingRefundableCents:available.remainingRefundableCents,
+    resultingBalanceCents:previews[0].currentBalanceCents+(options.ledgerTreatment==='return_payment'?amountCents:0)}
 }
 
 // Each selected charge uses the existing durable refund/offset/reversal workflow.
@@ -85,9 +87,9 @@ export async function previewSelectedChargeRefund(db, options) {
 // partially completed batch resume the same amounts and cannot change its scope.
 export async function createSelectedChargeRefund(pool, options, { createRefundFunction = createCustomerBillingRefund } = {}) {
   const ids=selectedIds(options.relatedChargeIds)
-  if (!options.idempotencyKey || options.ledgerTreatment!=='reverse_charge') throw new Error('A stable charge-refund request is required.')
+  if (!options.idempotencyKey || !['return_payment','reverse_charge'].includes(options.ledgerTreatment)) throw new Error('A stable charge-refund request is required.')
   const request={accountId:Number(options.account.id),paymentId:Number(options.paymentId),chargeIds:ids,
-    amountCents:Number(options.amountCents),actorUserId:Number(options.actorUserId),
+    amountCents:Number(options.amountCents),ledgerTreatment:options.ledgerTreatment,actorUserId:Number(options.actorUserId),
     reason:String(options.reason??'').trim(),exceptionCategory:String(options.exceptionCategory??''),evidenceNote:String(options.evidenceNote??'').trim()}
   if (!request.reason || !request.evidenceNote || !request.actorUserId
     || !['duplicate_charge','vortex_cancellation','medical','relocation','owner_discretion'].includes(request.exceptionCategory)) {
@@ -98,9 +100,10 @@ export async function createSelectedChargeRefund(pool, options, { createRefundFu
     let manifest=(await db.query('SELECT * FROM billing_account_activity WHERE event_key=$1',[eventKey])).rows[0]
     let preview
     if (manifest) {
-      if (JSON.stringify(manifest.details.request)!==JSON.stringify(request)) {
+      const savedRequest={...manifest.details.request,ledgerTreatment:manifest.details.request?.ledgerTreatment ?? 'reverse_charge'}
+      if (JSON.stringify(savedRequest)!==JSON.stringify(request)) {
         // JSONB key ordering is not significant.
-        if (Object.keys(request).some(key=>JSON.stringify(manifest.details.request?.[key])!==JSON.stringify(request[key]))) {
+        if (Object.keys(request).some(key=>JSON.stringify(savedRequest[key])!==JSON.stringify(request[key]))) {
           throw new Error('The refund request key was reused with different refund details.')
         }
       }
@@ -121,5 +124,64 @@ export async function createSelectedChargeRefund(pool, options, { createRefundFu
     }
     return {refunds:results.map(r=>r.refund),newRefunds:results.filter(r=>!r.replayed).map(r=>r.refund),
       preview,replayed:results.every(r=>r.replayed)}
+  })
+}
+
+// Correct a completed class-payment refund that was mistakenly treated as a
+// waiver. Preserve both original ledger rows and cash facts; neutralize only
+// the erroneous credit, with an explicit audit trail and no Stripe mutation.
+export async function correctRefundToPreserveClassCharge(pool, { accountId, refundId }) {
+  return withBillingAccountCollectionLock(pool, accountId, async db => {
+    let open = false
+    try {
+      await db.query('BEGIN')
+      open = true
+      const refund = (await db.query('SELECT * FROM billing_refund WHERE id=$1 AND family_billing_account_id=$2 FOR UPDATE', [refundId, accountId])).rows[0]
+      if (!refund || refund.external_status !== 'succeeded') throw new Error('A completed refund is required.')
+      if (refund.ledger_treatment === 'return_payment') {
+        const prior = (await db.query('SELECT id FROM billing_account_activity WHERE event_key=$1', [`refund-treatment-corrected:${refundId}`])).rows[0]
+        if (!prior) throw new Error('Refund was not corrected by this operation.')
+        await db.query('COMMIT')
+        open = false
+        await allocateHouseholdPaymentsLocked(db,{accountId,actorType:'system'})
+        return { refundId: Number(refund.id), replayed: true }
+      }
+      if (refund.ledger_treatment !== 'reverse_charge' || !refund.offset_credit_charge_id) throw new Error('Refund has no completed waiver to correct.')
+      const original = (await db.query('SELECT * FROM billing_charge WHERE id=$1 AND family_billing_account_id=$2 FOR UPDATE', [refund.related_charge_id, accountId])).rows[0]
+      const offset = (await db.query('SELECT * FROM billing_charge WHERE id=$1 AND family_billing_account_id=$2 FOR UPDATE', [refund.offset_credit_charge_id, accountId])).rows[0]
+      if (!original || original.charge_type !== 'recurring' || original.billing_interval !== 'month'
+        || offset?.source_type !== 'refund_offset' || offset.source_id !== `refund:${refund.id}`
+        || Number(offset.related_charge_id) !== Number(original.id) || Number(offset.amount_cents) !== -Number(refund.amount_cents)) {
+        throw new Error('Refund credit does not exactly match a monthly class charge.')
+      }
+      const allocated = (await db.query(`SELECT 1 FROM billing_payment_application WHERE billing_charge_id=$1
+        UNION ALL SELECT 1 FROM billing_monthly_invoice_line WHERE billing_charge_id=$1 LIMIT 1`, [offset.id])).rows[0]
+      if (allocated) throw new Error('Refund credit has been used by another allocation and needs review.')
+      const reversal = (await db.query(`SELECT COALESCE(SUM(amount_cents),0)::int AS cents FROM billing_payment_application
+        WHERE billing_payment_id=$1 AND billing_charge_id=$2 AND application_kind='reversal'
+          AND idempotency_key LIKE $3`, [refund.payment_id, original.id, `refund:${refund.id}:%`])).rows[0]
+      if (Number(reversal.cents) !== Number(refund.amount_cents)) throw new Error('Refund payment reversal is not complete.')
+      const correction = (await db.query(`INSERT INTO billing_charge
+        (family_billing_account_id,member_id,source_type,source_id,description,amount_cents,gross_amount_cents,
+         discount_amount_cents,charge_type,billing_interval,related_charge_id,collection_status,metadata)
+        VALUES ($1,$2,'charge_adjustment',$3,'Restore tuition after payment refund',$4,$4,0,'one_time','one_time',$5,'none',$6::jsonb) RETURNING *`,
+      [accountId, original.member_id, `refund-treatment-correction:${refund.id}`, Number(refund.amount_cents), original.id,
+        JSON.stringify({refundId:Number(refund.id),refundTreatmentCorrection:true,allocationRetired:true,reversesChargeId:Number(offset.id)})])).rows[0]
+      await db.query(`UPDATE billing_charge SET metadata=COALESCE(metadata,'{}'::jsonb)||$2::jsonb WHERE id=$1`,
+        [offset.id,JSON.stringify({refundTreatmentCorrection:true,allocationRetired:true,reversedByChargeId:Number(correction.id)})])
+      await db.query("UPDATE billing_refund SET ledger_treatment='return_payment',offset_credit_charge_id=NULL,updated_at=now() WHERE id=$1",[refund.id])
+      await recordBillingActivity(db,{eventKey:`refund-treatment-corrected:${refund.id}`,accountId,chargeId:original.id,
+        paymentId:refund.payment_id,refundId:refund.id,eventType:'refund_treatment_corrected',actorType:'system',
+        summary:'Payment refund corrected: original tuition remains owed; erroneous waiver reversed.',
+        beforeValue:{ledgerTreatment:'reverse_charge',offsetChargeId:Number(offset.id)},
+        afterValue:{ledgerTreatment:'return_payment',correctionChargeId:Number(correction.id),restoredCents:Number(refund.amount_cents)}})
+      await db.query('COMMIT')
+      open = false
+      await allocateHouseholdPaymentsLocked(db,{accountId,actorType:'system'})
+      return {refundId:Number(refund.id),correctionChargeId:Number(correction.id),restoredCents:Number(refund.amount_cents),replayed:false}
+    } catch(error) {
+      if (open) await db.query('ROLLBACK')
+      throw error
+    }
   })
 }

@@ -1643,7 +1643,7 @@ export async function listCustomerBillingTransactions(pool, {
                   'code', COALESCE(NULLIF(adjustment.metadata->>'discountCode', ''), NULLIF(adjustment_price_adjustment.promo_code, '')),
                   'amountCents', adjustment.amount_cents,
                   'chargeId', adjustment.id
-                )) ORDER BY adjustment.created_at, adjustment.id), '[]'::jsonb) AS annotations
+                )) ORDER BY adjustment.created_at, adjustment.id) FILTER (WHERE COALESCE(adjustment.metadata->>'refundTreatmentCorrection','false') <> 'true'), '[]'::jsonb) AS annotations
          FROM billing_charge adjustment
          LEFT JOIN enrollment_price_adjustment adjustment_price_adjustment
            ON adjustment_price_adjustment.id = adjustment.price_adjustment_id

@@ -900,7 +900,7 @@ export function RefundModal({
   const creditAmountCents = Number(credit?.details.refundableAmountCents ?? Math.abs(credit?.amountCents ?? 0))
   const creditReason = String(creditMetadata.reason ?? credit?.description ?? 'Return applied account credit')
   const [amount, setAmount] = useState(((isAppliedCredit ? creditAmountCents : Math.abs(payment.amountCents)) / 100).toFixed(2))
-  const [ledgerTreatment, setLedgerTreatment] = useState<'reverse_charge' | 'return_overpayment' | 'return_credit'>(isAppliedCredit ? 'return_credit' : 'reverse_charge')
+  const [ledgerTreatment, setLedgerTreatment] = useState<'return_payment' | 'return_overpayment' | 'return_credit'>(isAppliedCredit ? 'return_credit' : 'return_payment')
   const [relatedChargeId] = useState(credit ? String(credit.refId) : '')
   const [exceptionCategory, setExceptionCategory] = useState(isAppliedCredit ? (/duplicate|double/i.test(creditReason) ? 'duplicate_charge' : 'vortex_cancellation') : '')
   const [evidenceNote, setEvidenceNote] = useState(isAppliedCredit ? `Applied account credit #${credit?.refId} approved for return to the original card.` : '')
@@ -915,7 +915,7 @@ export function RefundModal({
   const [submitted, setSubmitted] = useState(false)
   const selectedAmountCents = refundCharges.filter(charge => selectedChargeIds.includes(charge.id))
     .reduce((sum, charge) => sum + charge.refundableAmountCents, 0)
-  const refundAmountCents = ledgerTreatment === 'reverse_charge' ? selectedAmountCents : Math.round(Number(amount) * 100)
+  const refundAmountCents = ledgerTreatment === 'return_payment' ? selectedAmountCents : Math.round(Number(amount) * 100)
 
   useEffect(() => {
     if (isAppliedCredit) return
@@ -942,7 +942,7 @@ export function RefundModal({
     amountCents: refundAmountCents,
     ledgerTreatment,
     relatedChargeId: ledgerTreatment === 'return_credit' && relatedChargeId ? Number(relatedChargeId) : null,
-    relatedChargeIds: ledgerTreatment === 'reverse_charge' ? selectedChargeIds : undefined,
+    relatedChargeIds: ledgerTreatment === 'return_payment' ? selectedChargeIds : undefined,
     exceptionCategory,
     evidenceNote: evidenceNote.trim(),
     reason: reason.trim(),
@@ -987,20 +987,20 @@ export function RefundModal({
     <ModalShell title={isAppliedCredit ? 'Refund applied credit' : 'Refund card payment'} subtitle={isAppliedCredit ? `Credit #${credit?.refId} · ${credit?.description}` : `Payment #${payment.refId} · ${money(Math.abs(payment.amountCents))}`} onClose={onClose}>
       <div className="space-y-4">
         <fieldset disabled={working || submitted} className="space-y-4 disabled:opacity-70">
-        <label className="block text-sm font-medium text-gray-700">Refund amount<div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0.01" max={isAppliedCredit ? (creditAmountCents / 100).toFixed(2) : undefined} step="0.01" value={ledgerTreatment === 'reverse_charge' ? (selectedAmountCents / 100).toFixed(2) : amount} readOnly={ledgerTreatment === 'reverse_charge'} onChange={(event) => { setAmount(event.target.value); invalidate() }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div></label>
+        <label className="block text-sm font-medium text-gray-700">Refund amount<div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0.01" max={isAppliedCredit ? (creditAmountCents / 100).toFixed(2) : undefined} step="0.01" value={ledgerTreatment === 'return_payment' ? (selectedAmountCents / 100).toFixed(2) : amount} readOnly={ledgerTreatment === 'return_payment'} onChange={(event) => { setAmount(event.target.value); invalidate() }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div></label>
         {isAppliedCredit ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3"><strong className="block text-sm text-emerald-900">Return this applied credit</strong><span className="text-xs text-emerald-800">The existing credit offsets its linked bill while this amount is returned to the original card. No second credit is created.</span></div>
         ) : <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-800">Account treatment</legend>
           <div className="space-y-2">
-            <label className="flex gap-3 rounded-lg border border-gray-200 p-3"><input type="radio" checked={ledgerTreatment === 'reverse_charge'} onChange={() => { setLedgerTreatment('reverse_charge'); invalidate() }} className="mt-1" /><span><strong className="block text-sm">Reverse or waive a related charge</strong><span className="text-xs text-gray-500">Creates an equal linked account credit so the refund does not make the service amount due again.</span></span></label>
+            <label className="flex gap-3 rounded-lg border border-gray-200 p-3"><input type="radio" checked={ledgerTreatment === 'return_payment'} onChange={() => { setLedgerTreatment('return_payment'); invalidate() }} className="mt-1" /><span><strong className="block text-sm">Refund payment; keep charges due</strong><span className="text-xs text-gray-500">Returns the payment and makes the selected charges unpaid. The original tuition and discounts stay the same.</span></span></label>
             <label className="flex gap-3 rounded-lg border border-gray-200 p-3"><input type="radio" checked={ledgerTreatment === 'return_overpayment'} onChange={() => { setLedgerTreatment('return_overpayment'); invalidate() }} className="mt-1" /><span><strong className="block text-sm">Return unapplied overpayment</strong><span className="text-xs text-gray-500">Allowed only up to the household’s current credit balance.</span></span></label>
           </div>
         </fieldset>}
-        {ledgerTreatment === 'reverse_charge' ? (
+        {ledgerTreatment === 'return_payment' ? (
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-gray-700">Charges paid by this payment</legend>
-            <p className="text-xs text-gray-500">Select charges to refund and waive. Their selected amounts will no longer be due. Future monthly enrollments remain active.</p>
+            <p className="text-xs text-gray-500">Select charges to refund. Their billed amounts stay the same, and the returned payment becomes due again on the original billing date.</p>
             {loadingCharges ? <p role="status" className="text-sm text-gray-500">Loading payment allocations…</p> : refundCharges.length === 0 ? <p className="text-sm text-gray-500">No charge allocations remain available to refund from this payment.</p> : <>
               <button type="button" className="text-sm font-semibold underline" onClick={() => { setSelectedChargeIds(selectedChargeIds.length === refundCharges.length ? [] : refundCharges.map(charge => charge.id)); invalidate() }}>{selectedChargeIds.length === refundCharges.length ? 'Clear selection' : 'Select all'}</button>
               {refundCharges.map(charge => <label key={charge.id} className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
@@ -1019,7 +1019,7 @@ export function RefundModal({
         {preview ? (
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
             <div className="grid grid-cols-2 gap-3"><div><span className="block text-xs uppercase text-blue-700">Remaining refundable</span><strong>{money(preview.remainingRefundableCents)}</strong></div><div><span className="block text-xs uppercase text-blue-700">Balance after refund</span><strong>{money(preview.resultingBalanceCents)}</strong></div></div>
-            <p className="mt-3">Funds return to the original card. {ledgerTreatment === 'reverse_charge' ? 'A linked credit will offset the refund in the account ledger.' : ledgerTreatment === 'return_credit' ? 'The existing applied credit stays linked to its bill and the household balance returns toward zero.' : 'The returned overpayment will bring the credit balance toward zero.'}</p>
+            <p className="mt-3">Funds return to the original card. {ledgerTreatment === 'return_payment' ? 'The selected charges become unpaid; their original billed amounts and due dates stay the same.' : ledgerTreatment === 'return_credit' ? 'The existing applied credit stays linked to its bill and the household balance returns toward zero.' : 'The returned overpayment will bring the credit balance toward zero.'}</p>
           </div>
         ) : null}
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}

@@ -1042,7 +1042,7 @@ export async function reverseRefundedApplicationsLocked(db, { refund }) {
     }
   }
   const reverseCharge = refund.ledger_treatment === 'reverse_charge'
-  const targetedRefund = reverseCharge || returnCredit
+  const targetedRefund = reverseCharge || returnCredit || refund.ledger_treatment === 'return_payment'
   if (targetedRefund && (!targetChargeId || targetChargeId <= 0)) {
     throw new Error(`Refund #${refund.id} is missing its selected charge.`)
   }

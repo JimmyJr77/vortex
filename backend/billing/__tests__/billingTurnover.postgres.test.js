@@ -1,5 +1,5 @@
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
-import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from '../customerBillingRefundSelection.js'
+import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund, correctRefundToPreserveClassCharge } from '../customerBillingRefundSelection.js'
 import { findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
 import { findFullyRefundedWaivedCheckout } from '../refundedCheckoutDischarge.js'
 import { completeEnrollmentAutoBilling } from '../enrollmentAutoBilling.js'
@@ -64,6 +64,7 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await db.query(`SET search_path TO ${quote(schema)}`)
     const sql = (await fs.readFile(new URL('./fixtures/turnover-schema.sql',import.meta.url),'utf8')).replaceAll('public.', '')
     await db.query(sql)
+    await db.query(await fs.readFile(new URL('../../migrations/835_refund_preserve_charge_balance.sql',import.meta.url),'utf8'))
     await seedAccount()
   })
   t.afterEach(async () => {
@@ -543,6 +544,50 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal((await listPaymentRefundCharges(db,options)).charges.length,0)
     assert.equal((await db.query("SELECT count(*)::int n FROM billing_charge WHERE source_type='refund_offset'")).rows[0].n,2)
     assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,8500)
+  })
+
+  await t.test('payment refund keeps tuition and discounts unchanged, restores unpaid balance, and never creates a credit', async () => {
+    for (const id of [1,2]) await charge(id,12750,{charge_type:'recurring',billing_interval:'month',gross_amount_cents:15000,discount_amount_cents:2250,service_period_start:'2026-11-01',service_period_end:'2026-11-30'})
+    await payment(1,25500)
+    await db.query("UPDATE billing_payment SET stripe_payment_intent_id='pi_preserve' WHERE id=1")
+    await allocation(1,1,12750)
+    await allocation(1,2,12750)
+    const preview=await previewSelectedChargeRefund(db,{account:{id:1},paymentId:1,relatedChargeIds:[1,2],amountCents:25500,ledgerTreatment:'return_payment'})
+    assert.equal(preview.resultingBalanceCents,25500)
+    for (const id of [1,2]) {
+      const refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,related_charge_id:id,
+        amount_cents:12750,external_status:'succeeded',ledger_treatment:'return_payment',stripe_refund_id:`re_preserve_${id}`})
+      await finalizeRefundLedgerTreatment(db,refund,{actorType:'system',stripeClient:null})
+      await finalizeRefundLedgerTreatment(db,refund.id,{actorType:'system',stripeClient:null})
+    }
+    const charges=(await db.query('SELECT amount_cents,gross_amount_cents,discount_amount_cents,collection_status FROM billing_charge ORDER BY id')).rows
+    assert.deepEqual(charges,[1,2].map(()=>({amount_cents:12750,gross_amount_cents:15000,discount_amount_cents:2250,collection_status:'unpaid'})))
+    assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,25500)
+  })
+
+  await t.test('correcting a mistaken refund waiver restores the original class bill without another cash refund', async () => {
+    await charge(1,12750,{charge_type:'recurring',billing_interval:'month',gross_amount_cents:15000,discount_amount_cents:2250,service_period_start:'2026-11-01',service_period_end:'2026-11-30'})
+    await db.query("SELECT setval(pg_get_serial_sequence('billing_charge','id'),1)")
+    await payment(1,12750)
+    await allocation(1,1,12750)
+    const refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,related_charge_id:1,amount_cents:12750,
+      stripe_refund_id:'re_corrected',external_status:'succeeded',ledger_treatment:'reverse_charge'})
+    await finalizeRefundLedgerTreatment(db,refund,{actorType:'system',stripeClient:null})
+    const result=await correctRefundToPreserveClassCharge(db,{accountId:1,refundId:refund.id})
+    assert.equal(result.restoredCents,12750)
+    assert.equal((await correctRefundToPreserveClassCharge(db,{accountId:1,refundId:refund.id})).replayed,true)
+    const original=(await db.query('SELECT * FROM billing_charge WHERE id=1')).rows[0]
+    assert.equal(original.amount_cents,12750)
+    assert.equal(original.discount_amount_cents,2250)
+    assert.equal(original.collection_status,'unpaid')
+    const history=await listCustomerBillingTransactions(db,{accountId:1})
+    const bill=history.rows.find(row=>row.entryKind==='charge' && row.refId===1)
+    assert.equal(bill.amountCents,12750)
+    assert.equal(bill.status,'unpaid')
+    assert.equal(bill.remainingAmountCents,12750)
+    assert.ok(!JSON.stringify(bill.details).includes('Refund adjustment'))
+    assert.equal((await db.query('SELECT count(*)::int n FROM billing_refund')).rows[0].n,1)
+    assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,12750)
   })
 
   await t.test('charge refund creates its typed offset and reverses only its allocation exactly once', async () => {
