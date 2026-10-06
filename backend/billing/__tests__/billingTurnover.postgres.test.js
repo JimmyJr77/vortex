@@ -1,4 +1,5 @@
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
+import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from '../customerBillingRefundSelection.js'
 import { findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
 import { findFullyRefundedWaivedCheckout } from '../refundedCheckoutDischarge.js'
 import { completeEnrollmentAutoBilling } from '../enrollmentAutoBilling.js'
@@ -490,6 +491,79 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await charge(5,-10250,{subscription_id:1,charge_type:'credit',service_period_start:'2026-09-01'})
     assert.equal((await previewCustomerBillingEnrollmentCancellation(db,options)).creditCents,0)
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,5)
+  })
+
+  await t.test('refund selection excludes unrelated bills and pending refunds, rejects stale totals, and resumes a partial batch', async () => {
+    await charge(1,12750)
+    await charge(2,12750)
+    await charge(3,8500)
+    await db.query("SELECT setval(pg_get_serial_sequence('billing_charge','id'), 3)")
+    await payment(1,25500)
+    await db.query("UPDATE billing_payment SET stripe_payment_intent_id='pi_selection' WHERE id=1")
+    await allocation(1,1,12750)
+    await allocation(1,2,12750)
+    const options={account:{id:1},paymentId:1,relatedChargeIds:[2,1],amountCents:25500,
+      ledgerTreatment:'reverse_charge',actorUserId:1,reason:'Early billing',exceptionCategory:'owner_discretion',
+      evidenceNote:'Approved test',idempotencyKey:'selection-test'}
+    assert.deepEqual((await listPaymentRefundCharges(db,options)).charges.map(c=>c.id),[1,2])
+    const preview=await previewSelectedChargeRefund(db,options)
+    assert.equal(preview.amountCents,25500)
+    await assert.rejects(previewSelectedChargeRefund(db,{...options,relatedChargeIds:[3]}),/no longer refundable/)
+    await assert.rejects(previewSelectedChargeRefund(db,{...options,relatedChargeIds:[1,1]}),/distinct charges/)
+    await assert.rejects(previewSelectedChargeRefund(db,{...options,amountCents:100}),/amounts changed/)
+    const reserved=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,related_charge_id:2,
+      ledger_treatment:'reverse_charge',amount_cents:12750,external_status:'pending'})
+    assert.deepEqual((await listPaymentRefundCharges(db,options)).charges.map(c=>c.id),[1])
+    await db.query('DELETE FROM billing_refund WHERE id=$1',[reserved.id])
+    let interrupt=true
+    let processorCalls=0
+    const createRefundFunction=async (client, input)=>{
+      let refund=(await client.query('SELECT * FROM billing_refund WHERE request_key=$1',[input.idempotencyKey])).rows[0]
+      const replayed=Boolean(refund)
+      if (!refund) {
+        if(input.relatedChargeId===2 && interrupt) throw new Error('Simulated connection interruption')
+        processorCalls++
+        refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,related_charge_id:input.relatedChargeId,
+          ledger_treatment:'reverse_charge',amount_cents:input.amountCents,external_status:'succeeded',
+          stripe_refund_id:`re_selection_${input.relatedChargeId}`,request_key:input.idempotencyKey})
+      }
+      refund=await finalizeRefundLedgerTreatment(client,refund,{collectionLockHeld:true,actorType:'system',stripeClient:null})
+      return {refund,replayed}
+    }
+    await assert.rejects(createSelectedChargeRefund(db,options,{createRefundFunction}),/Simulated connection/)
+    assert.equal(processorCalls,1)
+    await assert.rejects(createSelectedChargeRefund(db,{...options,relatedChargeIds:[2]}, {createRefundFunction}),/different refund details/)
+    interrupt=false
+    const completed=await createSelectedChargeRefund(db,options,{createRefundFunction})
+    assert.equal(completed.refunds.length,2)
+    assert.equal(processorCalls,2)
+    const replay=await createSelectedChargeRefund(db,options,{createRefundFunction})
+    assert.equal(replay.replayed,true)
+    assert.equal(processorCalls,2)
+    assert.equal((await listPaymentRefundCharges(db,options)).charges.length,0)
+    assert.equal((await db.query("SELECT count(*)::int n FROM billing_charge WHERE source_type='refund_offset'")).rows[0].n,2)
+    assert.equal((await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})).balanceCents,8500)
+  })
+
+  await t.test('charge refund creates its typed offset and reverses only its allocation exactly once', async () => {
+    await charge(1,12750)
+    await charge(2,12750)
+    await db.query("SELECT setval(pg_get_serial_sequence('billing_charge','id'), 2)")
+    await payment(1,25500)
+    await allocation(1,1,12750)
+    await allocation(1,2,12750)
+    const refund=await insert('billing_refund',{family_billing_account_id:1,payment_id:1,amount_cents:12750,
+      related_charge_id:2,stripe_refund_id:'re_offset_fixture',external_status:'reconciliation_required',ledger_treatment:'reverse_charge',
+      error_message:'[stripe-refund-ledger-finalization-pending:re_offset_fixture] Stripe returned the money;'})
+    const first=await finalizeRefundLedgerTreatment(db,refund,{actorType:'reconciliation',stripeClient:null})
+    assert.equal(first.external_status,'succeeded')
+    await finalizeRefundLedgerTreatment(db,refund.id,{actorType:'reconciliation',stripeClient:null})
+    const offsets=(await db.query("SELECT amount_cents,related_charge_id FROM billing_charge WHERE source_type='refund_offset'")).rows
+    assert.deepEqual(offsets.map(r=>[r.amount_cents,Number(r.related_charge_id)]),[[-12750,2]])
+    const reversals=(await db.query("SELECT amount_cents,billing_charge_id FROM billing_payment_application WHERE application_kind='reversal'")).rows
+    assert.deepEqual(reversals.map(r=>[r.amount_cents,Number(r.billing_charge_id)]),[[12750,2]])
+    const snapshot=await loadCanonicalFinancialSnapshot(db,{accountId:1,recurringBillingMonth:'2026-11'})
+    assert.equal(snapshot.balanceCents,0)
   })
 
   await t.test('completed overpayment refund finalizes with a valid audit actor and replays without duplicate reversals', async () => {

@@ -1403,10 +1403,6 @@ export default function AdminCustomerBilling({
     () => (overview?.bundleUsage ?? []).filter((row) => selectedMemberId == null || row.memberId === selectedMemberId),
     [overview, selectedMemberId],
   )
-  const refundableCharges = useMemo(
-    () => transactions.filter((row) => row.entryKind === 'charge' && row.amountCents > 0),
-    [transactions],
-  )
 
   const openRefund = (row: BillingTransaction) => {
     if (row.entryKind === 'payment') {
@@ -1773,7 +1769,7 @@ export default function AdminCustomerBilling({
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}
       {swapEnrollment && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={swapEnrollment.memberId} swapEnrollment={swapEnrollment} onClose={() => setSwapEnrollment(null)} onCreated={(message) => { setSwapEnrollment(null); void refresh(message) }} /> : null}
       {memberSwapEnrollment && overview ? <EnrollmentMemberReassignmentModal enrollment={memberSwapEnrollment} members={overview.members} onClose={() => setMemberSwapEnrollment(null)} onSaved={(message) => { setMemberSwapEnrollment(null); void refresh(message) }} /> : null}
-      {refundTarget && overview ? <RefundModal familyId={overview.account.familyId} payment={refundTarget.payment} credit={refundTarget.credit} charges={refundableCharges} onClose={() => setRefundTarget(null)} onSaved={handleSaved} /> : null}
+      {refundTarget && overview ? <RefundModal familyId={overview.account.familyId} payment={refundTarget.payment} credit={refundTarget.credit} onClose={() => setRefundTarget(null)} onSaved={handleSaved} /> : null}
 
       {saving ? <div className="fixed bottom-5 right-5 z-[210] inline-flex items-center gap-2 rounded-full bg-gray-950 px-4 py-2 text-sm font-semibold text-white shadow-xl"><Loader2 className="h-4 w-4 animate-spin" /> Updating billing account…</div> : null}
     </div>

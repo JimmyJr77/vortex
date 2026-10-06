@@ -1,3 +1,4 @@
+import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from './customerBillingRefundSelection.js'
 import { reassessBillingAllocations } from './reassessBillingAllocations.js'
 import { recallCustomerBillingMembershipBill } from './customerBillingMembershipRecall.js'
 import { transferCustomerBillingMembership } from './customerBillingMembershipTransfer.js'
@@ -973,6 +974,21 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
     },
   )
 
+  app.get(
+    '/api/admin/customer-billing/families/:familyId/payments/:paymentId/refund-charges',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const data = await listPaymentRefundCharges(pool, { account, paymentId: Number(req.params.paymentId) })
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Refund charges could not be loaded.' })
+      }
+    },
+  )
+
   app.post(
     '/api/admin/customer-billing/families/:familyId/refunds/preview',
     ...requirePermission(pool, jwtSecret, 'billing.manage'),
@@ -980,12 +996,14 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       try {
         const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        const data = await previewCustomerBillingRefund(pool, {
+        const previewRefund = req.body?.relatedChargeIds != null ? previewSelectedChargeRefund : previewCustomerBillingRefund
+        const data = await previewRefund(pool, {
           account,
           paymentId: req.body?.paymentId,
           amountCents: req.body?.amountCents,
           ledgerTreatment: req.body?.ledgerTreatment,
           relatedChargeId: req.body?.relatedChargeId,
+          relatedChargeIds: req.body?.relatedChargeIds,
         })
         res.json({ success: true, data })
       } catch (error) {
@@ -1002,22 +1020,25 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         const requestKey = requiredIdempotencyKey(req, 'refund')
         const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
         if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
-        const data = await createCustomerBillingRefund(pool, {
+        const createRefund = req.body?.relatedChargeIds != null ? createSelectedChargeRefund : createCustomerBillingRefund
+        const data = await createRefund(pool, {
           account,
           actorUserId: actorId(req),
           paymentId: req.body?.paymentId,
           amountCents: req.body?.amountCents,
           ledgerTreatment: req.body?.ledgerTreatment,
           relatedChargeId: req.body?.relatedChargeId,
+          relatedChargeIds: req.body?.relatedChargeIds,
           exceptionCategory: req.body?.exceptionCategory,
           evidenceNote: req.body?.evidenceNote,
           reason: req.body?.reason,
           idempotencyKey: requestKey,
         })
-        if (!data.replayed && data.refund?.external_status === 'succeeded') {
+        const newRefunds = data.newRefunds ?? (!data.replayed && data.refund ? [data.refund] : [])
+        for (const refund of newRefunds.filter(row => row.external_status === 'succeeded')) {
           notifyRefundReceipt(pool, {
             account,
-            refund: data.refund,
+            refund,
             billingUrl: `${publicAppUrl()}/?billing=portal-return`,
           }).catch(() => {})
         }

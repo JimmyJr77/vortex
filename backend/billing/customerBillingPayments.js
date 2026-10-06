@@ -2171,9 +2171,9 @@ export async function finalizeRefundLedgerTreatment(pool, refundOrId, {
            )
            SELECT
              $1, original.member_id, 'refund_offset', $2,
-             'Credit offset for refund #' || $3, -$4, -$4, 0,
+             'Credit offset for refund #' || $3::bigint, -($4::integer), -($4::integer), 0,
              'credit', 'one_time', original.id, 'none', $5,
-             jsonb_build_object('refundId', $3, 'ledgerTreatment', 'reverse_charge')
+             jsonb_build_object('refundId', $3::bigint, 'ledgerTreatment', 'reverse_charge')
            FROM billing_charge original
            WHERE original.id = $6 AND original.family_billing_account_id = $1
            ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
@@ -2410,13 +2410,14 @@ export async function createCustomerBillingRefund(pool, {
   evidenceNote,
   reason,
   idempotencyKey = null,
+  collectionLockHeld = false,
 }) {
   if (!stripeEnabled()) throw new Error('Stripe is not enabled; card refunds cannot be submitted.')
   const refundReason = String(reason ?? '').trim()
   if (!refundReason) throw new Error('A refund reason is required.')
   const requestKey = String(idempotencyKey ?? '').trim() || null
   if (!requestKey) throw new Error('A stable refund idempotency key is required.')
-  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+  const createUnderLock = async (db) => {
     if (requestKey) {
       const existing = await db.query(
         `SELECT * FROM billing_refund WHERE request_key = $1`,
@@ -2494,7 +2495,8 @@ export async function createCustomerBillingRefund(pool, {
       })
     }
     return { refund: finalized, preview, replayed: Boolean(refund.idempotency_replayed) }
-  })
+  }
+  return collectionLockHeld ? createUnderLock(pool) : withBillingAccountCollectionLock(pool, account.id, createUnderLock)
 }
 
 export async function createCustomerBillingPaymentMethodLink(pool, {

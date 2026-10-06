@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, ExternalLink, Loader2, X } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import { currentMonthInput, money, monthLabel } from './format'
@@ -864,6 +864,13 @@ export function ModifyChargeModal({
   )
 }
 
+interface RefundCharge {
+  id: number
+  description: string
+  servicePeriodStart: string | null
+  refundableAmountCents: number
+}
+
 interface RefundPreview {
   remainingRefundableCents: number
   amountCents: number
@@ -877,14 +884,12 @@ export function RefundModal({
   familyId,
   payment,
   credit,
-  charges,
   onClose,
   onSaved,
 }: {
   familyId: number
   payment: Pick<BillingTransaction, 'refId' | 'amountCents'>
   credit?: BillingTransaction
-  charges: BillingTransaction[]
   onClose: () => void
   onSaved: (message: string) => void
 }) {
@@ -896,7 +901,7 @@ export function RefundModal({
   const creditReason = String(creditMetadata.reason ?? credit?.description ?? 'Return applied account credit')
   const [amount, setAmount] = useState(((isAppliedCredit ? creditAmountCents : Math.abs(payment.amountCents)) / 100).toFixed(2))
   const [ledgerTreatment, setLedgerTreatment] = useState<'reverse_charge' | 'return_overpayment' | 'return_credit'>(isAppliedCredit ? 'return_credit' : 'reverse_charge')
-  const [relatedChargeId, setRelatedChargeId] = useState(credit ? String(credit.refId) : '')
+  const [relatedChargeId] = useState(credit ? String(credit.refId) : '')
   const [exceptionCategory, setExceptionCategory] = useState(isAppliedCredit ? (/duplicate|double/i.test(creditReason) ? 'duplicate_charge' : 'vortex_cancellation') : '')
   const [evidenceNote, setEvidenceNote] = useState(isAppliedCredit ? `Applied account credit #${credit?.refId} approved for return to the original card.` : '')
   const [reason, setReason] = useState(isAppliedCredit ? creditReason : '')
@@ -904,12 +909,40 @@ export function RefundModal({
   const [working, setWorking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [requestKey] = useState(() => newRequestKey('refund'))
+  const [refundCharges, setRefundCharges] = useState<RefundCharge[]>([])
+  const [selectedChargeIds, setSelectedChargeIds] = useState<number[]>([])
+  const [loadingCharges, setLoadingCharges] = useState(!isAppliedCredit)
+  const [submitted, setSubmitted] = useState(false)
+  const selectedAmountCents = refundCharges.filter(charge => selectedChargeIds.includes(charge.id))
+    .reduce((sum, charge) => sum + charge.refundableAmountCents, 0)
+  const refundAmountCents = ledgerTreatment === 'reverse_charge' ? selectedAmountCents : Math.round(Number(amount) * 100)
+
+  useEffect(() => {
+    if (isAppliedCredit) return
+    let canceled = false
+    const load = async () => {
+      setLoadingCharges(true)
+      try {
+        const response = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/payments/${payment.refId}/refund-charges`)
+        const body = await responseBody(response)
+        if (!response.ok) throw new Error(body.message || 'Refundable charges could not be loaded.')
+        if (!canceled) setRefundCharges(body.data.charges)
+      } catch (caught) {
+        if (!canceled) setError(caught instanceof Error ? caught.message : 'Refundable charges could not be loaded.')
+      } finally {
+        if (!canceled) setLoadingCharges(false)
+      }
+    }
+    void load()
+    return () => { canceled = true }
+  }, [familyId, payment.refId, isAppliedCredit])
 
   const payload = () => ({
     paymentId: payment.refId,
-    amountCents: Math.round(Number(amount) * 100),
+    amountCents: refundAmountCents,
     ledgerTreatment,
-    relatedChargeId: ['reverse_charge', 'return_credit'].includes(ledgerTreatment) && relatedChargeId ? Number(relatedChargeId) : null,
+    relatedChargeId: ledgerTreatment === 'return_credit' && relatedChargeId ? Number(relatedChargeId) : null,
+    relatedChargeIds: ledgerTreatment === 'reverse_charge' ? selectedChargeIds : undefined,
     exceptionCategory,
     evidenceNote: evidenceNote.trim(),
     reason: reason.trim(),
@@ -933,13 +966,16 @@ export function RefundModal({
 
   const submit = async () => {
     if (!preview) return
+    setSubmitted(true)
     setWorking(true)
     setError(null)
     try {
       const response = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/refunds`, { method: 'POST', headers: { 'Idempotency-Key': requestKey }, body: JSON.stringify(payload()) })
       const body = await responseBody(response)
       if (!response.ok) throw new Error(body.message || 'Refund failed.')
-      onSaved(`Refund #${body.data?.refund?.id ?? ''} submitted successfully.`)
+      const refunds = body.data?.refunds ?? [body.data?.refund]
+      const completed = refunds.every((refund: { external_status?: string } | undefined) => refund?.external_status === 'succeeded')
+      onSaved(`${money(preview.amountCents)} refund ${completed ? 'completed' : 'submitted; processing is pending'}.`)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Refund failed.')
     } finally {
@@ -950,7 +986,8 @@ export function RefundModal({
   return (
     <ModalShell title={isAppliedCredit ? 'Refund applied credit' : 'Refund card payment'} subtitle={isAppliedCredit ? `Credit #${credit?.refId} · ${credit?.description}` : `Payment #${payment.refId} · ${money(Math.abs(payment.amountCents))}`} onClose={onClose}>
       <div className="space-y-4">
-        <label className="block text-sm font-medium text-gray-700">Refund amount<div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0.01" max={isAppliedCredit ? (creditAmountCents / 100).toFixed(2) : undefined} step="0.01" value={amount} onChange={(event) => { setAmount(event.target.value); invalidate() }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div></label>
+        <fieldset disabled={working || submitted} className="space-y-4 disabled:opacity-70">
+        <label className="block text-sm font-medium text-gray-700">Refund amount<div className="mt-1 flex rounded-lg border border-gray-300"><span className="px-3 py-2 text-gray-500">$</span><input type="number" min="0.01" max={isAppliedCredit ? (creditAmountCents / 100).toFixed(2) : undefined} step="0.01" value={ledgerTreatment === 'reverse_charge' ? (selectedAmountCents / 100).toFixed(2) : amount} readOnly={ledgerTreatment === 'reverse_charge'} onChange={(event) => { setAmount(event.target.value); invalidate() }} className="min-w-0 flex-1 rounded-r-lg px-3 py-2 outline-none" /></div></label>
         {isAppliedCredit ? (
           <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3"><strong className="block text-sm text-emerald-900">Return this applied credit</strong><span className="text-xs text-emerald-800">The existing credit offsets its linked bill while this amount is returned to the original card. No second credit is created.</span></div>
         ) : <fieldset>
@@ -961,11 +998,24 @@ export function RefundModal({
           </div>
         </fieldset>}
         {ledgerTreatment === 'reverse_charge' ? (
-          <label className="block text-sm font-medium text-gray-700">Related charge<select value={relatedChargeId} onChange={(event) => { setRelatedChargeId(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"><option value="">Select a charge</option>{charges.map((charge) => <option key={`${charge.entryKind}-${charge.refId}`} value={charge.refId}>#{charge.refId} · {charge.description} · {money(charge.amountCents)}</option>)}</select></label>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium text-gray-700">Charges paid by this payment</legend>
+            <p className="text-xs text-gray-500">Select charges to refund and waive. Their selected amounts will no longer be due. Future monthly enrollments remain active.</p>
+            {loadingCharges ? <p role="status" className="text-sm text-gray-500">Loading payment allocations…</p> : refundCharges.length === 0 ? <p className="text-sm text-gray-500">No charge allocations remain available to refund from this payment.</p> : <>
+              <button type="button" className="text-sm font-semibold underline" onClick={() => { setSelectedChargeIds(selectedChargeIds.length === refundCharges.length ? [] : refundCharges.map(charge => charge.id)); invalidate() }}>{selectedChargeIds.length === refundCharges.length ? 'Clear selection' : 'Select all'}</button>
+              {refundCharges.map(charge => <label key={charge.id} className="flex items-start gap-3 rounded-lg border border-gray-200 p-3">
+                <input type="checkbox" checked={selectedChargeIds.includes(charge.id)} onChange={event => { setSelectedChargeIds(ids => event.target.checked ? [...ids, charge.id] : ids.filter(id => id !== charge.id)); invalidate() }} className="mt-1" />
+                <span className="flex-1 text-sm"><strong className="block">{charge.description}</strong><span className="text-xs text-gray-500">#{charge.id}{charge.servicePeriodStart ? ` · ${monthLabel(charge.servicePeriodStart.slice(0, 7))}` : ''}</span></span>
+                <strong className="text-sm">{money(charge.refundableAmountCents)}</strong>
+              </label>)}
+            </>}
+          </fieldset>
         ) : null}
         <label className="block text-sm font-medium text-gray-700">Approved exception<select value={exceptionCategory} onChange={(event) => { setExceptionCategory(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"><option value="">Select exception</option><option value="duplicate_charge">Duplicate charge</option><option value="vortex_cancellation">Vortex cancellation</option><option value="medical">Documented medical issue</option><option value="relocation">Relocation</option><option value="owner_discretion">Owner discretion</option></select></label>
         <label className="block text-sm font-medium text-gray-700">Reason<input value={reason} onChange={(event) => { setReason(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label>
         <label className="block text-sm font-medium text-gray-700">Evidence or approval note<textarea rows={3} value={evidenceNote} onChange={(event) => { setEvidenceNote(event.target.value); invalidate() }} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label>
+        </fieldset>
+        {submitted ? <p className="text-sm text-gray-600">This submission is locked for safe retry. If interrupted, retry this same refund to finish any remaining charges.</p> : null}
         {preview ? (
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
             <div className="grid grid-cols-2 gap-3"><div><span className="block text-xs uppercase text-blue-700">Remaining refundable</span><strong>{money(preview.remainingRefundableCents)}</strong></div><div><span className="block text-xs uppercase text-blue-700">Balance after refund</span><strong>{money(preview.resultingBalanceCents)}</strong></div></div>
@@ -974,8 +1024,8 @@ export function RefundModal({
         ) : null}
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
         <div className="grid grid-cols-2 gap-3">
-          <button type="button" onClick={() => void requestPreview()} disabled={working || !exceptionCategory || !evidenceNote.trim()} className="rounded-lg border border-gray-300 px-4 py-2.5 font-semibold disabled:opacity-50">Preview</button>
-          <button type="button" onClick={() => void submit()} disabled={working || !preview} className="inline-flex items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-2.5 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Refund original card</button>
+          <button type="button" onClick={() => void requestPreview()} disabled={working || submitted || loadingCharges || !exceptionCategory || !evidenceNote.trim() || !reason.trim() || refundAmountCents <= 0} className="rounded-lg border border-gray-300 px-4 py-2.5 font-semibold disabled:opacity-50">Preview</button>
+          <button type="button" onClick={() => void submit()} disabled={working || !preview} className="inline-flex items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-2.5 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {submitted ? 'Retry refund' : `Refund ${money(refundAmountCents)} to original card`}</button>
         </div>
       </div>
     </ModalShell>
