@@ -1458,6 +1458,7 @@ export default function AdminCustomerBilling({
 
   const modifyCourseCharge = (row: BillingTransaction) => {
     if (!overview) return
+    setError(null)
     if (['additional_fee', 'manual'].includes(String(row.details.sourceType))) {
       setChargeToModify(row)
       return
@@ -1468,7 +1469,7 @@ export default function AdminCustomerBilling({
       ? null
       : overview.enrollments.find((item) => item.id === subscription.signupId)
     if (!enrollment) {
-      setError('This historical course is no longer an active enrollment. Its existing charge remains immutable; reopen the enrollment before changing its recurring price.')
+      setChargeToModify(row)
       return
     }
     setPriceEnrollment(enrollment)
