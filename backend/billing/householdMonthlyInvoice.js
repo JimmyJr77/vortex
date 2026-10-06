@@ -478,10 +478,12 @@ async function loadHouseholdInvoicePaymentStructure(pool, {
   if (!invoice) return null
   const lines = await pool.query(
     `/* household-payment:invoice-lines */
-     SELECT id, billing_charge_id, line_type, amount_cents, stripe_invoice_item_id
-       FROM billing_monthly_invoice_line
-      WHERE billing_monthly_invoice_id = $1
-      ORDER BY id`,
+     SELECT line.id, line.billing_charge_id, line.line_type, line.amount_cents, line.stripe_invoice_item_id,
+            charge.service_period_start
+       FROM billing_monthly_invoice_line line
+       LEFT JOIN billing_charge charge ON charge.id = line.billing_charge_id
+      WHERE line.billing_monthly_invoice_id = $1
+      ORDER BY line.id`,
     [Number(invoice.id)],
   )
   return { invoice, lines: lines.rows }
@@ -609,6 +611,15 @@ async function inspectFreshPayableHouseholdInvoice(pool, stripe, {
   const remote = await stripe.invoices.retrieve(String(stripeInvoiceId))
   const lines = await listRemoteInvoiceLines(stripe, String(stripeInvoiceId))
   const issues = []
+  // Existing invoices also need this check: an older worker may already have
+  // attached next month's pre-posted tuition to the current month's invoice.
+  // Paid invoices remain reconcilable as historical payment facts.
+  if (expectedRemoteStatus === 'open' && local.lines.some((line) => (
+    line.line_type === 'charge'
+    && dateOnly(line.service_period_start)?.slice(0, 7) > dateOnly(billingMonth)?.slice(0, 7)
+  ))) {
+    issues.push({ code: 'household_invoice_future_service_charge' })
+  }
   const remoteCustomerId = stripeObjectId(remote?.customer)
   const verifiedStripeCustomerId = stripeCustomerId
     || (allowRemoteCustomerAsHistoricalIdentity ? remoteCustomerId : null)
@@ -1157,7 +1168,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
       return { invoice: existing.rows[0], created: false, lines: lines.rows }
     }
     const charges = await client.query(
-      `SELECT charge.id, charge.member_id, charge.description,
+      `SELECT charge.id, charge.member_id, charge.description, charge.service_period_start,
               GREATEST(
                 0,
                 charge.amount_cents
@@ -1232,7 +1243,14 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
         ORDER BY charge.service_period_start NULLS FIRST, charge.created_at, charge.id`,
       [accountId],
     )
-    if (charges.rows.length === 0) {
+    // The fifth changes ledger visibility, not the payment due month. Keep
+    // all eligible rows for the full-ledger parity check, but invoice only
+    // service through this billing month (including older unpaid service).
+    const dueCharges = charges.rows.filter((charge) => (
+      !dateOnly(charge.service_period_start)
+      || dateOnly(charge.service_period_start).slice(0, 7) <= dateOnly(billingMonth).slice(0, 7)
+    ))
+    if (dueCharges.length === 0) {
       await client.query('COMMIT')
       return { invoice: null, created: false, lines: [] }
     }
@@ -1278,7 +1296,8 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
         FOR UPDATE OF charge`,
       [accountId],
     )
-    const subtotal = charges.rows.reduce((sum, row) => sum + positive(row.remaining_cents), 0)
+    const subtotal = dueCharges.reduce((sum, row) => sum + positive(row.remaining_cents), 0)
+    const fullLedgerSubtotal = charges.rows.reduce((sum, row) => sum + positive(row.remaining_cents), 0)
     const availableCreditCents = credits.rows.reduce(
       (sum, row) => sum + Math.abs(Number(row.available_cents) || 0),
       0,
@@ -1286,9 +1305,10 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
     const creditCents = Math.min(subtotal, availableCreditCents)
     const total = subtotal - creditCents
     const canonicalCollectibleCents = await loadCanonicalCollectibleBalanceCents(client, accountId)
-    if (canonicalCollectibleCents !== total) {
+    const fullLedgerTotal = Math.max(0, fullLedgerSubtotal - availableCreditCents)
+    if (canonicalCollectibleCents !== fullLedgerTotal) {
       throw new Error(
-        `Household invoice net ${total} does not match canonical unreserved collectible balance ${canonicalCollectibleCents}.`,
+        `Household invoice net ${fullLedgerTotal} does not match canonical unreserved collectible balance ${canonicalCollectibleCents}.`,
       )
     }
     if (total <= 0) {
@@ -1303,7 +1323,7 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
     )
     const invoice = inserted.rows[0]
     const lines = []
-    for (const charge of charges.rows) {
+    for (const charge of dueCharges) {
       const line = await client.query(
         `INSERT INTO billing_monthly_invoice_line (
            billing_monthly_invoice_id, billing_charge_id, member_id, line_type, description, amount_cents

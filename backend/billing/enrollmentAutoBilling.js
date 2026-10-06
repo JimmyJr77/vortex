@@ -63,6 +63,10 @@ export async function completeEnrollmentAutoBilling(pool, {
           SELECT id FROM member WHERE family_id=$3 AND is_active=TRUE
             AND ($2::text[] IS NULL OR id IN (SELECT member_id FROM scheduling_signup WHERE id::text=ANY($2::text[]))))))
       AND charge.amount_cents>0
+      -- A transfer replaces an existing bill; it is not a new enrollment
+      -- authorization. Its settlement belongs to the class-transfer flow.
+      AND NOT (COALESCE(charge.metadata, '{}'::jsonb) ? 'classMoveFromSignupId')
+      AND COALESCE(charge.metadata->'classTransfer'->>'direction', '') <> 'in'
       AND charge.stripe_checkout_session_id IS NULL
       AND charge.collection_status NOT IN ('paid','failed','processing')
       AND NOT EXISTS (SELECT 1 FROM billing_monthly_invoice_line line

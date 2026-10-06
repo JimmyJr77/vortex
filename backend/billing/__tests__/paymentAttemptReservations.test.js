@@ -72,6 +72,9 @@ function reservationPool({
       if (text.includes('WITH completed_owner AS')) {
         return { rows: completedCheckoutGap ? [completedCheckoutGap] : [] }
       }
+      if (text.includes('SELECT id FROM billing_monthly_invoice')) {
+        return { rows: params[1].includes(monthlyInvoiceStatus) ? [{ id: 56 }] : [] }
+      }
       if (text.includes('WITH application_totals AS') && text.includes('FOR UPDATE OF charge')) {
         state.candidateSql = text
         state.invoiceReservationStatuses = params[2] ?? []
@@ -240,9 +243,9 @@ test('a reversed charge from paid invoice history is reservable but live invoice
           amountCents: 5000,
           expiresAt: new Date(Date.now() + 60_000),
         }),
-        /exceeds the unreserved account balance/i,
+        /unresolved monthly invoice/i,
       )
-      assert.equal(liveOwner.state.invoiceReservationStatuses.includes(status), true)
+      assert.equal(liveOwner.state.attempts.length, 0)
     })
   }
 })

@@ -104,6 +104,12 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await charge(2,8500,{source_type:'additional_fee',source_id:'1:1:2027-10-01'})
     await charge(3,5000,{source_type:'scheduling_signup',source_id:'2',stripe_checkout_session_id:'cs_existing'})
     await charge(4,15000,{source_type:'billing_subscription',source_id:'1:2026-11',metadata:{provisionalBilling:true}})
+    // Equal-price moves are replacements, even when their original payment
+    // was misallocated and the replacement charge therefore looks unpaid.
+    await insert('scheduling_signup',{id:3,form_id:1,member_id:1,status:'confirmed'})
+    await insert('scheduling_signup',{id:4,form_id:1,member_id:1,status:'confirmed'})
+    await charge(5,12000,{source_type:'scheduling_signup',source_id:'3',metadata:{classMoveFromSignupId:109}})
+    await charge(6,12000,{source_type:'scheduling_signup',source_id:'4',metadata:{classTransfer:{direction:'in'}}})
     let creates=0
     const method={id:'pm_fixture',type:'card',customer:'cus_fixture',card:{exp_month:12,exp_year:2035,last4:'4242',brand:'visa'}}
     const stripe={customers:{retrieve:async()=>({id:'cus_fixture',invoice_settings:{default_payment_method:method}})},
@@ -112,13 +118,72 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
           amount_received:params.amount,currency:'usd',customer:'cus_fixture',payment_method:method,
           latest_charge:{id:`ch_fixture_${creates}`,created:1790856000,paid:true,status:'succeeded'},metadata:params.metadata}
       }}}
-    const options={accountId:1,signupIds:[1],stripe,environment:{BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED:'true'}}
+    const options={accountId:1,signupIds:null,stripe,environment:{BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED:'true'}}
     assert.equal((await completeEnrollmentAutoBilling(db,options)).paymentCount,2)
     assert.equal((await completeEnrollmentAutoBilling(db,options)).paymentCount,0)
     assert.equal(creates,2)
     assert.equal((await db.query('SELECT SUM(amount_cents)::int n FROM billing_payment')).rows[0].n,18500)
     assert.deepEqual((await db.query('SELECT DISTINCT billing_charge_id::int id FROM billing_payment_application ORDER BY id')).rows.map(r=>r.id),[1,2])
   })
+
+  await t.test('October catch-up invoices leave pre-posted November tuition for November', async () => {
+    await charge(1,10000,{charge_type:'recurring',service_period_start:'2026-09-01'})
+    await charge(2,20000,{charge_type:'recurring',service_period_start:'2026-10-01'})
+    await charge(3,30000,{charge_type:'recurring',service_period_start:'2026-11-01',metadata:{provisionalBilling:true}})
+    await charge(4,-5000,{charge_type:'credit'})
+    const october=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-10-01'})
+    assert.equal(october.invoice.total_cents,25000)
+    assert.deepEqual(october.lines.map(line=>Number(line.billing_charge_id)),[1,2,4])
+    const replay=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-10-01'})
+    assert.equal(Number(replay.invoice.id),Number(october.invoice.id))
+    await payment(1,25000)
+    await allocation(1,1,5000)
+    await allocation(1,2,20000)
+    await insert('billing_charge_credit_application',{
+      billing_monthly_invoice_id:october.invoice.id,idempotency_key:'october-credit',
+      credit_invoice_line_id:october.lines[2].id,target_invoice_line_id:october.lines[0].id,amount_cents:5000,
+    })
+    await db.query("UPDATE billing_monthly_invoice SET status='paid' WHERE id=$1",[october.invoice.id])
+    const november=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})
+    assert.equal(november.invoice.total_cents,30000)
+    assert.deepEqual(november.lines.map(line=>Number(line.billing_charge_id)),[3])
+  })
+
+  await t.test('paid October enrollment cannot cause November tuition to be collected by October catch-up', async () => {
+    await charge(1,25500,{charge_type:'recurring',service_period_start:'2026-10-01'})
+    await payment(1,25500)
+    await allocation(1,1,25500)
+    await charge(2,25500,{charge_type:'recurring',service_period_start:'2026-11-01',metadata:{provisionalBilling:true}})
+    const october=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-10-01'})
+    assert.equal(october.invoice,null)
+    assert.equal((await db.query('SELECT count(*)::int n FROM billing_monthly_invoice')).rows[0].n,0)
+    const november=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})
+    assert.equal(november.invoice.total_cents,25500)
+    assert.deepEqual(november.lines.map(line=>Number(line.billing_charge_id)),[2])
+  })
+
+  for (const status of ['draft', 'open', 'failed', 'payment_method_required']) {
+    await t.test(`balance payment cannot substitute November tuition for an unresolved ${status} October invoice`, async () => {
+      await charge(1,40000,{charge_type:'recurring',service_period_start:'2026-10-01'})
+      await charge(2,40000,{charge_type:'recurring',service_period_start:'2026-11-01',metadata:{provisionalBilling:true}})
+      const invoice=await insert('billing_monthly_invoice',{family_billing_account_id:1,billing_month:'2026-10-01',status,total_cents:40000})
+      await insert('billing_monthly_invoice_line',{billing_monthly_invoice_id:invoice.id,billing_charge_id:1,line_type:'charge',description:'October tuition',amount_cents:40000})
+      for (const attemptType of ['member_balance_checkout','admin_balance_checkout','admin_balance_saved_card']) {
+        await assert.rejects(reserveBillingPaymentAttempt(db,{
+          accountId:1,attemptType,amountCents:40000,requestKey:`october-${attemptType}`,
+        }), {code:'BILLING_MONTHLY_INVOICE_REQUIRES_RESOLUTION'})
+      }
+      assert.equal((await db.query('SELECT count(*)::int n FROM billing_payment_attempt')).rows[0].n,0)
+      assert.equal((await db.query('SELECT count(*)::int n FROM billing_payment_attempt_charge')).rows[0].n,0)
+      // Once the invoice is settled, an explicit balance payment is allowed.
+      await payment(1,40000)
+      await allocation(1,1,40000)
+      await db.query("UPDATE billing_monthly_invoice SET status='paid' WHERE id=$1",[invoice.id])
+      const reservation=await reserveBillingPaymentAttempt(db,{accountId:1,attemptType:'member_balance_checkout',amountCents:40000,requestKey:'after-invoice-paid'})
+      const rows=(await db.query('SELECT billing_charge_id FROM billing_payment_attempt_charge WHERE billing_payment_attempt_id=$1',[reservation.id])).rows
+      assert.deepEqual(rows.map(row=>Number(row.billing_charge_id)),[2])
+    })
+  }
 
   await t.test('fully refunded waived Checkout requires full refund, zero applications and no remaining bill', async () => {
     await charge(1,11500,{stripe_checkout_session_id:'cs_refunded'})

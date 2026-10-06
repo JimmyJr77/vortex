@@ -1773,6 +1773,20 @@ test('a customer-owned Link PaymentMethod is used for an off-session household i
   assert.equal(stripe.payRequests[0].params.payment_method, 'pm_link')
 })
 
+test('the final payment boundary blocks previously built invoices containing next-month tuition', async () => {
+  const pool = resumePool()
+  pool.lines[0].service_period_start = '2026-10-01'
+  const stripe = stripeFixture({ remoteStatus: 'draft' })
+  await assert.rejects(createHouseholdMonthlyInvoice(pool, {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York', household_monthly_billing_enabled: true },
+    billingMonth: '2026-09-01',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  }), (error) => error.details?.issues?.some((issue) => issue.code === 'household_invoice_future_service_charge'))
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
 test('the final payment boundary blocks amount or currency drift before Stripe collection', async () => {
   const pool = resumePool()
   const stripe = stripeFixture({ remoteStatus: 'draft' })

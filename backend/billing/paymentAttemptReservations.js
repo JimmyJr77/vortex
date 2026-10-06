@@ -356,6 +356,23 @@ export async function reserveBillingPaymentAttempt(pool, {
         )
       }
 
+      // A balance payment must not silently skip the monthly invoice and pay
+      // next month's provisional charges instead. The invoice remains the
+      // collection owner until it has been paid or explicitly retired.
+      if (target == null) {
+        const invoice = (await db.query(
+          `SELECT id FROM billing_monthly_invoice
+            WHERE family_billing_account_id = $1 AND status = ANY($2::text[])
+            ORDER BY billing_month, id LIMIT 1`,
+          [normalizedAccountId, HOUSEHOLD_INVOICE_RESERVING_STATUSES],
+        )).rows[0]
+        if (invoice) {
+          const error = new Error('This account has an unresolved monthly invoice. Pay or reconcile that invoice before starting a separate balance payment.')
+          error.code = 'BILLING_MONTHLY_INVOICE_REQUIRES_RESOLUTION'
+          throw error
+        }
+      }
+
       const allCandidates = await loadReservationCandidates(db, {
         accountId: normalizedAccountId,
         targetChargeId: target,

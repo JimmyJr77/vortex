@@ -28,3 +28,10 @@ test('automatic exact collection rejects provisional, retired, negative and unkn
     assert.throws(()=>assertAutomaticLedgerCharge({...charge,...changes}),/positive, non-provisional/)
   }
 })
+
+test('class moves cannot authorize a second enrollment autopay, including legacy transfer markers', () => {
+  const charge = { amount_cents: 12000, source_type: 'scheduling_signup', source_id: '166' }
+  for (const metadata of [{ classMoveFromSignupId: 109 }, { classTransfer: { direction: 'in' } }]) {
+    assert.throws(() => assertAutomaticLedgerCharge({ ...charge, metadata }), /transfer settlement/)
+  }
+})

@@ -1646,6 +1646,9 @@ export async function collectLedgerChargeWithSavedCard(pool, options) {
 }
 
 export function assertAutomaticLedgerCharge(charge) {
+  if (charge?.metadata?.classMoveFromSignupId != null || charge?.metadata?.classTransfer?.direction === 'in') {
+    throw new Error('Class-transfer replacement bills require transfer settlement and cannot be collected as new enrollments.')
+  }
   if (!charge || !['scheduling_signup', 'billing_subscription', 'additional_fee'].includes(charge.source_type)
     || !Number.isSafeInteger(Number(charge.amount_cents)) || Number(charge.amount_cents) <= 0
     || !String(charge.source_id ?? '').trim()
