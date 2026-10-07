@@ -4,6 +4,7 @@ import {
   activateEligibleHouseholdMonthlyBilling,
   activateHouseholdMonthlyBillingForAccount,
   billingMonthStart,
+  automaticAttemptAllowed,
   buildHouseholdInvoiceApplicationPlan,
   createHouseholdMonthlyInvoice,
   createLocalHouseholdInvoice,
@@ -2965,4 +2966,212 @@ test('hard-declined invoice cannot dispatch a second charge to the same default 
   assert.equal(stripe.payRequests.length,1)
   assert.equal(pool.invoice.payment_attempted_at,attemptedAt)
   assert.equal(pool.invoice.status,'failed')
+})
+
+
+test('automatic collection is limited to the first and fourth in facility time', async () => {
+  for (const day of [2,3,5,6,31]) {
+    const result=await createHouseholdMonthlyInvoice({query(){assert.fail('No database writes outside collection days')}},{
+      account:{id:1,household_monthly_billing_enabled:true,facility_timezone:'America/New_York'},
+      billingMonth:'2026-10-01',now:new Date(`2026-10-${String(day).padStart(2,'0')}T16:00:00Z`),
+      automaticAttemptPolicy:'initial',
+    })
+    assert.equal(result.skipped,'outside_automatic_collection_window')
+  }
+  const invoice={billing_month:'2026-11-01',automatic_attempt_count:1,status:'failed'}
+  const options={policy:'retry_on_fourth',now:new Date('2026-11-04T07:15:00Z'),facilityTimeZone:'America/New_York'}
+  assert.equal(automaticAttemptAllowed(invoice,options),true)
+  assert.equal(automaticAttemptAllowed({...invoice,automatic_attempt_count:2},options),false)
+  assert.equal(automaticAttemptAllowed({...invoice,status:'paid'},options),false)
+  assert.equal(automaticAttemptAllowed({...invoice,billing_month:'2026-12-01'},options),false)
+  assert.equal(automaticAttemptAllowed(invoice,{...options,now:new Date('2026-11-05T07:15:00Z')}),false)
+  assert.equal(automaticAttemptAllowed({...invoice,automatic_attempt_count:0,status:'draft'},{...options,policy:'initial',now:new Date('2026-11-01T07:15:00Z')}),true)
+})
+
+test('fourth-day retry cancels its stale invoice and skips collection when a manual payment already paid the bill', async () => {
+  const priorInvoice = {
+    id: 41,
+    family_billing_account_id: 8,
+    billing_month: '2026-09-01',
+    automatic_attempt_count: 1,
+    payment_attempted_at: '2026-09-01T07:15:00Z',
+    stripe_payment_intent_id: 'pi_august',
+    status: 'failed',
+    subtotal_cents: 10000,
+    total_cents: 10000,
+    stripe_invoice_id: 'in_august',
+  }
+  const payment = { id: 71, amount_cents: 10000, paid_at: new Date('2026-08-31T18:00:00Z'), status: 'settled' }
+  const charge = {
+    id: 501,
+    member_id: 11,
+    description: 'August tuition',
+    amount_cents: 10000,
+    service_period_start: '2026-09-01',
+    created_at: new Date('2026-08-01T04:00:00Z'),
+    is_annual_membership: false,
+  }
+  const applications = []
+  const events = []
+  let sessionLocked = false
+  let sessionLockDepth = 0
+  let allocationPasses = 0
+  let replacementInvoiceInserted = false
+  let connectCalls = 0
+
+  const pool = {
+    async connect() {
+      connectCalls += 1
+      return {
+        query: (sql, params) => pool.query(sql, params),
+        release() {},
+      }
+    },
+    async query(sql, params = []) {
+      const text = String(sql)
+      if (text.includes('billing_month=$2::date ORDER BY id DESC')) return {rows:[{...priorInvoice}]}
+      if (text.includes('pg_advisory_lock(hashtextextended')) {
+        sessionLockDepth += 1
+        sessionLocked = sessionLockDepth > 0
+        events.push('account-lock')
+        return { rows: [] }
+      }
+      if (text.includes('pg_advisory_unlock(hashtextextended')) {
+        sessionLockDepth = Math.max(0, sessionLockDepth - 1)
+        sessionLocked = sessionLockDepth > 0
+        events.push('account-unlock')
+        return { rows: [] }
+      }
+      if (text.includes('SELECT id, amount_cents, paid_at') && text.includes('FROM billing_payment')) {
+        return { rows: [payment] }
+      }
+      if (text.includes('SELECT c.id,') && text.includes("invoice.status IN ('draft', 'open', 'failed', 'payment_method_required')")) {
+        allocationPasses += 1
+        const reserved = ['draft', 'open', 'failed', 'payment_method_required'].includes(priorInvoice.status)
+        events.push(`allocation-read:${reserved ? 'reserved' : 'available'}:${sessionLocked}`)
+        return { rows: reserved ? [] : [charge] }
+      }
+      if (text.includes('SELECT application.billing_payment_id') && text.includes('JOIN billing_payment payment')) {
+        return { rows: applications.map((item) => ({ ...item })) }
+      }
+      if (text.includes('SELECT payment_id, amount_cents') && text.includes('FROM billing_refund')) {
+        return { rows: [] }
+      }
+      if (text.includes('INSERT INTO billing_payment_application') && text.includes("'application'")) {
+        const row = {
+          id: 901,
+          billing_payment_id: Number(params[0]),
+          billing_charge_id: Number(params[1]),
+          amount_cents: Number(params[2]),
+          application_kind: 'application',
+        }
+        applications.push(row)
+        events.push(`payment-applied:${row.amount_cents}:${sessionLocked}`)
+        return { rows: [row] }
+      }
+      if (text.includes('billing_month < $2::date') && text.includes('FROM billing_monthly_invoice')) {
+        return { rows: priorInvoice.status === 'void' ? [] : [{ ...priorInvoice }] }
+      }
+      if (text.includes('UPDATE billing_monthly_invoice') && text.includes('RETURNING *')) {
+        const assignments = text.slice(text.indexOf('SET') + 3, text.indexOf('WHERE')).matchAll(/([a-z_]+)\s*=\s*\$(\d+)/g)
+        for (const [, key, position] of assignments) priorInvoice[key] = params[Number(position) - 1]
+        events.push(`invoice:${priorInvoice.status}:${sessionLocked}`)
+        return { rows: [{ ...priorInvoice }] }
+      }
+      if (
+        text.includes('SELECT * FROM billing_monthly_invoice')
+        && text.includes('family_billing_account_id = $1 AND billing_month = $2::date')
+      ) {
+        return { rows: [] }
+      }
+      if (text.includes('SELECT charge.id, charge.member_id, charge.description')) {
+        const applied = applications.reduce((sum, item) => sum + Number(item.amount_cents), 0)
+        const remaining = Math.max(0, charge.amount_cents - applied)
+        events.push(`replacement-read:${remaining}:${sessionLocked}`)
+        return { rows: remaining > 0 ? [{ ...charge, remaining_cents: remaining }] : [] }
+      }
+      if (text.includes('INSERT INTO billing_monthly_invoice (')) {
+        replacementInvoiceInserted = true
+        throw new Error('A fully paid charge must not be placed on a replacement Stripe invoice.')
+      }
+      return { rows: [], rowCount: 0 }
+    },
+  }
+  const stripe = {
+    customers: {retrieve:async()=>({id:'cus_8',invoice_settings:{default_payment_method:{id:'pm_8',customer:'cus_8',type:'link'}}})},
+    invoices: {
+      async retrieve(id) {
+        events.push(`stripe-retrieve:${id}:${sessionLocked}`)
+        return {
+          id,
+          status: 'open',
+          customer: 'cus_8',
+          metadata: {
+            monthlyInvoiceId: String(priorInvoice.id),
+            familyBillingAccountId: String(priorInvoice.family_billing_account_id),
+            billingMonth: '2026-09',
+          },
+        }
+      },
+      async voidInvoice(id) {
+        events.push(`stripe-void:${id}:${sessionLocked}`)
+        return { id, status: 'void' }
+      },
+    },
+    invoicePayments: {
+      async list() {
+        return {
+          data: [{
+            id: 'inpay_august',
+            invoice: 'in_august',
+            is_default: true,
+            status: 'open',
+            amount_requested: 10000,
+            amount_paid: null,
+            currency: 'usd',
+            payment: { type: 'payment_intent', payment_intent: 'pi_august' },
+          }],
+          has_more: false,
+        }
+      },
+    },
+    paymentIntents: {
+      async retrieve(id) {
+        return {
+          id,
+          status: 'requires_payment_method',
+          customer: 'cus_8',
+          currency: 'usd',
+          amount: 10000,
+          amount_received: 0,
+        }
+      },
+    },
+  }
+
+  const result = await createHouseholdMonthlyInvoice(pool, {
+    account: {
+      id: 8,
+      family_id: 6,
+      stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true,
+    },
+    billingMonth: '2026-09-01',
+    now:new Date('2026-09-04T07:15:00Z'),
+    automaticAttemptPolicy:'retry_on_fourth',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' },
+    stripeClient: stripe,
+  })
+
+  assert.equal(result.skipped, 'no_open_charges')
+  assert.equal(priorInvoice.status, 'void')
+  assert.equal(allocationPasses, 2)
+  assert.equal(applications.length, 1)
+  assert.equal(applications[0].amount_cents, 10000)
+  assert.equal(replacementInvoiceInserted, false)
+  assert.equal(connectCalls, 1)
+  assert.ok(events.indexOf('stripe-void:in_august:true') < events.indexOf('payment-applied:10000:true'))
+  assert.ok(events.indexOf('payment-applied:10000:true') < events.indexOf('replacement-read:0:true'))
+  assert.equal(sessionLocked, false)
 })

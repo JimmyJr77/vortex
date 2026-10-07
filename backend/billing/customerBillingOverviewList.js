@@ -1,6 +1,7 @@
 import { buildCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import {
   loadDefaultPaymentMethodSummary,
+  upcomingRecurringPricingMonth,
 } from './customerBillingQueries.js'
 import {
   addBillingMonths,
@@ -132,6 +133,11 @@ const overviewBaseBillPredicate = `
     ))`
 
 function monthBillPaid(invoiceRow, chargeCents, paymentCents) {
+  // Ledger applications include later refunds, waivers and payment transfers.
+  // An old invoice's paid flag cannot override those current accounting facts.
+  if (chargeCents != null) {
+    return { billedCents: cents(chargeCents), paidCents: cents(paymentCents), source: 'ledger' }
+  }
   if (invoiceRow) {
     const billedCents = cents(invoiceRow.total_cents)
     const paidCents = invoiceRow.status === 'paid'
@@ -245,6 +251,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   const facilityTimeZone = String(families.rows[0]?.facility_timezone || 'America/New_York')
   const months = overviewBillingMonths(asOf, facilityTimeZone)
   const pricingMonth = String(addBillingMonths(months[1], 1)).slice(0, 7)
+  const balanceRecurringMonth = upcomingRecurringPricingMonth(asOf, facilityTimeZone)
   const { year, start: yearStart } = yearToDateBounds(asOf, facilityTimeZone)
   const monthStart = `${months[0]}-01`
   const upcomingMonthStart = `${pricingMonth}-01`
@@ -458,7 +465,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
               AND to_char(COALESCE(charge.service_period_start, charge.created_at::date), 'YYYY-MM') = $2
             )
           )`,
-      [accountIds, pricingMonth],
+      [accountIds, balanceRecurringMonth],
     ),
     pool.query(
       `WITH application_totals AS (
@@ -543,7 +550,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
       charges: remainingCharges.get(accountId) ?? [],
       payments: unappliedPayments.get(accountId) ?? [],
       subscriptions,
-      recurringBillingMonth: pricingMonth,
+      recurringBillingMonth: balanceRecurringMonth,
     }))
   }
 

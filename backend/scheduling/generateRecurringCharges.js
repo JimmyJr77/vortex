@@ -113,6 +113,7 @@ async function loadMonthlyInvoiceState(db, { accountId, billingMonth }) {
        FROM billing_monthly_invoice
       WHERE family_billing_account_id = $1
         AND billing_month = $2::date
+      ORDER BY id DESC
       LIMIT 1`,
     [Number(accountId), billingMonth],
   ).then((result) => result.rows[0] ?? null).catch((error) => {
@@ -383,26 +384,26 @@ export async function processRecurringBillingAccount(db, account, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,
     })
-    // A first-of-month collection may catch up once if the worker was down and
-    // no current-month invoice exists. A confirmed failure is retried exactly
-    // once on the facility's fifth day. A bill that never reached Stripe may
-    // resume its first attempt after a default method is added. Unknown or
-    // already-attempted outcomes are not reopened by this readiness check.
-    const awaitingFirstPaymentMethod = existingInvoice?.status === 'payment_method_required'
+    // Only the first and fourth collect automatically. The fourth also recovers
+    // a missed first run or a newly saved method; the fifth only prepares bills.
+    // Unknown outcomes remain quarantined until reconciliation proves failure.
+    const awaitingFirstPaymentMethod = ['draft', 'open', 'payment_method_required'].includes(existingInvoice?.status)
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 0
       && !existingInvoice.payment_attempted_at
       && !existingInvoice.stripe_payment_intent_id
-    const shouldAttemptInitial = clock.isMonthBoundary || !existingInvoice || awaitingFirstPaymentMethod
-    const shouldAttemptRetry = clock.dayOfMonth === 5
-      && existingInvoice?.status === 'failed'
+    const collectionDay = clock.dayOfMonth === 1 || clock.dayOfMonth === 4
+    const shouldAttemptInitial = collectionDay && (!existingInvoice || awaitingFirstPaymentMethod)
+    const shouldAttemptRetry = clock.dayOfMonth === 4
+      && (['failed', 'void', 'open'].includes(existingInvoice?.status)
+        || (['draft', 'open'].includes(existingInvoice?.status) && !existingInvoice.payment_attempted_at && !existingInvoice.stripe_payment_intent_id))
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 1
-      && Boolean(existingInvoice.stripe_payment_intent_id)
+      && (Boolean(existingInvoice.stripe_payment_intent_id) || ['draft', 'open'].includes(existingInvoice.status))
     if (shouldAttemptInitial || shouldAttemptRetry) {
       const result = await invoiceFactory(db, {
         account: fresh,
         billingMonth: clock.billingMonth,
         facilityTimeZone: fresh.facility_timezone,
-        automaticAttemptPolicy: shouldAttemptRetry ? 'retry_on_fifth' : 'initial',
+        automaticAttemptPolicy: shouldAttemptRetry ? 'retry_on_fourth' : 'initial',
         now: asOfTimestamp,
       })
       if (['feature_disabled', 'not_enabled', 'stripe_unavailable'].includes(result?.skipped)) {

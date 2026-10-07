@@ -373,13 +373,13 @@ test('the fifth posts the following month without creating another current-month
   assert.equal(invoiceCalls, 0)
 })
 
-test('a missed first-day collection runs once when no current-month invoice exists', async () => {
+test('a missed first-day collection waits for the fourth', async () => {
   const fixture = recurringAccountFixture({ due: [] })
   const attempts = []
 
   await processRecurringBillingAccount(fixture.db, ACCOUNT, {
-    asOfTimestamp: new Date('2026-09-03T16:00:00.000Z'),
-    clock: recurringBillingClock('2026-09-03T16:00:00.000Z', ACCOUNT.facility_timezone),
+    asOfTimestamp: new Date('2026-09-04T16:00:00.000Z'),
+    clock: recurringBillingClock('2026-09-04T16:00:00.000Z', ACCOUNT.facility_timezone),
     ...safeProcessors({
       recurringChargeReconciler: async () => ({ verified: true, postedChargeIds: [] }),
       invoiceFactory: async (_db, options) => {
@@ -392,10 +392,11 @@ test('a missed first-day collection runs once when no current-month invoice exis
   assert.deepEqual(attempts, ['initial'])
 })
 
-test('a confirmed failed household payment is retried only on the fifth and only once', async () => {
+test('a confirmed failed household payment is retried only on the fourth and only once', async () => {
   const cases = [
-    { day: '2026-09-04', attempts: 1, expected: [] },
-    { day: '2026-09-05', attempts: 1, expected: ['retry_on_fifth'] },
+    { day: '2026-09-03', attempts: 1, expected: [] },
+    { day: '2026-09-04', attempts: 1, expected: ['retry_on_fourth'] },
+    { day: '2026-09-05', attempts: 1, expected: [] },
     { day: '2026-09-06', attempts: 2, expected: [] },
   ]
 
@@ -497,8 +498,8 @@ test('verified household accounts re-verify the current month before every invoi
   const fixture = recurringAccountFixture({ due: [] })
   const events = []
   const result = await processRecurringBillingAccount(fixture.db, ACCOUNT, {
-    asOfTimestamp: new Date('2026-09-02T05:00:00.000Z'),
-    clock: recurringBillingClock('2026-09-02T05:00:00.000Z', ACCOUNT.facility_timezone),
+    asOfTimestamp: new Date('2026-09-04T05:00:00.000Z'),
+    clock: recurringBillingClock('2026-09-04T05:00:00.000Z', ACCOUNT.facility_timezone),
     ...safeProcessors({
       recurringChargeReconciler: async (_db, options) => {
         events.push(`verify:${options.billingMonth}`)
@@ -520,8 +521,8 @@ test('verified household collection fails closed when invoice creation is disabl
       const fixture = recurringAccountFixture({ due: [] })
       await assert.rejects(
         processRecurringBillingAccount(fixture.db, ACCOUNT, {
-          asOfTimestamp: new Date('2026-09-02T05:00:00.000Z'),
-          clock: recurringBillingClock('2026-09-02T05:00:00.000Z', ACCOUNT.facility_timezone),
+          asOfTimestamp: new Date('2026-09-04T05:00:00.000Z'),
+          clock: recurringBillingClock('2026-09-04T05:00:00.000Z', ACCOUNT.facility_timezone),
           ...safeProcessors({
             recurringChargeReconciler: async () => ({ verified: true, postedChargeIds: [] }),
             invoiceFactory: async () => ({ created: false, skipped }),
@@ -682,18 +683,34 @@ test('a missing-method invoice resumes only its never-started first payment afte
     {status:'payment_method_required',automatic_attempt_count:1,expected:[]},
     {status:'payment_method_required',automatic_attempt_count:0,payment_attempted_at:'2026-10-01',expected:[]},
     {status:'payment_method_required',automatic_attempt_count:0,stripe_payment_intent_id:'pi_unknown',expected:[]},
-    {status:'open',automatic_attempt_count:0,expected:[]},
+    {status:'open',automatic_attempt_count:0,expected:['initial']},
     {status:'paid',automatic_attempt_count:1,expected:[]},
   ]
   for(const {expected,...invoice} of cases) {
     const fixture=recurringAccountFixture({due:[],invoice:{id:803,...invoice}})
     const attempts=[]
     await processRecurringBillingAccount(fixture.db,ACCOUNT,{
-      asOfTimestamp:new Date('2026-10-02T16:00:00Z'),
-      clock:recurringBillingClock('2026-10-02T16:00:00Z',ACCOUNT.facility_timezone),
+      asOfTimestamp:new Date('2026-10-04T16:00:00Z'),
+      clock:recurringBillingClock('2026-10-04T16:00:00Z',ACCOUNT.facility_timezone),
       ...safeProcessors({recurringChargeReconciler:async()=>({verified:true,postedChargeIds:[]}),
         invoiceFactory:async(_db,options)=>{attempts.push(options.automaticAttemptPolicy);return {created:false}}}),
     })
     assert.deepEqual(attempts,expected)
+  }
+})
+
+test('the fifth never collects even if the first was missed or no method existed', async () => {
+  for (const invoice of [null,{id:1,status:'payment_method_required',automatic_attempt_count:0}]) {
+    const fixture=recurringAccountFixture({due:[],invoice})
+    const months=[]
+    await processRecurringBillingAccount(fixture.db,ACCOUNT,{
+      asOfTimestamp:new Date('2026-11-05T07:15:00Z'),
+      clock:recurringBillingClock('2026-11-05T07:15:00Z',ACCOUNT.facility_timezone),
+      ...safeProcessors({
+        recurringChargeReconciler:async(_db,input)=>{months.push(input.billingMonth);return {verified:true,postedChargeIds:[]}},
+        invoiceFactory:async()=>assert.fail('The fifth must not collect'),
+      }),
+    })
+    assert.deepEqual(months,['2026-11-01','2026-12-01'])
   }
 })

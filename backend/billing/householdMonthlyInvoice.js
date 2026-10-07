@@ -11,7 +11,7 @@ import {
   billingHouseholdAutoActivateEnabled,
   billingHouseholdInvoiceEnabled,
 } from './billingFeatureFlags.js'
-import { facilityMonth, isValidTimeZone } from './canonicalBillingMigrationState.js'
+import { facilityDate, facilityMonth, isValidTimeZone } from './canonicalBillingMigrationState.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import {
   findActiveEnrollmentCheckoutBalanceCollector,
@@ -956,14 +956,14 @@ function migrationManagedActivationResult(account, migration) {
  * deliberately fail-closed: if Stripe cannot be voided, we leave the prior
  * invoice open and do not risk presenting the same charges on a second invoice.
  */
-async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe }) {
+async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe, includeCurrentMonth = false }) {
   const prior = await pool.query(
     `SELECT * FROM billing_monthly_invoice
       WHERE family_billing_account_id = $1
-        AND billing_month < $2::date
+        AND (billing_month < $2::date OR ($3::boolean AND billing_month = $2::date))
         AND status IN ('draft', 'open', 'failed', 'payment_method_required')
       ORDER BY billing_month, id`,
-    [accountId, billingMonth],
+    [accountId, billingMonth, includeCurrentMonth],
   )
   let rolledForward = 0
   for (const invoice of prior.rows) {
@@ -1066,7 +1066,7 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe 
         throw new Error(`Prior monthly invoice ${invoice.stripe_invoice_id} could not be retired before charges carry forward: ${error?.message ?? error}`)
       }
     }
-    await markInvoice(pool, invoice.id, { status: 'void', failure_message: 'Superseded by the next monthly household invoice.' })
+    await markInvoice(pool, invoice.id, { status: 'void', failure_message: includeCurrentMonth ? 'Replaced after reconciling the amount still owed before the fourth-day retry.' : 'Superseded by the next monthly household invoice.' })
     await recordBillingActivityBestEffort(pool, {
       eventKey: `monthly-invoice-voided:${invoice.id}:roll-forward`,
       accountId,
@@ -1154,7 +1154,8 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
     }
     const existing = await client.query(
       `SELECT * FROM billing_monthly_invoice
-        WHERE family_billing_account_id = $1 AND billing_month = $2::date`,
+        WHERE family_billing_account_id = $1 AND billing_month = $2::date AND status <> 'void'
+        ORDER BY id DESC LIMIT 1`,
       [accountId, billingMonth],
     )
     if (existing.rows[0]) {
@@ -1317,8 +1318,10 @@ export async function createLocalHouseholdInvoice(client, { accountId, billingMo
     }
     const inserted = await client.query(
       `INSERT INTO billing_monthly_invoice (
-         family_billing_account_id, billing_month, status, subtotal_cents, credit_cents, total_cents
-       ) VALUES ($1, $2::date, 'draft', $3, $4, $5) RETURNING *`,
+         family_billing_account_id, billing_month, status, subtotal_cents, credit_cents, total_cents, automatic_attempt_count
+       ) VALUES ($1, $2::date, 'draft', $3, $4, $5,
+         (SELECT COALESCE(MAX(automatic_attempt_count),0) FROM billing_monthly_invoice
+          WHERE family_billing_account_id=$1 AND billing_month=$2::date)) RETURNING *`,
       [accountId, billingMonth, subtotal, creditCents, total],
     )
     const invoice = inserted.rows[0]
@@ -1384,17 +1387,19 @@ function paymentIntentFromError(error) {
   )
 }
 
-function automaticAttemptAllowed(invoice, {
+export function automaticAttemptAllowed(invoice, {
   policy = null,
   now = new Date(),
   facilityTimeZone,
 } = {}) {
   if (!policy || policy === 'manual') return true
   const attempts = Number(invoice?.automatic_attempt_count ?? 0)
-  if (policy === 'initial') return attempts === 0
-  if (policy === 'retry_on_fifth') {
-    const date = facilityDate(now, facilityTimeZone)
-    return Number(date.slice(8, 10)) === 5 && attempts === 1 && invoice?.status === 'failed'
+  const date = facilityDate(now, facilityTimeZone)
+  const day = Number(date.slice(8, 10))
+  if (dateOnly(invoice.billing_month)?.slice(0, 7) !== date.slice(0, 7)) return false
+  if (policy === 'initial') return [1, 4].includes(day) && attempts === 0
+  if (policy === 'retry_on_fourth') {
+    return day === 4 && attempts === 1 && ['failed', 'draft', 'open'].includes(invoice?.status)
   }
   return false
 }
@@ -1423,7 +1428,7 @@ async function priorPaymentAttemptCanAdvance(stripe, invoice, paymentMethodId) {
       `Household invoice ${invoice.id} has an unknown Stripe payment outcome; manual reconciliation is required before retry.`,
     )
   }
-  if (!['failed', 'payment_method_required'].includes(String(invoice.status))) return false
+  if (!['failed', 'open', 'payment_method_required'].includes(String(invoice.status))) return false
   if (!invoice.stripe_payment_intent_id) {
     return false
   }
@@ -1851,8 +1856,8 @@ async function pushInvoiceToStripe(pool, {
   // belongs directly beside the first possible Stripe pay dispatch. Any gate
   // failure above leaves no false "unknown outcome" marker behind.
   // Preserve the pre-publication status for retry eligibility: the local row is
-  // deliberately moved to open before the boundary checks, but a fifth-day
-  // retry is authorized only when its prior state was a confirmed failure.
+  // deliberately moved to open before the boundary checks. A fourth-day
+  // replacement inherits the one confirmed prior automatic attempt.
   let paymentAttempt
   try {
     paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe, {
@@ -1922,6 +1927,13 @@ export async function createHouseholdMonthlyInvoice(pool, {
   automaticAttemptPolicy = null,
   now = new Date(),
 }) {
+  if (automaticAttemptPolicy && automaticAttemptPolicy !== 'manual') {
+    const today = facilityDate(now, facilityTimeZone)
+    if (![1, 4].includes(Number(today.slice(8, 10)))
+      || dateOnly(billingMonth)?.slice(0, 7) !== today.slice(0, 7)) {
+      return { skipped: 'outside_automatic_collection_window', invoice: null, created: false }
+    }
+  }
   await ensureHouseholdMonthlyInvoiceSchema(pool)
   if (!billingHouseholdInvoiceEnabled(environment)) {
     return { skipped: 'feature_disabled', invoice: null, created: false }
@@ -1933,10 +1945,33 @@ export async function createHouseholdMonthlyInvoice(pool, {
     const stripe = stripeClient === undefined
       ? (stripeEnabled() ? await getStripeClient() : null)
       : stripeClient
+    const refreshCurrentInvoice = automaticAttemptPolicy === 'retry_on_fourth'
+      || (automaticAttemptPolicy === 'initial' && Number(facilityDate(now, facilityTimeZone).slice(8, 10)) === 4)
+    if (refreshCurrentInvoice) {
+      const current = (await db.query(
+        `SELECT * FROM billing_monthly_invoice WHERE family_billing_account_id=$1
+          AND billing_month=$2::date ORDER BY id DESC LIMIT 1`, [account.id, month],
+      )).rows[0]
+      if (current && Number(current.automatic_attempt_count ?? 0) >= 2) {
+        return { skipped: 'automatic_attempt_not_eligible', invoice: current, created: false }
+      }
+      if (current && current.status !== 'void') {
+        if (!automaticAttemptAllowed(current, { policy: automaticAttemptPolicy, now, facilityTimeZone })) {
+          return { skipped: 'automatic_attempt_not_eligible', invoice: current, created: false }
+        }
+        if (current.payment_attempted_at) {
+          const method = await defaultPaymentMethod(stripe, account.stripe_customer_id, month)
+          if (!await priorPaymentAttemptCanAdvance(stripe, current, method)) {
+            throw new Error('The prior monthly payment outcome must be reconciled before retry.')
+          }
+        }
+      }
+    }
     const rolledForwardInvoices = await rollForwardPriorInvoices(db, {
       accountId: account.id,
       billingMonth: month,
       stripe,
+      includeCurrentMonth: refreshCurrentInvoice,
     })
     // Open monthly invoices reserve their charges from the general allocator.
     // Once those invoices are safely voided, replay allocation before building

@@ -35,3 +35,27 @@ test('class moves cannot authorize a second enrollment autopay, including legacy
     assert.throws(() => assertAutomaticLedgerCharge({ ...charge, metadata }), /transfer settlement/)
   }
 })
+
+test('scheduled enrollment recovery uses facility collection days and excludes future service', async () => {
+  const account = { id: 1, family_id: 2, timezone: 'America/New_York', stripe_customer_id: 'cus_fixture',
+    household_monthly_billing_enabled: true, migration_state: 'verified', verified_collection: true }
+  const db = { query: async (sql, values) => {
+    if (sql.includes('SELECT account.*')) return { rows: [account] }
+    assert.match(sql, /COALESCE\(charge.service_period_start, charge.created_at::date\) <= \$4::date/)
+    assert.equal(values[3], '2026-11-04')
+    return { rows: [] }
+  } }
+  let methodReads = 0
+  const stripe = { customers: { retrieve: async () => {
+    methodReads++
+    return { id: 'cus_fixture', invoice_settings: { default_payment_method: {
+      id: 'pm_fixture', customer: 'cus_fixture', type: 'card', card: { exp_month: 12, exp_year: 2030 },
+    } } }
+  } } }
+  const options = { accountId: 1, environment: { BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED: 'true' }, stripe, scheduledRecovery: true }
+  assert.equal((await completeEnrollmentAutoBilling(db, { ...options, now: new Date('2026-11-05T12:00:00Z') })).status,
+    'outside_automatic_collection_window')
+  assert.equal(methodReads, 0)
+  assert.deepEqual(await completeEnrollmentAutoBilling(db, { ...options, now: new Date('2026-11-05T02:00:00Z') }),
+    { status: 'complete', paymentCount: 0 })
+})

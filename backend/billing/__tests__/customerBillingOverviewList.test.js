@@ -231,7 +231,7 @@ test('enrollment query scopes through households without assuming scheduling for
 })
 
 
-test('upcoming paid includes partial applications and paid invoices while history remains two months', async () => {
+test('upcoming paid follows payment applications even when an invoice still says paid', async () => {
   for (const invoiceStatus of ['open', 'paid']) {
     const calls = []
     const pool = { query: async (sql, params) => {
@@ -242,7 +242,7 @@ test('upcoming paid includes partial applications and paid invoices while histor
       return { rows: [] }
     } }
     const result = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date('2026-10-04T16:00:00Z') })
-    assert.equal(result.families[0].upcomingPaidCents, invoiceStatus === 'paid' ? 10000 : 2500)
+    assert.equal(result.families[0].upcomingPaidCents, 2500)
     assert.deepEqual(Object.keys(result.families[0].months), ['2026-09', '2026-10'])
     const payments = calls.find(({ sql }) => sql.includes('WITH payment_application_totals AS'))
     assert.deepEqual(payments.params, [[10], '2026-09-01', '2026-12-01'])
@@ -257,4 +257,37 @@ test('verified future autopay is enrolled before the collection start month', ()
     hasLegacyStripeSubscription: false, hasVerifiedHouseholdMigration: true,
     effectiveCollectionMonth: '2026-11-01', billingMonth: '2026-10-01',
   }), true)
+})
+
+test('month totals use corrected ledger amounts instead of a stale paid invoice', async () => {
+  const pool={query:async(sql)=>{
+    if(sql.includes('fba.payer_member_id,')) return {rows:[{family_id:1,billing_account_id:10,facility_timezone:'America/New_York'}]}
+    if(sql.includes('SELECT DISTINCT ON (invoice.')) return {rows:[{family_billing_account_id:10,billing_month:'2026-10',total_cents:10000,status:'paid'}]}
+    if(sql.includes('AS billed_cents')) return {rows:[{family_billing_account_id:10,billing_month:'2026-10',billed_cents:8000}]}
+    if(sql.includes('WITH payment_application_totals AS')) return {rows:[{family_billing_account_id:10,billing_month:'2026-10',paid_cents:5000}]}
+    return {rows:[]}
+  }}
+  const result=await listCustomerBillingOverviews(pool,{facilityId:1,asOf:new Date('2026-10-06T16:00:00Z')})
+  assert.deepEqual(result.families[0].months['2026-10'],{billedCents:8000,paidCents:5000,source:'ledger'})
+})
+
+test('unpaid current tuition moves to outstanding at the facility fifth-day boundary', async () => {
+  for (const [asOf, recurringMonth, outstanding] of [
+    ['2026-11-05T04:59:00Z', '2026-11', 5000],
+    ['2026-11-05T05:00:00Z', '2026-12', 15000],
+  ]) {
+    const pool = { query: async (sql, params) => {
+      if (sql.includes('fba.payer_member_id,')) return { rows: [{ family_id: 1, billing_account_id: 10, facility_timezone: 'America/New_York' }] }
+      if (sql.includes('credit_source_application_totals AS')) {
+        assert.equal(params[1], recurringMonth)
+        return { rows: [
+          { id: 1, family_billing_account_id: 10, charge_type: 'recurring', amount_cents: 5000, remaining_amount_cents: 5000, service_period_start: '2026-10-01' },
+          { id: 2, family_billing_account_id: 10, charge_type: 'recurring', amount_cents: 10000, remaining_amount_cents: 10000, service_period_start: '2026-11-01' },
+        ] }
+      }
+      return { rows: [] }
+    } }
+    const result = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date(asOf) })
+    assert.equal(result.families[0].outstandingBalanceCents, outstanding)
+  }
 })

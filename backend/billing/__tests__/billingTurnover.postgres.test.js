@@ -66,6 +66,7 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     const sql = (await fs.readFile(new URL('./fixtures/turnover-schema.sql',import.meta.url),'utf8')).replaceAll('public.', '')
     await db.query(sql)
     await db.query(await fs.readFile(new URL('../../migrations/835_refund_preserve_charge_balance.sql',import.meta.url),'utf8'))
+    await db.query(await fs.readFile(new URL('../../migrations/836_monthly_invoice_revisions.sql',import.meta.url),'utf8'))
     await seedAccount()
   })
   t.afterEach(async () => {
@@ -151,6 +152,30 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal(creates,2)
     assert.equal((await db.query('SELECT SUM(amount_cents)::int n FROM billing_payment')).rows[0].n,18500)
     assert.deepEqual((await db.query('SELECT DISTINCT billing_charge_id::int id FROM billing_payment_application ORDER BY id')).rows.map(r=>r.id),[1,2])
+  })
+
+  await t.test('fourth-day invoice replacement preserves history, subtracts manual payments, and excludes future tuition', async () => {
+    await charge(1,5000,{service_period_start:'2026-10-01'})
+    await charge(2,10000,{service_period_start:'2026-11-01'})
+    await charge(3,10000,{service_period_start:'2026-12-01'})
+    const first=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})
+    assert.equal(first.invoice.total_cents,15000)
+    await db.query("UPDATE billing_monthly_invoice SET status='failed',automatic_attempt_count=1 WHERE id=$1",[first.invoice.id])
+    await payment(1,7500)
+    // A verified remote void releases the reservation before allocation.
+    await db.query("UPDATE billing_monthly_invoice SET status='void' WHERE id=$1",[first.invoice.id])
+    await allocateHouseholdPaymentsLocked(db,{accountId:1,actorType:'system',restoreMembershipCredits:false,updateEntitlements:false})
+    const retry=await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})
+    assert.notEqual(retry.invoice.id,first.invoice.id)
+    assert.equal(retry.invoice.total_cents,7500)
+    assert.equal(retry.invoice.automatic_attempt_count,1)
+    assert.deepEqual(retry.lines.map(l=>Number(l.billing_charge_id)),[2])
+    assert.equal((await db.query('SELECT COUNT(*)::int n FROM billing_monthly_invoice_line WHERE billing_monthly_invoice_id=$1',[first.invoice.id])).rows[0].n,2)
+    assert.equal((await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})).invoice.id,retry.invoice.id)
+    await db.query("UPDATE billing_monthly_invoice SET status='void',automatic_attempt_count=2 WHERE id=$1",[retry.invoice.id])
+    await payment(2,7500)
+    await allocateHouseholdPaymentsLocked(db,{accountId:1,actorType:'system',restoreMembershipCredits:false,updateEntitlements:false})
+    assert.equal((await createLocalHouseholdInvoice(db,{accountId:1,billingMonth:'2026-11-01'})).invoice,null)
   })
 
   await t.test('October catch-up invoices leave pre-posted November tuition for November', async () => {

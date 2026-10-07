@@ -39,7 +39,7 @@ export async function activateEnrollmentHouseholdBilling(pool, {
 /** Collect only the initial bills for this committed enrollment. Never sweep
  * old balances, future provisional tuition, or paid Checkout purchases here. */
 export async function completeEnrollmentAutoBilling(pool, {
-  accountId, signupIds = null, stripe = null, environment = process.env, now = new Date(),
+  accountId, signupIds = null, stripe = null, environment = process.env, now = new Date(), scheduledRecovery = false,
 }) {
   if (!billingHouseholdAutoActivateEnabled(environment)) return { status: 'feature_disabled' }
   stripe ??= await getStripeClient()
@@ -48,6 +48,10 @@ export async function completeEnrollmentAutoBilling(pool, {
   if (activation.status !== 'ready') return activation
   const { checkoutAmountForBillingCharge, collectLedgerChargeWithSavedCard } = await import('./customerBillingPayments.js')
   const { account } = activation
+  const today = facilityDate(now, account.timezone)
+  if (scheduledRecovery && ![1, 4].includes(Number(today.slice(8, 10)))) {
+    return { status: 'outside_automatic_collection_window' }
+  }
   const { resolveDefaultPaymentMethod } = await import('./customerBillingPayments.js')
   try { await resolveDefaultPaymentMethod(stripe, account.stripe_customer_id, { billingMonth: facilityDate(now, account.timezone) }) }
   catch (error) {
@@ -63,6 +67,7 @@ export async function completeEnrollmentAutoBilling(pool, {
           SELECT id FROM member WHERE family_id=$3 AND is_active=TRUE
             AND ($2::text[] IS NULL OR id IN (SELECT member_id FROM scheduling_signup WHERE id::text=ANY($2::text[]))))))
       AND charge.amount_cents>0
+      AND ($4::date IS NULL OR COALESCE(charge.service_period_start, charge.created_at::date) <= $4::date)
       -- A transfer replaces an existing bill; it is not a new enrollment
       -- authorization. Its settlement belongs to the class-transfer flow.
       AND NOT (COALESCE(charge.metadata, '{}'::jsonb) ? 'classMoveFromSignupId')
@@ -72,7 +77,8 @@ export async function completeEnrollmentAutoBilling(pool, {
       AND NOT EXISTS (SELECT 1 FROM billing_monthly_invoice_line line
         JOIN billing_monthly_invoice invoice ON invoice.id=line.billing_monthly_invoice_id
         WHERE line.billing_charge_id=charge.id AND invoice.status IN ('draft','open','paid','failed','payment_method_required'))
-    ORDER BY charge.id`, [accountId, signupIds == null ? null : signupIds.map(String), account.family_id])).rows
+    ORDER BY charge.id`, [accountId, signupIds == null ? null : signupIds.map(String), account.family_id,
+    scheduledRecovery ? today : null])).rows
   const payments = []
   for (const charge of charges) {
     let amountCents

@@ -74,14 +74,19 @@ async function main() {
     if (collectPayments) {
       const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
       const candidates = await pool.query(`SELECT DISTINCT account.id, account.payer_member_id
-        FROM family_billing_account account JOIN billing_charge charge ON charge.family_billing_account_id=account.id
+        FROM family_billing_account account
+        JOIN family ON family.id=account.family_id
+        JOIN facility ON facility.id=family.facility_id
+        JOIN billing_charge charge ON charge.family_billing_account_id=account.id
         WHERE account.is_active=TRUE AND account.household_monthly_billing_enabled=TRUE
+          AND EXTRACT(DAY FROM now() AT TIME ZONE facility.timezone) IN (1,4)
+          AND COALESCE(charge.service_period_start,charge.created_at::date) <= (now() AT TIME ZONE facility.timezone)::date
           AND charge.source_type IN ('scheduling_signup','additional_fee') AND charge.amount_cents>0
           AND charge.collection_status NOT IN ('paid','failed','processing')
           AND charge.stripe_checkout_session_id IS NULL`)
       for (const candidate of candidates.rows) {
         try {
-          const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id) })
+          const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true })
           if (!['complete','feature_disabled'].includes(outcome.status)) throw new Error(outcome.status)
         } catch (error) {
           process.exitCode = 1

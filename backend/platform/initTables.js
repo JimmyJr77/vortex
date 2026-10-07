@@ -76,6 +76,7 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '811_billing_monthly_invoice_automatic_attempts.sql',
   '834_refund_applied_account_credit.sql',
   '835_refund_preserve_charge_balance.sql',
+  '836_monthly_invoice_revisions.sql',
 ])
 
 const REQUIRED_BILLING_MIGRATION_SET = new Set(REQUIRED_BILLING_MIGRATIONS)
