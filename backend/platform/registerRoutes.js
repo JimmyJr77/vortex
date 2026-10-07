@@ -36,6 +36,7 @@ import {
   logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
 import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
+import { completeBalanceCheckoutAutopay } from '../billing/balanceCheckoutAutopay.js'
 import {
   invoiceSubscriptionId,
   resolveStripeWebhookAccountId,
@@ -3237,6 +3238,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   const createMemberBalanceCheckout = async (req, res) => {
+    if (req.body?.savePaymentMethodForAutopay != null && typeof req.body.savePaymentMethodForAutopay !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'The save payment method choice must be true or false.' })
+    }
     let idempotencyKey
     try {
       idempotencyKey = normalizeMemberBillingIdempotencyKey(req.get('Idempotency-Key'))
@@ -3259,6 +3263,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!access.canManagePayments) {
       return res.status(403).json({ success: false, message: 'Only the family payer can make a payment.' })
     }
+    if (req.body?.savePaymentMethodForAutopay === true && !access.canManagePaymentMethod) {
+      return res.status(403).json({ success: false, message: 'Only the family payer can change the autopay payment method.' })
+    }
 
     try {
       const base = publicAppUrl()
@@ -3267,6 +3274,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         successUrl: `${base}/?billing=paid`,
         cancelUrl: `${base}/?billing=cancelled`,
         analytics: sanitizeCheckoutAnalytics(req.body?.analytics),
+        savePaymentMethodForAutopay: req.body?.savePaymentMethodForAutopay === true,
         // Stripe idempotency keys are account-wide. Add the server-owned account
         // id so a key replay after a household reassignment cannot collide with
         // another family's checkout.
@@ -3999,6 +4007,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             accountId: reservedAttempt.family_billing_account_id,
             actorType: 'stripe',
           })
+          if (isCheckoutFulfillmentEvent && obj.metadata?.balanceAutopayConsent === 'v1') {
+            await completeBalanceCheckoutAutopay(pool, { session: obj, stripe: await getStripeClient() })
+          }
         } else if (insertedPayment && accountId && Number.isFinite(customChargeId) && customChargeId > 0) {
           await linkCustomerBillingPayment(pool, {
             payment: insertedPayment,

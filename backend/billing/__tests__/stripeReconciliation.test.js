@@ -1077,6 +1077,25 @@ test('paid Checkout fulfillment recovery dispatches idempotent store, enrollment
   ])
 })
 
+test('balance fulfillment saves opted-in autopay after settlement, including a duplicate payment event', async () => {
+  const calls = []
+  const binding = paidCheckoutBinding('outstanding_balance', { balanceAutopayConsent: 'v1' })
+  const options = {
+    stripe: {}, findPaymentAttempt: async () => ({ id: 73 }),
+    settlePaymentAttempt: async () => { calls.push('settled'); return { payment: exactCheckoutPayment(), conflicted: false } },
+    completeBalanceAutopay: async (_db, { session }) => { assert.equal(session, binding.session); calls.push('autopay') },
+  }
+  const result = await reconcilePaidStripeCheckoutFulfillment({}, binding, options)
+  assert.equal(result.status, 'fulfilled')
+  assert.deepEqual(calls, ['settled', 'autopay'])
+  calls.length = 0
+  const conflicted = await reconcilePaidStripeCheckoutFulfillment({}, binding, {
+    ...options, settlePaymentAttempt: async () => ({ conflicted: true }),
+  })
+  assert.equal(conflicted.status, 'unverified')
+  assert.deepEqual(calls, [])
+})
+
 test('paid enrollment recovery requires the exact core settlement and never uses a second generic settlement path', async () => {
   let legacySettlementCalls = 0
   const recovered = await reconcilePaidStripeCheckoutFulfillment(

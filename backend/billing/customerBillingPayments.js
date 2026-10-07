@@ -1214,7 +1214,9 @@ export async function createCustomerBalanceCheckoutSession(pool, {
   analytics = null,
   idempotencyKey = null,
   attemptType = 'member_balance_checkout',
+  savePaymentMethodForAutopay = false,
 }) {
+  if (typeof savePaymentMethodForAutopay !== 'boolean') throw new Error('The save payment method choice must be true or false.')
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
   const stripe = await getStripeClient()
   if (!stripe) throw new Error('Stripe is unavailable.')
@@ -1225,6 +1227,9 @@ export async function createCustomerBalanceCheckoutSession(pool, {
       attemptType,
       requestKey,
     })
+    if (existing && (existing.metadata?.savePaymentMethodForAutopay === true) !== savePaymentMethodForAutopay) {
+      throw new Error('This Checkout request already has a different payment-method choice. Start a new request.')
+    }
     if (existing?.status === 'succeeded') {
       return { id: existing.stripe_checkout_session_id, url: null, amountCents: existing.amount_cents, expiresAt: existing.expires_at, replayed: true, status: 'succeeded' }
     }
@@ -1245,7 +1250,8 @@ export async function createCustomerBalanceCheckoutSession(pool, {
       requestKey,
       amountCents,
       expiresAt: expiration,
-      metadata: { checkoutType: 'outstanding_balance' },
+      metadata: { checkoutType: 'outstanding_balance', savePaymentMethodForAutopay,
+        ...(savePaymentMethodForAutopay ? { autopayConsentVersion: 'v1', autopayConsentAt: new Date().toISOString() } : {}) },
     })
     let customerId
     try {
@@ -1266,6 +1272,7 @@ export async function createCustomerBalanceCheckoutSession(pool, {
       successUrl,
       cancelUrl,
       analytics,
+      savePaymentMethodForAutopay,
       nowMs: expiration.getTime() - 24 * 60 * 60 * 1000,
     })
     params.expires_at = checkoutExpirationSeconds(reservation)
@@ -1275,7 +1282,7 @@ export async function createCustomerBalanceCheckoutSession(pool, {
       billingPaymentAttemptId: String(reservation.id),
     }
     params.metadata = metadata
-    params.payment_intent_data = { metadata }
+    params.payment_intent_data = { ...params.payment_intent_data, metadata }
     let created
     try {
       created = await createOrRecoverBillingCheckoutSession(db, stripe, {

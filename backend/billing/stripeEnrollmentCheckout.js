@@ -633,6 +633,7 @@ export async function preserveEnrollmentCheckoutPaymentMethod(
     familyBillingAccountId,
     customerId: suppliedCustomerId = null,
     defaultPaymentMethodId: suppliedDefaultPaymentMethodId = null,
+    idempotencyKey = null,
   } = {},
 ) {
   const objectId = (value) => {
@@ -833,7 +834,7 @@ export async function preserveEnrollmentCheckoutPaymentMethod(
 
     await stripe.customers.update(canonicalCustomerId, {
       invoice_settings: { default_payment_method: paymentMethodId },
-    })
+    }, ...(idempotencyKey ? [{ idempotencyKey }] : []))
     return {
       customerId: canonicalCustomerId,
       defaultPaymentMethodId: paymentMethodId,

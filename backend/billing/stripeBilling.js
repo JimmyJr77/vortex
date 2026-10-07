@@ -306,6 +306,7 @@ export function buildBalanceCheckoutParams({
   successUrl,
   cancelUrl,
   analytics = null,
+  savePaymentMethodForAutopay = false,
   nowMs = Date.now(),
 }) {
   const amount = Math.round(Number(balanceCents) || 0)
@@ -329,8 +330,14 @@ export function buildBalanceCheckoutParams({
     ],
     success_url: successUrl,
     cancel_url: cancelUrl,
+    ...(savePaymentMethodForAutopay === true ? {
+      payment_method_types: ['card', 'link'],
+      payment_intent_data: { setup_future_usage: 'off_session' },
+      custom_text: { submit: { message: 'You authorized Vortex Athletics to save this payment method as your household default for future automatic bill payments.' } },
+    } : {}),
     metadata: {
       familyBillingAccountId: String(account.id),
+      ...(savePaymentMethodForAutopay === true ? { balanceAutopayConsent: 'v1' } : {}),
       ...(analytics?.gaClientId ? { gaClientId: String(analytics.gaClientId).slice(0, 100) } : {}),
       ...(analytics?.gaSessionId ? { gaSessionId: String(analytics.gaSessionId).slice(0, 100) } : {}),
     },

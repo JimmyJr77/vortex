@@ -1409,13 +1409,14 @@ export default function MemberDashboard({
   const [payNowLoading, setPayNowLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [annualMembershipRenewalLoading, setAnnualMembershipRenewalLoading] = useState(false)
-  const handlePayNow = async () => {
+  const handlePayNow = async (savePaymentMethodForAutopay = false) => {
     if (!token) return
     const checkoutFingerprint = [
       'canonical',
       customerBilling?.overview?.account.id ?? 'none',
       customerBilling?.revision ?? 'none',
       customerBilling?.overview?.summary.collectibleBalanceCents ?? 'none',
+      savePaymentMethodForAutopay ? 'save-autopay' : 'one-time',
     ].join(':')
     const priorAttempt = billingCheckoutAttemptRef.current
     const checkoutKey = priorAttempt?.fingerprint === checkoutFingerprint
@@ -1433,6 +1434,7 @@ export default function MemberDashboard({
           'Idempotency-Key': checkoutKey,
         },
         body: JSON.stringify({
+          savePaymentMethodForAutopay,
           analytics: { gaClientId: getGaClientId(), gaSessionId: getGaSessionId() },
         }),
       })

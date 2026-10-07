@@ -45,7 +45,7 @@ interface Props {
   payNowLoading: boolean
   portalLoading: boolean
   annualMembershipRenewalLoading: boolean
-  onPayNow: () => void
+  onPayNow: (savePaymentMethodForAutopay: boolean) => void
   onManagePayment: () => void
   onSetAnnualMembershipAutoRenewal: (subscriptionId: number, enabled: boolean) => void
   onRefresh: () => void
@@ -385,6 +385,7 @@ export default function MemberCustomerBilling({
   formatMoney,
 }: Props) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null)
+  const [autopayConsent, setAutopayConsent] = useState<{ accountId: number; selected: boolean } | null>(null)
   const overview = data?.overview ?? null
   const visibleEnrollments = useMemo(() => overview?.enrollments.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [overview, selectedMemberId])
   const visibleWaitlists = useMemo(() => overview?.waitlists.filter((row) => selectedMemberId == null || row.memberId === selectedMemberId) ?? [], [overview, selectedMemberId])
@@ -416,7 +417,7 @@ export default function MemberCustomerBilling({
       window.location.assign(payableHostedInvoice.hostedInvoiceUrl)
       return
     }
-    onPayNow()
+    onPayNow(autopayConsent?.accountId === overview.account.id && autopayConsent.selected)
   }
 
   return (
@@ -431,10 +432,23 @@ export default function MemberCustomerBilling({
               {overview.members.map((member) => <button key={member.id} type="button" onClick={() => setSelectedMemberId(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}
             </div>
           </div>
+          <div className="space-y-3 xl:max-w-lg">
+          {canManageBilling && canManagePaymentMethod && balanceDue > 0 ? (
+            <label className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+              <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-vortex-red"
+                checked={autopayConsent?.accountId === overview.account.id && autopayConsent.selected}
+                disabled={payNowLoading || !overview.paymentMethod.stripeEnabled}
+                onChange={(event) => setAutopayConsent({ accountId: overview.account.id, selected: event.target.checked })} />
+              <span><span className="block font-semibold">Save payment method for future autopay</span>
+                <span className="mt-1 block text-xs text-gray-500">I authorize Vortex Athletics to use the method I enter at Checkout as my household’s default for future automatic bill payments.</span>
+              </span>
+            </label>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             {data?.access.canManagePayments ? <button type="button" onClick={processMonthlyBalance} disabled={!canPay || payNowLoading} title={canPay ? 'Pay the current household balance.' : 'There is no balance ready for online payment.'} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><CreditCard className="h-4 w-4" /> {payNowLoading ? 'Starting checkout…' : 'Process monthly balance'}</button> : null}
             {canManagePaymentMethod ? <button type="button" onClick={onManagePayment} disabled={!overview.paymentMethod.stripeEnabled || portalLoading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> {portalLoading ? 'Opening settings…' : 'Update payment method'}</button> : null}
             <button type="button" onClick={onRefresh} disabled={loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading} className="rounded-lg border border-gray-300 p-2 text-gray-600 disabled:opacity-40" aria-label="Refresh billing account" title="Refresh billing account"><RefreshCw className={`h-4 w-4 ${(loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading) ? 'animate-spin' : ''}`} /></button>
+          </div>
           </div>
         </div>
 

@@ -280,6 +280,7 @@ test('an active linked non-payer cannot mutate household payment state', { concu
       method: 'POST',
       path: '/api/members/billing/payments/checkout',
       headers: memberHeaders({ 'Idempotency-Key': 'linked-nonpayer-payment' }),
+      body: { savePaymentMethodForAutopay: true },
     })
     assert.equal(checkout.status, 403)
     assert.match(checkout.body.message, /Only the family payer/i)
@@ -301,4 +302,19 @@ test('an active linked non-payer cannot mutate household payment state', { concu
   }
 
   assert.equal(statements.filter((statement) => statement.includes('SELECT account.*, family.family_name')).length, 2)
+})
+
+test('balance Checkout rejects non-boolean autopay consent before starting a payment', async () => {
+  const pool = { query: async sql => {
+    const auth = authenticationRows(String(sql))
+    if (auth) return auth
+    assert.fail('Invalid consent must not reach billing queries')
+  } }
+  const app = createPlatformApp(pool)
+  for (const choice of ['true', 1, {}, []]) {
+    const response = await invokeRoute(app, { method: 'POST', path: '/api/members/billing/payments/checkout',
+      headers: memberHeaders({ 'Idempotency-Key': 'consent-test' }), body: { savePaymentMethodForAutopay: choice } })
+    assert.equal(response.status, 400)
+    assert.match(response.body.message, /true or false/)
+  }
 })

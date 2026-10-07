@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import { completeBalanceCheckoutAutopay } from './balanceCheckoutAutopay.js'
 import {
   assertEnrollmentStripePaymentBinding,
   getStripeClient,
@@ -79,6 +80,7 @@ export async function reconcilePaidStripeCheckoutFulfillment(pool, checkoutBindi
   commitAnnualMembership = commitAnnualMembershipCheckout,
   findPaymentAttempt = findBillingPaymentAttemptForStripeObject,
   settlePaymentAttempt = recordAndCompleteBillingPaymentAttempt,
+  completeBalanceAutopay = completeBalanceCheckoutAutopay,
 } = {}) {
   if (checkoutBinding?.state !== 'paid' || !checkoutBinding?.session?.id) {
     throw new StripeCheckoutPaymentBindingConflict(
@@ -199,6 +201,7 @@ export async function reconcilePaidStripeCheckoutFulfillment(pool, checkoutBindi
         reason: settlement?.reason ?? 'billing_payment_attempt_not_settled',
       }
     }
+    await completeBalanceAutopay(pool, { session, stripe })
     return {
       status: 'fulfilled',
       repaired: settlement.payment.newly_inserted === true,

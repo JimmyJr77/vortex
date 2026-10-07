@@ -37,6 +37,23 @@ test('balance checkout rejects non-positive collection amounts', () => {
   )
 })
 
+test('balance Checkout saves for off-session autopay only with an explicit opt-in', () => {
+  const options = { account: { id: 17 }, customerId: 'cus_test', balanceCents: 10000,
+    successUrl: 'https://example.test/success', cancelUrl: 'https://example.test/cancel' }
+  for (const choice of [undefined, false, 'true']) {
+    const params = buildBalanceCheckoutParams({ ...options, savePaymentMethodForAutopay: choice })
+    assert.equal(params.payment_intent_data, undefined)
+    assert.equal(params.metadata.balanceAutopayConsent, undefined)
+  }
+  const params = buildBalanceCheckoutParams({ ...options, savePaymentMethodForAutopay: true })
+  assert.deepEqual(params.payment_method_types, ['card', 'link'])
+  assert.equal(params.payment_intent_data.setup_future_usage, 'off_session')
+  assert.equal(params.metadata.balanceAutopayConsent, 'v1')
+  assert.match(params.custom_text.submit.message, /future automatic bill payments/)
+  assert.equal(params.mode, 'payment')
+  assert.equal(params.subscription_data, undefined)
+})
+
 test('legacy direct balance Checkout cannot create a payment without a durable attempt', async () => {
   await assert.rejects(
     createCheckoutSession({}, {
