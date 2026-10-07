@@ -11,7 +11,7 @@ function fixture() {
       familyBillingAccountId: '44', billingPaymentAttemptId: '73' } }
   const attempt = { id: 73, family_billing_account_id: 44, billing_payment_id: 91,
     status: 'succeeded', amount_cents: 10000, stripe_checkout_session_id: 'cs_balance',
-    paid_customer_id: 'cus_family', paid_intent_id: 'pi_balance', paid_session_id: 'cs_balance', paid_amount_cents: 10000,
+    paid_customer_id: 'cus_family', paid_intent_id: 'pi_balance', paid_session_id: null, paid_amount_cents: 10000,
     metadata: { savePaymentMethodForAutopay: true, autopayConsentVersion: 'v1', autopayConsentAt: '2026-10-06T12:00:00Z' } }
   const account = { id: 44, is_active: true, stripe_customer_id: 'cus_family', stripe_customer_owner_count: 1 }
   const method = { id: 'pm_saved', customer: 'cus_family', type: 'card' }
@@ -75,4 +75,9 @@ test('failed default-method update leaves completion retryable', async () => {
   await assert.rejects(completeBalanceCheckoutAutopay(f.db, f), /Stripe unavailable/)
   assert.equal(f.attempt.metadata.balanceAutopayCompleted, undefined)
   assert.equal(f.activities.length, 0)
+})
+
+test('settlements with an explicit matching Checkout link also preserve consent', async () => {
+  const f = fixture(); f.attempt.paid_session_id = f.session.id
+  assert.equal((await completeBalanceCheckoutAutopay(f.db, f)).saved, true)
 })

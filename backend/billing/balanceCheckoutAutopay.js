@@ -29,7 +29,10 @@ export async function completeBalanceCheckoutAutopay(pool, { session, stripe }) 
     if (!attempt || attempt.status !== 'succeeded'
       || attempt.metadata?.savePaymentMethodForAutopay !== true
       || attempt.metadata?.autopayConsentVersion !== 'v1'
-      || attempt.stripe_checkout_session_id !== session.id || attempt.paid_session_id !== session.id) {
+      || attempt.stripe_checkout_session_id !== session.id
+      // Balance settlements own the Checkout link on the durable attempt;
+      // the payment itself is bound by its exact PaymentIntent below.
+      || (attempt.paid_session_id != null && attempt.paid_session_id !== session.id)) {
       throw new Error('Balance Checkout autopay requires a settled payment with recorded consent.')
     }
     if (attempt.metadata?.balanceAutopayCompleted) return { saved: true, replayed: true }
