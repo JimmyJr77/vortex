@@ -651,6 +651,11 @@ export async function releaseBillingPaymentAttempt(pool, {
   if (!existing) return existing
   if (stripeObject) assertStripeObjectMatchesAttempt(existing, stripeObject)
   if (existing.status === 'succeeded') return existing
+  // Deletion deliberately retires the collector as canceled. Stripe can send
+  // its expiration/failure notification afterward; that is an acknowledgement,
+  // not a new lifecycle transition. Successful payments use the separate
+  // settlement path and must still be quarantined for reconciliation.
+  if (existing.metadata?.enrollmentDeletionRetired === true) return existing
   const savedCardAttempt = String(existing.attempt_type).endsWith('_saved_card')
   const verifiedPaymentIntentCancellation = (
     normalizedStatus === 'canceled'
@@ -682,6 +687,9 @@ export async function releaseBillingPaymentAttempt(pool, {
     return existing
   }
   return withBillingAccountCollectionLock(pool, existing.family_billing_account_id, async (db) => {
+    // Deletion may have won the lock since the lookup above.
+    const current = (await db.query('SELECT * FROM billing_payment_attempt WHERE id = $1', [existing.id])).rows[0]
+    if (!current || current.status === 'succeeded' || current.metadata?.enrollmentDeletionRetired === true) return current
     const result = await db.query(
       `UPDATE billing_payment_attempt
           SET status = $2,

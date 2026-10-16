@@ -1,3 +1,5 @@
+import { releaseBillingPaymentAttempt } from '../paymentAttemptReservations.js'
+import { facilityDate } from '../canonicalBillingMigrationState.js'
 import { deletionStripeFixture } from './fixtures/enrollmentDeletionStripe.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -151,6 +153,9 @@ test('unpaid enrollment deletion PostgreSQL regression', { skip: !url }, async (
     assert.equal(reservation.amount_cents,10000)
     assert.equal((await db.query('SELECT status FROM billing_payment_attempt')).rows[0].status,'canceled')
     await assert.rejects(db.query("UPDATE billing_payment_attempt SET status='processing' WHERE id=1"), /cannot resume/)
+    const released = await releaseBillingPaymentAttempt(db, { attemptId: 1, status: 'failed',
+      stripeObject: { id:'pi_1', object:'payment_intent', status:'canceled' } })
+    assert.equal(released.status, 'canceled')
   })
   await t.test('remote success followed by a local failure leaves an enrollment that can safely retry', async () => {
     await db.query(`UPDATE family_billing_account SET stripe_customer_id='cus_1' WHERE id=1;
@@ -196,6 +201,27 @@ test('unpaid enrollment deletion PostgreSQL regression', { skip: !url }, async (
     await deleteCustomerBillingEnrollment(db,{...params,stripeClient:stripe,replaceInvoice:async()=>({skipped:'no_open_charges'})})
     assert.equal((await db.query('SELECT status FROM billing_enrollment_deletion')).rows[0].status,'complete')
     assert.equal(stripe.calls.filter(call=>call==='void:in_1').length,1)
+  })
+  await t.test('successful deletion recovers earlier account deletions and clears only the verified month alert', async () => {
+    const today = facilityDate(new Date(), 'America/New_York')
+    if (Number(today.slice(8, 10)) < 5) return
+    const next = new Date(`${today.slice(0, 7)}-01T12:00:00Z`)
+    next.setUTCMonth(next.getUTCMonth() + 1)
+    const month = next.toISOString().slice(0, 10)
+    await db.query(`INSERT INTO billing_enrollment_deletion
+      (signup_id,family_billing_account_id,facility_id,actor_user_id,status,result,error_message)
+      VALUES (99,1,1,7,'deleted','{"signupId":99,"replacementMonths":[]}', 'Old mismatch');
+      INSERT INTO stripe_billing_alert (stripe_event_id,family_billing_account_id,alert_type,severity,message)
+      VALUES ('enrollment-deletion:99',1,'reconciliation_mismatch','critical','Old mismatch'),
+        ('unrelated',1,'webhook_failure','critical','Keep this')`)
+    await db.query(`INSERT INTO stripe_billing_alert (stripe_event_id,family_billing_account_id,alert_type,severity,message)
+      VALUES ($1,1,'billing_turnover_incomplete','critical','Old mismatch')`, [`billing-turnover:1:${month}`])
+    await deleteCustomerBillingEnrollment(db, params)
+    const operations = (await db.query('SELECT status FROM billing_enrollment_deletion')).rows
+    assert.equal(operations.length, 2)
+    assert.ok(operations.every(row => row.status === 'complete'))
+    assert.deepEqual((await db.query('SELECT stripe_event_id FROM stripe_billing_alert WHERE resolved_at IS NULL')).rows,
+      [{stripe_event_id:'unrelated'}])
   })
   for (const amount of [1, 10000]) {
     await t.test(`rejects an enrollment with ${amount} cents paid and rolls back`, async () => {

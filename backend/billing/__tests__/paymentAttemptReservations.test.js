@@ -1360,3 +1360,27 @@ test('uncertain cancellation or concurrent success keeps the reservation until r
     assert.equal(summary.errors.length, 1)
   }
 })
+
+test('late terminal notifications leave deleted enrollment attempts canceled, including a deletion racing the lock', async () => {
+  for (const raced of [false, true]) {
+    const retired = { id: 91, family_billing_account_id: 7, attempt_type: 'balance_checkout',
+      status: 'canceled', stripe_checkout_session_id: 'cs_deleted', metadata: { enrollmentDeletionRetired: true } }
+    let reads = 0
+    const db = { async query(sql) {
+      if (sql.includes('pg_advisory_')) return { rows: [] }
+      if (sql.includes('SELECT * FROM billing_payment_attempt WHERE id')) {
+        reads++
+        return { rows: [raced && reads === 1 ? { ...retired, status: 'pending', metadata: {} } : retired] }
+      }
+      assert.fail(`Retired attempt must not be mutated: ${sql}`)
+    } }
+    const result = await releaseBillingPaymentAttempt(db, { attemptId: 91,
+      stripeObject: { id: 'cs_deleted', object: 'checkout.session', status: 'expired' },
+      status: 'expired', checkoutTerminal: true,
+      allocationFunction: async () => assert.fail('Deletion already released the reservation'),
+    })
+    assert.equal(result.status, 'canceled')
+    assert.equal(result.metadata.enrollmentDeletionRetired, true)
+    assert.equal(reads, raced ? 2 : 1)
+  }
+})

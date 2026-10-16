@@ -106,7 +106,7 @@ async function recordDeletionFailure(db, operation, error) {
     JSON.stringify({signupId:Number(operation.signup_id), retryDeletion:operation.status==='reconciling'})])
 }
 
-async function finishDeletion(db, operation, { stripe, environment, replaceInvoice }) {
+async function finishDeletion(db, operation, { stripe, environment, replaceInvoice, recoverSiblings = true }) {
   const result = operation.result
   const account = (await db.query(`SELECT account.*, facility.timezone AS facility_timezone
     FROM family_billing_account account JOIN family ON family.id=account.family_id
@@ -123,6 +123,17 @@ async function finishDeletion(db, operation, { stripe, environment, replaceInvoi
     }
     await db.query("UPDATE billing_enrollment_deletion SET status='complete', error_message=NULL, updated_at=now() WHERE signup_id=$1", [operation.signup_id])
     await db.query("UPDATE stripe_billing_alert SET resolved_at=now(), updated_at=now() WHERE stripe_event_id=$1", [`enrollment-deletion:${operation.signup_id}`])
+    // A sequence of deletions can clear a mismatch that blocked an earlier
+    // deletion. Complete those account-local follow-ups while holding the same
+    // collection lock, rather than leaving stale errors until the next job.
+    if (recoverSiblings) {
+      const siblings = (await db.query(`SELECT * FROM billing_enrollment_deletion
+        WHERE family_billing_account_id=$1 AND status='deleted' AND signup_id<>$2
+        ORDER BY updated_at`, [operation.family_billing_account_id, operation.signup_id])).rows
+      for (const sibling of siblings) {
+        await finishDeletion(db, sibling, { stripe, environment, replaceInvoice, recoverSiblings: false })
+      }
+    }
     return result
   } catch (error) {
     await recordDeletionFailure(db, operation, error)

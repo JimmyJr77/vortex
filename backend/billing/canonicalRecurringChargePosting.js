@@ -1080,6 +1080,10 @@ export async function reconcileUpcomingProvisionalChargesForAccount(db, {
       allowEarlyPosting: true,
       recurringRun: true,
     })
+    await db.query(`UPDATE stripe_billing_alert SET resolved_at=now(), updated_at=now()
+      WHERE stripe_event_id=$1 AND family_billing_account_id=$2
+        AND alert_type='billing_turnover_incomplete' AND resolved_at IS NULL`,
+    [`billing-turnover:${Number(accountId)}:${billingMonth}`, Number(accountId)])
     return { status: 'reconciled', result }
   } catch (error) {
     await db.query(`INSERT INTO stripe_billing_alert
