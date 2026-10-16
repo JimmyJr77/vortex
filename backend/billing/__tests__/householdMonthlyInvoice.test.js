@@ -3175,3 +3175,16 @@ test('fourth-day retry cancels its stale invoice and skips collection when a man
   assert.ok(events.indexOf('payment-applied:10000:true') < events.indexOf('replacement-read:0:true'))
   assert.equal(sessionLocked, false)
 })
+
+
+test('replacement invoice publication never charges a saved payment method', async () => {
+  const pool = resumePool({ secondStripeInvoiceItemId: null })
+  const stripe = stripeFixture()
+  const result = await createHouseholdMonthlyInvoice(pool, {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8', facility_timezone: 'America/New_York', household_monthly_billing_enabled: true },
+    billingMonth: '2026-09-01', environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' }, stripeClient: stripe, publishOnly: true,
+  })
+  assert.equal(result.invoice.status, 'open')
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+  assert.equal(pool.invoice.payment_attempted_at, null)
+})

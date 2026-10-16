@@ -1740,6 +1740,7 @@ async function pushInvoiceToStripe(pool, {
   facilityTimeZone,
   migrationAuthorization,
   automaticAttemptPolicy = null,
+  publishOnly = false,
   now = new Date(),
 }) {
   const customerId = await ensureStripeCustomer(pool, stripe, account)
@@ -1807,6 +1808,9 @@ async function pushInvoiceToStripe(pool, {
   })
   if (!openedInvoice) {
     throw new Error(`Household invoice ${invoice.id} could not enter its payable state.`)
+  }
+  if (publishOnly) {
+    return markInvoice(pool, invoice.id, { status: 'open', hosted_invoice_url: finalized.hosted_invoice_url ?? null })
   }
   const boundary = await assertHouseholdPaymentBoundary(pool, {
     account,
@@ -1925,6 +1929,7 @@ export async function createHouseholdMonthlyInvoice(pool, {
   stripeClient = undefined,
   migrationAuthorization = null,
   automaticAttemptPolicy = null,
+  publishOnly = false,
   now = new Date(),
 }) {
   if (automaticAttemptPolicy && automaticAttemptPolicy !== 'manual') {
@@ -2029,6 +2034,7 @@ export async function createHouseholdMonthlyInvoice(pool, {
       facilityTimeZone,
       migrationAuthorization,
       automaticAttemptPolicy,
+      publishOnly,
       now,
     })
     return { invoice, lines: local.lines, created: local.created, resumed: !local.created }

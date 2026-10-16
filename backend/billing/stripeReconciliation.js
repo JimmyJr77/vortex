@@ -1,3 +1,4 @@
+import { reconcileDeletedEnrollmentInvoices } from './customerBillingEnrollmentDeletion.js'
 import { createHash } from 'crypto'
 import { completeBalanceCheckoutAutopay } from './balanceCheckoutAutopay.js'
 import {
@@ -2471,6 +2472,7 @@ export async function runStripeReconciliation(pool, { lookbackHours = 168 } = {}
       )
     }
 
+    await reconcileDeletedEnrollmentInvoices(pool, { stripeClient: stripe })
     const attemptSummary = await reconcileActiveBillingPaymentAttempts(pool, stripe)
     summary.paymentAttemptsChecked = attemptSummary.checked
     summary.paymentAttemptsSettled = attemptSummary.settled

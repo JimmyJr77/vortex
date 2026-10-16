@@ -1243,3 +1243,43 @@ test('dashboard stacks current owed revenue above collected and shows two future
   expect(errors).toEqual([])
   await page.screenshot({ path: 'artifacts/revenue-dashboard.png', fullPage: true })
 })
+
+for (const entryPoint of ['enrollments', 'history'] as const) {
+  test(`Delete Enrollment from ${entryPoint} requires confirmation and refreshes the account`, async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+    await openCustomerBilling(page, captured)
+    let deleted = false
+    const preview = { signupId: 501, canDelete: true, reason: null, removedAmountCents: 10500 }
+    await page.route('**/api/admin/customer-billing/**/deletion-preview', (route) => route.fulfill({ json: { success: true, data: preview } }))
+    await page.route('**/api/admin/customer-billing/charges/*/enrollment-deletion-preview', (route) => route.fulfill({ json: { success: true, data: preview } }))
+    await page.route('**/api/admin/customer-billing/enrollments/501', async (route) => {
+      expect(route.request().method()).toBe('DELETE')
+      deleted = true
+      await route.fulfill({ json: { success: true, data: { signupId: 501 } } })
+    })
+    if (entryPoint === 'history') {
+      await page.route('**/api/admin/customer-billing/families/42/transactions*', (route) => route.fulfill({ json: { success: true, data: { rows: [{ entryKind: 'charge', entryType: 'recurring', refId: 221, memberId: 11, memberName: 'Jordan Rivera', description: 'Old unpaid enrollment', amountCents: 10500, remainingAmountCents: 10500, occurredAt: '2026-09-29T12:00:00Z', status: 'unpaid', runningBalanceCents: 10500, details: { sourceType: 'scheduling_signup', sourceId: '999' } }], nextCursor: null } } }))
+    }
+    await findRiveraAccount(page)
+    await page.getByRole('row', { name: entryPoint === 'enrollments' ? /Monday Foundations/ : /Old unpaid enrollment/ }).getByRole('button', { name: 'Modify', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: entryPoint === 'enrollments' ? 'Modify enrollment' : 'Modify bill', exact: true })
+    await dialog.getByRole('button', { name: 'Delete Enrollment', exact: true }).click()
+    expect(deleted).toBe(false)
+    const loadsBefore = captured.overviewLoads ?? 0
+    await dialog.getByRole('button', { name: 'Confirm Delete Enrollment', exact: true }).click()
+    await expect(dialog).not.toBeVisible()
+    expect(deleted).toBe(true)
+    await expect.poll(() => captured.overviewLoads ?? 0).toBeGreaterThan(loadsBefore)
+  })
+}
+
+test('paid enrollment does not offer Delete Enrollment', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+  await openCustomerBilling(page, captured)
+  await page.route('**/api/admin/customer-billing/**/deletion-preview', (route) => route.fulfill({ json: { success: true, data: { signupId: 501, canDelete: false, reason: 'This enrollment has payment history and cannot be deleted.' } } }))
+  await findRiveraAccount(page)
+  const preview = page.waitForResponse('**/deletion-preview')
+  await page.getByRole('row', { name: /Monday Foundations/ }).getByRole('button', { name: 'Modify', exact: true }).click()
+  await preview
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Delete Enrollment', exact: true })).toHaveCount(0)
+})

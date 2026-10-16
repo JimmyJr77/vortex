@@ -1,3 +1,4 @@
+import { previewChargeEnrollmentDeletion, previewCustomerBillingEnrollmentDeletion, deleteCustomerBillingEnrollment } from './customerBillingEnrollmentDeletion.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from './customerBillingRefundSelection.js'
 import { reassessBillingAllocations } from './reassessBillingAllocations.js'
 import { recallCustomerBillingMembershipBill } from './customerBillingMembershipRecall.js'
@@ -643,6 +644,35 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       }
     },
   )
+
+  app.get('/api/admin/customer-billing/charges/:chargeId/enrollment-deletion-preview',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'), async (req, res) => {
+      try {
+        const data = await previewChargeEnrollmentDeletion(pool, { chargeId: Number(req.params.chargeId), facilityId: facilityId(req) })
+        res.json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Enrollment preview failed.' })
+      }
+    })
+
+  for (const [method, suffix, operation] of [
+    ['get', '/deletion-preview', previewCustomerBillingEnrollmentDeletion],
+    ['delete', '', deleteCustomerBillingEnrollment],
+  ]) {
+    app[method](
+      `/api/admin/customer-billing/enrollments/:signupId${suffix}`,
+      ...requirePermission(pool, jwtSecret, 'billing.manage'),
+      async (req, res) => {
+        try {
+          const data = await operation(pool, { signupId: Number(req.params.signupId),
+            facilityId: facilityId(req), actorUserId: actorId(req) })
+          res.json({ success: true, data })
+        } catch (error) {
+          res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Enrollment deletion failed.' })
+        }
+      },
+    )
+  }
 
   app.post(
     '/api/admin/customer-billing/enrollments/:signupId/cancellation',

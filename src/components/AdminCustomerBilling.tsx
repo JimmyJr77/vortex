@@ -981,7 +981,7 @@ function TransactionsPanel({
                 && returnedRefundId > 0
               const canModifyBill = canManage && row.entryKind === 'charge' && row.amountCents >= 0 && (
                 (row.entryType === 'recurring' && Boolean(row.details.subscriptionId)) ||
-                ['additional_fee', 'manual'].includes(String(row.details.sourceType))
+                ['additional_fee', 'manual', 'scheduling_signup'].includes(String(row.details.sourceType))
               )
               const canSendPaymentRequest = canModifyBill && row.remainingAmountCents > 0
               const discountCode = row.entryType === 'one_time' && typeof row.details.discountCode === 'string'
@@ -1465,9 +1465,8 @@ export default function AdminCustomerBilling({
     }
     const subscriptionId = Number(row.details.subscriptionId)
     const subscription = overview.subscriptions.find((item) => item.id === subscriptionId)
-    const enrollment = subscription?.signupId == null
-      ? null
-      : overview.enrollments.find((item) => item.id === subscription.signupId)
+    const signupId = subscription?.signupId ?? (row.details.sourceType === 'scheduling_signup' ? Number(row.details.sourceId) : null)
+    const enrollment = signupId == null ? null : overview.enrollments.find((item) => item.id === signupId)
     if (!enrollment) {
       setChargeToModify(row)
       return

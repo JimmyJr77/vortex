@@ -178,6 +178,56 @@ export function EnrollmentMemberReassignmentModal({
   )
 }
 
+function DeleteEnrollmentControl({ signupId, chargeId, working, setWorking, onSaved, onError }: {
+  signupId?: number
+  chargeId?: number
+  working: boolean
+  setWorking: (value: boolean) => void
+  onSaved: (message: string) => void
+  onError: (message: string | null) => void
+}) {
+  const [deletion, setDeletion] = useState<{ canDelete: boolean; reason: string | null; removedAmountCents: number; signupId: number } | null>(null)
+  const [confirmDeletion, setConfirmDeletion] = useState(false)
+  useEffect(() => {
+    let active = true
+    setDeletion(null)
+    setConfirmDeletion(false)
+    adminApiRequest(signupId != null ? `/api/admin/customer-billing/enrollments/${signupId}/deletion-preview` : `/api/admin/customer-billing/charges/${chargeId}/enrollment-deletion-preview`)
+      .then(async (response) => {
+        const body = await responseBody(response)
+        if (active && response.ok) setDeletion(body.data)
+      }).catch(() => { /* The server rechecks eligibility before deletion. */ })
+    return () => { active = false }
+  }, [signupId, chargeId])
+
+  const deleteEnrollment = async () => {
+    if (!deletion?.canDelete) return
+    setWorking(true)
+    onError(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/enrollments/${deletion?.signupId}`, { method: 'DELETE' })
+      const body = await responseBody(response)
+      if (!response.ok) throw new Error(body.message || 'Enrollment deletion failed.')
+      onSaved(body.data?.reconciliationPending
+        ? 'Enrollment and unpaid line items deleted. Balances are updated; Stripe invoice reconciliation is pending and will retry.'
+        : 'Enrollment and unpaid line items deleted. Account totals have been recalculated.')
+    } catch (caught) {
+      onError(caught instanceof Error ? caught.message : 'Enrollment deletion failed.')
+    } finally { setWorking(false) }
+  }
+
+  return (deletion?.canDelete ? (
+    <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-950">
+      <div className="font-semibold">Delete Enrollment</div>
+      <p className="mt-1">Permanently remove this unpaid enrollment and {money(deletion.removedAmountCents)} in unpaid line items. Unpaid Stripe payment requests will be canceled and household invoices recalculated. Paid or processing payments prevent deletion.</p>
+      {confirmDeletion ? <div className="mt-3 flex gap-2">
+        <button type="button" disabled={working} onClick={() => void deleteEnrollment()} className="rounded-lg bg-red-700 px-3 py-2 font-semibold text-white disabled:opacity-50">Confirm Delete Enrollment</button>
+        <button type="button" disabled={working} onClick={() => setConfirmDeletion(false)} className="rounded-lg border px-3 py-2">Keep enrollment</button>
+      </div> : <button type="button" disabled={working} onClick={() => setConfirmDeletion(true)} className="mt-3 rounded-lg border border-red-300 bg-white px-3 py-2 font-semibold text-red-800">Delete Enrollment</button>}
+    </div>
+  ) : null)
+}
+
 export function PriceAdjustmentModal({
   enrollment,
   members,
@@ -354,6 +404,7 @@ export function PriceAdjustmentModal({
     >
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="space-y-4">
+          <DeleteEnrollmentControl signupId={enrollment.id} working={working} setWorking={setWorking} onSaved={onSaved} onError={setError} />
           {onSwap ? (
             <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950">
               <div className="font-semibold">Move to another class</div>
@@ -825,6 +876,7 @@ export function ModifyChargeModal({
 
   return (
     <ModalShell title="Modify bill" subtitle={`${charge.description} · current amount ${money(charge.amountCents)}`} onClose={onClose}>
+      <DeleteEnrollmentControl chargeId={charge.refId} working={working} setWorking={setWorking} onSaved={onSaved} onError={setError} />
       <div className="space-y-4">
         <p className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-950">{isCustom ? 'Edit the description or amount. Deleting the amount sets it to $0 with a linked credit, preserving account history.' : isAnnualMembership ? 'Current-term changes preserve the original bill and post a linked credit or debit. Renewal changes do not affect today’s account balance.' : 'Correct this bill only, including reducing it to $0. The original bill and the correction remain in account history.'}</p>
         {isCustom ? <label className="block text-sm font-medium text-gray-700">Description<input value={description} onChange={(event) => setDescription(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label> : null}

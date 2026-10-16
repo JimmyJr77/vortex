@@ -34,6 +34,8 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '834_refund_applied_account_credit.sql',
   '835_refund_preserve_charge_balance.sql',
   '836_monthly_invoice_revisions.sql',
+  '837_unpaid_enrollment_deletion.sql',
+  '838_enrollment_deletion_stripe_reconciliation.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -91,9 +93,13 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '834_refund_applied_account_credit.sql',
   '835_refund_preserve_charge_balance.sql',
   '836_monthly_invoice_revisions.sql',
+  '837_unpaid_enrollment_deletion.sql',
+  '838_enrollment_deletion_stripe_reconciliation.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
+  'billing_enrollment_deletion',
+  'uq_attempt_charge_original',
   'billing_monthly_invoice',
   'billing_monthly_invoice_line',
   'idx_billing_charge_account_created',
@@ -173,6 +179,9 @@ export const REQUIRED_BILLING_RELATIONS = Object.freeze([
 ])
 
 export const DEPLOY_BILLING_COLUMNS = Object.freeze([
+  { tableName: 'billing_monthly_invoice', columnName: 'enrollment_deletion_id' },
+  { tableName: 'billing_monthly_invoice_line', columnName: 'deleted_charge_id' },
+  { tableName: 'billing_payment_attempt_charge', columnName: 'deleted_charge_id' },
   { tableName: 'family_billing_account', columnName: 'household_monthly_billing_enabled' },
   { tableName: 'billing_payment', columnName: 'request_key' },
   { tableName: 'multi_class_pass_redemption', columnName: 'request_key' },
@@ -272,6 +281,8 @@ export const DEPLOY_BILLING_DEFAULTS = Object.freeze([
 // migration filename alone is insufficient readiness evidence because a
 // trigger or constraint can be dropped after the migration was recorded.
 export const DEPLOY_BILLING_TRIGGERS = Object.freeze([
+  { tableName: 'billing_payment_attempt', triggerName: 'trg_enrollment_deletion_attempt' },
+  { tableName: 'billing_monthly_invoice', triggerName: 'trg_enrollment_deletion_invoice' },
   { tableName: 'billing_migration_run', triggerName: 'trg_billing_migration_run_contract_immutable' },
   { tableName: 'billing_account_migration', triggerName: 'trg_billing_migration_initial_snapshot_immutable' },
   { tableName: 'billing_account_migration_item', triggerName: 'trg_billing_migration_item_evidence' },
