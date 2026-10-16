@@ -475,6 +475,10 @@ test('persistSignupCharges posts the prorated first charge and prorated order cr
   const chargeParams = pool.calls.charges[0]
   assert.equal(chargeParams[4], 8438) // amount_cents
   assert.equal(chargeParams[5], 11250) // gross_amount_cents (75% of $150)
+  assert.deepEqual(JSON.parse(chargeParams[13]).discountAnnotations, [
+    {kind:'proration',label:'Proration (3 of 4 classes)',amountCents:-3750},
+    {kind:'automatic',label:'Automatic discount',amountCents:-2812},
+  ])
 
   // Order discount is already reflected in monthlyNetCents for the prorated charge.
   assert.equal(pool.calls.orderCredits.length, 0)

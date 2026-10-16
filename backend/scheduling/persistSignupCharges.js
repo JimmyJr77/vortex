@@ -373,8 +373,8 @@ export async function persistSignupCharges(pool, {
           (family_billing_account_id, member_id, source_type, source_id, description,
            amount_cents, gross_amount_cents, discount_amount_cents,
            charge_type, billing_interval, subscription_id,
-           service_period_start, service_period_end, stripe_checkout_session_id)
-        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+           service_period_start, service_period_end, stripe_checkout_session_id, metadata)
+        VALUES ($1, $2, 'scheduling_signup', $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb)
         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
         DO UPDATE SET stripe_checkout_session_id = COALESCE(
           billing_charge.stripe_checkout_session_id,
@@ -402,6 +402,11 @@ export async function persistSignupCharges(pool, {
         servicePeriodStart,
         servicePeriodEnd,
         stripeCheckoutSessionId,
+        JSON.stringify(fm ? { discountAnnotations: [
+          ...(chargeGross < line.grossCents ? [{ kind: 'proration',
+            label: `Proration (${fm.remainingClasses} of 4 classes)`, amountCents: chargeGross - line.grossCents }] : []),
+          ...(chargeDiscount ? [{ kind: 'automatic', label: 'Automatic discount', amountCents: -chargeDiscount }] : []),
+        ] } : {}),
       ],
     )
     requireCheckoutChargeBinding(result, {

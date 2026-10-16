@@ -1,3 +1,4 @@
+import { reconcileCurrentEnrollmentCharges } from '../currentEnrollmentChargePricing.js'
 import { releaseBillingPaymentAttempt } from '../paymentAttemptReservations.js'
 import { facilityDate } from '../canonicalBillingMigrationState.js'
 import { deletionStripeFixture } from './fixtures/enrollmentDeletionStripe.js'
@@ -222,6 +223,46 @@ test('unpaid enrollment deletion PostgreSQL regression', { skip: !url }, async (
     assert.ok(operations.every(row => row.status === 'complete'))
     assert.deepEqual((await db.query('SELECT stripe_event_id FROM stripe_billing_alert WHERE resolved_at IS NULL')).rows,
       [{stripe_event_id:'unrelated'}])
+  })
+  await t.test('same-month household repricing updates existing tuition, itemizes proration, and protects paid bills', async () => {
+    await db.query(`UPDATE scheduling_signup SET status='confirmed',slot_group_id=2,time_slot_id=3,enrollment_start_date='2026-10-16';
+      UPDATE billing_subscription SET status='active',monthly_amount_cents=15000,net_monthly_cents=12750;
+      UPDATE billing_charge SET charge_type='recurring',service_period_start='2026-10-16',service_period_end='2026-10-31';
+      UPDATE billing_charge SET amount_cents=9000,gross_amount_cents=11250,discount_amount_cents=2250 WHERE id=1;`)
+    const calendarLoader = async () => new Map([[2,[{id:3,slot_group_id:2,form_id:1,schedule_mode:'day',day_of_week:5,
+      start_time:'16:00:00',end_time:'17:30:00',is_active:true,sg_is_active:true,form_is_active:true,
+      sg_dates_tbd:false,sg_active_start:'2026-07-01',sg_active_end:'2026-12-31',
+      form_start_date:'2026-07-01',form_end_date:'2026-12-31',enroll_sites:['athletics']}]]])
+    let netCents = 12750
+    const pricingResolver = async () => ({lines:[1,2].map(id => ({signupId:id,subscriptionId:id,memberId:1,
+      grossCents:15000,netCents,discountCents:15000-netCents}))})
+    const options = {familyId:1,now:new Date('2026-10-16T12:00:00Z'),pricingResolver,calendarLoader}
+    const paidBefore = (await db.query('SELECT * FROM billing_charge WHERE id=2')).rows[0]
+    assert.equal((await reconcileCurrentEnrollmentCharges(db,options)).changes.length,1)
+    let current = (await db.query('SELECT * FROM billing_charge WHERE id=1')).rows[0]
+    assert.equal(current.amount_cents,9563)
+    assert.equal(current.discount_amount_cents,1687)
+    assert.deepEqual(current.metadata.discountAnnotations,[
+      {kind:'proration',label:'Proration (3 of 4 classes)',amountCents:-3750},
+      {kind:'automatic',label:'Automatic discount',amountCents:-1687}])
+    assert.equal((await reconcileCurrentEnrollmentCharges(db,options)).changes.length,0)
+    await db.query("UPDATE billing_charge SET stripe_checkout_session_id='cs_open',metadata='{}' WHERE id=1")
+    assert.equal((await reconcileCurrentEnrollmentCharges(db,options)).changes.length,1)
+    assert.equal((await db.query('SELECT amount_cents FROM billing_charge WHERE id=1')).rows[0].amount_cents,9563)
+    await db.query('UPDATE billing_charge SET stripe_checkout_session_id=NULL WHERE id=1')
+    // Adding another class changes the household tier, including its existing bill.
+    netCents=12000
+    await reconcileCurrentEnrollmentCharges(db,options)
+    current = (await db.query('SELECT * FROM billing_charge WHERE id=1')).rows[0]
+    assert.equal(current.amount_cents,9000)
+    assert.deepEqual((await db.query('SELECT * FROM billing_charge WHERE id=2')).rows[0],paidBefore)
+    const history=await listCustomerBillingTransactions(db,{accountId:1})
+    assert.ok(history.rows.find(row=>row.refId===1 && row.entryKind==='charge').discountAnnotations.some(a=>a.kind==='proration'))
+    // A checkout link freezes the amount until collection is reconciled.
+    await db.query("UPDATE billing_charge SET stripe_checkout_session_id='cs_open' WHERE id=1")
+    netCents=15000
+    assert.equal((await reconcileCurrentEnrollmentCharges(db,options)).changes.length,0)
+    assert.equal((await db.query('SELECT amount_cents FROM billing_charge WHERE id=1')).rows[0].amount_cents,9000)
   })
   for (const amount of [1, 10000]) {
     await t.test(`rejects an enrollment with ${amount} cents paid and rolls back`, async () => {

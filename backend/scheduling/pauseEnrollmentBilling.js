@@ -318,6 +318,16 @@ export async function syncFamilyEnrollmentDiscounts(pool, familyId, {
     }
   }
 
+  // Live household changes also affect already-posted, uncollected tuition.
+  // Scheduled recurring runs supply their own period and retain their posting workflow.
+  if (periodKey == null) {
+    const { reconcileCurrentEnrollmentCharges } = await import('../billing/currentEnrollmentChargePricing.js')
+    await reconcileCurrentEnrollmentCharges(pool, { familyId: Number(familyId) })
+    const { reconcileUpcomingProvisionalChargesForAccount } = await import('../billing/canonicalRecurringChargePosting.js')
+    const accounts = (await pool.query('SELECT id FROM family_billing_account WHERE family_id=$1 AND is_active=TRUE', [familyId])).rows
+    for (const account of accounts) await reconcileUpcomingProvisionalChargesForAccount(pool, { accountId: Number(account.id) })
+  }
+
   // Keep Stripe Prices aligned with household net amounts (e.g. 3-class / $450 → 20%).
   let stripeSync = { updated: 0 }
   try {

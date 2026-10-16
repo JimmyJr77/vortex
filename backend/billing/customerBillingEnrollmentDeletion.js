@@ -112,6 +112,8 @@ async function finishDeletion(db, operation, { stripe, environment, replaceInvoi
     FROM family_billing_account account JOIN family ON family.id=account.family_id
     JOIN facility ON facility.id=family.facility_id WHERE account.id=$1`, [operation.family_billing_account_id])).rows[0]
   try {
+    const { reconcileCurrentEnrollmentCharges } = await import('./currentEnrollmentChargePricing.js')
+    await reconcileCurrentEnrollmentCharges(db, { familyId: Number(account.family_id) })
     await reconcileUpcomingProvisionalChargesForAccount(db, { accountId: Number(account.id) })
     const months = [...(result.replacementMonths ?? [])].sort()
     if (months.length) {
