@@ -5036,6 +5036,9 @@ export async function verifyCanonicalBillingAccount(db, {
         facilityTimeZone: timezone,
         now,
         apply: false,
+        // Existing first-month tuition is intentionally prorated. Verification
+        // must recognize that exact price without relaxing full-month renewals.
+        respectInitialProration: true,
       })
       issues.push(...(recurringChargeParity.issues ?? []))
     } catch (error) {

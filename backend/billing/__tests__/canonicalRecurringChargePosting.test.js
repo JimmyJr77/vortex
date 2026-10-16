@@ -935,3 +935,25 @@ test('a positive collectible remainder still requires a household invoice', asyn
   assert.equal(verification.verified, false)
   assert.ok(verification.issues.some((entry) => entry.code === 'household_invoice_missing'))
 })
+
+test('migration verification accepts exact initial proration without relaxing renewal or price parity', async () => {
+  const initial = exactTargetCharge({source_type:'scheduling_signup',source_id:'101',
+    amount_cents:9000,gross_amount_cents:11250,discount_amount_cents:2250,service_period_start:'2026-09-16'})
+  const subscriptions=[activeSubscription({enrollment_start_date:'2026-09-16',start_date:'2026-09-16',next_bill_date:'2026-10-01'})]
+  const options={accountId:9,billingMonth:TARGET_MONTH,facilityTimeZone:TIMEZONE,
+    now:new Date('2026-09-16T12:00:00Z'),apply:false,pricingResolver:async()=>pricing(),respectInitialProration:true}
+  const fixture=recurringPostingFixture({subscriptions,charges:[initial]})
+  const before=structuredClone(fixture.state)
+  const result=await reconcileCanonicalRecurringChargesForMonth(fixture.db,options)
+  assert.deepEqual(result.issues,[])
+  assert.deepEqual(fixture.state,before)
+  for(const invalid of [
+    {...initial,amount_cents:8999,discount_amount_cents:2251},
+    {...initial,source_type:'billing_subscription',source_id:'41:2026-09'},
+    {...initial,member_id:999},
+  ]){
+    const bad=recurringPostingFixture({subscriptions,charges:[invalid]})
+    await assert.rejects(reconcileCanonicalRecurringChargesForMonth(bad.db,options),/parity failed/)
+  }
+  await assert.rejects(reconcileCanonicalRecurringChargesForMonth(fixture.db,{...options,respectInitialProration:false}),/parity failed/)
+})

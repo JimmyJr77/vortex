@@ -499,7 +499,7 @@ function expectedLinesFromPricing(pricing, subscriptions, period, { refreshPrici
   return { lines, issues, excludedSubscriptions, lifecycleManifest }
 }
 
-function compareTargetCharges(expectedLines, charges, period, { respectHistoricalCharges = false } = {}) {
+function compareTargetCharges(expectedLines, charges, period, { respectHistoricalCharges = false, respectInitialProration = false } = {}) {
   const issues = []
   const expectedById = new Map(expectedLines.map((line) => [line.subscriptionId, line]))
   const chargesBySubscription = new Map()
@@ -541,7 +541,7 @@ function compareTargetCharges(expectedLines, charges, period, { respectHistorica
     const actualAdjustmentId = charge.price_adjustment_id == null ? null : Number(charge.price_adjustment_id)
     const initialStart = billingDateString(expected.subscription.enrollment_start_date
       ?? expected.subscription.start_date)
-    const isInitial = respectHistoricalCharges
+    const isInitial = (respectHistoricalCharges || respectInitialProration)
       && charge.source_type === 'scheduling_signup'
       && String(charge.source_id) === String(expected.signupId)
       && initialStart?.slice(0, 7) === period.periodKey
@@ -725,6 +725,7 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
   allowEarlyPosting = false,
   pricingResolver = resolveFamilyEnrollmentPricing,
   recurringRun = false,
+  respectInitialProration = false,
 } = {}) {
   const period = targetPeriod(billingMonth)
   if (!isValidTimeZone(facilityTimeZone)) {
@@ -794,7 +795,8 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       ensureSchema: false,
       strictPricing: true,
     })
-    const options = { refreshPricing: recurringRun, respectHistoricalCharges: recurringRun && !provisional }
+    const options = { refreshPricing: recurringRun, respectHistoricalCharges: recurringRun && !provisional,
+      respectInitialProration: respectInitialProration && !provisional }
     const expected = expectedLinesFromPricing(pricing, subscriptions, period, options)
     let comparison = compareTargetCharges(expected.lines, charges, period, options)
     // Uncollected pre-posted bills remain provisional after the month turns.
