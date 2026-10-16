@@ -27,7 +27,7 @@ export async function activateEnrollmentHouseholdBilling(pool, {
     cohort: 'enrollment-automatic-billing', forwardAdoption: true,
     idempotencyKey: `enrollment-autobilling:${accountId}:${targetMonth}:v1`,
     codeVersion: environment.RENDER_GIT_COMMIT || 'enrollment-autobilling-v1',
-    manifestChecksum: BILLING_DEPLOY_MANIFEST_CHECKSUM,
+    manifestChecksum: BILLING_DEPLOY_MANIFEST_CHECKSUM, environment,
   })
   const adoption = await adoptCanonicalHouseholdBillingMigration(pool, {
     runId: audit.runId, accountIds: [Number(accountId)], stripe, apply: true, environment, now,

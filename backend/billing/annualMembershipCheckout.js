@@ -1757,7 +1757,18 @@ async function settleCompletedAnnualMembershipCheckout(pool, {
  * The durable request snapshot, not mutable fee configuration or Stripe
  * metadata price fragments, is authoritative for every per-athlete charge.
  */
-export async function commitAnnualMembershipCheckout(pool, { stripeSession, accountId }) {
+export async function commitAnnualMembershipCheckout(pool, options) {
+  const result = await commitAnnualMembershipCheckoutPayment(pool, options)
+  if (['completed', 'already_active'].includes(result.status)) {
+    const { completeHouseholdEnrollmentSetup } = await import('./householdEnrollmentSetup.js')
+    for (const memberId of result.memberIds ?? []) {
+      await completeHouseholdEnrollmentSetup(pool, { memberId })
+    }
+  }
+  return result
+}
+
+async function commitAnnualMembershipCheckoutPayment(pool, { stripeSession, accountId }) {
   const session =
     typeof stripeSession === 'string'
       ? await (await getStripeClient()).checkout.sessions.retrieve(stripeSession)

@@ -2531,35 +2531,34 @@ export function createSchedulingHandlers(pool) {
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
           }
 
+          let orderPreviewSnapshot = null
           let discountBreakdown = null
           let freePassBreakdown = null
-          try {
-            const preview = await buildSignupOrderPreview(pool, {
-              memberId,
-              newSignups: [
-                {
-                  formId: value.formId,
-                  slotGroupId: value.slotGroupId,
-                  timeSlotId: firstOccurrence.id,
-                  formTitle: detail.title,
-                  enrollmentStartDate: value.enrollmentStartDate,
-                },
-              ],
-              promoCodes: value.promoCodes || [],
-              memberContext: {
-                city: null,
-                school: responses.current_school != null ? String(responses.current_school).trim() : null,
-                graduationYear:
-                  responses.graduation_year != null && responses.graduation_year !== ''
-                    ? Number(responses.graduation_year)
-                    : null,
+          const preview = await buildSignupOrderPreview(client, {
+            memberId,
+            newSignups: [
+              {
+                formId: value.formId,
+                slotGroupId: value.slotGroupId,
+                timeSlotId: firstOccurrence.id,
+                formTitle: detail.title,
+                enrollmentStartDate: value.enrollmentStartDate,
               },
-            })
-            discountBreakdown = preview.discounts
-            freePassBreakdown = preview.freePasses
-          } catch (previewErr) {
-            console.warn('[scheduling] discount preview at submit:', previewErr.message)
-          }
+            ],
+            promoCodes: value.promoCodes || [],
+            memberContext: {
+              city: null,
+              school: responses.current_school != null ? String(responses.current_school).trim() : null,
+              graduationYear:
+                responses.graduation_year != null && responses.graduation_year !== ''
+                  ? Number(responses.graduation_year)
+                  : null,
+            },
+          })
+          orderPreviewSnapshot = preview
+          discountBreakdown = preview.discounts
+          freePassBreakdown = preview.freePasses
+
 
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
@@ -2580,7 +2579,23 @@ export function createSchedulingHandlers(pool) {
             await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
           }
 
+          // Confirming an enrollment and creating its tuition must succeed
+          // together. Annual membership is purchased through its own checkout.
+          if (signupResult.signupStatus === 'confirmed') {
+            await persistSignupCharges(client, {
+              memberId,
+              signups: [{ signupId: signupResult.signupId, formId: value.formId,
+                slotGroupId: value.slotGroupId, timeSlotId: firstOccurrence.id,
+                formTitle: detail.title, slotLabel: signupResult.slotLabel }],
+              preview: { ...orderPreviewSnapshot, additionalFees: { enabled: false, items: [] } },
+            })
+          }
+
           await client.query('COMMIT')
+          if (signupResult.signupStatus === 'confirmed') {
+            const { completeHouseholdEnrollmentSetup } = await import('../billing/householdEnrollmentSetup.js')
+            await completeHouseholdEnrollmentSetup(pool, { memberId })
+          }
 
           if (createdNewStubMemberId) {
             void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
@@ -2862,48 +2877,45 @@ export function createSchedulingHandlers(pool) {
           let discountBreakdown = null
           let freePassBreakdown = null
           let orderPreviewSnapshot = null
-          try {
-            if (billingCheckoutPreview) {
-              discountBreakdown = billingCheckoutPreview.discounts ?? null
-              freePassBreakdown = billingCheckoutPreview.freePasses ?? null
-              orderPreviewSnapshot = billingCheckoutPreview
-            } else {
-              const preview = await buildSignupOrderPreview(pool, {
-                memberId,
-                newSignups: [
-                  ...resolvedEntries.map((resolved) => ({
-                    formId: resolved.entry.formId,
-                    slotGroupId: resolved.entry.slotGroupId,
-                    timeSlotId: resolved.firstOccurrence.id,
-                    formTitle: resolved.detail.title,
-                    selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
-                    useMultiClassPass: resolved.entry.useMultiClassPass,
-                    enrollmentStartDate: resolved.entry.enrollmentStartDate,
-                    lineType: 'slot',
-                  })),
-                  ...passSignups.map((p) => ({
-                    lineType: 'multi_class_pass',
-                    programsId: p.programsId,
-                    packageId: p.packageId,
-                  })),
-                ],
-                promoCodes: value.promoCodes || [],
-                memberContext: {
-                  city: null,
-                  school: responses.current_school != null ? String(responses.current_school).trim() : null,
-                  graduationYear:
-                    responses.graduation_year != null && responses.graduation_year !== ''
-                      ? Number(responses.graduation_year)
-                      : null,
-                },
-              })
-              discountBreakdown = preview.discounts
-              freePassBreakdown = preview.freePasses
-              orderPreviewSnapshot = preview
-            }
-          } catch (previewErr) {
-            console.warn('[scheduling] discount preview at batch submit:', previewErr.message)
+          if (billingCheckoutPreview) {
+            discountBreakdown = billingCheckoutPreview.discounts ?? null
+            freePassBreakdown = billingCheckoutPreview.freePasses ?? null
+            orderPreviewSnapshot = billingCheckoutPreview
+          } else {
+            const preview = await buildSignupOrderPreview(client, {
+              memberId,
+              newSignups: [
+                ...resolvedEntries.map((resolved) => ({
+                  formId: resolved.entry.formId,
+                  slotGroupId: resolved.entry.slotGroupId,
+                  timeSlotId: resolved.firstOccurrence.id,
+                  formTitle: resolved.detail.title,
+                  selectedPricingOptionKey: resolved.entry.selectedPricingOptionKey,
+                  useMultiClassPass: resolved.entry.useMultiClassPass,
+                  enrollmentStartDate: resolved.entry.enrollmentStartDate,
+                  lineType: 'slot',
+                })),
+                ...passSignups.map((p) => ({
+                  lineType: 'multi_class_pass',
+                  programsId: p.programsId,
+                  packageId: p.packageId,
+                })),
+              ],
+              promoCodes: value.promoCodes || [],
+              memberContext: {
+                city: null,
+                school: responses.current_school != null ? String(responses.current_school).trim() : null,
+                graduationYear:
+                  responses.graduation_year != null && responses.graduation_year !== ''
+                    ? Number(responses.graduation_year)
+                    : null,
+              },
+            })
+            discountBreakdown = preview.discounts
+            freePassBreakdown = preview.freePasses
+            orderPreviewSnapshot = preview
           }
+
 
           const signupResults = []
           for (const resolved of resolvedEntries) {
@@ -2982,7 +2994,61 @@ export function createSchedulingHandlers(pool) {
             await linkMemberToSchoolFromName(client, memberId, currentSchool, 'signup')
           }
 
+          // Bridge the created signups into the persisted family billing ledger.
+          for (const redemption of passRedemptionResults) {
+            await persistPassRedemptionCharge(client, {
+              memberId,
+              signupId: redemption.signupId,
+              formTitle: redemption.formTitle,
+              slotLabel: redemption.slotLabel,
+              packageLabel: redemption.packageLabel,
+              classesRemainingAfter: redemption.classesRemainingAfter,
+            })
+          }
+
+          const passRedemptionSignupIds = new Set(passRedemptionResults.map((r) => r.signupId))
+          await persistSignupCharges(client, {
+            memberId,
+            signups: signupResults
+              .map((result, index) => ({ result, index }))
+              .filter(({ result }) => !passRedemptionSignupIds.has(result.signupId))
+              .map(({ result, index }) => ({
+                signupId: result.signupId,
+                formId: resolvedEntries[index].entry.formId,
+                slotGroupId: resolvedEntries[index].entry.slotGroupId,
+                timeSlotId: resolvedEntries[index].firstOccurrence.id,
+                formTitle: result.formTitle,
+                slotLabel: result.slotLabel,
+              })),
+            preview: orderPreviewSnapshot,
+            stripeCheckoutSessionId,
+            purchasedAt: billingCheckoutPurchasedAt,
+          })
+
+          const { resolveProgramsSchema } = await import('../programs/schema.js')
+          const schema = await resolveProgramsSchema(client)
+          for (const purchased of purchasedPasses) {
+            const progRes = await client.query(
+              `SELECT display_name FROM ${schema.programsTable} WHERE id = $1`,
+              [purchased.programsId],
+            )
+            await persistMultiClassPassPurchaseCharge(client, {
+              memberId,
+              passId: purchased.passId,
+              programsId: purchased.programsId,
+              packageLabel: purchased.packageDef.label,
+              priceCents: purchased.packageDef.priceCents,
+              programDisplayName: progRes.rows[0]?.display_name ?? null,
+              stripeCheckoutSessionId,
+            })
+          }
+
+
           await client.query('COMMIT')
+          if (!stripeCheckoutSessionId) {
+            const { completeHouseholdEnrollmentSetup } = await import('../billing/householdEnrollmentSetup.js')
+            await completeHouseholdEnrollmentSetup(pool, { memberId })
+          }
 
           if (createdNewStubMemberId) {
             void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
@@ -3025,59 +3091,6 @@ export function createSchedulingHandlers(pool) {
               keyToSignupId,
               fallbackSignupId: signupResults[0]?.signupId ?? null,
             })
-          }
-
-          // Bridge the created signups into the persisted family billing ledger.
-          try {
-            for (const redemption of passRedemptionResults) {
-              await persistPassRedemptionCharge(pool, {
-                memberId,
-                signupId: redemption.signupId,
-                formTitle: redemption.formTitle,
-                slotLabel: redemption.slotLabel,
-                packageLabel: redemption.packageLabel,
-                classesRemainingAfter: redemption.classesRemainingAfter,
-              })
-            }
-
-            const passRedemptionSignupIds = new Set(passRedemptionResults.map((r) => r.signupId))
-            await persistSignupCharges(pool, {
-              memberId,
-              signups: signupResults
-                .map((result, index) => ({ result, index }))
-                .filter(({ result }) => !passRedemptionSignupIds.has(result.signupId))
-                .map(({ result, index }) => ({
-                  signupId: result.signupId,
-                  formId: resolvedEntries[index].entry.formId,
-                  slotGroupId: resolvedEntries[index].entry.slotGroupId,
-                  timeSlotId: resolvedEntries[index].firstOccurrence.id,
-                  formTitle: result.formTitle,
-                  slotLabel: result.slotLabel,
-                })),
-              preview: orderPreviewSnapshot,
-              stripeCheckoutSessionId,
-              purchasedAt: billingCheckoutPurchasedAt,
-            })
-
-            const { resolveProgramsSchema } = await import('../programs/schema.js')
-            const schema = await resolveProgramsSchema(pool)
-            for (const purchased of purchasedPasses) {
-              const progRes = await pool.query(
-                `SELECT display_name FROM ${schema.programsTable} WHERE id = $1`,
-                [purchased.programsId],
-              )
-              await persistMultiClassPassPurchaseCharge(pool, {
-                memberId,
-                passId: purchased.passId,
-                programsId: purchased.programsId,
-                packageLabel: purchased.packageDef.label,
-                priceCents: purchased.packageDef.priceCents,
-                programDisplayName: progRes.rows[0]?.display_name ?? null,
-                stripeCheckoutSessionId,
-              })
-            }
-          } catch (chargeErr) {
-            console.warn('[scheduling] persistSignupCharges:', chargeErr.message)
           }
 
           const mappedSignups = []

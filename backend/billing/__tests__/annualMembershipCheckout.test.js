@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
@@ -767,7 +768,8 @@ test('annual Checkout persists exact Stripe expiry for request and promo reserva
 })
 
 test('paid annual fulfillment freezes non-cooperating authorization mutations through commit', () => {
-  const source = String(commitAnnualMembershipCheckout)
+  const source = readFileSync(new URL('../annualMembershipCheckout.js', import.meta.url), 'utf8')
+    .split('async function commitAnnualMembershipCheckoutPayment')[1]
   const transactionAt = source.indexOf("await db.query('BEGIN')")
   const membershipLockAt = source.indexOf('LOCK TABLE family_member IN SHARE MODE')
   const requestLockAt = source.indexOf('FOR UPDATE OF request', membershipLockAt)
