@@ -790,6 +790,7 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           actorUserId: actorId(req),
           attemptKey: idempotencyKey(req, 'outstanding-balance'),
         })
+        if (data.requiresInvoicePayment) return res.json({ success: true, data })
         notifyPaymentReceipt(pool, { account, payment: data.payment, billingUrl: `${publicAppUrl()}/?billing=portal-return` }).catch(() => {})
         // The collector has already committed the payment and exact charge
         // applications. Read the canonical balance after that commit so the

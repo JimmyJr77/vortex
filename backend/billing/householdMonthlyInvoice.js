@@ -17,7 +17,7 @@ import {
   findActiveEnrollmentCheckoutBalanceCollector,
   findCompletedPaidCheckoutFulfillmentGap,
 } from './paidCheckoutCollectionGuard.js'
-import { loadCanonicalCollectibleBalanceCents } from './canonicalBillingAccount.js'
+import { HOUSEHOLD_INVOICE_RESERVING_STATUSES, loadCanonicalCollectibleBalanceCents } from './canonicalBillingAccount.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
 import { listStripeInvoicePaymentInventory } from './stripeInvoicePaymentBinding.js'
@@ -1917,6 +1917,40 @@ async function pushInvoiceToStripe(pool, {
       failure_message: String(error?.message ?? error).slice(0, 500),
     })
   }
+}
+
+/** Resume the existing collector instead of creating a competing balance payment. */
+export async function resumeHouseholdInvoicePaymentLink(pool, { account, stripe }) {
+  return withBillingAccountCollectionLock(pool, account.id, async (db) => {
+    const invoice = (await db.query(
+      `/* household-payment:resume-link */
+       SELECT * FROM billing_monthly_invoice
+       WHERE family_billing_account_id = $1 AND status = ANY($2::text[])
+       ORDER BY billing_month, id LIMIT 1`,
+      [account.id, HOUSEHOLD_INVOICE_RESERVING_STATUSES],
+    )).rows[0]
+    if (!invoice) return null
+    if (!invoice.stripe_invoice_id || invoice.status === 'draft') {
+      throw new Error('The monthly invoice is still being prepared. Refresh the account before paying.')
+    }
+    const input = {
+      account, invoice, stripe, stripeInvoiceId: invoice.stripe_invoice_id,
+      stripeCustomerId: account.stripe_customer_id, billingMonth: invoice.billing_month,
+    }
+    await assertHouseholdInvoicePublicationBoundary(db, input)
+    const inspection = await assertFreshHouseholdInvoiceStructure(db, {
+      ...input, allowedLocalStatuses: ['open', 'failed', 'payment_method_required'],
+    })
+    await assertFreshHouseholdInvoicePaymentBinding(db, input)
+    const url = inspection.remoteInvoice.hosted_invoice_url
+    if (!url) throw new Error('Stripe has not provided a payment link for this monthly invoice. Refresh and try again.')
+    await markInvoice(db, invoice.id, { hosted_invoice_url: url })
+    return {
+      id: invoice.stripe_invoice_id, url, amountCents: Number(invoice.total_cents),
+      expiresAt: null, paymentType: 'monthly_invoice', monthlyInvoiceId: Number(invoice.id),
+      billingMonth: dateOnly(invoice.billing_month),
+    }
+  })
 }
 
 /** Build and attempt the single Stripe invoice for one enabled household/month. */

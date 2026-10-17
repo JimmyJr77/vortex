@@ -404,19 +404,14 @@ export default function MemberCustomerBilling({
 
   const balanceDue = overview.summary.collectibleBalanceCents
   const canManageBilling = data?.access.canManagePayments === true
-  const payableHostedInvoice = overview.monthlyInvoices.find((invoice) => (
+  const unpaidMonthlyInvoice = overview.monthlyInvoices.find((invoice) => (
     ['open', 'failed', 'payment_method_required'].includes(invoice.status)
-    && Boolean(invoice.hostedInvoiceUrl)
   )) ?? null
   const canPay = canManageBilling
     && overview.paymentMethod.stripeEnabled
-    && (balanceDue > 0 || Boolean(payableHostedInvoice?.hostedInvoiceUrl))
+    && (balanceDue > 0 || Boolean(unpaidMonthlyInvoice))
   const canManagePaymentMethod = data?.access.canManagePaymentMethod === true
   const processMonthlyBalance = () => {
-    if (balanceDue <= 0 && payableHostedInvoice?.hostedInvoiceUrl) {
-      window.location.assign(payableHostedInvoice.hostedInvoiceUrl)
-      return
-    }
     onPayNow(autopayConsent?.accountId === overview.account.id && autopayConsent.selected)
   }
 
@@ -433,7 +428,7 @@ export default function MemberCustomerBilling({
             </div>
           </div>
           <div className="space-y-3 xl:max-w-lg">
-          {canManageBilling && canManagePaymentMethod && balanceDue > 0 ? (
+          {canManageBilling && canManagePaymentMethod && !unpaidMonthlyInvoice && balanceDue > 0 ? (
             <label className="flex items-start gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
               <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-vortex-red"
                 checked={autopayConsent?.accountId === overview.account.id && autopayConsent.selected}

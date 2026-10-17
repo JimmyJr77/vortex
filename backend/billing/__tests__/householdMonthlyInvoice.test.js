@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  resumeHouseholdInvoicePaymentLink,
   activateEligibleHouseholdMonthlyBilling,
   activateHouseholdMonthlyBillingForAccount,
   billingMonthStart,
@@ -555,6 +556,7 @@ function resumePool({
       if (text.includes('billing_account_migration migration')) {
         return { rows: [paymentAuthority()] }
       }
+      if (text.includes('household-payment:resume-link')) return { rows: [{ ...invoice }] }
       if (text.includes('household-payment:invoice-structure')) {
         return { rows: [{ ...invoice }] }
       }
@@ -3188,3 +3190,48 @@ test('replacement invoice publication never charges a saved payment method', asy
   assert.equal(stripe.calls.includes('invoices.pay'), false)
   assert.equal(pool.invoice.payment_attempted_at, null)
 })
+
+for (const status of ['open', 'failed', 'payment_method_required']) {
+  test(`balance payment resumes verified ${status} monthly invoice without charging again`, async () => {
+    const pool = resumePool({ status, stripePaymentIntentId: 'pi_42' })
+    const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+    const input = paymentBoundaryInput(stripe)
+    const result = await resumeHouseholdInvoicePaymentLink(pool, input)
+    assert.equal(result.paymentType, 'monthly_invoice')
+    assert.equal(result.amountCents, 25000)
+    assert.equal(result.url, 'https://stripe.test/in_42')
+    assert.equal(pool.invoice.hosted_invoice_url, result.url)
+    assert.equal(stripe.payRequests.length, 0)
+    assert.equal(stripe.invoiceCreateRequests.length, 0)
+  })
+}
+
+test('balance payment cannot publish a link while the invoice payment is processing', async () => {
+  const pool = resumePool({ status: 'open' })
+  const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+  const retrieve = stripe.paymentIntents.retrieve
+  stripe.paymentIntents.retrieve = async (...args) => ({ ...await retrieve(...args), status: 'processing' })
+  await assert.rejects(resumeHouseholdInvoicePaymentLink(pool, paymentBoundaryInput(stripe)))
+  assert.equal(pool.invoice.hosted_invoice_url, undefined)
+  assert.equal(stripe.payRequests.length, 0)
+})
+
+test('balance payment without a monthly invoice falls through to normal checkout', async () => {
+  const pool = { async query() { return { rows: [] } } }
+  assert.equal(await resumeHouseholdInvoicePaymentLink(pool, { account: { id: 8 }, stripe: {} }), null)
+})
+
+for (const mutation of ['customer', 'total', 'status']) {
+  test(`resuming invoice rejects a changed Stripe ${mutation}`, async () => {
+    const pool = resumePool({ status: 'open' })
+    const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'open' })
+    const retrieve = stripe.invoices.retrieve
+    stripe.invoices.retrieve = async (...args) => ({
+      ...await retrieve(...args),
+      [mutation]: { customer: 'cus_other', total: 25001, status: 'paid' }[mutation],
+    })
+    await assert.rejects(resumeHouseholdInvoicePaymentLink(pool, paymentBoundaryInput(stripe)))
+    assert.equal(pool.invoice.hosted_invoice_url, undefined)
+    assert.equal(stripe.payRequests.length, 0)
+  })
+}

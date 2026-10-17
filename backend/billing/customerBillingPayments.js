@@ -16,7 +16,7 @@ import {
 import { recordBillingActivity } from './billingActivity.js'
 import { ensureCustomerBillingAccount, upcomingRecurringPricingMonth } from './customerBillingQueries.js'
 import { ensureBillingChargeSchema } from './billingChargeSchema.js'
-import { ensureHouseholdMonthlyInvoiceSchema } from './householdMonthlyInvoice.js'
+import { ensureHouseholdMonthlyInvoiceSchema, resumeHouseholdInvoicePaymentLink } from './householdMonthlyInvoice.js'
 import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
 import { loadActiveAdditionalFees } from '../scheduling/additionalFeesEngine.js'
 import { memberHasActiveAnnualMembership } from '../scheduling/annualMembership.js'
@@ -1239,6 +1239,10 @@ export async function createCustomerBalanceCheckoutSession(pool, {
     if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
       throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
     }
+    if (!existing) {
+      const invoicePayment = await resumeHouseholdInvoicePaymentLink(db, { account, stripe })
+      if (invoicePayment) return invoicePayment
+    }
     const amountCents = existing?.amount_cents ?? await loadCanonicalCollectibleBalanceCents(db, account.id)
     if (amountCents <= 0) throw new Error('This account has no unpaid balance.')
     const expiration = existing?.expires_at
@@ -1495,6 +1499,10 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     }
     if (existing && ['failed', 'expired', 'canceled'].includes(existing.status)) {
       throw new Error(`This payment attempt is ${existing.status}; start a new request.`)
+    }
+    if (!existing) {
+      const invoicePayment = await resumeHouseholdInvoicePaymentLink(db, { account, stripe })
+      if (invoicePayment) return { ...invoicePayment, requiresInvoicePayment: true, payment: null }
     }
     const availableCents = existing?.amount_cents ?? await loadCanonicalCollectibleBalanceCents(db, account.id)
     const amount = amountCents == null ? availableCents : positiveCents(amountCents, 'Collection amount')
