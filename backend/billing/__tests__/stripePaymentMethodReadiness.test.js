@@ -121,3 +121,36 @@ test('selection retrieves and validates an explicitly configured Link default', 
   assert.equal(selection.paymentMethod.id, 'pm_link')
   assert.equal(selection.source, 'default')
 })
+
+import { markClosedStripeLinkConnection } from '../stripePaymentMethodReadiness.js'
+
+for (const failure of [
+  { code: 'link_account_closed' },
+  { doc_url: 'https://stripe.com/docs/error-codes/link-account-closed' },
+]) {
+  test(`closed Link is excluded from readiness (${Object.keys(failure)[0]})`, async () => {
+    const method = { id: 'pm_link', type: 'link', customer: 'cus_household', metadata: {} }
+    const stripe = { paymentMethods: {
+      async retrieve(id) { assert.equal(id, method.id); return method },
+      async update(id, params) { assert.equal(id, method.id); Object.assign(method.metadata, params.metadata) },
+    } }
+    assert.equal(await markClosedStripeLinkConnection(stripe, {
+      id: 'pi_failed', customer: method.customer,
+      last_payment_error: { ...failure, payment_method: { id: method.id } },
+    }), true)
+    const result = classifyStripePaymentMethodReadiness(method, { expectedCustomerId: method.customer, billingMonth: '2026-10' })
+    assert.equal(result.ready, false)
+    assert.equal(result.reason, 'link_account_closed')
+  })
+}
+
+test('ordinary declines do not disable a saved method', async () => {
+  assert.equal(await markClosedStripeLinkConnection({}, { last_payment_error: { code: 'card_declined' } }), false)
+})
+
+test('closed Link failure cannot disable another customer’s payment method', async () => {
+  assert.equal(await markClosedStripeLinkConnection({ paymentMethods: {
+    async retrieve() { return { id: 'pm_other', type: 'link', customer: 'cus_other' } },
+    async update() { assert.fail('must not change another customer’s method') },
+  } }, { customer: 'cus_household', last_payment_error: { code: 'link_account_closed', payment_method: 'pm_other' } }), false)
+})

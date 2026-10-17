@@ -1448,7 +1448,9 @@ export async function resolveDefaultPaymentMethod(stripe, customerId, {
   })
   if (!selection.readiness.ready || !selection.readiness.paymentMethodId) {
     const reason = selection.readiness.reason ?? 'payment_method_required'
-    const error = new Error(`No eligible default Stripe payment method is available for this household (${reason}).`)
+    const error = new Error(reason === 'link_account_closed'
+      ? 'The saved Link connection is closed. Use Update payment method to save a new payment method before retrying.'
+      : `No eligible default Stripe payment method is available for this household (${reason}).`)
     error.code = 'STRIPE_PAYMENT_METHOD_NOT_READY'
     error.paymentMethodReadinessReason = reason
     throw error

@@ -1,3 +1,4 @@
+import { markClosedStripeLinkConnection } from './stripePaymentMethodReadiness.js'
 import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { randomUUID } from 'node:crypto'
 import {
@@ -609,6 +610,7 @@ export async function retireFailedBillingPaymentAttempt(pool, stripe, {
   attachFunction = attachBillingPaymentAttemptStripeObject,
   releaseFunction = releaseBillingPaymentAttempt,
 }) {
+  await markClosedStripeLinkConnection(stripe, stripeObject)
   const mapped = attemptId ? { id: positiveId(attemptId, 'Payment attempt ID') }
     : await findBillingPaymentAttemptForStripeObject(pool, stripeObject)
   if (!mapped) return null

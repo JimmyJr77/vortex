@@ -61,7 +61,12 @@ export function classifyStripePaymentMethodReadiness(paymentMethod, {
   }
   if (!target) return result(false, 'payment_method_billing_month_invalid', details)
 
-  if (paymentMethodType === 'link') return result(true, null, details)
+  if (paymentMethodType === 'link') {
+    if (paymentMethod.metadata?.vortexPaymentMethodBlockedReason === 'link_account_closed') {
+      return result(false, 'link_account_closed', details)
+    }
+    return result(true, null, details)
+  }
   if (paymentMethodType !== 'card') {
     return result(false, 'payment_method_type_unsupported', details)
   }
@@ -133,4 +138,21 @@ export async function selectStripeCustomerPaymentMethod(stripe, customer, {
   }
 
   return noMethod('payment_method_required')
+}
+
+/** Remember a definitive Link revocation on the exact method, never another default. */
+export async function markClosedStripeLinkConnection(stripe, paymentIntent) {
+  const failure = paymentIntent?.last_payment_error
+  const closed = ['link_account_closed', 'link_connection_closed'].includes(failure?.code)
+    || failure?.doc_url === 'https://stripe.com/docs/error-codes/link-account-closed'
+  if (!closed) return false
+  const customerId = objectId(paymentIntent.customer)
+  const paymentMethodId = objectId(failure.payment_method) || objectId(paymentIntent.payment_method)
+  if (!customerId || !paymentMethodId) return false
+  const method = await stripe.paymentMethods.retrieve(paymentMethodId)
+  if (method.type !== 'link' || objectId(method.customer) !== customerId) return false
+  await stripe.paymentMethods.update(paymentMethodId, {
+    metadata: { vortexPaymentMethodBlockedReason: 'link_account_closed' },
+  })
+  return true
 }
