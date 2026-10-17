@@ -1,6 +1,8 @@
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import { allocateHouseholdPaymentsLocked } from './paymentAllocation.js'
 import { recordBillingActivity } from './billingActivity.js'
+import { getStripeClient, stripeEnabled } from './stripeBilling.js'
+import { recordAndApplyHouseholdMonthlyInvoicePayment } from './householdMonthlyInvoice.js'
 
 // Visibility alone is not accounting evidence. Only an explicit, unique
 // reversal of exactly the same value can automatically retire a correction.
@@ -27,22 +29,47 @@ export function correctionPairs(charges) {
   return pairs
 }
 
+// Refresh may run before invoice.paid arrives. Record only freshly verified
+// Stripe settlements through the same exact-mapping path used by webhooks.
+export async function reconcileAccountMonthlyInvoicePayments(pool, {
+  accountId,
+  stripeClient = undefined,
+  settleInvoice = recordAndApplyHouseholdMonthlyInvoicePayment,
+}) {
+  const invoices = (await pool.query(`SELECT stripe_invoice_id FROM billing_monthly_invoice
+    WHERE family_billing_account_id=$1 AND status IN ('open','failed','payment_method_required')
+      AND stripe_invoice_id IS NOT NULL ORDER BY billing_month, id`, [accountId])).rows
+  if (!invoices.length) return
+  const stripe = stripeClient === undefined ? (stripeEnabled() ? await getStripeClient() : null) : stripeClient
+  if (!stripe) return
+  for (const local of invoices) {
+    const invoice = await stripe.invoices.retrieve(local.stripe_invoice_id)
+    if (invoice.status !== 'paid') continue
+    const result = await settleInvoice(pool, { invoice, stripe })
+    if (!result || result.conflicted) throw new Error('Stripe confirmed a monthly payment, but its account allocation needs reconciliation. Do not submit another payment.')
+  }
+}
+
 export async function reassessBillingAllocations(pool, { accountId, actorUserId = null }) {
   return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+    await reconcileAccountMonthlyInvoicePayments(db, { accountId })
     await db.query('BEGIN')
     try {
       await db.query('SELECT pg_advisory_xact_lock($1)', [Number(accountId)])
-      const busy = (await db.query(`SELECT 1 FROM billing_monthly_invoice
+      const blockers = (await db.query(`SELECT 'monthly_invoice' AS kind FROM billing_monthly_invoice
         WHERE family_billing_account_id=$1 AND status IN ('draft','open','failed','payment_method_required')
-        UNION ALL SELECT 1 FROM billing_payment_attempt WHERE family_billing_account_id=$1
+        UNION ALL SELECT 'payment_attempt' AS kind FROM billing_payment_attempt WHERE family_billing_account_id=$1
           AND (status IN ('pending','processing','reconciliation_required') OR (status='reserved' AND expires_at>now()))
-        UNION ALL SELECT 1 FROM billing_payment WHERE family_billing_account_id=$1
+        UNION ALL SELECT 'payment' AS kind FROM billing_payment WHERE family_billing_account_id=$1
           AND external_status='reconciliation_required'
-        UNION ALL SELECT 1 FROM billing_refund WHERE family_billing_account_id=$1
-          AND external_status IN ('pending','processing','reconciliation_required') LIMIT 1`, [accountId])).rows.length > 0
-      if (busy) {
+        UNION ALL SELECT 'refund' AS kind FROM billing_refund WHERE family_billing_account_id=$1
+          AND external_status IN ('pending','processing','reconciliation_required')`, [accountId])).rows
+      if (blockers.length) {
         await db.query('COMMIT')
-        return { corrected: false, message: 'Account refreshed. Payment reconciliation is waiting for an active collection to finish.' }
+        const invoiceOnly = blockers.every((row) => row.kind === 'monthly_invoice')
+        return { corrected: false, message: invoiceOnly
+          ? 'Account refreshed. A monthly invoice remains unresolved; payment has not been confirmed. Use Process Payment to view its payment options.'
+          : 'Account refreshed. Payment reconciliation is waiting for an active collection to finish.' }
       }
       const charges = (await db.query('SELECT * FROM billing_charge WHERE family_billing_account_id=$1 FOR UPDATE', [accountId])).rows
       const pairs = correctionPairs(charges)
@@ -64,7 +91,7 @@ export async function reassessBillingAllocations(pool, { accountId, actorUserId 
         && row.metadata?.allocationRetired !== true && !pairs.flat().includes(row))
       if (corrected) await recordBillingActivity(db, {
         accountId, actorUserId, actorType: 'admin', eventType: 'billing_allocations_reassessed',
-        summary: 'Refresh reassessed existing payment allocations. No bills, payments, or refunds were created.',
+        summary: 'Refresh reassessed payment allocations after checking Stripe settlements. No new charge or refund was initiated.',
         details: { retiredChargeIds: ids, applicationIds: result.applications.map((row) => row.id), releasedApplications: result.releasedApplications },
       })
       await db.query('COMMIT')

@@ -11,3 +11,49 @@ test('automatic reassessment requires exact and unique reversal evidence, not hi
   assert.equal(correctionPairs([original,{...reversal,related_charge_id:9}]).length,0)
   assert.equal(correctionPairs([{...original,metadata:{}},reversal]).length,0)
 })
+
+import { reconcileAccountMonthlyInvoicePayments, reassessBillingAllocations } from '../reassessBillingAllocations.js'
+
+test('refresh settles paid invoices through exact webhook mapping before allocation reassessment', async () => {
+  const settled = []
+  const pool = { async query(sql, args) {
+    assert.deepEqual(args, [10903])
+    assert.match(sql, /family_billing_account_id=\$1/)
+    return { rows: [{ stripe_invoice_id: 'in_paid' }, { stripe_invoice_id: 'in_open' }] }
+  } }
+  const stripe = { invoices: { async retrieve(id) { return { id, status: id === 'in_paid' ? 'paid' : 'open' } } } }
+  await reconcileAccountMonthlyInvoicePayments(pool, {
+    accountId: 10903, stripeClient: stripe,
+    async settleInvoice(db, { invoice, stripe: client }) {
+      assert.equal(db, pool)
+      assert.equal(client, stripe)
+      settled.push(invoice.id)
+      return { invoice: { status: 'paid' } }
+    },
+  })
+  assert.deepEqual(settled, ['in_paid'])
+})
+
+test('refresh reports paid-but-conflicted mapping without collecting another payment', async () => {
+  const pool = { async query() { return { rows: [{ stripe_invoice_id: 'in_paid' }] } } }
+  await assert.rejects(reconcileAccountMonthlyInvoicePayments(pool, {
+    accountId: 10903,
+    stripeClient: { invoices: { async retrieve() { return { id: 'in_paid', status: 'paid' } } } },
+    async settleInvoice() { return { conflicted: true } },
+  }), /Do not submit another payment/)
+})
+
+for (const kind of ['monthly_invoice', 'payment_attempt', 'refund']) {
+  test(`refresh distinguishes ${kind} from a confirmed payment`, async () => {
+    const queries = []
+    const pool = { async query(sql) {
+      queries.push(sql)
+      if (sql.includes("AS kind")) return { rows: [{ kind }] }
+      return { rows: [] }
+    } }
+    const result = await reassessBillingAllocations(pool, { accountId: 10903 })
+    assert.equal(result.corrected, false)
+    assert.match(result.message, kind === 'monthly_invoice' ? /payment has not been confirmed/ : /active collection/)
+    assert.equal(queries.some(sql => sql.includes('FROM billing_charge')), false)
+  })
+}
