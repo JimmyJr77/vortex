@@ -1,3 +1,4 @@
+import { assertNoOutstandingAnnualMembershipCharge } from './annualMembershipChargeGuard.js'
 /**
  * Standalone annual membership purchase (access-only — no class signup).
  * Year 1 collected at Checkout; yearly renewal remains on the local ledger.
@@ -1102,6 +1103,11 @@ export async function createAnnualRequestAndActivateWaived(pool, {
         throw checkoutIdempotencyConflict(
           'An annual membership checkout is already open for one of these athletes. Resume that checkout or wait for it to expire.',
         )
+      }
+      for (const member of snapshot.members) {
+        await assertNoOutstandingAnnualMembershipCharge(db, {
+          accountId: account.id, memberId: member.memberId, feeId: member.feeId,
+        })
       }
       request = await db.query(
         `INSERT INTO annual_membership_checkout_request (

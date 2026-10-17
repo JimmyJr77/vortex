@@ -1,3 +1,4 @@
+import { findActivePurchaseCheckoutOwner } from './purchaseCheckoutAdmission.js'
 import { settledRefundPredicate, activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { randomUUID } from 'crypto'
 import {
@@ -111,96 +112,101 @@ export async function billAnnualMembershipNow(pool, {
 }) {
   const account = await ensureCustomerBillingAccount(pool, familyId, facilityId)
   if (!account) throw new Error('Family billing account was not found.')
-  const scopedMemberId = await validateMemberScope(pool, account, memberId)
-  if (scopedMemberId == null) throw new Error('An athlete is required for an annual membership bill.')
-  if (await memberHasActiveAnnualMembership(pool, scopedMemberId)) {
-    throw new Error('This athlete already has an active annual membership.')
-  }
+  return withBillingAccountCollectionLock(pool, account.id, async (pool) => {
+    if (await findActivePurchaseCheckoutOwner(pool, account.id)) {
+      throw new Error('A membership or enrollment checkout is already open. Complete or expire it before billing another annual fee.')
+    }
+    const scopedMemberId = await validateMemberScope(pool, account, memberId)
+    if (scopedMemberId == null) throw new Error('An athlete is required for an annual membership bill.')
+    if (await memberHasActiveAnnualMembership(pool, scopedMemberId)) {
+      throw new Error('This athlete already has an active annual membership.')
+    }
 
-  const fees = await loadActiveAdditionalFees(pool, facilityId)
-  const fee = fees.find(isAnnualMembershipFee)
-  if (!fee) throw new Error('No active annual membership fee is configured for this facility.')
+    const fees = await loadActiveAdditionalFees(pool, facilityId)
+    const fee = fees.find(isAnnualMembershipFee)
+    if (!fee) throw new Error('No active annual membership fee is configured for this facility.')
 
-  await ensureBillingChargeSchema(pool)
-  const outstanding = await pool.query(
-    `SELECT c.id
-       FROM billing_charge c
-       LEFT JOIN LATERAL (
-         SELECT SUM(CASE WHEN a.application_kind = 'reversal' THEN -a.amount_cents ELSE a.amount_cents END)::int AS applied_cents
-         FROM billing_payment_application a
-         JOIN billing_payment payment ON payment.id = a.billing_payment_id
-         WHERE a.billing_charge_id = c.id
-           AND payment.external_status IN ('settled', 'succeeded')
-       ) applications ON TRUE
-      WHERE c.family_billing_account_id = $1
-        AND c.member_id = $2
-        AND c.source_type = 'additional_fee'
-        AND split_part(c.source_id, ':', 1) = $3
-        AND GREATEST(0, c.amount_cents - COALESCE(applications.applied_cents, 0)) > 0
-      ORDER BY c.created_at DESC, c.id DESC
-      LIMIT 1`,
-    [account.id, scopedMemberId, String(fee.id)],
-  )
-  if (outstanding.rows[0]) {
-    throw new Error('This athlete already has an outstanding annual membership bill.')
-  }
+    await ensureBillingChargeSchema(pool)
+    const outstanding = await pool.query(
+      `SELECT c.id
+         FROM billing_charge c
+         LEFT JOIN LATERAL (
+           SELECT SUM(CASE WHEN a.application_kind = 'reversal' THEN -a.amount_cents ELSE a.amount_cents END)::int AS applied_cents
+           FROM billing_payment_application a
+           JOIN billing_payment payment ON payment.id = a.billing_payment_id
+           WHERE a.billing_charge_id = c.id
+             AND payment.external_status IN ('settled', 'succeeded')
+         ) applications ON TRUE
+        WHERE c.family_billing_account_id = $1
+          AND c.member_id = $2
+          AND c.source_type = 'additional_fee'
+          AND split_part(c.source_id, ':', 1) = $3
+          AND GREATEST(0, c.amount_cents - COALESCE(applications.applied_cents, 0)) > 0
+        ORDER BY c.created_at DESC, c.id DESC
+        LIMIT 1`,
+      [account.id, scopedMemberId, String(fee.id)],
+    )
+    if (outstanding.rows[0]) {
+      throw new Error('This athlete already has an outstanding annual membership bill.')
+    }
 
-  const billedAt = new Date()
-  const renewalDate = toUtcDateString(membershipRenewsOnFromPurchase(billedAt)) || toUtcDateString(billedAt)
-  const sourceId = `${fee.id}:${scopedMemberId}:${renewalDate}`
-  const sourceKey = String(idempotencyKey ?? '').trim()
-  const inserted = await pool.query(
-    `INSERT INTO billing_charge (
-       family_billing_account_id, member_id, source_type, source_id, description,
-       amount_cents, gross_amount_cents, discount_amount_cents,
-       charge_type, billing_interval, service_period_start, service_period_end,
-       collection_status, created_by_user_id, metadata
-     ) VALUES (
-       $1, $2, 'additional_fee', $3, $4, $5, $5, 0,
-       'one_time', 'one_time', $6, $6, 'unpaid', $7,
-       jsonb_strip_nulls(jsonb_build_object('createdBy', 'customer_billing_bill_now', 'requestKey', NULLIF($8, '')))
-     )
-     ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
-     RETURNING *`,
-    [
-      account.id,
-      scopedMemberId,
-      sourceId,
-      fee.name || 'Annual Fee',
-      Math.round(Number(fee.amountCents)),
-      toUtcDateString(billedAt),
-      actorUserId,
-      sourceKey,
-    ],
-  )
-  let charge = inserted.rows[0] ?? null
-  const created = Boolean(charge)
-  if (!charge) {
-    charge = await pool.query(
-      `SELECT * FROM billing_charge WHERE source_type = 'additional_fee' AND source_id = $1 LIMIT 1`,
-      [sourceId],
-    ).then((result) => result.rows[0] ?? null)
-    if (!charge) throw new Error('Annual membership bill could not be created.')
-  }
-  if (created) {
-    await recordBillingActivity(pool, {
-      eventKey: `annual-membership-billed:${charge.id}`,
-      accountId: account.id,
-      memberId: scopedMemberId,
-      chargeId: charge.id,
-      eventType: 'annual_membership_bill_created',
-      summary: `Annual membership fee added for this athlete.`,
-      afterValue: {
-        chargeId: Number(charge.id),
-        feeId: Number(fee.id),
-        amountCents: Number(charge.amount_cents),
-        renewalDate,
-      },
-      actorUserId,
-    })
-    await allocateHouseholdPayments(pool, { accountId: account.id, actorUserId, actorType: 'admin' })
-  }
-  return { account, charge, created, renewalDate }
+    const billedAt = new Date()
+    const renewalDate = toUtcDateString(membershipRenewsOnFromPurchase(billedAt)) || toUtcDateString(billedAt)
+    const sourceId = `${fee.id}:${scopedMemberId}:${renewalDate}`
+    const sourceKey = String(idempotencyKey ?? '').trim()
+    const inserted = await pool.query(
+      `INSERT INTO billing_charge (
+         family_billing_account_id, member_id, source_type, source_id, description,
+         amount_cents, gross_amount_cents, discount_amount_cents,
+         charge_type, billing_interval, service_period_start, service_period_end,
+         collection_status, created_by_user_id, metadata
+       ) VALUES (
+         $1, $2, 'additional_fee', $3, $4, $5, $5, 0,
+         'one_time', 'one_time', $6, $6, 'unpaid', $7,
+         jsonb_strip_nulls(jsonb_build_object('createdBy', 'customer_billing_bill_now', 'requestKey', NULLIF($8, '')))
+       )
+       ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING
+       RETURNING *`,
+      [
+        account.id,
+        scopedMemberId,
+        sourceId,
+        fee.name || 'Annual Fee',
+        Math.round(Number(fee.amountCents)),
+        toUtcDateString(billedAt),
+        actorUserId,
+        sourceKey,
+      ],
+    )
+    let charge = inserted.rows[0] ?? null
+    const created = Boolean(charge)
+    if (!charge) {
+      charge = await pool.query(
+        `SELECT * FROM billing_charge WHERE source_type = 'additional_fee' AND source_id = $1 LIMIT 1`,
+        [sourceId],
+      ).then((result) => result.rows[0] ?? null)
+      if (!charge) throw new Error('Annual membership bill could not be created.')
+    }
+    if (created) {
+      await recordBillingActivity(pool, {
+        eventKey: `annual-membership-billed:${charge.id}`,
+        accountId: account.id,
+        memberId: scopedMemberId,
+        chargeId: charge.id,
+        eventType: 'annual_membership_bill_created',
+        summary: `Annual membership fee added for this athlete.`,
+        afterValue: {
+          chargeId: Number(charge.id),
+          feeId: Number(fee.id),
+          amountCents: Number(charge.amount_cents),
+          renewalDate,
+        },
+        actorUserId,
+      })
+      await allocateHouseholdPayments(pool, { accountId: account.id, actorUserId, actorType: 'admin' })
+    }
+    return { account, charge, created, renewalDate }
+  })
 }
 
 async function loadCharge(pool, accountId, chargeId) {

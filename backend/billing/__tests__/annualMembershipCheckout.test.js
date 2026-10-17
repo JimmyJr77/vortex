@@ -793,3 +793,23 @@ test('paid annual fulfillment freezes non-cooperating authorization mutations th
   assert.ok(ownerCompleteAt < commitAt)
   assert.match(source.slice(exactPaymentAt, ownerCompleteAt), /manageTransaction: false/)
 })
+
+test('annual Checkout rejects a previously posted unpaid annual bill before creating a purchase', async () => {
+  const { snapshot } = paidAnnualCheckoutFixture()
+  const calls = []
+  const pool = { async query(sql) {
+    const text = String(sql)
+    calls.push(text)
+    if (/pg_advisory|^(BEGIN|COMMIT|ROLLBACK)$/.test(text)) return { rows: [] }
+    if (/FROM annual_membership_checkout_request|SELECT owner_kind|WITH completed_owner|FROM additional_fee_redemption r/.test(text)) return { rows: [] }
+    if (text.includes('annual-membership:outstanding-charge')) return { rows: [{ id: 327 }] }
+    throw new Error(`Unexpected duplicate-fee query: ${text}`)
+  } }
+  await assert.rejects(createAnnualRequestAndActivateWaived(pool, {
+    account: { id: 8, family_id: 20 }, payerMemberId: 13,
+    requestKey: 'duplicate-annual-bill', requestFingerprint: 'a'.repeat(64), snapshot,
+  }), { code: 'ANNUAL_MEMBERSHIP_ALREADY_BILLED' })
+  assert.equal(calls.some(sql => sql.includes('INSERT INTO annual_membership_checkout_request')), false)
+  assert.equal(calls.some(sql => sql.includes('INSERT INTO billing_charge')), false)
+  assert.ok(calls.includes('ROLLBACK'))
+})

@@ -1,3 +1,4 @@
+import { assertNoOutstandingAnnualMembershipCharge } from '../annualMembershipChargeGuard.js'
 import { listCustomerBillingOverviews } from '../customerBillingOverviewList.js'
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund, correctRefundToPreserveClassCharge } from '../customerBillingRefundSelection.js'
@@ -511,6 +512,19 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     // The migration must still reject a real overpayment on a funded charge.
     await payment(2,100)
     await assert.rejects(allocation(2,1,100),/over-funded/)
+  })
+
+  await t.test('membership checkout recognizes an existing fee across purchase dates', async () => {
+    await charge(1,8500,{source_type:'additional_fee',source_id:'1:1:2027-10-02',collection_status:'unpaid'})
+    const input={accountId:1,memberId:1,feeId:1}
+    await assert.rejects(assertNoOutstandingAnnualMembershipCharge(db,input),{code:'ANNUAL_MEMBERSHIP_ALREADY_BILLED'})
+    await assertNoOutstandingAnnualMembershipCharge(db,{...input,memberId:2})
+    await payment(1,8500)
+    await allocation(1,1,8500)
+    await assertNoOutstandingAnnualMembershipCharge(db,input)
+    await db.query('DELETE FROM billing_payment_application')
+    await charge(2,-8500,{source_type:'charge_adjustment',related_charge_id:1})
+    await assertNoOutstandingAnnualMembershipCharge(db,input)
   })
 
   await t.test('refresh defers allocation changes while collection is reserved', async () => {
