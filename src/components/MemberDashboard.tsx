@@ -669,7 +669,9 @@ export default function MemberDashboard({
             last_name: lastName,
             email: email || null,
             phone: phone ? cleanPhoneNumber(phone) : null,
-            address: address || null
+            address: address || null,
+            ...(!(profileData?.dateOfBirth || profileData?.date_of_birth) && member.dateOfBirth
+              ? { date_of_birth: member.dateOfBirth } : {}),
           })
         })
         
@@ -981,7 +983,16 @@ export default function MemberDashboard({
     }
   }
 
+  const guardianProfileReady = dateIsAdult(profileData?.dateOfBirth || profileData?.date_of_birth)
+  const guardianProfileMessage = !(profileData?.dateOfBirth || profileData?.date_of_birth)
+    ? 'Before adding a family member, enter your own date of birth in your profile so we can verify that you are an adult. Enter your child’s date of birth separately when adding them.'
+    : 'The signed-in parent or legal guardian must be at least 18. Use the adult guardian’s account, or ask an administrator to correct your date of birth if it is wrong.'
+
   const handleAddFamilyMember = async () => {
+    if (!guardianProfileReady) {
+      setError(guardianProfileMessage)
+      return
+    }
     if (!addFamilyMemberData.firstName.trim() || !addFamilyMemberData.lastName.trim()) {
       setError('First and last name are required')
       return
@@ -2136,7 +2147,10 @@ export default function MemberDashboard({
                     {profileData?.householdAccess?.canAddFamilyMembers === true && (
                       <button
                         type="button"
-                        onClick={() => setShowAddFamilyMember((value) => !value)}
+                        onClick={() => {
+                          if (!guardianProfileReady) { setError(guardianProfileMessage); return }
+                          setShowAddFamilyMember((value) => !value)
+                        }}
                         className="inline-flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700"
                       >
                         <UserPlus className="w-4 h-4" />
@@ -2145,7 +2159,16 @@ export default function MemberDashboard({
                     )}
                   </div>
 
-                  {showAddFamilyMember && (
+                  {profileData?.householdAccess?.canAddFamilyMembers === true && !guardianProfileReady ? (
+                    <div role="status" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-gray-900">
+                      <p>{guardianProfileMessage}</p>
+                      <button type="button" className="mt-2 font-semibold underline" onClick={() => {
+                        const self = members.find((member) => Number(member.id) === Number(profileData?.id))
+                        if (self) void handleEditMember(self)
+                      }}>Edit my profile</button>
+                    </div>
+                  ) : null}
+                  {showAddFamilyMember && guardianProfileReady && (
                     <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <input
@@ -3387,6 +3410,15 @@ export default function MemberDashboard({
                       </div>
                     </div>
 
+                    {isCurrentMember && !(profileData?.dateOfBirth || profileData?.date_of_birth) ? (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Your date of birth
+                        <DateOfBirthInput value={member.dateOfBirth || ''}
+                          onChange={(event) => setEditingFamilyMembers((previous) => previous.map((entry) => entry.id === member.id ? { ...entry, dateOfBirth: event.target.value } : entry))}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" /></label>
+                        <p className="mt-1 text-xs text-gray-600">Enter your own birth date, not your child’s. This verifies your age before you can be linked as a parent or legal guardian.</p>
+                      </div>
+                    ) : null}
                     {isCurrentMember && (
                       <div className="border-t border-gray-100 pt-4 space-y-4">
                         <div>

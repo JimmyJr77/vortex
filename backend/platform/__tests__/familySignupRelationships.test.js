@@ -105,3 +105,47 @@ test('new family-signup member writes do not populate retired status or guardian
   assert.doesNotMatch(minorSignup, /parent_guardian_ids|['"]legacy['"]|has_completed_waivers/)
   assert.doesNotMatch(inviteCompletion, /SET parent_guardian_ids/)
 })
+
+import { createPortalFamilyMember, requirePortalAdultGuardian } from '../familySignup.js'
+
+for (const scenario of [
+  { row: { id: 10, date_of_birth: null }, message: /Your own date of birth is missing/ },
+  { row: { id: 10, date_of_birth: '2010-02-15' }, message: /must be at least 18/ },
+  { row: null, message: /active adult in this family and facility/ },
+]) {
+  test(`portal blocks invalid guardian before creating child: ${scenario.message}`, async () => {
+    const queries = []
+    const client = { async query(sql, values) {
+      queries.push(sql)
+      if (sql.includes('AS facility_date')) return { rows: [{ facility_date: '2026-10-18' }] }
+      if (sql.includes('SELECT member.id, member.date_of_birth')) {
+        assert.deepEqual(values, [10, 1, 67])
+        assert.match(sql, /membership.is_active=TRUE/)
+        assert.match(sql, /member.facility_id=\$2/)
+        return { rows: scenario.row ? [scenario.row] : [] }
+      }
+      throw new Error('Unexpected write or query')
+    } }
+    await assert.rejects(createPortalFamilyMember(client, {
+      facilityId: 1, familyId: 67, responsibleMember: { id: 10 }, legalGuardianMemberId: 10,
+      input: { firstName: 'Millie', lastName: 'Mills', dateOfBirth: '2019-02-15' },
+    }), scenario.message)
+    assert.equal(queries.some(sql => /INSERT|UPDATE/.test(sql)), false)
+  })
+}
+
+test('guardian can add a youth on their eighteenth birthday', async () => {
+  await requirePortalAdultGuardian({ async query() { return { rows: [{ id: 10, date_of_birth: new Date('2008-10-18T04:00:00Z') }] } } }, {
+    guardianId: 10, familyId: 67, facilityId: 1, asOfDate: '2026-10-18',
+  })
+})
+
+test('portal profile can fill a missing DOB without replacing an established birth date', async () => {
+  const source = await fs.readFile(new URL('../../server.js', import.meta.url), 'utf8')
+  const update = source.slice(source.indexOf("app.put('/api/members/me'"), source.indexOf("app.post('/api/members/family'"))
+  assert.match(update, /isValidCalendarDate\(date_of_birth\)/)
+  assert.match(update, /existingDob && existingDob !== date_of_birth/)
+  assert.match(update, /date_of_birth = COALESCE\(date_of_birth, \$9::date\)/)
+  assert.match(update, /AND app_user_id = \$2/)
+  assert.match(update, /AND facility_id = \$8/)
+})

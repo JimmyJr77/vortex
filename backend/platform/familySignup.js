@@ -987,6 +987,28 @@ async function createMemberRecord(client, facilityId, familyId, memberInput, {
 }
 
 /** Add a family member from the member portal (children or adults without login). */
+export async function requirePortalAdultGuardian(client, { guardianId, facilityId, familyId, asOfDate }) {
+  const guardian = (await client.query(
+    `SELECT member.id, member.date_of_birth FROM member
+     JOIN family_member membership ON membership.member_id=member.id
+     WHERE member.id=$1 AND member.facility_id=$2 AND member.is_active=TRUE
+       AND membership.family_id=$3 AND membership.is_active=TRUE
+     FOR SHARE OF member, membership`,
+    [guardianId, facilityId, familyId],
+  )).rows[0]
+  if (!guardian) {
+    throw new Error('Your login must be linked to an active adult in this family and facility. Ask an administrator to correct your profile before adding a youth member.')
+  }
+  if (!guardian.date_of_birth) {
+    throw new Error('Your own date of birth is missing. Edit your profile and enter your date of birth before adding a youth member as their parent or legal guardian.')
+  }
+  const birthDate = guardian.date_of_birth instanceof Date
+    ? guardian.date_of_birth.toISOString().slice(0, 10) : guardian.date_of_birth
+  if (!isAdultOnDate(birthDate, asOfDate)) {
+    throw new Error('The signed-in parent or legal guardian must be at least 18. Use the adult guardian’s account, or correct your own date of birth if it is wrong.')
+  }
+}
+
 export async function createPortalFamilyMember(client, {
   facilityId,
   familyId,
@@ -1012,6 +1034,10 @@ export async function createPortalFamilyMember(client, {
   const guardianId = Number(legalGuardianMemberId)
   if (minor && (!Number.isSafeInteger(guardianId) || guardianId <= 0)) {
     throw new Error('A parent or legal guardian must explicitly accept responsibility for a youth member.')
+  }
+
+  if (minor) {
+    await requirePortalAdultGuardian(client, { guardianId, facilityId, familyId, asOfDate: signupDate })
   }
 
   const responsibleEmail = String(responsibleMember?.email || '').trim() || null

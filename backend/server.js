@@ -8054,9 +8054,9 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
     await client.query('BEGIN')
     const userId = req.userId
     const memberId = req.canonicalAccess.memberId
-    const { first_name, last_name, email, phone, address } = req.body
+    const { first_name, last_name, email, phone, address, date_of_birth } = req.body
 
-    if ([first_name, last_name, email, phone, address].every((value) => value === undefined)) {
+    if ([first_name, last_name, email, phone, address, date_of_birth].every((value) => value === undefined)) {
       await client.query('ROLLBACK')
       return res.status(400).json({ success: false, message: 'No fields to update' })
     }
@@ -8070,7 +8070,8 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
         member.last_name,
         member.email,
         member.phone,
-        member.address
+        member.address,
+        member.date_of_birth
       FROM app_user account
       JOIN member
         ON member.app_user_id = account.id
@@ -8090,6 +8091,18 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
     }
 
     const current = currentResult.rows[0]
+    if (date_of_birth !== undefined) {
+      const existingDob = current.date_of_birth instanceof Date
+        ? current.date_of_birth.toISOString().slice(0, 10) : String(current.date_of_birth || '').slice(0, 10)
+      if (!isValidCalendarDate(date_of_birth) || date_of_birth > new Date().toISOString().slice(0, 10)) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ success: false, message: 'Enter your actual date of birth as a valid date in the past.' })
+      }
+      if (existingDob && existingDob !== date_of_birth) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ success: false, message: 'Ask an administrator to correct an existing date of birth.' })
+      }
+    }
     const normalizeOptional = (value) => value == null || String(value).trim() === '' ? null : String(value).trim()
     const nextFirstName = first_name === undefined ? current.first_name : String(first_name).trim()
     const nextLastName = last_name === undefined ? current.last_name : String(last_name).trim()
@@ -8113,6 +8126,7 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
               email = $5,
               phone = $6,
               address = $7,
+              date_of_birth = COALESCE(date_of_birth, $9::date),
               updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
           AND app_user_id = $2
@@ -8126,6 +8140,7 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
         nextPhone,
         nextAddress,
         req.canonicalAccess.facilityId,
+        date_of_birth ?? null,
       ],
     )
     await client.query(
@@ -8372,6 +8387,9 @@ app.post('/api/members/family', authenticateMember, async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
     console.error('Create member family member error:', error)
+    if (error.code === '23514' && String(error.message).includes('legal guardian authority')) {
+      return res.status(400).json({ success: false, message: 'We could not verify your adult guardian profile. Check your own date of birth, then try again. If it is correct, ask an administrator to check your family and facility links.' })
+    }
     if (error.code === '23505') {
       return res.status(409).json({
         success: false,
