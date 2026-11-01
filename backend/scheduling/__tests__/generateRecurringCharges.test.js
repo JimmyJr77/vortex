@@ -367,7 +367,6 @@ test('the fifth posts the following month without creating another current-month
   })
 
   assert.deepEqual(reconciledMonths, [
-    { billingMonth: '2026-09-01', allowEarlyPosting: false },
     { billingMonth: '2026-10-01', allowEarlyPosting: true },
   ])
   assert.equal(invoiceCalls, 0)
@@ -640,7 +639,8 @@ test('a quarantined account does not stop the sweep and is reported with its fai
     console.error = originalError
   }
   assert.equal(result.accountsBlocked, 1)
-  assert.deepEqual(result.blockedAccounts, [{ accountId: 9, code: 'pause_credit_postcondition_failed' }])
+  assert.deepEqual(result.blockedAccounts, [{ accountId: 9, code: 'pause_credit_postcondition_failed',
+    message: 'injected account quarantine', details: null }])
   assert.equal(result.subscriptionsProcessed, 1)
   assert.equal(result.chargesPosted, 1)
 })
@@ -711,6 +711,80 @@ test('the fifth never collects even if the first was missed or no method existed
         invoiceFactory:async()=>assert.fail('The fifth must not collect'),
       }),
     })
-    assert.deepEqual(months,['2026-11-01','2026-12-01'])
+    assert.deepEqual(months,['2026-12-01'])
+  }
+})
+
+test('daily preparation does not reprice posted history after enrollment changes', async () => {
+  const fixture = recurringAccountFixture({ due: [] })
+  const months = []
+  const result = await processRecurringBillingAccount(fixture.db, ACCOUNT, {
+    asOfTimestamp: new Date('2026-10-27T07:15:00Z'),
+    clock: recurringBillingClock('2026-10-27T07:15:00Z', ACCOUNT.facility_timezone),
+    ...safeProcessors({
+      recurringChargeReconciler: async (_db, options) => {
+        months.push(options.billingMonth)
+        assert.equal(options.billingMonth, '2026-11-01', 'Historical October pricing must not block November preparation')
+        assert.equal(options.allowEarlyPosting, true)
+        return { verified: true, postedChargeIds: [901] }
+      },
+      invoiceFactory: async () => assert.fail('Preparation must not collect payments'),
+    }),
+  })
+  assert.deepEqual(months, ['2026-11-01'])
+  assert.equal(result.chargesPosted, 1)
+  assert.equal(result.householdInvoicesCreated, 0)
+})
+
+test('an overdue charge still fails closed on a preparation day', async () => {
+  const fixture = recurringAccountFixture()
+  const months = []
+  await assert.rejects(processRecurringBillingAccount(fixture.db, ACCOUNT, {
+    asOfTimestamp: new Date('2026-09-27T12:00:00Z'),
+    clock: recurringBillingClock('2026-09-27T12:00:00Z', ACCOUNT.facility_timezone),
+    ...safeProcessors({
+      recurringChargeReconciler: async (_db, options) => {
+        months.push(options.billingMonth)
+        throw Object.assign(new Error('Unresolved due charge'), { code: 'target_month_recurring_charge_parity_failed' })
+      },
+      invoiceFactory: async () => assert.fail('A failed parity check must block collection'),
+    }),
+  }), { code: 'target_month_recurring_charge_parity_failed' })
+  assert.deepEqual(months, ['2026-09-01'])
+})
+
+test('both collection dates validate posted charges before allowing payment', async () => {
+  for (const day of ['01', '04']) {
+    const fixture = recurringAccountFixture({ due: [] })
+    const instant = `2026-09-${day}T12:00:00Z`
+    await assert.rejects(processRecurringBillingAccount(fixture.db, ACCOUNT, {
+      asOfTimestamp: new Date(instant),
+      clock: recurringBillingClock(instant, ACCOUNT.facility_timezone),
+      ...safeProcessors({
+        recurringChargeReconciler: async (_db, options) => {
+          assert.equal(options.billingMonth, '2026-09-01')
+          throw new Error('Unresolved current bill')
+        },
+        invoiceFactory: async () => assert.fail('A failed parity check must block collection'),
+      }),
+    }), /Unresolved current bill/)
+  }
+})
+
+test('invoice safety holds are reported as blocked accounts on both collection dates', async () => {
+  for (const day of ['01', '04']) {
+    for (const blocked of ['paid_checkout_owner_payment_gap', 'stripe_refund_reconciliation_required']) {
+      const fixture = recurringAccountFixture({ due: [] })
+      const instant = `2026-09-${day}T12:00:00Z`
+      await assert.rejects(processRecurringBillingAccount(fixture.db, ACCOUNT, {
+        asOfTimestamp: new Date(instant),
+        clock: recurringBillingClock(instant, ACCOUNT.facility_timezone),
+        ...safeProcessors({
+          recurringChargeReconciler: async () => ({ verified: true, postedChargeIds: [] }),
+          invoiceFactory: async () => ({ created: false, invoice: null, blocked, blockedOwnerId: 8 }),
+        }),
+      }), (error) => error.code === blocked && error.details.accountId === ACCOUNT.id
+        && error.details.blockedOwnerId === 8)
+    }
   }
 })

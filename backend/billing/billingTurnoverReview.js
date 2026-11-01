@@ -2,6 +2,7 @@ import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { reconcileCanonicalRecurringChargesForMonth } from './canonicalRecurringChargePosting.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { facilityDate, nextBillingMonth } from './canonicalBillingMigrationState.js'
+import { isRecurringBillingReviewHold } from './recurringBillingOutcome.js'
 
 /** Read-only completeness audit, independent of collection/migration ownership.
  * Include empty accounts: a confirmed signup without a subscription is exactly
@@ -45,10 +46,11 @@ export async function reviewBillingTurnover(db, { now = new Date(), accountIds =
       try {
         const parity = await reconcileCanonicalRecurringChargesForMonth(db, {
           accountId: account.id, billingMonth: month, facilityTimeZone: account.timezone,
-          now, allowEarlyPosting: true, apply: false,
+          now, allowEarlyPosting: true, apply: false, recurringRun: true,
         })
         row.issues.push(...parity.issues)
       } catch (error) {
+        row.operationalFailure = !isRecurringBillingReviewHold(error.code)
         row.issues.push(...(error.details?.issues ?? [{ code: error.code ?? 'billing_review_failed', message: error.message }]))
       }
       if (pricing.lines.length && !account.household_monthly_billing_enabled) {
@@ -61,6 +63,7 @@ export async function reviewBillingTurnover(db, { now = new Date(), accountIds =
       row.creditCents = snapshot.futureCreditsCents
       row.missingPostedCents = Math.max(0, row.expectedCents - row.postedCents)
     } catch (error) {
+      row.operationalFailure = true
       row.issues.push({ code: 'billing_review_failed', message: error.message })
     }
     row.verified = row.issues.length === 0

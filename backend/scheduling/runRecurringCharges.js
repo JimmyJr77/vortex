@@ -1,4 +1,5 @@
 import { prepareUpcomingBilling } from '../billing/upcomingBillingPreparation.js'
+import { recurringBillingOutcome, recordRecurringBillingExceptions } from '../billing/recurringBillingOutcome.js'
 /**
  * CLI entrypoint for the monthly recurring-charge generator.
  * Schedule via cron, e.g. daily:  0 6 * * *  cd backend && npm run billing:recurring
@@ -69,8 +70,18 @@ async function main() {
       }
     }
     const preparation = await prepareUpcomingBilling(pool)
-    if (preparation.some((row) => row.status === 'blocked')) process.exitCode = 1
     const result = await generateRecurringCharges(pool, { collectPayments })
+    const heldAccountIds = new Set([
+      ...preparation.filter((row) => row.status === 'blocked').map((row) => Number(row.accountId)),
+      ...(result.blockedAccountIds ?? []),
+    ])
+    await recordRecurringBillingExceptions(pool, {
+      blockedAccounts: [...new Map([
+        ...preparation.filter((row) => row.status === 'blocked'),
+        ...(result.blockedAccounts ?? []),
+      ].map((row) => [Number(row.accountId), row])).values()],
+      completedAccountIds: result.completedAccountIds.filter((id) => !heldAccountIds.has(id)),
+    })
     if (collectPayments) {
       const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
       const candidates = await pool.query(`SELECT DISTINCT account.id, account.payer_member_id
@@ -85,6 +96,7 @@ async function main() {
           AND charge.collection_status NOT IN ('paid','failed','processing')
           AND charge.stripe_checkout_session_id IS NULL`)
       for (const candidate of candidates.rows) {
+        if (heldAccountIds.has(Number(candidate.id))) continue
         try {
           const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true })
           if (!['complete','feature_disabled'].includes(outcome.status)) throw new Error(outcome.status)
@@ -97,7 +109,9 @@ async function main() {
     }
     const review = await reviewBillingTurnover(pool)
     await recordBillingTurnoverReview(pool, review)
-    if (review.issueAccountCount) process.exitCode = 1
+    const outcome = recurringBillingOutcome({ preparation, result, review, operationalFailure: Boolean(process.exitCode) })
+    if (outcome.exitCode) process.exitCode = outcome.exitCode
+    console.log(JSON.stringify({ event: 'recurring_billing_outcome', ...outcome }))
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +
         `posted ${result.chargesPosted} charge(s) across ${result.periodsAdvanced} period(s), ` +
@@ -120,7 +134,6 @@ async function main() {
             .map((entry) => `${entry.accountId} (${entry.code})`)
             .join(', ') || (result.blockedAccountIds ?? []).join(', ') || 'unknown'}.`,
       )
-      process.exitCode = 1
     }
   } catch (err) {
     console.error('[billing:recurring] failed:', err?.message || err)

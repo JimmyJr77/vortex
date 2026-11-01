@@ -957,3 +957,31 @@ test('migration verification accepts exact initial proration without relaxing re
   }
   await assert.rejects(reconcileCanonicalRecurringChargesForMonth(fixture.db,{...options,respectInitialProration:false}),/parity failed/)
 })
+
+test('future preparation excludes scheduled service endings without relaxing stale lifecycle checks', async () => {
+  const options = {
+    accountId: 9, billingMonth: TARGET_MONTH, facilityTimeZone: TIMEZONE,
+    now: new Date('2026-08-27T12:00:00Z'), apply: false,
+    allowEarlyPosting: true, recurringRun: true, pricingResolver: async () => pricing([]),
+  }
+  for (const ending of [{ end_date: '2026-08-31' }, { form_end_date: '2026-08-31' }]) {
+    const fixture = recurringPostingFixture({ subscriptions: [activeSubscription({ ...ending, next_bill_date: null })] })
+    const before = structuredClone(fixture.state)
+    const result = await reconcileCanonicalRecurringChargesForMonth(fixture.db, options)
+    assert.equal(result.verified, true)
+    assert.deepEqual(result.excludedSubscriptions, [{ subscriptionId: 41, signupId: 101, reason: 'service_ends_before_future_month' }])
+    assert.deepEqual(fixture.state, before)
+    // Migration and month-boundary checks still require lifecycle cleanup.
+    await assert.rejects(reconcileCanonicalRecurringChargesForMonth(fixture.db, { ...options, recurringRun: false }), /parity failed/)
+    await assert.rejects(reconcileCanonicalRecurringChargesForMonth(fixture.db, { ...options, now: AFTER_BOUNDARY }), /parity failed/)
+  }
+  for (const overrides of [
+    { end_date: '2026-08-20', next_bill_date: null },
+    { end_date: '2026-08-31', next_bill_date: '2026-08-01' },
+    { end_date: '2026-08-31', next_bill_date: '2026-09-15' },
+    { end_date: '2026-08-31', next_bill_date: null, signup_orphaned_at: '2026-08-20' },
+  ]) {
+    const fixture = recurringPostingFixture({ subscriptions: [activeSubscription(overrides)] })
+    await assert.rejects(reconcileCanonicalRecurringChargesForMonth(fixture.db, options), /parity failed/)
+  }
+})
