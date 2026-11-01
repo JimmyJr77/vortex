@@ -48,7 +48,8 @@ jobs:
         run: npm run ci:checks
 
       - name: Run complete backend unit suite
-        run: npm test --prefix backend
+        # Timing assertions need an uncontended CPU on shared GitHub runners.
+        run: npm test --prefix backend -- --test-concurrency=1
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
