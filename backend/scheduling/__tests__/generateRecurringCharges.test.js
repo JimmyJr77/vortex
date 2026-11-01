@@ -699,6 +699,21 @@ test('a missing-method invoice resumes only its never-started first payment afte
   }
 })
 
+test('a reserved monthly payment with an unknown outcome is held rather than marked completed or charged again', async () => {
+  const fixture = recurringAccountFixture({ due: [], invoice: {
+    id: 803, status: 'open', automatic_attempt_count: 1,
+    payment_attempted_at: '2026-11-01T07:15:00Z', stripe_payment_intent_id: null,
+  } })
+  let attempts = 0
+  await assert.rejects(processRecurringBillingAccount(fixture.db, ACCOUNT, {
+    asOfTimestamp: new Date('2026-11-01T08:00:00Z'),
+    clock: recurringBillingClock('2026-11-01T08:00:00Z', ACCOUNT.facility_timezone),
+    ...safeProcessors({ recurringChargeReconciler: async () => ({ verified: true }),
+      invoiceFactory: async () => { attempts += 1 } }),
+  }), { code: 'household_payment_outcome_requires_reconciliation' })
+  assert.equal(attempts, 0)
+})
+
 test('the fifth never collects even if the first was missed or no method existed', async () => {
   for (const invoice of [null,{id:1,status:'payment_method_required',automatic_attempt_count:0}]) {
     const fixture=recurringAccountFixture({due:[],invoice})

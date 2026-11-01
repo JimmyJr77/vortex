@@ -1,4 +1,5 @@
 import { activeLedgerChargePredicate } from './billingLedgerSql.js'
+import { assertBillingConnectionHealthy } from './billingDatabaseRecovery.js'
 import { getStripeClient, ensureStripeCustomer, stripeEnabled } from './stripeBilling.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
@@ -1056,8 +1057,10 @@ async function rollForwardPriorInvoices(pool, { accountId, billingMonth, stripe,
           if (typeof stripe?.invoices?.del !== 'function') {
             throw new Error('Stripe draft-invoice deletion is unavailable.')
           }
+          assertBillingConnectionHealthy(pool)
           await stripe.invoices.del(invoice.stripe_invoice_id)
         } else if (remote.status === 'open') {
+          assertBillingConnectionHealthy(pool)
           await stripe.invoices.voidInvoice(invoice.stripe_invoice_id)
         } else if (!['void', 'uncollectible'].includes(remote.status)) {
           throw new Error(`Stripe invoice status ${remote.status || 'unknown'} is not safe to roll forward.`)
@@ -1610,6 +1613,7 @@ async function persistStripeInvoiceId(pool, invoice, stripeInvoiceId) {
 async function ensureRemoteInvoice(pool, { account, invoice, stripe, customerId, collectionMethod }) {
   let remote = await findRecoverableStripeInvoice(stripe, { account, invoice, customerId })
   if (!remote) {
+    assertBillingConnectionHealthy(pool)
     remote = await stripe.invoices.create({
       customer: customerId,
       collection_method: collectionMethod,
@@ -1685,6 +1689,7 @@ async function ensureRemoteInvoiceItems(pool, { invoice, lines, remote, stripe, 
     if (remote.status !== 'draft') {
       throw new Error(`Finalized Stripe invoice ${remote.id} is missing monthly invoice line ${line.id}.`)
     }
+    assertBillingConnectionHealthy(pool)
     const item = await stripe.invoiceItems.create({
       customer: customerId,
       invoice: remote.id,
@@ -1771,6 +1776,7 @@ async function pushInvoiceToStripe(pool, {
   })
   if (alreadyFinalized) return alreadyFinalized
 
+  assertBillingConnectionHealthy(pool)
   const finalized = remote.status === 'draft'
     ? await stripe.invoices.finalizeInvoice(
         remote.id,
@@ -1875,6 +1881,7 @@ async function pushInvoiceToStripe(pool, {
     throw error
   }
   try {
+    assertBillingConnectionHealthy(pool)
     const paid = await stripe.invoices.pay(
       remote.id,
       { payment_method: boundary.paymentMethodId },
@@ -1907,6 +1914,7 @@ async function pushInvoiceToStripe(pool, {
     return attempted
   } catch (error) {
     const paymentIntentId = paymentIntentFromError(error)
+    assertBillingConnectionHealthy(pool)
     return markInvoice(pool, invoice.id, {
       status: 'failed',
       ...(paymentIntentId ? { stripe_payment_intent_id: paymentIntentId } : {}),

@@ -36,6 +36,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '836_monthly_invoice_revisions.sql',
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
+  '839_recurring_billing_progress.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -95,9 +96,14 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '836_monthly_invoice_revisions.sql',
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
+  '839_recurring_billing_progress.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
+  'billing_recurring_run',
+  'billing_recurring_account_progress',
+  'idx_billing_recurring_run_started',
+  'idx_billing_recurring_account_pending',
   'billing_enrollment_deletion',
   'uq_attempt_charge_original',
   'billing_monthly_invoice',

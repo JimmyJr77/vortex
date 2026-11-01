@@ -12,6 +12,8 @@ import { generateRecurringCharges } from './generateRecurringCharges.js'
 import { reviewBillingTurnover, recordBillingTurnoverReview } from '../billing/billingTurnoverReview.js'
 import { expirePassCredits } from '../programs/multiClassPass.js'
 import { assertRequiredBillingSchema } from '../billing/billingSchemaReadiness.js'
+import { configureBillingWorkerPool } from '../billing/billingDatabaseRecovery.js'
+import { createRecurringBillingProgress } from '../billing/recurringBillingProgress.js'
 
 const { Pool } = pg
 
@@ -32,7 +34,7 @@ async function main() {
   const postOnly = process.argv.includes('--post-only')
   const reviewOnly = process.argv.includes('--review-only') || (!collectPayments && !postOnly)
   if (process.argv.includes('--review-only') && (collectPayments || postOnly)) throw new Error('Review mode cannot post or collect.')
-  const pool = new Pool({
+  const pool = configureBillingWorkerPool(new Pool({
     connectionString,
     ...(reviewOnly ? { options: '-c default_transaction_read_only=on' } : {}),
     user: process.env.DB_USER || 'postgres',
@@ -41,7 +43,16 @@ async function main() {
     password: process.env.DB_PASSWORD || 'password',
     port: process.env.DB_PORT || 5432,
     ssl: resolveSsl(connectionString),
-  })
+    connectionTimeoutMillis: 15000,
+    keepAlive: true,
+  }))
+  const stopping = new AbortController()
+  const stop = () => stopping.abort(new Error('Recurring billing interrupted by process shutdown.'))
+  process.once('SIGTERM', stop)
+  process.once('SIGINT', stop)
+  const asOf = new Date()
+  let progress
+  let finished = false
 
   try {
     await assertRequiredBillingSchema(pool)
@@ -51,6 +62,8 @@ async function main() {
       if (review.issueAccountCount) process.exitCode = 1
       return
     }
+    progress = await createRecurringBillingProgress(pool, { asOf, collectPayments })
+    console.log(JSON.stringify({ event: 'recurring_billing_started', runId: progress.runId }))
     if (collectPayments) {
       const { activateEnrollmentHouseholdBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
       const { getStripeClient } = await import('../billing/stripeBilling.js')
@@ -62,6 +75,7 @@ async function main() {
             AND subscription.source_type='scheduling_signup' AND subscription.status='active')
           AND NOT EXISTS (SELECT 1 FROM billing_account_migration migration WHERE migration.family_billing_account_id=account.id)`)
       if (stripe) for (const account of accounts.rows) {
+        stopping.signal.throwIfAborted()
         try { await activateEnrollmentHouseholdBilling(pool, { accountId: Number(account.id), stripe }) }
         catch (error) {
           process.exitCode = 1
@@ -69,8 +83,8 @@ async function main() {
         }
       }
     }
-    const preparation = await prepareUpcomingBilling(pool)
-    const result = await generateRecurringCharges(pool, { collectPayments })
+    const preparation = await prepareUpcomingBilling(pool, { now: asOf, onProgress: progress.record, signal: stopping.signal })
+    const result = await generateRecurringCharges(pool, { asOf, collectPayments, onProgress: progress.record, signal: stopping.signal })
     const heldAccountIds = new Set([
       ...preparation.filter((row) => row.status === 'blocked').map((row) => Number(row.accountId)),
       ...(result.blockedAccountIds ?? []),
@@ -97,7 +111,10 @@ async function main() {
           AND charge.collection_status NOT IN ('paid','failed','processing')
           AND charge.stripe_checkout_session_id IS NULL`)
       for (const candidate of candidates.rows) {
+        stopping.signal.throwIfAborted()
         if (heldAccountIds.has(Number(candidate.id))) continue
+        await progress.record({ accountId: Number(candidate.id), phase: 'enrollment_recovery', status: 'running' })
+        let recoveryResult
         try {
           const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true })
           if (!['complete','feature_disabled'].includes(outcome.status)) {
@@ -105,20 +122,26 @@ async function main() {
             error.code = outcome.status
             throw error
           }
+          recoveryResult = { status: 'completed', result: outcome }
         } catch (error) {
           const entry = { accountId: Number(candidate.id), code: error.code, message: error.message }
           enrollmentRecovery.push(entry)
           if (!isRecurringBillingReviewHold(entry.code)) process.exitCode = 1
           await recordEnrollmentAutoBillingAttention(pool, { memberId: candidate.payer_member_id,
             signupIds: [], reason: error.message })
+          recoveryResult = { status: 'blocked', result: entry }
         }
+        await progress.record({ accountId: Number(candidate.id), phase: 'enrollment_recovery', ...recoveryResult })
       }
     }
     const review = await reviewBillingTurnover(pool)
     await recordBillingTurnoverReview(pool, review)
     const outcome = recurringBillingOutcome({ preparation, enrollmentRecovery, result, review, operationalFailure: Boolean(process.exitCode) })
     if (outcome.exitCode) process.exitCode = outcome.exitCode
-    console.log(JSON.stringify({ event: 'recurring_billing_outcome', ...outcome }))
+    const status = await progress.finish(outcome.status, outcome)
+    finished = true
+    if (status === 'failed') process.exitCode = 1
+    console.log(JSON.stringify({ event: 'recurring_billing_outcome', ...outcome, status, runId: progress.runId }))
     console.log(
       `[billing:recurring] processed ${result.subscriptionsProcessed} subscription(s), ` +
         `posted ${result.chargesPosted} charge(s) across ${result.periodsAdvanced} period(s), ` +
@@ -145,7 +168,13 @@ async function main() {
   } catch (err) {
     console.error('[billing:recurring] failed:', err?.message || err)
     process.exitCode = 1
+    if (progress && !finished) {
+      await progress.finish(stopping.signal.aborted ? 'interrupted' : 'failed', {}, err)
+        .catch(error => console.error('[billing:recurring] could not finalize durable progress:', error.message))
+    }
   } finally {
+    process.removeListener('SIGTERM', stop)
+    process.removeListener('SIGINT', stop)
     await pool.end()
   }
 }

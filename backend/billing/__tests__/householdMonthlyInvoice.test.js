@@ -1,5 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { EventEmitter } from 'node:events'
+import { assertBillingConnectionHealthy } from '../billingDatabaseRecovery.js'
+import { reconcileAccountMonthlyInvoicePayments } from '../reassessBillingAllocations.js'
 import {
   resumeHouseholdInvoicePaymentLink,
   activateEligibleHouseholdMonthlyBilling,
@@ -2026,6 +2029,27 @@ test('a last-moment Invoice Payment inventory race blocks collection', async () 
   assert.equal(pool.invoice.hosted_invoice_url, null)
 })
 
+test('losing the collection connection during the final Stripe read prevents payment dispatch', async () => {
+  const pool = resumePool()
+  const events = new EventEmitter()
+  pool.on = events.on.bind(events)
+  const stripe = stripeFixture({ remoteStatus: 'draft' })
+  const list = stripe.invoicePayments.list.bind(stripe.invoicePayments)
+  let reads = 0
+  stripe.invoicePayments.list = async (...args) => {
+    const result = await list(...args)
+    if (++reads === 3) events.emit('error', new Error('Connection terminated unexpectedly'))
+    return result
+  }
+  await assert.rejects(createHouseholdMonthlyInvoice(pool, {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York', household_monthly_billing_enabled: true },
+    billingMonth: '2026-09-01', environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' }, stripeClient: stripe,
+  }), { code: 'billing_database_connection_lost' })
+  assert.equal(reads, 3)
+  assert.equal(stripe.calls.includes('invoices.pay'), false)
+})
+
 test('paid settlement rejects a paid binding plus any extra open binding', async () => {
   const pool = resumePool({ status: 'failed' })
   const stripe = stripeFixture({ discoverOnly: true, remoteStatus: 'paid' })
@@ -2247,6 +2271,31 @@ test('an interrupted response after Stripe payment is reconciled without a secon
   assert.equal(resumed.resumed, true)
   assert.equal(pool.invoice.status, 'paid')
   assert.equal(stripe.calls.filter((call) => call === 'invoices.pay').length, 1)
+})
+
+test('a database disconnect after Stripe succeeds is settled on a fresh session without another charge', async () => {
+  const pool = resumePool({ status: 'open' })
+  const query = pool.query.bind(pool)
+  const events = new EventEmitter()
+  pool.on = events.on.bind(events)
+  pool.query = async (...args) => { assertBillingConnectionHealthy(pool); return query(...args) }
+  const stripe = stripeFixture({ remoteStatus: 'open', payErrorAfterRemotePaid: new Error('response lost') })
+  const pay = stripe.invoices.pay.bind(stripe.invoices)
+  stripe.invoices.pay = async (...args) => {
+    try { return await pay(...args) } finally {
+      events.emit('error', new Error('Connection terminated unexpectedly'))
+    }
+  }
+  await assert.rejects(createHouseholdMonthlyInvoice(pool, {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8',
+      facility_timezone: 'America/New_York', household_monthly_billing_enabled: true },
+    billingMonth: '2026-09-01', environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' }, stripeClient: stripe,
+  }), { code: 'billing_database_connection_lost' })
+  const fresh = { query: async (sql, ...args) => String(sql).startsWith('SELECT stripe_invoice_id')
+    ? { rows: [{ stripe_invoice_id: 'in_42' }] } : query(sql, ...args) }
+  await reconcileAccountMonthlyInvoicePayments(fresh, { accountId: 8, stripeClient: stripe })
+  assert.equal(pool.invoice.status, 'paid')
+  assert.equal(stripe.calls.filter(call => call === 'invoices.pay').length, 1)
 })
 
 test('a remote invoice created before a crash is recovered and its idempotent payment is resumed', async () => {

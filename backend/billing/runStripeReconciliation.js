@@ -8,14 +8,17 @@ import { getStripeClient } from './stripeBilling.js'
 import { repairSavedCardEnrollmentSubscriptions } from './enrollmentSubscriptionRepair.js'
 import { billingEnrollmentAutoRepairEnabled } from './billingFeatureFlags.js'
 import { assertRequiredBillingSchema } from './billingSchemaReadiness.js'
+import { configureBillingWorkerPool } from './billingDatabaseRecovery.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.join(__dirname, '..', '.env.local') })
 const connectionString = process.env.DATABASE_URL || process.env.EXTERNAL_DB_URL || process.env.DB_URL
-const pool = new pg.Pool({
+const pool = configureBillingWorkerPool(new pg.Pool({
   connectionString,
   ssl: connectionString && !connectionString.includes('localhost') ? { rejectUnauthorized: false } : undefined,
-})
+  connectionTimeoutMillis: 15000,
+  keepAlive: true,
+}))
 
 try {
   await assertRequiredBillingSchema(pool)

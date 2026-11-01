@@ -373,6 +373,14 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
   })
 
   await t.test('month-boundary catch-up repairs uncollected provisional bills and retires obsolete lines', async () => {
+    // This regression isolates tuition repricing; its participant already has
+    // the membership required by the canonical posting path.
+    const membershipPaidAt = new Date()
+    const membershipRenewsAt = new Date(membershipPaidAt)
+    membershipRenewsAt.setUTCFullYear(membershipRenewsAt.getUTCFullYear() + 1)
+    await insert('additional_fee', {id:1,facility_id:1,name:'Annual membership',trigger_type:'once_per_year',apply_basis:'per_year'})
+    await insert('additional_fee_redemption', {fee_id:1,member_id:1,amount_cents:8500,
+      satisfied_at:membershipPaidAt,period_key:membershipRenewsAt.toISOString().slice(0,10)})
     await insert('scheduling_form',{id:1,title:'Synthetic enrollment'})
     await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-09-01'})
     await insert('billing_subscription',{id:1,family_billing_account_id:1,member_id:1,

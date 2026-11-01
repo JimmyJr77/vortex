@@ -1,4 +1,5 @@
 import { findActivePurchaseCheckoutOwner } from './purchaseCheckoutAdmission.js'
+import { assertBillingConnectionHealthy } from './billingDatabaseRecovery.js'
 import { settledRefundPredicate, activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { randomUUID } from 'crypto'
 import {
@@ -1582,6 +1583,7 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     await markBillingPaymentAttemptRemotePending(db, reservation.id)
     let succeededIntent = null
     try {
+      assertBillingConnectionHealthy(db)
       const intent = await stripe.paymentIntents.create({
         amount,
         currency: 'usd',
@@ -1633,6 +1635,7 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
       })
       return { payment, amountCents: amount, replayed: reservation.replayed }
     } catch (error) {
+      assertBillingConnectionHealthy(db)
       const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
       const retired = await retireFailedBillingPaymentAttempt(db, stripe, {
         attemptId: reservation.id, stripeObject: intent,
@@ -1783,6 +1786,7 @@ async function collectExactLedgerChargeWithSavedCard(pool, {
     await markBillingPaymentAttemptRemotePending(db, reservation.id)
     let succeededIntent = null
     try {
+      assertBillingConnectionHealthy(db)
       const intent = await stripe.paymentIntents.create(
         {
           amount: amountCents,
@@ -1842,6 +1846,7 @@ async function collectExactLedgerChargeWithSavedCard(pool, {
       })
       return { intent, payment, replayed: reservation.replayed }
     } catch (error) {
+      assertBillingConnectionHealthy(db)
       const intent = error?.payment_intent ?? error?.raw?.payment_intent ?? null
       const retired = await retireFailedBillingPaymentAttempt(db, stripe, {
         attemptId: reservation.id, stripeObject: intent,
