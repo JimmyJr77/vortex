@@ -1,3 +1,4 @@
+import { billRegistrationMembership } from '../scheduling/registrationMembership.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { bindEqualValueClassTransferCheckout } from './classTransferCheckoutBinding.js'
 import { recordBillingActivity } from './billingActivity.js'
@@ -614,6 +615,10 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
     const target = await loadSwapTarget(client, request, { forUpdate: true })
     priorStripeSubscriptionId = context.stripe_subscription_id ?? null
     const effectiveImmediately = request.effectiveDate <= request.today
+
+    if (preview.replacementFirstMonthCents > 0) {
+      await billRegistrationMembership(client, Number(context.member_id))
+    }
 
     const insertedSignup = await client.query(
       `INSERT INTO scheduling_signup (

@@ -95,6 +95,7 @@ function recurringPostingFixture({
   const client = {
     async query(sql, params = []) {
       const text = String(sql)
+      if (text.includes('FROM additional_fee_redemption')) return { rows: [{ fee_id: 1, created_at: '2026-01-01', period_key: '2099-01-01' }] }
       calls.push({ text, params })
       if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(text)) return { rows: [] }
       if (/pg_advisory_xact_lock/.test(text)) return { rows: [{}] }

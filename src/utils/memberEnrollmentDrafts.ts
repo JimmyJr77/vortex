@@ -8,6 +8,7 @@ export interface MemberEnrollmentCartItem {
   slotGroupId?: number
   timeSlotId?: number
   classLabel?: string
+  enrollmentStartDate?: string
   scheduleLabel?: string
   priceLabel?: string | null
   programsId?: number

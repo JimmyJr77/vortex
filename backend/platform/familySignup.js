@@ -1,4 +1,6 @@
+import { billConfirmedRegistration } from '../scheduling/registrationBilling.js'
 import crypto from 'crypto'
+import { prepareFamilyEnrollmentCheckout } from './familyEnrollmentCheckout.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { loadCanonicalAccessContext } from './accessContext.js'
@@ -769,6 +771,7 @@ async function applyEnrollmentRow(client, {
   enrollment,
   programKeysCreated,
 }) {
+  await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment })
   const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
   if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) return null
 
@@ -805,9 +808,9 @@ async function applyEnrollmentRow(client, {
         INSERT INTO scheduling_signup (
           form_id, time_slot_id, slot_group_id, member_id,
           first_name, last_name, email, phone, field_responses, responses, status,
-          enrollment_start_date
+          enrollment_start_date, pricing_option_key
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed', $11)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'confirmed', $11, $12)
         RETURNING id
       `,
       [
@@ -822,9 +825,17 @@ async function applyEnrollmentRow(client, {
         JSON.stringify(responses),
         JSON.stringify(responses),
         enrollmentStartDate,
+        enrollment.selectedPricingOptionKey ?? null,
       ],
     )
     schedulingSignupId = Number(ssInsert.rows[0]?.id)
+    await billConfirmedRegistration(client, {
+      id: schedulingSignupId, status: 'confirmed', member_id: memberId,
+      form_id: schedulingFormId, slot_group_id: slotGroupId,
+      time_slot_id: Number.isFinite(timeSlotId) ? timeSlotId : null,
+      enrollment_start_date: enrollmentStartDate,
+      pricing_option_key: enrollment.selectedPricingOptionKey ?? null,
+    })
   }
 
   return {
@@ -1091,6 +1102,10 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
     throw new Error(`Add ${row.first_name} ${row.last_name} to the family account to confirm the pending drop-in.`)
   }
 
+  if (row.benefit_type === 'paid' && !(Number(row.base_price_cents) > 0)) {
+    throw new Error('Drop-in pricing is unavailable. Contact staff before registering.')
+  }
+
   const memberId = Number(match.member.id)
   await client.query(
     `UPDATE drop_in_registration
@@ -1304,11 +1319,16 @@ async function processFamilySignup(client, payload, options = {}) {
   )
   const allMemberIds = createdMembers.map(({ member }) => Number(member.id))
   const enrollmentReceipts = []
+  const pendingEnrollments = []
   const programKeysCreated = new Set()
 
   for (const enrollment of enrollments) {
     const memberId = memberIdByClientIndex[Number(enrollment.memberIndex)]
     const memberRow = createdMembers.find(({ member }) => Number(member.id) === memberId)?.member
+    if (options.admin !== true) {
+      pendingEnrollments.push(await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment }))
+      continue
+    }
     const receipt = await applyEnrollmentRow(client, {
       memberId,
       memberRow,
@@ -1347,6 +1367,7 @@ async function processFamilySignup(client, payload, options = {}) {
     primaryEmail: String(primaryAdult.email || '').trim(),
     primaryName: String(primaryAdult.firstName || '').trim(),
     enrollmentReceipts,
+    pendingEnrollments,
     completedDropIn,
   }
 }
@@ -2012,7 +2033,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       const payload = invite.pending_payload || {}
       const minorMemberId = Number(payload.minorMemberId)
       let minorName = null
-      const inviteEnrollmentReceipts = []
+      const invitePendingEnrollments = []
 
       await client.query('BEGIN')
 
@@ -2072,16 +2093,11 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           if (minorRow.rows[0]) {
             minorName = `${minorRow.rows[0].first_name || ''} ${minorRow.rows[0].last_name || ''}`.trim() || null
           }
-          const programKeysCreated = new Set()
           for (const enrollment of pendingEnrollments) {
-            const receipt = await applyEnrollmentRow(client, {
+            invitePendingEnrollments.push(await prepareFamilyEnrollmentCheckout(client, {
               memberId: minorMemberId,
-              memberRow: minorRow.rows[0],
-              primaryAdultEmail: primaryAdult.email,
               enrollment,
-              programKeysCreated,
-            })
-            if (receipt) inviteEnrollmentReceipts.push(receipt)
+            }))
           }
         } else {
           const minorRow = await client.query(
@@ -2107,16 +2123,12 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
 
       void sendPostSignupNotifications({
         ...result,
-        enrollmentReceipts: [
-          ...(result.enrollmentReceipts || []),
-          ...inviteEnrollmentReceipts,
-        ],
         inviteCompletion: true,
         skipWelcome: true,
         minorName,
       })
 
-      res.json({ success: true, data: result })
+      res.json({ success: true, data: { ...result, pendingEnrollments: invitePendingEnrollments } })
     } catch (error) {
       await client.query('ROLLBACK')
       res.status(400).json({ success: false, message: error.message })

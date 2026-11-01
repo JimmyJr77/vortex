@@ -1,3 +1,4 @@
+import { continueFamilyEnrollmentCheckout } from '../../utils/familyEnrollmentCheckout'
 import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -182,6 +183,9 @@ export default function SignupInvitePage() {
       trackEvent('sign_up', window.location.pathname, {
         properties: { method: 'parent_invite', enrollment_count: enrollmentPayload.length },
       })
+      if (data.data?.pendingEnrollments?.length > 0) {
+        if (await continueFamilyEnrollmentCheckout(apiUrl, data.data, primaryAdult)) return
+      }
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to complete signup')
@@ -204,8 +208,9 @@ export default function SignupInvitePage() {
         <div className="max-w-lg w-full rounded-2xl bg-white border border-green-200 p-8 text-center space-y-3">
           <h1 className="text-2xl font-bold text-green-800">Signup complete</h1>
           <p className="text-sm text-gray-600">
-            The family account is active. You can log in to the member portal with your new credentials.
+            The family account is active. Log in to review your class selections and complete checkout. Class selections are not confirmed until checkout is complete.
           </p>
+          <a href="/?enrollment=review" className="inline-block font-semibold text-vortex-red">Continue to member portal</a>
         </div>
       </div>
     )

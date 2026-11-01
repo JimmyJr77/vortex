@@ -550,6 +550,7 @@ test('persistSignupCharges posts the annual fee but waits for full payment befor
 
   const result = await persistSignupCharges(pool, {
     memberId: 4,
+    membershipOnly: true,
     signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3, formTitle: 'Vortex Team', slotLabel: '' }],
     preview,
     purchasedAt: new Date('2026-12-31T23:59:59.000Z'),
@@ -586,6 +587,7 @@ test('persistSignupCharges immediately activates a fully waived athlete membersh
 
   const result = await persistSignupCharges(pool, {
     memberId: 4,
+    membershipOnly: true,
     signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3, formTitle: 'Vortex Team', slotLabel: '' }],
     preview,
   })
@@ -642,4 +644,28 @@ test('missing preview recovery reconstructs calendar proration and keeps househo
   await assert.rejects(buildPersistedEnrollmentBillingPreview(db, { ...options, memberId: 10 }), /exact household/)
   await assert.rejects(buildPersistedEnrollmentBillingPreview(db, { ...options,
     pricingResolver: async () => ({ lines: [] }) }), /purchase preview is required/)
+})
+
+test('an annual fee cannot conceal missing class tuition pricing', async () => {
+  await assert.rejects(persistSignupCharges(fakeBillingPool(), {
+    memberId: 4,
+    signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3 }],
+    preview: { newSignups: [], additionalFees: { enabled: true, items: [{ feeId: 3, amountCents: 8500, triggerType: 'once_per_year' }] } },
+  }), /missing its initial billing price/)
+})
+
+test('staff enrollment reuses an unpaid annual bill while still posting class tuition', async () => {
+  const pool = fakeBillingPool()
+  const original = pool.query
+  pool.query = (sql, params) => sql.includes('annual-membership:outstanding-charge')
+    ? Promise.resolve({ rows: [{ id: 123 }] }) : original(sql, params)
+  await persistSignupCharges(pool, {
+    memberId: 4,
+    signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3 }],
+    preview: { newSignups: [{ slotKey: '1:2:3', incrementalMonthly: 150, billingType: 'one_time' }],
+      additionalFees: { enabled: true, items: [{ feeId: 3, amountCents: 8500, triggerType: 'once_per_year' }] } },
+  })
+  assert.equal(pool.calls.charges.length, 1)
+  assert.equal(pool.calls.charges[0][4], 15000)
+  assert.equal(pool.calls.feeRedemptions.length, 0)
 })

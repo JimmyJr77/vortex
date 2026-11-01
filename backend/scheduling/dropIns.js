@@ -727,6 +727,9 @@ export function registerDropInRoutes(app, pool) {
       const status = defaultOutcome.status
       const monthlyCents = monthlyCentsFromOptions(slot.rows[0].pricing_options, slot.rows[0].fallback_monthly_cents)
       const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent, isFree: benefitType !== 'paid' })
+      if (benefitType === 'paid' && price.baseCents <= 0) {
+        throw new Error('Drop-in pricing is unavailable. Contact staff before registering.')
+      }
       const inserted = await client.query(
         `INSERT INTO drop_in_registration
           (member_id,form_id,slot_group_id,class_date,first_name,last_name,email,phone,

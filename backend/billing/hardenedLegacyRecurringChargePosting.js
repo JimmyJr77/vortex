@@ -1,3 +1,4 @@
+import { billRegistrationMembership } from '../scheduling/registrationMembership.js'
 import {
   buildEnrollmentBillingPeriodManifest,
   resolveFamilyEnrollmentPricing,
@@ -307,6 +308,7 @@ export async function postHardenedLegacyRecurringChargesForMonth(db, {
           chargeIds: found.map((row) => Number(row.id)),
         })
       }
+      if (netCents > 0) await billRegistrationMembership(client, memberId)
       if (found.length === 1) {
         const charge = found[0]
         const exact =

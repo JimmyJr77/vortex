@@ -1,3 +1,4 @@
+import { billRegistrationMembership } from '../scheduling/registrationMembership.js'
 import {
   buildEnrollmentBillingPeriodManifest,
   resolveFamilyEnrollmentPricing,
@@ -903,6 +904,10 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
           [line.subscriptionId, line.grossCents, line.discountCents, line.netCents, line.memberId, Number(accountId)],
         )
       }
+    }
+    if (!provisional) {
+      const paidMemberIds = new Set(expected.lines.filter((line) => line.netCents > 0).map((line) => line.memberId))
+      for (const memberId of paidMemberIds) await billRegistrationMembership(client, memberId)
     }
     const postedChargeIds = []
     for (const line of comparison.missing) {

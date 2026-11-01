@@ -45,3 +45,18 @@ test-results/**/trace.zip
 
 # Built payroll browser-test application
 dist-payroll-test/
+
+# Private customer billing investigations and remediation exports (local only)
+outputs/billing-investigation-2026-10-06/
+outputs/bussell-history-2026-11-01/
+outputs/byrd-family-101-2026-10-16/
+outputs/cron-failure-2026-10-27/
+outputs/li-family-100-2026-10-16/
+outputs/mills-2026-10-18/
+outputs/monthly-billing-audit-2026-10-27/
+outputs/monthly-billing-remediation-2026-11-01/
+outputs/nkaa-2026-10-17/
+outputs/roberts-2026-10-17/
+
+# Microsoft Office temporary lock files
+~$*

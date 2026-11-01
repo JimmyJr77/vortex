@@ -1,3 +1,4 @@
+import { requiredRegistrationFees, monthlyRegistrationRequiresMembership } from './registrationMembership.js'
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import {
   costFromPricingOptionKey,
@@ -1338,7 +1339,9 @@ export async function buildSignupOrderPreview(
   const additionalFees = await computeAdditionalFeesLayer(pool, {
     facilityId: pricingFacilityId,
     memberId,
-    newSignupItems,
+    newSignupItems: newSignupsWithDisplay,
+    discounts,
+    firstMonth,
     formRows,
     scopeMeta,
     offeringBySlotGroup,
@@ -1961,6 +1964,8 @@ export async function computeAdditionalFeesLayer(
     facilityId,
     memberId,
     newSignupItems,
+    discounts = null,
+    firstMonth = null,
     formRows,
     scopeMeta,
     offeringBySlotGroup,
@@ -1994,11 +1999,13 @@ export async function computeAdditionalFeesLayer(
       computeOrderAdditionalFees,
       loadMemberFeeRedemptionKeys,
     } = await import('./additionalFeesEngine.js')
-    fees = await loadActiveAdditionalFees(pool, scopedFacilityId)
+    fees = await requiredRegistrationFees(pool, { memberId,
+      required: monthlyRegistrationRequiresMembership({ newSignupItems, discounts, firstMonth }),
+      fees: await loadActiveAdditionalFees(pool, scopedFacilityId) })
     if (!fees.length) return empty
 
     const isNewMember = existingCount === 0
-    const oncePerYearIds = fees.filter((f) => f.triggerType === 'once_per_year').map((f) => f.id)
+    const oncePerYearIds = fees.filter((f) => f.triggerType === 'once_per_year' || f.applyBasis === 'per_year').map((f) => f.id)
     const redeemedPeriodKeys = await loadMemberFeeRedemptionKeys(pool, memberId, oncePerYearIds)
 
     // Promo codes targeting the annual membership fee discount the fee line itself.

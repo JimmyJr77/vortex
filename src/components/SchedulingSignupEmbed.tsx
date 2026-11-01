@@ -16,6 +16,9 @@ import {
   requestSchedulingMagicLink,
   schedulingHasMultipleWeeks,
   submitSchedulingSignupBatch,
+  createEnrollmentCheckoutSession,
+  enrollmentNeedsPayment,
+  storePendingEnrollmentId,
   saveSchedulingMemberEmail,
   verifySchedulingAuthToken,
   type ProgramClassOption,
@@ -1275,7 +1278,8 @@ const SchedulingSignupEmbed = ({
     setSubmitting(true)
     setError(null)
     try {
-      const result = await submitSchedulingSignupBatch({
+      if (!orderPreview || orderPreviewLoading) throw new Error('Wait for pricing before continuing.')
+      const payload = {
         signups: cartItems
           .filter(
             (item) =>
@@ -1294,7 +1298,25 @@ const SchedulingSignupEmbed = ({
         responses: { email: accountEmail.trim() },
         signupAuthToken: signupAuthToken || undefined,
         promoCodes: appliedPromoCodes,
-      })
+      }
+      if (enrollmentNeedsPayment(orderPreview)) {
+        const memberToken = getMemberSessionToken()
+        if (!memberToken || !payload.signupAuthToken) {
+          throw new Error('Please sign in to the member portal to review and pay for this enrollment.')
+        }
+        const checkout = await createEnrollmentCheckoutSession(memberToken, {
+          ...payload, signupAuthToken: payload.signupAuthToken,
+        })
+        if (checkout.url) {
+          if (checkout.pendingEnrollmentId != null) storePendingEnrollmentId(checkout.pendingEnrollmentId)
+          window.location.assign(checkout.url)
+          return
+        }
+        if (!checkout.skipCheckout) {
+          throw new Error('Checkout requires review in the member portal. Please do not submit another payment.')
+        }
+      }
+      const result = await submitSchedulingSignupBatch(payload)
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
       trackEvent('class_signup_submitted', window.location.pathname, {

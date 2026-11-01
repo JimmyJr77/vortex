@@ -1538,3 +1538,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS billing_monthly_invoice_family_billing_account
 CREATE UNIQUE INDEX IF NOT EXISTS uq_billing_monthly_invoice_stripe_invoice ON public.billing_monthly_invoice USING btree (stripe_invoice_id) WHERE (stripe_invoice_id IS NOT NULL);
 CREATE INDEX IF NOT EXISTS idx_billing_monthly_invoice_account_status ON public.billing_monthly_invoice USING btree (family_billing_account_id, status, billing_month DESC);
 CREATE INDEX IF NOT EXISTS idx_billing_monthly_invoice_automatic_attempt ON public.billing_monthly_invoice USING btree (family_billing_account_id, billing_month, automatic_attempt_count);
+
+CREATE TABLE app_user (id bigint PRIMARY KEY, full_name text);

@@ -1,3 +1,4 @@
+import { assertNoOutstandingAnnualMembershipCharge } from './annualMembershipChargeGuard.js'
 import { recordBillingActivity } from './billingActivity.js'
 /**
  * Stripe Checkout for member enrollment — pay-then-commit flow.
@@ -1198,6 +1199,14 @@ export async function createAndBindEnrollmentCheckoutSession(
         memberId: athleteId,
         payerMemberId: payerId,
       })
+
+      for (const fee of preview.additionalFees?.items ?? []) {
+        if (fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year') {
+          await assertNoOutstandingAnnualMembershipCharge(db, {
+            accountId, memberId: athleteId, feeId: fee.feeId,
+          })
+        }
+      }
 
       durable = await db.query(
         `SELECT *

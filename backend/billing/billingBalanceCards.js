@@ -125,13 +125,19 @@ export function summarizeCustomerBalanceCards({
   // debt and available credit invites a second collection of settled money.
   const availableCreditCents = ledgerCreditCents + unappliedPaymentCents
   const appliedCreditCents = Math.min(outstandingChargesCents, availableCreditCents)
+  // After a balance payment, an unlinked credit may cover the unpaid part
+  // of the current bill without a monthly-invoice application. Consume that
+  // display remainder before advertising money for a future bill.
+  const currentBillCreditCents = currentRecurringSatisfiedCents > 0
+    ? Math.min(Math.max(0, monthlyRecurringCents - currentRecurringSatisfiedCents), availableCreditCents - appliedCreditCents)
+    : 0
   return {
     outstandingBalanceCents: outstandingChargesCents - appliedCreditCents,
-    monthlyRecurringCents: Math.max(0, monthlyRecurringCents - currentRecurringSatisfiedCents),
-    monthlyRecurringDiscountCents: currentRecurringSatisfiedCents >= monthlyRecurringCents
+    monthlyRecurringCents: Math.max(0, monthlyRecurringCents - currentRecurringSatisfiedCents - currentBillCreditCents),
+    monthlyRecurringDiscountCents: currentRecurringSatisfiedCents + currentBillCreditCents >= monthlyRecurringCents
       ? 0
       : monthlyRecurringDiscountCents,
-    currentRecurringSatisfiedCents,
-    futureCreditsCents: availableCreditCents - appliedCreditCents,
+    currentRecurringSatisfiedCents: currentRecurringSatisfiedCents + currentBillCreditCents,
+    futureCreditsCents: availableCreditCents - appliedCreditCents - currentBillCreditCents,
   }
 }

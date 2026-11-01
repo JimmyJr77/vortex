@@ -1511,6 +1511,12 @@ export async function listCustomerBillingTransactions(pool, {
          c.created_at::timestamptz AS occurred_at,
          CASE
            WHEN c.source_type IN ('membership_transfer_cancelled', 'membership_bill_recalled') THEN 'cancelled'
+           WHEN c.source_type = 'manual_account_credit' THEN
+             CASE WHEN COALESCE((SELECT SUM(a.amount_cents)
+               FROM billing_charge_credit_application a
+               JOIN billing_monthly_invoice_line l ON l.id=a.credit_invoice_line_id
+               WHERE l.billing_charge_id=c.id),0) >= ABS(c.amount_cents)
+               THEN 'applied' ELSE 'posted' END
            WHEN c.charge_type = 'credit' AND c.amount_cents < 0 THEN 'applied'
            WHEN c.amount_cents = 0
              AND COALESCE(c.gross_amount_cents, 0) > 0
@@ -1559,6 +1565,12 @@ export async function listCustomerBillingTransactions(pool, {
            'stripeCheckoutSessionId', c.stripe_checkout_session_id,
            'stripePaymentIntentId', c.stripe_payment_intent_id,
            'createdByUserId', c.created_by_user_id,
+           'actorUserId', c.created_by_user_id,
+           'actorName', COALESCE(NULLIF(c.metadata->>'createdByName', ''),
+             (SELECT u.full_name FROM app_user u WHERE u.id=c.created_by_user_id),
+             CASE WHEN c.created_by_user_id IS NOT NULL THEN 'Staff #' || c.created_by_user_id::text END),
+           'actorAction', 'Created by',
+           'creditCreatedByName', CASE WHEN c.source_type = 'manual_account_credit' THEN c.metadata->>'createdByName' END,
            'appliedAmountCents', (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)),
            'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0))),
            'returnedAmountCents', CASE
@@ -1776,11 +1788,28 @@ export async function listCustomerBillingTransactions(pool, {
            'stripeCheckoutSessionId', p.stripe_checkout_session_id,
            'stripeInvoiceId', p.stripe_invoice_id,
            'recordedByUserId', p.recorded_by_user_id,
+           'actorUserId', payment_actor.user_id,
+           'actorName', COALESCE(payment_actor.full_name,
+             CASE WHEN payment_actor.user_id IS NOT NULL THEN 'Staff #' || payment_actor.user_id END),
+           'actorAction', CASE WHEN p.recorded_by_user_id IS NOT NULL THEN 'Recorded by' ELSE 'Initiated by' END,
            'appliedAmountCents', COALESCE(payment_applications.applied_cents, 0),
            'remainingAmountCents', GREATEST(0, p.amount_cents - COALESCE(payment_applications.applied_cents, 0) - COALESCE(payment_refunds.refunded_cents, 0)),
            'applications', payment_applications.items
          )
        FROM billing_payment p
+       LEFT JOIN LATERAL (
+         SELECT identity.user_id, NULLIF(u.full_name, '') AS full_name
+         FROM (SELECT COALESCE(p.recorded_by_user_id::text, (
+           SELECT attempt.metadata->>'actorUserId'
+           FROM billing_payment_attempt attempt
+           WHERE attempt.family_billing_account_id=p.family_billing_account_id
+             AND (attempt.stripe_payment_intent_id=p.stripe_payment_intent_id
+               OR attempt.stripe_checkout_session_id=p.stripe_checkout_session_id)
+             AND attempt.metadata->>'actorUserId' ~ '^[1-9][0-9]*$'
+           ORDER BY attempt.created_at, attempt.id LIMIT 1
+         )) AS user_id) identity
+         LEFT JOIN app_user u ON u.id::text=identity.user_id
+       ) payment_actor ON TRUE
        LEFT JOIN LATERAL (
          SELECT
            COALESCE(SUM(effective.amount_cents), 0)::int AS applied_cents,

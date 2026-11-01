@@ -1,3 +1,5 @@
+import { billConfirmedRegistration } from './registrationBilling.js'
+import { requireSignupCheckout } from './signupPaymentGate.js'
 import crypto from 'crypto'
 import Joi from 'joi'
 import jwt from 'jsonwebtoken'
@@ -35,7 +37,8 @@ import { getStripeClient } from '../billing/stripeBilling.js'
 import { createEnrollmentStripeSubscriptions, createEnrollmentAnnualMembershipSubscriptions } from '../billing/stripeEnrollmentCheckout.js'
 import {
   safeCancelSubscriptionsForSource,
-  safeReactivateSubscriptionForSource,
+  reactivateSubscriptionForSource,
+  setSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { trySavepoint } from './transactionSavepoint.js'
@@ -2560,6 +2563,8 @@ export function createSchedulingHandlers(pool) {
           freePassBreakdown = preview.freePasses
 
 
+          requireSignupCheckout(orderPreviewSnapshot)
+
           const signupResult = await insertSignupForMember(client, {
             formId: value.formId,
             formRow,
@@ -2680,7 +2685,7 @@ export function createSchedulingHandlers(pool) {
         if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
-        res.status(500).json({ success: false, message: err.message || 'Failed to submit signup' })
+        res.status(err?.statusCode ?? 500).json({ success: false, message: err.message || 'Failed to submit signup' })
       }
     },
 
@@ -2916,6 +2921,8 @@ export function createSchedulingHandlers(pool) {
             orderPreviewSnapshot = preview
           }
 
+
+          requireSignupCheckout(orderPreviewSnapshot, req.billingCheckout)
 
           const signupResults = []
           for (const resolved of resolvedEntries) {
@@ -4715,6 +4722,15 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
+          if (targetStatus === 'confirmed' && previousStatus !== 'confirmed') {
+            await billConfirmedRegistration(client, updatedRow)
+            if (previousStatus === 'paused') {
+              await setSubscriptionPausedForSource(client, {
+                sourceType: 'scheduling_signup', sourceId: req.params.id, paused: false,
+              })
+            }
+          }
+
           // Freeing a confirmed spot (cancel/complete) can promote from the waitlist.
           if (
             previousStatus === 'confirmed' &&
@@ -4747,7 +4763,7 @@ export function createSchedulingHandlers(pool) {
             await safeCancelSubscriptionsForSource(client, source)
           } else if (targetStatus === 'confirmed' || targetStatus === 'waitlisted') {
             if (previousStatus === 'cancelled' || previousStatus === 'completed') {
-              await safeReactivateSubscriptionForSource(client, source)
+              if (targetStatus === 'confirmed') await reactivateSubscriptionForSource(client, source)
             }
           }
 
@@ -5279,6 +5295,12 @@ export function createSchedulingHandlers(pool) {
             mandateWaiver,
             groupDisplayLabel: group.displayLabel,
             firstOccurrenceLabel: firstOccurrence.displayLabel,
+          })
+
+          await billConfirmedRegistration(client, {
+            id: signupResult.signupId, status: signupResult.signupStatus,
+            member_id: memberId, form_id: targetFormId, slot_group_id: slotGroupId,
+            time_slot_id: firstOccurrence.id,
           })
 
           newSignupId = signupResult.signupId

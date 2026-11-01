@@ -19,7 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <button onClick={() => clearPortalSession()}>Test logout</button>
         <MemberClassesOfferedEnroll
           apiUrl="http://localhost:3001" memberToken="fixture-token"
-          stripeEnabled={params.has('stripe')} programs={programs} members={members}
+          stripeEnabled={params.has('stripe') || params.get('enrollment') === 'review'} programs={programs} members={members}
           defaultMemberId={101} enrollments={params.has('existing') ? [{
             id: 77, member_id: 102, source: 'scheduling', status: 'confirmed',
             form_id: 3, slot_group_id: 4, time_slot_id: 5,

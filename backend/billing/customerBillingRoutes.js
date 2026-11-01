@@ -1,3 +1,4 @@
+import { createCustomerBillingCredit } from './customerBillingCredits.js'
 import { previewChargeEnrollmentDeletion, previewCustomerBillingEnrollmentDeletion, deleteCustomerBillingEnrollment } from './customerBillingEnrollmentDeletion.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from './customerBillingRefundSelection.js'
 import { reassessBillingAllocations } from './reassessBillingAllocations.js'
@@ -814,6 +815,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           })
         }
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Prior-month balance could not be collected.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/credits',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await createCustomerBillingCredit(pool, {
+          familyId: Number(req.params.familyId), facilityId: facilityId(req),
+          actorUserId: actorId(req), amountCents: req.body?.amountCents,
+          reason: req.body?.reason, requestKey: requiredIdempotencyKey(req, 'account-credit'),
+        })
+        res.status(data.created ? 201 : 200).json({ success: true, data })
+      } catch (error) {
+        res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Credit could not be added.' })
       }
     },
   )

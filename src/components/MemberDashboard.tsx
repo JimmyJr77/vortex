@@ -1274,6 +1274,11 @@ export default function MemberDashboard({
     const enrollmentStatus = params.get('enrollment')
     const billingStatus = params.get('billing')
 
+    if (enrollmentStatus === 'review') {
+      setActiveTab('classes')
+      setEnrollmentConfirmMessage('Your account is ready. Review the saved class selections for each athlete and complete checkout to confirm enrollment.')
+    }
+
     if (billingStatus === 'update' || billingStatus === 'portal-return') {
       setActiveTab('billing')
       setBillingReturnMessage(
@@ -2446,7 +2451,7 @@ export default function MemberDashboard({
                   {!classesOfferedLoading && !classesOfferedError && classesOffered.length === 0 && (
                     <div className="text-center py-12 text-gray-500">No classes are listed at this time.</div>
                   )}
-                  {!classesOfferedLoading && !classesOfferedError && classesOffered.length > 0 && token && profileData?.id != null && profileData.householdAccess?.isPayer === true && (
+                  {!classesOfferedLoading && !classesOfferedError && !enrollmentsLoading && !enrollmentConfirming && classesOffered.length > 0 && token && profileData?.id != null && profileData.householdAccess?.isPayer === true && (
                     <MemberClassesOfferedEnroll
                       apiUrl={apiUrl}
                       memberToken={token}

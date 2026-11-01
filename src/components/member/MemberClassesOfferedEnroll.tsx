@@ -48,7 +48,6 @@ import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
 import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 import { formatDateShort } from '../../utils/dateUtils'
 import {
-  emptyMemberEnrollmentDraft,
   loadMemberEnrollmentDraft,
   memberEnrollmentDraftKey,
   saveMemberEnrollmentDraft,
@@ -97,7 +96,9 @@ function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSk
 }
 
 export default function MemberClassesOfferedEnroll(props: Props) {
-  const [selectedMemberId, setSelectedMemberId] = useState(Number(props.defaultMemberId))
+  const [selectedMemberId, setSelectedMemberId] = useState(() => props.members.find((member) =>
+    loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id)).cart.length > 0,
+  )?.id ?? Number(props.defaultMemberId))
   const [drafts, setDrafts] = useState<Record<number, MemberEnrollmentDraft>>({})
   const rememberDraft = useCallback((memberId: number, draft: MemberEnrollmentDraft) => {
     setDrafts((current) => ({ ...current, [memberId]: draft }))
@@ -560,7 +561,7 @@ function AthleteEnrollment({
         timeSlotId: c.timeSlotId!,
         selectedPricingOptionKey: pricingKey,
         useMultiClassPass: true,
-        enrollmentStartDate,
+        enrollmentStartDate: c.enrollmentStartDate || enrollmentStartDate,
       }
     })
   }, [cart, enrollmentStartDate, selectedPricingByProgram, programs])
@@ -698,7 +699,8 @@ function AthleteEnrollment({
         promoCodes,
       }
 
-      if (stripeEnabled && preview && enrollmentNeedsPayment(preview)) {
+      if (enrollmentNeedsPayment(preview)) {
+        if (!stripeEnabled) throw new Error('Online payments are unavailable. Your selections are saved; please try again later.')
         const checkout = await createEnrollmentCheckoutSession(memberToken, {
           ...batchPayload,
           analytics: {
@@ -720,9 +722,12 @@ function AthleteEnrollment({
           })
           // Flush before leaving for Stripe so the event is not lost.
           void flushEvents({ useBeacon: true })
-          // The submitted athlete is handled by checkout. Keep every other
-          // athlete's draft for the return to the family portal.
-          saveMemberEnrollmentDraft(draftKey, emptyMemberEnrollmentDraft())
+          // Keep class selections if Checkout is cancelled. Fulfilled slots
+          // are removed when the refreshed enrollments arrive after payment.
+          saveMemberEnrollmentDraft(draftKey, {
+            cart: cart.filter((item) => item.lineType === 'slot'),
+            enrollmentStartDate, selectedPricingByProgram, promoCodes,
+          })
           window.location.href = checkout.url
           return
         }
@@ -803,9 +808,11 @@ function AthleteEnrollment({
         <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
           <p className="text-sm text-gray-600">Enrolling</p>
           <p className="text-base font-semibold text-gray-900">{selectedMember?.label}</p>
-          {enrollmentStartDate ? (
-            <p className="mt-1 text-sm text-gray-600">Starts {formatDateShort(enrollmentStartDate)}</p>
-          ) : null}
+          {cart.filter((item) => item.lineType === 'slot').map((item) => (
+            <p key={item.cartKey} className="mt-1 text-sm text-gray-600">
+              {item.classLabel}: starts {formatDateShort(item.enrollmentStartDate || enrollmentStartDate)}
+            </p>
+          ))}
         </div>
 
         {!preview || previewLoading ? (
@@ -934,6 +941,7 @@ function AthleteEnrollment({
           value={enrollmentStartDate}
           onChange={(value) => {
             setEnrollmentStartDate(value)
+            setCart((items) => items.map((item) => ({ ...item, enrollmentStartDate: undefined })))
             if (value) setStartDateError(null)
           }}
           error={startDateError}

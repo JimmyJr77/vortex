@@ -1510,7 +1510,18 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
     }
     if (!existing) {
       const invoicePayment = await resumeHouseholdInvoicePaymentLink(db, { account, stripe })
-      if (invoicePayment) return { ...invoicePayment, requiresInvoicePayment: true, payment: null }
+      if (invoicePayment) {
+        await recordBillingActivity(db, {
+          eventKey: `admin-invoice-payment-link:${account.id}:${requestKey}`,
+          accountId: account.id,
+          eventType: 'invoice_payment_link_opened',
+          summary: 'Opened the existing monthly invoice for payment.',
+          details: { monthlyInvoiceId: invoicePayment.monthlyInvoiceId, amountCents: invoicePayment.amountCents },
+          stripeObjectId: invoicePayment.id,
+          actorUserId,
+        })
+        return { ...invoicePayment, requiresInvoicePayment: true, payment: null }
+      }
     }
     const availableCents = existing?.amount_cents ?? await loadCanonicalCollectibleBalanceCents(db, account.id)
     const amount = amountCents == null ? availableCents : positiveCents(amountCents, 'Collection amount')
@@ -1618,7 +1629,7 @@ export async function collectOutstandingBalanceWithSavedCard(pool, {
         summary: 'Saved card payment collected for the prior-month balance.',
         details: { amountCents: amount, billingPaymentAttemptId: reservation.id },
         stripeObjectId: intent.id,
-        actorUserId,
+        actorUserId: reservation.metadata?.actorUserId ?? actorUserId,
       })
       return { payment, amountCents: amount, replayed: reservation.replayed }
     } catch (error) {
@@ -1826,7 +1837,8 @@ async function collectExactLedgerChargeWithSavedCard(pool, {
         summary: `Payment received for ${currentCharge.description}.`,
         afterValue: { paymentId: Number(payment.id), amountCents },
         stripeObjectId: intent.id,
-        actorType: 'system',
+        actorUserId: reservation.metadata?.actorUserId ?? actorUserId,
+        actorType: (reservation.metadata?.actorUserId ?? actorUserId) ? 'admin' : 'system',
       })
       return { intent, payment, replayed: reservation.replayed }
     } catch (error) {

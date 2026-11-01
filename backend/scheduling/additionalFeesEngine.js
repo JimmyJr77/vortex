@@ -1,4 +1,3 @@
-import { isMembershipValidThrough } from './membershipAnniversary.js'
 import { loadActiveAnnualMembershipFeeIds } from './annualMembership.js'
 
 export const FEE_APPLY_BASES = [
@@ -82,7 +81,7 @@ export function computeOrderAdditionalFees({
   for (const fee of activeFees) {
     if (fee.triggerType === 'new_member' && !isNewMember) continue
 
-    if (fee.triggerType === 'once_per_year' && oncePerYearAlreadyRedeemed(fee.id, redeemedPeriodKeys, new Date(now))) {
+    if (isAnnualMembershipFeeItem(fee) && oncePerYearAlreadyRedeemed(fee.id, redeemedPeriodKeys, new Date(now))) {
       continue
     }
 
@@ -237,17 +236,5 @@ export async function loadMemberFeeRedemptionKeys(pool, memberId, feeIds = [], n
     keys.add(`${feeId}:active`)
   }
 
-  const res = await pool.query(
-    `SELECT fee_id, period_key, created_at FROM additional_fee_redemption
-     WHERE member_id = $1 AND fee_id = ANY($2::bigint[])`,
-    [memberId, feeIds],
-  )
-  for (const row of res.rows) {
-    const feeId = Number(row.fee_id)
-    keys.add(`${feeId}:${row.period_key}`)
-    if (isMembershipValidThrough(row.created_at, now)) {
-      keys.add(`${feeId}:active`)
-    }
-  }
   return keys
 }

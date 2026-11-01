@@ -1,3 +1,4 @@
+import { continueFamilyEnrollmentCheckout } from '../../utils/familyEnrollmentCheckout'
 import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DateOfBirthInput from '../DateOfBirthInput'
@@ -20,7 +21,6 @@ import {
   clearPublicEnrollmentCart,
   loadPublicEnrollmentCart,
 } from '../../utils/publicEnrollmentCart'
-import { persistMemberSession, type PortalAccount } from '../../utils/portalSession'
 import { pendingEnrollmentsToRows } from './signupEnrollmentUtils'
 import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
 
@@ -1247,33 +1247,9 @@ export default function FamilySignupWizard({
           },
         })
       }
-      const createdClassEnrollment =
-        mode === 'public' && Array.isArray(data.data?.enrollmentReceipts) && data.data.enrollmentReceipts.length > 0
-      if (createdClassEnrollment) {
-        try {
-          const loginRes = await fetch(`${apiUrl}/api/members/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              emailOrUsername: primaryAdult.email || primaryAdult.username,
-              password: primaryAdult.password,
-            }),
-          })
-          const loginData = await loginRes.json()
-          if (loginRes.ok && loginData.success && loginData.token && loginData.member) {
-            persistMemberSession(loginData.token, loginData.member as PortalAccount)
-            // Class enrollment is complete; take the new family straight to the membership check.
-            // The destination inspects every family member and offers a discount-code field per athlete.
-            window.location.assign('/waivers-memberships?source=class-enrollment')
-            return
-          }
-        } catch (loginErr) {
-          console.warn('[signup] auto-login before membership prompt failed:', loginErr)
-        }
-        setSuccessMessage(
-          'Account and class enrollment created. Please log in to review annual membership for this enrollment.',
-        )
-        onComplete?.(data.data)
+      if (!isAdmin && data.data?.pendingEnrollments?.length > 0) {
+        if (await continueFamilyEnrollmentCheckout(apiUrl, data.data, primaryAdult)) return
+        setSuccessMessage('Account created. Your class selections are awaiting checkout. Log in to review pricing and complete payment; classes are not confirmed yet.')
         return
       }
       if (returnTo) {
@@ -1548,6 +1524,7 @@ export default function FamilySignupWizard({
       <div className="rounded-xl border border-green-200 bg-green-50 p-6 text-center space-y-3">
         <h3 className="text-lg font-bold text-green-800">Success</h3>
         <p className="text-sm text-green-700">{successMessage}</p>
+        {!isAdmin && <a href="/?enrollment=review" className="mt-4 inline-block font-semibold text-vortex-red">Continue to member portal</a>}
         {onCancel && (
           <button type="button" onClick={onCancel} className="px-4 py-2 bg-vortex-red text-white rounded-lg text-sm font-semibold">
             Close

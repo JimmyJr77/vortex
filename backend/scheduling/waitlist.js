@@ -1,3 +1,4 @@
+import { billConfirmedRegistration } from './registrationBilling.js'
 import { buildGroupDisplayLabel } from './slotDisplayLabel.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -77,7 +78,7 @@ export async function computeSignupPositions(client, slotGroupId, signupId) {
  * @param {number} slotGroupId
  * @param {number} slotsToFill
  */
-export async function promoteFromWaitlist(client, slotGroupId, slotsToFill) {
+export async function promoteFromWaitlist(client, slotGroupId, slotsToFill, { billRegistration = billConfirmedRegistration } = {}) {
   if (slotsToFill <= 0) return []
 
   const waitlisted = await client.query(
@@ -97,6 +98,7 @@ export async function promoteFromWaitlist(client, slotGroupId, slotsToFill) {
       `UPDATE scheduling_signup SET status = 'confirmed' WHERE id = $1 RETURNING *`,
       [row.id],
     )
+    await billRegistration(client, updated.rows[0])
     promoted.push(updated.rows[0])
   }
   return promoted

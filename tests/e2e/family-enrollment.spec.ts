@@ -12,7 +12,7 @@ const json = (route: Route, data: unknown) => route.fulfill({ json: { success: t
 
 type SignupRequest = { signupAuthToken: string; promoCodes: string[]; signups: Array<Record<string, unknown>> }
 type Capture = { batches: SignupRequest[]; previews: SignupRequest[] }
-async function setup(page: Page, options: { stripe?: boolean; delayFirst?: boolean; failPreview?: boolean } = {}): Promise<Capture> {
+async function setup(page: Page, options: { stripe?: boolean; delayFirst?: boolean; failPreview?: boolean; paid?: boolean; checkoutFails?: boolean } = {}): Promise<Capture> {
   const captured: Capture = { batches: [], previews: [] }
   await page.route('**/api/**', async (route) => {
     const path = new URL(route.request().url()).pathname
@@ -27,13 +27,14 @@ async function setup(page: Page, options: { stripe?: boolean; delayFirst?: boole
       }
       if (options.failPreview) return route.fulfill({ status: 503, json: { success: false, message: 'Pricing unavailable for test' } })
       return json(route, { ...preview, estimatedMonthlyTotal: body.signupAuthToken === 'athlete-102' ? 200 : 150,
-        additionalFeesOneTime: options.stripe ? 1 : 0 })
+        additionalFeesOneTime: options.stripe || options.paid ? 1 : 0 })
     }
     if (path.endsWith('/signups/batch')) {
       captured.batches.push(body)
       return json(route, { signups: [{ id: 123 }] })
     }
     if (path.endsWith('/enrollment-checkout-session')) {
+      if (options.checkoutFails) return route.fulfill({ status: 503, json: { success: false, message: 'Payment service unavailable' } })
       captured.batches.push(body)
       return json(route, { url: fixture + '?returned=1', pendingEnrollmentId: 1 })
     }
@@ -57,8 +58,10 @@ test('siblings keep separate selections, dates and discounts; each submit target
   await page.goto(fixture)
   await chooseClass(page)
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Confirm enrollment', exact: true })).toBeEnabled()
   await page.getByPlaceholder('Enter discount code').fill('FIRST')
   await page.getByRole('button', { name: 'Apply', exact: true }).click()
+  await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:101:101') || '{}').promoCodes)).toEqual(['FIRST'])
   await page.getByRole('button', { name: 'Back to class selection' }).click()
   await page.getByLabel('Enroll athlete', { exact: true }).selectOption('102')
   await expect(page.getByRole('checkbox', { name: /Monday/ })).not.toBeChecked()
@@ -93,7 +96,7 @@ test('an existing enrollment for one sibling does not remove the other sibling d
   await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
 })
 
-test('payment navigation retains the other sibling draft, and logout clears drafts', async ({ page }) => {
+test('cancelled payment navigation retains both sibling drafts, and logout clears drafts', async ({ page }) => {
   const requests = await setup(page, { stripe: true })
   await page.goto(fixture + '?stripe=1')
   await chooseClass(page)
@@ -104,7 +107,7 @@ test('payment navigation retains the other sibling draft, and logout clears draf
   await page.getByRole('button', { name: 'Confirm & pay' }).click()
   await page.waitForURL('**?returned=1')
   expect(requests.batches[0].signupAuthToken).toBe('athlete-101')
-  await expect(page.getByRole('checkbox', { name: /Monday/ })).not.toBeChecked()
+  await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
   await page.getByLabel('Enroll athlete', { exact: true }).selectOption('102')
   await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
   await expect(page.getByLabel('Enrollment start date')).toHaveValue('2027-01-11')
@@ -139,19 +142,7 @@ test('failed pricing cannot submit an unpriced enrollment', async ({ page }) => 
 test('family signup copies a class into a separate enrollment without replacing the first child', async ({ page }) => {
   await setup(page)
   await page.goto(fixture + '?family=1')
-  await page.getByPlaceholder('First name *', { exact: true }).fill('Parent')
-  await page.getByPlaceholder('Last name *', { exact: true }).fill('Example')
-  await page.getByPlaceholder('Email *', { exact: true }).fill('parent@example.invalid')
-  await page.getByPlaceholder('###-###-####').fill('2025550100')
-  await page.getByPlaceholder('Street address *').fill('123 Example Street')
-  await page.getByPlaceholder('City *', { exact: true }).fill('Bowie')
-  await page.locator('select').filter({ has: page.locator('option[value="MD"]') }).selectOption('MD')
-  await page.getByPlaceholder('ZIP *').fill('20715')
-  await page.getByLabel('Date of Birth', { exact: false }).fill('1980-01-01')
-  await page.getByPlaceholder('Username *').fill('fixture-parent')
-  await page.getByPlaceholder('Password *', { exact: true }).fill('FixtureOnly123!')
-  await page.getByPlaceholder('Confirm password *').fill('FixtureOnly123!')
-  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await fillPrimaryAdult(page)
   for (const [index, name] of ['First', 'Second'].entries()) {
     await page.getByRole('button', { name: 'Add member', exact: true }).click()
     await page.getByPlaceholder('First name *', { exact: true }).nth(index).fill(name)
@@ -181,4 +172,101 @@ test('family signup copies a class into a separate enrollment without replacing 
   await page.getByLabel('Family member', { exact: true }).nth(1).selectOption({ label: 'First Example' })
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await expect(page.getByText('This class time is selected more than once for the same family member. Choose a different family member or remove the duplicate enrollment.')).toBeVisible()
+})
+
+async function fillPrimaryAdult(page: Page) {
+  await page.getByPlaceholder('First name *', { exact: true }).fill('Parent')
+  await page.getByPlaceholder('Last name *', { exact: true }).fill('Example')
+  await page.getByPlaceholder('Email *', { exact: true }).fill('parent@example.invalid')
+  await page.getByPlaceholder('###-###-####').fill('2025550100')
+  await page.getByPlaceholder('Street address *').fill('123 Example Street')
+  await page.getByPlaceholder('City *', { exact: true }).fill('Bowie')
+  await page.locator('select').filter({ has: page.locator('option[value="MD"]') }).selectOption('MD')
+  await page.getByPlaceholder('ZIP *').fill('20715')
+  await page.getByLabel('Date of Birth', { exact: false }).fill('1980-01-01')
+  await page.getByPlaceholder('Username *').fill('fixture-parent')
+  await page.getByPlaceholder('Password *', { exact: true }).fill('FixtureOnly123!')
+  await page.getByPlaceholder('Confirm password *').fill('FixtureOnly123!')
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+}
+
+test('paid classes cannot fall back to direct signup when Stripe is disabled', async ({ page }) => {
+  const requests = await setup(page, { paid: true })
+  await page.goto(fixture)
+  await chooseClass(page)
+  await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm enrollment', exact: true }).click()
+  await expect(page.getByText(/Online payments are unavailable/)).toBeVisible()
+  expect(requests.batches).toEqual([])
+})
+
+test('checkout failure cannot confirm enrollment or discard the selected class', async ({ page }) => {
+  const requests = await setup(page, { stripe: true, checkoutFails: true })
+  await page.goto(fixture + '?stripe=1')
+  await chooseClass(page)
+  await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm & pay' }).click()
+  await expect(page.getByText('Payment service unavailable', { exact: true })).toBeVisible()
+  expect(requests.batches).toEqual([])
+  await expect(page.getByText('Enrollment complete', { exact: true })).toHaveCount(0)
+})
+
+for (const loginFails of [false, true]) test(`family account creation hands classes to checkout (login failure: ${loginFails})`, async ({ page }) => {
+  const requests = await setup(page, { stripe: true })
+  await page.route('**/api/signup/waivers', (route) => json(route, [{ id: 1, name: 'Test waiver', body: 'Test terms', version: '1', is_required: true }]))
+  await page.route('**/api/signup/family', async (route) => {
+    const body = route.request().postDataJSON()
+    expect(body.enrollments).toHaveLength(1)
+    await json(route, { payerMemberId: 101, enrollmentReceipts: [], pendingEnrollments: [{
+      memberId: 101, classEventId: 2, formId: 3, slotGroupId: 4, timeSlotId: 5,
+      classLabel: 'Test Class', scheduleLabel: 'Monday', programsId: 1, enrollmentStartDate: '2027-01-04',
+    }] })
+  })
+  await page.route('**/api/members/login', (route) => loginFails
+    ? route.fulfill({ status: 503, json: { success: false } })
+    : route.fulfill({ json: { success: true, token: 'fixture-token', member: { id: 101 } } }))
+  // Render the member checkout fixture at the real handoff destination.
+  await page.route('**/?enrollment=review', async (route) => {
+    const response = await route.fetch({ url: new URL(fixture, route.request().url()).href })
+    await route.fulfill({ response, body: (await response.text()).replace('./family-enrollment.tsx', '/tests/e2e/fixtures/family-enrollment.tsx') })
+  })
+  await page.goto(fixture + '?family=1')
+  await fillPrimaryAdult(page)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await page.getByRole('button', { name: 'Add enrollment', exact: true }).click()
+  await page.getByLabel('Family member', { exact: true }).selectOption({ label: 'Parent Example' })
+  await page.locator('select').filter({ has: page.locator('option[value="1"]') }).selectOption('1')
+  await page.locator('select').filter({ has: page.locator('option[value="2"]') }).selectOption('2')
+  await chooseClass(page)
+  await page.getByRole('button', { name: 'Continue', exact: true }).click()
+  await page.getByRole('checkbox', { name: /agree to Test waiver/ }).check()
+  await page.getByRole('checkbox', { name: 'I AGREE TO THE SELECTED WAIVERS ABOVE' }).check()
+  await page.getByPlaceholder('Legal name').fill('Parent Example')
+  await page.getByRole('button', { name: 'Create account', exact: true }).click()
+  if (loginFails) {
+    await expect(page.getByText(/Account created. Your class selections are awaiting checkout/)).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Continue to member portal' })).toHaveAttribute('href', '/?enrollment=review')
+    await expect(page.getByRole('button', { name: 'Create account', exact: true })).toHaveCount(0)
+  } else {
+    await page.waitForURL('**/?enrollment=review')
+    await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
+    await expect(page.getByLabel('Enrollment start date')).toHaveValue('2027-01-04')
+  }
+  expect(requests.batches).toEqual([])
+  const draft = await page.evaluate(() => JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:101:101') || '{}'))
+  expect(draft.cart).toMatchObject([{ formId: 3, slotGroupId: 4, timeSlotId: 5, enrollmentStartDate: '2027-01-04' }])
+  if (!loginFails) {
+    let directSignups = 0
+    await page.route('**/api/scheduling/signups/batch', (route) => {
+      directSignups += 1
+      return json(route, { signups: [] })
+    })
+    await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
+    await page.getByRole('button', { name: 'Confirm & pay' }).click()
+    await page.waitForURL('**?returned=1')
+    expect(directSignups).toBe(0)
+    expect(requests.batches).toHaveLength(1)
+    expect(requests.batches[0]).toMatchObject({ signupAuthToken: 'athlete-101',
+      signups: [{ formId: 3, slotGroupId: 4, timeSlotId: 5, enrollmentStartDate: '2027-01-04' }] })
+  }
 })

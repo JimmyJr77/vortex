@@ -1,3 +1,4 @@
+import { assertNoOutstandingAnnualMembershipCharge } from '../billing/annualMembershipChargeGuard.js'
 import { buildPersistedEnrollmentBillingPreview } from './persistedEnrollmentBillingPreview.js'
 /**
  * Bridge created scheduling signups into the persisted family billing ledger.
@@ -236,6 +237,7 @@ export async function persistSignupCharges(pool, {
   preview = null,
   stripeCheckoutSessionId = null,
   purchasedAt = null,
+  membershipOnly = false,
 }) {
   if (!memberId || signups.length === 0) return { charges: 0, subscriptions: 0 }
 
@@ -252,11 +254,15 @@ export async function persistSignupCharges(pool, {
 
   const account = await loadOrCreateUnassignedBillingAccount(pool, familyId)
   if (!account) throw new Error('An enrollment billing account is required.')
+  await pool.query('SELECT pg_advisory_xact_lock($1::bigint)', [Number(account.id)])
 
   if (preview == null) {
     preview = await buildPersistedEnrollmentBillingPreview(pool, { familyId, memberId, signups })
   }
 
+  if (preview?.hasPricing === false && !membershipOnly) {
+    throw new Error('Class pricing is unavailable. Contact staff before registering.')
+  }
   await persistSignupPricingSnapshots(pool, preview, signups)
   try {
     await persistRecurringOrderPromoAssignment(pool, preview, signups)
@@ -278,7 +284,7 @@ export async function persistSignupCharges(pool, {
     const line = lineChargeForSlot(preview, slotKey)
     if (line == null) {
       // An explicit membership-only purchase has no new tuition lines.
-      if (Array.isArray(preview.newSignups) && preview.newSignups.length === 0
+      if (membershipOnly && Array.isArray(preview.newSignups) && preview.newSignups.length === 0
         && preview.additionalFees?.enabled === true) continue
       throw new Error(`Enrollment ${signup.signupId} is missing its initial billing price.`)
     }
@@ -451,7 +457,7 @@ export async function persistSignupCharges(pool, {
     : fullOrderDiscountCents
   const sortedSignupIds = signups
     .map((s) => Number(s.signupId))
-    .filter((n) => Number.isFinite(n))
+    .filter((n) => Number.isFinite(n) && n > 0)
     .sort((a, b) => a - b)
   const firstSignupId = sortedSignupIds[0] ?? null
   if (orderDiscountCents > 0 && firstSignupId != null) {
@@ -516,6 +522,14 @@ export async function persistSignupCharges(pool, {
 
     const isAnnualMembership =
       fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
+    if (isAnnualMembership && !stripeCheckoutSessionId && feeAmount > 0) {
+      try {
+        await assertNoOutstandingAnnualMembershipCharge(pool, { accountId: account.id, memberId, feeId: fee.feeId })
+      } catch (error) {
+        if (error.code === 'ANNUAL_MEMBERSHIP_ALREADY_BILLED') continue
+        throw error
+      }
+    }
     const sourceId = isAnnualMembership
       ? `${fee.feeId}:${memberId}:${renewsOnKey}`
       : `${fee.feeId}:${firstSignupId ?? memberId}`
@@ -566,6 +580,7 @@ export async function persistSignupCharges(pool, {
         charges += 1
         feeChargeId = Number(feeCharge.rows[0].id)
       } else {
+        if (isAnnualMembership) throw new Error('The existing annual membership charge requires review before this registration can be billed.')
         feeChargeId = await pool.query(
           `SELECT id FROM billing_charge WHERE source_type = 'additional_fee' AND source_id = $1 LIMIT 1`,
           [sourceId],
