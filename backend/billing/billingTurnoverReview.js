@@ -1,5 +1,5 @@
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
-import { reconcileCanonicalRecurringChargesForMonth } from './canonicalRecurringChargePosting.js'
+import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBillingMonth } from './canonicalRecurringChargePosting.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { facilityDate, nextBillingMonth } from './canonicalBillingMigrationState.js'
 import { isRecurringBillingReviewHold } from './recurringBillingOutcome.js'
@@ -33,16 +33,12 @@ export async function reviewBillingTurnover(db, { now = new Date(), accountIds =
       row.expectedCount = pricing.lines.length
       row.expectedLines = pricing.lines.map((line) => ({ signupId: line.signupId,
         subscriptionId: line.subscriptionId, memberId: line.memberId, amountCents: line.netCents }))
-      const actual = await db.query(
-        `SELECT id, amount_cents, member_id, subscription_id FROM billing_charge
-          WHERE family_billing_account_id = $1 AND charge_type = 'recurring'
-            AND service_period_start = $2::date
-            AND COALESCE(metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
-          ORDER BY id`, [account.id, month],
-      )
-      row.postedCount = actual.rows.length
-      row.postedCents = actual.rows.reduce((sum, charge) => sum + Number(charge.amount_cents), 0)
-      row.postedChargeIds = actual.rows.map((charge) => Number(charge.id))
+      const actual = await loadRecurringChargesForBillingMonth(db, {
+        accountId: account.id, billingMonth: month, facilityTimeZone: account.timezone,
+      })
+      row.postedCount = actual.length
+      row.postedCents = actual.reduce((sum, charge) => sum + Number(charge.effective_amount_cents), 0)
+      row.postedChargeIds = actual.map((charge) => Number(charge.id))
       try {
         const parity = await reconcileCanonicalRecurringChargesForMonth(db, {
           accountId: account.id, billingMonth: month, facilityTimeZone: account.timezone,

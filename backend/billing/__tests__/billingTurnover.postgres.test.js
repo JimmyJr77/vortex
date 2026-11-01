@@ -13,7 +13,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import pg from 'pg'
-import { reconcileCanonicalRecurringChargesForMonth } from '../canonicalRecurringChargePosting.js'
+import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBillingMonth } from '../canonicalRecurringChargePosting.js'
 import { recordBillingActivity } from '../billingActivity.js'
 import { loadCanonicalFinancialSnapshot } from '../canonicalBillingAccount.js'
 import { listCustomerBillingTransactions, listMemberCustomerBillingTransactions } from '../customerBillingQueries.js'
@@ -309,6 +309,19 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await recordRecurringBillingExceptions(db,{blockedAccounts:[],completedAccountIds:[1]})
     assert.equal((await db.query("SELECT action_status FROM stripe_billing_alert WHERE stripe_event_id='recurring-billing:1'")).rows[0].action_status,'resolved')
     assert.deepEqual((await db.query('SELECT * FROM billing_charge')).rows,before)
+  })
+
+  await t.test('readiness totals include midmonth tuition and net adjustments without adjacent or annual bills', async () => {
+    const monthly = { charge_type:'recurring', billing_interval:'month', service_period_start:'2026-11-02', service_period_end:'2026-11-30' }
+    await charge(1,15000,monthly)
+    await charge(2,-1000,{source_type:'charge_adjustment',related_charge_id:1})
+    await charge(3,10000,{...monthly,service_period_start:'2026-10-01',service_period_end:'2026-10-31'})
+    await charge(4,10000,{...monthly,service_period_start:'2026-12-01',service_period_end:'2026-12-31'})
+    await charge(5,8500,{service_period_start:'2026-11-01',charge_type:'one_time'})
+    await charge(6,15000,{...monthly,metadata:{customerAuditVisibility:'suppressed'}})
+    const rows = await loadRecurringChargesForBillingMonth(db, { accountId:1, billingMonth:'2026-11-01', facilityTimeZone:'America/New_York' })
+    assert.deepEqual(rows.map(row=>Number(row.id)),[1])
+    assert.equal(Number(rows[0].effective_amount_cents),14000)
   })
 
   await t.test('real charge schema supports provisional recalculation and September replay after October posting', async () => {

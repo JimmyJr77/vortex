@@ -275,6 +275,11 @@ async function lockEnrollmentLifecycleRows(db, accountId) {
   )
 }
 
+// Share the exact tuition-period selection with operational readiness reports.
+export function loadRecurringChargesForBillingMonth(db, { accountId, billingMonth, facilityTimeZone }) {
+  return loadTargetCharges(db, { accountId, period: targetPeriod(billingMonth), facilityTimeZone })
+}
+
 async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
   return db.query(
     `SELECT charge.*,
