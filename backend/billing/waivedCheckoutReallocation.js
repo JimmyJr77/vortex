@@ -1,7 +1,8 @@
 /** A paid purchase that was subsequently fully waived may release its cash to
  * the household. Require historical exact fulfillment and only allocator-owned
  * reversals; a missing fulfillment must never masquerade as a waiver. */
-export async function findFulfilledThenWaivedCheckout(db, { accountId, sessionId, paymentId, amountCents }) {
+export async function findFulfilledThenWaivedCheckout(db, { accountId, sessionId, paymentId, amountCents,
+  allowFulfillmentPending = false }) {
   return db.query(`WITH purchase AS (
       SELECT * FROM billing_charge WHERE family_billing_account_id=$1 AND stripe_checkout_session_id=$2
     ), waivers AS (
@@ -12,7 +13,10 @@ export async function findFulfilledThenWaivedCheckout(db, { accountId, sessionId
     WHERE payment.id=$3 AND payment.family_billing_account_id=$1
       AND payment.stripe_checkout_session_id=$2 AND payment.amount_cents=$4
       AND payment.external_processor='stripe' AND payment.stripe_payment_intent_id IS NOT NULL
-      AND payment.external_status IN ('settled','succeeded') AND $4::integer>0
+      AND (payment.external_status IN ('settled','succeeded') OR (
+        $5::boolean AND payment.external_status='reconciliation_required'
+        AND payment.note='[paid-checkout-fulfillment-pending:' || $2 || ']'
+      )) AND $4::integer>0
       AND (SELECT COALESCE(SUM(amount_cents),0) FROM purchase)=$4
       AND EXISTS (SELECT 1 FROM purchase)
       AND NOT EXISTS (SELECT 1 FROM purchase WHERE amount_cents<=0)
@@ -47,5 +51,5 @@ export async function findFulfilledThenWaivedCheckout(db, { accountId, sessionId
         WHERE line.billing_charge_id IN (SELECT id FROM purchase UNION SELECT id FROM waivers))
       AND NOT EXISTS (SELECT 1 FROM billing_payment_attempt WHERE family_billing_account_id=$1
         AND (status IN ('pending','processing','reconciliation_required') OR (status='reserved' AND expires_at>now())))`,
-    [Number(accountId),String(sessionId),Number(paymentId),Number(amountCents)]).then(result=>result.rows[0]??null)
+    [Number(accountId),String(sessionId),Number(paymentId),Number(amountCents),allowFulfillmentPending === true]).then(result=>result.rows[0]??null)
 }

@@ -128,7 +128,7 @@ test.describe('Fit & Flip Schedule', () => {
     await openMockedCoachPortal(page)
     await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
-    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
     await expect(page.getByText('60', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Ages 12–14 · Foundation')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Two athlete sets, one shared tumbling period' })).toBeVisible()
@@ -255,7 +255,7 @@ test.describe('Fit & Flip Schedule', () => {
     await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
     await page.locator('nav').getByRole('button', { name: 'Fit & Flip', exact: true }).press('Enter')
 
-    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
     await expect(page.getByRole('button', { name: '12-14', exact: true })).toBeVisible()
     await expect(page.getByRole('combobox', { name: 'Week', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Open exercise card for / }).first()).toBeVisible()

@@ -400,6 +400,7 @@ function exactCheckoutFixture({
       calls.push({ text, params })
       if (text === 'BEGIN' || text === 'COMMIT' || text === 'ROLLBACK') return { rows: [] }
       if (text.includes('pg_advisory_xact_lock')) return { rows: [] }
+      if (text.includes('WITH purchase AS')) return { rows: [] }
       if (text.includes('FROM billing_charge charge') && text.includes('remaining_cents')) {
         return { rows: targets }
       }

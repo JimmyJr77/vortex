@@ -328,7 +328,12 @@ export async function processRecurringBillingAccount(db, account, {
     throw error
   }
 
-  if (canonicalLedgerOwned && !reconciledMonths.has(clock.billingMonth)) {
+  // Revalidate posted charges before an automatic collection, not on every
+  // preparation run. Current enrollment/pricing is not evidence that a bill
+  // posted earlier in the month (or its proration) was incorrect. Due schedules
+  // still go through the catch-up loop above on every day.
+  const collectionDay = clock.dayOfMonth === 1 || clock.dayOfMonth === 4
+  if (canonicalLedgerOwned && collectionDay && !reconciledMonths.has(clock.billingMonth)) {
     const current = await recurringChargeReconciler(db, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,
@@ -391,7 +396,6 @@ export async function processRecurringBillingAccount(db, account, {
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 0
       && !existingInvoice.payment_attempted_at
       && !existingInvoice.stripe_payment_intent_id
-    const collectionDay = clock.dayOfMonth === 1 || clock.dayOfMonth === 4
     const shouldAttemptInitial = collectionDay && (!existingInvoice || awaitingFirstPaymentMethod)
     const shouldAttemptRetry = clock.dayOfMonth === 4
       && (['failed', 'void', 'open'].includes(existingInvoice?.status)
@@ -406,6 +410,14 @@ export async function processRecurringBillingAccount(db, account, {
         automaticAttemptPolicy: shouldAttemptRetry ? 'retry_on_fourth' : 'initial',
         now: asOfTimestamp,
       })
+      if (result?.blocked) {
+        const error = new Error(
+          `Household invoice collection is blocked for billing account ${fresh.id}: ${result.blocked}.`,
+        )
+        error.code = result.blocked
+        error.details = { accountId: Number(fresh.id), ...result }
+        throw error
+      }
       if (['feature_disabled', 'not_enabled', 'stripe_unavailable'].includes(result?.skipped)) {
         const error = new Error(
           `Household invoice collection is unavailable for billing account ${fresh.id}: ${result.skipped}.`,
@@ -448,6 +460,7 @@ export async function generateRecurringCharges(pool, {
   let pauseCreditsPosted = 0
   let householdInvoicesCreated = 0
   const blockedAccounts = []
+  const completedAccountIds = []
   const skippedMigrationAccountIds = []
 
   for (const account of accounts) {
@@ -468,10 +481,13 @@ export async function generateRecurringCharges(pool, {
       periodsAdvanced += Number(result?.periodsAdvanced ?? 0)
       pauseCreditsPosted += Number(result?.pauseCreditsPosted ?? 0)
       householdInvoicesCreated += Number(result?.householdInvoicesCreated ?? 0)
+      completedAccountIds.push(Number(account.id))
     } catch (error) {
       blockedAccounts.push({
         accountId: Number(account.id),
         code: error?.code ?? 'recurring_account_failed',
+        message: error?.message ?? String(error),
+        details: error?.details ?? null,
       })
       console.error('[billing] recurring account blocked:', account.id, error?.code ?? null, error?.message ?? error)
     }
@@ -486,6 +502,7 @@ export async function generateRecurringCharges(pool, {
     accountsBlocked: blockedAccounts.length,
     blockedAccountIds: blockedAccounts.map((entry) => entry.accountId),
     blockedAccounts,
+    completedAccountIds,
     skippedMigrationAccountIds,
   }
 }

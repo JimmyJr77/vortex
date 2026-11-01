@@ -191,6 +191,7 @@ async function createPrerequisiteSchema(client) {
     CREATE TABLE billing_refund (
       id BIGSERIAL PRIMARY KEY,
       family_billing_account_id BIGINT,
+      ledger_treatment TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
 
@@ -227,6 +228,12 @@ async function createPrerequisiteSchema(client) {
       event_id TEXT PRIMARY KEY,
       status TEXT NOT NULL DEFAULT 'received',
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+
+    CREATE TABLE enrollment_price_adjustment (
+      id BIGSERIAL PRIMARY KEY,
+      signup_id BIGINT NOT NULL REFERENCES scheduling_signup(id) ON DELETE RESTRICT,
+      billing_subscription_id BIGINT REFERENCES billing_subscription(id) ON DELETE RESTRICT
     );
 
     CREATE TABLE stripe_pending_enrollment (
@@ -413,7 +420,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
         logger: { info() {} },
       }),
       (error) => {
-        assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+        assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
         assert.deepEqual(error.readiness?.ownerlessFacilityIds, [20])
         return true
       },
@@ -781,7 +788,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       await assert.rejects(
         assertDeployAccessSchema(client),
         (error) => {
-          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
           assert.deepEqual(error.readiness?.crossFacilityMemberAppUserLinks, [{
             memberId: 1002,
             memberFacilityId: 10,
@@ -878,7 +885,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       await assert.rejects(
         assertDeployAccessSchema(client),
         (error) => {
-          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
           assert.ok(error.readiness?.invalidColumns?.includes('app_user.staff_access_active'))
           return true
         },
@@ -894,7 +901,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       await assert.rejects(
         assertDeployAccessSchema(client),
         (error) => {
-          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
           assert.deepEqual(error.readiness?.invalidMasterAdminAssignments, [{
             facilityId: 30,
             userId: 302,
@@ -912,7 +919,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       await assert.rejects(
         assertDeployAccessSchema(client),
         (error) => {
-          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
           assert.ok(error.readiness?.missingTriggers?.includes('facility.trg_facility_owner_user_id_guard'))
           return true
         },
@@ -938,7 +945,7 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       await assert.rejects(
         assertDeployAccessSchema(client),
         (error) => {
-          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY')
+          assert.equal(error.code, 'ACCESS_SCHEMA_NOT_READY', error.message)
           assert.ok(error.readiness?.retiredTriggers?.includes('member.trigger_update_athlete_status'))
           assert.ok(error.readiness?.retiredFunctions?.includes('update_member_athlete_status'))
           return true
@@ -958,16 +965,22 @@ test('deploy migrations dry-run, apply once, become a no-op, and reject checksum
       { amount_cents: 200, external_status: 'settled' },
       { amount_cents: 300, external_status: 'failed' },
     ])
+    const paymentAccount = await client.query(
+      'INSERT INTO family_billing_account DEFAULT VALUES RETURNING id',
+    )
+    const paymentAccountId = paymentAccount.rows[0].id
     const defaultPayment = await client.query(
-      `INSERT INTO billing_payment (amount_cents)
-       VALUES (400)
+      `INSERT INTO billing_payment (family_billing_account_id, amount_cents)
+       VALUES ($1, 400)
        RETURNING external_status`,
+      [paymentAccountId],
     )
     assert.equal(defaultPayment.rows[0]?.external_status, 'settled')
     await assert.rejects(
       client.query(
-        `INSERT INTO billing_payment (amount_cents, external_status)
-         VALUES (500, 'arbitrary_client_state')`,
+        `INSERT INTO billing_payment (family_billing_account_id, amount_cents, external_status)
+         VALUES ($1, 500, 'arbitrary_client_state')`,
+        [paymentAccountId],
       ),
       /billing_payment_external_status_check/,
     )

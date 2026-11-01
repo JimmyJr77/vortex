@@ -128,6 +128,11 @@ function webhookClaimPool({ onFulfillmentQuery, allowProcessed = false }) {
         return { rows: [{ event_id: params[0] }] }
       }
       if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
+      if (text.includes('UPDATE stripe_billing_alert')) {
+        assert.match(text, /alert_type = 'webhook_failure'/)
+        assert.match(text, /resolved_at IS NULL/)
+        return { rows: [] }
+      }
       return onFulfillmentQuery(text, params)
     },
   }
@@ -301,6 +306,11 @@ test('forbidden subscription-mode Checkout is durably quarantined and acknowledg
           }
         }
         if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
+        if (text.includes('UPDATE stripe_billing_alert')) {
+          assert.match(text, /alert_type = 'webhook_failure'/)
+          assert.match(text, /resolved_at IS NULL/)
+          return { rows: [] }
+        }
         if (text.includes("SET status = 'processed'")) {
           assert.equal(params[1], claimToken)
           return { rows: [{ event_id: params[0] }] }
@@ -554,6 +564,11 @@ test('an async annual membership payment is quarantined durably before webhook a
           }] }
         }
         if (text.includes('INSERT INTO stripe_billing_alert')) return { rows: [] }
+        if (text.includes('UPDATE stripe_billing_alert')) {
+          assert.match(text, /alert_type = 'webhook_failure'/)
+          assert.match(text, /resolved_at IS NULL/)
+          return { rows: [] }
+        }
         throw new Error(`Unexpected annual membership webhook query: ${text}`)
       },
     })

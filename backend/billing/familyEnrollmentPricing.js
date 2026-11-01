@@ -61,6 +61,7 @@ function field(row, snake, camel) {
  */
 export function classifyEnrollmentBillingPeriod(row, periodValue, {
   requireSubscriptionMapping = false,
+  asOfDate = null,
 } = {}) {
   const period = periodBounds(periodValue)
   const sourceType = field(row, 'source_type', 'sourceType')
@@ -119,6 +120,15 @@ export function classifyEnrollmentBillingPeriod(row, periodValue, {
   const subscriptionEnd = dateOnly(field(row, 'end_date', 'endDate'))
   const cancellation = dateOnly(field(row, 'cancel_effective_date', 'cancelEffectiveDate'))
   const pause = dateOnly(field(row, 'pause_effective_date', 'pauseEffectiveDate'))
+
+  // A preparation run can look past a scheduled end while service is still
+  // active today. This is not a stale subscription, and must not create a bill
+  // for the month after service ends. Default/migration checks remain strict.
+  const today = dateOnly(asOfDate)
+  const scheduledEnd = [activeEnd, subscriptionEnd].filter(Boolean).sort()[0]
+  if (today && today < period.start && scheduledEnd && scheduledEnd >= today && scheduledEnd < period.start) {
+    return result(true, false, 'service_ends_before_future_month')
+  }
 
   // An active local subscription left behind after service already ended is
   // stale, not a valid target-month exclusion. Evaluate this before future or
@@ -211,7 +221,7 @@ export function validateEnrollmentBillingPeriodExclusionSchedule(
     return { ...base, minimumNextBillDate }
   }
 
-  if (['cancellation_effective_by_target_month', 'pause_effective_by_target_month'].includes(classification.reason)) {
+  if (['cancellation_effective_by_target_month', 'pause_effective_by_target_month', 'service_ends_before_future_month'].includes(classification.reason)) {
     if (nextBillDate && nextBillDate < period.start) {
       return {
         ...base,

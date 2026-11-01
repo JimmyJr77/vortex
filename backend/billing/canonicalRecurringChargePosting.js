@@ -275,6 +275,11 @@ async function lockEnrollmentLifecycleRows(db, accountId) {
   )
 }
 
+// Share the exact tuition-period selection with operational readiness reports.
+export function loadRecurringChargesForBillingMonth(db, { accountId, billingMonth, facilityTimeZone }) {
+  return loadTargetCharges(db, { accountId, period: targetPeriod(billingMonth), facilityTimeZone })
+}
+
 async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
   return db.query(
     `SELECT charge.*,
@@ -319,11 +324,12 @@ async function loadTargetCharges(db, { accountId, period, facilityTimeZone }) {
   ).then((result) => result.rows)
 }
 
-function expectedLinesFromPricing(pricing, subscriptions, period, { refreshPricing = false } = {}) {
+function expectedLinesFromPricing(pricing, subscriptions, period, { refreshPricing = false, asOfDate = null } = {}) {
   const issues = []
   const subscriptionsById = new Map(subscriptions.map((row) => [Number(row.id), row]))
   const lifecycleManifest = buildEnrollmentBillingPeriodManifest(subscriptions, period.periodKey, {
     requireSubscriptionMapping: true,
+    asOfDate,
   })
   const lifecycleBySubscription = new Map(
     lifecycleManifest.map((entry) => [Number(entry.subscriptionId), entry]),
@@ -795,7 +801,8 @@ export async function reconcileCanonicalRecurringChargesForMonth(db, {
       ensureSchema: false,
       strictPricing: true,
     })
-    const options = { refreshPricing: recurringRun, respectHistoricalCharges: recurringRun && !provisional,
+    const options = { refreshPricing: recurringRun, asOfDate: recurringRun && provisional ? facilityToday : null,
+      respectHistoricalCharges: recurringRun && !provisional,
       respectInitialProration: respectInitialProration && !provisional }
     const expected = expectedLinesFromPricing(pricing, subscriptions, period, options)
     let comparison = compareTargetCharges(expected.lines, charges, period, options)

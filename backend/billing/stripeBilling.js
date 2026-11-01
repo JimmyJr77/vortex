@@ -9,6 +9,7 @@
 
 import { resolveStripePaymentMethodLabel } from './paymentMethodLabel.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import { findFulfilledThenWaivedCheckout } from './waivedCheckoutReallocation.js'
 
 export const STRIPE_CUSTOMER_RECONCILIATION_REQUIRED_CODE =
   'STRIPE_CUSTOMER_RECONCILIATION_REQUIRED'
@@ -1357,6 +1358,25 @@ export async function applyAndSettlePaidCheckoutFulfillment(db, {
       await db.query('BEGIN')
       transactionOpen = true
       await db.query('SELECT pg_advisory_xact_lock($1)', [normalizedAccountId])
+    }
+
+    // A replay must preserve a previously fulfilled purchase whose later full
+    // waiver legitimately released its payment to other household charges.
+    // Prove the exact original applications, their allocator-owned reversals,
+    // full waiver, and absence of refunds/reservations before settling again.
+    if (normalizedTargetCents === Number(session.amount_total)
+      && await findFulfilledThenWaivedCheckout(db, {
+        accountId: normalizedAccountId, sessionId: checkoutSessionId,
+        paymentId: payment.id, amountCents: normalizedTargetCents,
+        allowFulfillmentPending: true,
+      })) {
+      assertEnrollmentStripePaymentBinding(payment, { session, accountId: normalizedAccountId })
+      const settled = await settlePaidCheckoutFulfillment(db, { session, accountId: normalizedAccountId, payment })
+      if (manageTransaction) {
+        await db.query('COMMIT')
+        transactionOpen = false
+      }
+      return settled
     }
 
     const targets = await db.query(

@@ -1,3 +1,4 @@
+import { applyAndSettlePaidCheckoutFulfillment } from '../stripeBilling.js'
 import { assertNoOutstandingAnnualMembershipCharge } from '../annualMembershipChargeGuard.js'
 import { listCustomerBillingOverviews } from '../customerBillingOverviewList.js'
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
@@ -12,7 +13,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import pg from 'pg'
-import { reconcileCanonicalRecurringChargesForMonth } from '../canonicalRecurringChargePosting.js'
+import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBillingMonth } from '../canonicalRecurringChargePosting.js'
 import { recordBillingActivity } from '../billingActivity.js'
 import { loadCanonicalFinancialSnapshot } from '../canonicalBillingAccount.js'
 import { listCustomerBillingTransactions, listMemberCustomerBillingTransactions } from '../customerBillingQueries.js'
@@ -20,6 +21,7 @@ import { reserveBillingPaymentAttempt } from '../paymentAttemptReservations.js'
 import { ensureRecurringEnrollmentMappings } from '../recurringEnrollmentMappings.js'
 import { createLocalHouseholdInvoice } from '../householdMonthlyInvoice.js'
 import { repairBillingAdministration } from '../billingAdministrativeRepair.js'
+import { recordRecurringBillingExceptions } from '../recurringBillingOutcome.js'
 import { allocateHouseholdPaymentsLocked } from '../paymentAllocation.js'
 
 const url = process.env.BILLING_TURNOVER_TEST_DATABASE_URL
@@ -257,6 +259,17 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal(Number(allocated.applications[0].billing_charge_id),3)
     assert.equal(Number(allocated.applications[0].amount_cents),8500)
     assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db,1),null)
+    await db.query("UPDATE billing_payment SET external_status='reconciliation_required', stripe_customer_id='cus_waived',note='[paid-checkout-fulfillment-pending:cs_waived]' WHERE id=1")
+    assert.equal(await findFulfilledThenWaivedCheckout(db,options),null,'ordinary collectors must still block pending fulfillment')
+    const beforeApps=(await db.query('SELECT * FROM billing_payment_application ORDER BY id')).rows
+    const pending=(await db.query('SELECT * FROM billing_payment WHERE id=1')).rows[0]
+    const settled=await applyAndSettlePaidCheckoutFulfillment(db,{
+      session:{id:'cs_waived',amount_total:8500,currency:'usd',payment_status:'paid',customer:'cus_waived',payment_intent:'pi_paid'},
+      accountId:1,payment:pending,targetAmountCents:8500,applicationNamespace:'annual-checkout:replay',allocationReason:'annual_membership_checkout_exact',
+    })
+    assert.equal(settled.external_status,'settled')
+    assert.deepEqual((await db.query('SELECT * FROM billing_payment_application ORDER BY id')).rows,beforeApps,'replay must preserve released money')
+    assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db,1),null)
     assert.equal((await db.query('SELECT SUM(amount_cents)::int cents FROM billing_charge')).rows[0].cents-8500,20000)
     await db.query('UPDATE billing_charge SET amount_cents=-8000 WHERE id=2')
     assert.ok(await findCompletedPaidCheckoutFulfillmentGap(db,1),'partial waiver remains protected')
@@ -283,6 +296,34 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal(await findFullyRefundedWaivedCheckout(db,options),null)
   })
 
+  await t.test('recurring review holds persist and resolve without touching accounting rows', async () => {
+    await charge(1,10000)
+    const before = (await db.query('SELECT * FROM billing_charge')).rows
+    const entry = {accountId:1,code:'target_month_recurring_charge_parity_failed',message:'Review required',details:{issues:[{chargeId:1}]}}
+    await recordRecurringBillingExceptions(db,{blockedAccounts:[entry]})
+    await recordRecurringBillingExceptions(db,{blockedAccounts:[entry]})
+    const alerts=(await db.query("SELECT * FROM stripe_billing_alert WHERE stripe_event_id='recurring-billing:1'")).rows
+    assert.equal(alerts.length,1)
+    assert.equal(alerts[0].resolved_at,null)
+    assert.deepEqual(alerts[0].details,entry)
+    await recordRecurringBillingExceptions(db,{blockedAccounts:[],completedAccountIds:[1]})
+    assert.equal((await db.query("SELECT action_status FROM stripe_billing_alert WHERE stripe_event_id='recurring-billing:1'")).rows[0].action_status,'resolved')
+    assert.deepEqual((await db.query('SELECT * FROM billing_charge')).rows,before)
+  })
+
+  await t.test('readiness totals include midmonth tuition and net adjustments without adjacent or annual bills', async () => {
+    const monthly = { charge_type:'recurring', billing_interval:'month', service_period_start:'2026-11-02', service_period_end:'2026-11-30' }
+    await charge(1,15000,monthly)
+    await charge(2,-1000,{source_type:'charge_adjustment',related_charge_id:1})
+    await charge(3,10000,{...monthly,service_period_start:'2026-10-01',service_period_end:'2026-10-31'})
+    await charge(4,10000,{...monthly,service_period_start:'2026-12-01',service_period_end:'2026-12-31'})
+    await charge(5,8500,{service_period_start:'2026-11-01',charge_type:'one_time'})
+    await charge(6,15000,{...monthly,metadata:{customerAuditVisibility:'suppressed'}})
+    const rows = await loadRecurringChargesForBillingMonth(db, { accountId:1, billingMonth:'2026-11-01', facilityTimeZone:'America/New_York' })
+    assert.deepEqual(rows.map(row=>Number(row.id)),[1])
+    assert.equal(Number(rows[0].effective_amount_cents),14000)
+  })
+
   await t.test('real charge schema supports provisional recalculation and September replay after October posting', async () => {
     await insert('scheduling_form',{id:1,title:'Synthetic class'})
     await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-08-01'})
@@ -302,6 +343,33 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     const replay=await reconcileCanonicalRecurringChargesForMonth(db,{...options,billingMonth:'2026-09-01',apply:false})
     assert.equal(replay.verified,true)
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,2)
+  })
+
+  await t.test('future preparation retires a scheduled ending bill without changing historical accounting', async () => {
+    await insert('scheduling_form',{id:1,title:'Ending class'})
+    await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-08-01'})
+    await insert('billing_subscription',{id:1,family_billing_account_id:1,member_id:1,
+      source_type:'scheduling_signup',source_id:'1',description:'Ending class',status:'active',
+      monthly_amount_cents:10000,net_monthly_cents:10000,discount_amount_cents:0,
+      start_date:'2026-08-01',end_date:'2026-10-31',next_bill_date:null,anchor_day:1})
+    await charge(1,10000,{source_type:'billing_subscription',source_id:'1:2026-10',subscription_id:1,
+      charge_type:'recurring',billing_interval:'month',service_period_start:'2026-10-01',service_period_end:'2026-10-31'})
+    await charge(2,10000,{source_type:'billing_subscription',source_id:'1:2026-11',subscription_id:1,
+      charge_type:'recurring',billing_interval:'month',service_period_start:'2026-11-01',service_period_end:'2026-11-30',metadata:{provisionalBilling:true}})
+    await payment(1,10000)
+    await allocation(1,1,10000)
+    const history = (await db.query('SELECT * FROM billing_charge WHERE id=1')).rows[0]
+    const options={accountId:1,billingMonth:'2026-11-01',facilityTimeZone:'America/New_York',
+      now:new Date('2026-10-27T12:00:00Z'),apply:true,recurringRun:true,allowEarlyPosting:true,
+      pricingResolver:async()=>({lines:[]})}
+    assert.equal((await reconcileCanonicalRecurringChargesForMonth(db,options)).verified,true)
+    assert.equal((await reconcileCanonicalRecurringChargesForMonth(db,options)).verified,true)
+    assert.deepEqual((await db.query('SELECT * FROM billing_charge WHERE id=1')).rows[0],history)
+    const future=(await db.query('SELECT * FROM billing_charge WHERE id=2')).rows[0]
+    assert.equal(future.amount_cents,0)
+    assert.equal(future.metadata.provisionalBillingVoided,true)
+    assert.equal((await db.query('SELECT amount_cents FROM billing_payment_application')).rows[0].amount_cents,10000)
+    assert.equal((await db.query('SELECT status FROM billing_subscription WHERE id=1')).rows[0].status,'active')
   })
 
   await t.test('month-boundary catch-up repairs uncollected provisional bills and retires obsolete lines', async () => {

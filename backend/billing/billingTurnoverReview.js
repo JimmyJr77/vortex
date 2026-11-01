@@ -1,7 +1,8 @@
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
-import { reconcileCanonicalRecurringChargesForMonth } from './canonicalRecurringChargePosting.js'
+import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBillingMonth } from './canonicalRecurringChargePosting.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { facilityDate, nextBillingMonth } from './canonicalBillingMigrationState.js'
+import { isRecurringBillingReviewHold } from './recurringBillingOutcome.js'
 
 /** Read-only completeness audit, independent of collection/migration ownership.
  * Include empty accounts: a confirmed signup without a subscription is exactly
@@ -32,23 +33,20 @@ export async function reviewBillingTurnover(db, { now = new Date(), accountIds =
       row.expectedCount = pricing.lines.length
       row.expectedLines = pricing.lines.map((line) => ({ signupId: line.signupId,
         subscriptionId: line.subscriptionId, memberId: line.memberId, amountCents: line.netCents }))
-      const actual = await db.query(
-        `SELECT id, amount_cents, member_id, subscription_id FROM billing_charge
-          WHERE family_billing_account_id = $1 AND charge_type = 'recurring'
-            AND service_period_start = $2::date
-            AND COALESCE(metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
-          ORDER BY id`, [account.id, month],
-      )
-      row.postedCount = actual.rows.length
-      row.postedCents = actual.rows.reduce((sum, charge) => sum + Number(charge.amount_cents), 0)
-      row.postedChargeIds = actual.rows.map((charge) => Number(charge.id))
+      const actual = await loadRecurringChargesForBillingMonth(db, {
+        accountId: account.id, billingMonth: month, facilityTimeZone: account.timezone,
+      })
+      row.postedCount = actual.length
+      row.postedCents = actual.reduce((sum, charge) => sum + Number(charge.effective_amount_cents), 0)
+      row.postedChargeIds = actual.map((charge) => Number(charge.id))
       try {
         const parity = await reconcileCanonicalRecurringChargesForMonth(db, {
           accountId: account.id, billingMonth: month, facilityTimeZone: account.timezone,
-          now, allowEarlyPosting: true, apply: false,
+          now, allowEarlyPosting: true, apply: false, recurringRun: true,
         })
         row.issues.push(...parity.issues)
       } catch (error) {
+        row.operationalFailure = !isRecurringBillingReviewHold(error.code)
         row.issues.push(...(error.details?.issues ?? [{ code: error.code ?? 'billing_review_failed', message: error.message }]))
       }
       if (pricing.lines.length && !account.household_monthly_billing_enabled) {
@@ -61,6 +59,7 @@ export async function reviewBillingTurnover(db, { now = new Date(), accountIds =
       row.creditCents = snapshot.futureCreditsCents
       row.missingPostedCents = Math.max(0, row.expectedCents - row.postedCents)
     } catch (error) {
+      row.operationalFailure = true
       row.issues.push({ code: 'billing_review_failed', message: error.message })
     }
     row.verified = row.issues.length === 0
