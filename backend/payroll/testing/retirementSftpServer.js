@@ -7,6 +7,8 @@ const hostKey=key(),privateKey=key(),publicKey=utils.parseKey(privateKey)
 export async function createRetirementSftpServer(){
  const files=new Map(),clients=new Set(),state={fileMode:null,reads:0,onRead:null,disconnectRead:false,writes:0,bytesWritten:0,created:0,renames:0,auths:0,loseRename:false,loseWrite:false,stallRead:false,corrupt:false}
  const server=new Server({hostKeys:[hostKey]},client=>{
+  // Loopback protocol tests must not accumulate platform-specific Nagle delays.
+  client.setNoDelay(true)
   clients.add(client);client.on('error',()=>{});client.on('close',()=>clients.delete(client))
   client.on('authentication',ctx=>{state.auths++;if(ctx.method==='publickey'&&ctx.username==='payroll'&&ctx.key.data.equals(publicKey.getPublicSSH())&&(!ctx.signature||publicKey.verify(ctx.blob,ctx.signature,ctx.hashAlgo)))ctx.accept();else ctx.reject()})
   client.on('ready',()=>client.on('session',accept=>accept().on('sftp',accept=>{
@@ -28,7 +30,7 @@ export async function createRetirementSftpServer(){
  })
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve))
  const config={host:'recordkeeper.example.com',port:22,username:'payroll',privateKey,hostKeySha256:createHash('sha256').update(utils.parseKey(hostKey).getPublicSSH()).digest('hex'),stagingDirectory:'/staging',deliveryDirectory:'/incoming'}
- const options={resolve:async()=>[{address:'8.8.8.8'}],socketFactory:()=>createConnection({host:'127.0.0.1',port:server.address().port}),timeoutMs:1500}
+ const options={resolve:async()=>[{address:'8.8.8.8'}],socketFactory:()=>createConnection({host:'127.0.0.1',port:server.address().port,noDelay:true}),timeoutMs:1500}
  return {config,options,files,state,close:async()=>{for(const c of clients)c.end();await new Promise(resolve=>server.close(resolve))}}
 }
 
