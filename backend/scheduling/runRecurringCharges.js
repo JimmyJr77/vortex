@@ -1,5 +1,5 @@
 import { prepareUpcomingBilling } from '../billing/upcomingBillingPreparation.js'
-import { recurringBillingOutcome, recordRecurringBillingExceptions } from '../billing/recurringBillingOutcome.js'
+import { recurringBillingOutcome, recordRecurringBillingExceptions, isRecurringBillingReviewHold } from '../billing/recurringBillingOutcome.js'
 /**
  * CLI entrypoint for the monthly recurring-charge generator.
  * Schedule via cron, e.g. daily:  0 6 * * *  cd backend && npm run billing:recurring
@@ -82,6 +82,7 @@ async function main() {
       ].map((row) => [Number(row.accountId), row])).values()],
       completedAccountIds: result.completedAccountIds.filter((id) => !heldAccountIds.has(id)),
     })
+    const enrollmentRecovery = []
     if (collectPayments) {
       const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
       const candidates = await pool.query(`SELECT DISTINCT account.id, account.payer_member_id
@@ -99,9 +100,15 @@ async function main() {
         if (heldAccountIds.has(Number(candidate.id))) continue
         try {
           const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true })
-          if (!['complete','feature_disabled'].includes(outcome.status)) throw new Error(outcome.status)
+          if (!['complete','feature_disabled'].includes(outcome.status)) {
+            const error = new Error(outcome.status)
+            error.code = outcome.status
+            throw error
+          }
         } catch (error) {
-          process.exitCode = 1
+          const entry = { accountId: Number(candidate.id), code: error.code, message: error.message }
+          enrollmentRecovery.push(entry)
+          if (!isRecurringBillingReviewHold(entry.code)) process.exitCode = 1
           await recordEnrollmentAutoBillingAttention(pool, { memberId: candidate.payer_member_id,
             signupIds: [], reason: error.message })
         }
@@ -109,7 +116,7 @@ async function main() {
     }
     const review = await reviewBillingTurnover(pool)
     await recordBillingTurnoverReview(pool, review)
-    const outcome = recurringBillingOutcome({ preparation, result, review, operationalFailure: Boolean(process.exitCode) })
+    const outcome = recurringBillingOutcome({ preparation, enrollmentRecovery, result, review, operationalFailure: Boolean(process.exitCode) })
     if (outcome.exitCode) process.exitCode = outcome.exitCode
     console.log(JSON.stringify({ event: 'recurring_billing_outcome', ...outcome }))
     console.log(

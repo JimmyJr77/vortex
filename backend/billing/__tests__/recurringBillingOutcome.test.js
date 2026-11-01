@@ -48,3 +48,19 @@ test('persisted holds retain the exact account and issue details and only succes
   await assert.rejects(recordRecurringBillingExceptions({ query: async () => { throw new Error('database unavailable') } },
     { blockedAccounts: [entry] }), /database unavailable/)
 })
+
+
+test('enrollment recovery reports missing setup as account attention and retains unexpected failures', () => {
+  for (const code of ['payment_method_required', 'migration_review_required']) {
+    assert.deepEqual(recurringBillingOutcome({ ...clean(), enrollmentRecovery: [{ accountId: 12, code }] }), {
+      status: 'completed_with_review_holds', exitCode: 0, attentionAccountIds: [12], failures: [],
+    })
+  }
+  for (const code of ['stripe_unavailable', 'ECONNRESET', undefined]) {
+    const entry = { accountId: 12, code }
+    const outcome = recurringBillingOutcome({ ...clean(), enrollmentRecovery: [entry] })
+    assert.equal(outcome.status, 'failed')
+    assert.equal(outcome.exitCode, 1)
+    assert.deepEqual(outcome.failures, [entry])
+  }
+})

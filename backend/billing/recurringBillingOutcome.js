@@ -4,14 +4,16 @@ const REVIEW_CODES = new Set([
   'target_month_recurring_charge_parity_failed',
   'initial_enrollment_charge_requires_review',
   'target_month_invoice_precedes_recurring_charges',
+  'payment_method_required',
+  'migration_review_required',
 ])
 
 export function isRecurringBillingReviewHold(code) {
   return REVIEW_CODES.has(code)
 }
 
-export function recurringBillingOutcome({ preparation = [], result, review, operationalFailure = false }) {
-  const blocked = preparation.filter((row) => row.status === 'blocked')
+export function recurringBillingOutcome({ preparation = [], enrollmentRecovery = [], result, review, operationalFailure = false }) {
+  const blocked = [...preparation.filter((row) => row.status === 'blocked'), ...enrollmentRecovery]
   const failures = [...blocked, ...(result.blockedAccounts ?? [])]
     .filter((row) => !isRecurringBillingReviewHold(row.code))
   const reviewFailed = review.accounts.some((row) => row.operationalFailure
