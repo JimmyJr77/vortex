@@ -25,6 +25,8 @@ import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoice.js'
 import { facilityDate } from '../billing/canonicalBillingMigrationState.js'
 import { withBillingAccountCollectionLock } from '../billing/billingAccountCollectionLock.js'
+import { isBillingDatabaseConnectionError } from '../billing/billingDatabaseRecovery.js'
+import { reconcileAccountMonthlyInvoicePayments } from '../billing/reassessBillingAllocations.js'
 import { reconcileCanonicalRecurringChargesForMonth } from '../billing/canonicalRecurringChargePosting.js'
 import { postHardenedLegacyRecurringChargesForMonth } from '../billing/hardenedLegacyRecurringChargePosting.js'
 import { postDueAnnualMembershipRenewals } from '../billing/annualMembershipRenewalPosting.js'
@@ -384,11 +386,19 @@ export async function processRecurringBillingAccount(db, account, {
   // to an otherwise-unallocated charge.
   await paymentAllocator(db, { accountId: Number(fresh.id), actorType: 'system' })
 
+  let invoiceOutcome = null
   if (collectionMode === 'canonical_household' && collectPayments) {
     const existingInvoice = await loadMonthlyInvoiceState(db, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,
     })
+    invoiceOutcome = existingInvoice
+    if (existingInvoice?.payment_attempted_at && !existingInvoice.stripe_payment_intent_id
+      && ['open', 'failed'].includes(existingInvoice.status)) {
+      const error = new Error('A monthly payment was reserved but its outcome is not verified. Reconcile Stripe before another attempt.')
+      error.code = 'household_payment_outcome_requires_reconciliation'
+      throw error
+    }
     // Only the first and fourth collect automatically. The fourth also recovers
     // a missed first run or a newly saved method; the fifth only prepares bills.
     // Unknown outcomes remain quarantined until reconciliation proves failure.
@@ -427,6 +437,7 @@ export async function processRecurringBillingAccount(db, account, {
         throw error
       }
       if (result.created) householdInvoicesCreated += 1
+      invoiceOutcome = result.invoice ?? null
     }
   }
   return {
@@ -440,6 +451,10 @@ export async function processRecurringBillingAccount(db, account, {
     pauseCreditsPosted,
     householdInvoicesCreated,
     collectionMode,
+    invoiceOutcome: invoiceOutcome ? {
+      id: invoiceOutcome.id, status: invoiceOutcome.status,
+      automaticAttemptCount: Number(invoiceOutcome.automatic_attempt_count ?? 0),
+    } : null,
   }
 }
 
@@ -448,6 +463,9 @@ export async function generateRecurringCharges(pool, {
   maxCatchUpPerSub = 12,
   accountLock = withBillingAccountCollectionLock,
   accountProcessor = processRecurringBillingAccount,
+  accountReconciler = reconcileAccountMonthlyInvoicePayments,
+  onProgress = async () => {},
+  signal,
   collectPayments = false,
 } = {}) {
   const asOfTimestamp = asOf instanceof Date ? asOf : new Date(asOf)
@@ -464,14 +482,36 @@ export async function generateRecurringCharges(pool, {
   const skippedMigrationAccountIds = []
 
   for (const account of accounts) {
+    signal?.throwIfAborted()
     const clock = recurringBillingClock(asOfTimestamp, account.facility_timezone)
-    try {
-      const result = await accountLock(pool, Number(account.id), (lockedDb) => accountProcessor(lockedDb, account, {
-        asOfTimestamp,
-        clock,
-        maxCatchUpPerSub,
-        collectPayments,
-      }))
+    let result
+    let failure
+    let attempt = 0
+    for (attempt = 1; attempt <= 2; attempt += 1) {
+      signal?.throwIfAborted()
+      // Progress must be durable before starting any financial work. If this
+      // write fails, stop the sweep rather than collect without an audit trail.
+      await onProgress({ accountId: Number(account.id), status: 'running', attempt })
+      try {
+        result = await accountLock(pool, Number(account.id), async (lockedDb) => {
+          if (attempt > 1 && collectPayments) {
+            await accountReconciler(lockedDb, { accountId: Number(account.id) })
+          }
+          return accountProcessor(lockedDb, account, {
+            asOfTimestamp, clock, maxCatchUpPerSub, collectPayments,
+          })
+        })
+        failure = null
+        break
+      } catch (error) {
+        failure = error
+        if (!isBillingDatabaseConnectionError(error) || attempt === 2) break
+        await onProgress({ accountId: Number(account.id), status: 'retrying', attempt,
+          result: { code: error.code, message: error.message } })
+      }
+    }
+    if (!failure) {
+      await onProgress({ accountId: Number(account.id), status: result?.skipped ? 'skipped' : 'completed', attempt, result })
       if (result?.skipped === 'migration_managed') {
         skippedMigrationAccountIds.push(Number(account.id))
         continue
@@ -482,13 +522,16 @@ export async function generateRecurringCharges(pool, {
       pauseCreditsPosted += Number(result?.pauseCreditsPosted ?? 0)
       householdInvoicesCreated += Number(result?.householdInvoicesCreated ?? 0)
       completedAccountIds.push(Number(account.id))
-    } catch (error) {
-      blockedAccounts.push({
+    } else {
+      const error = failure
+      const blocked = {
         accountId: Number(account.id),
         code: error?.code ?? 'recurring_account_failed',
         message: error?.message ?? String(error),
         details: error?.details ?? null,
-      })
+      }
+      await onProgress({ accountId: Number(account.id), status: 'blocked', attempt, result: blocked })
+      blockedAccounts.push(blocked)
       console.error('[billing] recurring account blocked:', account.id, error?.code ?? null, error?.message ?? error)
     }
   }
