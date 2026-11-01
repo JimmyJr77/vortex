@@ -7,7 +7,6 @@ export default defineConfig({
   define: {
     // react-draggable (via react-rnd) reads process.env.DRAGGABLE_DEBUG on drag
     'process.env.DRAGGABLE_DEBUG': JSON.stringify(''),
-    'process.env.NODE_ENV': JSON.stringify('production'),
   },
   server: {
     host: true,

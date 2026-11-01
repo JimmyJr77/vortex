@@ -415,20 +415,23 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
       await json({ id: 903, status: 'confirmed' }, 201)
       return
     }
-    if (url.pathname === '/api/admin/members') {
-      await json([{
-        id: 11,
-        firstName: 'Jordan',
-        lastName: 'Rivera',
-        status: 'active',
-        isActive: true,
-        familyId: 42,
-        familyName: 'Rivera Household',
-        roles: [{ id: 'member-athlete', role: 'MEMBER_ATHLETE' }],
-        enrollments: [],
-        createdAt: '2026-01-01T00:00:00.000Z',
-        updatedAt: '2026-01-01T00:00:00.000Z',
-      }])
+    if (url.pathname === '/api/admin/account-directory') {
+      await json({
+        rows: [{
+          id: 11, firstName: 'Jordan', lastName: 'Rivera',
+          email: 'jordan@example.com', phone: '(555) 010-2041',
+          dateOfBirth: '2014-08-18', age: 12, ageGroup: 'youth',
+          family: { id: 42, name: 'Rivera Household' },
+          recordStatus: 'active',
+          portalAccess: { status: 'active', userId: 11 },
+          staffAccess: { roles: [], labels: [], status: 'none' },
+          household: { isPayer: false, isGuardian: false, isDependent: true, badges: ['dependent'] },
+          participation: { current: 2, upcoming: 0, paused: 0, waitlisted: 0, former: 0, total: 2, states: ['current'] },
+          waiver: { status: 'current', requiredCount: 1, acceptedCount: 1, lastAcceptedAt: '2026-08-18T15:25:00.000Z' },
+          dataQuality: [],
+        }],
+        total: 1, page: 1, pageSize: 50, totalPages: 1,
+      })
       return
     }
     if (url.pathname === '/api/admin/members/11') {
@@ -548,6 +551,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
         sourceMonthlyCents: 10500,
         replacementMonthlyCents: 13500,
         sourceRemainingClasses: 3,
+        sourceFirstPeriodCents: 2625,
         unusedSourceCreditCents: 7875,
         replacementFirstMonthCents: 10125,
         replacementRemainingClasses: 3,
@@ -674,8 +678,12 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
       await json({ passId: 55, classesRemaining: overview.bundlePasses[0].classesRemaining + totalDelta, appliedDelta: Number(adjustment.delta), replayed: false }, 201)
       return
     }
+    if (url.pathname.endsWith('/payments/200/refund-charges')) {
+      await json({ charges: [{ id: 100, description: 'August tuition · Monday Foundations', servicePeriodStart: '2026-08-01', refundableAmountCents: 12000 }] })
+      return
+    }
     if (url.pathname.endsWith('/refunds/preview')) {
-      await json({ remainingRefundableCents: 16500, amountCents: 5000, currentBalanceCents: 14500, resultingBalanceCents: 14500, ledgerTreatment: 'reverse_charge', relatedCharge: { id: 100, description: 'August tuition · Monday Foundations', amountCents: 12000 } })
+      await json({ remainingRefundableCents: 16500, amountCents: 12000, currentBalanceCents: 14500, resultingBalanceCents: 26500, ledgerTreatment: 'return_payment', relatedCharge: { id: 100, description: 'August tuition · Monday Foundations', amountCents: 12000 } })
       return
     }
     if (url.pathname.endsWith('/refunds')) {
@@ -725,10 +733,14 @@ test.describe('Account Billing & Enrollments administration', () => {
     await dialog.getByRole('button', { name: 'Review class move' }).click()
 
     await expect(dialog.getByText('Billing impact')).toBeVisible()
-    await expect(dialog.getByText('$22.50 will be added as a one-time prorated account charge. The saved card will not be charged automatically.')).toBeVisible()
+    await expect(dialog.getByText('Original class through move date').locator('..').getByText('$26.25', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Replacement class for the remaining month').locator('..').getByText('$101.25', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('New monthly price').locator('..').getByText('$135.00', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Account after move').locator('..').getByText('$167.50', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('The original and replacement class lines will be prorated in place.', { exact: false })).toBeVisible()
     await dialog.getByRole('button', { name: 'Confirm class move' }).click()
 
-    await expect(page.getByText('Class move completed. $22.50 was added to the account balance as a one-time prorated charge.')).toBeVisible()
+    await expect(page.getByText('Class move completed. The current-month class bills and any existing payment were reconciled in place.')).toBeVisible()
     expect(captured.classSwaps).toHaveLength(1)
     expect(captured.classSwaps?.[0]).toMatchObject({
       targetFormId: 900,
@@ -768,12 +780,12 @@ test.describe('Account Billing & Enrollments administration', () => {
     }])
   })
 
-  test('opens the selected Vortex Account in a new Account Billing & Enrollments window', async ({ page }) => {
+  test('opens the selected member in a new Account Billing & Enrollments window', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
-    await page.getByRole('button', { name: 'Vortex Accounts', exact: true }).click()
-    await expect(page.getByRole('heading', { name: /Vortex Accounts/ })).toBeVisible()
+    await page.getByRole('button', { name: 'Members', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Members (1)', exact: true })).toBeVisible()
     const billingWindow = page.waitForEvent('popup')
     await page.getByRole('button', { name: "Open Jordan Rivera's Account Billing & Enrollments" }).click()
     const popup = await billingWindow
@@ -786,19 +798,19 @@ test.describe('Account Billing & Enrollments administration', () => {
     await expect(popup.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
   })
 
-  test('shows streamlined member details with waiver completion in status and roles', async ({ page }) => {
+  test('shows streamlined member details with waiver completion in status and access', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
-    await page.getByRole('button', { name: 'Vortex Accounts', exact: true }).click()
-    const memberRow = page.getByRole('row', { name: /Rivera.*Jordan/ })
+    await page.getByRole('button', { name: 'Members', exact: true }).click()
+    const memberRow = page.getByRole('row', { name: /Jordan Rivera.*Rivera Household/ })
     await memberRow.click()
 
     await expect(page.getByRole('button', { name: 'Member Details', exact: true })).toHaveAttribute('class', /border-vortex-red/)
     await expect(page.getByText('Family information', { exact: true })).toBeVisible()
     await expect(page.getByText('Contact & profile', { exact: true })).toBeVisible()
-    const statusRoles = page.getByText('Status & roles', { exact: true }).locator('..')
-    await expect(statusRoles.getByText('Waiver completion', { exact: true })).toBeVisible()
+    const statusRoles = page.getByText('Status & access', { exact: true }).locator('..')
+    await expect(statusRoles.getByText('Waiver', { exact: true })).toBeVisible()
     await expect(statusRoles.getByText(/August 18, 2026/)).toBeVisible()
     await expect(page.getByText('Linked children', { exact: true })).toHaveCount(0)
     await expect(page.getByText('Family members (2)', { exact: true })).toBeVisible()
@@ -814,13 +826,13 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.searchQueries).toContain('42')
   })
 
-  test('opens after Vortex Accounts and renders a complete member-filtered household account', async ({ page }) => {
+  test('opens after Members and renders a complete member-filtered household account', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     const consoleErrors: string[] = []
     page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
     await openCustomerBilling(page, captured)
 
-    await expect(page.getByRole('button', { name: 'Vortex Accounts', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Members', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
     await findRiveraAccount(page)
 
@@ -839,17 +851,17 @@ test.describe('Account Billing & Enrollments administration', () => {
       'ZIP',
     ])
     await expect(page.getByText('Monthly recurring fee (Sep)', { exact: true })).toBeVisible()
-    await expect(page.getByText('$205.00', { exact: true })).toBeVisible()
+    await expect(page.getByText('Monthly recurring fee (Sep)', { exact: true }).locator('..').getByText('$205.00', { exact: true })).toBeVisible()
     await expect(page.getByText('Visa •••• 4242').first()).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Canonical billing migration' })).toBeVisible()
-    await expect(page.getByText('Parity: matched')).toBeVisible()
+    await expect(page.getByText('Monthly household invoice · September 2026', { exact: true })).toBeVisible()
+    await expect(page.getByText('Prepared locally', { exact: true })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Current & upcoming enrollments' })).toBeVisible()
     await expect(page.getByText('Monday Foundations').first()).toBeVisible()
     await expect(page.getByText('Mondays · 4:00 PM–5:00 PM')).toBeVisible()
     await expect(page.getByRole('row', { name: /Monday Foundations/ }).getByText('Autopay not set')).toBeVisible()
     await expect(page.getByRole('row', { name: /Saturday Open Gym/ }).getByText('No autopay needed')).toBeVisible()
     await expect(page.getByText('Waitlists · non-billable')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Complete account audit' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Account History' })).toBeVisible()
     await expect(page.getByText('August tuition · Monday Foundations')).toBeVisible()
     expect(consoleErrors).toEqual([])
   })
@@ -1005,16 +1017,16 @@ test.describe('Account Billing & Enrollments administration', () => {
 
     await page.getByRole('button', { name: 'Refund', exact: true }).click()
     const refundDialog = page.getByRole('dialog', { name: 'Refund card payment' })
-    await refundDialog.getByRole('spinbutton', { name: /^Refund amount/ }).fill('50.00')
-    await refundDialog.getByRole('combobox', { name: /^Related charge/ }).selectOption('100')
+    await refundDialog.getByRole('checkbox', { name: /August tuition · Monday Foundations/ }).check()
+    await expect(refundDialog.getByRole('spinbutton', { name: /^Refund amount/ })).toHaveValue('120.00')
     await refundDialog.getByRole('combobox', { name: 'Approved exception' }).selectOption('owner_discretion')
     await refundDialog.getByLabel('Reason').fill('Owner-approved service exception')
     await refundDialog.getByLabel('Evidence or approval note').fill('Approval documented in the account correspondence.')
     await refundDialog.getByRole('button', { name: 'Preview', exact: true }).click()
     await expect(page.getByText('Balance after refund')).toBeVisible()
-    await refundDialog.getByRole('button', { name: 'Refund original card' }).click()
-    await expect(page.getByText('Refund #500 submitted successfully.')).toBeVisible()
-    expect(captured.refunds[0]).toMatchObject({ paymentId: 200, amountCents: 5000, ledgerTreatment: 'reverse_charge', relatedChargeId: 100, exceptionCategory: 'owner_discretion' })
+    await refundDialog.getByRole('button', { name: 'Refund $120.00 to original card' }).click()
+    await expect(page.getByText('$120.00 refund completed.')).toBeVisible()
+    expect(captured.refunds[0]).toMatchObject({ paymentId: 200, amountCents: 12000, ledgerTreatment: 'return_payment', relatedChargeIds: [100], relatedChargeId: null, exceptionCategory: 'owner_discretion' })
     expect(captured.refundKeys[0]).toMatch(/^refund-/)
 
     await page.getByRole('button', { name: 'Retry Stripe sync' }).click()

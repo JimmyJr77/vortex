@@ -16,7 +16,9 @@ test('coach portal uses the canonical planning navigation and separated collecti
     const url = new URL(route.request().url())
     const data = url.pathname === '/api/coach/portal-config'
       ? { hiddenTabs: [], tabOrder: [], navLayout: [] }
-      : []
+      : url.pathname === '/api/coach/taxonomy'
+        ? { tenets: [], methodologies: [], physiology: [], patterns: [], equipment: [], sports: [], intents: [], bodyRegions: [], sessionPhases: [], phaseOrderSlots: [], phaseSubroles: [] }
+        : []
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
