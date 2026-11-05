@@ -36,6 +36,7 @@ import {
   logWebhookVerificationFailure,
 } from '../billing/stripeBilling.js'
 import { stripeWebhookRawParser } from '../billing/stripeWebhookMiddleware.js'
+import { CUSTOMER_PROJECTION_EVENT_TYPES, refreshStripeCustomerProjectionForEvent } from '../billing/stripeCustomerProjection.js'
 import { completeBalanceCheckoutAutopay } from '../billing/balanceCheckoutAutopay.js'
 import {
   invoiceSubscriptionId,
@@ -4053,6 +4054,8 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             }).catch(() => {})
           }
         }
+      } else if (CUSTOMER_PROJECTION_EVENT_TYPES.includes(event.type)) {
+        await refreshStripeCustomerProjectionForEvent(pool, await getStripeClient(), event)
       } else if (event.type === 'invoice.upcoming') {
         const invoice = event.data?.object ?? {}
         const subscriptionId = invoiceSubscriptionId(invoice)

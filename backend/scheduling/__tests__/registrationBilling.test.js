@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { billConfirmedRegistration } from '../registrationBilling.js'
-import { requiredRegistrationFees, monthlyRegistrationRequiresMembership, billRegistrationMembership } from '../registrationMembership.js'
+import { requiredRegistrationFees, registrationRequiresMembership, billRegistrationMembership } from '../registrationMembership.js'
 import { loadMemberFeeRedemptionKeys } from '../additionalFeesEngine.js'
 
 const annual = { id: 7, amountCents: 8500, applyBasis: 'per_year', triggerType: 'new_member', scopeLevel: 'class', scopeRefId: 4 }
@@ -10,15 +10,16 @@ const signup = { id: 19, member_id: 42, form_id: 5, slot_group_id: 6, time_slot_
 const monthly = { slotKey: '5:6:7', billingType: 'recurring', incrementalMonthly: 150 }
 
 for (const [label, input, required] of [
+  ['no class selected', { newSignupItems: [] }, false],
   ['paid monthly', { newSignupItems: [monthly] }, true],
-  ['drop-in / one-time', { newSignupItems: [{ ...monthly, billingType: 'one_time' }] }, false],
-  ['free monthly', { newSignupItems: [{ ...monthly, incrementalMonthly: 0 }] }, false],
-  ['prepaid pass', { newSignupItems: [{ ...monthly, multiClassPassApplied: true }] }, false],
-  ['100% line discount', { newSignupItems: [monthly], discounts: { lines: [{ key: monthly.slotKey, baseCents: 15000, applied: [{ amountCents: 15000 }] }] } }, false],
-  ['100% order discount', { newSignupItems: [monthly], discounts: { enabled: true, totalCents: 0 } }, false],
-  ['free initial period', { firstMonth: { enabled: true, items: [{ proratedCents: 0, prepaidFirstMonthCents: 0 }] } }, false],
-  ['paid future month', { firstMonth: { enabled: true, items: [{ proratedCents: 0, prepaidFirstMonthCents: 15000 }] } }, true],
-]) test(`membership requirement: ${label}`, () => assert.equal(monthlyRegistrationRequiresMembership(input), required))
+  ['drop-in / one-time', { newSignupItems: [{ ...monthly, billingType: 'one_time' }] }, true],
+  ['free monthly', { newSignupItems: [{ ...monthly, incrementalMonthly: 0 }] }, true],
+  ['prepaid pass', { newSignupItems: [{ ...monthly, multiClassPassApplied: true }] }, true],
+  ['100% line discount', { newSignupItems: [monthly], discounts: { lines: [{ key: monthly.slotKey, baseCents: 15000, applied: [{ amountCents: 15000 }] }] } }, true],
+  ['100% order discount', { newSignupItems: [monthly], discounts: { enabled: true, totalCents: 0 } }, true],
+  ['free initial period', { newSignupItems: [monthly], firstMonth: { enabled: true, items: [{ proratedCents: 0, prepaidFirstMonthCents: 0 }] } }, true],
+  ['paid future month', { newSignupItems: [monthly], firstMonth: { enabled: true, items: [{ proratedCents: 0, prepaidFirstMonthCents: 15000 }] } }, true],
+]) test(`membership requirement: ${label}`, () => assert.equal(registrationRequiresMembership(input), required))
 
 test('membership uses the athlete, not a payer or sibling, and is required across class scopes', async () => {
   const members = []
@@ -32,7 +33,7 @@ test('active participant membership suppresses every annual fee, even a replaced
   const db = { query: async () => ({ rows: [{ fee_id: 1, created_at: '2026-01-01', period_key: '2099-01-01' }] }) }
   assert.deepEqual(await requiredRegistrationFees(db, { memberId: 42, fees: [annual, other] }), [other])
 })
-test('free and one-time registrations need no membership lookup or configuration', async () => {
+test('non-registration previews need no membership lookup or configuration', async () => {
   const db = { query() { throw new Error('must not query') } }
   assert.deepEqual(await requiredRegistrationFees(db, { memberId: 42, fees: [annual, other], required: false }), [other])
 })

@@ -279,7 +279,7 @@ export function registerProgramsAdminRoutes(app, pool) {
         return res.status(400).json({ success: false, message: 'Program not found' })
       }
 
-      const facilityId = await getFacilityId(pool)
+      const facilityId = Number(req.canonicalAccess?.facilityId)
       if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
 
       const enumCheckResult = await pool.query(`
@@ -515,7 +515,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureAbridgedNameColumns(pool)
       await ensureProgramDropInColumns(pool)
       const schema = await resolveProgramsSchema(pool)
-      const facilityId = await getFacilityId(pool)
+      const facilityId = Number(req.canonicalAccess?.facilityId)
       if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
 
       const columnCheck = await pool.query(`

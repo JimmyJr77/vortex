@@ -1,4 +1,5 @@
 import { billConfirmedRegistration } from './registrationBilling.js'
+import { resolveAdminSignupResponses } from './adminSignupContact.js'
 import { requireSignupCheckout } from './signupPaymentGate.js'
 import crypto from 'crypto'
 import Joi from 'joi'
@@ -4195,6 +4196,10 @@ export function createSchedulingHandlers(pool) {
 
     async adminCreateSignup(req, res) {
       try {
+        const facilityId = Number(req.canonicalAccess?.facilityId)
+        if (!Number.isSafeInteger(facilityId) || facilityId <= 0) {
+          return res.status(403).json({ success: false, message: 'An authenticated facility is required.' })
+        }
         const { error, value } = adminSignupSchema.validate(req.body, { abortEarly: false })
         if (error) {
           const msg = error.details[0]?.message || 'Validation error'
@@ -4239,14 +4244,14 @@ export function createSchedulingHandlers(pool) {
           let createdNewStubMemberId = null
 
           if (memberId) {
-            member = await findMemberById(client, memberId)
+            member = await findMemberById(client, memberId, { facilityId })
             if (!member) {
               await client.query('ROLLBACK')
               return res.status(404).json({ success: false, message: 'Member not found' })
             }
           } else {
             const email = String(value.email || '').trim()
-            member = await findMemberByEmail(client, email)
+            member = await findMemberByEmail(client, email, { facilityId })
             if (member) {
               memberId = Number(member.id)
             } else {
@@ -4266,19 +4271,14 @@ export function createSchedulingHandlers(pool) {
                 email,
                 password: generatedPassword,
                 phone: value.phone ? String(value.phone) : null,
+                facilityId,
               })
               createdNewStubMemberId = memberId
-              member = await findMemberById(client, memberId)
+              member = await findMemberById(client, memberId, { facilityId })
             }
           }
 
-          const responses = {
-            first_name: member.first_name,
-            last_name: member.last_name,
-            email: member.email,
-            phone: member.phone || value.phone || value.responses?.phone || null,
-            ...value.responses,
-          }
+          const responses = await resolveAdminSignupResponses(client,member,{responses:value.responses,phone:value.phone})
 
           const profileComplete =
             member.profile_complete != null ? Boolean(member.profile_complete) : false
@@ -4443,6 +4443,9 @@ export function createSchedulingHandlers(pool) {
             return res.status(400).json({ success: false, message: txErr.message })
           }
           if (txErr.message?.includes('already exists')) {
+            return res.status(400).json({ success: false, message: txErr.message })
+          }
+          if (txErr.statusCode === 400) {
             return res.status(400).json({ success: false, message: txErr.message })
           }
           throw txErr

@@ -572,6 +572,11 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     }
   })
 
+  const projectionRows = accountIds.length ? await pool.query(
+    `SELECT * FROM stripe_customer_projection WHERE family_billing_account_id = ANY($1::bigint[])`,
+    [accountIds],
+  ) : { rows: [] }
+  const projectionsByAccount = new Map(projectionRows.rows.map((row) => [Number(row.family_billing_account_id), row]))
   const cardsByAccount = new Map()
   await mapLimit(families.rows.filter((row) => row.stripe_customer_id), 5, async (row) => {
     try {
@@ -582,6 +587,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         .at(-1)
       const summary = await loadDefaultPaymentMethodSummary(row, {
         billingMonth: requiredPaymentMethodMonth,
+        projection: projectionsByAccount.get(Number(row.billing_account_id)) ?? null,
       })
       cardsByAccount.set(Number(row.billing_account_id), summary)
     } catch {
@@ -621,7 +627,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         .filter(Boolean)
         .sort()
         .at(-1)
-      const autopayStatus = familyAutopayStatus({
+      let autopayStatus = familyAutopayStatus({
         householdMonthlyBillingEnabled,
         cardOnFile: paymentMethodReadyForBillingMonth(paymentMethod, requiredPaymentMethodMonth),
         hasLegacyStripeSubscription,
@@ -633,6 +639,10 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         // household-autopay migration merely to appear in the overview.
         requiresHouseholdAutopay: row.current_month_recurring || row.upcoming_month_recurring,
       })
+      if (['ready', 'scheduled_later', 'payment_method_required'].includes(autopayStatus)
+        && ['pending', 'failed', 'stale'].includes(paymentMethod?.syncStatus)) {
+        autopayStatus = 'sync_required'
+      }
       return serializeFamilyRow(row, {
         yearToDatePaidCents: cents(totals.year_to_date_paid_cents),
         months: monthValues,
@@ -654,6 +664,8 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
         cardOnFile: {
           last4,
           brand: paymentMethod?.paymentMethod?.brand ?? null,
+          syncStatus: paymentMethod?.syncStatus ?? 'not_linked',
+          syncedAt: paymentMethod?.syncedAt ?? null,
         },
       })
     }),

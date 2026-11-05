@@ -159,10 +159,13 @@ export default function OrderPricingSummary({
   const annualMembershipFees = (preview.additionalFees?.items ?? []).filter(
     (item) => item.triggerType === 'once_per_year' || item.applyBasis === 'per_year',
   )
-  const hasAnnualMembershipDue = annualMembershipFees.length > 0
+  const existingMembershipDueCents = carriedForward.items
+    .filter((item) => item.kind === 'annual_membership_balance')
+    .reduce((sum, item) => sum + item.amountCents, 0)
+  const hasAnnualMembershipDue = annualMembershipFees.length > 0 || existingMembershipDueCents > 0
   const hasProratedAccounts = Boolean(firstMonth?.items.length)
   const currentCycleDueCents =
-    Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
+    Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0) + existingMembershipDueCents
   const additionalFeesOneTime = preview.additionalFeesOneTime ?? 0
   const proratedDueNow = (firstMonth?.totalProratedCents ?? 0) / 100
   const prepaidDueNow = (firstMonth?.totalPrepaidCents ?? 0) / 100
@@ -312,11 +315,11 @@ export default function OrderPricingSummary({
           className="rounded-xl border border-vortex-red bg-red-50 px-4 py-3 text-sm text-red-950"
           role="status"
         >
-          <p className="font-semibold">Annual membership needed for this enrollment</p>
+          <p className="font-semibold">Annual membership included in this enrollment</p>
           <p className="mt-1 text-red-900">
-            We checked this account and no active annual membership was found. It has been added to
-            today&apos;s order. If you have a membership discount code, enter it below before
-            continuing.
+            {existingMembershipDueCents > 0
+              ? 'Your existing annual membership bill is included in this payment. No second membership fee will be added.'
+              : "No active annual membership was found for this participant, so it has been added to today's order. If you have a membership discount code, enter it below before continuing."}
           </p>
         </div>
       )}
@@ -444,8 +447,8 @@ export default function OrderPricingSummary({
                 Debits/Credits carried forward
               </h6>
               <p className="mb-2 text-xs text-amber-800">
-                Adjustments from pauses and other account activity that apply to upcoming billing
-                periods.
+                Existing membership bills are included in this enrollment payment. Pause credits
+                apply to their indicated future billing periods.
               </p>
               <div className="space-y-0 px-3 py-1 text-amber-950">
                 <div className="flex justify-between">

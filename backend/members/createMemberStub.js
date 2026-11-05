@@ -21,10 +21,10 @@ export async function getDefaultFacilityId(db) {
   return result.rows[0].id
 }
 
-export async function findMemberByEmail(db, email) {
+export async function findMemberByEmail(db, email, { facilityId: explicitFacilityId = null } = {}) {
   if (!email?.trim()) return null
   const normalized = String(email).trim().toLowerCase()
-  const facilityId = await getDefaultFacilityId(db)
+  const facilityId = explicitFacilityId ?? await getDefaultFacilityId(db)
 
   const res = await db.query(
     `
@@ -52,8 +52,8 @@ export async function findMemberByEmail(db, email) {
   return res.rows[0] || null
 }
 
-export async function findMemberById(db, memberId) {
-  const res = await db.query('SELECT * FROM member WHERE id = $1 AND is_active = TRUE', [memberId])
+export async function findMemberById(db, memberId, { facilityId = null } = {}) {
+  const res = await db.query('SELECT * FROM member WHERE id = $1 AND is_active = TRUE AND ($2::bigint IS NULL OR facility_id = $2)', [memberId, facilityId])
   return res.rows[0] || null
 }
 
@@ -159,14 +159,14 @@ function generateUsernameFromEmail(email) {
  */
 export async function createMemberStub(
   client,
-  { firstName, lastName, email, password, phone = null },
+  { firstName, lastName, email, password, phone = null, facilityId: explicitFacilityId = null },
 ) {
-  const facilityId = await getDefaultFacilityId(client)
+  const facilityId = explicitFacilityId ?? await getDefaultFacilityId(client)
   if (!facilityId) {
     throw new Error('Facility not configured')
   }
 
-  const existing = await findMemberByEmail(client, email)
+  const existing = await findMemberByEmail(client, email, { facilityId })
   if (existing) {
     throw new Error('An account with this email already exists. Please sign in.')
   }

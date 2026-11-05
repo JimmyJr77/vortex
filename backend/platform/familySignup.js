@@ -592,7 +592,7 @@ function sqlClassHasSignupSlots(programAlias) {
   `
 }
 
-async function loadClassEnrollmentCatalog(pool, classEventId) {
+async function loadClassEnrollmentCatalog(pool, classEventId, facilityId = null) {
   const schema = await resolveProgramsSchema(pool)
   const parentActiveColumn = await pool.query(
     `SELECT 1 FROM information_schema.columns
@@ -608,6 +608,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       INNER JOIN program p ON p.id = sf.program_id
       INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
       WHERE sf.program_id = $1
+        AND ($2::bigint IS NULL OR (p.facility_id = $2 AND pr.facility_id = $2))
         AND sf.deleted_at IS NULL
         AND COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(p.is_active, TRUE) = TRUE
@@ -626,7 +627,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       ORDER BY sf.is_active DESC, sf.id DESC
       LIMIT 1
     `,
-    [classEventId],
+    [classEventId, facilityId],
   )
   if (formRes.rows.length === 0) {
     return { formId: null, offerings: [], scheduleOptions: [], classActiveDates: null }
@@ -765,13 +766,14 @@ async function enrichInviteEnrollments(pool, enrollments) {
 }
 
 async function applyEnrollmentRow(client, {
+  facilityId,
   memberId,
   memberRow,
   primaryAdultEmail,
   enrollment,
   programKeysCreated,
 }) {
-  await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment })
+  await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment, facilityId })
   const classEventId = Number(enrollment.classEventId ?? enrollment.programId)
   if (!Number.isFinite(memberId) || !Number.isFinite(classEventId)) return null
 
@@ -1078,12 +1080,13 @@ export async function createPortalFamilyMember(client, {
 export async function finalizePendingDropIn(client, pendingDropInId, { primaryEmail, createdMembers }) {
   if (pendingDropInId == null) return null
   const pending = await client.query(
-    `SELECT d.*, sf.title
+    `SELECT d.*, sf.title, class_scope.facility_id AS class_facility_id
        FROM drop_in_registration d
        JOIN scheduling_form sf ON sf.id = d.form_id
+       JOIN program class_scope ON class_scope.id = sf.program_id
       WHERE d.id = $1 AND d.status = 'account_required' AND d.member_id IS NULL
         AND (d.expires_at IS NULL OR d.expires_at > now())
-      FOR UPDATE`,
+      FOR UPDATE OF d`,
     [pendingDropInId],
   )
   const row = pending.rows[0]
@@ -1100,6 +1103,10 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
   )
   if (!match) {
     throw new Error(`Add ${row.first_name} ${row.last_name} to the family account to confirm the pending drop-in.`)
+  }
+  if (!Number.isSafeInteger(Number(match.member.facility_id))
+    || Number(match.member.facility_id) !== Number(row.class_facility_id)) {
+    throw new Error('The pending drop-in does not belong to this family account facility.')
   }
 
   if (row.benefit_type === 'paid' && !(Number(row.base_price_cents) > 0)) {
@@ -1205,8 +1212,8 @@ async function processFamilySignup(client, payload, options = {}) {
   if (familyId) {
     familyHadMembersBefore = (await countActiveFamilyMembers(client, familyId)) > 0
     const familyCheck = await client.query(
-      `SELECT id, family_username FROM family WHERE id = $1 AND archived = FALSE`,
-      [familyId],
+      `SELECT id, family_username FROM family WHERE id = $1 AND facility_id = $2 AND archived = FALSE`,
+      [familyId, facilityId],
     )
     if (familyCheck.rows.length === 0) throw new Error('Existing family not found.')
     familyUsername = familyCheck.rows[0].family_username
@@ -1326,10 +1333,11 @@ async function processFamilySignup(client, payload, options = {}) {
     const memberId = memberIdByClientIndex[Number(enrollment.memberIndex)]
     const memberRow = createdMembers.find(({ member }) => Number(member.id) === memberId)?.member
     if (options.admin !== true) {
-      pendingEnrollments.push(await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment }))
+      pendingEnrollments.push(await prepareFamilyEnrollmentCheckout(client, { memberId, enrollment, facilityId }))
       continue
     }
     const receipt = await applyEnrollmentRow(client, {
+      facilityId,
       memberId,
       memberRow,
       primaryAdultEmail: primaryAdult.email,
@@ -1397,7 +1405,9 @@ function adminAuthMiddleware(pool, jwtSecret) {
   return async (req, res, next) => {
     try {
       const user = await loadAdminAuth(pool, jwtSecret, req)
-      if (!user) return res.status(401).json({ success: false, message: 'Admin authentication required' })
+      if (!user || !Number.isSafeInteger(Number(user.facility_id)) || Number(user.facility_id) <= 0) {
+        return res.status(401).json({ success: false, message: 'Admin authentication with a facility is required' })
+      }
       req.adminAuth = user
       next()
     } catch {
@@ -1475,6 +1485,14 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
   void ensureSignupSchema(pool).catch((err) => {
     console.error('[signup] ensureSignupSchema failed:', err.message)
   })
+
+  // Admin account editors use the same DTOs with their authenticated facility;
+  // public signup keeps its existing entry points and public catalog behavior.
+  const signupRead = (suffix, handler) => {
+    app.get(`/api/signup/${suffix}`, handler)
+    app.get(`/api/admin/signup/${suffix}`,
+      adminAuthMiddleware(pool, jwtSecret), adminSignupPermissionMiddleware(pool), handler)
+  }
 
   // Best-effort welcome, enrollment receipts, guardian alerts, and email verification after signup commits.
   const sendPostSignupNotifications = async (result) => {
@@ -1593,7 +1611,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     }
   })
 
-  app.get('/api/signup/catalog/programs', async (_req, res) => {
+  signupRead('catalog/programs', async (req, res) => {
     try {
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
@@ -1615,17 +1633,20 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           SELECT pr.id, pr.name, pr.display_name, pr.description
           FROM ${schema.programsTable} pr
           WHERE COALESCE(pr.archived, FALSE) = FALSE
+            AND ($1::bigint IS NULL OR pr.facility_id = $1)
             ${programActiveClause}
             AND EXISTS (
               SELECT 1
               FROM program p
               WHERE p.${schema.programFkColumn} = pr.id
+                AND p.facility_id = pr.facility_id
                 AND COALESCE(p.is_active, TRUE) = TRUE
                 AND COALESCE(p.archived, FALSE) = FALSE
                 AND ${signupSlotsClause}
             )
           ORDER BY COALESCE(pr.display_name, pr.name), pr.id
         `,
+        [req.adminAuth?.facility_id ?? null],
       )
       res.json({
         success: true,
@@ -1641,7 +1662,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     }
   })
 
-  app.get('/api/signup/catalog/programs/:programsId/classes', async (req, res) => {
+  signupRead('catalog/programs/:programsId/classes', async (req, res) => {
     try {
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
@@ -1674,12 +1695,16 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             LIMIT 1
           ) sf ON TRUE
           WHERE p.${schema.programFkColumn} = $1
+            AND ($2::bigint IS NULL OR (p.facility_id = $2 AND EXISTS (
+              SELECT 1 FROM ${schema.programsTable} parent
+              WHERE parent.id = p.${schema.programFkColumn} AND parent.facility_id = $2
+            )))
             AND COALESCE(p.is_active, TRUE) = TRUE
             AND COALESCE(p.archived, FALSE) = FALSE
             AND ${signupSlotsClause}
           ORDER BY COALESCE(p.display_name, p.name), p.id
         `,
-        [programsId],
+        [programsId, req.adminAuth?.facility_id ?? null],
       )
       res.json({
         success: true,
@@ -1695,18 +1720,18 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     }
   })
 
-  app.get('/api/signup/catalog/classes/:classEventId/offerings', async (req, res) => {
+  signupRead('catalog/classes/:classEventId/offerings', async (req, res) => {
     try {
       await ensureSignupSchema(pool)
       const classEventId = Number(req.params.classEventId)
-      const catalog = await loadClassEnrollmentCatalog(pool, classEventId)
+      const catalog = await loadClassEnrollmentCatalog(pool, classEventId, req.adminAuth?.facility_id ?? null)
       res.json({ success: true, data: catalog })
     } catch (error) {
       res.status(500).json({ success: false, message: error.message })
     }
   })
 
-  app.get('/api/signup/catalog/prefill/:formId', async (req, res) => {
+  signupRead('catalog/prefill/:formId', async (req, res) => {
     try {
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
@@ -1723,8 +1748,9 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           LEFT JOIN program p ON p.id = sf.program_id
           LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
           WHERE sf.id = $1 AND sf.deleted_at IS NULL
+            AND ($2::bigint IS NULL OR (p.facility_id = $2 AND pr.facility_id = $2))
         `,
-        [formId],
+        [formId, req.adminAuth?.facility_id ?? null],
       )
       if (result.rows.length === 0) {
         return res.status(404).json({ success: false, message: 'Scheduling form not found' })
@@ -1762,10 +1788,10 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     }
   })
 
-  app.get('/api/signup/waivers', async (_req, res) => {
+  signupRead('waivers', async (req, res) => {
     try {
       await ensureSignupSchema(pool)
-      const facilityId = await resolveFacilityId(pool)
+      const facilityId = await resolveFacilityId(pool, req.adminAuth?.facility_id ?? null)
       const waiverQuery = `
           SELECT id, name, version, body, waiver_type, is_required
           FROM waiver_template
@@ -2097,6 +2123,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             invitePendingEnrollments.push(await prepareFamilyEnrollmentCheckout(client, {
               memberId: minorMemberId,
               enrollment,
+              facilityId: invite.facility_id,
             }))
           }
         } else {

@@ -1,0 +1,340 @@
+{
+  "measuredAt": "2026-11-01T23:27:42.222Z",
+  "environment": "Loopback Express/PostgreSQL; fictional seed; Stripe and email disabled; one warmup and seven measured requests per endpoint.",
+  "comparison": "Retained legacy endpoints and New Admin on the same database. Full collections/detail payloads differ from New Admin 25-row summaries. Both actual member screens reuse account-directory; their page sizes differ (50 versus 25). The full member compatibility endpoint is not the existing directory screen. This measures data delivery, not identical SQL workloads or production latency.",
+  "results": [
+    {
+      "label": "legacy classes",
+      "path": "/api/admin/class-setup/overview",
+      "medianMs": 11.36,
+      "p90Ms": 14.32,
+      "bytes": 58606,
+      "samples": [
+        {
+          "ms": 10.98,
+          "bytes": 58606
+        },
+        {
+          "ms": 11.77,
+          "bytes": 58606
+        },
+        {
+          "ms": 11.18,
+          "bytes": 58606
+        },
+        {
+          "ms": 11.3,
+          "bytes": 58606
+        },
+        {
+          "ms": 11.36,
+          "bytes": 58606
+        },
+        {
+          "ms": 11.85,
+          "bytes": 58606
+        },
+        {
+          "ms": 14.32,
+          "bytes": 58606
+        }
+      ]
+    },
+    {
+      "label": "New Admin classes",
+      "path": "/api/admin/new-admin/classes?pageSize=25",
+      "medianMs": 5.21,
+      "p90Ms": 18.56,
+      "bytes": 4162,
+      "samples": [
+        {
+          "ms": 18.56,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.6,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.24,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.21,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.09,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.14,
+          "bytes": 4162
+        },
+        {
+          "ms": 5.07,
+          "bytes": 4162
+        }
+      ]
+    },
+    {
+      "label": "legacy full member compatibility endpoint",
+      "path": "/api/admin/members",
+      "medianMs": 48.2,
+      "p90Ms": 59.58,
+      "bytes": 526331,
+      "samples": [
+        {
+          "ms": 50.81,
+          "bytes": 526331
+        },
+        {
+          "ms": 48.65,
+          "bytes": 526331
+        },
+        {
+          "ms": 42.71,
+          "bytes": 526331
+        },
+        {
+          "ms": 42.63,
+          "bytes": 526331
+        },
+        {
+          "ms": 43.93,
+          "bytes": 526331
+        },
+        {
+          "ms": 48.2,
+          "bytes": 526331
+        },
+        {
+          "ms": 59.58,
+          "bytes": 526331
+        }
+      ]
+    },
+    {
+      "label": "existing Admin directory (50 rows)",
+      "path": "/api/admin/account-directory?record=active&sortBy=member&sortDir=asc&page=1&pageSize=50",
+      "medianMs": 23.47,
+      "p90Ms": 30.8,
+      "bytes": 33242,
+      "samples": [
+        {
+          "ms": 30.8,
+          "bytes": 33242
+        },
+        {
+          "ms": 25.53,
+          "bytes": 33242
+        },
+        {
+          "ms": 21.74,
+          "bytes": 33242
+        },
+        {
+          "ms": 23.47,
+          "bytes": 33242
+        },
+        {
+          "ms": 21.44,
+          "bytes": 33242
+        },
+        {
+          "ms": 22.51,
+          "bytes": 33242
+        },
+        {
+          "ms": 23.98,
+          "bytes": 33242
+        }
+      ]
+    },
+    {
+      "label": "New Admin directory (25 rows)",
+      "path": "/api/admin/account-directory?record=active&sortBy=member&sortDir=asc&page=1&pageSize=25",
+      "medianMs": 24.97,
+      "p90Ms": 26.82,
+      "bytes": 16892,
+      "samples": [
+        {
+          "ms": 23.95,
+          "bytes": 16892
+        },
+        {
+          "ms": 24.71,
+          "bytes": 16892
+        },
+        {
+          "ms": 24.47,
+          "bytes": 16892
+        },
+        {
+          "ms": 24.97,
+          "bytes": 16892
+        },
+        {
+          "ms": 26.82,
+          "bytes": 16892
+        },
+        {
+          "ms": 25.2,
+          "bytes": 16892
+        },
+        {
+          "ms": 25.06,
+          "bytes": 16892
+        }
+      ]
+    },
+    {
+      "label": "legacy leads",
+      "path": "/api/admin/registrations",
+      "medianMs": 5.08,
+      "p90Ms": 7.36,
+      "bytes": 151426,
+      "samples": [
+        {
+          "ms": 7.36,
+          "bytes": 151426
+        },
+        {
+          "ms": 6.67,
+          "bytes": 151426
+        },
+        {
+          "ms": 5.08,
+          "bytes": 151426
+        },
+        {
+          "ms": 5.39,
+          "bytes": 151426
+        },
+        {
+          "ms": 5.01,
+          "bytes": 151426
+        },
+        {
+          "ms": 4.56,
+          "bytes": 151426
+        },
+        {
+          "ms": 4.84,
+          "bytes": 151426
+        }
+      ]
+    },
+    {
+      "label": "New Admin leads",
+      "path": "/api/admin/new-admin/leads?pageSize=25",
+      "medianMs": 3.25,
+      "p90Ms": 6.12,
+      "bytes": 7590,
+      "samples": [
+        {
+          "ms": 6.12,
+          "bytes": 7590
+        },
+        {
+          "ms": 4.15,
+          "bytes": 7590
+        },
+        {
+          "ms": 3.25,
+          "bytes": 7590
+        },
+        {
+          "ms": 3.24,
+          "bytes": 7590
+        },
+        {
+          "ms": 3.22,
+          "bytes": 7590
+        },
+        {
+          "ms": 3.25,
+          "bytes": 7590
+        },
+        {
+          "ms": 3.14,
+          "bytes": 7590
+        }
+      ]
+    },
+    {
+      "label": "member detail",
+      "path": "/api/admin/new-admin/members/2",
+      "medianMs": 3.45,
+      "p90Ms": 10.83,
+      "bytes": 1042,
+      "samples": [
+        {
+          "ms": 10.83,
+          "bytes": 1042
+        },
+        {
+          "ms": 7.43,
+          "bytes": 1042
+        },
+        {
+          "ms": 3.45,
+          "bytes": 1042
+        },
+        {
+          "ms": 3.94,
+          "bytes": 1042
+        },
+        {
+          "ms": 3.35,
+          "bytes": 1042
+        },
+        {
+          "ms": 3.06,
+          "bytes": 1042
+        },
+        {
+          "ms": 3.13,
+          "bytes": 1042
+        }
+      ]
+    },
+    {
+      "label": "account billing",
+      "path": "/api/admin/customer-billing/families/1/overview",
+      "medianMs": 122.17,
+      "p90Ms": 129.78,
+      "bytes": 7878,
+      "samples": [
+        {
+          "ms": 115.47,
+          "bytes": 7878
+        },
+        {
+          "ms": 122.17,
+          "bytes": 7878
+        },
+        {
+          "ms": 129.78,
+          "bytes": 7878
+        },
+        {
+          "ms": 123.23,
+          "bytes": 7878
+        },
+        {
+          "ms": 126.74,
+          "bytes": 7878
+        },
+        {
+          "ms": 108.6,
+          "bytes": 7878
+        },
+        {
+          "ms": 109.88,
+          "bytes": 7878
+        }
+      ]
+    }
+  ]
+}

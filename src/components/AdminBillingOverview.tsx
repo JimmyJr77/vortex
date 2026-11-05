@@ -20,9 +20,9 @@ export interface BillingOverviewFamily {
   currentMonthRecurring: boolean
   upcomingMonthRecurring: boolean
   autopay: boolean
-  autopayStatus: 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict' | 'not_applicable'
+  autopayStatus: 'sync_required' | 'ready' | 'payment_method_required' | 'migration_required' | 'scheduled_later' | 'legacy_collector_conflict' | 'not_applicable'
   autopayEffectiveMonth: string | null
-  cardOnFile: { last4: string | null; brand: string | null }
+  cardOnFile: { last4: string | null; brand: string | null; syncStatus?: string; syncedAt?: string | null }
 }
 
 interface BillingOverviewPayload {
@@ -50,6 +50,7 @@ function cardLabel(card: BillingOverviewFamily['cardOnFile']) {
     return `${brand} •••• ${card.last4}`
   }
   if (card.brand === 'link') return 'Link'
+  if (['pending', 'stale', 'failed'].includes(card.syncStatus || '')) return 'Sync required'
   return 'None'
 }
 
@@ -57,6 +58,8 @@ function autopayPresentation(family: BillingOverviewFamily) {
   const readyStyle = 'bg-emerald-50 text-emerald-800'
   const actionStyle = 'bg-amber-50 text-amber-800'
   switch (family.autopayStatus) {
+    case 'sync_required':
+      return { label: 'Payment details syncing', className: actionStyle, title: 'Saved payment details must be synchronized before autopay readiness is known.' }
     case 'ready':
       return { label: 'Autopay', className: readyStyle, title: 'Actively enrolled in autopay.' }
     case 'scheduled_later':

@@ -858,13 +858,13 @@ test('annual membership replay cannot move paid-through backward', () => {
   )
 })
 
-test('ledger annual renewal keeps its scheduled anniversary when payment arrives late', () => {
+test('ledger annual renewal grants a full year from actual payment', () => {
   assert.equal(
     annualMembershipPaidThroughDate(
       { source_id: '69:59:2028-09-01' },
       new Date('2027-09-12T14:00:00.000Z'),
     ),
-    '2028-09-01',
+    '2028-09-12',
   )
   assert.equal(
     annualMembershipPaidThroughDate(
@@ -887,4 +887,10 @@ test('new paid annual memberships default to ledger renewal without a Stripe set
   // explicit opt-out such as O'Brien remains disabled on allocation replay.
   const conflictUpdate = activateSource.slice(activateSource.indexOf('ON CONFLICT'))
   assert.doesNotMatch(conflictUpdate, /auto_renewal\s*=/)
+})
+
+test('paid annual membership clamps leap day and preserves charge identity', () => {
+  const charge = { source_id: '1:211:2025-01-01' }
+  assert.equal(annualMembershipPaidThroughDate(charge, new Date('2024-02-29T20:00:00Z')), '2025-02-28')
+  assert.equal(charge.source_id, '1:211:2025-01-01')
 })

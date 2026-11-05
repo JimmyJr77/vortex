@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createHmac } from 'node:crypto'
 
 import express from 'express'
 
@@ -28,7 +29,7 @@ async function withStripeTestEnvironment(callback) {
   try {
     process.env.STRIPE_ENABLED = 'true'
     process.env.STRIPE_SECRET_KEY = 'sk_test_webhook_claim_finalization'
-    delete process.env.STRIPE_WEBHOOK_SECRET
+    process.env.STRIPE_WEBHOOK_SECRET = 'whsec_claim_finalization'
     delete process.env.STRIPE_WEBHOOK_SECRETS
     await callback()
   } finally {
@@ -49,9 +50,12 @@ async function postWebhook(pool, event) {
   const handler = route.route.stack.at(-1)?.handle
   assert.equal(typeof handler, 'function')
 
+  const payload = JSON.stringify(event)
+  const timestamp = Math.floor(Date.now() / 1000)
+  const digest = createHmac('sha256', process.env.STRIPE_WEBHOOK_SECRET).update(`${timestamp}.${payload}`).digest('hex')
   const request = {
-    body: Buffer.from(JSON.stringify(event)),
-    headers: {},
+    body: Buffer.from(payload),
+    headers: { 'stripe-signature': `t=${timestamp},v1=${digest}` },
   }
   return new Promise((resolve, reject) => {
     let statusCode = 200

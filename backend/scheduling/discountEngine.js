@@ -1148,7 +1148,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
 
 // ---------- DB helpers ----------
 
-export async function loadActiveDiscountRules(pool, facilityId) {
+export async function loadActiveDiscountRules(pool, facilityId, { throwOnError = false } = {}) {
   let rulesRes
   try {
     rulesRes = await pool.query(
@@ -1156,7 +1156,8 @@ export async function loadActiveDiscountRules(pool, facilityId) {
        WHERE active = TRUE AND (facility_id = $1 OR facility_id IS NULL)`,
       [facilityId],
     )
-  } catch {
+  } catch (error) {
+    if (throwOnError) throw error
     return []
   }
   if (rulesRes.rows.length === 0) return []

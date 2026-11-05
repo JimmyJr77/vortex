@@ -1,0 +1,73 @@
+{
+  "environment": "Dedicated fictional local data; Stripe and email disabled",
+  "review": {
+    "reviewedAt": "2026-11-01T23:26:33.710Z",
+    "accountCount": 1,
+    "issueAccountCount": 0,
+    "expectedCents": 30000,
+    "postedCents": 30000,
+    "accounts": [
+      {
+        "accountId": 1,
+        "familyId": 1,
+        "name": "[DEV] Rivera Family 001",
+        "billingMonth": "2026-11-01",
+        "issues": [],
+        "expectedCents": 30000,
+        "expectedCount": 3,
+        "expectedLines": [
+          {
+            "signupId": 1,
+            "subscriptionId": 1,
+            "memberId": 2,
+            "amountCents": 10000
+          },
+          {
+            "signupId": 2,
+            "subscriptionId": 2,
+            "memberId": 3,
+            "amountCents": 10000
+          },
+          {
+            "signupId": 248,
+            "subscriptionId": 161,
+            "memberId": 2,
+            "amountCents": 10000
+          }
+        ],
+        "postedCount": 3,
+        "postedCents": 30000,
+        "postedChargeIds": [
+          1,
+          2,
+          161
+        ],
+        "balanceCents": 18400,
+        "outstandingCents": 8400,
+        "creditCents": 0,
+        "missingPostedCents": 0,
+        "verified": true
+      }
+    ]
+  },
+  "alerts": [
+    {
+      "id": "1",
+      "stripe_event_id": "billing-turnover:1:2026-11-01",
+      "alert_type": "billing_turnover_incomplete",
+      "action_status": "resolved",
+      "resolution_note": "Upcoming ledger and pricing verified.",
+      "resolved_by_user_id": null
+    },
+    {
+      "id": "61",
+      "stripe_event_id": "enrollment-auto:2:248",
+      "alert_type": "enrollment_automatic_billing",
+      "action_status": "resolved",
+      "resolution_note": "Fixed zero-discount pricing adapter; strict family pricing and turnover now verify three tuition lines totaling 30000 cents. Corrected inclusive period dates only on fictional seed records, preserving amounts. Stripe remains disabled; no processor collection attempted.",
+      "resolved_by_user_id": "1"
+    }
+  ],
+  "resolution": "Turnover alert resolved by recordBillingTurnoverReview after verified equality. Historical enrollment alert resolved through authenticated administrative API with an audit note after the same successful review.",
+  "seedCorrection": "Inclusive month end fixed in seed; 160 original fictional charge period ends and two derived renewal dates corrected. No amounts changed."
+}

@@ -1,3 +1,4 @@
+import { membershipRenewsOnFromPurchase, toUtcDateString } from '../scheduling/membershipAnniversary.js'
 import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
@@ -21,25 +22,10 @@ function timestamp(value) {
   return dateValue(value).getTime()
 }
 
-function renewalDate(value) {
-  const date = dateValue(value)
-  const renewal = new Date(Date.UTC(
-    date.getUTCFullYear() + 1,
-    date.getUTCMonth(),
-    date.getUTCDate(),
-  ))
-  return renewal.toISOString().slice(0, 10)
-}
-
-export function annualMembershipPaidThroughDate(charge, satisfiedAt) {
-  const sourcePaidThrough = String(charge?.source_id ?? '').split(':')[2]
-  if (/^\d{4}-\d{2}-\d{2}$/.test(sourcePaidThrough)) {
-    const parsed = new Date(`${sourcePaidThrough}T00:00:00.000Z`)
-    if (!Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === sourcePaidThrough) {
-      return sourcePaidThrough
-    }
-  }
-  return renewalDate(satisfiedAt)
+export function annualMembershipPaidThroughDate(_charge, satisfiedAt) {
+  // Charge source IDs are stable billing identities, not proof of payment.
+  // Membership lasts a full calendar year from the payment that satisfies it.
+  return toUtcDateString(membershipRenewsOnFromPurchase(dateValue(satisfiedAt)))
 }
 
 function chargeOrder(left, right) {
@@ -192,9 +178,7 @@ async function activatePaidMemberships(db, accountId) {
   const activated = []
   for (const charge of satisfied.rows) {
     const paidAt = dateValue(charge.satisfied_at)
-    // Renewal ledger charges encode their scheduled paid-through anniversary in
-    // source_id. Preserve that anniversary even when the household invoice is
-    // paid late instead of drifting the schedule to the payment date.
+    // Start the paid year when this fee is satisfied, including late payments.
     const periodKey = annualMembershipPaidThroughDate(charge, paidAt)
     let result = await db.query(
       `UPDATE additional_fee_redemption

@@ -108,6 +108,7 @@ test('family signup attaches and confirms a pending free-trial drop-in without c
           base_price_cents: 4000,
           class_date: '2026-07-18',
           title: 'Gymnastics',
+          class_facility_id: 1,
         }] }
       }
       return { rows: [] }
@@ -117,8 +118,8 @@ test('family signup attaches and confirms a pending free-trial drop-in without c
   const result = await finalizePendingDropIn(client, 41, {
     primaryEmail: 'PARENT@example.com',
     createdMembers: [
-      { member: { id: 7, family_id: 3, first_name: 'Parent', last_name: 'Stone' } },
-      { member: { id: 8, family_id: 3, first_name: 'Avery', last_name: 'Stone' } },
+      { member: { id: 7, family_id: 3, facility_id: 1, first_name: 'Parent', last_name: 'Stone' } },
+      { member: { id: 8, family_id: 3, facility_id: 1, first_name: 'Avery', last_name: 'Stone' } },
     ],
   })
 
@@ -145,6 +146,7 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
             base_price_cents: 4000,
             class_date: '2026-07-21',
             title: 'Ninja',
+            class_facility_id: 1,
           }] }
         }
         if (sql.includes('FROM family_billing_account')) return { rows: [{ id: 99 }] }
@@ -153,7 +155,7 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
     }
     await finalizePendingDropIn(client, benefitType === 'paid' ? 51 : 52, {
       primaryEmail: 'jordan@example.com',
-      createdMembers: [{ member: { id: 12, family_id: 4, first_name: 'Jordan', last_name: 'Lee' } }],
+      createdMembers: [{ member: { id: 12, family_id: 4, facility_id: 1, first_name: 'Jordan', last_name: 'Lee' } }],
     })
     assert.equal(
       calls.some(({ sql }) => sql.includes('INSERT INTO billing_charge')),

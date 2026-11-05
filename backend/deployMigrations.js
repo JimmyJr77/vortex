@@ -17,6 +17,7 @@ export const DEPLOY_MIGRATION_FILES = Object.freeze([
   ...DEPLOY_ACCESS_MIGRATIONS,
 ])
 export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
+  '841_new_admin.sql',
   '819_coaching_exercise_difficulty_complexity_compatibility.sql',
   '820_coaching_exercise_difficulty_complexity_nullable.sql',
   '818_coaching_athleticism_accelerator_library.sql',

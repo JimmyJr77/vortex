@@ -1,3 +1,5 @@
+import SavedPaymentMethod from '../customerBilling/SavedPaymentMethod'
+import { paymentMethodIsMissing } from '../customerBilling/paymentMethodStatus'
 import { useMemo, useState } from 'react'
 import { ChevronDown, CreditCard, ExternalLink, Plus, RefreshCw, WalletCards } from 'lucide-react'
 import type {
@@ -460,12 +462,12 @@ export default function MemberCustomerBilling({
           billingMonth={overview.summary.monthlyRecurringPeriod}
           formatMoney={formatMoney}
           localBillCents={overview.summary.monthlyRecurringCents}
-          paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
+          paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && paymentMethodIsMissing(overview.paymentMethod)}
           monthlyLedgerBill={overview.summary.monthlyLedgerBill}
         />
 
         <div className="border-t border-gray-200 p-5">
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start gap-3"><WalletCards className="mt-0.5 h-4 w-4 text-gray-700" /><div><div className="text-sm font-bold text-gray-900">Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-1 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-1 text-sm text-gray-500">No reusable default card found.</p>}</div></div></div>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start gap-3"><WalletCards className="mt-0.5 h-4 w-4 text-gray-700" /><div><div className="text-sm font-bold text-gray-900">Saved payment method</div><SavedPaymentMethod value={overview.paymentMethod} /></div></div></div>
         </div>
       </section>
 

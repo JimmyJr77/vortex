@@ -59,7 +59,7 @@ const ContactForm = ({
     message: '',
   })
   const [submitterRole, setSubmitterRole] = useState<SubmitterRole | ''>('')
-  const [athletes, setAthletes] = useState<AthleteRow[]>([])
+  const [athletes, setAthletes] = useState<AthleteRow[]>([emptyAthlete()])
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [sportOtherText, setSportOtherText] = useState('')
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>([])
@@ -138,28 +138,31 @@ const ContactForm = ({
       return
     }
 
-    let cleanPhone = formData.phone?.trim() || ''
-    if (cleanPhone) {
-      cleanPhone = cleanPhoneNumber(cleanPhone)
-      const digitsOnly = cleanPhone
-      if (digitsOnly.length > 0 && digitsOnly.length < 10) {
-        alert('Phone number must be at least 10 digits long.')
-        setIsSubmitting(false)
-        return
-      }
-      if (digitsOnly.length > 15) {
-        alert('Phone number is too long. Maximum 15 digits allowed.')
-        setIsSubmitting(false)
-        return
-      }
+    const cleanPhone = cleanPhoneNumber(formData.phone)
+    if (!cleanPhone) {
+      alert('Phone number is required.')
+      setIsSubmitting(false)
+      return
+    }
+    if (cleanPhone.length < 10) {
+      alert('Phone number must be at least 10 digits long.')
+      setIsSubmitting(false)
+      return
+    }
+    if (cleanPhone.length > 15) {
+      alert('Phone number is too long. Maximum 15 digits allowed.')
+      setIsSubmitting(false)
+      return
     }
 
-    const completedAthletes: InquiryCamper[] = []
-    for (let i = 0; i < athletes.length; i++) {
-      const dob = athletes[i].dateOfBirth.trim()
-      if (!dob) continue
-      completedAthletes.push({ dateOfBirth: dob })
+    if (athletes.length === 0 || athletes.some((athlete) => !athlete.dateOfBirth.trim())) {
+      alert('Please enter a date of birth for each athlete.')
+      setIsSubmitting(false)
+      return
     }
+    const completedAthletes: InquiryCamper[] = athletes.map(({ dateOfBirth }) => ({
+      dateOfBirth: dateOfBirth.trim(),
+    }))
 
     let interestsToSubmit = [...selectedInterests]
     if (inquiryVariant === 'athletics' && selectedInterests.includes('Other')) {
@@ -177,14 +180,14 @@ const ContactForm = ({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
+        phone: cleanPhone,
+        campers: completedAthletes,
         submitterRole,
         newsletter,
       }
 
-      if (cleanPhone) payload.phone = cleanPhone
       if (interestsToSubmit.length > 0) payload.interests = interestsToSubmit
       if (selectedClassTypes.length > 0) payload.classTypes = selectedClassTypes
-      if (completedAthletes.length > 0) payload.campers = completedAthletes
       if (formData.message) payload.message = formData.message
       if (inquirySource) payload.inquirySource = inquirySource
 
@@ -266,7 +269,8 @@ const ContactForm = ({
           lastName: formData.lastName,
           email: formData.email,
           submitterRole,
-          phone: cleanPhone || undefined,
+          phone: cleanPhone,
+          campers: completedAthletes,
           interests: selectedInterests.length > 0 ? selectedInterests : undefined,
           message: formData.message || undefined,
           newsletter,
@@ -287,7 +291,7 @@ const ContactForm = ({
   const resetForm = () => {
     setFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' })
     setSubmitterRole('')
-    setAthletes([])
+    setAthletes([emptyAthlete()])
     setSelectedInterests([])
     setSportOtherText('')
     setSelectedClassTypes([])
@@ -332,7 +336,7 @@ const ContactForm = ({
   }
 
   const removeAthlete = (index: number) => {
-    setAthletes((prev) => prev.filter((_, i) => i !== index))
+    setAthletes((prev) => prev.length > 1 ? prev.filter((_, i) => i !== index) : prev)
   }
 
   const renderInterestCheckbox = (interest: string) => (
@@ -465,10 +469,12 @@ const ContactForm = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
                 <TextInput
                   type="tel"
                   name="phone"
+                  aria-label="Phone Number"
+                  required
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
@@ -490,7 +496,7 @@ const ContactForm = ({
                   Add athlete
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mb-3">Optional — add each athlete&apos;s date of birth.</p>
+              <p className="text-sm text-gray-500 mb-3">Enter each athlete&apos;s date of birth. At least one athlete is required.</p>
               {athletes.length === 0 ? (
                 <p className="text-sm text-gray-400 italic">No athletes added yet.</p>
               ) : (
@@ -500,9 +506,10 @@ const ContactForm = ({
                       key={index}
                       className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
                     >
-                      <label className="text-sm text-gray-600 shrink-0">DOB</label>
+                      <label className="text-sm text-gray-600 shrink-0">DOB *</label>
                       <input
                         type="date"
+                        required
                         value={athlete.dateOfBirth}
                         onChange={(e) => updateAthlete(index, e.target.value)}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -511,7 +518,8 @@ const ContactForm = ({
                       <button
                         type="button"
                         onClick={() => removeAthlete(index)}
-                        className="p-2 text-gray-500 hover:text-vortex-red"
+                        disabled={athletes.length === 1}
+                        className="p-2 text-gray-500 hover:text-vortex-red disabled:opacity-40 disabled:cursor-not-allowed"
                         aria-label={`Remove athlete ${index + 1}`}
                       >
                         <Trash2 className="w-4 h-4" />

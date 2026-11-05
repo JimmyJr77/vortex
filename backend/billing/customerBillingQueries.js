@@ -1,5 +1,5 @@
 import { settledRefundPredicate, chargeCreditApplicationSql } from './billingLedgerSql.js'
-import { getStripeClient, stripeEnabled } from './stripeBilling.js'
+import { stripeEnabled } from './stripeBilling.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
@@ -19,7 +19,7 @@ import {
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
-import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
+import { loadStripeCustomerProjection, stripeCustomerProjectionSummary } from './stripeCustomerProjection.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -440,61 +440,15 @@ async function loadFamilyMembers(pool, familyId) {
 
 export async function loadDefaultPaymentMethodSummary(account, {
   billingMonth = upcomingRecurringPricingMonth(new Date(), account?.facility_timezone),
+  pool = null,
+  projection = undefined,
 } = {}) {
-  const enabled = stripeEnabled()
-  if (!account?.stripe_customer_id) {
-    return { available: false, stripeEnabled: enabled, paymentMethod: null }
-  }
-  if (Number(account.stripe_customer_owner_count) !== 1) {
-    return {
-      available: false,
-      stripeEnabled: enabled,
-      paymentMethod: null,
-      reconciliationRequired: true,
-      error: 'The Stripe customer does not have one unique local billing-account owner.',
-    }
-  }
-  if (!enabled) {
-    return { available: false, stripeEnabled: false, paymentMethod: null }
-  }
-  try {
-    const stripe = await getStripeClient()
-    if (!stripe) return { available: false, stripeEnabled: true, paymentMethod: null }
-    const customer = await stripe.customers.retrieve(account.stripe_customer_id, {
-      expand: ['invoice_settings.default_payment_method'],
-    })
-    if (!customer || customer.deleted) return { available: false, stripeEnabled: true, paymentMethod: null }
-    const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
-      expectedCustomerId: account.stripe_customer_id,
-      billingMonth,
-    })
-    const paymentMethod = selection.paymentMethod
-    const card = paymentMethod?.card
-    return {
-      available: selection.readiness.ready,
-      stripeEnabled: true,
-      customerId: customer.id,
-      readiness: selection.readiness,
-      paymentMethod: paymentMethod?.id
-        ? {
-            id: paymentMethod.id,
-            type: paymentMethod.type ?? null,
-            customerId: selection.readiness.customerId ?? null,
-            brand: card?.brand ?? paymentMethod.type ?? 'card',
-            last4: card?.last4 ?? null,
-            expMonth: card?.exp_month ?? null,
-            expYear: card?.exp_year ?? null,
-          }
-        : null,
-    }
-  } catch (error) {
-    return {
-      available: false,
-      stripeEnabled: true,
-      paymentMethod: null,
-      error: error?.message ?? 'Unable to load saved payment method.',
-    }
-  }
+  // Routine screens only read the local display projection. Never turn a GET
+  // into a Stripe request or a repair; collection verifies remote readiness.
+  const row = projection !== undefined ? projection
+    : pool && account?.stripe_customer_id && Number(account.stripe_customer_owner_count) === 1
+      ? await loadStripeCustomerProjection(pool, account) : null
+  return stripeCustomerProjectionSummary(account, row, { stripeEnabled: stripeEnabled(), billingMonth })
 }
 
 function mapAccount(account) {
@@ -716,9 +670,29 @@ export function isRetiredAnnualMembershipStripeSetupAlert(alert = {}) {
   )
 }
 
+export function billingPaymentMethodAlertPolicy({
+  paymentMethodAvailable,
+  paymentMethodSyncStatus = 'current',
+  householdCardRequired,
+  householdMonthlyBillingEnabled = false,
+}) {
+  // A retained card snapshot is useful for display but cannot establish that
+  // a payment-method warning has been addressed since the last sync.
+  const stateKnown = !['pending', 'stale', 'failed'].includes(paymentMethodSyncStatus)
+  const available = stateKnown && paymentMethodAvailable === true
+  return {
+    available,
+    resolveEnrollmentAutopayAlerts: householdMonthlyBillingEnabled === true
+      || (stateKnown && (available || householdCardRequired !== true)),
+    resolveMonthlyInvoicePaymentMethodAlerts: stateKnown
+      && (available || householdCardRequired !== true),
+  }
+}
+
 export async function resolveAddressedBillingAlerts(pool, {
   accountId,
   paymentMethodAvailable,
+  paymentMethodSyncStatus = 'current',
   householdCardRequired,
   householdMonthlyBillingEnabled = false,
 }) {
@@ -728,15 +702,17 @@ export async function resolveAddressedBillingAlerts(pool, {
     // enrollment. Once household collection is enabled, an old per-enrollment
     // setup alert is no longer actionable — the single account-level card
     // status is the authoritative readiness signal.
+    const policy = billingPaymentMethodAlertPolicy({
+      paymentMethodAvailable,
+      paymentMethodSyncStatus,
+      householdCardRequired,
+      householdMonthlyBillingEnabled,
+    })
     const resolvedAlertTypes = []
-    if (
-      householdMonthlyBillingEnabled === true ||
-      paymentMethodAvailable === true ||
-      householdCardRequired !== true
-    ) {
+    if (policy.resolveEnrollmentAutopayAlerts) {
       resolvedAlertTypes.push('enrollment_autopay_setup_required')
     }
-    if (paymentMethodAvailable === true || householdCardRequired !== true) {
+    if (policy.resolveMonthlyInvoicePaymentMethodAlerts) {
       resolvedAlertTypes.push('monthly_invoice_payment_method_required')
     }
     if (resolvedAlertTypes.length > 0) {
@@ -756,7 +732,7 @@ export async function resolveAddressedBillingAlerts(pool, {
         [
           accountId,
           resolvedAlertTypes,
-          paymentMethodAvailable === true,
+          policy.available,
           householdMonthlyBillingEnabled === true,
         ],
       )
@@ -1038,7 +1014,7 @@ export async function buildCustomerBillingOverview(pool, {
         familyId: Number(familyId),
         facilityId: Number(account.family_facility_id),
       }),
-      loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth }),
+      loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth, pool }),
       listHouseholdMonthlyInvoices(pool, account.id, {
         // Both Billing surfaces present the current household invoice. Line
         // descriptions and amounts are customer-facing ledger facts, while
@@ -1267,15 +1243,18 @@ export async function buildCustomerBillingOverview(pool, {
     : subscriptions.filter((subscription) => subscription.priceSyncStatus === 'failed')
   const autopaySetupRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'autopay_setup_required')
   const householdCardRequired = enrollments.some((enrollment) => enrollment.collectionMode === 'household_payment_method_required')
-  const automaticallyResolvedAlertIds = await resolveAddressedBillingAlerts(pool, {
-    accountId: account.id,
+  const alertPolicyInput = {
     paymentMethodAvailable: paymentMethod.available,
+    paymentMethodSyncStatus: paymentMethod.syncStatus,
     householdCardRequired,
     householdMonthlyBillingEnabled,
+  }
+  const automaticallyResolvedAlertIds = await resolveAddressedBillingAlerts(pool, {
+    accountId: account.id,
+    ...alertPolicyInput,
   })
-  const resolveEnrollmentAutopayAlerts =
-    householdMonthlyBillingEnabled || paymentMethod.available || !householdCardRequired
-  const resolveMonthlyInvoicePaymentMethodAlerts = paymentMethod.available || !householdCardRequired
+  const { resolveEnrollmentAutopayAlerts, resolveMonthlyInvoicePaymentMethodAlerts } =
+    billingPaymentMethodAlertPolicy(alertPolicyInput)
   const resolvedAlertIds = new Set([
     ...alertsResult.rows
       .filter((row) => (
@@ -1345,6 +1324,8 @@ export async function buildCustomerBillingOverview(pool, {
           }
         : autopaySetupRequired
           ? { status: 'warning', message: 'Recurring enrollment is not yet connected to automatic monthly collection.' }
+          : ['pending', 'stale', 'failed'].includes(paymentMethod.syncStatus)
+            ? { status: 'warning', message: 'Saved payment method synchronization needs attention. Payment readiness will be verified before collection.' }
           : householdCardRequired
             ? { status: 'warning', message: 'Household monthly billing is active but needs a saved card before it can collect automatically.' }
             : account.household_monthly_billing_enabled === true

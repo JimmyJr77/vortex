@@ -1,3 +1,4 @@
+import { validateEnrollmentMembershipBills, applyEnrollmentMembershipBills } from './enrollmentMembershipBalance.js'
 import { assertNoOutstandingAnnualMembershipCharge } from './annualMembershipChargeGuard.js'
 import { recordBillingActivity } from './billingActivity.js'
 /**
@@ -1200,6 +1201,8 @@ export async function createAndBindEnrollmentCheckoutSession(
         payerMemberId: payerId,
       })
 
+      await validateEnrollmentMembershipBills(db, { bills: preview.existingMembershipBills, accountId, memberId: athleteId })
+
       for (const fee of preview.additionalFees?.items ?? []) {
         if (fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year') {
           await assertNoOutstandingAnnualMembershipCharge(db, {
@@ -2232,6 +2235,7 @@ async function settleCompletedEnrollmentCheckout(pool, {
         applicationNamespace: `enrollment-checkout:${Number(pending.id)}`,
         allocationReason: 'enrollment_checkout_exact',
       })
+      await applyEnrollmentMembershipBills(db, { bills: preview?.existingMembershipBills, accountId: Number(pending.family_billing_account_id), memberId: Number(pending.member_id), payment: exact })
       await allocateHouseholdPaymentsLocked(db, {
         accountId: Number(pending.family_billing_account_id),
         actorType: 'stripe',
@@ -2719,6 +2723,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
         allocationReason: 'enrollment_checkout_exact',
         manageTransaction: false,
       })
+      await applyEnrollmentMembershipBills(settlementDb, { bills: previewSnapshot?.existingMembershipBills, accountId: Number(familyBillingAccountId), memberId: enrolledMemberId, payment: preFulfillmentPayment })
       // Any explicit carried-forward portion is the only remaining cash and may
       // now flow through normal oldest/annual-first household allocation. The
       // session-level account lock is still held, so invoice creation cannot

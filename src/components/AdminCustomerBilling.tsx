@@ -1,6 +1,8 @@
+import SavedPaymentMethod from './customerBilling/SavedPaymentMethod'
+import { paymentMethodIsMissing } from './customerBilling/paymentMethodStatus'
 import AddCreditModal from './customerBilling/AddCreditModal'
 import TextInput from './common/TextInput'
-import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   AlertCircle,
@@ -1066,6 +1068,7 @@ interface BillingAccountTarget {
 }
 
 interface AdminCustomerBillingProps {
+  accessContext?: AccessState
   accountTarget?: BillingAccountTarget | null
   onAccountTargetConsumed?: () => void
 }
@@ -1073,8 +1076,12 @@ interface AdminCustomerBillingProps {
 export default function AdminCustomerBilling({
   accountTarget = null,
   onAccountTargetConsumed,
+  accessContext,
 }: AdminCustomerBillingProps) {
-  const [access, setAccess] = useState<AccessState>({ isMasterAdmin: false, permissions: [] })
+  const [access, setAccess] = useState<AccessState>(accessContext ?? { isMasterAdmin: false, permissions: [] })
+  const familyRequest = useRef(0)
+  const auditRequest = useRef(0)
+  const consumedTarget = useRef<BillingAccountTarget | null>(null)
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
   const [searchResults, setSearchResults] = useState<CustomerBillingSearchResult[]>([])
@@ -1114,6 +1121,7 @@ export default function AdminCustomerBilling({
   const canManageContact = access.isMasterAdmin || access.permissions.includes('family_billing.manage')
 
   useEffect(() => {
+    if (accessContext) { setAccess(accessContext); return }
     adminApiRequest('/api/admin/access/me')
       .then(async (response) => response.ok ? response.json() : null)
       .then((body) => {
@@ -1124,7 +1132,7 @@ export default function AdminCustomerBilling({
         })
       })
       .catch(() => {})
-  }, [])
+  }, [accessContext])
 
   const performSearch = useCallback(async (value: string) => {
     if (value.length < 2 && !/^\d+$/.test(value)) {
@@ -1177,6 +1185,8 @@ export default function AdminCustomerBilling({
     memberId: number | null,
     append: false | 'transactions' | 'activity' = false,
   ) => {
+    const requestId = familyRequest.current
+    const auditId = ++auditRequest.current
     setAuditLoading(true)
     try {
       const loadTransactions = append !== 'activity'
@@ -1199,24 +1209,29 @@ export default function AdminCustomerBilling({
           })()
         : null
       const [transactionResponse, activityResponse] = await Promise.all([transactionPromise, activityPromise])
+      if (requestId !== familyRequest.current || auditId !== auditRequest.current) return
       if (transactionResponse) {
         const body = await jsonBody(transactionResponse)
+        if (requestId !== familyRequest.current || auditId !== auditRequest.current) return
         if (!transactionResponse.ok) throw new Error(body.message || 'Transactions failed to load.')
         setTransactions((current) => append === 'transactions' ? [...current, ...(body.data?.rows ?? [])] : (body.data?.rows ?? []))
         setTransactionCursor(body.data?.nextCursor ?? null)
       }
       if (activityResponse) {
         const body = await jsonBody(activityResponse)
+        if (requestId !== familyRequest.current || auditId !== auditRequest.current) return
         if (!activityResponse.ok) throw new Error(body.message || 'Activity failed to load.')
         setActivityRows((current) => append === 'activity' ? [...current, ...(body.data?.rows ?? [])] : (body.data?.rows ?? []))
         setActivityCursor(body.data?.nextCursor ?? null)
       }
     } finally {
-      setAuditLoading(false)
+      if (requestId === familyRequest.current && auditId === auditRequest.current) setAuditLoading(false)
     }
   }, [activityCursor, auditParams, transactionCursor])
 
   const loadFamily = useCallback(async (familyId: number, memberId: number | null) => {
+    const requestId = ++familyRequest.current
+    setOverview(current => current?.account.familyId === familyId ? current : null)
     setLoading(true)
     setDismissedAlertIds(new Set())
     setError(null)
@@ -1224,8 +1239,12 @@ export default function AdminCustomerBilling({
     setLastActionUrl(null)
     try {
       const overviewParams = memberId == null ? '' : `?memberId=${memberId}`
-      const overviewResponse = await adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`)
+      const [overviewResponse] = await Promise.all([
+        adminApiRequest(`/api/admin/customer-billing/families/${familyId}/overview${overviewParams}`),
+        loadAudits(familyId, memberId, false),
+      ])
       const overviewBody = await jsonBody(overviewResponse)
+      if (requestId !== familyRequest.current) return false
       if (!overviewResponse.ok) throw new Error(overviewBody.message || 'Billing account failed to load.')
       const nextOverview = overviewBody.data as CustomerBillingOverview
       setOverview(nextOverview)
@@ -1233,13 +1252,12 @@ export default function AdminCustomerBilling({
       setContactDraft(billingContactDraft(nextOverview.account))
       setEditingContact(false)
       setSearchResults([])
-      await loadAudits(familyId, memberId, false)
       return true
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Billing account failed to load.')
+      if (requestId === familyRequest.current) setError(caught instanceof Error ? caught.message : 'Billing account failed to load.')
       return false
     } finally {
-      setLoading(false)
+      if (requestId === familyRequest.current) setLoading(false)
     }
   }, [loadAudits])
 
@@ -1250,7 +1268,8 @@ export default function AdminCustomerBilling({
   }, [directFamilyId, loadFamily])
 
   useEffect(() => {
-    if (accountTarget == null) return
+    if (accountTarget == null || consumedTarget.current === accountTarget) return
+    consumedTarget.current = accountTarget
     onAccountTargetConsumed?.()
     void loadFamily(accountTarget.familyId, accountTarget.memberId)
   }, [accountTarget, loadFamily, onAccountTargetConsumed])
@@ -1716,7 +1735,7 @@ export default function AdminCustomerBilling({
               invoices={overview.monthlyInvoices}
               billingMonth={overview.summary.monthlyRecurringPeriod}
               localBillCents={overview.summary.monthlyRecurringCents}
-              paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
+              paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && paymentMethodIsMissing(overview.paymentMethod)}
               monthlyLedgerBill={overview.summary.monthlyLedgerBill}
             />
             {overview.summary.stripeSync.status === 'failed' ? (
@@ -1751,7 +1770,7 @@ export default function AdminCustomerBilling({
                   {canManageContact && editingContact ? <div className="flex gap-2 sm:col-span-2 lg:col-span-4 2xl:col-span-7"><button type="button" onClick={() => void saveContact()} disabled={saving || loading} className="rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Save billing contact</button><button type="button" onClick={() => { setContactDraft(billingContactDraft(overview.account)); setEditingContact(false) }} disabled={saving || loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button></div> : null}
                 </div>
               </details>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-2 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-2 text-sm text-gray-500">No reusable default card found.</p>}</div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div><SavedPaymentMethod value={overview.paymentMethod} /></div><Badge value={overview.paymentMethod.syncStatus === 'current' ? (overview.paymentMethod.available ? 'available' : 'unavailable') : overview.paymentMethod.syncStatus || 'pending'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
             </div>
             {overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length})</div><div className="space-y-1">{overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="ml-auto shrink-0 text-xs">{localDate(alert.createdAt)}</span>{canManage ? <button type="button" onClick={() => void dismissAlert(alert.id)} className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">Dismiss</button> : null}</div>)}</div></div> : null}
           </section>

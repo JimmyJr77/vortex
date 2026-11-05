@@ -1,0 +1,169 @@
+{
+  "variant": "new",
+  "environment": "Current Vite development source; React StrictMode enabled; intercepted fictional API fixtures; 20ms synthetic delay per response; real database and backend not measured",
+  "fixture": {
+    "classes": 24,
+    "programs": 4,
+    "directoryRows": 25,
+    "directoryTotal": 500
+  },
+  "measuredAt": "2026-11-01T23:08:12.894Z",
+  "summary": {
+    "classes": {
+      "requestCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "medianFirstRowsReadyMs": 128.5,
+      "medianDataSettledMs": 115.5,
+      "medianShellReadyMs": 858.9
+    },
+    "members": {
+      "requestCounts": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "medianFirstRowsReadyMs": 54.4,
+      "medianDataSettledMs": 38.8,
+      "medianShellReadyMs": 856.4
+    }
+  },
+  "results": [
+    {
+      "screen": "classes",
+      "run": 1,
+      "shellReadyMs": 1370.1,
+      "firstRowsReadyMs": 855.7,
+      "dataSettledMs": 357.8,
+      "screenRequestCount": 1,
+      "totalRequestCount": 6,
+      "frequency": {
+        "/api/admin/new-admin/classes?search=&page=1&pageSize=25": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "classes",
+      "run": 2,
+      "shellReadyMs": 858.9,
+      "firstRowsReadyMs": 128.5,
+      "dataSettledMs": 115.8,
+      "screenRequestCount": 1,
+      "totalRequestCount": 6,
+      "frequency": {
+        "/api/admin/new-admin/classes?search=&page=1&pageSize=25": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "classes",
+      "run": 3,
+      "shellReadyMs": 854.8,
+      "firstRowsReadyMs": 124.6,
+      "dataSettledMs": 114.1,
+      "screenRequestCount": 1,
+      "totalRequestCount": 6,
+      "frequency": {
+        "/api/admin/new-admin/classes?search=&page=1&pageSize=25": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "classes",
+      "run": 4,
+      "shellReadyMs": 853.2,
+      "firstRowsReadyMs": 202.6,
+      "dataSettledMs": 115.5,
+      "screenRequestCount": 1,
+      "totalRequestCount": 6,
+      "frequency": {
+        "/api/admin/new-admin/classes?search=&page=1&pageSize=25": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "classes",
+      "run": 5,
+      "shellReadyMs": 870.4,
+      "firstRowsReadyMs": 127.4,
+      "dataSettledMs": 94.4,
+      "screenRequestCount": 1,
+      "totalRequestCount": 6,
+      "frequency": {
+        "/api/admin/new-admin/classes?search=&page=1&pageSize=25": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "members",
+      "run": 1,
+      "shellReadyMs": 852.4,
+      "firstRowsReadyMs": 54.4,
+      "dataSettledMs": 40.2,
+      "screenRequestCount": 1,
+      "totalRequestCount": 7,
+      "frequency": {
+        "/api/admin/account-directory?search=&record=active&page=1&pageSize=25&sortBy=member&sortDir=asc": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "members",
+      "run": 2,
+      "shellReadyMs": 864.8,
+      "firstRowsReadyMs": 90.5,
+      "dataSettledMs": 37.8,
+      "screenRequestCount": 1,
+      "totalRequestCount": 7,
+      "frequency": {
+        "/api/admin/account-directory?search=&record=active&page=1&pageSize=25&sortBy=member&sortDir=asc": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "members",
+      "run": 3,
+      "shellReadyMs": 854.2,
+      "firstRowsReadyMs": 55.7,
+      "dataSettledMs": 40.3,
+      "screenRequestCount": 1,
+      "totalRequestCount": 7,
+      "frequency": {
+        "/api/admin/account-directory?search=&record=active&page=1&pageSize=25&sortBy=member&sortDir=asc": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "members",
+      "run": 4,
+      "shellReadyMs": 856.4,
+      "firstRowsReadyMs": 47.9,
+      "dataSettledMs": 34,
+      "screenRequestCount": 1,
+      "totalRequestCount": 7,
+      "frequency": {
+        "/api/admin/account-directory?search=&record=active&page=1&pageSize=25&sortBy=member&sortDir=asc": 1
+      },
+      "errors": []
+    },
+    {
+      "screen": "members",
+      "run": 5,
+      "shellReadyMs": 857.4,
+      "firstRowsReadyMs": 54,
+      "dataSettledMs": 38.8,
+      "screenRequestCount": 1,
+      "totalRequestCount": 7,
+      "frequency": {
+        "/api/admin/account-directory?search=&record=active&page=1&pageSize=25&sortBy=member&sortDir=asc": 1
+      },
+      "errors": []
+    }
+  ]
+}

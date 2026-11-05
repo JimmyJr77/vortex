@@ -119,7 +119,7 @@ export default function WaiversMembershipsPage() {
 
   const [athleteRows, setAthleteRows] = useState<AthleteMembershipRow[]>([])
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([])
-  const [promoCodesByMemberId, setPromoCodesByMemberId] = useState<Record<number, string>>({})
+  const [membershipPromoCode, setMembershipPromoCode] = useState('')
   const [membershipPreview, setMembershipPreview] = useState<AnnualMembershipPreview | null>(null)
   const [thankYouKind, setThankYouKind] = useState<ThankYouKind>('waivers-only')
   /** Secondary CTA on ask-register-more: continue vs completion states. */
@@ -545,16 +545,14 @@ export default function WaiversMembershipsPage() {
         }, 0)
       : feeCents * selectedMemberIds.length
 
-  const selectedPromoCount = selectedMemberIds.filter((id) =>
-    Boolean(promoCodesByMemberId[id]?.trim()),
-  ).length
+  const hasMembershipPromo = Boolean(membershipPromoCode.trim())
   const selectedDiscountCents =
     membershipPreview && selectedMemberIds.length > 0
       ? selectedMemberIds.reduce((sum, id) => sum + (previewByMemberId.get(id)?.discountCents ?? 0), 0)
       : 0
   const hasInvalidSelectedPromo = selectedMemberIds.some((id) => {
     const row = previewByMemberId.get(id)
-    return Boolean(promoCodesByMemberId[id]?.trim()) && row && !row.promoValid
+    return hasMembershipPromo && row && !row.promoValid
   })
 
   useEffect(() => {
@@ -564,14 +562,9 @@ export default function WaiversMembershipsPage() {
     }
     let cancelled = false
     const handle = window.setTimeout(() => {
-      const promoCodes: Record<number, string> = {}
-      for (const id of selectedMemberIds) {
-        const code = promoCodesByMemberId[id]?.trim()
-        if (code) promoCodes[id] = code
-      }
       void previewAnnualMembershipCheckout(token, {
         memberIds: selectedMemberIds,
-        promoCodesByMemberId: Object.keys(promoCodes).length > 0 ? promoCodes : undefined,
+        promoCode: membershipPromoCode.trim() || undefined,
       })
         .then((preview) => {
           if (!cancelled) setMembershipPreview(preview)
@@ -584,7 +577,7 @@ export default function WaiversMembershipsPage() {
       cancelled = true
       window.clearTimeout(handle)
     }
-  }, [phase, token, selectedMemberIds, promoCodesByMemberId])
+  }, [phase, token, selectedMemberIds, membershipPromoCode])
 
   const startMembershipCheckout = async () => {
     if (!token || selectedMemberIds.length === 0) return
@@ -596,14 +589,9 @@ export default function WaiversMembershipsPage() {
     setError(null)
     try {
       const origin = window.location.origin
-      const promoCodes: Record<number, string> = {}
-      for (const id of selectedMemberIds) {
-        const code = promoCodesByMemberId[id]?.trim()
-        if (code) promoCodes[id] = code
-      }
       const session = await createAnnualMembershipCheckoutSession(token, {
         memberIds: selectedMemberIds,
-        promoCodesByMemberId: Object.keys(promoCodes).length > 0 ? promoCodes : undefined,
+        promoCode: membershipPromoCode.trim() || undefined,
         successUrl: `${origin}/waivers-memberships?membership=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${origin}/waivers-memberships?membership=cancelled`,
       })
@@ -644,17 +632,6 @@ export default function WaiversMembershipsPage() {
     )
   }
 
-  const setMemberPromoCode = (memberId: number, value: string) => {
-    const normalized = value.toUpperCase().replace(/\s/g, '')
-    setPromoCodesByMemberId((prev) => {
-      if (!normalized) {
-        const next = { ...prev }
-        delete next[memberId]
-        return next
-      }
-      return { ...prev, [memberId]: normalized }
-    })
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 pb-10 pt-below-site-header">
@@ -944,6 +921,29 @@ export default function WaiversMembershipsPage() {
               </ul>
             </div>
 
+            <div>
+              <label htmlFor="checkout-membership-promo" className="block text-sm font-semibold text-gray-900 mb-1">
+                Membership discount or waiver code
+              </label>
+              <input
+                id="checkout-membership-promo"
+                type="text"
+                value={membershipPromoCode}
+                onChange={(event) => {
+                  setMembershipPromoCode(event.target.value.toUpperCase().replace(/\s/g, ''))
+                  setMembershipPreview(null)
+                }}
+                disabled={busy}
+                placeholder="Enter code once for this checkout"
+                aria-describedby="checkout-membership-promo-help"
+                className="w-full sm:w-80 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-mono disabled:opacity-60"
+              />
+              <p id="checkout-membership-promo-help" className="mt-1 text-sm text-gray-600">
+                A membership fee waiver covers every selected participant who needs a membership.
+                Participants with an active membership are already covered.
+              </p>
+            </div>
+
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-900">Select athletes</h3>
               {athleteRows.map(({ member, offer }) => {
@@ -988,17 +988,6 @@ export default function WaiversMembershipsPage() {
                     </label>
                     {!active && available && (
                       <div className="pl-7">
-                        <label className="block text-xs font-semibold text-gray-600 mb-1">
-                          Discount code (optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={promoCodesByMemberId[member.id] || ''}
-                          onChange={(e) => setMemberPromoCode(member.id, e.target.value)}
-                          disabled={busy}
-                          placeholder="Enter code for this athlete"
-                          className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase font-mono disabled:opacity-60"
-                        />
                         {checked && preview?.promoError ? (
                           <p className="text-xs text-red-600 mt-1">{preview.promoError}</p>
                         ) : null}
@@ -1022,7 +1011,7 @@ export default function WaiversMembershipsPage() {
                   : selectedMemberIds.length > 1
                     ? ` (${selectedMemberIds.length} athletes)`
                     : ''}
-                {selectedPromoCount > 0 && selectedDiscountCents === 0 && !hasInvalidSelectedPromo
+                {hasMembershipPromo && selectedDiscountCents === 0 && !hasInvalidSelectedPromo
                   ? ' — checking discount…'
                   : ''}
               </p>
@@ -1038,7 +1027,7 @@ export default function WaiversMembershipsPage() {
                 {busy
                   ? 'Starting checkout…'
                   : checkoutTotalCents === 0 && selectedMemberIds.length > 0
-                    ? 'Activate free membership'
+                    ? 'Activate free memberships'
                     : 'Purchase membership'}
               </button>
               <button

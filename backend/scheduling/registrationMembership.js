@@ -2,18 +2,8 @@ import { loadActiveAnnualMembership } from './annualMembership.js'
 import { isAnnualMembershipFeeItem, loadActiveAdditionalFees, computeOrderAdditionalFees } from './additionalFeesEngine.js'
 import { assertNoOutstandingAnnualMembershipCharge } from '../billing/annualMembershipChargeGuard.js'
 
-export function monthlyRegistrationRequiresMembership({ newSignupItems = [], discounts = null, firstMonth = null }) {
-  if (firstMonth?.enabled) return (firstMonth.items ?? []).some((item) =>
-    Number(item.proratedCents) > 0 || Number(item.prepaidFirstMonthCents) > 0)
-  if (discounts?.enabled && Number(discounts.totalCents) === 0) return false
-  return newSignupItems.some((item) => {
-    if (item.billingType !== 'recurring' || item.multiClassPassApplied) return false
-    const line = discounts?.lines?.find((line) => line.key === item.slotKey)
-    const net = line ? Number(line.baseCents) - (line.applied ?? []).reduce(
-      (sum, discount) => sum + Number(discount.amountCents || 0), 0)
-      : Number(item.incrementalMonthly) * 100
-    return net > 0
-  })
+export function registrationRequiresMembership({ newSignupItems = [] }) {
+  return newSignupItems.length > 0
 }
 
 /** Membership belongs to the participant, never implicitly to their payer. */

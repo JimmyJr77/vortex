@@ -41,6 +41,7 @@ const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLoca
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
 const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsOfServicePage'))
+const NewAdmin = lazyWithRetry(() => import('./components/newAdmin/NewAdmin'))
 const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
@@ -64,7 +65,7 @@ function App() {
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
-  const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? 'admin' : 'website'))
+  const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'))
   const location = useLocation()
   const {
     highlights,
@@ -122,7 +123,7 @@ function App() {
   // If the user selected Admin but the admin flag/token was missing, restore it
   // from the shared member session instead of falling through to the public site.
   useEffect(() => {
-    if (activePortal !== 'admin' || isAdmin || !member || !memberToken) return
+    if ((activePortal !== 'admin' && activePortal !== 'new-admin') || isAdmin || !member || !memberToken) return
     if (!getAvailablePortals(member).includes('admin')) return
     persistAdminSessionFromAccount(memberToken, member)
     setIsAdmin(true)
@@ -188,7 +189,7 @@ function App() {
       return
     }
 
-    if (portal === 'admin') {
+    if (portal === 'admin' || portal === 'new-admin') {
       if (member && memberToken && getAvailablePortals(member).includes('admin')) {
         persistAdminSessionFromAccount(memberToken, member)
         setIsAdmin(true)
@@ -204,7 +205,8 @@ function App() {
         setShowMemberDashboard(true)
         return
       }
-      setActivePortal('admin')
+      localStorage.setItem('vortex_admin_portal', portal)
+      setActivePortal(portal)
       setShowMemberDashboard(false)
       return
     }
@@ -220,10 +222,11 @@ function App() {
   }
 
   // If user is admin, show admin panel
-  if (isAdmin && activePortal === 'admin') {
+  if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
+    const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
       <Suspense fallback={<PageLoader />}>
-        <Admin
+        <AdminPortal
           onLogout={handleLogout}
           availablePortals={getAvailablePortals(member)}
           onSwitchPortal={switchPortal}

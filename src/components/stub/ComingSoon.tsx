@@ -12,9 +12,11 @@ import { getHubSiteUrl } from '../../utils/crossDomainConsent'
 import { trackPageView } from '../../utils/analytics'
 import { setSportSiteContext } from '../../utils/sportSite'
 import {
+  clearPortalSession,
   getAvailablePortals,
   persistAdminSessionFromAccount,
   type PortalAccount,
+  type PortalId,
 } from '../../utils/portalSession'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
 import HighlightsModal from '../HighlightsModal'
@@ -22,6 +24,8 @@ import useSpecialPages from '../../hooks/useSpecialPages'
 import { specialPagesForPlacement } from '../../types/specialPages'
 import { getSpecialPageHref } from '../../utils/specialPageLinks'
 
+const NewAdmin = lazyWithRetry(() => import('../newAdmin/NewAdmin'))
+const CoachDashboard = lazyWithRetry(() => import('../CoachDashboard'))
 const Admin = lazyWithRetry(() => import('../Admin'))
 const MemberDashboard = lazyWithRetry(() => import('../MemberDashboard'))
 
@@ -70,7 +74,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   const [isAdmin, setIsAdmin] = useState(
     () => localStorage.getItem('vortex_admin') === 'true',
   )
-  const [member, setMember] = useState<unknown>(null)
+  const [member, setMember] = useState<PortalAccount | null>(null)
+  const [activePortal, setActivePortal] = useState<PortalId>(() => localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin')
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const {
@@ -112,30 +117,38 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     setMemberToken(token)
     setMember(accountData)
     setShowMemberDashboard(true)
+    const portals = getAvailablePortals(accountData)
+    setActivePortal(portals.includes('admin') ? 'admin' : portals.includes('coach') ? 'coach' : 'member')
   }
 
   const handleMemberLogout = () => {
-    localStorage.removeItem('vortex_member_token')
-    localStorage.removeItem('vortex_member')
+    clearPortalSession()
+    setIsAdmin(false)
+    setActivePortal('website')
     setMemberToken(null)
     setMember(null)
     setShowMemberDashboard(false)
   }
 
-  const handleAdminLogout = () => {
-    localStorage.removeItem('vortex_admin')
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('vortex-admin-info')
-    localStorage.removeItem('vortex-admin-id')
-    setIsAdmin(false)
+  const handleAdminLogout = handleMemberLogout
+  const switchPortal = (portal: PortalId) => {
+    if (portal !== 'website' && !getAvailablePortals(member).includes(portal)) return
+    if (portal === 'admin' || portal === 'new-admin') localStorage.setItem('vortex_admin_portal', portal)
+    setActivePortal(portal)
+    setShowMemberDashboard(portal === 'member' || portal === 'coach')
   }
 
-  if (isAdmin) {
+  if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
+    const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
       <Suspense fallback={<AdminLoader />}>
-        <Admin onLogout={handleAdminLogout} />
+        <AdminPortal onLogout={handleAdminLogout} availablePortals={getAvailablePortals(member)} onSwitchPortal={switchPortal} />
       </Suspense>
     )
+  }
+
+  if (member && memberToken && showMemberDashboard && activePortal === 'coach') {
+    return <Suspense fallback={<AdminLoader />}><CoachDashboard coach={member} onLogout={handleMemberLogout} availablePortals={getAvailablePortals(member)} onSwitchPortal={switchPortal} /></Suspense>
   }
 
   if (member && memberToken && showMemberDashboard) {
@@ -143,6 +156,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
       <Suspense fallback={<AdminLoader />}>
         <MemberDashboard
           member={member}
+          availablePortals={getAvailablePortals(member)}
+          onSwitchPortal={switchPortal}
           onLogout={handleMemberLogout}
           onReturnToWebsite={() => setShowMemberDashboard(false)}
         />

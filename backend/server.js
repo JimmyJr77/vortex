@@ -39,6 +39,8 @@ import rateLimit from 'express-rate-limit'
 import pkg from 'pg'
 import Joi from 'joi'
 import dotenv from 'dotenv'
+import { isIsolatedAdminDevelopment } from './newAdmin/localDevelopment.js'
+import { registerNewAdminRoutes, registerLegacySchedulingScopeGuards } from './newAdmin/registerRoutes.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import fs from 'fs'
@@ -1190,7 +1192,10 @@ const registrationSchema = Joi.object({
   firstName: Joi.string().min(2).max(50).required(),
   lastName: Joi.string().min(2).max(50).required(),
   email: Joi.string().email().required(),
-  phone: Joi.string().max(20).optional().allow('', null),
+  phone: Joi.string().trim().max(20).required().messages({
+    'any.required': 'Phone number is required.',
+    'string.empty': 'Phone number is required.',
+  }),
   athleteAge: Joi.number().integer().min(5).max(18).optional().allow(null, ''),
   interests: Joi.alternatives().try(
     Joi.array().items(Joi.string().max(100)), // New multi-select interests (array of strings) - checked first
@@ -1210,8 +1215,11 @@ const registrationSchema = Joi.object({
   campers: Joi.array().items(Joi.object({
     firstName: Joi.string().min(1).max(50).optional().allow('', null),
     lastName: Joi.string().min(1).max(50).optional().allow('', null),
-    dateOfBirth: Joi.string().isoDate().required(),
-  })).optional().allow(null),
+    dateOfBirth: Joi.string().isoDate().required().label('Athlete date of birth'),
+  })).min(1).required().messages({
+    'any.required': 'At least one athlete date of birth is required.',
+    'array.min': 'At least one athlete date of birth is required.',
+  }),
   submitterRole: Joi.string().valid('Athlete', 'Parent/Guardian', 'Other').optional().allow('', null),
   inquirySource: Joi.string().max(500).optional().allow('', null),
   message: Joi.string().max(1000).optional().allow('', null),
@@ -2655,6 +2663,8 @@ app.use('/api/admin', async (req, res, next) => {
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
 registerMarketingRoutes(app, pool)
+registerLegacySchedulingScopeGuards(app, pool)
+registerNewAdminRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerSchedulingRoutes(app, pool)
 registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)
@@ -10744,7 +10754,7 @@ app.post('/api/admin/programs', async (req, res) => {
     console.log('Validated value:', JSON.stringify(value, null, 2))
 
     // Get facility_id
-    const facilityId = await pool.query('SELECT id FROM facility LIMIT 1')
+    const facilityId = await pool.query('SELECT id FROM facility WHERE id = $1', [req.canonicalAccess?.facilityId])
     if (facilityId.rows.length === 0) {
       return res.status(500).json({
         success: false,
@@ -10755,10 +10765,18 @@ app.post('/api/admin/programs', async (req, res) => {
     // If categoryId is provided, use it and look up the category enum value
     let categoryId = value.categoryId
     let categoryEnum = value.category || null
+    if (categoryId) {
+      const categoryScope = await pool.query('SELECT 1 FROM program_categories WHERE id=$1 AND facility_id=$2 AND archived=FALSE', [categoryId, req.canonicalAccess.facilityId])
+      if (!categoryScope.rowCount) return res.status(404).json({success:false,message:'Category not found in this facility.'})
+    }
+    if (value.levelId) {
+      const levelScope = await pool.query('SELECT 1 FROM skill_levels WHERE id=$1 AND facility_id=$2 AND archived=FALSE', [value.levelId, req.canonicalAccess.facilityId])
+      if (!levelScope.rowCount) return res.status(404).json({success:false,message:'Level not found in this facility.'})
+    }
     
     // Get valid category enum values from database - SINGLE SOURCE OF TRUTH
     const validCategoriesResult = await pool.query(
-      'SELECT DISTINCT name FROM program_categories WHERE archived = FALSE'
+      'SELECT DISTINCT name FROM program_categories WHERE archived = FALSE AND facility_id=$1', [req.canonicalAccess.facilityId]
     )
     const validEnumValues = validCategoriesResult.rows.map(row => row.name)
     
@@ -10793,8 +10811,8 @@ app.post('/api/admin/programs', async (req, res) => {
     } else if (!categoryId && value.category) {
       // Look up categoryId from the database using category name - SINGLE SOURCE OF TRUTH
       const categoryResult = await pool.query(
-        'SELECT id FROM program_categories WHERE name = $1 AND archived = FALSE LIMIT 1',
-        [value.category]
+        'SELECT id FROM program_categories WHERE name = $1 AND archived = FALSE AND facility_id=$2 LIMIT 1',
+        [value.category, req.canonicalAccess.facilityId]
       )
       if (categoryResult.rows.length > 0) {
         categoryId = categoryResult.rows[0].id
@@ -12234,9 +12252,10 @@ const startServer = async () => {
   if (process.env.RUN_MIGRATION_ONLY !== 'true') {
     const server = http.createServer(app)
     attachMessageWebSocket(server, { jwtSecret: JWT_SECRET, pool })
-    server.listen(PORT, () => {
+    server.listen(PORT, isIsolatedAdminDevelopment(process.env) ? '127.0.0.1' : undefined, () => {
         console.log(`[Server ${workerId}] 🚀 Server running on port ${PORT} (worker ${workerId})`)
         registerEmailPool(pool)
+        if (!isIsolatedAdminDevelopment(process.env)) {
         startDailyRosterScheduler(pool)
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
@@ -12273,6 +12292,7 @@ const startServer = async () => {
         startPaymentReturnCaseScheduler(pool)
         startBankEnrollmentRecoveryScheduler(pool)
         startPaymentSubmissionScheduler(pool,{dispatch:dispatchPayrollInstruction,loadRunPreview,payrollFingerprint})
+        }
         console.log(`[Server ${workerId}] 📊 Health check: http://localhost:${PORT}/api/health`)
         console.log(`[Server ${workerId}] 📝 Registrations: http://localhost:${PORT}/api/registrations`)
         console.log(`[Server ${workerId}] 📧 Newsletter: http://localhost:${PORT}/api/newsletter`)

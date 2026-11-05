@@ -316,11 +316,15 @@ export default function FamilySignupWizard({
     return emails
   }, [primaryAdult])
 
+  const signupRead = useCallback((path: string) => (isAdmin || isAdminEdit)
+    ? adminApiRequest(`/api/admin/signup${path}`)
+    : fetch(`${apiUrl}/api/signup${path}`), [apiUrl, isAdmin, isAdminEdit])
+
   const loadCatalogAndWaivers = useCallback(async () => {
     try {
       const [programsRes, waiversRes] = await Promise.all([
-        fetch(`${apiUrl}/api/signup/catalog/programs`),
-        fetch(`${apiUrl}/api/signup/waivers`),
+        signupRead('/catalog/programs'),
+        signupRead('/waivers'),
       ])
       const programsData = await programsRes.json()
       const waiversData = await waiversRes.json()
@@ -335,7 +339,7 @@ export default function FamilySignupWizard({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load programs or waivers.')
     }
-  }, [apiUrl])
+  }, [signupRead])
 
   useEffect(() => {
     void loadCatalogAndWaivers()
@@ -442,7 +446,7 @@ export default function FamilySignupWizard({
       const slotGroupId = url.searchParams.get('slotGroupId')
       const timeSlotId = url.searchParams.get('timeSlotId')
       const enrollmentStartDate = url.searchParams.get('enrollmentStartDate')
-      void fetch(`${apiUrl}/api/signup/catalog/prefill/${formId}`)
+      void signupRead(`/catalog/prefill/${formId}`)
         .then((r) => r.json())
         .then((data) => {
           if (!data.success) return
@@ -463,18 +467,18 @@ export default function FamilySignupWizard({
     } catch {
       // ignore invalid return URL
     }
-  }, [returnTo, apiUrl])
+  }, [returnTo, signupRead])
 
   const loadClassesForProgram = useCallback(async (programsId: number) => {
     if (classesByProgram[programsId]) return
-    const res = await fetch(`${apiUrl}/api/signup/catalog/programs/${programsId}/classes`)
+    const res = await signupRead(`/catalog/programs/${programsId}/classes`)
     const data = await res.json()
     setClassesByProgram((prev) => ({ ...prev, [programsId]: data.data ?? [] }))
-  }, [apiUrl, classesByProgram])
+  }, [signupRead, classesByProgram])
 
   const loadOfferingsForClass = useCallback(async (classEventId: number) => {
     if (offeringsByClass[classEventId]) return
-    const res = await fetch(`${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings`)
+    const res = await signupRead(`/catalog/classes/${classEventId}/offerings`)
     const data = await res.json()
     const pack: ClassCatalogPack = data.data ?? {
       formId: null,
@@ -491,7 +495,7 @@ export default function FamilySignupWizard({
         classActiveDates: pack.classActiveDates ?? null,
       },
     }))
-  }, [apiUrl, offeringsByClass])
+  }, [signupRead, offeringsByClass])
 
   const applyEnrollPrefill = useCallback(async () => {
     if (!enrollPrefill || prefillApplied.current) return

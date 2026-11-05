@@ -1622,8 +1622,19 @@ async function applyCurrentStripeSubscriptionStatus(pool, subscription, eventTyp
   return { updated: result.rowCount ?? 0, status: localStatus }
 }
 
-function stripeResourceMissing(error) {
-  return error?.code === 'resource_missing' || error?.statusCode === 404 || error?.status === 404
+async function retrieveCurrentStripeSubscription(stripe, eventSubscription) {
+  if (typeof stripe?.subscriptions?.retrieve !== 'function') {
+    throw new Error('Current Stripe subscription retrieval is required before applying lifecycle state.')
+  }
+  const current = await stripe.subscriptions.retrieve(String(eventSubscription.id))
+  if (current?.id !== eventSubscription.id || !current?.status) {
+    throw new Error('Stripe returned a different or incomplete subscription during lifecycle synchronization.')
+  }
+  const observedCustomer = objectId(eventSubscription.customer)
+  if (observedCustomer && objectId(current.customer) !== observedCustomer) {
+    throw new Error('The current Stripe subscription customer differs from the lifecycle event owner.')
+  }
+  return current
 }
 
 export async function syncStripeSubscriptionStatus(
@@ -1662,12 +1673,7 @@ export async function syncStripeSubscriptionStatus(
           // schedule. Reconcile rolled-back accounts from Stripe's current
           // object while still holding the account collector lock.
           const stripe = suppliedStripe ?? await getStripeClient()
-          let currentSubscription = subscription
-          try {
-            currentSubscription = await stripe.subscriptions.retrieve(String(subscription.id))
-          } catch (error) {
-            if (!stripeResourceMissing(error)) throw error
-          }
+          const currentSubscription = await retrieveCurrentStripeSubscription(stripe, subscription)
           const currentEventType = String(currentSubscription?.status ?? '') === 'canceled'
             ? 'customer.subscription.deleted'
             : 'customer.subscription.updated'
@@ -1731,7 +1737,21 @@ export async function syncStripeSubscriptionStatus(
         reasonCode: 'stripe_subscription_creation_forbidden',
       }
     }
-    const applied = await applyCurrentStripeSubscriptionStatus(db, subscription, eventType)
+    const stripe = suppliedStripe ?? await getStripeClient()
+    const currentSubscription = await retrieveCurrentStripeSubscription(stripe, subscription)
+    // A later update, pause, resume, or cancellation can arrive first. The
+    // authoritative current object determines lifecycle state, never event age.
+    const currentOwnership = await classifyLegacyStripeSubscriptionOwnership(db, {
+      stripeSubscriptionId: currentSubscription.id,
+      stripeCustomerId: currentSubscription.customer,
+      metadataAccountId: currentSubscription.metadata?.familyBillingAccountId ?? null,
+    })
+    if (!currentOwnership.expectedLegacy || currentOwnership.accountId !== ownership.accountId) {
+      throw new Error('Current Stripe subscription ownership changed during lifecycle synchronization.')
+    }
+    const currentEventType = currentSubscription.status === 'canceled'
+      ? 'customer.subscription.deleted' : 'customer.subscription.updated'
+    const applied = await applyCurrentStripeSubscriptionStatus(db, currentSubscription, currentEventType)
     if (applied.updated > 0) return applied
 
     const reason = `Stripe ${eventType} could not be applied because its exact legacy subscription link disappeared.`

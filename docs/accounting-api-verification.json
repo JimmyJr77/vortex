@@ -1,0 +1,91 @@
+{
+  "verifiedAt": "2026-11-01T23:46:28.407Z",
+  "environment": "Normal admin2 authentication; isolated fictional loopback database; read-only reporting requests; no Stripe calls or financial mutations.",
+  "status": "passed",
+  "checks": [
+    "Unauthenticated financial reporting is denied",
+    "All-bill pagination retains totals for the complete filtered result",
+    "Open bills include only positive unpaid remainders and sort by balance",
+    "Person and class filters return exact IDs and retain accessible bill history",
+    "An inclusive bill-date interval selects only dates inside it",
+    "Payments and refunds remain separate dated cash events",
+    "Payment-date selection finds the bill allocations actually paid that day",
+    "Scoped searchable filter options are available",
+    "Invalid date ranges fail validation",
+    "Filtered CSV is served as a downloadable financial report"
+  ],
+  "requests": [
+    {
+      "path": "/lines?pageSize=7&sortBy=date&sortDir=desc",
+      "status": 200,
+      "durationMs": 41.14
+    },
+    {
+      "path": "/lines?pageSize=7&page=2&sortBy=date&sortDir=desc",
+      "status": 200,
+      "durationMs": 35.05
+    },
+    {
+      "path": "/lines?status=open&sortBy=balance&sortDir=desc&pageSize=100",
+      "status": 200,
+      "durationMs": 19.06
+    },
+    {
+      "path": "/lines?memberId=2&classId=37&pageSize=100",
+      "status": 200,
+      "durationMs": 16.18
+    },
+    {
+      "path": "/lines/161",
+      "status": 200,
+      "durationMs": 13.41
+    },
+    {
+      "path": "/lines?from=2026-11-01&through=2026-11-01&dateField=billed&pageSize=100",
+      "status": 200,
+      "durationMs": 32.39
+    },
+    {
+      "path": "/payments?pageSize=100",
+      "status": 200,
+      "durationMs": 22.21
+    },
+    {
+      "path": "/payments?kind=refund&pageSize=100",
+      "status": 200,
+      "durationMs": 14.32
+    },
+    {
+      "path": "/lines?dateField=paid&from=2026-11-01&through=2026-11-01&pageSize=100",
+      "status": 200,
+      "durationMs": 18.34
+    },
+    {
+      "path": "/options?q=Casey",
+      "status": 200,
+      "durationMs": 5.53
+    }
+  ],
+  "observed": {
+    "billLines": 162,
+    "openLines": 82,
+    "cashEvents": 101,
+    "billSummary": {
+      "openCents": 818400,
+      "openCount": 82,
+      "paidCents": 800100,
+      "billedCents": 1618500,
+      "creditCents": 0,
+      "creditAppliedCents": 0
+    },
+    "cashSummary": {
+      "refundCount": 20,
+      "netCashCents": 850100,
+      "paymentCount": 81,
+      "refundsCents": 50000,
+      "receiptsCents": 900100,
+      "unappliedCents": 50000,
+      "filteredAppliedCents": 800100
+    }
+  }
+}

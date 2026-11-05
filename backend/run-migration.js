@@ -342,10 +342,24 @@ function listMigrationsForAll() {
 
 async function main() {
   const arg = process.argv[2]
+  const localAdmin = arg === '--local-admin'
+  if (localAdmin) {
+    const target = connectionString ? new URL(connectionString) : null
+    const host = target?.hostname || process.env.DB_HOST || 'localhost'
+    const database = target ? decodeURIComponent(target.pathname.slice(1)) : process.env.DB_NAME
+    if (process.env.LOCAL_DEV_SEED !== 'true' || process.env.NODE_ENV !== 'development'
+      || !['localhost', '127.0.0.1', '[::1]', '::1'].includes(host)
+      || !/^vortex_new_admin_dev(?:_[a-z0-9_]+)?$/.test(database || '')
+      || (target && [...target.searchParams.keys()].some(key => key !== 'sslmode'))) {
+      throw new Error('--local-admin requires LOCAL_DEV_SEED=true, NODE_ENV=development, and a loopback vortex_new_admin_dev database without connection overrides.')
+    }
+  }
+  const bootstrap = arg === '--all' || localAdmin
   if (!arg) {
     console.error('Usage:')
     console.error('  node run-migration.js <migration-file.sql>')
     console.error('  node run-migration.js --all')
+    console.error('  node run-migration.js --local-admin (dedicated fictional local environment only)')
     process.exit(1)
   }
 
@@ -353,24 +367,42 @@ async function main() {
   try {
     await ensureMigrationTable(client)
 
-    if (arg === '--all') {
+    if (bootstrap) {
       await ensureFreshDbPrerequisites(client)
       await ensureRuntimeBaseTables(client)
     }
 
-    const migrations = arg === '--all' ? listMigrationsForAll() : { core: [arg], addon: [] }
+    const migrations = bootstrap ? listMigrationsForAll() : { core: [arg], addon: [] }
+    if (localAdmin) {
+      // Administrative rehearsal needs the coaching foundation for shared
+      // navigation, not hundreds of unrelated exercise research seed revisions.
+      // Keep excluded migrations unapplied; this profile is never a deploy plan.
+      const included = file =>
+        Number(file.slice(0, 3)) <= 95 || (!file.includes('_coaching_') && !file.includes('_usag_') && !file.includes('equipment_tag_audit') && !file.includes('gymnastics_evaluation'))
+      migrations.core = migrations.core.filter(included)
+      migrations.addon = migrations.addon.filter(included)
+    }
 
+    let localPrerequisitesReady = false
     for (const migrationFile of migrations.core) {
+      if (localAdmin && !localPrerequisitesReady && Number(migrationFile.slice(0, 3)) >= 762) {
+        for (const addon of migrations.addon) await runMigration(client, addon)
+        await ensurePostMigrationSchema(client)
+        const { initSchedulingTables } = await import('./scheduling/initTables.js')
+        await initSchedulingTables(client)
+        await runMigration(client, '780_scheduling_enrollment_lifecycle_schema.sql')
+        localPrerequisitesReady = true
+      }
       await runMigration(client, migrationFile)
     }
 
-    if (arg === '--all' && migrations.addon.length > 0) {
+    if (bootstrap && migrations.addon.length > 0) {
       for (const migrationFile of migrations.addon) {
         await runMigration(client, migrationFile)
       }
     }
 
-    if (arg === '--all') {
+    if (bootstrap) {
       await ensurePostMigrationSchema(client)
     }
 

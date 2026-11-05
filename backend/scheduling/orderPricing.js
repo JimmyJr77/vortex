@@ -1,4 +1,5 @@
-import { requiredRegistrationFees, monthlyRegistrationRequiresMembership } from './registrationMembership.js'
+import { loadEnrollmentMembershipBills, includeMembershipBillsInBalance } from '../billing/enrollmentMembershipBalance.js'
+import { requiredRegistrationFees, registrationRequiresMembership } from './registrationMembership.js'
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import {
   costFromPricingOptionKey,
@@ -1387,7 +1388,10 @@ export async function buildSignupOrderPreview(
     }
   }
 
+  carriedForward = includeMembershipBillsInBalance(carriedForward, additionalFees.existingMembershipBills)
+
   return {
+    existingMembershipBills: additionalFees.existingMembershipBills ?? [],
     memberId: memberId ?? null,
     familyId: familyId ?? null,
     existingClasses,
@@ -1770,7 +1774,7 @@ export async function computeDiscountLayer(
   let caps = {}
   try {
     const { loadActiveDiscountRules } = await import('./discountEngine.js')
-    rules = await loadActiveDiscountRules(pool, facilityId)
+    rules = await loadActiveDiscountRules(pool, facilityId, { throwOnError: true })
   } catch {
     return empty
   }
@@ -1807,7 +1811,9 @@ export async function computeDiscountLayer(
     if (existingIndex >= 0) rules[existingIndex] = merged
     else rules.push(merged)
   }
-  if (!rules.length) return empty
+  // An empty, successfully loaded rule set means full list price. Keep the
+  // authoritative enrollment lines so strict recurring pricing can verify them.
+  // A rule-loading failure above remains unavailable, never a zero-discount quote.
 
   const memberCity = memberContext?.city ?? null
   const memberSchool = memberContext?.school ?? null
@@ -2000,7 +2006,7 @@ export async function computeAdditionalFeesLayer(
       loadMemberFeeRedemptionKeys,
     } = await import('./additionalFeesEngine.js')
     fees = await requiredRegistrationFees(pool, { memberId,
-      required: monthlyRegistrationRequiresMembership({ newSignupItems, discounts, firstMonth }),
+      required: registrationRequiresMembership({ newSignupItems, discounts, firstMonth }),
       fees: await loadActiveAdditionalFees(pool, scopedFacilityId) })
     if (!fees.length) return empty
 
@@ -2046,13 +2052,21 @@ export async function computeAdditionalFeesLayer(
       }
     })
 
-    return computeOrderAdditionalFees({
-      fees,
+    const existingMembershipBills = []
+    const purchaseFees = []
+    for (const fee of fees) {
+      const annual = fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year'
+      const bills = annual ? await loadEnrollmentMembershipBills(pool, { memberId, feeId: fee.id }) : []
+      if (bills.length) existingMembershipBills.push(...bills)
+      else purchaseFees.push(fee)
+    }
+    return { ...computeOrderAdditionalFees({
+      fees: purchaseFees,
       lines,
       isNewMember,
       redeemedPeriodKeys,
       membershipPromo,
-    })
+    }), existingMembershipBills }
   } catch (error) {
     throw new Error(`Additional enrollment fees could not be priced: ${error.message}`)
   }

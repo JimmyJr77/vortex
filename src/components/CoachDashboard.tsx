@@ -12,7 +12,7 @@ interface CoachDashboardProps {
   onLogout: () => void
   onReturnToWebsite?: () => void
   availablePortals?: PortalId[]
-  onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
+  onSwitchPortal?: (portal: PortalId) => void
 }
 
 export default function CoachDashboard(props: CoachDashboardProps) {

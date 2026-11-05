@@ -35,7 +35,7 @@ const SummerCampInquiryForm = () => {
     phone: '',
     message: '',
   })
-  const [campers, setCampers] = useState<CamperRow[]>([])
+  const [campers, setCampers] = useState<CamperRow[]>([emptyCamper()])
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [selectedOtherClassTypes, setSelectedOtherClassTypes] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -83,7 +83,7 @@ const SummerCampInquiryForm = () => {
   }
 
   const removeCamper = (index: number) => {
-    setCampers((prev) => prev.filter((_, i) => i !== index))
+    setCampers((prev) => prev.length > 1 ? prev.filter((_, i) => i !== index) : prev)
   }
 
   const goToThankYou = () => {
@@ -128,12 +128,14 @@ const SummerCampInquiryForm = () => {
       return
     }
 
-    const completedCampers: InquiryCamper[] = []
-    for (const row of campers) {
-      const dob = row.dateOfBirth.trim()
-      if (!dob) continue
-      completedCampers.push({ dateOfBirth: dob })
+    if (campers.length === 0 || campers.some((camper) => !camper.dateOfBirth.trim())) {
+      alert('Please enter a date of birth for each camper.')
+      setIsSubmitting(false)
+      return
     }
+    const completedCampers: InquiryCamper[] = campers.map(({ dateOfBirth }) => ({
+      dateOfBirth: dateOfBirth.trim(),
+    }))
 
     const classTypes = [CAMP_INQUIRY_AUTO_CLASS, ...selectedOtherClassTypes]
 
@@ -144,13 +146,13 @@ const SummerCampInquiryForm = () => {
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
         phone,
+        campers: completedCampers,
         classTypes,
         newsletter: false,
         inquirySource: location.pathname,
       }
 
       if (selectedInterests.length > 0) payload.interests = selectedInterests
-      if (completedCampers.length > 0) payload.campers = completedCampers
       if (formData.message.trim()) payload.message = formData.message.trim()
 
       const consent = getActiveConsent()
@@ -248,6 +250,7 @@ const SummerCampInquiryForm = () => {
               <TextInput
                 type="tel"
                 name="phone"
+                aria-label="Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
                 required
@@ -271,7 +274,7 @@ const SummerCampInquiryForm = () => {
               </button>
             </div>
             <p className="text-sm text-gray-500 mb-3">
-              Optional — add each camper&apos;s date of birth.
+              Enter each camper&apos;s date of birth. At least one camper is required.
             </p>
             {campers.length === 0 ? (
               <p className="text-sm text-gray-400 italic">No campers added yet.</p>
@@ -282,9 +285,10 @@ const SummerCampInquiryForm = () => {
                     key={index}
                     className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
                   >
-                    <label className="text-sm text-gray-600 shrink-0">DOB</label>
+                    <label className="text-sm text-gray-600 shrink-0">DOB *</label>
                     <input
                       type="date"
+                      required
                       value={camper.dateOfBirth}
                       onChange={(e) => updateCamper(index, e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
@@ -293,7 +297,8 @@ const SummerCampInquiryForm = () => {
                     <button
                       type="button"
                       onClick={() => removeCamper(index)}
-                      className="p-2 text-gray-500 hover:text-vortex-red"
+                      disabled={campers.length === 1}
+                      className="p-2 text-gray-500 hover:text-vortex-red disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label={`Remove camper ${index + 1}`}
                     >
                       <Trash2 className="w-4 h-4" />

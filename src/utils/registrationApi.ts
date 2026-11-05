@@ -76,7 +76,7 @@ export function adaptRegistrationPayloadForApi(
       return parts.join(' — ')
     })
     extras.push(lines.join('\n'))
-    delete out.campers
+    // Preserve required DOBs if the capability check is temporarily unavailable.
   }
 
   if (extras.length > 0) {

@@ -63,6 +63,7 @@ test('completed setup session promotes only the canonical customer card', async 
           }],
         }
       }
+      if (text.includes('INSERT INTO stripe_customer_projection') || text.includes('UPDATE stripe_billing_alert')) return { rows: [] }
       throw new Error(`Unexpected setup query: ${text}`)
     },
   }
@@ -125,6 +126,9 @@ test('completed setup session promotes only the canonical customer card', async 
     id: 'cus_family',
     payload: { invoice_settings: { default_payment_method: 'pm_44' } },
   })
+  const projection = calls.find(({ text }) => text.includes('INSERT INTO stripe_customer_projection'))
+  assert.ok(projection, 'successful setup immediately updates the local display projection')
+  assert.deepEqual(projection.params.slice(0, 5), [44, 'cus_family', false, 'pm_44', 'card'])
   assert.ok(calls.some(({ text }) => text.includes('pg_advisory_lock')))
   assert.equal(calls.some(({ text }) => /^(BEGIN|COMMIT|ROLLBACK)$/.test(text)), false)
 })

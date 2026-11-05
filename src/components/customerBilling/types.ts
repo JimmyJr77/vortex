@@ -207,6 +207,9 @@ export interface CustomerBillingOverview {
   paymentMethod: {
     available: boolean
     stripeEnabled: boolean
+    syncStatus?: 'current' | 'stale' | 'failed' | 'pending' | 'not_linked'
+    syncedAt?: string | null
+    syncError?: string | null
     paymentMethod: null | {
       id: string
       brand: string
