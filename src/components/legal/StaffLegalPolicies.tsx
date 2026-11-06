@@ -26,12 +26,18 @@ export default function StaffLegalPolicies({ portal }: { portal: LegalPortal }) 
     catch (e) { setError(e instanceof Error ? e.message : 'Unable to check required staff policies.') }
   }, [portal])
   useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    if (packet) return
+    const retry = window.setInterval(() => { void load() }, 30000)
+    return () => window.clearInterval(retry)
+  }, [load, packet])
   useEffect(() => { if (open && dialog.current && !dialog.current.open) dialog.current.showModal(); else if (!open) dialog.current?.close() }, [open])
   const remaining = packet?.documents.filter(d => !d.signature).length ?? 0
-  if (packet?.eligible === false || (portal === 'member' && !packet)) return null
+  if (!packet) return error ? <span className="sr-only" aria-live="polite">Staff policies are temporarily unavailable. Retrying automatically.</span> : null
+  if (packet.eligible === false) return null
   return <>
-    <div className="fixed bottom-4 right-4 z-40 max-w-sm rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-950 shadow-lg" aria-live="polite">
-      {error ? <><p role="alert">{error}</p><button className="font-bold underline" onClick={() => void load()}>Retry policy check</button></> : <><p>{remaining ? `${remaining} staff policies require your signature.` : 'Staff legal policies and your signatures'}</p><button className="font-bold underline" onClick={() => setOpen(true)} disabled={!packet}>Review policies</button></>}
+    <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-300 bg-white px-4 py-2 text-sm text-slate-950" aria-live="polite">
+      {error ? <><p>{error}</p><button className="font-bold underline" onClick={() => void load()}>Retry policy check</button></> : <><p>{remaining ? `${remaining} staff policies require your signature.` : 'Staff legal policies and your signatures'}</p><button className="font-bold underline" onClick={() => setOpen(true)} disabled={!packet}>Review policies</button></>}
     </div>
     {open ? <dialog ref={dialog} onCancel={() => setOpen(false)} onClose={() => setOpen(false)} aria-labelledby={`staff-legal-title-${portal}`} className="m-auto max-h-[90dvh] w-[min(95vw,56rem)] overflow-y-auto rounded-2xl p-5 text-slate-950 shadow-2xl backdrop:bg-black/50">
       <div className="mb-4 flex items-start justify-between gap-4"><div><h2 id={`staff-legal-title-${portal}`} className="text-xl font-bold">Required staff legal policies</h2><p className="mt-1 text-sm">Read each document and sign individually. Your signature is recorded to your account.</p></div><button type="button" onClick={() => setOpen(false)} className="rounded border px-3 py-2">Close</button></div>

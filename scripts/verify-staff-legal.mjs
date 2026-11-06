@@ -14,13 +14,13 @@ try {
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } })
   const errors = []; page.on('pageerror', e => errors.push(e.message))
-  // An older or unavailable API must show a retry notice without crashing the portal.
+  // An older or unavailable API must not crash or shift the portal layout.
   await page.route('**/api/staff/legal', route => route.fulfill({json:{success:true,data:[]}}))
   await page.goto('http://127.0.0.1:55440/legal-test')
-  await page.getByRole('button', {name:'Retry policy check'}).waitFor()
   await page.getByRole('heading', {name:'Staff legal policies and signatures',exact:true}).waitFor()
+  assert.equal(await page.getByRole('dialog').count(), 0)
   await page.unroute('**/api/staff/legal')
-  await page.getByRole('button', {name:'Retry policy check'}).click()
+  await page.reload()
   const dialog = page.getByRole('dialog')
   await dialog.waitFor({ state: 'visible' })
   assert.match(await dialog.innerText(), /Required staff legal policies/)
