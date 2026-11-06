@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { legalBase as base, legalRequest, downloadLegalDocument, type LegalPortal, type LegalDocument, type Packet } from '../../utils/staffLegalApi'
+import { legalBase as base, legalPacketRequest, downloadLegalDocument, type LegalPortal, type LegalDocument, type Packet } from '../../utils/staffLegalApi'
 
 function PolicySignatureForm({ doc, portal, consentText, onSigned }: { doc: LegalDocument; portal: LegalPortal; consentText: string; onSigned: (packet: Packet) => void }) {
   const [name, setName] = useState(''), [consent, setConsent] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState('')
@@ -9,7 +9,7 @@ function PolicySignatureForm({ doc, portal, consentText, onSigned }: { doc: Lega
     <button type="button" className="font-semibold underline" onClick={() => { setError(''); void downloadLegalDocument(portal, doc).catch(e => setError(e.message)) }}>Download Word document</button>
     {doc.signature ? <p className="text-sm text-emerald-800">Signed by {doc.signature.signer_name} on {new Date(doc.signature.signed_at).toLocaleString()}.</p> : <form className="space-y-3" onSubmit={e => {
       e.preventDefault(); setBusy(true); setError('')
-      void legalRequest<Packet>(portal, `${base(portal)}/${doc.id}/sign`, { method: 'POST', body: JSON.stringify({ name, consent, sha256: doc.sha256 }) })
+      void legalPacketRequest(portal, `${base(portal)}/${doc.id}/sign`, { method: 'POST', body: JSON.stringify({ name, consent, sha256: doc.sha256 }) })
         .then(onSigned).catch(e => setError(e.message)).finally(() => setBusy(false))
     }}><label className="block text-sm font-semibold">Your full name<input required minLength={2} maxLength={200} autoComplete="name" value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full rounded border border-slate-400 p-2" /></label>
       <label className="flex items-start gap-2 text-sm"><input type="checkbox" required checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-1" /><span>{consentText}</span></label>
@@ -22,7 +22,7 @@ export default function StaffLegalPolicies({ portal }: { portal: LegalPortal }) 
   const [packet, setPacket] = useState<Packet | null>(null), [error, setError] = useState(''), [open, setOpen] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
   const load = useCallback(async () => {
-    try { const p = await legalRequest<Packet>(portal, base(portal)); setPacket(p); setError(''); if (p.documents.some(d => !d.signature)) setOpen(true) }
+    try { const p = await legalPacketRequest(portal, base(portal)); setPacket(p); setError(''); if (p.documents.some(d => !d.signature)) setOpen(true) }
     catch (e) { setError(e instanceof Error ? e.message : 'Unable to check required staff policies.') }
   }, [portal])
   useEffect(() => { void load() }, [load])

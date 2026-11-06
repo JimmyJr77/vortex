@@ -5,7 +5,11 @@ type Report = { documents: Pick<LegalDocument, 'id' | 'title' | 'version' | 'sha
 const csvCell = (value: string) => `"${(/^[=+@\-\t\r]/.test(value) ? `'${value}` : value).replaceAll('"', '""')}"`
 export default function AdminStaffLegal() {
   const [report, setReport] = useState<Report | null>(null), [error, setError] = useState(''), [pendingOnly, setPendingOnly] = useState(false)
-  const load = useCallback(async () => { try { setReport(await legalRequest<Report>('admin', '/api/admin/legal/signatures')); setError('') } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load signature tracking.') } }, [])
+  const load = useCallback(async () => { try {
+    const next = await legalRequest<Report>('admin', '/api/admin/legal/signatures')
+    if (!next || !Array.isArray(next.documents) || !Array.isArray(next.staff)) throw new Error('Unable to load signature tracking. Please try again.')
+    setReport(next); setError('')
+  } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load signature tracking.') } }, [])
   useEffect(() => { void load() }, [load])
   const staff = report?.staff.filter(s => !pendingOnly || s.documents.some(d => !d.signature)) ?? []
   return <section className="space-y-5 p-4 text-slate-950">

@@ -14,6 +14,15 @@ export async function legalRequest<T>(portal: LegalPortal, path: string, options
   if (!response.ok || !body.success) throw new Error(body.message || 'Unable to load legal policies.')
   return body.data as T
 }
+export async function legalPacketRequest(portal: LegalPortal, path: string, options: RequestInit = {}): Promise<Packet> {
+  const packet = await legalRequest<Packet>(portal, path, options)
+  if (!packet || !Array.isArray(packet.documents) || typeof packet.consentText !== 'string' || typeof packet.accountName !== 'string' ||
+    !packet.documents.every(doc => doc && ['id', 'title', 'version', 'sha256', 'text'].every(key => typeof doc[key as keyof LegalDocument] === 'string') &&
+      (doc.signature === null || (doc.signature && typeof doc.signature.signer_name === 'string' && typeof doc.signature.signed_at === 'string')))) {
+    throw new Error('Unable to check required staff policies. Please try again.')
+  }
+  return packet
+}
 export async function downloadLegalDocument(portal: LegalPortal, doc: { id: string; version: string }) {
   const response = await fetch(`${getApiUrl()}${legalBase(portal)}/${doc.id}/file`, { headers: { Authorization: `Bearer ${token(portal) || ''}` } })
   if (!response.ok) throw new Error('Unable to download the document. Please try again.')
