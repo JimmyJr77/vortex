@@ -33,10 +33,10 @@ export default function StaffLegalPolicies({ portal }: { portal: LegalPortal }) 
     <div className="fixed bottom-4 right-4 z-40 max-w-sm rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-950 shadow-lg" aria-live="polite">
       {error ? <><p role="alert">{error}</p><button className="font-bold underline" onClick={() => void load()}>Retry policy check</button></> : <><p>{remaining ? `${remaining} staff policies require your signature.` : 'Staff legal policies and your signatures'}</p><button className="font-bold underline" onClick={() => setOpen(true)} disabled={!packet}>Review policies</button></>}
     </div>
-    <dialog ref={dialog} onCancel={() => setOpen(false)} onClose={() => setOpen(false)} aria-labelledby={`staff-legal-title-${portal}`} className="m-auto max-h-[90dvh] w-[min(95vw,56rem)] overflow-y-auto rounded-2xl p-5 text-slate-950 shadow-2xl backdrop:bg-black/50">
+    {open ? <dialog ref={dialog} onCancel={() => setOpen(false)} onClose={() => setOpen(false)} aria-labelledby={`staff-legal-title-${portal}`} className="m-auto max-h-[90dvh] w-[min(95vw,56rem)] overflow-y-auto rounded-2xl p-5 text-slate-950 shadow-2xl backdrop:bg-black/50">
       <div className="mb-4 flex items-start justify-between gap-4"><div><h2 id={`staff-legal-title-${portal}`} className="text-xl font-bold">Required staff legal policies</h2><p className="mt-1 text-sm">Read each document and sign individually. Your signature is recorded to your account.</p></div><button type="button" onClick={() => setOpen(false)} className="rounded border px-3 py-2">Close</button></div>
       <div className="space-y-4">{packet?.documents.map(doc => <PolicySignatureForm key={`${doc.id}:${doc.sha256}`} doc={doc} portal={portal} consentText={packet.consentText} onSigned={setPacket} />)}</div>
       {packet && remaining === 0 ? <p role="status" className="mt-4 font-bold text-emerald-800">All three documents are signed. Thank you.</p> : null}
-    </dialog>
+    </dialog> : null}
   </>
 }
