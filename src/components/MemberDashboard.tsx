@@ -1,4 +1,5 @@
 import TextInput from './common/TextInput'
+import StaffLegalPolicies from './legal/StaffLegalPolicies'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye, X, ChevronLeft, ChevronRight, UserPlus, Home, LayoutGrid, Dumbbell, TrendingUp, MessageSquare, CreditCard, FileText, Menu, Bell, CircleHelp, ShoppingBag } from 'lucide-react'
@@ -1943,6 +1944,7 @@ export default function MemberDashboard({
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+      <StaffLegalPolicies portal="member" />
       {/* Member Portal Header Section - Dark Background */}
       <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">

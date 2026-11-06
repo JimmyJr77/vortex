@@ -17,7 +17,7 @@ const DESCRIPTIONS: Partial<Record<GroupId, string>> = {
   calendar: 'Facility schedule at a glance.',
   floorPlanner: 'Plan classes, locations, and coaches for every day.',
   pricingBilling: 'Pricing plans and family billing.',
-  legal: 'Waivers and insurance.',
+  legal: 'Waivers, insurance, staff policies and signatures.',
   highlightsEvents: 'Special pages, site popups, and events.',
   dataAnalysis: 'Analytics, database queries, and schools.',
   preferences: 'Critical alerts and notification settings.',

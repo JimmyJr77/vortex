@@ -4,6 +4,7 @@ import { Activity, Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, Calend
 import PortalPreferencesPanel from '../messaging/PortalPreferencesPanel'
 import MessagingFaqMasterPanel from '../messaging/MessagingFaqMasterPanel'
 import HomePanel from './HomePanel'
+import StaffLegalPolicies from '../legal/StaffLegalPolicies'
 import PortalNavButtons from '../PortalNavButtons'
 import NotificationBell from '../NotificationBell'
 import {
@@ -238,6 +239,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+      <StaffLegalPolicies portal="coach" />
       <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">

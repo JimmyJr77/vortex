@@ -22,6 +22,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '818_coaching_athleticism_accelerator_library.sql',
   '821_floor_planner.sql',
   '822_floor_planner_views.sql',
+  '840_staff_legal_signatures.sql',
 ])
 export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([
   ...DEPLOY_MIGRATION_FILES,

@@ -1,4 +1,5 @@
 import PayrollAccountLink from './PayrollAccountLink'
+import StaffLegalPolicies from '../legal/StaffLegalPolicies'
 import TextInput from '../common/TextInput'
 import EmployeeMarylandAgreement from './EmployeeMarylandAgreement'
 import EmployeeRetirementContributions from './EmployeeRetirementContributions'
@@ -138,6 +139,7 @@ export default function PayrollEmployeePortal() {
 
   return (
     <div data-payroll-workspace className="min-h-screen bg-slate-100 pb-24">
+      <StaffLegalPolicies portal="payroll" />
       <header className="bg-slate-950 text-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4"><div><p className="text-xs font-black uppercase tracking-[0.18em] text-red-300">Vortex payroll</p><p className="mt-1 text-lg font-black">Hi, {displayName}</p></div><button type="button" disabled={busy} onClick={() => void logout()} className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-3 py-2 text-sm font-bold hover:bg-white/10"><LogOut className="h-4 w-4" /> Sign out</button></div>
       </header>
