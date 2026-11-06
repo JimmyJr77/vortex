@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { registerStaffLegalRoutes } from '../legal/registerRoutes.js'
 import { registerFloorPlannerRoutes } from './floorPlannerRoutes.js'
 import bcrypt from 'bcryptjs'
 import {
@@ -1158,6 +1159,7 @@ async function ensureCoachOperationalTables(pool) {
 }
 
 export function registerPlatformRoutes(app, pool, { jwtSecret }) {
+  registerStaffLegalRoutes(app, pool, { staffAuth: authMiddleware(pool, jwtSecret), adminAuth: requirePermission(pool, jwtSecret, 'waivers.view') })
   const legacyBillingEndpoint = createLegacyBillingEndpointMiddleware(pool)
   const rejectLegacyStatementWrite = (_req, res) => res.status(410).json({
     success: false,

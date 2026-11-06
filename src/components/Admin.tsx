@@ -26,6 +26,8 @@ import DisputeCasesPanel from './billing/DisputeCasesPanel'
 import StripeOperationsPanel from './billing/StripeOperationsPanel'
 import StripePaymentsPanel from './billing/StripePaymentsPanel'
 import AdminWaivers from './AdminWaivers'
+import StaffLegalPolicies from './legal/StaffLegalPolicies'
+import AdminStaffLegal from './legal/AdminStaffLegal'
 import AdminSettings from './admin/AdminSettings'
 import AdminCoaches from './AdminCoaches'
 import AdminClassSetupOverview from './classSetup/AdminClassSetupOverview'
@@ -88,7 +90,7 @@ interface Category {
   updatedAt: string
 }
 
-type TabType = 'floorPlanner' | 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'email' | 'messages' | 'faqs' | 'preferences'
+type TabType = 'floorPlanner' | 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'staffLegal' | 'email' | 'messages' | 'faqs' | 'preferences'
 
 export type GroupId = 'floorPlanner' | 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
@@ -130,6 +132,7 @@ const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; m
   { id: 'stripePayments', label: 'Stripe Payments', permission: 'billing.view', masterAdminOnly: true },
   { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
   { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
+  { id: 'staffLegal', label: 'Staff Policies and Signatures', permission: 'waivers.view' },
   { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
   { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
   { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
@@ -172,7 +175,7 @@ const GROUPS: GroupDef[] = [
   { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
   { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
   { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
-  { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance'] },
+  { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance', 'staffLegal'] },
   { id: 'preferences', label: 'Preferences', icon: Bell, sections: ['preferences'] },
   { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
 ]
@@ -442,6 +445,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
         return <AdminStore />
       case 'waivers':
         return <AdminWaivers />
+      case 'staffLegal':
+        return <AdminStaffLegal />
       case 'insurance':
         return <AdminInsurance />
       case 'dbQueries':
@@ -547,6 +552,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+      <StaffLegalPolicies portal="admin" />
       {/* Admin Header Section - Dark Background */}
       <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
