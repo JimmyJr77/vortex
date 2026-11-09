@@ -2,7 +2,15 @@ import { id, inputError, pagination, searchValue, date, memberRow } from './comm
 import { loadWorkspacePaymentMethod } from './paymentMethodSummary.js'
 import { canonicalActiveHouseholdMemberPredicate } from '../billing/householdMembership.js'
 import { loadCanonicalFinancialSnapshot } from '../billing/canonicalBillingAccount.js'
-import { loadCustomerBillingAccount, loadCustomerBillingAnnualMemberships, upcomingRecurringPricingMonth, earliestActiveNextBillDate } from '../billing/customerBillingQueries.js'
+import { loadCustomerBillingAccount, loadCustomerBillingAnnualMemberships, upcomingRecurringPricingMonth, earliestActiveNextBillDate, billingMonthDueDate } from '../billing/customerBillingQueries.js'
+
+export function workspaceNextBillDate(account, subscriptions, billingMonth) {
+  // Household tuition is billed by the monthly ledger, not by an individual
+  // class subscription's next_bill_date. Match the existing Billing summary.
+  return account.household_monthly_billing_enabled === true
+    ? billingMonthDueDate(billingMonth)
+    : date(earliestActiveNextBillDate(subscriptions))
+}
 
 // One consistent local snapshot. This reader cannot create accounts, repair data,
 // call Stripe, or collect payments, including through reused billing helpers.
@@ -218,7 +226,7 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
         const paymentMethod = await loadWorkspacePaymentMethod(db, account, family.has_payment_projection)
         financial = { accountId: Number(account.id), payerMemberId: account.payer_member_id == null ? null : Number(account.payer_member_id),
           billingEmail: account.billing_email, billingPhone: account.billing_phone, ...snapshot,
-          nextBillDate: date(earliestActiveNextBillDate(subscriptions.rows)), memberships,
+          nextBillDate: workspaceNextBillDate(account, subscriptions.rows, month), memberships,
           paymentMethod: { available: paymentMethod.available, syncStatus: paymentMethod.syncStatus, syncedAt: paymentMethod.syncedAt,
             brand: paymentMethod.paymentMethod?.brand ?? null, last4: paymentMethod.paymentMethod?.last4 ?? null } }
       }
