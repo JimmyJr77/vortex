@@ -48,6 +48,10 @@ DO $$ DECLARE pair text[]; col record; BEGIN
     EXECUTE format('CREATE UNIQUE INDEX IF NOT EXISTS %I ON %I(record_facility_id,record_source,record_source_org,record_source_id)',pair[1]||'_source',pair[1]);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I(record_facility_id,record_family_id,record_occurred_on DESC,id DESC) WHERE NOT record_deleted',pair[1]||'_family',pair[1]);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I(record_member_id) WHERE NOT record_deleted',pair[1]||'_person',pair[1]);
+    IF pair[2]<>'scheduling_signup' THEN
+      EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I(family_billing_account_id,%I DESC,id DESC) WHERE NOT record_deleted',
+        pair[1]||'_account',pair[1],CASE WHEN pair[2]='billing_payment' THEN 'paid_at' ELSE 'created_at' END);
+    END IF;
   END LOOP;
 END $$;
 
