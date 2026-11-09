@@ -112,6 +112,7 @@ test('deploy migration runner applies only the fixed allowlist and is idempotent
 
 test('release deploy includes application content migrations without broadening the schema-only default', async (t) => {
   assert.deepEqual(DEPLOY_APPLICATION_MIGRATION_FILES, [
+    '841_new_admin.sql',
     '842_jackrabbit_history.sql',
     '819_coaching_exercise_difficulty_complexity_compatibility.sql',
     '820_coaching_exercise_difficulty_complexity_nullable.sql',

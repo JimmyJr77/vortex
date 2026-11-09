@@ -64,6 +64,7 @@ const WaiversMembershipsPage = lazyWithRetry(
 const DropInPage = lazyWithRetry(() => import('../../components/DropInPage'))
 const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
 const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
+const NewAdmin = lazyWithRetry(() => import('../../components/newAdmin/NewAdmin'))
 const Admin = lazyWithRetry(() => import('../../components/Admin'))
 
 function PageLoader() {
@@ -89,7 +90,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   const [memberToken, setMemberToken] = useState<string | null>(null)
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const [activePortal, setActivePortal] = useState<PortalId>(() =>
-    localStorage.getItem('vortex_admin') === 'true' ? 'admin' : 'website',
+    localStorage.getItem('vortex_admin') === 'true' ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website',
   )
   const location = useLocation()
   const navigate = useNavigate()
@@ -124,7 +125,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   // Restore admin session when switching into Admin from a shared member login.
   useEffect(() => {
-    if (activePortal !== 'admin' || isAdmin || !member || !memberToken) return
+    if ((activePortal !== 'admin' && activePortal !== 'new-admin') || isAdmin || !member || !memberToken) return
     if (!getAvailablePortals(member).includes('admin')) return
     persistAdminSessionFromAccount(memberToken, member)
     setIsAdmin(true)
@@ -150,12 +151,12 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   }
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('vortex_admin')
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('vortex-admin-info')
-    localStorage.removeItem('vortex-admin-id')
+    clearPortalSession()
     setIsAdmin(false)
-    if (activePortal === 'admin') setActivePortal('website')
+    setMemberToken(null)
+    setMember(null)
+    setShowMemberDashboard(false)
+    setActivePortal('website')
   }
 
   const handleMemberLogout = () => {
@@ -174,7 +175,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       return
     }
 
-    if (portal === 'admin') {
+    if (portal === 'admin' || portal === 'new-admin') {
       if (member && memberToken && getAvailablePortals(member).includes('admin')) {
         persistAdminSessionFromAccount(memberToken, member)
         setIsAdmin(true)
@@ -189,7 +190,8 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
         setShowMemberDashboard(true)
         return
       }
-      setActivePortal('admin')
+      localStorage.setItem('vortex_admin_portal', portal)
+      setActivePortal(portal)
       setShowMemberDashboard(false)
       return
     }
@@ -198,10 +200,11 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     setShowMemberDashboard(true)
   }
 
-  if (isAdmin && activePortal === 'admin') {
+  if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
+    const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
       <Suspense fallback={<PageLoader />}>
-        <Admin
+        <AdminPortal
           onLogout={handleAdminLogout}
           availablePortals={getAvailablePortals(member)}
           onSwitchPortal={switchPortal}

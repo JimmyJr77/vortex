@@ -58,7 +58,7 @@ const FloorPlanner = lazy(() => import('./floorPlanner/FloorPlanner'))
 interface AdminProps {
   onLogout: () => void
   availablePortals?: PortalId[]
-  onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
+  onSwitchPortal?: (portal: PortalId) => void
 }
 
 interface Program {

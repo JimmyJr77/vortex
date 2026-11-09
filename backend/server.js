@@ -37,6 +37,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import pkg from 'pg'
+import { registerNewAdminRoutes } from './newAdmin/registerRoutes.js'
 import { registerAdminAccountReadRoutes } from './accounts/adminAccountReadRoutes.js'
 import Joi from 'joi'
 import dotenv from 'dotenv'
@@ -2655,6 +2656,7 @@ app.use('/api/admin', async (req, res, next) => {
 
 // Analytics & consent (public + admin)
 registerAdminAccountReadRoutes(app, pool, { jwtSecret: JWT_SECRET })
+registerNewAdminRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerAnalyticsRoutes(app, pool)
 registerMarketingRoutes(app, pool)
 registerSchedulingRoutes(app, pool)

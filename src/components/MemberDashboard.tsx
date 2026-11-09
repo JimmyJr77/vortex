@@ -37,7 +37,7 @@ interface MemberDashboardProps {
   onLogout: () => void
   onReturnToWebsite?: () => void
   availablePortals?: PortalId[]
-  onSwitchPortal?: (portal: 'admin' | 'coach' | 'member' | 'website') => void
+  onSwitchPortal?: (portal: PortalId) => void
 }
 
 export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'store' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'faqs' | 'preferences'
