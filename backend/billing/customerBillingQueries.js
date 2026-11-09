@@ -2291,11 +2291,16 @@ export async function listCustomerBillingActivity(pool, {
   const decoded = decodeCursor(cursor)
   const pageSize = Math.min(200, Math.max(1, Number(limit) || 100))
   const result = await pool.query(
-    `SELECT a.*, u.full_name AS actor_name
+    `SELECT a.*, COALESCE(history.member_id,a.member_id) AS member_id, u.full_name AS actor_name
      FROM billing_account_activity a
+     JOIN family_billing_account account ON account.id=a.family_billing_account_id
+     JOIN family household ON household.id=account.family_id
+     LEFT JOIN jackrabbit_history_record history ON history.family_id=account.family_id
+       AND history.facility_id=household.facility_id
+       AND a.event_key=concat('jackrabbit:',history.organization_id,':',history.record_kind,':',history.source_id)
      LEFT JOIN app_user u ON u.id = a.actor_user_id
      WHERE a.family_billing_account_id = $1
-       AND ($2::bigint IS NULL OR a.member_id = $2 OR a.member_id IS NULL)
+       AND ($2::bigint IS NULL OR COALESCE(history.member_id,a.member_id) = $2 OR COALESCE(history.member_id,a.member_id) IS NULL)
        AND (
          $3::timestamptz IS NULL
          OR (a.occurred_at, a.id) < ($3::timestamptz, $4::bigint)

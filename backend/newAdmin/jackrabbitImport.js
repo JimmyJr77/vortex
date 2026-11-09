@@ -49,7 +49,12 @@ export function planJackrabbitImport(packet, members, previous = []) {
     for(const [key,p] of sourcePeople) {
       const dob=day(p.student?.DOB)
       const household=members.filter(m=>String(m.family_id)===f.familyId)
-      let matches=household.filter(m=>name(m)===key)
+      // Once an identity is reviewed, its archived source mapping is authoritative.
+      // This also preserves merges involving abbreviations or later name changes.
+      const priorPerson=previous.find(r=>r.record_kind==='person'&&r.source_id===`${f.sourceId}:${key}`)
+      let matches=priorPerson?.member_id ? household.filter(m=>String(m.id)===String(priorPerson.member_id)) : []
+      if(priorPerson?.member_id&&!matches.length)throw new Error(`Reviewed person is outside the source household: ${key}`)
+      if(!matches.length)matches=household.filter(m=>name(m)===key)
       if(!matches.length&&p.contact?.Email)matches=household.filter(m=>String(m.email||'').toLowerCase()===String(p.contact.Email).toLowerCase()&&
         (normalizeIdentity(m.first_name)===normalizeIdentity(p.firstName)||normalizeIdentity(m.last_name)===normalizeIdentity(p.lastName)))
       if(!matches.length&&dob)matches=household.filter(m=>day(m.date_of_birth)===dob&&normalizeIdentity(m.first_name)===normalizeIdentity(p.firstName))

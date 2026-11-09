@@ -21,3 +21,12 @@ test('duplicate financial source IDs fail rather than double count',()=>{
  const data=packet();data.transactions=[{'Trans ID':'1',amountCents:100},{'Trans ID':'1',amountCents:100}]
  assert.throws(()=>planJackrabbitImport(data,[]),/duplicated/)
 })
+
+test('reviewed source mapping preserves a merge with an abbreviated existing name',()=>{
+ const members=[{id:1,first_name:'Avery',last_name:'Smith',email:'avery@example.test',family_id:5},
+   {id:2,first_name:'Taylor',last_name:'S',family_id:5},
+   {id:3,first_name:'Taylor',last_name:'Smith',family_id:null}]
+ const prior=[{record_kind:'family',source_id:'10',family_id:5},{record_kind:'person',source_id:'10:taylorsmith',member_id:2}]
+ assert.equal(planJackrabbitImport(packet(),members,prior)[0].people[1].memberId,2)
+ assert.throws(()=>planJackrabbitImport(packet(),members.filter(m=>m.id!==2),prior),/outside the source household/)
+})
