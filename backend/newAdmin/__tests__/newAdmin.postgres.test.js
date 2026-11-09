@@ -78,7 +78,7 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='members.view'",[restricted])
       assert.equal((await request('/api/admin/new-admin/leads',{token:jwt.sign({userId:restricted,role:'MASTER_ADMIN'},secret)})).status,403)
       const restrictedToken=jwt.sign({userId:restricted},secret)
-      for (const path of ['/api/admin/new-admin/families', `/api/admin/new-admin/families/${member.familyId}/workspace`, `/api/admin/new-admin/families/${member.familyId}/history`, `/api/admin/new-admin/members/${member.memberId}/workspace`]) {
+      for (const path of ['/api/admin/new-admin/enrollment-trend', '/api/admin/new-admin/families', `/api/admin/new-admin/families/${member.familyId}/workspace`, `/api/admin/new-admin/families/${member.familyId}/history`, `/api/admin/new-admin/members/${member.memberId}/workspace`]) {
         assert.equal((await request(path,{token:restrictedToken})).status,403)
       }
       assert.equal((await request(`/api/admin/scheduling/members/${member.memberId}/enrollments`,{token:restrictedToken})).status,200)
@@ -87,6 +87,15 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='scheduling.manage'",[restricted])
       assert.equal((await request(`/api/admin/class-events/${klass}/scheduling-form`,{token:restrictedToken})).status,200)
       assert.equal((await request(`/api/admin/class-events/${noFormClass}/scheduling-form`,{token:restrictedToken})).status,403)
+    })
+    await t.test('family trend requires canonical access and reads only the authenticated facility', async () => {
+      assert.equal((await request('/api/admin/new-admin/enrollment-trend', { token: null })).status, 401)
+      const trend = await request('/api/admin/new-admin/enrollment-trend')
+      assert.equal(trend.status, 200)
+      assert.ok(trend.json.data.months.some(row => row.newFamilies === 1))
+      const other = await request('/api/admin/new-admin/enrollment-trend', { token: second.token })
+      assert.equal(other.status, 200)
+      assert.ok(other.json.data.months.every(row => row.newFamilies === null))
     })
     await t.test('bounded class/member detail only exposes the authenticated facility',async()=>{
       const list=await request('/api/admin/new-admin/classes?pageSize=1');assert.equal(list.status,200);assert.equal(list.json.data.rows.length,1)

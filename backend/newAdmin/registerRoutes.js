@@ -6,6 +6,7 @@ import { listLeads,createLead,updateLead,convertLead,createScopedMember } from '
 import { listClasses,classDetail,memberDetail } from './reads.js'
 import { schedulingScopeMiddleware } from './scope.js'
 import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
+import { loadEnrollmentTrend } from './enrollmentTrend.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -33,6 +34,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     facilityId: facility(req), ...target,
     canViewBilling: await canonicalAdminPermission(pool, req.canonicalAccess.userId, 'billing.view'),
   })
+  app.get(`${base}/enrollment-trend`,allow('members.view'),handler(req=>loadEnrollmentTrend(pool,facility(req))))
   app.get(`${base}/families`,allow('members.view'),handler(req=>listFamilies(pool,facility(req),req.query)))
   app.get(`${base}/families/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id})))
   app.get(`${base}/families/:id/history`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id,historyCursor:req.query.cursor || null})))
