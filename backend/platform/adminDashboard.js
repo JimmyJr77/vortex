@@ -352,6 +352,7 @@ async function mediaReleaseOptOutDashboard(pool, facilityId) {
     LEFT JOIN family ON family.id = member.family_id
     LEFT JOIN current_enrollments ON current_enrollments.member_id = member.id
     WHERE member.facility_id = $1
+      AND COALESCE(member.signup_source,'') <> 'jackrabbit_history_merged'
       AND EXISTS (
         SELECT 1
         FROM waiver_template template
