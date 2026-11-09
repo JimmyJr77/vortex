@@ -11,6 +11,11 @@ function positive(value, label, fallback = null) {
   if (!Number.isSafeInteger(number) || number <= 0) throw fail(`Invalid ${label}.`)
   return number
 }
+function reportId(value, label) {
+  const number=Number(value)
+  if (!Number.isSafeInteger(number) || number===0) throw fail(`Invalid ${label}.`)
+  return number
+}
 function date(value, label) {
   if (value == null || value === '') return null
   const text = String(value)
@@ -29,7 +34,7 @@ export function accountingFilters(query = {}, view = 'lines') {
     dateField: choice(query.dateField, ['billed', 'paid'], 'billed', 'date field'),
     search: String(query.search ?? '').trim().slice(0, 200),
     memberId: positive(query.memberId, 'member'), classId: positive(query.classId, 'class'),
-    status: choice(query.status, ['all', 'open', 'partial', 'paid', 'credit', 'voided'], 'all', 'bill status'),
+    status: choice(query.status, ['all', 'open', 'partial', 'paid', 'credit', 'voided', 'historical'], 'all', 'bill status'),
     kind: choice(query.kind, ['all', 'payment', 'refund'], 'all', 'payment kind'),
     paymentStatus: choice(query.paymentStatus, ['all', 'settled', 'pending', 'failed'], 'all', 'payment status'),
     sortBy: choice(query.sortBy, Object.keys(view === 'payments' ? PAYMENT_SORT : LINE_SORT), 'date', 'sort column'),
@@ -134,6 +139,19 @@ const CTE = `WITH scoped_accounts AS (
       WHEN paid_cents+credit_applied_cents>0 THEN 'partial' ELSE 'open' END AS status,
     last_paid_at,(last_paid_at AT TIME ZONE timezone)::date::text AS last_paid_date,payment_count,ledger_retired
   FROM line_values
+  UNION ALL
+  SELECT -h.id,account.id,h.family_id,COALESCE(account.family_name,h.source_data->>'Family/Acct'),
+    COALESCE(NULLIF(f.timezone,''),'America/New_York'),h.member_id,trim(concat_ws(' ',m.first_name,m.last_name)),
+    NULL::bigint,NULLIF(h.source_data->>'Activity',''),
+    concat_ws(' · ',h.source_data->>'Type',NULLIF(h.source_data->>'Subtype',''),NULLIF(h.source_data->>'Note','')),
+    'historical','jackrabbit_history',h.occurred_on::timestamp AT TIME ZONE COALESCE(NULLIF(f.timezone,''),'America/New_York'),
+    h.occurred_on::text,NULL::text,NULL::text,h.amount_cents,0::bigint,h.amount_cents,
+    0::bigint,0::bigint,0::bigint,'historical',NULL::timestamptz,NULL::text,0,TRUE
+  FROM jackrabbit_history_record h JOIN facility f ON f.id=h.facility_id
+  LEFT JOIN scoped_accounts account ON account.family_id=h.family_id
+  LEFT JOIN member m ON m.id=h.member_id AND m.facility_id=h.facility_id
+  WHERE h.facility_id=$1 AND h.record_kind='transaction'
+    AND h.source_data->>'Type'<>'Payment' AND h.source_data->>'Type' NOT LIKE 'Refund -%'
 )`
 
 function whereLines(filters, params, { dates = true, search = true, alias = 'line' } = {}) {
@@ -225,6 +243,16 @@ function paymentCte(filters, params) {
     LEFT JOIN billing_payment payment ON payment.id=refund.payment_id AND payment.family_billing_account_id=account.id
     WHERE ${relational ? `EXISTS(SELECT 1 FROM mapped charge JOIN selected_lines line ON line.id=charge.owner_id WHERE charge.id=refund.related_charge_id)
       OR EXISTS(SELECT 1 FROM applications application JOIN selected_lines line ON line.id=application.owner_id WHERE application.billing_payment_id=refund.payment_id)` : 'TRUE'}
+    UNION ALL
+    SELECT -h.id,CASE WHEN h.source_data->>'Type'='Payment' THEN 'payment' ELSE 'refund' END,
+      account.id,h.family_id,account.family_name,account.timezone,
+      h.occurred_on::timestamp AT TIME ZONE account.timezone,h.occurred_on::text,
+      h.source_data->>'Pmt Method','historical',abs(h.amount_cents),-h.amount_cents,TRUE,
+      0::bigint,0::bigint,0::bigint,0::bigint,NULL::bigint,h.source_id
+    FROM jackrabbit_history_record h JOIN scoped_accounts account ON account.family_id=h.family_id
+    WHERE h.facility_id=$1 AND h.record_kind='transaction'
+      AND (h.source_data->>'Type'='Payment' OR h.source_data->>'Type' LIKE 'Refund -%')
+      AND ${filters.classId || filters.status!=='all' ? 'FALSE' : filters.memberId ? `EXISTS(SELECT 1 FROM family_member fm JOIN member m ON m.id=fm.member_id AND m.facility_id=h.facility_id WHERE fm.family_id=h.family_id AND fm.member_id=$2)` : 'TRUE'}
   )`
 }
 const PAYMENT_SUMMARY = `jsonb_build_object('receiptsCents',COALESCE(SUM(amount_cents) FILTER(WHERE kind='payment' AND settled),0),
@@ -250,7 +278,7 @@ export async function listAccountingPayments(db,{facilityId,query = {},exportLim
 }
 
 export async function accountingLineDetail(db,{facilityId,id} = {}) {
-  const params=[requireAdminFacilityScope({facilityId}),positive(id,'bill')]
+  const params=[requireAdminFacilityScope({facilityId}),reportId(id,'bill')]
   const result=await db.query(`${CTE} SELECT row_to_json(line) AS line,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('id',a.id,'paymentId',a.billing_payment_id,'chargeId',a.billing_charge_id,
       'kind',a.application_kind,'amountCents',a.amount_cents,'signedAmountCents',a.signed_cents,'allocatedAt',a.created_at,
@@ -275,7 +303,7 @@ export async function accountingLineDetail(db,{facilityId,id} = {}) {
 export async function accountingPaymentDetail(db,{facilityId,id,kind='payment'} = {}) {
   const params=[requireAdminFacilityScope({facilityId})],filters=accountingFilters({},'payments')
   const cte=paymentCte(filters,params)
-  params.push(positive(id,'payment'),choice(kind,['payment','refund'],'payment','payment kind'))
+  params.push(reportId(id,'payment'),choice(kind,['payment','refund'],'payment','payment kind'))
   const result=await db.query(`${CTE}${cte} SELECT row_to_json(payment) AS payment,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('id',a.id,'paymentId',a.billing_payment_id,'chargeId',line.id,'kind',a.application_kind,
       'amountCents',a.amount_cents,'signedAmountCents',a.signed_cents,'allocatedAt',a.created_at,'paidAt',a.paid_at,'method',a.method,'paymentStatus',a.payment_status,

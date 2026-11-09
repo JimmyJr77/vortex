@@ -38,7 +38,6 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import pkg from 'pg'
 import Joi from 'joi'
-import { registerJackrabbitHistoryRoutes } from './accounts/jackrabbitHistoryRoutes.js'
 import dotenv from 'dotenv'
 import { isIsolatedAdminDevelopment } from './newAdmin/localDevelopment.js'
 import { registerNewAdminRoutes, registerLegacySchedulingScopeGuards } from './newAdmin/registerRoutes.js'
@@ -2663,7 +2662,6 @@ app.use('/api/admin', async (req, res, next) => {
 
 // Analytics & consent (public + admin)
 registerAnalyticsRoutes(app, pool)
-registerJackrabbitHistoryRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerMarketingRoutes(app, pool)
 registerLegacySchedulingScopeGuards(app, pool)
 registerNewAdminRoutes(app, pool, { jwtSecret: JWT_SECRET })

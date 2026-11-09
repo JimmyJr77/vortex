@@ -52,6 +52,22 @@ jobs:
           BILLING_WORKER_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_migration_ci
         run: node --test backend/billing/__tests__/recurringBillingProgress.postgres.test.js
 
+      - name: Verify integrated account history and revenue on disposable PostgreSQL
+        env:
+          BILLING_TURNOVER_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_billing_test
+          DASHBOARD_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_dashboard_test
+        run: |
+          node --input-type=module <<'JS'
+          import pg from './backend/node_modules/pg/lib/index.js'
+          const db=new pg.Client({connectionString:'postgresql://postgres:postgres@127.0.0.1:5432/postgres'})
+          await db.connect()
+          try {
+            await db.query('CREATE DATABASE vortex_billing_test')
+            await db.query('CREATE DATABASE vortex_dashboard_test')
+          } finally { await db.end() }
+          JS
+          node --test backend/billing/__tests__/billingTurnover.postgres.test.js backend/platform/__tests__/adminDashboardRefunds.postgres.test.js
+
       - name: Run complete backend unit suite
         # Timing assertions need an uncontended CPU on shared GitHub runners.
         run: npm test --prefix backend -- --test-concurrency=1

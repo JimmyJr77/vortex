@@ -173,6 +173,12 @@ export async function loadNetCollectedRevenue(pool, facilityId, now = new Date()
       JOIN family ON family.id = account.family_id
       WHERE family.facility_id = $1 AND ${settledRefundPredicate('refund')}
         AND refund.created_at >= $2::timestamptz AND refund.created_at < $3::timestamptz
+      UNION ALL
+      SELECT history.occurred_on::timestamp AT TIME ZONE 'America/New_York', -history.amount_cents
+      FROM jackrabbit_history_record history
+      WHERE history.facility_id=$1 AND history.record_kind='transaction'
+        AND (history.source_data->>'Type'='Payment' OR history.source_data->>'Type' LIKE 'Refund -%')
+        AND history.occurred_on >= $2::date AND history.occurred_on < $3::date
     )
     SELECT to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM') AS month_key,
            SUM(amount_cents)::int AS amount_cents

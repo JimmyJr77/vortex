@@ -4,7 +4,6 @@ import { createSchedulingHandlers } from '../scheduling/handlers.js'
 import { handler,id,inputError } from './common.js'
 import { listLeads,createLead,updateLead,convertLead,createScopedMember } from './leads.js'
 import { listClasses,classDetail,memberDetail } from './reads.js'
-import { jackrabbitHistory } from './jackrabbitHistory.js'
 import { schedulingScopeMiddleware } from './scope.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
@@ -29,10 +28,6 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.use(base,(req,res,next)=>req.canonicalAccess?next():auth(req,res,next))
   const allow=permission=>permissionMiddleware(pool,permission)
   const facility=req=>req.canonicalAccess.facilityId
-  app.get(`${base}/jackrabbit-history`,allow(['members.view','billing.view']),handler((req,res)=>{
-    res.setHeader('Cache-Control','no-store')
-    return jackrabbitHistory(pool,facility(req),req.query)
-  }))
   // Retain the old lead screen's full array contract and existing edit handlers,
   // but apply the same facility boundary and permissions used by New Admin.
   app.get('/api/admin/registrations',allow('members.view'),handler(async req=>{

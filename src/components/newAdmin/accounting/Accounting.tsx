@@ -9,7 +9,6 @@ import AccountingDetails, { type AccountingSelection } from './Details'
 import { BillsTable, PaymentsTable } from './Tables'
 import { amount, moment } from './format'
 import type { AccountingView, BillPage, BillSummary, FilterOptions, PaymentPage, PaymentSummary, SortDirection } from './types'
-import JackrabbitHistory from '../JackrabbitHistory'
 
 interface Filters {
   dates: DateRangeValue
@@ -27,7 +26,7 @@ interface Filters {
 }
 export interface AccountingWorkspaceState { view: AccountingView; filters: Record<AccountingView, Filters> }
 const freshFilters = (): Filters => ({ dates: { preset: 'all', from: '', through: '' }, dateField: 'billed', search: '', person: null, classOption: null, status: 'all', kind: 'all', paymentStatus: 'all', sortBy: 'date', sortDir: 'desc', page: 1, pageSize: 25 })
-const billStatuses = [{ value: 'all', label: 'All' }, { value: 'open', label: 'Open bills' }, { value: 'partial', label: 'Partially paid' }, { value: 'paid', label: 'Paid' }, { value: 'credit', label: 'Credits' }, { value: 'voided', label: 'Voided' }]
+const billStatuses = [{ value: 'all', label: 'All' }, { value: 'open', label: 'Open bills' }, { value: 'partial', label: 'Partially paid' }, { value: 'paid', label: 'Paid' }, { value: 'credit', label: 'Credits' }, { value: 'voided', label: 'Voided' }, { value: 'historical', label: 'Historical' }]
 
 function queryFor(filters: Filters, view: AccountingView, search: string) {
   const query = new URLSearchParams({ page: String(filters.page), pageSize: String(filters.pageSize), sortBy: filters.sortBy, sortDir: filters.sortDir })
@@ -174,6 +173,5 @@ export default function Accounting({ revision, onBilling, workspace, onWorkspace
       </> : null}
     </div>
     {selected ? <AccountingDetails selected={selected} timezone={timezone} revision={revision + version} onClose={() => setSelected(null)} onBilling={onBilling} onLine={id => setSelected({ kind: 'line', id })} /> : null}
-    <JackrabbitHistory key={`${filters.person?.id || ''}:${filters.dates.from}:${filters.dates.through}`} revision={revision + version} memberId={filters.person?.id} from={filters.dates.from} through={filters.dates.through} />
   </section>
 }

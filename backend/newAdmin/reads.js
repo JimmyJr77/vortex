@@ -75,17 +75,32 @@ export async function memberDetail(db,facilityId,memberId,query={}) {
     db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id
       FROM family_member fm JOIN member m ON m.id=fm.member_id AND m.facility_id=$2
       WHERE fm.family_id=$1 AND fm.is_active=TRUE ORDER BY m.last_name,m.first_name,m.id LIMIT 100`,[member.familyId,facilityId]),
-    db.query(`SELECT s.id,s.form_id,p.display_name AS class_name,s.status,s.slot_group_id,s.enrollment_start_date,s.cancel_effective_date
+    db.query(`WITH history AS (
+      SELECT s.id,s.form_id,p.display_name AS class_name,s.status,s.slot_group_id,s.enrollment_start_date,s.cancel_effective_date,s.created_at,FALSE AS historical,NULL::text AS source_id
       FROM scheduling_signup s JOIN scheduling_form f ON f.id=s.form_id
       JOIN program p ON p.id=f.program_id AND p.facility_id=$2
       WHERE s.member_id=$1 AND s.orphaned_at IS NULL
-      ORDER BY s.created_at DESC,s.id DESC LIMIT $3 OFFSET $4`,[member.id,facilityId,paging.pageSize,paging.offset]),
-    db.query(`SELECT COUNT(*)::int AS total FROM scheduling_signup s JOIN scheduling_form f ON f.id=s.form_id
-      JOIN program p ON p.id=f.program_id AND p.facility_id=$2 WHERE s.member_id=$1 AND s.orphaned_at IS NULL`,[member.id,facilityId]),
+      UNION ALL
+      SELECT -h.id,NULL::bigint,h.source_data->>'Class','historical',NULL::bigint,
+        NULLIF(h.source_data->>'Enroll Date','')::timestamp::date,NULLIF(h.source_data->>'Drop Date','')::timestamp::date,
+        h.occurred_on::timestamp,TRUE,h.source_id
+      FROM jackrabbit_history_record h WHERE h.member_id=$1 AND h.facility_id=$2 AND h.record_kind='enrollment'
+    ) SELECT * FROM history ORDER BY created_at DESC NULLS LAST,id DESC LIMIT $3 OFFSET $4`,[member.id,facilityId,paging.pageSize,paging.offset]),
+    db.query(`WITH history AS (
+      SELECT s.id,s.form_id,p.display_name AS class_name,s.status,s.slot_group_id,s.enrollment_start_date,s.cancel_effective_date,s.created_at,FALSE AS historical,NULL::text AS source_id
+      FROM scheduling_signup s JOIN scheduling_form f ON f.id=s.form_id
+      JOIN program p ON p.id=f.program_id AND p.facility_id=$2
+      WHERE s.member_id=$1 AND s.orphaned_at IS NULL
+      UNION ALL
+      SELECT -h.id,NULL::bigint,h.source_data->>'Class','historical',NULL::bigint,
+        NULLIF(h.source_data->>'Enroll Date','')::timestamp::date,NULLIF(h.source_data->>'Drop Date','')::timestamp::date,
+        h.occurred_on::timestamp,TRUE,h.source_id
+      FROM jackrabbit_history_record h WHERE h.member_id=$1 AND h.facility_id=$2 AND h.record_kind='enrollment'
+    ) SELECT COUNT(*)::int AS total FROM history`,[member.id,facilityId]),
   ])
   const family=household.rows[0]
   return {member,household:family?{id:Number(family.id),name:family.family_name,payerMemberId:family.payer_member_id==null?null:Number(family.payer_member_id),members:people.rows.map(p=>({...memberRow(p),isPayer:Number(p.id)===Number(family.payer_member_id)}))}:null,
     billingAccountId:family?.billing_account_id==null?null:Number(family.billing_account_id),
-    enrollments:enrollments.rows.map(s=>({id:Number(s.id),formId:Number(s.form_id),className:s.class_name,status:s.status,slotGroupId:Number(s.slot_group_id),startDate:date(s.enrollment_start_date),cancelEffectiveDate:date(s.cancel_effective_date)})),
+    enrollments:enrollments.rows.map(s=>({id:Number(s.id),formId:s.form_id==null?null:Number(s.form_id),historical:s.historical,sourceId:s.source_id,className:s.class_name,status:s.status,slotGroupId:Number(s.slot_group_id),startDate:date(s.enrollment_start_date),cancelEffectiveDate:date(s.cancel_effective_date)})),
     enrollmentPagination:pageResult([],count.rows[0].total,paging)}
 }

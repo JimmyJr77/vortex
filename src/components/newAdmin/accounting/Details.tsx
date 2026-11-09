@@ -53,9 +53,9 @@ function BillContents({ id, revision, timezone, onBilling }: { id: number; revis
   const { line, allocations, refunds, adjustments, creditApplications } = state.data
   return <div className="space-y-6">
     <div><div className="flex items-start justify-between gap-4"><h3 className="text-lg font-semibold leading-6 text-slate-950">{line.description}</h3><AccountingStatus value={line.status} /></div><p className="mt-2 text-sm text-slate-600">{line.memberName || 'Household'} · {line.familyName || `Account #${line.accountId}`}</p>{line.className ? <p className="mt-1 text-sm text-slate-500">{line.className}</p> : null}
-      <button type="button" className={`${button} mt-4`} onClick={() => onBilling({ familyId: line.familyId, memberId: line.memberId })}>Account details<ArrowUpRight className="h-4 w-4" /></button>
+      {line.familyId ? <button type="button" className={`${button} mt-4`} onClick={() => onBilling({ familyId: line.familyId, memberId: line.memberId })}>Account details<ArrowUpRight className="h-4 w-4" /></button> : null}
     </div>
-    {line.ledgerRetired ? <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">This line belongs to a historical ledger. Review its recorded activity before taking action in the account.</p> : null}
+    {line.ledgerRetired ? <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">This historical entry is retained for account history and does not affect the current balance. Original payment allocations are available only when recorded by the source.</p> : null}
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4"><AmountCard label="Billed" value={line.amountCents} /><AmountCard label="Paid" value={line.paidCents} /><AmountCard label="Credit applied" value={line.creditAppliedCents} /><AmountCard label="Open" value={line.openCents} emphasis /></div>
     <dl className="grid grid-cols-2 gap-x-5 gap-y-3 text-sm">
       <div><dt className="text-xs text-slate-500">Posted</dt><dd className="mt-1">{moment(line.billedAt, timezone)}</dd></div>

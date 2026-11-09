@@ -1849,6 +1849,25 @@ export async function listCustomerBillingTransactions(pool, {
            'errorMessage', r.error_message
          )
        FROM billing_refund r WHERE r.family_billing_account_id = $1
+       UNION ALL
+       SELECT
+         CASE WHEN h.source_data->>'Type'='Payment' THEN 'payment'
+              WHEN h.source_data->>'Type' LIKE 'Refund -%' THEN 'refund' ELSE 'charge' END,
+         CASE WHEN h.source_data->>'Type'='Payment' THEN 'payment'
+              WHEN h.source_data->>'Type' LIKE 'Refund -%' THEN 'refund'
+              WHEN h.amount_cents<0 THEN 'credit' ELSE 'historical' END,
+         -h.id,h.member_id,
+         concat_ws(' · ',h.source_data->>'Type',NULLIF(h.source_data->>'Subtype',''),NULLIF(h.source_data->>'Note','')),
+         h.amount_cents::int,h.amount_cents::int,
+         h.occurred_on::timestamp AT TIME ZONE COALESCE(NULLIF(f.timezone,''),'America/New_York'),
+         'historical',0,
+         jsonb_build_object('historicalOnly',TRUE,'sourceSystem','Jackrabbit','sourceId',h.source_id,'referenceNumber',h.source_id,
+           'sourceData',h.source_data,'paymentMethod',h.source_data->>'Pmt Method')
+       FROM jackrabbit_history_record h
+       JOIN family_billing_account a ON a.family_id=h.family_id AND a.id=$1
+       JOIN family household ON household.id=a.family_id AND household.facility_id=h.facility_id
+       JOIN facility f ON f.id=h.facility_id
+       WHERE h.record_kind='transaction'
      ), with_balance AS (
        SELECT entries.*,
               SUM(balance_amount_cents) OVER (

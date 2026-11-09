@@ -59,6 +59,13 @@ try {
     let account=(await client.query('SELECT id FROM family_billing_account WHERE family_id=$1',[f.familyId])).rows[0]
     if(!account)account=(await client.query('INSERT INTO family_billing_account(family_id,is_active) VALUES($1,TRUE) RETURNING id',[f.familyId])).rows[0]
     accounts.set(f.sourceId,account.id)
+    await recordBillingActivity(client,{eventKey:`jackrabbit:557920:family:${f.sourceId}`,accountId:account.id,
+      eventType:'historical_account_profile',summary:'Previous household profile',actorType:'system',
+      afterValue:{source:'Jackrabbit',contacts:f.contacts,sourceFamily:packet.families.find(x=>normalizeIdentity(x.Family)===normalizeIdentity(f.name))||null}})
+    for(const p of f.people)await recordBillingActivity(client,{eventKey:`jackrabbit:557920:person:${p.sourceId}`,accountId:account.id,memberId:p.memberId,
+      eventType:'historical_person_profile',summary:`Previous profile · ${p.firstName} ${p.lastName}`,actorType:'system',
+      afterValue:{source:'Jackrabbit',contact:p.contact,student:p.student}})
+
   }
   for(const [archivedId,currentId] of Object.entries(packet.confirmedStudentAliases||{})){
     const current=students.get(currentId)
