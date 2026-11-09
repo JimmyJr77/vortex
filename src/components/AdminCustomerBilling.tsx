@@ -39,6 +39,8 @@ import type {
   PriceAdjustment,
 } from './customerBilling/types'
 
+import JackrabbitHistory from './newAdmin/JackrabbitHistory'
+
 interface AccessState {
   isMasterAdmin: boolean
   permissions: string[]
@@ -1736,6 +1738,7 @@ export default function AdminCustomerBilling({
                 ) : null}
               </div>
             ) : null}
+            <JackrabbitHistory key={`${overview.account.familyId}:${selectedMemberId || ''}`} familyId={overview.account.familyId} memberId={selectedMemberId || undefined} />
             <div className="space-y-5 border-t border-gray-200 p-5">
               <details open className="w-full">
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg text-sm font-bold text-gray-800 marker:hidden"><span className="flex items-center gap-2"><PencilLine className="h-4 w-4" /> Billing contact & payer</span><ChevronDown className="h-4 w-4" /></summary>
