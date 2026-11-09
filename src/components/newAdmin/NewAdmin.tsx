@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useState } from 'react'
-import { BookOpen, CreditCard, Inbox, RefreshCw, Users, ReceiptText } from 'lucide-react'
+import { BookOpen, CreditCard, Inbox, RefreshCw, Users, ReceiptText, ChartNoAxesCombined } from 'lucide-react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import type { PortalId } from '../../utils/portalSession'
 import PortalNavButtons from '../PortalNavButtons'
@@ -7,13 +7,15 @@ import { button, ErrorNotice, Loading } from './shared'
 import { allowed, useRead, type Access, type BillingTarget } from './api'
 import type { AccountingWorkspaceState } from './accounting/Accounting'
 
+const Dashboard = lazyWithRetry(() => import('./EnrollmentDashboard'))
 const Members = lazyWithRetry(() => import('./Members'))
 const Leads = lazyWithRetry(() => import('./Leads'))
 const Classes = lazyWithRetry(() => import('./Classes'))
 const Billing = lazyWithRetry(() => import('../AdminCustomerBilling'))
 const Accounting = lazyWithRetry(() => import('./accounting/Accounting'))
-type Section = 'accounting' | 'members' | 'classes' | 'leads' | 'billing'
+type Section = 'dashboard' | 'accounting' | 'members' | 'classes' | 'leads' | 'billing'
 const sections = [
+  { id: 'dashboard' as const, label: 'Dashboard', icon: ChartNoAxesCombined, permission: 'members.view' },
   { id: 'accounting' as const, label: 'Accounting', icon: ReceiptText, permission: 'billing.view' },
   { id: 'members' as const, label: 'Members & accounts', icon: Users, permission: 'members.view' },
   { id: 'classes' as const, label: 'Classes & schedules', icon: BookOpen, permission: 'classes.view' },
@@ -36,7 +38,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const openMember = (id: number) => { setFamilyId(null); setMemberId(id); setSection('members') }
   const openBilling = (target: BillingTarget) => { setBillingTarget(target); setSection('billing') }
   const visible = access.data ? sections.filter(item => allowed(access.data!, item.permission)) : []
-  const current = visible.find(item => item.id === section) ?? visible[0]
+  const current = visible.find(item => item.id === section) ?? visible.find(item => item.id === 'members') ?? visible[0]
   return <div className="min-h-screen bg-slate-50 text-slate-950">
     <header className="bg-slate-950 px-5 py-5 text-white"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-bold tracking-[0.2em] text-red-400">VORTEX ATHLETICS</p><h1 className="mt-1 text-2xl font-bold">New Admin</h1></div><PortalNavButtons activePortal="new-admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} /></div></header>
     <div className="mx-auto max-w-[1440px] p-4 sm:p-6">
@@ -45,6 +47,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
       <ErrorNotice message={access.error} onRetry={() => window.location.reload()} />
       {access.data && !current ? <p role="status">Your staff account has no permissions for these administrative workflows.</p> : null}
       <main><Suspense fallback={<Loading label="Opening workspace…" />}>
+        {access.data && current?.id === 'dashboard' ? <Dashboard revision={revision} /> : null}
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
         {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onMember={openMember} /> : null}
