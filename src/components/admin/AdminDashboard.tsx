@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
+import JackrabbitHistory from '../newAdmin/JackrabbitHistory'
 
 interface MemberRow {
   memberId: number
@@ -300,6 +301,7 @@ export default function AdminDashboard({
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
       {loading && !data ? <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-8 text-sm text-gray-500 shadow-sm"><Loader2 className="h-5 w-5 animate-spin" /> Loading account health…</div> : null}
 
+      {data?.permissions.canViewBilling && data.permissions.canViewEnrollment ? <JackrabbitHistory /> : null}
       {data ? <>
         {!data.permissions.canViewEnrollment || !data.permissions.canViewBilling || !data.permissions.canViewWaivers ? (
           <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">

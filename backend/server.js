@@ -37,6 +37,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import pkg from 'pg'
+import { registerJackrabbitHistoryRoutes } from './accounts/jackrabbitHistoryRoutes.js'
 import Joi from 'joi'
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
@@ -2653,6 +2654,7 @@ app.use('/api/admin', async (req, res, next) => {
 })
 
 // Analytics & consent (public + admin)
+registerJackrabbitHistoryRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerAnalyticsRoutes(app, pool)
 registerMarketingRoutes(app, pool)
 registerSchedulingRoutes(app, pool)
