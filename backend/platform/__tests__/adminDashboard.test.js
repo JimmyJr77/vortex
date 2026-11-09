@@ -125,6 +125,7 @@ test('dashboard lists members without an accepted media release with active stud
     }],
   }])
   assert.match(queries.find((sql) => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /ORDER BY is_active_student DESC/)
+  assert.match(queries.find(sql => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /COALESCE\(member.signup_source,''\) <> 'jackrabbit_history_merged'/)
 })
 
 
