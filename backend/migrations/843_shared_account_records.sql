@@ -1,5 +1,11 @@
 -- Shared business records for every source. Billing execution tables remain the
 -- only collection inputs; this synchronization is strictly one-way.
+-- Never wait behind an active billing writer. A busy database aborts this
+-- additive migration so the old application can keep serving; retry deployment.
+LOCK TABLE scheduling_signup,billing_charge,billing_payment,billing_refund,
+  jackrabbit_history_record,member,family_member,family,family_billing_account,
+  billing_subscription,scheduling_form,scheduling_slot_group,scheduling_offering,program
+  IN SHARE ROW EXCLUSIVE MODE NOWAIT;
 CREATE TABLE IF NOT EXISTS account_record_source (
   facility_id bigint NOT NULL, source text NOT NULL, organization_id text NOT NULL DEFAULT '',
   record_kind text NOT NULL, source_id text NOT NULL, family_id bigint, member_id bigint,

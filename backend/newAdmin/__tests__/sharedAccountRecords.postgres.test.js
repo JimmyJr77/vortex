@@ -94,3 +94,24 @@ test('shared physical tables preserve all source facts and never feed historical
   })
  } finally {await db.query('ROLLBACK');await db.end()}
 })
+
+test('an active billing writer prevents migration without changing or blocking that writer',{skip:!connectionString},async()=>{
+ const admin=new pg.Client({connectionString}),writer=new pg.Client({connectionString}),migration=new pg.Client({connectionString})
+ await Promise.all([admin.connect(),writer.connect(),migration.connect()])
+ const schema=`shared_busy_${crypto.randomBytes(6).toString('hex')}`
+ try {
+  await admin.query(`CREATE SCHEMA ${schema}`)
+  await admin.query(`SET search_path=${schema}`)
+  await admin.query((await fs.readFile(new URL('../../billing/__tests__/fixtures/turnover-schema.sql',import.meta.url),'utf8')).replaceAll('public.',`${schema}.`))
+  await writer.query('BEGIN');await writer.query(`LOCK TABLE ${schema}.billing_payment IN ROW EXCLUSIVE MODE`)
+  await migration.query('BEGIN');await migration.query(`SET LOCAL search_path=${schema}`)
+  await assert.rejects(installSharedAccountRecords(migration),error=>error.code==='55P03')
+  await migration.query('ROLLBACK')
+  assert.equal((await writer.query('SELECT 1 AS alive')).rows[0].alive,1)
+  assert.equal((await admin.query('SELECT to_regclass($1) AS relation',[`${schema}.account_payment`])).rows[0].relation,null)
+ } finally {
+  await writer.query('ROLLBACK');await migration.query('ROLLBACK')
+  await admin.query(`DROP SCHEMA ${schema} CASCADE`)
+  await Promise.all([admin.end(),writer.end(),migration.end()])
+ }
+})

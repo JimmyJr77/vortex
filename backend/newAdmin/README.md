@@ -40,7 +40,9 @@ not guessed, and cross-facility identities are not assigned to a household.
 Deleted records retain tombstones. Existing billing audit events are not rewritten.
 
 The deployment migration runs in one transaction after acquiring the normal deploy
-migration lock. Capture triggers are installed before the backfill, preventing a
+migration lock. Source-table locks use NOWAIT: an active writer aborts the migration
+instead of waiting behind a payment operation; retry deployment after it completes.
+Capture triggers are installed before the backfill, preventing a
 concurrent source write from escaping capture. Database assertions verify that all
 native payloads and imported provenance/history are present before commit. A failed
 migration rolls back its tables, triggers, and data. Reapplying the backfill is
