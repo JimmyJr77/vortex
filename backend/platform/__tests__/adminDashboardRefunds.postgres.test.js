@@ -13,6 +13,7 @@ test('net dashboard collections include completed refunds without multiplying pa
   await db.connect()
   try {
     await db.query(`
+      CREATE TEMP TABLE jackrabbit_history_record (facility_id bigint,record_kind text,occurred_on date,amount_cents bigint,source_data jsonb);
       CREATE TEMP TABLE family (id bigint, facility_id bigint);
       CREATE TEMP TABLE family_billing_account (id bigint, family_id bigint);
       CREATE TEMP TABLE billing_payment (id bigint, family_billing_account_id bigint, amount_cents int, paid_at timestamptz, external_status text);
@@ -38,12 +39,17 @@ test('net dashboard collections include completed refunds without multiplying pa
         (20,4,8000,'2026-10-04','succeeded',NULL,NULL),
         (10,1,1000,'2026-08-31T23:59:59Z','succeeded',NULL,NULL),
         (10,2,9999,'2026-11-01','succeeded',NULL,NULL);
+      INSERT INTO jackrabbit_history_record VALUES
+        (7,'transaction','2026-09-03',-4000,'{"Type":"Payment"}'),
+        (7,'transaction','2026-09-04',500,'{"Type":"Refund - Tuition Fee"}'),
+        (7,'transaction','2026-09-04',-500,'{"Type":"Refund Adjustment"}'),
+        (8,'transaction','2026-09-03',-99999,'{"Type":"Payment"}');
     `)
     const now = new Date('2026-10-04T16:00:00Z')
     const result = await loadNetCollectedRevenue(db, 7, now)
     const months = buildRevenueMonths(result.rows, now)
     assert.equal(months.find(m => m.key === '2026-08').amountCents, -1000)
-    assert.equal(months.find(m => m.key === '2026-09').amountCents, 10000)
+    assert.equal(months.find(m => m.key === '2026-09').amountCents, 13500)
     assert.equal(months.find(m => m.key === '2026-10').amountCents, 13000)
     assert.equal(months.some(m => m.key === '2026-11'), false)
   } finally {
