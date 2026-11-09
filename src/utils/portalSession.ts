@@ -1,7 +1,7 @@
 import { MEMBER_ENROLLMENT_DRAFT_PREFIX } from './memberEnrollmentDrafts'
 
 export type PortalRole = string | { role?: string }
-export type PortalId = 'website' | 'admin' | 'coach' | 'member'
+export type PortalId = 'website' | 'admin' | 'new-admin' | 'coach' | 'member'
 
 export interface PortalAccount {
   id?: number
@@ -27,15 +27,16 @@ export function getRoleKeys(account: PortalAccount | null): string[] {
 
 export function getAvailablePortals(account: PortalAccount | null): PortalId[] {
   if (account?.availablePortals?.length) {
-    return account.availablePortals.filter((portal): portal is PortalId =>
+    const portals = account.availablePortals.filter((portal): portal is PortalId =>
       ['website', 'admin', 'coach', 'member'].includes(portal),
     )
+    return portals.includes('admin') ? [...portals, 'new-admin'] : portals
   }
   const roles = getRoleKeys(account)
   return [
     ...(account?.hasMemberPortal || roles.some((role) => ['MEMBER_ATHLETE'].includes(role)) ? ['member' as const] : []),
     ...(account?.isCoach || roles.includes('COACH') ? ['coach' as const] : []),
-    ...(account?.isAdmin || roles.some((role) => ['MASTER_ADMIN', 'ADMIN'].includes(role)) ? ['admin' as const] : []),
+    ...(account?.isAdmin || roles.some((role) => ['MASTER_ADMIN', 'ADMIN'].includes(role)) ? ['admin' as const, 'new-admin' as const] : []),
   ]
 }
 
