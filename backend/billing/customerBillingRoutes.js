@@ -58,6 +58,7 @@ import {
   updateAdminCustomerBillingAccount,
 } from './customerBillingAdminOperations.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
+import { registerAccountingRoutes } from './accountingRoutes.js'
 
 function facilityId(req) {
   return requireAdminFacilityScope({
@@ -134,6 +135,7 @@ function transactionFilters(req, accountId) {
 }
 
 export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePermission }) {
+  registerAccountingRoutes(app,pool,{jwtSecret,requirePermission})
   app.get(
     '/api/admin/customer-billing/anomalies',
     ...requirePermission(pool, jwtSecret, 'billing.view'),

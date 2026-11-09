@@ -1295,3 +1295,23 @@ test('paid enrollment does not offer Delete Enrollment', async ({ page }) => {
   await preview
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Delete Enrollment', exact: true })).toHaveCount(0)
 })
+
+
+test('historical receipts use Account History and cannot initiate financial actions',async({page})=>{
+  const captured: CapturedRequests={searchQueries:[],priceChanges:[],customCharges:[],customChargeKeys:[],refunds:[],refundKeys:[],retryCount:0}
+  await openCustomerBilling(page,captured)
+  await page.route('**/api/admin/customer-billing/families/42/transactions*',route=>route.fulfill({json:{success:true,data:{rows:[{
+    entryKind:'payment',entryType:'payment',refId:-900,memberId:null,memberName:null,
+    description:'Previous tuition payment',amountCents:-5000,occurredAt:'2026-03-01T12:00:00Z',status:'settled',runningBalanceCents:0,
+    details:{historicalOnly:true,sourceSystem:'Jackrabbit',sourceId:'fixture-900',sourceData:{Type:'Payment',Note:'Original tuition receipt'},stripePaymentIntentId:'pi_fixture_historical'},
+  }],nextCursor:null}}}))
+  await findRiveraAccount(page)
+  await expect(page.getByRole('heading',{name:'Account History'})).toBeVisible()
+  const row=page.getByRole('row',{name:/Previous tuition payment/})
+  await expect(row).toBeVisible()
+  await expect(row.getByRole('button',{name:'Refund',exact:true})).toHaveCount(0)
+  await expect(row.getByRole('button',{name:/Resend.*receipt/})).toHaveCount(0)
+  await row.getByRole('button',{name:'Expand transaction -900'}).click()
+  await expect(page.getByText(/Original tuition receipt/)).toBeVisible()
+  await expect(page.getByRole('heading',{name:/Jackrabbit history/i})).toHaveCount(0)
+})

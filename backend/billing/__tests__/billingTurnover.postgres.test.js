@@ -17,6 +17,7 @@ import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBill
 import { recordBillingActivity } from '../billingActivity.js'
 import { loadCanonicalFinancialSnapshot } from '../canonicalBillingAccount.js'
 import { listCustomerBillingTransactions, listMemberCustomerBillingTransactions } from '../customerBillingQueries.js'
+import {listAccountingLines,listAccountingPayments,accountingPaymentDetail,accountingLineDetail} from '../accountingReport.js'
 import { reserveBillingPaymentAttempt } from '../paymentAttemptReservations.js'
 import { ensureRecurringEnrollmentMappings } from '../recurringEnrollmentMappings.js'
 import { createLocalHouseholdInvoice } from '../householdMonthlyInvoice.js'
@@ -77,6 +78,35 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await db.query(`DROP SCHEMA ${quote(`turnover_${process.pid}_${index}`)} CASCADE`)
   })
   t.after(async () => { await db.end() })
+
+  await t.test('imported history shares normal pagination and reports without becoming collectible or crossing accounts',async()=>{
+    await charge(1,2000,{created_at:'2026-10-01T12:00:00Z'})
+    await payment(1,1000)
+    await insert('family',{id:2,facility_id:1,family_name:'Other household'})
+    await insert('family_billing_account',{id:2,family_id:2,is_active:true})
+    for(const [id,family,amount,type] of [[1,1,5000,'Tuition Fee'],[2,1,-5000,'Payment'],[3,2,-9000,'Payment']]){
+      await insert('jackrabbit_history_record',{id,facility_id:1,organization_id:'fixture',record_kind:'transaction',source_id:String(id),family_id:family,
+        member_id:family===1?1:null,occurred_on:'2026-03-01',amount_cents:amount,source_data:{Type:type,'Pmt Method':'Visa'}})
+    }
+    const history=await listCustomerBillingTransactions(db,{accountId:1,limit:2})
+    const page2=await listCustomerBillingTransactions(db,{accountId:1,limit:2,cursor:history.nextCursor})
+    const rows=[...history.rows,...page2.rows]
+    assert.equal(rows.length,4)
+    assert.equal(new Set(rows.map(r=>`${r.entryKind}:${r.refId}`)).size,4)
+    assert.equal(rows.filter(r=>r.details.historicalOnly).length,2)
+    assert.ok(!rows.some(r=>r.refId===-3))
+    assert.equal(rows[0].runningBalanceCents,1000)
+    const historic=await listCustomerBillingTransactions(db,{accountId:1,status:'historical'})
+    assert.equal(historic.rows.length,2)
+    const bills=await listAccountingLines(db,{facilityId:1,query:{status:'historical'}})
+    assert.equal(bills.total,1);assert.equal(bills.summary.openCents,0);assert.equal(bills.summary.billedCents,5000)
+    assert.equal((await accountingLineDetail(db,{facilityId:1,id:-1})).line.status,'historical')
+    const receipts=await listAccountingPayments(db,{facilityId:1,query:{from:'2026-03-01',through:'2026-03-01'}})
+    assert.equal(receipts.total,2);assert.equal(receipts.summary.netCashCents,14000)
+    const detail=await accountingPaymentDetail(db,{facilityId:1,id:-2})
+    assert.equal(detail.payment.amountCents,5000);assert.equal(detail.allocations.length,0)
+    assert.equal(Number((await db.query('SELECT COUNT(*) FROM billing_charge')).rows[0].count),1)
+  })
 
   await t.test('overview nets a waived membership into its original month and retains applied payments', async () => {
     await charge(1,38000,{service_period_start:'2026-10-01'})
