@@ -1,6 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { participationStatus, readFamilyHistory, withFamilyRead } from '../familyWorkspace.js'
+import { participationStatus, readFamilyHistory, withFamilyRead, workspaceNextBillDate } from '../familyWorkspace.js'
+
+test('household bill date follows the existing monthly calendar instead of a later annual renewal', () => {
+  const subscriptions = [{ status: 'active', next_bill_date: '2027-10-27' }]
+  assert.equal(workspaceNextBillDate({ household_monthly_billing_enabled: true }, subscriptions, '2026-12'), '2026-12-01')
+  assert.equal(workspaceNextBillDate({ household_monthly_billing_enabled: false }, subscriptions, '2026-12'), '2027-10-27')
+  assert.equal(workspaceNextBillDate({}, [], '2026-12'), null)
+})
 
 test('participation respects ended, paused, upcoming and requested enrollment dates', () => {
   const today = '2026-11-09', active = { status: 'confirmed', startDate: '2026-01-01' }
