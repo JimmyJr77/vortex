@@ -16,7 +16,7 @@ import pg from 'pg'
 import { reconcileCanonicalRecurringChargesForMonth, loadRecurringChargesForBillingMonth } from '../canonicalRecurringChargePosting.js'
 import { recordBillingActivity } from '../billingActivity.js'
 import { loadCanonicalFinancialSnapshot } from '../canonicalBillingAccount.js'
-import { listCustomerBillingTransactions, listMemberCustomerBillingTransactions } from '../customerBillingQueries.js'
+import { listCustomerBillingTransactions, listCustomerBillingActivity, listMemberCustomerBillingTransactions } from '../customerBillingQueries.js'
 import {listAccountingLines,listAccountingPayments,accountingPaymentDetail,accountingLineDetail} from '../accountingReport.js'
 import { reserveBillingPaymentAttempt } from '../paymentAttemptReservations.js'
 import { ensureRecurringEnrollmentMappings } from '../recurringEnrollmentMappings.js'
@@ -106,6 +106,17 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     const detail=await accountingPaymentDetail(db,{facilityId:1,id:-2})
     assert.equal(detail.payment.amountCents,5000);assert.equal(detail.allocations.length,0)
     assert.equal(Number((await db.query('SELECT COUNT(*) FROM billing_charge')).rows[0].count),1)
+  })
+
+  await t.test('reviewed historical identity follows the existing member without rewriting immutable activity',async()=>{
+    await insert('member',{id:2,facility_id:1,first_name:'Taylor',last_name:'Source surname',is_active:false})
+    await insert('jackrabbit_history_record',{id:1,facility_id:1,organization_id:'fixture',record_kind:'enrollment',source_id:'registration-1',family_id:1,member_id:1,occurred_on:'2026-03-01',source_data:{Class:'Previous class'}})
+    await recordBillingActivity(db,{eventKey:'jackrabbit:fixture:enrollment:registration-1',accountId:1,memberId:2,eventType:'historical_enrollment',summary:'Previous class registration'})
+    const result=await listCustomerBillingActivity(db,{accountId:1,memberId:1})
+    assert.equal(result.rows.length,1);assert.equal(result.rows[0].memberId,1)
+    assert.equal(Number((await db.query('SELECT member_id FROM billing_account_activity')).rows[0].member_id),2)
+    assert.equal((await listCustomerBillingActivity(db,{accountId:1,memberId:2})).rows.length,0)
+    assert.equal((await listCustomerBillingActivity(db,{accountId:999,memberId:1})).rows.length,0)
   })
 
   await t.test('overview nets a waived membership into its original month and retains applied payments', async () => {
