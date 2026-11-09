@@ -1502,7 +1502,7 @@ export async function listCustomerBillingTransactions(pool, {
      ), entries AS (
        SELECT
          'charge'::text AS entry_kind,
-         c.charge_type::text AS entry_type,
+         CASE WHEN c.historical_only AND c.amount_cents<0 THEN 'credit' ELSE c.charge_type END::text AS entry_type,
          c.id::bigint AS ref_id,
          c.member_id::bigint AS member_id,
          c.description::text AS description,
@@ -1510,6 +1510,7 @@ export async function listCustomerBillingTransactions(pool, {
          (c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0))::int AS balance_amount_cents,
          c.created_at::timestamptz AS occurred_at,
          CASE
+           WHEN c.historical_only THEN 'historical'
            WHEN c.source_type IN ('membership_transfer_cancelled', 'membership_bill_recalled') THEN 'cancelled'
            WHEN c.source_type = 'manual_account_credit' THEN
              CASE WHEN COALESCE((SELECT SUM(a.amount_cents)
@@ -1527,6 +1528,8 @@ export async function listCustomerBillingTransactions(pool, {
          END::text AS status,
          3::int AS sort_order,
          jsonb_strip_nulls(jsonb_build_object(
+           'historicalOnly',c.historical_only,'sourceSystem',CASE WHEN c.record_source='jackrabbit' THEN 'Jackrabbit' ELSE c.record_source END,
+           'sourceData',CASE WHEN c.historical_only THEN c.record_source_data END,'referenceNumber',c.record_source_id,
            'grossAmountCents', c.gross_amount_cents,
            'originalAmountCents', c.amount_cents,
            'effectiveAmountCents', c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0),
@@ -1572,7 +1575,7 @@ export async function listCustomerBillingTransactions(pool, {
            'actorAction', 'Created by',
            'creditCreatedByName', CASE WHEN c.source_type = 'manual_account_credit' THEN c.metadata->>'createdByName' END,
            'appliedAmountCents', (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0)),
-           'remainingAmountCents', GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0))),
+           'remainingAmountCents', CASE WHEN c.historical_only THEN 0 ELSE GREATEST(0, c.amount_cents + COALESCE(charge_adjustments.adjustment_cents, 0) - (COALESCE(charge_applications.applied_cents, 0) + COALESCE(charge_credits.applied_cents, 0))) END,
            'returnedAmountCents', CASE
              WHEN c.charge_type = 'credit' AND c.amount_cents < 0
                THEN COALESCE(returned_credit_refunds.refunded_cents, 0)
@@ -1588,7 +1591,7 @@ export async function listCustomerBillingTransactions(pool, {
            'paymentApplications', charge_applications.items,
            'metadata', c.metadata
          )) AS details
-       FROM billing_charge c
+       FROM account_charge_current c
        LEFT JOIN enrollment_price_adjustment direct_price_adjustment
          ON direct_price_adjustment.id = c.price_adjustment_id
        LEFT JOIN LATERAL (
@@ -1622,10 +1625,10 @@ export async function listCustomerBillingTransactions(pool, {
                   MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
                   SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
            FROM billing_payment_application application
-           JOIN billing_payment payment ON payment.id = application.billing_payment_id
+           JOIN account_payment_current payment ON payment.id = application.billing_payment_id
            WHERE (application.billing_charge_id = c.id OR application.billing_charge_id IN (
              SELECT linked.id
-             FROM billing_charge linked
+             FROM account_charge_current linked
              WHERE (linked.related_charge_id = c.id AND linked.source_type IN ('charge_adjustment', 'refund_offset'))
                 OR (
                   linked.source_type IN ('price_adjustment', 'price_adjustment_reversal')
@@ -1656,7 +1659,7 @@ export async function listCustomerBillingTransactions(pool, {
                   'amountCents', adjustment.amount_cents,
                   'chargeId', adjustment.id
                 )) ORDER BY adjustment.created_at, adjustment.id) FILTER (WHERE COALESCE(adjustment.metadata->>'refundTreatmentCorrection','false') <> 'true'), '[]'::jsonb) AS annotations
-         FROM billing_charge adjustment
+         FROM account_charge_current adjustment
          LEFT JOIN enrollment_price_adjustment adjustment_price_adjustment
            ON adjustment_price_adjustment.id = adjustment.price_adjustment_id
          WHERE (adjustment.related_charge_id = c.id AND adjustment.source_type IN ('charge_adjustment', 'refund_offset'))
@@ -1670,7 +1673,7 @@ export async function listCustomerBillingTransactions(pool, {
          SELECT
            COALESCE(SUM(refund.amount_cents), 0)::int AS refunded_cents,
            (MAX(refund.id) FILTER (WHERE refund.external_status = 'succeeded'))::bigint AS latest_refund_id
-         FROM billing_refund refund
+         FROM account_refund_current refund
          WHERE refund.related_charge_id = c.id
            AND refund.ledger_treatment = 'return_credit'
            AND refund.external_status IN ('pending', 'succeeded', 'reconciliation_required')
@@ -1687,7 +1690,7 @@ export async function listCustomerBillingTransactions(pool, {
              payment.amount_cents AS payment_amount_cents,
              SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS applicable_amount_cents
            FROM billing_payment_application application
-           JOIN billing_payment payment ON payment.id = application.billing_payment_id
+           JOIN account_payment_current payment ON payment.id = application.billing_payment_id
            WHERE c.charge_type = 'credit'
              AND c.amount_cents < 0
              AND application.billing_charge_id = c.related_charge_id
@@ -1710,7 +1713,7 @@ export async function listCustomerBillingTransactions(pool, {
            c.source_type IN ('price_adjustment', 'price_adjustment_reversal')
            AND EXISTS (
              SELECT 1
-             FROM billing_charge base_charge
+             FROM account_charge_current base_charge
              WHERE base_charge.family_billing_account_id = c.family_billing_account_id
                AND base_charge.subscription_id = c.subscription_id
                AND base_charge.service_period_start = c.service_period_start
@@ -1757,15 +1760,15 @@ export async function listCustomerBillingTransactions(pool, {
        WHERE d.status IN ('confirmed', 'attended')
          AND NOT EXISTS (
            SELECT 1
-           FROM billing_charge charged_drop_in
+           FROM account_charge_current charged_drop_in
            WHERE charged_drop_in.family_billing_account_id = $1
              AND charged_drop_in.source_type = 'drop_in'
              AND charged_drop_in.source_id = d.id::text
          )
        UNION ALL
        SELECT
-         'payment', 'payment', p.id, NULL::bigint,
-         CASE
+         'payment', 'payment', p.id, p.record_member_id,
+         CASE WHEN p.historical_only THEN p.record_description ELSE CASE
            WHEN p.stripe_invoice_id IS NOT NULL AND EXISTS (
              SELECT 1
                FROM billing_monthly_invoice household_invoice
@@ -1773,12 +1776,14 @@ export async function listCustomerBillingTransactions(pool, {
                 AND household_invoice.stripe_invoice_id = p.stripe_invoice_id
            ) THEN 'Household payment'
            ELSE COALESCE(NULLIF(p.method, ''), 'Payment')
-         END,
+         END END,
          -p.amount_cents,
          CASE WHEN p.external_status IN ('settled', 'succeeded') THEN -p.amount_cents ELSE 0 END,
          p.paid_at,
-         p.external_status, 2,
+         CASE WHEN p.historical_only THEN 'historical' ELSE p.external_status END, 2,
          jsonb_build_object(
+           'historicalOnly',p.historical_only,'sourceSystem',CASE WHEN p.record_source='jackrabbit' THEN 'Jackrabbit' ELSE p.record_source END,
+           'sourceId',p.record_source_id,'referenceNumber',p.record_source_id,'sourceData',CASE WHEN p.historical_only THEN p.record_source_data END,
            'note', p.note,
            'paymentMethod', p.method,
            'externalProcessor', p.external_processor,
@@ -1793,10 +1798,10 @@ export async function listCustomerBillingTransactions(pool, {
              CASE WHEN payment_actor.user_id IS NOT NULL THEN 'Staff #' || payment_actor.user_id END),
            'actorAction', CASE WHEN p.recorded_by_user_id IS NOT NULL THEN 'Recorded by' ELSE 'Initiated by' END,
            'appliedAmountCents', COALESCE(payment_applications.applied_cents, 0),
-           'remainingAmountCents', GREATEST(0, p.amount_cents - COALESCE(payment_applications.applied_cents, 0) - COALESCE(payment_refunds.refunded_cents, 0)),
+           'remainingAmountCents', CASE WHEN p.historical_only THEN 0 ELSE GREATEST(0, p.amount_cents - COALESCE(payment_applications.applied_cents, 0) - COALESCE(payment_refunds.refunded_cents, 0)) END,
            'applications', payment_applications.items
          )
-       FROM billing_payment p
+       FROM account_payment_current p
        LEFT JOIN LATERAL (
          SELECT identity.user_id, NULLIF(u.full_name, '') AS full_name
          FROM (SELECT COALESCE(p.recorded_by_user_id::text, (
@@ -1831,7 +1836,7 @@ export async function listCustomerBillingTransactions(pool, {
                   MAX(application.allocation_reason) FILTER (WHERE application.application_kind = 'application') AS allocation_reason,
                   SUM(CASE WHEN application.application_kind = 'reversal' THEN -application.amount_cents ELSE application.amount_cents END)::int AS amount_cents
            FROM billing_payment_application application
-           JOIN billing_charge charge ON charge.id = application.billing_charge_id
+           JOIN account_charge_current charge ON charge.id = application.billing_charge_id
            LEFT JOIN member applied_member ON applied_member.id = charge.member_id
            WHERE application.billing_payment_id = p.id
            GROUP BY application.billing_charge_id, charge.description, charge.member_id, charge.subscription_id,
@@ -1842,7 +1847,7 @@ export async function listCustomerBillingTransactions(pool, {
        ) payment_applications ON TRUE
        LEFT JOIN LATERAL (
          SELECT COALESCE(SUM(refund.amount_cents), 0)::int AS refunded_cents
-         FROM billing_refund refund
+         FROM account_refund_current refund
          WHERE refund.payment_id = p.id
            AND COALESCE(refund.external_status, 'succeeded') IN ('pending', 'succeeded', 'reconciliation_required')
        ) payment_refunds ON TRUE
@@ -1850,12 +1855,14 @@ export async function listCustomerBillingTransactions(pool, {
          AND ${customerFacingPaymentPredicate('p')}
        UNION ALL
        SELECT
-         'refund', 'refund', r.id, NULL::bigint,
+         'refund', 'refund', r.id, r.record_member_id,
          COALESCE(NULLIF(r.reason, ''), 'Refund'),
          r.amount_cents,
          CASE WHEN ${settledRefundPredicate('r')} THEN r.amount_cents ELSE 0 END,
-         r.created_at, COALESCE(r.external_status, 'succeeded'), 1,
+         r.created_at, CASE WHEN r.historical_only THEN 'historical' ELSE COALESCE(r.external_status, 'succeeded') END, 1,
          jsonb_build_object(
+           'historicalOnly',r.historical_only,'sourceSystem',CASE WHEN r.record_source='jackrabbit' THEN 'Jackrabbit' ELSE r.record_source END,
+           'sourceId',r.record_source_id,'referenceNumber',r.record_source_id,'sourceData',CASE WHEN r.historical_only THEN r.record_source_data END,
            'paymentId', r.payment_id,
            'stripeRefundId', r.stripe_refund_id,
            'externalReference', r.external_reference,
@@ -1867,26 +1874,8 @@ export async function listCustomerBillingTransactions(pool, {
            'approvedByUserId', r.approved_by_user_id,
            'errorMessage', r.error_message
          )
-       FROM billing_refund r WHERE r.family_billing_account_id = $1
-       UNION ALL
-       SELECT
-         CASE WHEN h.source_data->>'Type'='Payment' THEN 'payment'
-              WHEN h.source_data->>'Type' LIKE 'Refund -%' THEN 'refund' ELSE 'charge' END,
-         CASE WHEN h.source_data->>'Type'='Payment' THEN 'payment'
-              WHEN h.source_data->>'Type' LIKE 'Refund -%' THEN 'refund'
-              WHEN h.amount_cents<0 THEN 'credit' ELSE 'historical' END,
-         -h.id,h.member_id,
-         concat_ws(' · ',h.source_data->>'Type',NULLIF(h.source_data->>'Subtype',''),NULLIF(h.source_data->>'Note','')),
-         h.amount_cents::int,h.amount_cents::int,
-         h.occurred_on::timestamp AT TIME ZONE COALESCE(NULLIF(f.timezone,''),'America/New_York'),
-         'historical',0,
-         jsonb_build_object('historicalOnly',TRUE,'sourceSystem','Jackrabbit','sourceId',h.source_id,'referenceNumber',h.source_id,
-           'sourceData',h.source_data,'paymentMethod',h.source_data->>'Pmt Method')
-       FROM jackrabbit_history_record h
-       JOIN family_billing_account a ON a.family_id=h.family_id AND a.id=$1
-       JOIN family household ON household.id=a.family_id AND household.facility_id=h.facility_id
-       JOIN facility f ON f.id=h.facility_id
-       WHERE h.record_kind='transaction'
+       FROM account_refund_current r WHERE r.family_billing_account_id = $1
+
      ), with_balance AS (
        SELECT entries.*,
               SUM(balance_amount_cents) OVER (
@@ -2314,9 +2303,9 @@ export async function listCustomerBillingActivity(pool, {
      FROM billing_account_activity a
      JOIN family_billing_account account ON account.id=a.family_billing_account_id
      JOIN family household ON household.id=account.family_id
-     LEFT JOIN jackrabbit_history_record history ON history.family_id=account.family_id
+     LEFT JOIN account_record_source history ON history.family_id=account.family_id AND NOT history.deleted
        AND history.facility_id=household.facility_id
-       AND a.event_key=concat('jackrabbit:',history.organization_id,':',history.record_kind,':',history.source_id)
+       AND a.event_key=concat(history.source,':',history.organization_id,':',history.record_kind,':',history.source_id)
      LEFT JOIN app_user u ON u.id = a.actor_user_id
      WHERE a.family_billing_account_id = $1
        AND ($2::bigint IS NULL OR COALESCE(history.member_id,a.member_id) = $2 OR COALESCE(history.member_id,a.member_id) IS NULL)

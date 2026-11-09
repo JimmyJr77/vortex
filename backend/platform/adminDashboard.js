@@ -160,25 +160,16 @@ export async function loadNetCollectedRevenue(pool, facilityId, now = new Date()
   return safeQuery(pool, `
     WITH revenue_movements AS (
       SELECT payment.paid_at AS occurred_at, payment.amount_cents
-      FROM billing_payment payment
-      JOIN family_billing_account account ON account.id = payment.family_billing_account_id
-      JOIN family ON family.id = account.family_id
-      WHERE family.facility_id = $1
+      FROM account_payment_current payment
+      WHERE payment.record_facility_id = $1
         AND payment.external_status IN ('settled', 'succeeded')
         AND payment.paid_at >= $2::timestamptz AND payment.paid_at < $3::timestamptz
       UNION ALL
       SELECT refund.created_at AS occurred_at, -refund.amount_cents
-      FROM billing_refund refund
-      JOIN family_billing_account account ON account.id = refund.family_billing_account_id
-      JOIN family ON family.id = account.family_id
-      WHERE family.facility_id = $1 AND ${settledRefundPredicate('refund')}
+      FROM account_refund_current refund
+      WHERE refund.record_facility_id = $1 AND ${settledRefundPredicate('refund')}
         AND refund.created_at >= $2::timestamptz AND refund.created_at < $3::timestamptz
-      UNION ALL
-      SELECT history.occurred_on::timestamp AT TIME ZONE 'America/New_York', -history.amount_cents
-      FROM jackrabbit_history_record history
-      WHERE history.facility_id=$1 AND history.record_kind='transaction'
-        AND (history.source_data->>'Type'='Payment' OR history.source_data->>'Type' LIKE 'Refund -%')
-        AND history.occurred_on >= $2::date AND history.occurred_on < $3::date
+
     )
     SELECT to_char(occurred_at AT TIME ZONE 'UTC', 'YYYY-MM') AS month_key,
            SUM(amount_cents)::int AS amount_cents

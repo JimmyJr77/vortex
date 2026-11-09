@@ -1,3 +1,4 @@
+import { installSharedAccountRecords } from '../../newAdmin/__tests__/sharedAccountFixture.js'
 import { applyAndSettlePaidCheckoutFulfillment } from '../stripeBilling.js'
 import { assertNoOutstandingAnnualMembershipCharge } from '../annualMembershipChargeGuard.js'
 import { listCustomerBillingOverviews } from '../customerBillingOverviewList.js'
@@ -71,6 +72,7 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await db.query(sql)
     await db.query(await fs.readFile(new URL('../../migrations/835_refund_preserve_charge_balance.sql',import.meta.url),'utf8'))
     await db.query(await fs.readFile(new URL('../../migrations/836_monthly_invoice_revisions.sql',import.meta.url),'utf8'))
+    await installSharedAccountRecords(db)
     await seedAccount()
   })
   t.afterEach(async () => {

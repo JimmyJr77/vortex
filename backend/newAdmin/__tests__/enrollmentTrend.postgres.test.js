@@ -1,3 +1,4 @@
+import { installSharedAccountRecords } from './sharedAccountFixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
@@ -20,6 +21,7 @@ test('monthly trend uses one read-only local snapshot with canonical owners and 
   try {
     const fixture = await fs.readFile(new URL('../../billing/__tests__/fixtures/turnover-schema.sql', import.meta.url), 'utf8')
     await pool.query(fixture.replaceAll('public.', `"${schema}".`))
+    await installSharedAccountRecords(pool)
     await pool.query(`
       INSERT INTO facility(id,name,timezone) VALUES(1,'Trend fixture','America/New_York'),(2,'Other','America/New_York');
       INSERT INTO family(id,facility_id,family_name) VALUES(1,1,'One'),(2,1,'Two'),(3,2,'Foreign'),(4,1,'Moved');

@@ -1,3 +1,4 @@
+import { installSharedAccountRecords } from './sharedAccountFixture.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
@@ -22,6 +23,7 @@ test('family workspace preserves ledger/history, scopes families, paginates with
   try {
     const fixture = await fs.readFile(new URL('../../billing/__tests__/fixtures/turnover-schema.sql', import.meta.url), 'utf8')
     await pool.query(fixture.replaceAll('public.', `"${schema}".`))
+    await installSharedAccountRecords(pool)
     await pool.query(`
       CREATE TABLE parent_guardian_authority(parent_member_id bigint,child_member_id bigint,has_legal_authority boolean);
       CREATE TABLE registrations(id int PRIMARY KEY,first_name text,last_name text,member_id bigint,lead_status text,created_at timestamp,
