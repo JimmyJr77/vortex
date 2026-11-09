@@ -9,6 +9,7 @@ import AccountingDetails, { type AccountingSelection } from './Details'
 import { BillsTable, PaymentsTable } from './Tables'
 import { amount, moment } from './format'
 import type { AccountingView, BillPage, BillSummary, FilterOptions, PaymentPage, PaymentSummary, SortDirection } from './types'
+import JackrabbitHistory from '../JackrabbitHistory'
 
 interface Filters {
   dates: DateRangeValue
@@ -173,5 +174,6 @@ export default function Accounting({ revision, onBilling, workspace, onWorkspace
       </> : null}
     </div>
     {selected ? <AccountingDetails selected={selected} timezone={timezone} revision={revision + version} onClose={() => setSelected(null)} onBilling={onBilling} onLine={id => setSelected({ kind: 'line', id })} /> : null}
+    <JackrabbitHistory key={`${filters.person?.id || ''}:${filters.dates.from}:${filters.dates.through}`} revision={revision + version} memberId={filters.person?.id} from={filters.dates.from} through={filters.dates.through} />
   </section>
 }
