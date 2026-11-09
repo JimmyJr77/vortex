@@ -114,6 +114,7 @@ test('release deploy includes application content migrations without broadening 
   assert.deepEqual(DEPLOY_APPLICATION_MIGRATION_FILES, [
     '841_new_admin.sql',
     '842_jackrabbit_history.sql',
+    '843_shared_account_records.sql',
     '819_coaching_exercise_difficulty_complexity_compatibility.sql',
     '820_coaching_exercise_difficulty_complexity_nullable.sql',
     '818_coaching_athleticism_accelerator_library.sql',

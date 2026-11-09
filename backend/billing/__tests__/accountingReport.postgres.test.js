@@ -1,4 +1,6 @@
 import test from 'node:test'
+import fs from 'node:fs/promises'
+import { installSharedAccountRecords } from '../../newAdmin/__tests__/sharedAccountFixture.js'
 import assert from 'node:assert/strict'
 import pg from 'pg'
 import {
@@ -8,11 +10,11 @@ import {
 function validateRehearsalDatabaseUrl(value) {
   const url=new URL(value)
   assert.ok(['localhost','127.0.0.1','[::1]'].includes(url.hostname))
-  assert.match(url.pathname,/^\/vortex_(?:billing_test|new_admin_test)$/)
+  assert.match(url.pathname,/^\/vortex_(?:billing_test|new_admin_test|new_admin_dev|dashboard_test)$/)
   assert.equal(url.search,'')
 }
 
-const connectionString=process.env.NEW_ADMIN_TEST_DATABASE_URL
+const connectionString=process.env.NEW_ADMIN_TEST_DATABASE_URL || process.env.DASHBOARD_TEST_DATABASE_URL
 if(connectionString) validateRehearsalDatabaseUrl(connectionString)
 
 // Real PostgreSQL types, date arithmetic, joins, and aggregates; private temporary
@@ -23,11 +25,19 @@ test('accounting report PostgreSQL ledger reconciliation and historical scope',{
   await db.connect()
   try {
     await db.query('BEGIN')
-    await db.query('SET LOCAL search_path=pg_temp,public')
+    const schema=`accounting_shared_${process.pid}`
+    await db.query(`CREATE SCHEMA ${schema}`)
+    await db.query(`SET LOCAL search_path=${schema}`)
+    await db.query((await fs.readFile(new URL('./fixtures/turnover-schema.sql',import.meta.url),'utf8')).replaceAll('public.',`${schema}.`))
+    // Exercise ambiguous legacy sources, as the original unconstrained fixture did.
+    await db.query('DROP INDEX uq_billing_charge_source')
+    await db.query(await fs.readFile(new URL('../../migrations/835_refund_preserve_charge_balance.sql',import.meta.url),'utf8'))
+    await db.query(await fs.readFile(new URL('../../migrations/836_monthly_invoice_revisions.sql',import.meta.url),'utf8'))
+    await installSharedAccountRecords(db)
     const tables=['jackrabbit_history_record','facility','family','family_billing_account','member','program','scheduling_form','scheduling_signup','drop_in_registration',
       'billing_subscription','billing_charge','billing_payment','billing_payment_application','billing_refund',
       'billing_monthly_invoice','billing_monthly_invoice_line','billing_charge_credit_application']
-    for(const table of tables) await db.query(`CREATE TEMP TABLE ${table} (LIKE public.${table} INCLUDING DEFAULTS) ON COMMIT DROP`)
+
     const insert=async(table,row)=>{
       assert.ok(tables.includes(table))
       const keys=Object.keys(row)
@@ -91,7 +101,7 @@ test('accounting report PostgreSQL ledger reconciliation and historical scope',{
     }
     await insert('billing_monthly_invoice',{id:701,family_billing_account_id:1001,billing_month:'2026-01-01',status:'paid',total_cents:7000})
     await insert('billing_monthly_invoice',{id:702,family_billing_account_id:1001,billing_month:'2026-01-01',status:'void',total_cents:999999})
-    for(const [id,invoiceId,chargeId,type,amount] of [[801,701,105,'charge',10000],[802,701,106,'charge_credit',-3000],[803,702,105,'charge',999999]]) {
+    for(const [id,invoiceId,chargeId,type,amount] of [[801,701,105,'charge',10000],[802,701,106,'credit',-3000],[803,702,105,'charge',999999]]) {
       await insert('billing_monthly_invoice_line',{id,billing_monthly_invoice_id:invoiceId,billing_charge_id:chargeId,line_type:type,description:'Immutable invoice version',amount_cents:amount})
     }
     await insert('billing_charge_credit_application',{id:901,billing_monthly_invoice_id:701,credit_invoice_line_id:802,target_invoice_line_id:801,amount_cents:3000,idempotency_key:'fixture-credit'})

@@ -12,7 +12,7 @@ export async function jackrabbitHistory(db, facilityId, query = {}) {
   const values = [id(facilityId), memberId, query.from || null, query.through || null, familyId]
   for (const value of values.slice(2,4)) if (value && (!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(Date.parse(value)) || new Date(value).toISOString().slice(0,10)!==value)) throw inputError('Invalid history date.')
   if(values[2]&&values[3]&&values[2]>values[3])throw inputError('History start must precede end date.')
-  const where = `facility_id=$1 AND ($2::bigint IS NULL OR member_id=$2 OR
+  const where = `source='jackrabbit' AND NOT deleted AND facility_id=$1 AND ($2::bigint IS NULL OR member_id=$2 OR
     (record_kind='transaction' AND member_id IS NULL AND family_id IN
       (SELECT family_id FROM family_member WHERE member_id=$2 AND is_active=TRUE)))
     AND ($3::date IS NULL OR occurred_on >= $3) AND ($4::date IS NULL OR occurred_on <= $4)
@@ -23,10 +23,10 @@ export async function jackrabbitHistory(db, facilityId, query = {}) {
       COALESCE(-SUM(amount_cents) FILTER(WHERE record_kind='transaction' AND source_data->>'Type'='Payment'),0)::bigint AS receipts,
       COALESCE(SUM(amount_cents) FILTER(WHERE record_kind='transaction' AND source_data->>'Type' LIKE 'Refund -%'),0)::bigint AS refunds,
       COUNT(*) FILTER(WHERE record_kind='enrollment' AND member_id IS NULL)::int AS unresolved
-      FROM jackrabbit_history_record WHERE ${where}`, values),
-    db.query(`SELECT *,COUNT(*) OVER()::int AS total FROM jackrabbit_history_record WHERE ${where}
+      FROM account_record_source WHERE ${where}`, values),
+    db.query(`SELECT *,imported_record_id AS id,COUNT(*) OVER()::int AS total FROM account_record_source WHERE ${where}
       AND record_kind IN ('transaction','enrollment','person','family','note','attendance')
-      ORDER BY occurred_on DESC NULLS LAST,id DESC LIMIT $6 OFFSET $7`, [...values,paging.pageSize,paging.offset]),
+      ORDER BY occurred_on DESC NULLS LAST,imported_record_id DESC LIMIT $6 OFFSET $7`, [...values,paging.pageSize,paging.offset]),
   ])
   const s = summary.rows[0]
   return { summary: {transactions:s.transactions,enrollments:s.enrollments,receiptsCents:Number(s.receipts),refundsCents:Number(s.refunds),netCashCents:Number(s.receipts)-Number(s.refunds),unresolved:s.unresolved},

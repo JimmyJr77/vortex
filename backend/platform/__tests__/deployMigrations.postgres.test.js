@@ -145,6 +145,7 @@ async function createPrerequisiteSchema(client) {
 
     CREATE TABLE family_billing_account (
       id BIGSERIAL PRIMARY KEY,
+      family_id BIGINT,
       household_monthly_billing_enabled BOOLEAN NOT NULL DEFAULT TRUE,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
@@ -199,8 +200,14 @@ async function createPrerequisiteSchema(client) {
       id BIGSERIAL PRIMARY KEY
     );
 
+    CREATE TABLE program (id BIGSERIAL PRIMARY KEY, name TEXT, display_name TEXT);
+    CREATE TABLE scheduling_form (id BIGSERIAL PRIMARY KEY, program_id BIGINT, title TEXT, end_date DATE);
+    CREATE TABLE scheduling_offering (id BIGSERIAL PRIMARY KEY, end_date DATE);
+    CREATE TABLE scheduling_slot_group (id BIGSERIAL PRIMARY KEY, offering_id BIGINT, active_end DATE);
+
     CREATE TABLE scheduling_signup (
       id BIGSERIAL PRIMARY KEY,
+      form_id BIGINT, slot_group_id BIGINT,
       member_id BIGINT,
       status TEXT NOT NULL DEFAULT 'confirmed',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -208,6 +215,7 @@ async function createPrerequisiteSchema(client) {
 
     CREATE TABLE billing_subscription (
       id BIGSERIAL PRIMARY KEY,
+      source_id TEXT,
       family_billing_account_id BIGINT REFERENCES family_billing_account(id) ON DELETE RESTRICT,
       source_type TEXT,
       pricing_option_key TEXT,

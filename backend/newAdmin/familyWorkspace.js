@@ -85,7 +85,7 @@ async function readPeople(db, familyId, facilityId) {
     FROM member m WHERE m.facility_id=$2 AND (
       EXISTS(SELECT 1 FROM family_member fm WHERE fm.member_id=m.id AND fm.family_id=$1)
       OR (m.family_id=$1 AND NOT EXISTS(SELECT 1 FROM family_member fm WHERE fm.member_id=m.id))
-      OR EXISTS(SELECT 1 FROM jackrabbit_history_record h WHERE h.family_id=$1 AND h.member_id=m.id AND h.facility_id=$2))
+      OR EXISTS(SELECT 1 FROM account_record_source h WHERE h.family_id=$1 AND h.member_id=m.id AND h.facility_id=$2 AND NOT h.deleted))
     ORDER BY current_household DESC,m.last_name,m.first_name,m.id`, [familyId, facilityId])
   return result.rows.map(r => ({ ...memberRow(r), name: `${r.first_name} ${r.last_name}`.trim(), currentHousehold: r.current_household, guardianFor: r.guardian_for.map(Number) }))
 }
@@ -107,7 +107,7 @@ async function readParticipation(db, people, family, facilityId) {
       COALESCE(o.start_date,g.active_start,f.start_date)::text AS program_start,
       s.orphaned_at IS NOT NULL AS orphaned,s.archived_at IS NOT NULL AS archived,
       COALESCE(schedule.slots,'[]'::jsonb) AS slots
-    FROM scheduling_signup s JOIN member m ON m.id=s.member_id AND m.facility_id=$2
+    FROM account_enrollment_current s LEFT JOIN member m ON m.id=s.member_id AND m.facility_id=$2
     LEFT JOIN scheduling_form f ON f.id=s.form_id
     LEFT JOIN scheduling_slot_group g ON g.id=s.slot_group_id
     LEFT JOIN scheduling_offering o ON o.id=g.offering_id
@@ -137,28 +137,31 @@ function decodeCursor(cursor) {
 export async function readFamilyHistory(db, { familyId, facilityId, memberIds, canViewBilling, cursor = null, limit = 25 }) {
   const after = decodeCursor(cursor)
   // Original records stay intact. Jackrabbit activity copies are suppressed only
-  // in this display; the source archive is the one displayed historical event.
+  // in this display; the shared enrollment/financial row is displayed once.
   const result = await db.query(`/* family-workspace:history */
     WITH history AS (
-      SELECT 'signup:'||s.id AS key,s.created_at AS sort_at,'enrollment' AS kind,
-        s.member_id,COALESCE(f.title,s.orphaned_snapshot->>'formTitle','Archived class') AS title,
+      SELECT CASE WHEN s.historical_only THEN 'jackrabbit:'||s.record_import_id ELSE 'signup:'||s.id END AS key,COALESCE(s.created_at,'0001-01-01'::timestamptz) AS sort_at,'enrollment' AS kind,
+        s.member_id,COALESCE(s.record_class_name,f.title,s.orphaned_snapshot->>'formTitle','Archived class') AS title,
         s.status||' · Start '||COALESCE(s.enrollment_start_date::text,'unknown')||
-          COALESCE(' · Ends '||s.cancel_effective_date::text,'') AS summary,'Vortex'::text AS source,NULL::bigint AS amount_cents
-      FROM scheduling_signup s JOIN member m ON m.id=s.member_id AND m.facility_id=$2
-      LEFT JOIN scheduling_form f ON f.id=s.form_id WHERE s.member_id=ANY($3::bigint[])
+          COALESCE(' · Ends '||s.cancel_effective_date::text,'') AS summary,CASE WHEN s.record_source='jackrabbit' THEN 'Jackrabbit' ELSE 'Vortex' END AS source,NULL::bigint AS amount_cents
+      FROM account_enrollment_current s LEFT JOIN member m ON m.id=s.member_id AND m.facility_id=$2
+      LEFT JOIN scheduling_form f ON f.id=s.form_id WHERE s.record_family_id=$1 AND s.record_facility_id=$2
       UNION ALL
       SELECT 'dropin:'||d.id,d.created_at,'trial',d.member_id,COALESCE(f.title,'Archived class'),
         d.benefit_type||' · '||d.class_date::text||' · '||d.status,'Vortex',NULL::bigint
       FROM drop_in_registration d JOIN member m ON m.id=d.member_id AND m.facility_id=$2
       LEFT JOIN scheduling_form f ON f.id=d.form_id WHERE d.member_id=ANY($3::bigint[])
       UNION ALL
-      SELECT 'jackrabbit:'||h.id,COALESCE(h.occurred_on::timestamp AT TIME ZONE 'UTC','0001-01-01'::timestamptz),
-        h.record_kind,h.member_id,COALESCE(h.source_data->>'Class',h.source_data->>'Type',h.record_kind),
-        concat_ws(' · ',h.source_data->>'Activity',h.source_data->>'Type',NULLIF(h.source_data->>'Note',''),
-          'Dropped '||(h.source_data->>'Drop Date'),'Source '||h.source_id),
-        'Jackrabbit',CASE WHEN $4 THEN h.amount_cents ELSE NULL END
-      FROM jackrabbit_history_record h WHERE h.family_id=$1 AND h.facility_id=$2
-        AND (h.record_kind IN ('enrollment','lead','note','attendance') OR ($4 AND h.record_kind='transaction'))
+      SELECT 'transaction:'||t.kind||':'||t.id,COALESCE(t.occurred_at,'0001-01-01'::timestamptz),
+        'transaction',t.member_id,t.description,'Source '||t.source_id,
+        CASE WHEN t.source='jackrabbit' THEN 'Jackrabbit' ELSE 'Vortex' END,t.amount_cents
+      FROM (
+        SELECT 'charge' AS kind,id,record_family_id,record_facility_id,record_member_id AS member_id,record_source AS source,
+          record_source_id AS source_id,record_description AS description,record_ledger_amount_cents AS amount_cents,created_at AS occurred_at
+          FROM account_charge_current
+        UNION ALL SELECT 'payment',id,record_family_id,record_facility_id,record_member_id,record_source,record_source_id,record_description,record_ledger_amount_cents,paid_at FROM account_payment_current
+        UNION ALL SELECT 'refund',id,record_family_id,record_facility_id,record_member_id,record_source,record_source_id,record_description,record_ledger_amount_cents,created_at FROM account_refund_current
+      ) t WHERE t.record_family_id=$1 AND t.record_facility_id=$2 AND $4
       UNION ALL
       SELECT 'inquiry:'||r.id,r.created_at AT TIME ZONE 'UTC','inquiry',
         COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id),

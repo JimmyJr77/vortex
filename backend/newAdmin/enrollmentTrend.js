@@ -70,7 +70,7 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
   const historyThrough = historical.flatMap(r => [day(r.start_date), day(r.end_date)]).filter(d => d && d <= today).sort().at(-1) ?? null
   for (const row of historical) {
     const start = day(row.start_date)
-    if (!start || row.family_id == null || (row.end_date && !day(row.end_date))) {
+    if (row.date_issue || !start || row.family_id == null || (row.end_date && !day(row.end_date))) {
       unresolvedRecords++; uncertainFrom.push(start ?? `${year}-01-01`); continue
     }
     let end = day(row.end_date), knownEnd = true
@@ -139,43 +139,24 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
 export async function loadEnrollmentTrend(pool, facilityId, now = new Date()) {
   return withFamilyRead(pool, async db => {
     const result = await db.query(`/* new-admin:enrollment-trend */
-      WITH signup_owners AS (
-        SELECT s.id,CASE WHEN count(DISTINCT b.family_id)=1 THEN min(b.family_id) END AS family_id,
-          count(DISTINCT b.family_id) AS owner_count
-        FROM scheduling_signup s JOIN member scoped ON scoped.id=s.member_id AND scoped.facility_id=$1
-        JOIN billing_subscription bs ON bs.source_type='scheduling_signup' AND bs.source_id=s.id::text
-        JOIN family_billing_account b ON b.id=bs.family_billing_account_id
-        GROUP BY s.id
-      ), households AS (
-        SELECT member_id,CASE WHEN count(DISTINCT fm.family_id)=1 THEN min(fm.family_id) END AS family_id
-        FROM family_member fm JOIN member m ON m.id=fm.member_id AND m.facility_id=$1
-        WHERE fm.is_active=TRUE GROUP BY member_id
-      )
       SELECT ($2::timestamptz AT TIME ZONE COALESCE(NULLIF(loc.timezone,''),'America/New_York'))::date::text AS today,
-      COALESCE((SELECT jsonb_agg(jsonb_build_object('family_id',h.family_id,'start_date',h.source_data->>'Enroll Date','end_date',h.source_data->>'Drop Date','enrollment_type',h.source_data->>'Type'))
-        FROM jackrabbit_history_record h LEFT JOIN family f ON f.id=h.family_id
-        WHERE h.facility_id=$1 AND (h.family_id IS NULL OR f.facility_id=$1) AND h.record_kind='enrollment'),'[]') AS historical,
-      COALESCE((SELECT jsonb_agg(jsonb_build_object('id',s.id,'family_id',household.id,'status',s.status,
-        'start_date',COALESCE(s.enrollment_start_date,(s.created_at AT TIME ZONE loc.timezone)::date)::text,
-        'cancel_date',s.cancel_effective_date::text,'orphaned_date',(s.orphaned_at AT TIME ZONE loc.timezone)::date::text,
-        'completed_date',(s.completed_at AT TIME ZONE loc.timezone)::date::text,
-        'archived_date',(s.archived_at AT TIME ZONE loc.timezone)::date::text,
-        'program_end',COALESCE(o.end_date,g.active_end,f.end_date)::text))
-        FROM scheduling_signup s JOIN member m ON m.id=s.member_id AND m.facility_id=$1
-        LEFT JOIN signup_owners owners ON owners.id=s.id
-        LEFT JOIN households hh ON hh.member_id=m.id
-        LEFT JOIN family household ON household.facility_id=$1 AND household.id=CASE
-          WHEN owners.owner_count>0 THEN owners.family_id
-          WHEN EXISTS(SELECT 1 FROM family_member fm WHERE fm.member_id=m.id) THEN hh.family_id ELSE m.family_id END
-        LEFT JOIN scheduling_form f ON f.id=s.form_id
-        LEFT JOIN scheduling_slot_group g ON g.id=s.slot_group_id
-        LEFT JOIN scheduling_offering o ON o.id=g.offering_id),'[]') AS live,
+      COALESCE((SELECT jsonb_agg(jsonb_build_object('id',e.id,'family_id',e.record_family_id,'status',e.status,
+        'start_date',(CASE WHEN e.historical_only THEN e.enrollment_start_date ELSE COALESCE(e.enrollment_start_date,(e.created_at AT TIME ZONE loc.timezone)::date) END)::text,
+        'cancel_date',e.cancel_effective_date::text,'orphaned_date',(e.orphaned_at AT TIME ZONE loc.timezone)::date::text,
+        'completed_date',(e.completed_at AT TIME ZONE loc.timezone)::date::text,
+        'archived_date',(e.archived_at AT TIME ZONE loc.timezone)::date::text,
+        'date_issue',e.record_date_issue,'program_end',e.record_program_end::text,'historical_only',e.historical_only,'enrollment_type',e.record_enrollment_kind))
+        FROM account_enrollment_current e WHERE e.record_facility_id=$1),'[]') AS enrollments,
       COALESCE((SELECT jsonb_agg(jsonb_build_object('signup_id',a.signup_id,'event_type',a.event_type,
         'after_value',a.after_value,'details',a.details,'occurred_on',(a.occurred_at AT TIME ZONE loc.timezone)::date::text))
         FROM billing_account_activity a JOIN family_billing_account b ON b.id=a.family_billing_account_id
         JOIN family f ON f.id=b.family_id AND f.facility_id=$1
         WHERE a.event_type IN ('enrollment_class_swapped','enrollment_cancelled_immediately','enrollment_cancellation_scheduled','canceled_enrollment_error_suppressed')),'[]') AS events
       FROM facility loc WHERE loc.id=$1`, [id(facilityId, 'facility'), now.toISOString()])
-    return buildEnrollmentTrend(result.rows[0] ?? {}, now)
+    const row = result.rows[0] ?? {}, records = row.enrollments ?? []
+    return buildEnrollmentTrend({ today: row.today, events: row.events,
+      live: records.filter(record => !record.historical_only),
+      historical: records.filter(record => record.historical_only).map(record => ({ ...record, end_date: record.cancel_date })),
+    }, now)
   })
 }

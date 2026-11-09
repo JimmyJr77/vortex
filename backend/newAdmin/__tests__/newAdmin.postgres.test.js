@@ -36,6 +36,7 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
     const migration=await fs.readFile(new URL('../../migrations/841_new_admin.sql',import.meta.url),'utf8')
     await pool.query(migration);await pool.query(migration)
     await pool.query(await fs.readFile(new URL('../../migrations/842_jackrabbit_history.sql',import.meta.url),'utf8'))
+    await pool.query(await fs.readFile(new URL('../../migrations/843_shared_account_records.sql',import.meta.url),'utf8'))
     const first=await createFacility(),second=await createFacility()
     const client=await pool.connect()
     let member
