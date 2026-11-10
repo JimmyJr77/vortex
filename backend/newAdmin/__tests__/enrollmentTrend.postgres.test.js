@@ -5,6 +5,7 @@ import fs from 'node:fs/promises'
 import crypto from 'node:crypto'
 import pg from 'pg'
 import { loadEnrollmentTrend } from '../enrollmentTrend.js'
+import { saveMarketingSpend } from '../marketingSpend.js'
 
 const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL || process.env.DASHBOARD_TEST_DATABASE_URL
 if (connectionString) {
@@ -22,6 +23,9 @@ test('monthly trend uses one read-only local snapshot with canonical owners and 
     const fixture = await fs.readFile(new URL('../../billing/__tests__/fixtures/turnover-schema.sql', import.meta.url), 'utf8')
     await pool.query(fixture.replaceAll('public.', `"${schema}".`))
     await installSharedAccountRecords(pool)
+    const marketingMigration = await fs.readFile(new URL('../../migrations/844_enrollment_marketing_spend.sql', import.meta.url), 'utf8')
+    await pool.query(marketingMigration)
+    await pool.query(marketingMigration)
     await pool.query(`
       INSERT INTO facility(id,name,timezone) VALUES(1,'Trend fixture','America/New_York'),(2,'Other','America/New_York');
       INSERT INTO family(id,facility_id,family_name) VALUES(1,1,'One'),(2,1,'Two'),(3,2,'Foreign'),(4,1,'Moved');
@@ -44,6 +48,13 @@ test('monthly trend uses one read-only local snapshot with canonical owners and 
       SELECT to_jsonb(t) AS value FROM billing_payment t UNION ALL SELECT to_jsonb(t) FROM billing_subscription t
       UNION ALL SELECT to_jsonb(t) FROM family_billing_account t UNION ALL SELECT to_jsonb(t) FROM jackrabbit_history_record t
       UNION ALL SELECT to_jsonb(t) FROM scheduling_signup t UNION ALL SELECT to_jsonb(t) FROM billing_account_activity t) facts`)).rows[0].hash
+    await pool.query(`INSERT INTO billing_subscription(id,family_billing_account_id,member_id,source_id,description,monthly_amount_cents,net_monthly_cents,status,start_date)
+      VALUES(2,2,2,'2','Tuition',16000,15000,'active','2026-02-01'),(3,2,4,'4','Tuition',10000,5000,'active','2026-02-01'),
+      (4,3,3,'3','Foreign',999999,999999,'active','2025-12-01');`)
+    const initialSpend = await saveMarketingSpend(pool,1,1,'2026-02',{amountCents:30000,version:0})
+    assert.equal(initialSpend.version,1)
+    await assert.rejects(saveMarketingSpend(pool,1,1,'2026-02',{amountCents:90000,version:0}),error=>error.statusCode===409)
+    await saveMarketingSpend(pool,2,3,'2026-02',{amountCents:999999,version:0})
     const before = await fingerprint(), queries = []
     const tracked = { connect: async () => {
       const client = await pool.connect()
@@ -66,6 +77,21 @@ test('monthly trend uses one read-only local snapshot with canonical owners and 
     const foreign = await loadEnrollmentTrend(pool, 2, new Date('2026-04-15T12:00:00Z'))
     assert.equal(foreign.months[0].openingFamilies, 1)
     assert.equal(foreign.months[1].newFamilies, 0)
+    const financial = await loadEnrollmentTrend(pool,1,new Date('2026-04-15T12:00:00Z'),{canViewFinancial:true})
+    assert.equal(financial.current.students,2)
+    assert.equal(financial.current.families,1)
+    assert.equal(financial.current.studentsPerFamily,2)
+    assert.equal(financial.current.membership.averageMembershipCents,10000)
+    assert.equal(financial.acquisition.cacCents,30000)
+    assert.equal(financial.acquisition.includedMonths,1)
+    assert.equal(financial.acquisition.totalSpendCents,30000)
+    const cleared = await saveMarketingSpend(pool,1,1,'2026-02',{amountCents:null,version:1})
+    assert.equal(cleared.version,2)
+    const afterClear = await loadEnrollmentTrend(pool,1,new Date('2026-04-15T12:00:00Z'),{canViewFinancial:true})
+    assert.equal(afterClear.acquisition.cacCents,null)
+    await assert.rejects(saveMarketingSpend(pool,1,1,'2026-02',{amountCents:5000,version:1}),error=>error.statusCode===409)
+    const zero = await saveMarketingSpend(pool,1,1,'2026-02',{amountCents:0,version:2})
+    assert.equal(zero.amountCents,0)
     assert.equal(await fingerprint(), before)
   } finally {
     await pool.end()
