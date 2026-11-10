@@ -7,6 +7,7 @@ import { listClasses,classDetail,memberDetail } from './reads.js'
 import { schedulingScopeMiddleware } from './scope.js'
 import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
 import { loadEnrollmentTrend } from './enrollmentTrend.js'
+import { saveMarketingSpend } from './marketingSpend.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -34,7 +35,13 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     facilityId: facility(req), ...target,
     canViewBilling: await canonicalAdminPermission(pool, req.canonicalAccess.userId, 'billing.view'),
   })
-  app.get(`${base}/enrollment-trend`,allow('members.view'),handler(req=>loadEnrollmentTrend(pool,facility(req))))
+  app.get(`${base}/enrollment-trend`,allow('members.view'),handler(async req=>{
+    const canViewFinancial = await canonicalAdminPermission(pool,req.canonicalAccess.userId,'billing.view')
+    const canEditMarketing = canViewFinancial && await canonicalAdminPermission(pool,req.canonicalAccess.userId,'marketing.manage')
+    return { ...await loadEnrollmentTrend(pool,facility(req),new Date(),{canViewFinancial}), permissions: {canViewFinancial,canEditMarketing} }
+  }))
+  app.put(`${base}/marketing-spend/:month`,allow(['members.view','billing.view','marketing.manage']),
+    handler(req=>saveMarketingSpend(pool,facility(req),req.canonicalAccess.userId,req.params.month,req.body)))
   app.get(`${base}/families`,allow('members.view'),handler(req=>listFamilies(pool,facility(req),req.query)))
   app.get(`${base}/families/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id})))
   app.get(`${base}/families/:id/history`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id,historyCursor:req.query.cursor || null})))

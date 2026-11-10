@@ -20,6 +20,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '841_new_admin.sql',
   '842_jackrabbit_history.sql',
   '843_shared_account_records.sql',
+  '844_enrollment_marketing_spend.sql',
   '819_coaching_exercise_difficulty_complexity_compatibility.sql',
   '820_coaching_exercise_difficulty_complexity_nullable.sql',
   '818_coaching_athleticism_accelerator_library.sql',

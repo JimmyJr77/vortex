@@ -61,3 +61,45 @@ updates, corrected classifications, invalid dates, facility isolation and unchan
 operational billing inputs. CI also runs real PostgreSQL accounting, refund,
 collection, family history and monthly retention regressions plus the deploy
 migration apply/no-op/checksum checks. All database fixtures are synthetic and local.
+
+## Enrollment & Loss Data
+
+The dashboard's seven summary cards use the 12 calendar months preceding the
+facility-local current month. The last-month card is the last completed month.
+New-family and cancellation totals sum known observations; monthly averages divide
+by their observed-month count. Loss-rate averages are arithmetic means of known,
+nonzero-denominator monthly rates. Cards show how many months contribute when less
+than the requested window is available. January-to-date trend views remain available.
+The UI no longer shows provisional markers or the recorded-history banner.
+
+Current families/students come from effective live enrollment intervals, excluding
+future starts, expired/canceled enrollments, requests, waitlists and test/error
+records. Paused enrollments remain enrolled. Students are distinct member IDs;
+classes count distinct students, so a student in two classes appears in each.
+Gender and age retain unspecified buckets. Age is calculated on the facility-local
+as-of date. There is no authoritative team flag in the present model: a student is
+classified as team when a current class or program name contains the word “Team”
+(excluding the phrase “Non-team”). The card states this rule.
+
+Financial metrics require `billing.view`. Monthly membership cost means net active
+recurring enrollment tuition divided by all current students, not household dues.
+It excludes annual memberships and one-time purchases; paused subscriptions add no
+revenue. Only subscriptions belonging to the same current enrollment, student and
+canonical family contribute. No Stripe calls or billing mutations occur on read.
+
+Migration 844 adds facility-scoped monthly marketing spend. The editor requires
+`members.view`, `billing.view`, and `marketing.manage`. Amounts are stored in cents;
+blank and explicit zero are different. Version-checked upserts prevent an old page
+from silently overwriting another administrator's edits. Clearing an entry keeps
+its version. A save refreshes the same dashboard read for recalculated values.
+
+Blended family acquisition cost is total recorded marketing spend divided by new
+families in the same completed months, including spend in zero-acquisition months.
+Blank-spend and unknown-enrollment months are excluded. Current-month inputs appear
+in the chart/table but do not enter the summary. Estimated retention in months is
+1 / average monthly family loss rate. Expected family lifetime revenue is monthly
+student tuition × current students per family × estimated retention. Revenue per
+marketing dollar divides that family revenue by family acquisition cost. These are
+revenue estimates assuming the present mix and retention continue, not profit or
+campaign attribution. Unknown/zero loss or acquisition-cost denominators yield an
+unavailable estimate rather than infinity.
