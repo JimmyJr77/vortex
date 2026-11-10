@@ -41,7 +41,7 @@ function minMonth(a, b) {
   return a < b ? a : b
 }
 
-async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
+export async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
   const schema = await resolveProgramsSchema(pool)
   const formProgram = schema.hasSchedulingProgramsLink
     ? `COALESCE(sf.programs_id, class_program.${schema.programFkColumn})`
@@ -54,7 +54,7 @@ async function loadEnrollmentPriceContext(pool, signupId, facilityId = null) {
   })
   const result = await pool.query(
     `SELECT
-       s.id AS signup_id, s.member_id, s.form_id, s.slot_group_id, s.responses,
+       s.id AS signup_id, s.member_id, s.form_id, s.slot_group_id, s.time_slot_id, s.status AS signup_status, s.responses,
        s.enrollment_start_date, s.created_at AS signup_created_at,
        m.first_name, m.last_name, m.billing_city, m.graduation_year,
        f.id AS family_id,
@@ -364,7 +364,7 @@ async function assertAdjustmentWindowAvailable(
   }
 }
 
-async function loadPeriodInputs(pool, context) {
+export async function loadPeriodInputs(pool, context) {
   const [subscriptions, charges] = await Promise.all([
     pool.query(
       `SELECT * FROM billing_subscription

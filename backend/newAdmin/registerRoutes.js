@@ -39,6 +39,21 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.get(`${base}/families/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id})))
   app.get(`${base}/families/:id/history`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id,historyCursor:req.query.cursor || null})))
   app.get(`${base}/members/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{memberId:req.params.id})))
+  // Retain the old lead screen's full array contract and existing edit handlers,
+  // but apply the same facility boundary and permissions used by New Admin.
+  app.get('/api/admin/registrations',allow('members.view'),handler(async req=>{
+    const result=await pool.query('SELECT * FROM registrations WHERE facility_id=$1 AND archived IS NOT TRUE ORDER BY created_at DESC,id DESC',[facility(req)])
+    return result.rows
+  }))
+  const legacyLeadGuard=async(req,res,next)=>{
+    try {
+      const result=await pool.query('SELECT id FROM registrations WHERE id=$1 AND facility_id=$2',[id(req.params.id),facility(req)])
+      if(!result.rows[0]) return res.status(404).json({success:false,message:'Lead not found.'})
+      next()
+    }catch(error){res.status(error.statusCode||500).json({success:false,message:'Unable to verify lead access.'})}
+  }
+  app.put('/api/admin/registrations/:id',allow('members.edit'),legacyLeadGuard,(_req,_res,next)=>next())
+  app.delete('/api/admin/registrations/:id',allow('members.edit'),legacyLeadGuard,(_req,_res,next)=>next())
   app.get(`${base}/members`,allow('members.view'),handler(req=>listAccountDirectory(pool,{facilityId:facility(req),query:req.query})))
   app.get(`${base}/members/:id`,allow('members.view'),handler(req=>memberDetail(pool,facility(req),req.params.id,req.query)))
   app.post(`${base}/members`,allow('members.edit'),handler(async req=>{

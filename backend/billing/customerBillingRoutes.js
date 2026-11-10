@@ -1,3 +1,4 @@
+import { previewEnrollmentStartDateAdjustment, applyEnrollmentStartDateAdjustment } from './enrollmentStartDateAdjustment.js'
 import { createCustomerBillingCredit } from './customerBillingCredits.js'
 import { previewChargeEnrollmentDeletion, previewCustomerBillingEnrollmentDeletion, deleteCustomerBillingEnrollment } from './customerBillingEnrollmentDeletion.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund } from './customerBillingRefundSelection.js'
@@ -553,6 +554,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       }
     },
   )
+
+  for (const previewOnly of [true, false]) {
+    app.post(`/api/admin/customer-billing/enrollments/:signupId/start-date${previewOnly ? '/preview' : ''}`,
+      ...requirePermission(pool, jwtSecret, 'billing.manage'),
+      async (req, res) => {
+        try {
+          const args = { signupId: Number(req.params.signupId), facilityId: facilityId(req), input: req.body }
+          const data = previewOnly
+            ? await previewEnrollmentStartDateAdjustment(pool, args)
+            : await applyEnrollmentStartDateAdjustment(pool, { ...args, actorUserId: actorId(req),
+                requestKey: requiredIdempotencyKey(req, 'enrollment-start-date') })
+          res.json({ success: true, data })
+        } catch (error) {
+          res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Start-date adjustment failed.' })
+        }
+      })
+  }
 
   app.post(
     '/api/admin/customer-billing/enrollments/:signupId/price-adjustments/preview',

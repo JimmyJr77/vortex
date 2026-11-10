@@ -64,6 +64,7 @@ test('dashboard does not query the media-release roster without waiver access', 
     },
   }
 
+  pool.connect = async () => ({ query: pool.query, release() {} })
   const dashboard = await getAdminDashboard(pool, {
     facilityId: 7,
     canViewEnrollment: true,
@@ -103,6 +104,7 @@ test('dashboard lists members without an accepted media release with active stud
     },
   }
 
+  pool.connect = async () => ({ query: pool.query, release() {} })
   const dashboard = await getAdminDashboard(pool, {
     facilityId: 7,
     canViewEnrollment: true,

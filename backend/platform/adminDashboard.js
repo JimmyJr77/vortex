@@ -1,5 +1,6 @@
 import { loadRevenueForecast } from './adminRevenueForecast.js'
 import { settledRefundPredicate } from '../billing/billingLedgerSql.js'
+import { loadEnrollmentTrend } from './adminEnrollmentTrend.js'
 
 const ACTIVE_SIGNUPS_CTE = `
   WITH active_signups AS (
@@ -394,7 +395,7 @@ export async function getAdminDashboard(pool, {
 } = {}) {
   const parsedFacilityId = Number(facilityId)
   const hasFacilityScope = Number.isInteger(parsedFacilityId) && parsedFacilityId > 0
-  const [enrollment, billing, mediaReleaseOptOuts] = await Promise.all([
+  const [enrollment, billing, mediaReleaseOptOuts, enrollmentTrend] = await Promise.all([
     canViewEnrollment && hasFacilityScope
       ? enrollmentDashboard(pool, parsedFacilityId)
       : null,
@@ -404,6 +405,7 @@ export async function getAdminDashboard(pool, {
     canViewEnrollment && canViewWaivers && hasFacilityScope
       ? mediaReleaseOptOutDashboard(pool, parsedFacilityId)
       : null,
+    canViewEnrollment && hasFacilityScope ? loadEnrollmentTrend(pool, parsedFacilityId, now) : null,
   ])
   return {
     permissions: { canViewEnrollment, canViewBilling, canViewWaivers },
@@ -411,5 +413,6 @@ export async function getAdminDashboard(pool, {
     enrollment,
     billing,
     mediaReleaseOptOuts,
+    enrollmentTrend,
   }
 }
