@@ -35,6 +35,7 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
     // Applying the additive migration twice is itself part of the rehearsal.
     const migration=await fs.readFile(new URL('../../migrations/841_new_admin.sql',import.meta.url),'utf8')
     await pool.query(migration);await pool.query(migration)
+    await pool.query(await fs.readFile(new URL('../../migrations/842_jackrabbit_history.sql',import.meta.url),'utf8'))
     const first=await createFacility(),second=await createFacility()
     const client=await pool.connect()
     let member
@@ -77,6 +78,9 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='members.view'",[restricted])
       assert.equal((await request('/api/admin/new-admin/leads',{token:jwt.sign({userId:restricted,role:'MASTER_ADMIN'},secret)})).status,403)
       const restrictedToken=jwt.sign({userId:restricted},secret)
+      for (const path of ['/api/admin/new-admin/families', `/api/admin/new-admin/families/${member.familyId}/workspace`, `/api/admin/new-admin/families/${member.familyId}/history`, `/api/admin/new-admin/members/${member.memberId}/workspace`]) {
+        assert.equal((await request(path,{token:restrictedToken})).status,403)
+      }
       assert.equal((await request(`/api/admin/scheduling/members/${member.memberId}/enrollments`,{token:restrictedToken})).status,200)
       await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='scheduling.view'",[restricted])
       assert.equal((await request(`/api/admin/scheduling/members/${member.memberId}/enrollments`,{token:restrictedToken})).status,403)
@@ -90,6 +94,16 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       assert.equal((await request(`/api/admin/new-admin/classes/${klass}`,{token:second.token})).status,404)
       const profile=await request(`/api/admin/new-admin/members/${member.memberId}`);assert.equal(profile.status,200);assert.equal(profile.json.data.household.payerMemberId,member.memberId);assert.equal(profile.json.data.enrollments[0].id,signup)
       assert.equal((await request(`/api/admin/new-admin/members/${member.memberId}`,{token:second.token})).status,404)
+      const family = await request(`/api/admin/new-admin/members/${member.memberId}/workspace`)
+      assert.equal(family.status,200); assert.equal(family.json.data.family.id,member.familyId)
+      const billingRestricted=Number((await pool.query("INSERT INTO app_user(facility_id,role,email,full_name,username,is_active) VALUES($1,'ADMIN',$2,'Member Staff',$3,TRUE) RETURNING id",[first.facility,`members-only-${suffix}@example.test`,`members_only_${suffix}`])).rows[0].id)
+      userIds.push(billingRestricted)
+      await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='billing.view'",[billingRestricted])
+      const restrictedFamily=await request(`/api/admin/new-admin/families/${member.familyId}/workspace`,{token:jwt.sign({userId:billingRestricted},secret)})
+      assert.equal(restrictedFamily.status,200);assert.equal(restrictedFamily.json.data.financial,null);assert.equal(restrictedFamily.json.data.permissions.canViewBilling,false)
+      for (const path of [`/api/admin/new-admin/families/${member.familyId}/workspace`, `/api/admin/new-admin/families/${member.familyId}/history`, `/api/admin/new-admin/members/${member.memberId}/workspace`]) {
+        assert.equal((await request(path,{token:second.token})).status,404)
+      }
       assert.equal((await request('/api/admin/new-admin/leads?page=0')).status,400)
       const catalog=await request('/api/admin/programs-top')
       assert.deepEqual(catalog.json.data.map(r=>Number(r.id)),[program]);assert.deepEqual(catalog.json.programs.map(r=>Number(r.id)),[program])

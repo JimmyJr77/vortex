@@ -26,28 +26,30 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
 }) {
   const [section, setSection] = useState<Section>('accounting')
   const [revision, setRevision] = useState(0)
+  const [familyId, setFamilyId] = useState<number | null>(null)
   const [memberId, setMemberId] = useState<number | null>(null)
   const [billingTarget, setBillingTarget] = useState<BillingTarget | null>(null)
   const [accountingWorkspace, setAccountingWorkspace] = useState<AccountingWorkspaceState | null>(null)
   const access = useRead<Access>('/api/admin/access/me')
   const refresh = () => setRevision(value => value + 1)
   const consumeBillingTarget = useCallback(() => setBillingTarget(null), [])
-  const openMember = (id: number) => { setMemberId(id); setSection('members') }
+  const openMember = (id: number) => { setFamilyId(null); setMemberId(id); setSection('members') }
   const openBilling = (target: BillingTarget) => { setBillingTarget(target); setSection('billing') }
   const visible = access.data ? sections.filter(item => allowed(access.data!, item.permission)) : []
   const current = visible.find(item => item.id === section) ?? visible[0]
   return <div className="min-h-screen bg-slate-50 text-slate-950">
     <header className="bg-slate-950 px-5 py-5 text-white"><div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-bold tracking-[0.2em] text-red-400">VORTEX ATHLETICS</p><h1 className="mt-1 text-2xl font-bold">New Admin</h1></div><PortalNavButtons activePortal="new-admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} /></div></header>
     <div className="mx-auto max-w-[1440px] p-4 sm:p-6">
-      <nav aria-label="New Admin sections" className="mb-6 flex flex-wrap items-center gap-2">{visible.map(item => <button key={item.id} onClick={() => { setSection(item.id); setMemberId(null); refresh() }} aria-current={current?.id === item.id ? 'page' : undefined} className={`${button} ${current?.id === item.id ? '!border-red-600 !bg-red-600 !text-white' : ''}`}><item.icon className="h-4 w-4" />{item.label}</button>)}{current?.id !== 'billing' ? <button className={`${button} ml-auto`} onClick={refresh} aria-label="Refresh New Admin"><RefreshCw className="h-4 w-4" />Refresh</button> : null}</nav>
+      <nav aria-label="New Admin sections" className="mb-6 flex flex-wrap items-center gap-2">{visible.map(item => <button key={item.id} onClick={() => { setSection(item.id); setMemberId(null); setFamilyId(null); refresh() }} aria-current={current?.id === item.id ? 'page' : undefined} className={`${button} ${current?.id === item.id ? '!border-red-600 !bg-red-600 !text-white' : ''}`}><item.icon className="h-4 w-4" />{item.label}</button>)}{current?.id !== 'billing' ? <button className={`${button} ml-auto`} onClick={refresh} aria-label="Refresh New Admin"><RefreshCw className="h-4 w-4" />Refresh</button> : null}</nav>
       {access.loading ? <Loading label="Checking administrative access…" /> : null}
       <ErrorNotice message={access.error} onRetry={() => window.location.reload()} />
       {access.data && !current ? <p role="status">Your staff account has no permissions for these administrative workflows.</p> : null}
       <main><Suspense fallback={<Loading label="Opening workspace…" />}>
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
-        {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} onSelect={setMemberId} onBilling={openBilling} /> : null}
+        {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onMember={openMember} /> : null}
         {access.data && current?.id === 'classes' ? <Classes access={access.data} revision={revision} onMember={openMember} /> : null}
+        {current?.id === 'billing' && (familyId != null || memberId != null) ? <button className={`${button} mb-4`} onClick={() => { setSection('members'); refresh() }}>Back to family workspace</button> : null}
         {access.data && current?.id === 'billing' ? <Billing accountTarget={billingTarget} onAccountTargetConsumed={consumeBillingTarget} accessContext={access.data} /> : null}
       </Suspense></main>
     </div>

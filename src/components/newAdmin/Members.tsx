@@ -6,6 +6,8 @@ import EnrollmentActions from './EnrollmentActions'
 import { button, cell, Dialog, Empty, ErrorNotice, input, Loading, Pager, primary, Status } from './shared'
 import { allowed, useRead, useSearch, type Access, type BillingTarget, type Page } from './api'
 
+const FamilyWorkspace = lazyWithRetry(() => import('./FamilyWorkspace'))
+const FamilyDirectory = lazyWithRetry(() => import('./FamilyDirectory'))
 const FamilyWizard = lazyWithRetry(() => import('../signup/FamilySignupWizard'))
 const NewEnrollment = lazyWithRetry(() => import('../customerBilling/NewBillingEnrollmentModal'))
 interface Person { id: number; firstName: string; lastName: string; email: string | null; phone: string | null; dateOfBirth: string | null; isActive: boolean; familyId: number | null; isPayer?: boolean }
@@ -16,9 +18,12 @@ interface MemberDetail {
   enrollmentPagination?: { page: number; total: number; totalPages: number }
   billingAccountId: number | null
 }
-export default function Members({ access, revision, selectedId, onSelect, onBilling }: {
+export default function Members({ access, revision, selectedId, selectedFamilyId, onSelectFamily, onSelect, onBilling }: {
+  selectedFamilyId: number | null; onSelectFamily: (id: number | null) => void;
   access: Access; revision: number; selectedId: number | null; onSelect: (id: number | null) => void; onBilling: (target: BillingTarget) => void
 }) {
+  const [directory, setDirectory] = useState<'families' | 'people'>('families')
+  const [individualProfileFor, setIndividualProfileFor] = useState<number | null>(null)
   const [query, setQuery] = useState('')
   const search = useSearch(query)
   const [page, setPage] = useState(1)
@@ -26,13 +31,17 @@ export default function Members({ access, revision, selectedId, onSelect, onBill
   const [version, setVersion] = useState(0)
   const [wizard, setWizard] = useState<number | 'new' | null>(null)
   const refresh = () => setVersion(value => value + 1)
-  const data = useRead<Page<AccountDirectoryRow>>(selectedId == null ? `/api/admin/account-directory?${new URLSearchParams({ search, record, page: String(page), pageSize: '25', sortBy: 'member', sortDir: 'asc' })}` : null, revision + version)
+  const data = useRead<Page<AccountDirectoryRow>>(selectedId == null && selectedFamilyId == null && directory === 'people' ? `/api/admin/account-directory?${new URLSearchParams({ search, record, page: String(page), pageSize: '25', sortBy: 'member', sortDir: 'asc' })}` : null, revision + version)
+  const showWorkspace = selectedFamilyId != null || (selectedId != null && individualProfileFor !== selectedId)
   return <section>
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Members & accounts</h2><p className="mt-1 text-sm text-slate-500">People, family relationships, class enrollments, and household billing.</p></div>{(allowed(access, 'members.edit') && allowed(access, 'scheduling.manage')) ? <button className={primary} onClick={() => setWizard('new')}><Plus className="h-4 w-4" />Create family account</button> : null}</div>
-    {selectedId != null ? <MemberProfile key={selectedId} id={selectedId} access={access} revision={revision + version} onBack={() => onSelect(null)} onSelect={onSelect} onEdit={() => setWizard(selectedId)} onBilling={onBilling} onChanged={refresh} /> : <>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Families & accounts</h2><p className="mt-1 text-sm text-slate-500">People, family relationships, class enrollments, and household billing.</p></div>{(allowed(access, 'members.edit') && allowed(access, 'scheduling.manage')) ? <button className={primary} onClick={() => setWizard('new')}><Plus className="h-4 w-4" />Create family account</button> : null}</div>
+    {showWorkspace ? <Suspense fallback={<Loading />}><FamilyWorkspace key={`${selectedFamilyId ?? 'member'}:${selectedId ?? ''}`} familyId={selectedFamilyId} memberId={selectedId} access={access} revision={revision + version} onBack={() => { onSelect(null); onSelectFamily(null); setIndividualProfileFor(null) }} onBilling={onBilling} onEdit={setWizard} onChanged={refresh} onIndividualProfile={selectedId == null ? undefined : () => setIndividualProfileFor(selectedId)} /></Suspense> : selectedId != null ? <MemberProfile key={selectedId} id={selectedId} access={access} revision={revision + version} onBack={() => onSelect(null)} onSelect={onSelect} onEdit={() => setWizard(selectedId)} onBilling={onBilling} onChanged={refresh} /> : <>
+      <div role="group" aria-label="Directory view" className="mb-4 flex gap-2"><button className={button} aria-pressed={directory === 'families'} onClick={() => setDirectory('families')}>Families</button><button className={button} aria-pressed={directory === 'people'} onClick={() => setDirectory('people')}>People</button></div>
+      {directory === 'families' ? <Suspense fallback={<Loading />}><FamilyDirectory revision={revision + version} onSelect={onSelectFamily} /></Suspense> : <>
       <div className="mb-4 flex flex-wrap gap-3"><label className="min-w-64 flex-1 text-sm font-medium"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search members</span><input className={input} value={query} onChange={event => { setQuery(event.target.value); setPage(1) }} placeholder="Name, email, phone, or family" /></label><label className="text-sm font-medium">Records<select className={input} value={record} onChange={event => { setRecord(event.target.value); setPage(1) }}><option value="active">Active</option><option value="archived">Archived</option><option value="">All records</option></select></label></div>
       <ErrorNotice message={data.error} onRetry={refresh} />
       {data.loading ? <Loading label="Loading members…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Member', 'Family', 'Participation', 'Portal', 'Actions'].map(title => <th key={title} className={cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(row => <tr key={row.id}><td className={cell}><button className="font-semibold text-slate-950 underline decoration-slate-300 underline-offset-4 hover:text-red-700" onClick={() => onSelect(row.id)}>{row.firstName} {row.lastName}</button><p className="mt-1 text-xs text-slate-500">{row.email || 'No email'} · #{row.id}</p></td><td className={cell}>{row.family.name || 'No family assigned'}<p className="mt-1 text-xs capitalize text-slate-500">{row.household.badges.join(' · ')}</p></td><td className={cell}>{row.participation.current} current · {row.participation.upcoming} upcoming</td><td className={cell}><Status value={row.portalAccess.status} /></td><td className={cell}><div className="flex gap-2"><button className={button} onClick={() => onSelect(row.id)}>View</button>{row.family.id && allowed(access, 'billing.view') ? <button className={button} onClick={() => onBilling({ familyId: row.family.id!, memberId: row.id })}>Billing</button> : null}</div></td></tr>)}</tbody></table> : <Empty>No members match these filters.</Empty>}<Pager data={data.data} onPage={setPage} /></div> : null}
+      </>}
     </>}
     {wizard != null ? <Dialog title={wizard === 'new' ? 'Create family account' : 'Edit family account'} onClose={() => setWizard(null)}><Suspense fallback={<Loading />}><FamilyWizard mode={wizard === 'new' ? 'admin' : 'admin-edit'} editMemberId={wizard === 'new' ? null : wizard} onCancel={() => setWizard(null)} onComplete={() => { setWizard(null); refresh() }} /></Suspense></Dialog> : null}
   </section>

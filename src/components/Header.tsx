@@ -13,15 +13,25 @@ import {
 } from '../utils/ninjaProgram'
 import { HUB_HEADER_LOGO } from '../utils/seo'
 import { getSiteEnrollHref } from '../utils/enrollSite'
+import type { PortalId } from '../utils/portalSession'
+
+const PORTAL_OPTIONS = [
+  { id: 'admin', label: 'Admin' },
+  { id: 'new-admin', label: 'New Admin' },
+  { id: 'coach', label: 'Coach' },
+  { id: 'member', label: 'Member' },
+] as const
 
 interface HeaderProps {
   onContactClick: () => void
   onAdminLoginClick?: () => void
   member?: unknown
   onMemberDashboardClick?: () => void
+  availablePortals?: PortalId[]
+  onSwitchPortal?: (portal: PortalId) => void
 }
 
-const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick }: HeaderProps) => {
+const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick, availablePortals = [], onSwitchPortal }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
@@ -36,6 +46,34 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
     }
     onAdminLoginClick?.()
   }
+  const portalOptions = PORTAL_OPTIONS.filter(option => availablePortals.includes(option.id))
+  const profileControl = portalOptions.length && onSwitchPortal ? (
+    <select
+      aria-label="Open a portal"
+      value=""
+      onChange={event => {
+        const option = portalOptions.find(item => item.id === event.target.value)
+        if (option) {
+          setIsMenuOpen(false)
+          onSwitchPortal(option.id)
+        }
+      }}
+      className="h-9 max-w-32 rounded-lg border border-white/30 bg-black px-2 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+    >
+      <option value="" disabled>Portals</option>
+      {portalOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
+    </select>
+  ) : (
+    <button
+      type="button"
+      onClick={handleProfileClick}
+      className="text-white transition-colors duration-300 hover:text-vortex-red"
+      aria-label={member ? 'Open member portal' : 'Account login'}
+      title={member ? 'Member Portal' : 'Account Login'}
+    >
+      <UserCircle size={28} />
+    </button>
+  )
 
   const linkClass = (active: boolean) =>
     `block ${
@@ -73,15 +111,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
 
             {/* Hamburger Menu Button - Only visible on mobile, next to logo */}
             <div className="flex shrink-0 items-center gap-5 min-[1075px]:hidden">
-              <button
-                type="button"
-                onClick={handleProfileClick}
-                className="text-white transition-colors duration-300 hover:text-vortex-red"
-                aria-label={member ? 'Open member portal' : 'Account login'}
-                title={member ? 'Member Portal' : 'Account Login'}
-              >
-                <UserCircle size={28} />
-              </button>
+              {profileControl}
               <button
                 type="button"
                 className="text-white hover:text-vortex-red transition-colors duration-300"
@@ -153,15 +183,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
               </Link>
             ) : null}
 
-            <button
-              type="button"
-              onClick={handleProfileClick}
-              className="hidden text-white transition-colors duration-300 hover:text-vortex-red min-[1075px]:block"
-              aria-label={member ? 'Open member portal' : 'Account login'}
-              title={member ? 'Member Portal' : 'Account Login'}
-            >
-              <UserCircle size={28} />
-            </button>
+            <div className="hidden min-[1075px]:block">{profileControl}</div>
 
             {/* Hamburger Menu Button - Only visible on desktop */}
             <button

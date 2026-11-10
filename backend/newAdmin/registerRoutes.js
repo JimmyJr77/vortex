@@ -5,6 +5,7 @@ import { handler,id,inputError } from './common.js'
 import { listLeads,createLead,updateLead,convertLead,createScopedMember } from './leads.js'
 import { listClasses,classDetail,memberDetail } from './reads.js'
 import { schedulingScopeMiddleware } from './scope.js'
+import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -28,6 +29,14 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.use(base,(req,res,next)=>req.canonicalAccess?next():auth(req,res,next))
   const allow=permission=>permissionMiddleware(pool,permission)
   const facility=req=>req.canonicalAccess.facilityId
+  const workspace = async (req, target) => loadFamilyWorkspace(pool, {
+    facilityId: facility(req), ...target,
+    canViewBilling: await canonicalAdminPermission(pool, req.canonicalAccess.userId, 'billing.view'),
+  })
+  app.get(`${base}/families`,allow('members.view'),handler(req=>listFamilies(pool,facility(req),req.query)))
+  app.get(`${base}/families/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id})))
+  app.get(`${base}/families/:id/history`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id,historyCursor:req.query.cursor || null})))
+  app.get(`${base}/members/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{memberId:req.params.id})))
   // Retain the old lead screen's full array contract and existing edit handlers,
   // but apply the same facility boundary and permissions used by New Admin.
   app.get('/api/admin/registrations',allow('members.view'),handler(async req=>{

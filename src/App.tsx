@@ -215,6 +215,13 @@ function App() {
     setShowMemberDashboard(true)
   }
 
+  // Older admin logins may have only the admin session, without a member
+  // profile. Both admin shells still use that same authenticated API session.
+  const availablePortals: PortalId[] = [...new Set([
+    ...getAvailablePortals(member),
+    ...(isAdmin ? ['admin', 'new-admin'] as const : []),
+  ])]
+
   if (location.pathname === '/employee/payroll/preparer') return <Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense>
 
   if (location.pathname === '/employee/payroll') {
@@ -228,7 +235,7 @@ function App() {
       <Suspense fallback={<PageLoader />}>
         <AdminPortal
           onLogout={handleLogout}
-          availablePortals={getAvailablePortals(member)}
+          availablePortals={availablePortals}
           onSwitchPortal={switchPortal}
         />
       </Suspense>
@@ -237,7 +244,6 @@ function App() {
 
   // If member is logged in and wants to see dashboard, show member dashboard
   if (member && memberToken && showMemberDashboard) {
-    const availablePortals = getAvailablePortals(member)
     if (activePortal === 'coach') {
       return (
         <Suspense fallback={<PageLoader />}>
@@ -272,6 +278,8 @@ function App() {
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         member={member}
+        availablePortals={availablePortals}
+        onSwitchPortal={switchPortal}
         onMemberDashboardClick={() => {
           const portals = getAvailablePortals(member)
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : 'admin')

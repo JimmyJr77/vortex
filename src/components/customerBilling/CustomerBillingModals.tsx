@@ -1,3 +1,4 @@
+import EnrollmentStartDateAdjustment from './EnrollmentStartDateAdjustment'
 import { useEffect, useState, type ReactNode } from 'react'
 import { AlertTriangle, CheckCircle2, ExternalLink, Loader2, X } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
@@ -405,6 +406,7 @@ export function PriceAdjustmentModal({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="space-y-4">
           <DeleteEnrollmentControl signupId={enrollment.id} working={working} setWorking={setWorking} onSaved={onSaved} onError={setError} />
+          <EnrollmentStartDateAdjustment enrollment={enrollment} working={working} setWorking={setWorking} onSaved={onSaved} />
           {onSwap ? (
             <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 text-sm text-violet-950">
               <div className="font-semibold">Move to another class</div>

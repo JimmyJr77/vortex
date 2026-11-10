@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { EnrollmentTrendData } from './EnrollmentTrend'
 import {
   BadgeDollarSign,
   CalendarDays,
@@ -10,6 +11,8 @@ import {
   Users,
 } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
+
+const EnrollmentTrend = lazy(() => import('./EnrollmentTrend'))
 
 interface MemberRow {
   memberId: number
@@ -36,6 +39,7 @@ interface MediaReleaseOptOutRow {
 }
 
 interface DashboardData {
+  enrollmentTrend?: EnrollmentTrendData | null
   permissions: { canViewEnrollment: boolean; canViewBilling: boolean; canViewWaivers: boolean }
   generatedAt: string
   enrollment: null | {
@@ -312,6 +316,8 @@ export default function AdminDashboard({
                   : 'The media-release roster is hidden for your role.'}
           </div>
         ) : null}
+
+        {data.enrollmentTrend ? <Suspense fallback={<div className="rounded-2xl border border-gray-200 bg-white p-8 text-sm text-gray-500">Loading enrollment trend…</div>}><EnrollmentTrend data={data.enrollmentTrend} /></Suspense> : null}
 
         {data.enrollment ? <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
