@@ -6,7 +6,7 @@ const trend = { year: 2026, asOf: '2026-11-09', coverageStart: '2026-01-19', not
   openingFamilies: i ? 20 : null, newFamilies: i ? 4 : 20, canceledFamilies: i ? 3 : 0,
   lostFamilies: i ? 2 : null, lossRate: i ? 10 : null, partial: i === 10, provisional: i >= 7,
 })) }
-async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false } = {}) {
+async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false } = {}) {
   const rollingMonths = [{...trend.months[0],key:'2025-11',label:'Nov',newFamilies:null}, {...trend.months[0],key:'2025-12',label:'Dec',newFamilies:null}, ...trend.months.slice(0,10)]
   const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,pricedStudents:30} : null}
   const summary = summarizeMonths(rollingMonths)
@@ -32,6 +32,7 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     if (path === '/api/admin/new-admin/enrollment-trend') {
       if (failure) { failure = false; return route.fulfill({ status: 503, json: { success: false, message: 'Enrollment history is temporarily unavailable.' } }) }
       data = empty ? { ...buildData(), summary:summarizeMonths([]), coverageStart: null, months: trend.months.map(row => ({ ...row, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()
+      if (legacy) { data = trend; legacy = false }
     }
     if (path.includes('/marketing-spend/')) {
       if (saveFailure) {saveFailure=false; return route.fulfill({status:503,json:{success:false,message:'Unable to save spending.'}})}
@@ -83,6 +84,18 @@ test('dashboard read errors can be retried and empty data does not become a fabr
   await page.getByRole('button', { name: 'Retry', exact: true }).click()
   await expect(page.getByText('No enrollment history is available for this year.')).toBeVisible()
   await expect(page.getByRole('article',{name:'New Families last 12 months',exact:true})).toContainText('Unavailable')
+})
+test('older backend responses retain the timeline until expanded metrics arrive on refresh', async ({ page }) => {
+  const { errors } = await prepare(page, { legacy: true })
+  const chart = page.getByRole('group', { name: 'Family enrollment trend' })
+  await expect(chart.locator('.recharts-line')).toHaveCount(3)
+  await expect(page.getByRole('button', { name: 'Save spending' })).toHaveCount(0)
+  await chart.getByRole('button', { name: 'Table', exact: true }).click()
+  await expect(chart.getByRole('row').filter({ hasText: 'Feb' })).toContainText('10.0%')
+  await page.getByRole('button', { name: 'Refresh New Admin', exact: true }).click()
+  await expect(page.getByRole('article', { name: 'Current students', exact: true })).toContainText('30')
+  await expect(page.getByRole('button', { name: 'Save spending' })).toBeVisible()
+  expect(errors).toEqual([])
 })
 test('staff without family access cannot open or fetch the family dashboard', async ({ page }) => {
   const { requests } = await prepare(page, { permission: false })

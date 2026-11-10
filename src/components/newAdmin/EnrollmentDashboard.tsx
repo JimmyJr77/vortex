@@ -25,8 +25,8 @@ function EnrollmentContent({ initialData }: {initialData: EnrollmentTrendData}) 
   const [data, setData] = useState(initialData)
   return <>
     <EnrollmentTrend data={data} />
-    <EnrollmentPopulation current={data.current} asOf={data.asOf} />
-    <AcquisitionPanel data={data} onRefresh={setData} />
+    {data.current ? <EnrollmentPopulation current={data.current} asOf={data.asOf} /> : null}
+    {data.current && data.permissions ? <AcquisitionPanel data={data} onRefresh={setData} /> : null}
   </>
 }
 
@@ -35,10 +35,12 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
   const hasData = data.months.some(row => row.newFamilies != null)
   const latest = data.months.at(-1)
   const summary = data.summary
-  const period = `${monthName(data.rollingMonths[0].key)} – ${monthName(data.rollingMonths.at(-1)!.key)}`
+  // Frontend and backend releases can arrive independently. Older API responses
+  // still contain the full timeline; show expanded cards once their data arrives.
+  const period = data.rollingMonths?.length ? `${monthName(data.rollingMonths[0].key)} – ${monthName(data.rollingMonths.at(-1)!.key)}` : null
   const coverage = (count: number, expected: number) => count === expected ? `${count} completed months` : `${count} of ${expected} months with recorded data`
   return <>
-    <p className="mb-3 text-sm text-slate-500">Rolling summary · {period} · Excludes the current month</p>
+    {summary && period ? <><p className="mb-3 text-sm text-slate-500">Rolling summary · {period} · Excludes the current month</p>
     <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {[
         { label: 'New Families last 12 months', value: number(summary.newFamilies), detail: coverage(summary.newFamilyMonths, 12), color: 'text-blue-700' },
@@ -49,7 +51,7 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
         { label: 'Previous 3 months avg loss rate', value: rate(summary.threeMonthLossRate), detail: coverage(summary.threeMonthRateMonths, 3), color: 'text-red-700' },
         { label: 'Previous 12 months avg loss rate', value: rate(summary.twelveMonthLossRate), detail: coverage(summary.twelveMonthRateMonths, 12), color: 'text-red-700' },
       ].map(card => <MetricCard key={card.label} {...card} />)}
-    </div>
+    </div></> : null}
     <div role="group" aria-label="Family enrollment trend" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h3 className="font-bold">Family enrollment trend · {data.year}</h3><p className="mt-1 text-sm text-slate-500">January – {latest?.label} · As of {data.asOf}{latest?.partial ? ' · Current month is partial' : ''}</p></div>

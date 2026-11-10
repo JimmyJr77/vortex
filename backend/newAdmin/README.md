@@ -72,6 +72,10 @@ nonzero-denominator monthly rates. Cards show how many months contribute when le
 than the requested window is available. January-to-date trend views remain available.
 The UI no longer shows provisional markers or the recorded-history banner.
 
+The frontend retains the existing timeline when an older backend response lacks
+expanded metrics. Deploy the backend (including migration 844) to enable the new
+cards and marketing editor; refreshing then loads the expanded dashboard.
+
 Current families/students come from effective live enrollment intervals, excluding
 future starts, expired/canceled enrollments, requests, waitlists and test/error
 records. Paused enrollments remain enrolled. Students are distinct member IDs;
