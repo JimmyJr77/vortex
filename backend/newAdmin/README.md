@@ -98,6 +98,11 @@ New-family and cancellation totals sum known observations; monthly averages divi
 by their observed-month count. Loss-rate averages are arithmetic means of known,
 nonzero-denominator monthly rates. Cards show how many months contribute when less
 than the requested window is available. January-to-date trend views remain available.
+Each loss-rate card shows both families and students, independent of the chart's
+population toggle. Student summaries use the full rolling window, including the
+previous year, from the same shared enrollment snapshot. Each population retains
+its own known-month count. Unavailable student history never falls back to family
+rates. Family acquisition and lifetime-value estimates still use family loss rates.
 The UI no longer shows provisional markers or the recorded-history banner.
 
 The frontend retains the existing timeline when an older backend response lacks

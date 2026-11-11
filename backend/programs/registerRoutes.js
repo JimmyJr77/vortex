@@ -1,3 +1,4 @@
+import { assertResourceScope } from '../newAdmin/scope.js'
 import Joi from 'joi'
 import { ensureDisciplineTagsSchema, ensurePrimaryDisciplineTagColumn, ensureProgramPricingColumns, ensureProgramDropInColumns, ensureProgramsSchedulingSchema, ensureAbridgedNameColumns, hasProgramSchedulingColumns, mapProgramRow, resolveAbridgedName, resolveProgramsSchema } from './schema.js'
 import { consolidateClasses } from './reconcile.js'
@@ -272,15 +273,14 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
 
       const progCheck = await pool.query(
-        `SELECT id, name FROM ${schema.programsTable} WHERE id = $1 AND archived = FALSE LIMIT 1`,
-        [programsId],
+        `SELECT id, name FROM ${schema.programsTable} WHERE id = $1 AND facility_id = $2 AND archived = FALSE LIMIT 1`,
+        [programsId, req.canonicalAccess.facilityId],
       )
       if (progCheck.rows.length === 0) {
         return res.status(400).json({ success: false, message: 'Program not found' })
       }
 
-      const facilityId = await getFacilityId(pool)
-      if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
+      const facilityId = req.canonicalAccess.facilityId
 
       const enumCheckResult = await pool.query(`
         SELECT unnest(enum_range(NULL::program_category))::text as enum_value
@@ -485,13 +485,14 @@ export function registerProgramsAdminRoutes(app, pool) {
           ${schedCols}
         FROM ${schema.programsTable} p
         LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
+        WHERE p.facility_id = $1
       `
-      const params = []
+      const params = [req.canonicalAccess.facilityId]
       if (archived === 'true') {
-        query += ' WHERE archived = $1'
+        query += ' AND p.archived = $2'
         params.push(true)
       } else if (archived === 'false') {
-        query += ' WHERE archived = $1'
+        query += ' AND p.archived = $2'
         params.push(false)
       }
       query += ' ORDER BY archived ASC, display_name ASC'
@@ -515,8 +516,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensureAbridgedNameColumns(pool)
       await ensureProgramDropInColumns(pool)
       const schema = await resolveProgramsSchema(pool)
-      const facilityId = await getFacilityId(pool)
-      if (!facilityId) return res.status(500).json({ success: false, message: 'No facility found' })
+      const facilityId = req.canonicalAccess.facilityId
 
       const columnCheck = await pool.query(`
         SELECT column_name FROM information_schema.columns
@@ -571,6 +571,7 @@ export function registerProgramsAdminRoutes(app, pool) {
 
   app.put('/api/admin/programs-top/:id', async (req, res) => {
     try {
+      await assertResourceScope(pool, req.canonicalAccess.facilityId, 'program', req.params.id)
       const sanitizedBody = sanitizeTopProgramUpdateBody(req.body)
       const { error, value } = topProgramUpdateSchema.validate(sanitizedBody)
       if (error) {
@@ -835,6 +836,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       }
       res.json({ success: true, data: { ...row, ...primarySport } })
     } catch (err) {
+      if (err.statusCode) return res.status(err.statusCode).json({ success: false, message: err.message })
       console.error('[programs] update top program:', err)
       res.status(500).json({ success: false, message: 'Failed to update program' })
     }

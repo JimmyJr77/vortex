@@ -1,6 +1,15 @@
 // Pure dashboard calculations. All money stays in cents until presentation.
 const average = values => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null
 const known = (rows, field) => rows.map(row => row[field]).filter(value => value != null && Number.isFinite(value))
+export function summarizeLossRates(months) {
+  return {
+    lastMonthLossRate: months.at(-1)?.lossRate ?? null,
+    threeMonthLossRate: average(known(months.slice(-3), 'lossRate')),
+    threeMonthRateMonths: known(months.slice(-3), 'lossRate').length,
+    twelveMonthLossRate: average(known(months, 'lossRate')),
+    twelveMonthRateMonths: known(months, 'lossRate').length,
+  }
+}
 export function summarizeMonths(months) {
   const additions = known(months, 'newFamilies'), cancellations = known(months, 'canceledFamilies')
   return {
@@ -8,11 +17,7 @@ export function summarizeMonths(months) {
     averageNewFamilies: average(additions), newFamilyMonths: additions.length,
     cancellations: cancellations.length ? cancellations.reduce((sum, value) => sum + value, 0) : null,
     averageCancellations: average(cancellations), cancellationMonths: cancellations.length,
-    lastMonthLossRate: months.at(-1)?.lossRate ?? null,
-    threeMonthLossRate: average(known(months.slice(-3), 'lossRate')),
-    threeMonthRateMonths: known(months.slice(-3), 'lossRate').length,
-    twelveMonthLossRate: average(known(months, 'lossRate')),
-    twelveMonthRateMonths: known(months, 'lossRate').length,
+    ...summarizeLossRates(months),
   }
 }
 

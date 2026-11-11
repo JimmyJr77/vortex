@@ -4,13 +4,16 @@ export interface EnrollmentMonth {
 }
 export interface Breakdown { label: string; count: number }
 export interface AcquisitionMonth { key: string; label: string; partial: boolean; newFamilies: number | null; spendCents: number | null; cacCents: number | null; version: number }
+export interface LossRateSummary {
+  lastMonthLossRate: number | null; threeMonthLossRate: number | null; threeMonthRateMonths: number
+  twelveMonthLossRate: number | null; twelveMonthRateMonths: number
+}
 export interface EnrollmentTrendData {
   studentMonths?: Array<Omit<EnrollmentMonth, 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
   year: number; asOf: string; coverageStart: string | null; months: EnrollmentMonth[]; rollingMonths: EnrollmentMonth[]; notes: string[]
-  summary: { newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
-    cancellations: number | null; averageCancellations: number | null; cancellationMonths: number
-    lastMonthLossRate: number | null; threeMonthLossRate: number | null; threeMonthRateMonths: number
-    twelveMonthLossRate: number | null; twelveMonthRateMonths: number }
+  summary: LossRateSummary & { newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
+    cancellations: number | null; averageCancellations: number | null; cancellationMonths: number }
+  studentSummary?: LossRateSummary
   current: { families: number; students: number; studentsPerFamily: number | null
     classes: Array<{id: string; name: string; count: number}>; genders: Breakdown[]; ages: Breakdown[]; teams: Breakdown[]
     membership: { monthlyRevenueCents: number; averageMembershipCents: number | null; averageFamilyMembershipCents?: number | null; pricedStudents: number } | null }

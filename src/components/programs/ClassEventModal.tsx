@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Loader2, Pencil, X } from 'lucide-react'
 import {
   createClassEvent,
@@ -22,7 +22,8 @@ interface Props {
   availablePrograms?: ProgramOption[]
   lockProgram?: boolean
   parentProgramActive?: boolean
-  editing?: ClassEvent | null
+  editing?: (Pick<ClassEvent, 'id' | 'programsId' | 'categoryId'> & ClassEventFormData) | null
+  hideSportTags?: boolean
   initialFormData?: ClassEventFormData
   programPrimarySportId?: number | null
   submitLabel?: string
@@ -49,12 +50,14 @@ const ClassEventModal = ({
   lockProgram = false,
   parentProgramActive = true,
   editing,
+  hideSportTags = false,
   initialFormData,
   programPrimarySportId = null,
   submitLabel,
   onClose,
   onSaved,
 }: Props) => {
+  const fieldId = useId()
   const [form, setForm] = useState<ClassEventFormData>(emptyForm())
   const [selectedProgramsId, setSelectedProgramsId] = useState(programsId)
   const [programSelectorOpen, setProgramSelectorOpen] = useState(false)
@@ -102,7 +105,7 @@ const ClassEventModal = ({
     setSaving(true)
     setError(null)
     try {
-      if (!selectedProgramsId) {
+      if (!selectedProgramsId && !(editing && lockProgram)) {
         setError('Program is required')
         return
       }
@@ -205,8 +208,9 @@ const ClassEventModal = ({
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Class or Event Name *</label>
+            <label htmlFor={`${fieldId}-name`} className="block text-sm font-medium text-gray-700 mb-1">Class or Event Name *</label>
             <input
+              id={`${fieldId}-name`}
               type="text"
               value={form.displayName}
               onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
@@ -215,8 +219,9 @@ const ClassEventModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Abridged name</label>
+            <label htmlFor={`${fieldId}-short`} className="block text-sm font-medium text-gray-700 mb-1">Abridged name</label>
             <input
+              id={`${fieldId}-short`}
               type="text"
               value={form.abridgedName ?? ''}
               onChange={(e) => setForm((f) => ({ ...f, abridgedName: e.target.value }))}
@@ -227,7 +232,7 @@ const ClassEventModal = ({
               Shorter label used on the calendar. Defaults to the class name.
             </p>
           </div>
-          <div>
+          {!hideSportTags && <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Additional sport tags</label>
             <p className="text-xs text-gray-500 mb-2">
               Primary sport is set on the program. Add cross-training or joint-event tags here.
@@ -238,10 +243,11 @@ const ClassEventModal = ({
               showHeading={false}
               excludeTagId={selectedPrimarySportId}
             />
-          </div>
+          </div>}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Skill level</label>
+            <label htmlFor={`${fieldId}-level`} className="block text-sm font-medium text-gray-700 mb-1">Skill level</label>
             <select
+              id={`${fieldId}-level`}
               value={form.skillLevel || ''}
               onChange={(e) =>
                 setForm((f) => ({ ...f, skillLevel: e.target.value || null }))
@@ -288,8 +294,9 @@ const ClassEventModal = ({
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label htmlFor={`${fieldId}-description`} className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
+              id={`${fieldId}-description`}
               value={form.description || ''}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={3}
@@ -297,8 +304,9 @@ const ClassEventModal = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Skill requirements</label>
+            <label htmlFor={`${fieldId}-requirements`} className="block text-sm font-medium text-gray-700 mb-1">Skill requirements</label>
             <input
+              id={`${fieldId}-requirements`}
               type="text"
               value={form.skillRequirements || ''}
               onChange={(e) => setForm((f) => ({ ...f, skillRequirements: e.target.value }))}

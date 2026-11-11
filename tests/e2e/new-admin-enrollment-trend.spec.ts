@@ -1,18 +1,21 @@
 import { expect, test, type Page } from '@playwright/test'
 import { buildBillingDashboard } from '../../backend/newAdmin/billingDashboardMetrics.js'
-import { summarizeMonths, acquisitionMetrics } from '../../backend/newAdmin/enrollmentMetrics.js'
+import { summarizeMonths, summarizeLossRates, acquisitionMetrics } from '../../backend/newAdmin/enrollmentMetrics.js'
 
 const trend = { year: 2026, asOf: '2026-11-09', coverageStart: '2026-01-19', notes: ['Siblings and transfers count once per family.'], months: Array.from({ length: 11 }, (_, i) => ({
   key: `2026-${String(i + 1).padStart(2, '0')}`, label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'][i],
   openingFamilies: i ? 20 : null, newFamilies: i ? 4 : 20, canceledFamilies: i ? 3 : 0,
   lostFamilies: i ? 2 : null, lossRate: i ? 10 : null, partial: i === 10, provisional: i >= 7,
 })) }
-async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false } = {}) {
+async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false, studentHistory = true } = {}) {
   const rollingMonths = [{...trend.months[0],key:'2025-11',label:'Nov',newFamilies:null}, {...trend.months[0],key:'2025-12',label:'Dec',newFamilies:null}, ...trend.months.slice(0,10)]
   const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,averageFamilyMembershipCents:22500,pricedStudents:30} : null}
   const summary = summarizeMonths(rollingMonths)
+  const studentSummary = studentHistory ? summarizeLossRates(rollingMonths.map(row => ({
+    lossRate: row.lossRate == null ? null : row.key === '2026-10' ? 30 : 20,
+  }))) : undefined
   const spending = [{month:'2026-10',amount_cents:60000 as number | null,version:1}]
-  const buildData = () => ({...trend,studentMonths:trend.months.map(row=>({...row,openingStudents:30,newStudents:6,canceledStudents:4,lostStudents:3})),studentNotes:['Students count once across all classes.'],rollingMonths,summary,current,acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
+  const buildData = () => ({...trend,studentMonths:trend.months.map(row=>({...row,openingStudents:30,newStudents:6,canceledStudents:4,lostStudents:3})),studentNotes:['Students count once across all classes.'],rollingMonths,summary,studentSummary,current,acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
 
   const requests: string[] = [], errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
@@ -39,7 +42,7 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     if (path === '/api/admin/new-admin/classes') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
     if (path === '/api/admin/new-admin/enrollment-trend') {
       if (failure) { failure = false; return route.fulfill({ status: 503, json: { success: false, message: 'Enrollment history is temporarily unavailable.' } }) }
-      data = empty ? { ...buildData(), summary:summarizeMonths([]), coverageStart: null, months: trend.months.map(row => ({ ...row, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()
+      data = empty ? { ...buildData(), summary:summarizeMonths([]), studentSummary:summarizeLossRates([]), coverageStart: null, months: trend.months.map(row => ({ ...row, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()
       if (legacy) { data = trend; legacy = false }
     }
     if (path.includes('/marketing-spend/')) {
@@ -92,6 +95,38 @@ test('dashboard read errors can be retried and empty data does not become a fabr
   await page.getByRole('button', { name: 'Retry', exact: true }).click()
   await expect(page.getByText('No enrollment history is available for this year.')).toBeVisible()
   await expect(page.getByRole('article',{name:'New Families last 12 months',exact:true})).toContainText('Unavailable')
+  await expect(page.getByRole('article',{name:'Last month loss rate',exact:true}).getByRole('definition').filter({hasText:'Unavailable'})).toHaveCount(2)
+})
+test('each loss-rate card shows independent family and student rates regardless of the graph population', async ({ page }) => {
+  const { requests, errors } = await prepare(page)
+  const cards = [
+    ['Last month loss rate', '30.0%', 'Oct 2026'],
+    ['Previous 3 months avg loss rate', '23.3%', '3 completed months'],
+    ['Previous 12 months avg loss rate', '21.1%', '9 of 12 months with recorded data'],
+  ]
+  for (const [label, studentRate, detail] of cards) {
+    const card = page.getByRole('article', { name: label, exact: true })
+    await expect(card.locator('dl > div').filter({ hasText: 'Families' })).toContainText('10.0%')
+    await expect(card.locator('dl > div').filter({ hasText: 'Students' })).toContainText(studentRate)
+    await expect(card.locator('dl > div').filter({ hasText: 'Students' })).toContainText(detail)
+  }
+  await page.getByRole('button', { name: 'Students', exact: true }).click()
+  const lastMonth = page.getByRole('article', { name: 'Last month loss rate', exact: true })
+  await expect(lastMonth).toContainText('10.0%')
+  await expect(lastMonth).toContainText('30.0%')
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  if (process.env.ENROLLMENT_SCREENSHOTS) await page.screenshot({ path: process.env.ENROLLMENT_SCREENSHOTS + '/loss-rates-mobile.png', fullPage: true })
+  expect(requests.filter(path => path.endsWith('/enrollment-trend'))).toHaveLength(1)
+  expect(errors).toEqual([])
+})
+test('an older API with no student summary never substitutes family rates for students', async ({ page }) => {
+  await prepare(page, { studentHistory: false })
+  for (const label of ['Last month loss rate', 'Previous 3 months avg loss rate', 'Previous 12 months avg loss rate']) {
+    const card = page.getByRole('article', { name: label, exact: true })
+    await expect(card.locator('dl > div').filter({ hasText: 'Families' })).toContainText('10.0%')
+    await expect(card.locator('dl > div').filter({ hasText: 'Students' })).toContainText('Unavailable')
+  }
 })
 test('older backend responses retain the timeline until expanded metrics arrive on refresh', async ({ page }) => {
   const { errors } = await prepare(page, { legacy: true })

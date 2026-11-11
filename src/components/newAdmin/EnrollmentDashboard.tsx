@@ -33,6 +33,17 @@ function EnrollmentContent({ initialData }: {initialData: EnrollmentTrendData}) 
   </>
 }
 
+function LossRateCard({ label, values }: {label: string; values: Array<{population: string; value: number | null | undefined; detail: string}>}) {
+  return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5" aria-label={label}>
+    <h3 className="text-sm font-medium text-slate-600">{label}</h3>
+    <dl className="mt-4 space-y-4">{values.map(({ population, value, detail }) => <div key={population} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1">
+      <dt className="text-sm font-semibold text-slate-700">{population}</dt>
+      <dd className={`font-bold text-red-700 ${value == null ? 'text-lg' : 'text-3xl'}`}>{rate(value)}</dd>
+      <dd className="col-span-2 text-xs leading-relaxed text-slate-500">{detail}</dd>
+    </div>)}</dl>
+  </article>
+}
+
 function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
   const [view, setView] = useState<typeof VIEWS[number]>('Timeline')
   const [population, setPopulation] = useState<'Families' | 'Students'>('Families')
@@ -44,6 +55,7 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
   const hasData = months.some(row => row.newFamilies != null)
   const latest = data.months.at(-1)
   const summary = data.summary
+  const studentSummary = data.studentSummary
   // Frontend and backend releases can arrive independently. Older API responses
   // still contain the full timeline; show expanded cards once their data arrives.
   const period = data.rollingMonths?.length ? `${monthName(data.rollingMonths[0].key)} – ${monthName(data.rollingMonths.at(-1)!.key)}` : null
@@ -56,10 +68,20 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
         { label: 'Avg new families per month', value: number(summary.averageNewFamilies, 1), detail: coverage(summary.newFamilyMonths, 12), color: 'text-blue-700' },
         { label: 'Cancellations last 12 months', value: number(summary.cancellations), detail: coverage(summary.cancellationMonths, 12), color: 'text-amber-700' },
         { label: 'Avg cancellations per month', value: number(summary.averageCancellations, 1), detail: coverage(summary.cancellationMonths, 12), color: 'text-amber-700' },
-        { label: 'Last month loss rate', value: rate(summary.lastMonthLossRate), detail: monthName(data.rollingMonths.at(-1)!.key), color: 'text-red-700' },
-        { label: 'Previous 3 months avg loss rate', value: rate(summary.threeMonthLossRate), detail: coverage(summary.threeMonthRateMonths, 3), color: 'text-red-700' },
-        { label: 'Previous 12 months avg loss rate', value: rate(summary.twelveMonthLossRate), detail: coverage(summary.twelveMonthRateMonths, 12), color: 'text-red-700' },
       ].map(card => <MetricCard key={card.label} {...card} />)}
+    </div>
+    <div className="mb-5 grid gap-3 lg:grid-cols-3">
+      {[
+        { label: 'Last month loss rate', familyRate: summary.lastMonthLossRate, studentRate: studentSummary?.lastMonthLossRate,
+          familyDetail: monthName(data.rollingMonths.at(-1)!.key), studentDetail: monthName(data.rollingMonths.at(-1)!.key) },
+        { label: 'Previous 3 months avg loss rate', familyRate: summary.threeMonthLossRate, studentRate: studentSummary?.threeMonthLossRate,
+          familyDetail: coverage(summary.threeMonthRateMonths, 3), studentDetail: coverage(studentSummary?.threeMonthRateMonths ?? 0, 3) },
+        { label: 'Previous 12 months avg loss rate', familyRate: summary.twelveMonthLossRate, studentRate: studentSummary?.twelveMonthLossRate,
+          familyDetail: coverage(summary.twelveMonthRateMonths, 12), studentDetail: coverage(studentSummary?.twelveMonthRateMonths ?? 0, 12) },
+      ].map(card => <LossRateCard key={card.label} label={card.label} values={[
+        { population: 'Families', value: card.familyRate, detail: card.familyDetail },
+        { population: 'Students', value: card.studentRate, detail: studentSummary ? card.studentDetail : 'Student loss history is unavailable' },
+      ]} />)}
     </div></> : null}
     <div role="group" aria-label={`${title} enrollment trend`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">

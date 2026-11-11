@@ -1,6 +1,6 @@
 import { id } from './common.js'
 import { withFamilyRead } from './familyWorkspace.js'
-import { summarizeMonths, summarizeCurrent, acquisitionMetrics } from './enrollmentMetrics.js'
+import { summarizeMonths, summarizeLossRates, summarizeCurrent, acquisitionMetrics } from './enrollmentMetrics.js'
 
 const OPEN_END = '9999-12-31'
 function day(value) {
@@ -139,19 +139,21 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
   if (undatedCancellations) notes.push(`${undatedCancellations} canceled enrollment records have no end date and are excluded from active/loss counts; their first enrollment starts are retained.`)
   if (unresolvedRecords) notes.push(`${unresolvedRecords} records have incomplete dates or unresolved family ownership and are excluded.`)
   if (excludedRecords) notes.push(`${excludedRecords} enrollments explicitly marked as tests or enrollment errors are excluded.`)
-  let studentMonths, studentNotes
+  let studentMonths, studentNotes, studentSummary
   if (population === 'families') {
     const student = buildEnrollmentTrend({ historical, live, events, today, population: 'students' }, now)
     studentMonths = student.months.map(({ openingFamilies, newFamilies, canceledFamilies, lostFamilies, ...month }) => ({
       ...month, openingStudents: openingFamilies, newStudents: newFamilies, canceledStudents: canceledFamilies, lostStudents: lostFamilies,
     }))
+    studentSummary = summarizeLossRates(student.rollingMonths)
     studentNotes = [
       'Students are counted once by their shared member ID across Jackrabbit and Vortex. Additional classes, transfers and returning students are not new students. Trials, waitlists and future starts are excluded.',
       'A student cancels when their final enrollment ends and they have not returned by month end. Paused enrollments remain enrolled. Loss rate uses only students enrolled at the start of the month.',
       'Imported records without a resolved student are excluded. Open imported records bridge only to the same student’s first Vortex enrollment; otherwise they stop at the history cutoff without an invented cancellation.',
+      'Family and student loss-rate cards use the same completed calendar months. Each population has its own starting cohort and known-month count; averages exclude the current partial month and months without a known, nonzero starting population.',
     ]
   }
-  return { year, asOf: today, months, studentMonths, studentNotes, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
+  return { year, asOf: today, months, studentMonths, studentNotes, studentSummary, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
 }
 
 // One bulk query over the local unified dataset, in a database-enforced read-only

@@ -24,6 +24,47 @@ test('averages preserve missing and zero denominators instead of inventing obser
   assert.equal(summary.threeMonthLossRate,10)
   assert.equal(summarizeMonths([]).twelveMonthLossRate,null)
 })
+test('family and student loss summaries use independent cohorts across the previous year, excluding the current month', () => {
+  const result = buildEnrollmentTrend({today:'2026-01-15', historical:[
+    {family_id:1,member_id:1,start_date:'2024-12-01',end_date:'2025-06-01'},
+  ], live:[
+    live(1,1,'2025-06-01',{member_id:1,cancel_date:'2025-12-20',status:'cancelled'}),
+    live(2,1,'2025-07-01',{member_id:1,cancel_date:'2025-12-20',status:'cancelled'}),
+    live(3,1,'2024-12-01',{member_id:2,cancel_date:'2026-01-10',status:'cancelled'}),
+    live(4,2,'2024-12-01',{member_id:3,cancel_date:'2025-12-10',status:'cancelled'}),
+  ]})
+  assert.equal(result.studentMonths.length,1)
+  assert.equal(result.studentMonths[0].lossRate,100)
+  assert.equal(result.summary.lastMonthLossRate,50)
+  assert.equal(result.summary.threeMonthLossRate,50/3)
+  assert.equal(result.summary.twelveMonthLossRate,50/12)
+  assert.deepEqual(result.studentSummary,{
+    lastMonthLossRate:66.67,threeMonthLossRate:66.67/3,threeMonthRateMonths:3,
+    twelveMonthLossRate:66.67/12,twelveMonthRateMonths:12,
+  })
+})
+test('student summary coverage excludes unresolved students and unknown or zero starting populations independently of families', () => {
+  const data = buildEnrollmentTrend({today:'2026-11-10',live:[
+    live(1,1,'2026-09-01',{cancel_date:'2026-10-10',status:'cancelled'}),
+    live(2,2,'2025-01-01',{member_id:null}),
+  ]})
+  assert.equal(data.summary.lastMonthLossRate,50)
+  assert.equal(data.summary.twelveMonthRateMonths,12)
+  assert.deepEqual(data.studentSummary,{
+    lastMonthLossRate:100,threeMonthLossRate:100,threeMonthRateMonths:1,
+    twelveMonthLossRate:100,twelveMonthRateMonths:1,
+  })
+  const december = buildEnrollmentTrend({today:'2026-12-10',live:[
+    live(1,1,'2026-09-01',{cancel_date:'2026-10-10',status:'cancelled'}),
+  ]})
+  assert.equal(december.studentSummary.lastMonthLossRate,null)
+  assert.equal(december.studentSummary.threeMonthLossRate,100)
+  assert.equal(december.studentSummary.threeMonthRateMonths,1)
+  assert.deepEqual(buildEnrollmentTrend({today:'2026-11-10'}).studentSummary,{
+    lastMonthLossRate:null,threeMonthLossRate:null,threeMonthRateMonths:0,
+    twelveMonthLossRate:null,twelveMonthRateMonths:0,
+  })
+})
 test('current counts deduplicate siblings and class repeats, exclude future/ended/test signups, and include pauses', () => {
   const result = buildEnrollmentTrend({today:'2026-11-10', live:[
     live(1,1,'2026-01-01',{class_id:1,gender:'male',date_of_birth:'2016-11-11',class_name:'Team tumbling'}),

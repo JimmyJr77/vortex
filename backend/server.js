@@ -1,3 +1,4 @@
+import { assertResourceScope } from './newAdmin/scope.js'
 import {vaultReady as payrollDocumentStorageReady} from './payroll/onboarding.js'
 import {registerPayrollPreparerRoutes} from './payroll/i9PreparerRoutes.js'
 import {startRetirementReplacementSettlementScheduler} from './payroll/retirementReplacementSettlementAutomation.js'
@@ -11007,6 +11008,8 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       })
     }
 
+    await assertResourceScope(pool, req.canonicalAccess.facilityId, 'class', id, { body: value })
+
     const updates = []
     const values = []
     let paramCount = 1
@@ -11235,6 +11238,7 @@ app.put('/api/admin/programs/:id', async (req, res) => {
       data: result.rows[0]
     })
   } catch (error) {
+    if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message })
     console.error('Update program error:', error)
     res.status(500).json({
       success: false,

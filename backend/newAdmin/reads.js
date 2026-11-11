@@ -1,6 +1,7 @@
 import { id, inputError, pagination, pageResult, searchValue, memberRow, date } from './common.js'
 
 const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display_name AS program_name,
+  p.abridged_name,p.skill_level,p.age_min,p.age_max,p.description,p.skill_requirements,p.is_active AS class_active,
   p.is_active AND NOT COALESCE(p.archived,FALSE) AS is_active,sf.id AS form_id,
   COALESCE(cap.capacity,0)::int AS capacity,COALESCE(en.enrolled_count,0)::int AS enrolled_count,
   COALESCE(en.waitlist_count,0)::int AS waitlist_count
@@ -20,7 +21,9 @@ const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display
       AND COALESCE(o.end_date,g.active_end,sf.end_date,'infinity'::date) >= (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(facility_row.timezone,''),'America/New_York'))::date) en ON TRUE`
 
 const classRow = row => ({id:Number(row.id),programsId:row.programs_id==null?null:Number(row.programs_id),formId:row.form_id == null ? null:Number(row.form_id),name:row.name,
-  programName:row.program_name || '',isActive:row.is_active,capacity:Number(row.capacity),enrolledCount:Number(row.enrolled_count),waitlistCount:Number(row.waitlist_count)})
+  programName:row.program_name || '',isActive:row.is_active,
+  details:{displayName:row.name,abridgedName:row.abridged_name,skillLevel:row.skill_level,ageMin:row.age_min,ageMax:row.age_max,
+    description:row.description,skillRequirements:row.skill_requirements,isActive:row.class_active},capacity:Number(row.capacity),enrolledCount:Number(row.enrolled_count),waitlistCount:Number(row.waitlist_count)})
 
 export async function listClasses(db,facilityId,query={}) {
   const paging=pagination(query)
