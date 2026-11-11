@@ -78,7 +78,11 @@ jobs:
         run: npm run build
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        # Hosted Ubuntu runners already include Chromium's runtime libraries.
+        # Avoid an apt mirror dependency just to install optional font packages.
+        # The browser tests still fail if any required library is unavailable.
+        timeout-minutes: 5
+        run: npx playwright install chromium
 
       - name: Run client-critical E2E smoke tests
         env:
