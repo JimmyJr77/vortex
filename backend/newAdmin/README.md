@@ -30,6 +30,34 @@ records. Current balance and payment/refund command decisions intentionally reta
 the existing operational ledger. History without a billing account remains visible
 in the shared data and facility reports without creating a collectible account.
 
+## Accounting balances and matched bill comparison
+
+The Accounting screen reads the shared account records in one reporting query.
+Its family-account cards are facility-wide and independent of table filters:
+current unpaid covers the facility-local current service month and earlier;
+upcoming covers future service months; available credits are the negative net
+account balances remaining after all posted bills. Bills without a service date
+use their posted date. Unassigned balance discrepancies are flagged for review.
+
+Each account's available funds reduce its oldest remaining service-month bills
+for display only, before filtering or pagination. No payment or credit allocation
+is created. The table, detail, period filters and CSV use that same projection.
+Original amounts remain in exports; recorded allocations remain available in
+expandable history and the API.
+
+The billed/paid cards share one cohort of non-historical, non-voided, non-credit
+bills. Billed amounts include bill adjustments. The screen, bill details and CSV
+show a single "Paid or credited" amount (billed minus remaining), incorporating
+household funds automatically and capped at each bill's amount. They do not ask
+users to track applied/unapplied money. Excess money stays in household balances;
+standalone credits are not counted again as bills. Imported historical charges
+remain in the same table and exports, marked historical and excluded from current
+debt. The cash view shows full receipts, refunds and net cash, including imports.
+
+The database and browser regression tests run these reports with database-enforced
+read-only connections and compare source/history fingerprints before and after.
+This reporting change requires no migration and changes no billing command paths.
+
 ## History and integrity
 
 The original import remains unchanged as audit evidence. `account_record_source`
@@ -129,9 +157,10 @@ average, the last three completed months and their monthly average, and last mon
 The chart includes the current partial month. Class/gender/age views are computed
 locally from the same response. Payment allocations determine attribution; refund
 reversals retain original receipt attribution, while non-refund reallocations
-move attribution. Refunds use their charge or payment. Unassigned amounts remain
-visible; cent-preserving allocation ensures all category totals reconcile. Ages
-use the cash transaction date. Empty recorded months contribute zero.
+move attribution. Refunds use their charge or payment. Unassigned/unspecified
+categories are hidden in the trend, selector and table; All and summary cards keep
+the full income total. The API retains every category for reconciliation. Ages use
+the cash transaction date. Empty recorded months contribute zero.
 
 Unpaid lists use posted service-month charges after payments and credits, grouped
 as this month or last month and earlier. Account-level funds reduce oldest remaining

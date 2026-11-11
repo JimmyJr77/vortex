@@ -1,8 +1,9 @@
 import { activeLedgerChargePredicate, settledRefundPredicate } from './billingLedgerSql.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
+import { ACCOUNTING_BALANCES_CTE, ACCOUNT_BALANCE_SUMMARY } from './accountingBalances.js'
 
 export const ACCOUNTING_EXPORT_LIMIT = 10000
-const LINE_SORT = { date: 'billed_at', person: 'member_name', class: 'class_name', billed: 'amount_cents', paid: 'paid_cents', balance: 'open_cents' }
+const LINE_SORT = { date: 'billed_at', person: 'member_name', class: 'class_name', billed: 'amount_cents', paid: 'paid_cents', balance: 'remaining_cents' }
 const PAYMENT_SORT = { date: 'occurred_at', person: 'family_name', amount: 'signed_amount_cents', applied: 'filtered_applied_cents' }
 const fail = (message, statusCode = 400) => Object.assign(new Error(message), { statusCode })
 function positive(value, label, fallback = null) {
@@ -35,6 +36,7 @@ export function accountingFilters(query = {}, view = 'lines') {
     search: String(query.search ?? '').trim().slice(0, 200),
     memberId: positive(query.memberId, 'member'), classId: positive(query.classId, 'class'),
     status: choice(query.status, ['all', 'open', 'partial', 'paid', 'credit', 'voided', 'historical'], 'all', 'bill status'),
+    balancePeriod: choice(query.balancePeriod, ['all', 'current', 'upcoming'], 'all', 'balance period'),
     kind: choice(query.kind, ['all', 'payment', 'refund'], 'all', 'payment kind'),
     paymentStatus: choice(query.paymentStatus, ['all', 'settled', 'pending', 'failed'], 'all', 'payment status'),
     sortBy: choice(query.sortBy, Object.keys(view === 'payments' ? PAYMENT_SORT : LINE_SORT), 'date', 'sort column'),
@@ -159,12 +161,15 @@ export const ACCOUNTING_LEDGER_CTE = `WITH scoped_accounts AS (
 
 const CTE = ACCOUNTING_LEDGER_CTE
 
-function whereLines(filters, params, { dates = true, search = true, alias = 'line' } = {}) {
+function whereLines(filters, params, { dates = true, search = true, alias = 'line', balances = false } = {}) {
   const terms = []
   const bind = value => { params.push(value); return `$${params.length}` }
   if (filters.memberId) terms.push(`${alias}.member_id=${bind(filters.memberId)}`)
   if (filters.classId) terms.push(`${alias}.class_id=${bind(filters.classId)}`)
-  if (filters.status !== 'all') terms.push(filters.status === 'open' ? `${alias}.open_cents>0` : `${alias}.status=${bind(filters.status)}`)
+  if (balances && ['paid','partial'].includes(filters.status)) {
+    terms.push(`${alias}.status NOT IN ('historical','voided','credit') AND ${alias}.remaining_cents${filters.status==='paid' ? '=0' : `>0 AND ${alias}.remaining_cents<${alias}.amount_cents`}`)
+  } else if (filters.status !== 'all') terms.push(filters.status === 'open' ? `${alias}.${balances ? 'remaining_cents' : 'open_cents'}>0` : `${alias}.status=${bind(filters.status)}`)
+  if (balances && filters.balancePeriod !== 'all') terms.push(`${alias}.balance_period=${bind(filters.balancePeriod)} AND ${alias}.remaining_cents>0`)
   if (search && filters.search) {
     const key = bind(`%${filters.search.replace(/[\\%_]/g, '\\$&')}%`)
     terms.push(`(${alias}.description ILIKE ${key} OR ${alias}.family_name ILIKE ${key} OR ${alias}.member_name ILIKE ${key} OR ${alias}.class_name ILIKE ${key} OR ${alias}.id::text ILIKE ${key})`)
@@ -180,7 +185,7 @@ function whereLines(filters, params, { dates = true, search = true, alias = 'lin
   }
   return terms.length ? terms.join(' AND ') : 'TRUE'
 }
-const numbers = new Set(['id','accountId','familyId','memberId','classId','originalCents','adjustmentCents','amountCents','paidCents','creditAppliedCents','openCents','paymentCount','signedAmountCents','appliedCents','filteredAppliedCents','unappliedCents','relatedPaymentId','refundedCents','chargeId','paymentId','sourceChargeId','targetChargeId','relatedChargeId'])
+const numbers = new Set(['id','accountId','familyId','memberId','classId','originalCents','adjustmentCents','amountCents','paidCents','creditAppliedCents','openCents','remainingCents','accountFundsCents','paymentCount','signedAmountCents','appliedCents','filteredAppliedCents','unappliedCents','relatedPaymentId','refundedCents','chargeId','paymentId','sourceChargeId','targetChargeId','relatedChargeId'])
 const camel = text => text.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
 function mapRow(row) {
   return Object.fromEntries(Object.entries(row).map(([key,value]) => {
@@ -195,22 +200,37 @@ function wrapper(row, filters) {
     totalPages:Math.ceil(Number(row.total ?? 0)/filters.pageSize),timezone:row.timezone ?? 'America/New_York',
     currency:'usd',generatedAt:new Date().toISOString(),appliedFilters:filters }
 }
+const COMPARABLE = `status NOT IN ('historical','voided','credit') AND amount_cents>=0`
 const LINE_SUMMARY = `jsonb_build_object('billedCents',COALESCE(SUM(amount_cents),0),'paidCents',COALESCE(SUM(paid_cents),0),
  'creditAppliedCents',COALESCE(SUM(credit_applied_cents),0),'openCents',COALESCE(SUM(open_cents),0),
- 'creditCents',COALESCE(SUM(-amount_cents) FILTER(WHERE amount_cents<0),0),'openCount',COUNT(*) FILTER(WHERE open_cents>0))`
+ 'creditCents',COALESCE(SUM(-amount_cents) FILTER(WHERE amount_cents<0),0),'openCount',COUNT(*) FILTER(WHERE open_cents>0),
+ 'comparableCount',COUNT(*) FILTER(WHERE ${COMPARABLE}),
+ 'comparableBilledCents',COALESCE(SUM(amount_cents) FILTER(WHERE ${COMPARABLE}),0),
+ 'comparablePaidCents',COALESCE(SUM(paid_cents) FILTER(WHERE ${COMPARABLE}),0),
+ 'comparableCreditAppliedCents',COALESCE(SUM(credit_applied_cents) FILTER(WHERE ${COMPARABLE}),0),
+ 'accountFundsCents',COALESCE(SUM(account_funds_cents) FILTER(WHERE ${COMPARABLE}),0),
+ 'remainingCents',COALESCE(SUM(remaining_cents) FILTER(WHERE ${COMPARABLE}),0),
+ 'currentRemainingCents',COALESCE(SUM(remaining_cents) FILTER(WHERE ${COMPARABLE} AND balance_period='current'),0),
+ 'upcomingRemainingCents',COALESCE(SUM(remaining_cents) FILTER(WHERE ${COMPARABLE} AND balance_period='upcoming'),0),
+ 'excessAppliedCents',COALESCE(SUM(GREATEST(0,paid_cents+credit_applied_cents-amount_cents)) FILTER(WHERE ${COMPARABLE}),0),
+ 'historicalCount',COUNT(*) FILTER(WHERE status='historical'),
+ 'historicalBilledCents',COALESCE(SUM(amount_cents) FILTER(WHERE status='historical'),0))`
 
 export async function listAccountingLines(db,{facilityId,query = {},exportLimit = null} = {}) {
   const scope=requireAdminFacilityScope({facilityId}),filters=accountingFilters(query),params=[scope]
-  const where=whereLines(filters,params)
+  const where=whereLines(filters,params,{balances:true})
   const limit=exportLimit ?? filters.pageSize,offset=exportLimit ? 0 : (filters.page-1)*filters.pageSize
   params.push(limit,offset)
-  const result=await db.query(`${CTE}, filtered AS (SELECT line.* FROM lines line WHERE ${where}),
+  const result=await db.query(`${CTE}${ACCOUNTING_BALANCES_CTE}, filtered AS (SELECT line.* FROM report_lines line WHERE ${where}),
     page_rows AS (SELECT * FROM filtered ORDER BY ${LINE_SORT[filters.sortBy]} ${filters.sortDir} NULLS LAST,id ${filters.sortDir} LIMIT $${params.length-1} OFFSET $${params.length})
     SELECT (SELECT COUNT(*) FROM filtered)::bigint AS total,
       (SELECT ${LINE_SUMMARY} FROM filtered) AS summary,
+      (SELECT ${ACCOUNT_BALANCE_SUMMARY} FROM account_balances a LEFT JOIN account_period_balances p ON p.account_id=a.id) AS balances,
+      (SELECT (now() AT TIME ZONE COALESCE(NULLIF(timezone,''),'America/New_York'))::date::text FROM facility WHERE id=$1) AS as_of,
       (SELECT COALESCE(NULLIF(timezone,''),'America/New_York') FROM facility WHERE id=$1) AS timezone,
-      COALESCE((SELECT jsonb_agg(page_rows) FROM page_rows),'[]'::jsonb) AS rows`,params)
-  return wrapper(result.rows[0],filters)
+      COALESCE((SELECT jsonb_agg(to_jsonb(page_rows)-'earlier_open_cents'-'account_funds_available') FROM page_rows),'[]'::jsonb) AS rows`,params)
+  return { ...wrapper(result.rows[0],filters),asOf:result.rows[0].as_of,
+    balances:result.rows[0].balances ? Object.fromEntries(Object.entries(result.rows[0].balances).map(([key,value])=>[key,Number(value)])) : undefined }
 }
 
 function paymentCte(filters, params) {
@@ -276,7 +296,7 @@ export async function listAccountingPayments(db,{facilityId,query = {},exportLim
 
 export async function accountingLineDetail(db,{facilityId,id} = {}) {
   const params=[requireAdminFacilityScope({facilityId}),reportId(id,'bill')]
-  const result=await db.query(`${CTE} SELECT row_to_json(line) AS line,
+  const result=await db.query(`${CTE}${ACCOUNTING_BALANCES_CTE} SELECT to_jsonb(line)-'earlier_open_cents'-'account_funds_available' AS line,
     COALESCE((SELECT jsonb_agg(jsonb_build_object('id',a.id,'paymentId',a.billing_payment_id,'chargeId',a.billing_charge_id,
       'kind',a.application_kind,'amountCents',a.amount_cents,'signedAmountCents',a.signed_cents,'allocatedAt',a.created_at,
       'paidAt',a.paid_at,'method',a.method,'paymentStatus',a.payment_status) ORDER BY a.created_at,a.id) FROM applications a WHERE a.owner_id=line.id),'[]'::jsonb) AS allocations,
@@ -291,7 +311,7 @@ export async function accountingLineDetail(db,{facilityId,id} = {}) {
       JOIN mapped source ON source.id=credit_line.billing_charge_id AND source.family_billing_account_id=line.account_id
       JOIN mapped target ON target.id=target_line.billing_charge_id AND target.family_billing_account_id=line.account_id
       WHERE source.owner_id=line.id OR target.owner_id=line.id),'[]'::jsonb) AS credit_applications
-    FROM lines line WHERE line.id=$2`,params)
+    FROM report_lines line WHERE line.id=$2`,params)
   const row=result.rows[0]
   if(!row) throw fail('Bill not found.',404)
   return {line:{...mapRow(row.line),currency:'usd'},allocations:row.allocations,adjustments:row.adjustments,refunds:row.refunds,creditApplications:row.credit_applications}
@@ -337,8 +357,11 @@ export async function exportAccountingCsv(db,{facilityId,query={}}={}) {
   const report=await(view==='lines'?listAccountingLines:listAccountingPayments)(db,{facilityId,query,exportLimit:ACCOUNTING_EXPORT_LIMIT+1})
   if(report.total>ACCOUNTING_EXPORT_LIMIT) throw fail(`Export exceeds ${ACCOUNTING_EXPORT_LIMIT.toLocaleString('en-US')} rows. Narrow the filters.`,409)
   const fields=view==='lines'
-    ? [['id','Bill ID'],['billedDate','Posted date'],['familyName','Household'],['memberName','Person'],['className','Class'],['description','Description'],['status','Status'],['originalCents','Original (USD)'],['adjustmentCents','Adjustments (USD)'],['amountCents','Billed (USD)'],['paidCents','Paid (USD)'],['creditAppliedCents','Credit applied (USD)'],['openCents','Open (USD)'],['lastPaidDate','Last receipt date'],['servicePeriodStart','Service starts'],['servicePeriodEnd','Service ends']]
-    : [['kind','Entry type'],['id','Entry ID'],['occurredDate','Payment / refund recorded date'],['familyName','Household'],['method','Method'],['status','Status'],['amountCents','Full receipt / refund (USD)'],['signedAmountCents','Signed cash (USD)'],['appliedCents','Net allocated (USD)'],['filteredAppliedCents','Matching allocation (USD)'],['unappliedCents','Unapplied (USD)'],['relatedPaymentId','Original payment ID'],['reference','Reference']]
-  const cell=(row,key)=>key.endsWith('Cents') && row[key]!=null ? (Number(row[key])/100).toFixed(2) : accountingCsvCell(row[key])
+    ? [['id','Bill ID'],['billedDate','Posted date'],['familyName','Household'],['memberName','Person'],['className','Class'],['description','Description'],['status','Status'],['originalCents','Original (USD)'],['adjustmentCents','Adjustments (USD)'],['amountCents','Billed (USD)'],['coveredCents','Paid or credited (USD)'],['remainingCents','Remaining (USD)'],['balancePeriod','Balance period'],['lastPaidDate','Last receipt date'],['servicePeriodStart','Service starts'],['servicePeriodEnd','Service ends']]
+    : [['kind','Entry type'],['id','Entry ID'],['occurredDate','Payment / refund recorded date'],['familyName','Household'],['method','Method'],['status','Status'],['amountCents','Full receipt / refund (USD)'],['signedAmountCents','Signed cash (USD)'],['relatedPaymentId','Original payment ID'],['reference','Reference']]
+  const cell=(row,key)=>{
+    if(key==='coveredCents') return ['historical','voided','credit'].includes(row.status) ? '' : (Math.max(0,row.amountCents-(row.remainingCents ?? row.openCents))/100).toFixed(2)
+    return key.endsWith('Cents') && row[key]!=null ? (Number(row[key])/100).toFixed(2) : accountingCsvCell(row[key])
+  }
   return {csv:[fields.map(([,label])=>accountingCsvCell(label)).join(','),...report.rows.map(row=>fields.map(([key])=>cell(row,key)).join(','))].join('\r\n')+'\r\n',view,total:report.total}
 }

@@ -10,7 +10,7 @@ test('accounting rejects invalid dates, unbounded pages, and injected ordering b
   const db={query:async()=>{calls++;return result()}}
   for(const query of [{from:'2026-02-30'},{through:'today'},{from:'2026-02-01',through:'2026-01-31'},
     {page:-1},{page:1000001},{page:1.5},{memberId:'1 OR TRUE'},{classId:0},{sortBy:'date; DROP TABLE billing_charge'},
-    {sortDir:'DESC NULLS FIRST'},{status:'overdue'},{paymentStatus:'refunded'},{kind:'credit'}]) {
+    {sortDir:'DESC NULLS FIRST'},{status:'overdue'},{balancePeriod:'next; DROP TABLE billing_charge'},{paymentStatus:'refunded'},{kind:'credit'}]) {
     await assert.rejects(listAccountingLines(db,{facilityId:7,query}),error=>error.statusCode===400)
   }
   await assert.rejects(listAccountingLines(db,{facilityId:null}),error=>error.statusCode===403)

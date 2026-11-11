@@ -68,7 +68,7 @@ jobs:
             await db.query('CREATE DATABASE vortex_new_admin_dev')
           } finally { await db.end() }
           JS
-          node --test backend/billing/__tests__/billingTurnover.postgres.test.js backend/platform/__tests__/adminDashboardRefunds.postgres.test.js backend/newAdmin/__tests__/enrollmentTrend.postgres.test.js backend/billing/__tests__/accountingReport.postgres.test.js backend/newAdmin/__tests__/familyWorkspace.postgres.test.js backend/newAdmin/__tests__/sharedAccountRecords.postgres.test.js
+          node --test backend/billing/__tests__/billingTurnover.postgres.test.js backend/platform/__tests__/adminDashboardRefunds.postgres.test.js backend/newAdmin/__tests__/enrollmentTrend.postgres.test.js backend/billing/__tests__/accountingReport.postgres.test.js backend/billing/__tests__/accountingBalances.postgres.test.js backend/newAdmin/__tests__/familyWorkspace.postgres.test.js backend/newAdmin/__tests__/sharedAccountRecords.postgres.test.js
 
       - name: Run complete backend unit suite
         # Timing assertions need an uncontended CPU on shared GitHub runners.
@@ -81,6 +81,8 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run client-critical E2E smoke tests
+        env:
+          NEW_ADMIN_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_new_admin_dev
         run: npm run test:e2e:smoke
 
       - name: Run backend integration tests (staging-gated)

@@ -60,7 +60,9 @@ function RevenueTrend({ months }: { months: RevenueMonth[] }) {
   const [view, setView] = useState<typeof VIEWS[number]>('Timeline')
   const [group, setGroup] = useState<'all' | Breakdown>('all')
   const [segment, setSegment] = useState('')
-  const labels = group === 'all' ? [] : [...new Set(months.flatMap(row => Object.keys(row.breakdowns[group])))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+  const labels = group === 'all' ? [] : [...new Set(months.flatMap(row => Object.keys(row.breakdowns[group])))]
+    .filter(label => !['Unassigned', 'Unspecified', 'Other / unspecified'].includes(label))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
   const series = group === 'all' ? ['All revenue'] : segment && labels.includes(segment) ? [segment] : labels
   const value = (row: RevenueMonth, label: string) => group === 'all' ? row.netCents : row.breakdowns[group][label] ?? 0
   return <div role="group" aria-label="Revenue trend" className={panel}>
@@ -78,7 +80,7 @@ function RevenueTrend({ months }: { months: RevenueMonth[] }) {
         <option value="">All {group === 'class' ? 'classes' : group === 'gender' ? 'genders' : 'ages'}</option>{labels.map(label => <option key={label} value={label}>{label}</option>)}
       </select></label> : null}
     </div>
-    {view === 'Table' ? <div className="mt-5 overflow-x-auto"><table className="w-full whitespace-nowrap text-left text-sm">
+    {!series.length ? <p className="py-12 text-center text-sm text-slate-500">No revenue has a recorded {group} for this period.</p> : view === 'Table' ? <div className="mt-5 overflow-x-auto"><table className="w-full whitespace-nowrap text-left text-sm">
       <caption className="sr-only">Monthly revenue {group === 'all' ? 'totals' : `by ${group}`}</caption>
       <thead className="border-b text-xs text-slate-500"><tr><th scope="col" className="p-3">Month</th>{group === 'all' ? <><th scope="col" className="p-3">Payments</th><th scope="col" className="p-3">Refunds</th></> : null}{series.map(label => <th scope="col" key={label} className="p-3">{label}</th>)}</tr></thead>
       <tbody className="divide-y divide-slate-100">{months.map(row => <tr key={row.key}><th scope="row" className="p-3">{monthName(row.key)}{row.partial ? ' (month to date)' : ''}</th>
@@ -96,7 +98,7 @@ function RevenueTrend({ months }: { months: RevenueMonth[] }) {
           : <Line key={label} dataKey={row => value(row as RevenueMonth, label)} name={label} stroke={COLORS[index % COLORS.length]} strokeWidth={2.5} dot={{ r: 3 }} isAnimationActive={false} />)}
       </ComposedChart></ResponsiveContainer>
     </div>}
-    <p className="mt-3 text-xs text-slate-500">Breakdowns use recorded allocations. Unassigned amounts stay visible. Age is measured when the payment or refund occurred.</p>
+    <p className="mt-3 text-xs text-slate-500">Breakdowns show revenue with recorded class or student details. All includes the full income total. Age is measured when the payment or refund occurred.</p>
   </div>
 }
 

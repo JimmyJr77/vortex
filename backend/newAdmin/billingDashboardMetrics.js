@@ -97,7 +97,7 @@ export function buildBillingDashboard({ today, payments = [], refunds = [], allo
   notes: [
     'Income is successful payments minus successful refunds, dated in the facility time zone. Summary cards cover the previous 12 completed months; the graph also includes this month to date. Months without recorded receipts or refunds contribute $0.',
     'Jackrabbit and Vortex transactions come from the shared account tables. Historical imports contribute to income; only the current billing ledger determines debt and available account credit.',
-    'Class and student breakdowns follow recorded payment allocations. Refunds follow their linked charge or payment. Unallocated amounts stay unassigned; every breakdown reconciles to total income. Age is measured on the transaction date.',
+    'Class and student breakdowns follow recorded payment allocations. Refunds follow their linked charge or payment. Category views show revenue with recorded class or student details; All includes the full income total. Age is measured on the transaction date.',
     'Unpaid amounts use each charge’s service month (or billed month when absent), after payments and corrections. Unapplied account funds reduce the oldest remaining debt first for display. Future bills are excluded. Credits show the net credit balance after all recorded bills. Opening this dashboard does not collect or reallocate money.',
   ] }
 }

@@ -23,6 +23,9 @@ export interface BillLine {
   paidCents: number
   creditAppliedCents: number
   openCents: number
+  remainingCents?: number
+  accountFundsCents?: number
+  balancePeriod?: 'current' | 'upcoming' | 'historical'
   status: string
   lastPaidAt: string | null
   lastPaidDate: string | null
@@ -37,6 +40,21 @@ export interface BillSummary {
   openCents: number
   creditCents: number
   openCount: number
+  comparableCount?: number
+  comparableBilledCents?: number
+  comparablePaidCents?: number
+  comparableCreditAppliedCents?: number
+  accountFundsCents?: number
+  remainingCents?: number
+  currentRemainingCents?: number
+  upcomingRemainingCents?: number
+  excessAppliedCents?: number
+  historicalCount?: number
+  historicalBilledCents?: number
+}
+export interface AccountBalances {
+  currentCents: number; currentFamilies: number; upcomingCents: number; upcomingFamilies: number
+  creditCents: number; creditFamilies: number; reviewCents: number
 }
 export interface PaymentEvent {
   id: number
@@ -73,7 +91,7 @@ export interface AccountingPage<T, S> extends Page<T> {
   summary: S
   currency: string
 }
-export type BillPage = AccountingPage<BillLine, BillSummary>
+export type BillPage = AccountingPage<BillLine, BillSummary> & {asOf?: string; balances?: AccountBalances}
 export type PaymentPage = AccountingPage<PaymentEvent, PaymentSummary>
 export interface FilterOptions {
   members: Array<{ id: number; name: string }>

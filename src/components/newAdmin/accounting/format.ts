@@ -1,3 +1,18 @@
+import type { BillLine } from './types'
+
+export function billCoveredCents(line: BillLine) {
+  if (['historical', 'voided', 'credit'].includes(line.status)) return null
+  return Math.max(0, line.amountCents - (line.remainingCents ?? line.openCents))
+}
+
+export function billDisplayStatus(line: BillLine) {
+  if (billCoveredCents(line) == null) return line.status
+  const remaining = line.remainingCents ?? line.openCents
+  if (remaining === 0) return 'paid_or_credited'
+  if (line.balancePeriod === 'upcoming') return 'upcoming'
+  return remaining < line.amountCents ? 'partial' : 'open'
+}
+
 export const amount = (cents: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency: currency.toUpperCase() }).format(cents / 100)
 
 export function day(value: string | null | undefined) {
