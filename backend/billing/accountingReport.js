@@ -49,7 +49,7 @@ export function accountingFilters(query = {}, view = 'lines') {
 // Every signed charge has exactly one report owner. Fold direct corrections and
 // unambiguous historical price adjustments once; retain ambiguous standalone rows.
 // Invoice totals are never financial input, including duplicate invoice versions.
-const CTE = `WITH scoped_accounts AS (
+export const ACCOUNTING_LEDGER_CTE = `WITH scoped_accounts AS (
   SELECT account.id,account.family_id,family.family_name,
     COALESCE(NULLIF(facility.timezone,''),'America/New_York') AS timezone, family.facility_id
   FROM family_billing_account account JOIN family ON family.id=account.family_id
@@ -156,6 +156,8 @@ const CTE = `WITH scoped_accounts AS (
   FROM line_values
 
 )`
+
+const CTE = ACCOUNTING_LEDGER_CTE
 
 function whereLines(filters, params, { dates = true, search = true, alias = 'line' } = {}) {
   const terms = []

@@ -64,7 +64,8 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
     const priced = [...bySignup.values()]
     const monthlyRevenueCents = priced.reduce((sum, row) => sum + (row.status === 'paused' ? 0 : Number(row.net_monthly_cents)), 0)
     membership = { monthlyRevenueCents, pricedStudents: new Set(priced.map(row => String(row.member_id))).size,
-      averageMembershipCents: count && priced.length ? monthlyRevenueCents / count : null }
+      averageMembershipCents: count && priced.length ? monthlyRevenueCents / count : null,
+      averageFamilyMembershipCents: families.size && priced.length ? monthlyRevenueCents / families.size : null }
   }
   const breakdown = values => Object.entries(values).map(([label, count]) => ({ label, count }))
   return { families: families.size, students: count, studentsPerFamily: families.size ? count / families.size : null,

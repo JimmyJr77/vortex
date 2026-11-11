@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { buildBillingDashboard } from '../../backend/newAdmin/billingDashboardMetrics.js'
 import { summarizeMonths, acquisitionMetrics } from '../../backend/newAdmin/enrollmentMetrics.js'
 
 const trend = { year: 2026, asOf: '2026-11-09', coverageStart: '2026-01-19', notes: ['Siblings and transfers count once per family.'], months: Array.from({ length: 11 }, (_, i) => ({
@@ -8,10 +9,10 @@ const trend = { year: 2026, asOf: '2026-11-09', coverageStart: '2026-01-19', not
 })) }
 async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false } = {}) {
   const rollingMonths = [{...trend.months[0],key:'2025-11',label:'Nov',newFamilies:null}, {...trend.months[0],key:'2025-12',label:'Dec',newFamilies:null}, ...trend.months.slice(0,10)]
-  const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,pricedStudents:30} : null}
+  const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,averageFamilyMembershipCents:22500,pricedStudents:30} : null}
   const summary = summarizeMonths(rollingMonths)
   const spending = [{month:'2026-10',amount_cents:60000 as number | null,version:1}]
-  const buildData = () => ({...trend,rollingMonths,summary,current,acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
+  const buildData = () => ({...trend,studentMonths:trend.months.map(row=>({...row,openingStudents:30,newStudents:6,canceledStudents:4,lostStudents:3})),studentNotes:['Students count once across all classes.'],rollingMonths,summary,current,acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
 
   const requests: string[] = [], errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
@@ -26,6 +27,13 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     requests.push(path)
     let data: unknown = []
     if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: permission ? ['members.view',...(financial ? ['billing.view'] : []),...(editable ? ['marketing.manage'] : [])] : ['classes.view'], roles: ['ADMIN'], user: { id: 1 } }
+    if (path === '/api/admin/new-admin/billing-dashboard') data = buildBillingDashboard({today:'2026-11-10',payments:[
+      {id:1,amount_cents:30000,occurred_date:'2026-10-05'}, {id:2,amount_cents:9000,occurred_date:'2026-09-05'},
+    ],allocations:[{billing_payment_id:1,amount_cents:20000,class_name:'Team',gender:'female',date_of_birth:'2016-01-01'},
+      {billing_payment_id:1,amount_cents:10000,class_name:'Tumbling',gender:'male',date_of_birth:'2018-01-01'}],accounts:[
+      {id:1,family_id:1,family_name:'Current Fixture',balance_cents:12000}, {id:2,family_id:2,family_name:'Overdue Fixture',balance_cents:7000},
+      {id:3,family_id:3,family_name:'Credit Fixture',balance_cents:-5000},
+    ],lines:[{id:1,account_id:1,open_cents:12000,service_month:'2026-11'}, {id:2,account_id:2,open_cents:7000,service_month:'2026-10'}]})
     if (path.startsWith('/api/admin/accounting/')) data = null
     if (path === '/api/admin/new-admin/families') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
     if (path === '/api/admin/new-admin/classes') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
@@ -55,7 +63,7 @@ test('New Admin overlays all family measures; view changes are local and mobile/
   const chart = dashboard.getByRole('group', {name:'Family enrollment trend'})
   await expect(chart.locator('.recharts-line')).toHaveCount(3)
   if (process.env.ENROLLMENT_SCREENSHOTS) await page.screenshot({path:process.env.ENROLLMENT_SCREENSHOTS+'/desktop.png',fullPage:true})
-  await dashboard.getByRole('button', { name: 'Bar graph', exact: true }).click()
+  await chart.getByRole('button', { name: 'Bar graph', exact: true }).click()
   await expect(chart.locator('.recharts-bar')).toHaveCount(2)
   await expect(chart.locator('.recharts-line')).toHaveCount(1)
   await dashboard.getByRole('button', { name: 'Table', exact: true }).click()
@@ -136,4 +144,67 @@ test('financial viewing and marketing editing follow separate permissions; remov
   await expect(page.getByRole('button',{name:'Save spending'})).toHaveCount(0)
   await expect(page.getByRole('article',{name:'Current students',exact:true})).toContainText('30')
   await expect(page.getByText(/provisional|Recorded history begins|Months marked/)).toHaveCount(0)
+})
+
+test('student toggle updates all graph views without another request; family membership card totals siblings', async ({page}) => {
+  const {requests,errors} = await prepare(page)
+  await expect(page.getByRole('article',{name:'Average membership cost per family',exact:true})).toContainText('$225.00')
+  await expect(page.getByText('Loss rate = starting families lost ÷ starting enrolled families × 100.',{exact:true})).toHaveCount(0)
+  await page.getByRole('button',{name:'Students',exact:true}).click()
+  const chart = page.getByRole('group',{name:'Student enrollment trend',exact:true})
+  await expect(chart.locator('.recharts-line')).toHaveCount(3)
+  await chart.getByRole('button',{name:'Bar graph',exact:true}).click()
+  await expect(chart.locator('.recharts-bar')).toHaveCount(2)
+  await chart.getByRole('button',{name:'Table',exact:true}).click()
+  await expect(chart.getByRole('columnheader',{name:'New students',exact:true})).toBeVisible()
+  await expect(chart.getByRole('row').filter({hasText:'Feb'})).toContainText('6')
+  await page.getByRole('button',{name:'Families',exact:true}).click()
+  await expect(page.getByRole('group',{name:'Family enrollment trend',exact:true}).getByRole('columnheader',{name:'New families',exact:true})).toBeVisible()
+  expect(requests.filter(path=>path.endsWith('/enrollment-trend'))).toHaveLength(1)
+  expect(errors).toEqual([])
+})
+
+test('revenue switches locally by class, gender and age; unpaid periods and credits show the right families', async ({page}) => {
+  const {requests,errors} = await prepare(page)
+  const billing = page.getByRole('region',{name:'Billing & Revenue',exact:true})
+  await expect(billing.getByRole('article',{name:'Income last 12 months',exact:true})).toContainText('$390.00')
+  await expect(billing.getByRole('article',{name:'Last month income',exact:true})).toContainText('$300.00')
+  const chart=billing.getByRole('group',{name:'Revenue trend',exact:true})
+  await expect(chart.locator('.recharts-line')).toHaveCount(1)
+  await chart.getByRole('button',{name:'Table',exact:true}).click()
+  await expect(chart.getByRole('row').filter({hasText:'Oct 2026'})).toContainText('$300.00')
+  for (const [group,label,value] of [['class','Team','$200.00'],['gender','Girls','$200.00'],['age','Age 10','$200.00']]) {
+    await chart.getByRole('combobox',{name:'Revenue breakdown'}).selectOption(group)
+    await chart.getByRole('combobox',{name:'Revenue segment'}).selectOption(label)
+    await expect(chart.getByRole('row').filter({hasText:'Oct 2026'})).toContainText(value)
+  }
+  await chart.getByRole('button',{name:'Bar graph',exact:true}).click()
+  await expect(chart.locator('.recharts-bar')).toHaveCount(1)
+  await chart.getByRole('combobox',{name:'Revenue breakdown'}).selectOption('all')
+  await chart.getByRole('button',{name:'Timeline',exact:true}).click()
+  const unpaid = billing.getByRole('region',{name:'Unpaid accounts',exact:true})
+  await expect(unpaid).toContainText('Current Fixture')
+  await expect(unpaid).toContainText('$120.00')
+  await expect(unpaid.getByText('Overdue Fixture')).toHaveCount(0)
+  await unpaid.getByRole('button',{name:'Last month +',exact:true}).click()
+  await expect(unpaid).toContainText('Overdue Fixture')
+  await expect(unpaid).toContainText('$70.00')
+  await expect(unpaid.getByText('Current Fixture')).toHaveCount(0)
+  await unpaid.getByRole('searchbox',{name:'Find a family'}).fill('absent')
+  await expect(unpaid).toContainText('No families match')
+  await unpaid.getByRole('searchbox',{name:'Find a family'}).fill('')
+  await expect(billing.getByRole('region',{name:'Account credits'})).toContainText('Credit Fixture')
+  await expect(billing.getByRole('region',{name:'Account credits'})).toContainText('$50.00')
+  expect(requests.filter(path=>path.endsWith('/billing-dashboard'))).toHaveLength(1)
+  await page.setViewportSize({width:390,height:844})
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  if (process.env.ENROLLMENT_SCREENSHOTS) await page.screenshot({path:process.env.ENROLLMENT_SCREENSHOTS+'/billing-mobile.png',fullPage:true})
+  expect(errors).toEqual([])
+})
+
+test('staff without billing permission never request revenue or account balances', async ({page})=>{
+  const {requests} = await prepare(page,{financial:false,editable:false})
+  await expect(page.getByRole('article',{name:'Current students',exact:true})).toBeVisible()
+  await expect(page.getByRole('region',{name:'Billing & Revenue'})).toHaveCount(0)
+  expect(requests.some(path=>path.endsWith('/billing-dashboard'))).toBe(false)
 })

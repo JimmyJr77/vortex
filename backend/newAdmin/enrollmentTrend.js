@@ -15,9 +15,10 @@ const earliest = values => values.filter(Boolean).sort()[0] ?? null
 
 // All classes and siblings share one family timeline. Intervals are [start,end):
 // a first-of-month cancellation belongs to that month's opening cohort.
-export function buildEnrollmentTrend({ historical = [], live = [], events = [], classes = [], subscriptions = null, spending = null, today } = {}, now = new Date()) {
+export function buildEnrollmentTrend({ historical = [], live = [], events = [], classes = [], subscriptions = null, spending = null, today, population = 'families' } = {}, now = new Date()) {
   today ||= new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
   const year = Number(today.slice(0, 4))
+  const entity = row => population === 'students' ? row.member_id : row.family_id
   const bySignup = new Map()
   for (const event of events) {
     const key = String(event.signup_id ?? event.details?.sourceSignupId ?? '')
@@ -44,7 +45,7 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
       excludedRecords++
       continue
     }
-    if (!start || row.family_id == null) { unresolvedRecords++; uncertainFrom.push(start ?? `${year}-01-01`); continue }
+    if (!start || entity(row) == null) { unresolvedRecords++; uncertainFrom.push(start ?? `${year}-01-01`); continue }
     // Persisted dates win over old scheduling events (e.g. a rescinded cancellation).
     const eventEnd = row.status === 'cancelled' ? earliest(activity.map(e => {
       if (e.event_type === 'enrollment_class_swapped') return day(e.details?.effectiveDate)
@@ -55,7 +56,7 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
     })) : null
     const end = earliest([day(row.cancel_date) ?? eventEnd, day(row.orphaned_date), day(row.completed_date),
       day(row.archived_date), day(row.program_end) ? shiftDay(day(row.program_end), 1) : null])
-    if (!end || end > start) recordStart(row.family_id, start)
+    if (!end || end > start) recordStart(entity(row), start)
     if (row.status === 'cancelled' && !end) {
       undatedCancellations++; uncertainFrom.push(start)
       // No guessed termination dates and no indefinite active canceled records.
@@ -63,9 +64,9 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
     }
     if (row.status === 'completed' && !end) { unresolvedRecords++; uncertainFrom.push(start); continue }
     if (start <= today && (!end || end > start)) {
-      add(row.family_id, start, end ?? OPEN_END)
+      add(entity(row), start, end ?? OPEN_END)
       if (!end || end > today) activeLive.push(row)
-      const key = String(row.family_id)
+      const key = String(entity(row))
       liveStarts.set(key, earliest([liveStarts.get(key), start]))
     }
   }
@@ -73,20 +74,20 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
   const historyThrough = historical.flatMap(r => [day(r.start_date), day(r.end_date)]).filter(d => d && d <= today).sort().at(-1) ?? null
   for (const row of historical) {
     const start = day(row.start_date)
-    if (row.date_issue || !start || row.family_id == null || (row.end_date && !day(row.end_date))) {
+    if (row.date_issue || !start || entity(row) == null || (row.end_date && !day(row.end_date))) {
       unresolvedRecords++; uncertainFrom.push(start ?? `${year}-01-01`); continue
     }
     let end = day(row.end_date), knownEnd = true
     if (!end) {
       openHistory++
-      const handoff = liveStarts.get(String(row.family_id))
+      const handoff = liveStarts.get(String(entity(row)))
       // The import is a snapshot, not evidence of indefinite current enrollment.
       // Bridge reviewed household IDs to Vortex; never invent a cancellation.
       end = handoff && handoff > start ? handoff : shiftDay(historyThrough ?? start, 1)
       knownEnd = false
     }
-    if (end > start) recordStart(row.family_id, start)
-    add(row.family_id, start, end, knownEnd)
+    if (end > start) recordStart(entity(row), start)
+    add(entity(row), start, end, knownEnd)
   }
   const families = [...intervals.values()].map(rows => {
     const merged = []
@@ -138,7 +139,19 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
   if (undatedCancellations) notes.push(`${undatedCancellations} canceled enrollment records have no end date and are excluded from active/loss counts; their first enrollment starts are retained.`)
   if (unresolvedRecords) notes.push(`${unresolvedRecords} records have incomplete dates or unresolved family ownership and are excluded.`)
   if (excludedRecords) notes.push(`${excludedRecords} enrollments explicitly marked as tests or enrollment errors are excluded.`)
-  return { year, asOf: today, months, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
+  let studentMonths, studentNotes
+  if (population === 'families') {
+    const student = buildEnrollmentTrend({ historical, live, events, today, population: 'students' }, now)
+    studentMonths = student.months.map(({ openingFamilies, newFamilies, canceledFamilies, lostFamilies, ...month }) => ({
+      ...month, openingStudents: openingFamilies, newStudents: newFamilies, canceledStudents: canceledFamilies, lostStudents: lostFamilies,
+    }))
+    studentNotes = [
+      'Students are counted once by their shared member ID across Jackrabbit and Vortex. Additional classes, transfers and returning students are not new students. Trials, waitlists and future starts are excluded.',
+      'A student cancels when their final enrollment ends and they have not returned by month end. Paused enrollments remain enrolled. Loss rate uses only students enrolled at the start of the month.',
+      'Imported records without a resolved student are excluded. Open imported records bridge only to the same student’s first Vortex enrollment; otherwise they stop at the history cutoff without an invented cancellation.',
+    ]
+  }
+  return { year, asOf: today, months, studentMonths, studentNotes, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
 }
 
 // One bulk query over the local unified dataset, in a database-enforced read-only

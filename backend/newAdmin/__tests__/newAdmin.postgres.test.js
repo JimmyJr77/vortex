@@ -98,6 +98,15 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       const other = await request('/api/admin/new-admin/enrollment-trend', { token: second.token })
       assert.equal(other.status, 200)
       assert.ok(other.json.data.months.every(row => row.newFamilies === null))
+      assert.ok(trend.json.data.studentMonths.some(row => row.newStudents === 1))
+      assert.equal((await request('/api/admin/new-admin/billing-dashboard', {token:null})).status,401)
+      const revenue = await request('/api/admin/new-admin/billing-dashboard')
+      assert.equal(revenue.status,200)
+      assert.equal(revenue.json.data.months.length,13)
+      const foreignRevenue = await request('/api/admin/new-admin/billing-dashboard', {token:second.token})
+      assert.equal(foreignRevenue.status,200)
+      assert.equal(foreignRevenue.json.data.summary.twelveMonthIncomeCents,0)
+      assert.deepEqual(foreignRevenue.json.data.unpaid,[])
     })
     await t.test('bounded class/member detail only exposes the authenticated facility',async()=>{
       const list=await request('/api/admin/new-admin/classes?pageSize=1');assert.equal(list.status,200);assert.equal(list.json.data.rows.length,1)
@@ -110,6 +119,7 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
       const billingRestricted=Number((await pool.query("INSERT INTO app_user(facility_id,role,email,full_name,username,is_active) VALUES($1,'ADMIN',$2,'Member Staff',$3,TRUE) RETURNING id",[first.facility,`members-only-${suffix}@example.test`,`members_only_${suffix}`])).rows[0].id)
       userIds.push(billingRestricted)
       await pool.query("INSERT INTO app_user_permission_override(user_id,permission_id,effect) SELECT $1,id,'deny' FROM permission WHERE key='billing.view'",[billingRestricted])
+      assert.equal((await request('/api/admin/new-admin/billing-dashboard',{token:jwt.sign({userId:billingRestricted},secret)})).status,403)
       const restrictedFamily=await request(`/api/admin/new-admin/families/${member.familyId}/workspace`,{token:jwt.sign({userId:billingRestricted},secret)})
       assert.equal(restrictedFamily.status,200);assert.equal(restrictedFamily.json.data.financial,null);assert.equal(restrictedFamily.json.data.permissions.canViewBilling,false)
       for (const path of [`/api/admin/new-admin/families/${member.familyId}/workspace`, `/api/admin/new-admin/families/${member.familyId}/history`, `/api/admin/new-admin/members/${member.memberId}/workspace`]) {

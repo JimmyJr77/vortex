@@ -102,3 +102,32 @@ test('marketing write route requires member, billing and marketing permissions b
   }
   assert.equal(writes,0)
 })
+
+test('student trends distinguish siblings, merge classes and bridge Jackrabbit by student identity', () => {
+  const data = buildEnrollmentTrend({ today:'2026-04-15', historical:[
+    {family_id:1,member_id:1,start_date:'2025-12-01',end_date:'2026-01-01'},
+    {family_id:1,member_id:2,start_date:'2025-12-01',end_date:'2026-02-10'},
+    {family_id:1,member_id:null,start_date:'2025-12-01',end_date:'2026-02-20'},
+  ], live:[
+    live(10,1,'2026-01-01',{member_id:1}), live(11,1,'2026-02-01',{member_id:1}),
+    live(12,1,'2026-03-01',{member_id:3}),
+    live(13,1,'2026-03-01',{member_id:2}),
+  ] })
+  assert.equal(data.months[1].canceledFamilies,0)
+  assert.equal(data.studentMonths[1].openingStudents,2)
+  assert.equal(data.studentMonths[1].canceledStudents,1)
+  assert.equal(data.studentMonths[1].lossRate,50)
+  assert.equal(data.studentMonths[2].newStudents,1)
+  assert.equal(data.months[2].newFamilies,0)
+  assert.equal(data.studentMonths[0].newStudents,0)
+})
+
+test('family membership sums siblings and classes before averaging households', () => {
+  const current = summarizeCurrent([live(1,1,'2026-01-01'),live(2,1,'2026-01-01'),live(3,2,'2026-01-01')],[],'2026-11-10',[
+    {id:1,member_id:1,family_id:1,source_id:'1',net_monthly_cents:10000,status:'active'},
+    {id:2,member_id:2,family_id:1,source_id:'2',net_monthly_cents:20000,status:'active'},
+    {id:3,member_id:3,family_id:2,source_id:'3',net_monthly_cents:15000,status:'active'},
+  ])
+  assert.equal(current.membership.averageMembershipCents,15000)
+  assert.equal(current.membership.averageFamilyMembershipCents,22500)
+})

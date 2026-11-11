@@ -8,6 +8,7 @@ import { schedulingScopeMiddleware } from './scope.js'
 import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
 import { loadEnrollmentTrend } from './enrollmentTrend.js'
 import { saveMarketingSpend } from './marketingSpend.js'
+import { loadBillingDashboard } from './billingDashboard.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -42,6 +43,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   }))
   app.put(`${base}/marketing-spend/:month`,allow(['members.view','billing.view','marketing.manage']),
     handler(req=>saveMarketingSpend(pool,facility(req),req.canonicalAccess.userId,req.params.month,req.body)))
+  app.get(`${base}/billing-dashboard`,allow('billing.view'),handler(req=>loadBillingDashboard(pool,facility(req))))
   app.get(`${base}/families`,allow('members.view'),handler(req=>listFamilies(pool,facility(req),req.query)))
   app.get(`${base}/families/:id/workspace`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id})))
   app.get(`${base}/families/:id/history`,allow('members.view'),handler(req=>workspace(req,{familyId:req.params.id,historyCursor:req.query.cursor || null})))

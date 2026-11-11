@@ -47,7 +47,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
       <ErrorNotice message={access.error} onRetry={() => window.location.reload()} />
       {access.data && !current ? <p role="status">Your staff account has no permissions for these administrative workflows.</p> : null}
       <main><Suspense fallback={<Loading label="Opening workspace…" />}>
-        {access.data && current?.id === 'dashboard' ? <Dashboard revision={revision} /> : null}
+        {access.data && current?.id === 'dashboard' ? <Dashboard revision={revision} canViewBilling={allowed(access.data, 'billing.view')} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
         {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onMember={openMember} /> : null}

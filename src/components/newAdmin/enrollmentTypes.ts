@@ -5,6 +5,7 @@ export interface EnrollmentMonth {
 export interface Breakdown { label: string; count: number }
 export interface AcquisitionMonth { key: string; label: string; partial: boolean; newFamilies: number | null; spendCents: number | null; cacCents: number | null; version: number }
 export interface EnrollmentTrendData {
+  studentMonths?: Array<Omit<EnrollmentMonth, 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
   year: number; asOf: string; coverageStart: string | null; months: EnrollmentMonth[]; rollingMonths: EnrollmentMonth[]; notes: string[]
   summary: { newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
     cancellations: number | null; averageCancellations: number | null; cancellationMonths: number
@@ -12,7 +13,7 @@ export interface EnrollmentTrendData {
     twelveMonthLossRate: number | null; twelveMonthRateMonths: number }
   current: { families: number; students: number; studentsPerFamily: number | null
     classes: Array<{id: string; name: string; count: number}>; genders: Breakdown[]; ages: Breakdown[]; teams: Breakdown[]
-    membership: { monthlyRevenueCents: number; averageMembershipCents: number | null; pricedStudents: number } | null }
+    membership: { monthlyRevenueCents: number; averageMembershipCents: number | null; averageFamilyMembershipCents?: number | null; pricedStudents: number } | null }
   acquisition: { rows: AcquisitionMonth[]; includedMonths: number; totalSpendCents: number; newFamilies: number; cacCents: number | null
     retentionMonths: number | null; familyLifetimeRevenueCents: number | null; revenuePerDollar: number | null } | null
   permissions: {canViewFinancial: boolean; canEditMarketing: boolean}

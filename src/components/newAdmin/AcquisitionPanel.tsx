@@ -47,8 +47,9 @@ export default function AcquisitionPanel({ data, onRefresh }: {data: EnrollmentT
   return <section className="mt-8" aria-label="Marketing acquisition and value">
     <h3 className="text-xl font-bold">Marketing acquisition &amp; membership value</h3>
     <p className="mt-1 text-sm text-slate-500">Estimated revenue from enrollment and the marketing spending you record.</p>
-    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       <MetricCard label="Average membership cost per student" value={money(data.current.membership?.averageMembershipCents)} detail={`Per month · Net recurring tuition ÷ ${number(data.current.students)} current students. Excludes annual fees and one-time purchases.`} />
+      <MetricCard label="Average membership cost per family" value={money(data.current.membership?.averageFamilyMembershipCents)} detail={`Per month · Total recurring tuition for all students and classes ÷ ${number(data.current.families)} current families.`} />
       <MetricCard label="Average acquisition cost per family" value={money(acquisition.cacCents)} detail={`${acquisition.includedMonths} completed months with spend entered · ${money(acquisition.totalSpendCents)} ÷ ${number(acquisition.newFamilies)} new families`} />
       <MetricCard label="Estimated family retention" value={acquisition.retentionMonths == null ? 'Unavailable' : `${number(acquisition.retentionMonths, 1)} months`} detail="1 ÷ average monthly family loss rate over the previous 12 months" />
       <MetricCard label="Value per marketing dollar" value={acquisition.revenuePerDollar == null ? 'Unavailable' : `$${number(acquisition.revenuePerDollar, 2)} per $1`} color="text-emerald-700" detail={<>Expected lifetime revenue · {money(acquisition.familyLifetimeRevenueCents)} per family ÷ acquisition cost. Revenue before expenses.</>} />

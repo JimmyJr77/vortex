@@ -107,3 +107,36 @@ marketing dollar divides that family revenue by family acquisition cost. These a
 revenue estimates assuming the present mix and retention continue, not profit or
 campaign attribution. Unknown/zero loss or acquisition-cost denominators yield an
 unavailable estimate rather than infinity.
+
+### Student trends and billing dashboard
+
+Enrollment trend population switches between unique families (default) and unique
+students. The API returns both series from the same shared enrollment snapshot;
+changing population or chart view performs no additional request. Student intervals
+merge by resolved member ID, including imported history. Siblings are independent;
+multiple classes, transfers and returns do not create extra new students. The
+membership-per-family card divides the same net recurring tuition by current
+families, including all their enrolled students and classes.
+
+`GET /api/admin/new-admin/billing-dashboard` requires `billing.view` and returns one
+facility-scoped, database-enforced read-only snapshot. It reuses the accounting
+ledger CTE over shared account records, including Jackrabbit cash history. No new
+migration, billing worker, collection schedule or payment API is introduced.
+
+Income means successful payments minus successful refunds, grouped in the facility
+zone by cash date. Cards show the previous 12 completed months, their monthly
+average, the last three completed months and their monthly average, and last month.
+The chart includes the current partial month. Class/gender/age views are computed
+locally from the same response. Payment allocations determine attribution; refund
+reversals retain original receipt attribution, while non-refund reallocations
+move attribution. Refunds use their charge or payment. Unassigned amounts remain
+visible; cent-preserving allocation ensures all category totals reconcile. Ages
+use the cash transaction date. Empty recorded months contribute zero.
+
+Unpaid lists use posted service-month charges after payments and credits, grouped
+as this month or last month and earlier. Account-level funds reduce oldest remaining
+debt first for display only; future bills stay outside both lists. Net negative
+ledger balances appear as credits. Imported transactions contribute cash history
+but never create a second current debt/credit balance. Family links open the
+existing billing workspace. These views do not provision, reconcile, allocate,
+charge, refund or update any billing records.
