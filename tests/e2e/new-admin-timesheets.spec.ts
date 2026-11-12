@@ -68,7 +68,7 @@ test('weekly hours default to this week, preserve actuals separately from assign
   await expect.poll(()=>reads.at(-1)?.get('week')).toBe('2026-10-19')
   await page.getByRole('button',{name:'This week',exact:true}).click()
   await expect(page.getByLabel('Choose week')).toHaveValue('2026-11-09')
-  await page.screenshot({path:'/private/tmp/vortex-timesheets-weekly.png',fullPage:true})
+  await page.screenshot({path:test.info().outputPath('timesheets-weekly.png'),fullPage:true})
   await page.setViewportSize({width:390,height:844})
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
   await page.getByLabel('Hours worked 2026-11-12').fill('2')
@@ -76,7 +76,7 @@ test('weekly hours default to this week, preserve actuals separately from assign
   await expect.poll(()=>writes.at(-1)?.body).toMatchObject({days:[{date:'2026-11-12',minutes:120}]})
   await page.getByRole('button',{name:'This week',exact:true}).click()
   await expect(page.getByLabel('Hours worked 2026-11-12')).toHaveValue('2')
-  await page.screenshot({path:'/private/tmp/vortex-timesheets-weekly-mobile.png',fullPage:true})
+  await page.screenshot({path:test.info().outputPath('timesheets-weekly-mobile.png'),fullPage:true})
 })
 
 test('admins view team totals and assign highlighted hours to a selected person',async({page})=>{
