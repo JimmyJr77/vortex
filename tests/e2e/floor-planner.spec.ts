@@ -12,7 +12,7 @@ async function openPlanner(page: Page, manage = true) {
   const namedViews = new Map<string, { id: string; name: string; revision: number; selectedDay: number; plan: unknown; facilityId: number; updatedAt: string }>()
   let nextView = 1
   await page.addInitScript(() => {
-    localStorage.setItem('vortex_admin', 'true'); localStorage.setItem('adminToken', 'e2e-admin-token')
+    localStorage.setItem('vortex_admin_portal', 'new-admin'); localStorage.setItem('vortex_admin', 'true'); localStorage.setItem('adminToken', 'e2e-admin-token')
     localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Planner Admin', email: 'planner@example.com', isMaster: true }))
   })
   await page.route('**/api/**', async (route) => {

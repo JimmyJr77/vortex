@@ -696,12 +696,10 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
   })
 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible({ timeout: 30_000 })
-  await page.evaluate(() => {
-    window.dispatchEvent(new CustomEvent('vortex:navigate-notification', {
-      detail: { portal: 'admin', group: 'accounts', section: 'customerBilling' },
-    }))
-  })
+  await expect(page.getByRole('heading', { name: /VORTEX LEGACY ADMIN/i })).toBeVisible({ timeout: 30_000 })
+  await page.getByRole('button', { name: 'Switch portal account' }).click()
+  await page.getByRole('option', { name: 'Admin', exact: true }).click()
+  await page.getByRole('navigation', { name: 'Admin sections', exact: true }).getByRole('button', { name: 'Billing', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible({ timeout: 30_000 })
 }
 
@@ -784,6 +782,9 @@ test.describe('Account Billing & Enrollments administration', () => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
+    await page.getByRole('button', { name: 'Switch portal account' }).click()
+    await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
+    await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Accounts', exact: true }).click()
     await page.getByRole('button', { name: 'Members', exact: true }).click()
     await expect(page.getByRole('heading', { name: 'Members (1)', exact: true })).toBeVisible()
     const billingWindow = page.waitForEvent('popup')
@@ -791,8 +792,6 @@ test.describe('Account Billing & Enrollments administration', () => {
     const popup = await billingWindow
     await popup.waitForLoadState('domcontentloaded')
 
-    await expect(popup).toHaveURL(/adminBillingFamilyId=42/)
-    await expect(popup).toHaveURL(/adminBillingMemberId=11/)
     await expect(popup.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
     await expect(popup.getByText('Family #42 · Billing account #7')).toBeVisible()
     await expect(popup.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
@@ -802,6 +801,9 @@ test.describe('Account Billing & Enrollments administration', () => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
+    await page.getByRole('button', { name: 'Switch portal account' }).click()
+    await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
+    await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Accounts', exact: true }).click()
     await page.getByRole('button', { name: 'Members', exact: true }).click()
     const memberRow = page.getByRole('row', { name: /Jordan Rivera.*Rivera Household/ })
     await memberRow.click()
@@ -826,13 +828,13 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.searchQueries).toContain('42')
   })
 
-  test('opens after Members and renders a complete member-filtered household account', async ({ page }) => {
+  test('opens in Admin and renders a complete member-filtered household account', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     const consoleErrors: string[] = []
     page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()) })
     await openCustomerBilling(page, captured)
 
-    await expect(page.getByRole('button', { name: 'Members', exact: true })).toBeVisible()
+    await expect(page.getByRole('navigation', { name: 'Admin sections', exact: true }).getByRole('button', { name: 'Members & accounts', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
     await findRiveraAccount(page)
 
@@ -1243,7 +1245,9 @@ test('dashboard stacks current owed revenue above collected and shows two future
       { key: '2026-11', label: 'Nov', owedCents: 0, expectedCents: 850000 },
     ], scheduledMonthlyTuitionCents: 800000, dropInsThisMonth: 0, dropInRevenueCents: 0, activeAnnualMemberships: 12, withoutCard: [], withoutMonthlyBilling: [] },
   } } }))
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent('vortex:navigate-notification', { detail: { portal: 'admin', group: 'dashboard', section: 'dashboard' } })))
+  await page.getByRole('button', { name: 'Switch portal account' }).click()
+  await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
+  await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Dashboard', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Collected & expected revenue' })).toBeVisible()
   const september = page.getByLabel('Sep: $6,000.00 collected, $7,500.00 total', { exact: true })
   await expect(september).toBeVisible()

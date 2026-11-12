@@ -89,7 +89,7 @@ test('Escape and close cancel only the archive popup and restore focus', async (
   await expect(popup.getByRole('button', { name: 'Archive', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(popup.getByRole('button', { name: 'Close archive confirmation' })).toBeFocused()
-  await popup.screenshot({ path: '/private/tmp/vortex-archive-confirmation-mobile.png' })
+  await popup.screenshot({ path: test.info().outputPath('archive-confirmation-mobile.png') })
   await page.keyboard.press('Escape')
   await expect(popup).toBeHidden()
   await expect(editor).toBeVisible()
