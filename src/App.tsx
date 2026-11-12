@@ -79,9 +79,7 @@ function App() {
     hasHighlights,
   } = useSiteHighlights({ autoOpen: false })
 
-  // Portal shells and full-screen overlays intentionally lock document scrolling.
-  // App stays mounted while switching back to the public website, so an inline
-  // lock left by a previous shell would otherwise affect every public route.
+  // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
     if (activePortal !== 'website' || isHighlightsOpen) return
     document.documentElement.style.overflow = ''

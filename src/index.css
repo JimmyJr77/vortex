@@ -29,6 +29,11 @@
     scroll-padding-top: var(--site-header-height);
   }
 
+  html:has(.portal-shell) {
+    overflow: hidden;
+    overscroll-behavior-y: none;
+  }
+
   /* Keep focus targets stable while moving through long payroll forms. */
   html:has([data-payroll-workspace]) {
     scroll-behavior: auto;
@@ -68,6 +73,12 @@
 
   .container-admin {
     @apply w-full max-w-none mx-auto px-6 sm:px-8 lg:px-10 xl:px-12;
+  }
+
+  .portal-shell {
+    @apply flex flex-col overflow-hidden;
+    height: 100vh;
+    height: 100dvh;
   }
 
   .pt-below-site-header {

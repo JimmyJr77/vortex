@@ -139,7 +139,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const fullscreen = current?.id === 'messaging' && messagesMaximized
   const legacy = legacySections.find(item => item.id === current?.id)
   const fixedPanel = current?.id === 'messaging' || current?.id === 'faqLibrary'
-  return <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 text-gray-900 flex flex-col overflow-hidden">
+  return <div className="portal-shell bg-gray-50 text-gray-900">
     <header hidden={fullscreen} className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
       <div className="container-admin py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
           </Fragment>)}
         </div>
       </nav>
-      <main className={`min-w-0 min-h-0 flex-1 ${fixedPanel ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>
+      <main className={`min-w-0 min-h-0 flex-1 overscroll-y-none ${fixedPanel ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>
         {access.loading ? <Loading label="Checking administrative access…" /> : null}
         <ErrorNotice message={access.error} onRetry={() => window.location.reload()} />
         {access.data && current?.id === 'home' ? <div className="space-y-5">

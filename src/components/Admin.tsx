@@ -304,7 +304,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const messagingFullscreen = false
 
   return (
-    <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+    <div className="portal-shell bg-gray-50">
       <StaffLegalPolicies portal="admin" />
       {/* Admin Header Section - Dark Background */}
       <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
@@ -348,7 +348,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           </div>
         </nav>
 
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 overscroll-y-none ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           {accessLoading ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">

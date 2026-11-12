@@ -74,3 +74,36 @@ test('public visitors and member-only accounts are not offered admin portals', a
   await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Account login', exact: true })).toHaveCount(0)
 })
+
+test('scrolling stops at the bottom of the active portal page', async ({ page }) => {
+  await mockNavigationApi(page)
+  await page.setViewportSize({ width: 390, height: 600 })
+  await page.addInitScript(() => {
+    localStorage.setItem('vortex_admin', 'true')
+    localStorage.setItem('adminToken', 'navigation-test-token')
+    localStorage.setItem('vortex_admin_portal', 'new-admin')
+  })
+  await page.goto('/')
+  const main = page.getByRole('main')
+  const document = page.locator('html')
+  await expect(main.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
+  await expect(main).toHaveCSS('overscroll-behavior-y', 'none')
+  await expect(document).toHaveCSS('overflow-y', 'hidden')
+
+  const scrollPosition = () => main.evaluate(element => ({
+    content: element.scrollTop,
+    bottom: element.scrollHeight - element.clientHeight,
+    page: window.scrollY,
+  }))
+  await main.hover()
+  const { bottom } = await scrollPosition()
+  expect(bottom).toBeGreaterThan(0)
+  await page.mouse.wheel(0, bottom + 200)
+  await expect.poll(scrollPosition).toEqual({ content: bottom, bottom, page: 0 })
+  await page.mouse.wheel(0, 600)
+  await page.mouse.wheel(0, 600)
+  expect(await scrollPosition()).toEqual({ content: bottom, bottom, page: 0 })
+
+  await page.getByRole('button', { name: 'Return to website home' }).click()
+  await expect(document).toHaveCSS('overflow-y', 'visible')
+})

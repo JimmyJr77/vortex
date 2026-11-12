@@ -159,19 +159,6 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
     if (tab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
   }, [tab, messagesMaximized])
 
-  useEffect(() => {
-    const html = document.documentElement
-    const body = document.body
-    const prevHtml = html.style.overflow
-    const prevBody = body.style.overflow
-    html.style.overflow = 'hidden'
-    body.style.overflow = 'hidden'
-    return () => {
-      html.style.overflow = prevHtml
-      body.style.overflow = prevBody
-    }
-  }, [])
-
   const renderPanel = () => {
     switch (tab) {
       case 'home':
@@ -238,7 +225,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   const messagingFullscreen = messagesMaximized && tab === 'messages'
 
   return (
-    <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+    <div className="portal-shell bg-gray-50">
       <StaffLegalPolicies portal="coach" />
       <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
         <div className="container-admin py-4 flex items-center justify-between gap-4">
@@ -299,7 +286,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             })}
           </div>
         </nav>
-        <main className={`${navOpen ? 'hidden lg:flex' : 'flex'} min-w-0 min-h-0 flex-col flex-1 ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-contain'}`}>
+        <main className={`${navOpen ? 'hidden lg:flex' : 'flex'} min-w-0 min-h-0 flex-col flex-1 overscroll-y-none ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-x-contain'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
             <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
               {renderPanel()}

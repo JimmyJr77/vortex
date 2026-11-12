@@ -16,7 +16,7 @@ function weekOf(date: string) {
   const day = new Date(`${date}T12:00:00Z`)
   return addDays(date, -(day.getUTCDay() + 6) % 7)
 }
-const dateLabel = (date: string, weekday = false) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', ...(weekday ? { weekday: 'short' as const } : { year: 'numeric' as const }) }).format(new Date(`${date}T12:00:00Z`))
+const dateLabel = (date: string, short = false) => new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', ...(short ? {} : { year: 'numeric' as const }) }).format(new Date(`${date}T12:00:00Z`))
 const hours = (minutes: number | null) => minutes == null ? '' : String(Number((minutes / 60).toFixed(2)))
 const duration = (minutes: number) => `${Math.floor(minutes / 60)}h ${minutes % 60}m`
 const timeLabel = (time: string) => { const [h, m] = time.split(':').map(Number); return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}` }
@@ -93,16 +93,33 @@ function WeeklyTimesheets({ revision }: { revision: number }) {
     </div> : null}
     {options.loading || result.loading ? <Loading label="Loading this week’s timesheets…" /> : null}
     {data ? <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b p-4"><div><h3 className="font-bold">{person === 'all' ? 'Everyone’s timesheets' : editable ? 'My timesheet' : single?.name}</h3><p className="text-sm text-slate-500">{dateLabel(data.week)} – {dateLabel(data.end)}</p></div>{single ? <div className="text-right"><p className="text-2xl font-bold">{duration(actualTotal)}</p><p className="text-xs text-slate-500">Hours worked this week</p></div> : null}</div>
-      {single ? <form onSubmit={event => { event.preventDefault(); void save() }}>
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th scope="col" className={cell}>Day</th><th scope="col" className={cell}>Hours worked</th><th scope="col" className={cell}>Admin-assigned time</th><th scope="col" className={cell}>Notes</th></tr></thead><tbody className="divide-y divide-slate-100">{single.days.map(day => <tr key={day.date}>
-          <th scope="row" className={`${cell} sticky left-0 z-10 bg-white whitespace-nowrap font-semibold`}>{dateLabel(day.date, true)}{day.date === data.today ? <span className="block text-xs font-normal text-vortex-red">Today</span> : null}</th>
-          <td className={`${cell} w-36`}>{editable ? <input aria-label={`Hours worked ${day.date}`} className={`${input} !mt-0 min-w-24`} type="number" min="0" max="24" step="0.01" placeholder="0" disabled={saving} value={draftFor(day).hours} onChange={event => update(day, { hours: event.target.value })} /> : <span>{day.minutes == null ? '—' : duration(day.minutes)}</span>}</td>
-          <td className={`${cell} min-w-44 ${day.assignments.length ? 'bg-amber-50 border-l-2 border-amber-300' : ''}`}><AssignedTimes day={day} canAssign={data.canAssign} busy={saving} onRemove={removeAssignment} /></td>
-          <td className={`${cell} min-w-48`}>{editable ? <input aria-label={`Notes ${day.date}`} className={`${input} !mt-0`} maxLength={2000} disabled={saving} placeholder="Optional" value={draftFor(day).notes} onChange={event => update(day, { notes: event.target.value })} /> : day.notes || '—'}</td>
-        </tr>)}</tbody></table></div>
+      <div className="border-b p-4"><h3 className="font-bold">{person === 'all' ? 'Everyone’s timesheets' : editable ? 'My timesheet' : single?.name}</h3><p className="text-sm text-slate-500">{dateLabel(data.week)} – {dateLabel(data.end)}</p></div>
+      {data.people.length ? <form onSubmit={event => { event.preventDefault(); void save() }}>
+        <div className="relative overflow-x-auto"><table aria-label="Weekly timesheets" className="w-full min-w-[960px] table-fixed text-sm">
+          <colgroup><col className="w-32" /><col span={7} /><col className="w-28" /></colgroup>
+          <thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr>
+            <th scope="col" className={`${cell} sticky left-0 z-10 bg-slate-50`}>Person</th>
+            {data.people[0].days.map((day, index) => <th key={day.date} scope="col" className="px-3 py-3 text-left align-top">
+              <span className="block">{['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][index]}</span>
+              <span className="mt-1 block text-[11px] font-normal normal-case">{dateLabel(day.date, true)}</span>
+              {day.date === data.today ? <span className="mt-1 block text-[11px] font-normal normal-case text-vortex-red">Today</span> : null}
+            </th>)}
+            <th scope="col" className={cell}>Total Hours</th>
+          </tr></thead>
+          <tbody className="divide-y divide-slate-100">{data.people.map(row => <tr key={row.id}>
+            <th scope="row" className={`${cell} sticky left-0 z-10 bg-white font-semibold`}>{person === 'all' ? <button type="button" className="text-left underline decoration-slate-300" onClick={() => setPerson(row.id === data.userId ? 'me' : String(row.id))}>{row.name}</button> : row.name}</th>
+            {row.days.map(day => <td key={day.date} className={`px-3 py-3 align-top ${day.assignments.length ? 'bg-amber-50' : ''}`}>
+              <div className="space-y-2">
+                {editable ? <input aria-label={`Hours worked ${day.date}`} className={`${input} !mt-0 min-w-0`} type="number" min="0" max="24" step="0.01" placeholder="0" disabled={saving} value={draftFor(day).hours} onChange={event => update(day, { hours: event.target.value })} /> : <span className="block font-semibold">{day.minutes == null ? '—' : duration(day.minutes)}</span>}
+                {day.assignments.length ? <AssignedTimes day={day} canAssign={data.canAssign} busy={saving} onRemove={removeAssignment} /> : null}
+                {editable ? <input aria-label={`Notes ${day.date}`} className={`${input} !mt-0 min-w-0 !px-2 !py-1.5 !text-xs`} maxLength={2000} disabled={saving} placeholder="Notes" value={draftFor(day).notes} onChange={event => update(day, { notes: event.target.value })} /> : day.notes ? <p className="break-words text-xs text-slate-500">{day.notes}</p> : null}
+              </div>
+            </td>)}
+            <td className={`${cell} whitespace-nowrap font-bold`}>{duration(editable ? actualTotal : row.days.reduce((sum, day) => sum + (day.minutes ?? 0), 0))}</td>
+          </tr>)}</tbody>
+        </table></div>
         <div className="flex flex-wrap items-center justify-between gap-3 border-t p-4"><p className="max-w-xl text-xs text-slate-500">Highlighted times were assigned by an admin. Record all hours worked, including work outside those times. Use decimals, such as 1.5 for 1½ hours.</p>{editable ? <button className={primary} disabled={saving || !dirty}>{saving ? 'Saving…' : 'Save hours'}</button> : null}</div>
-      </form> : data.people.length ? <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50 text-xs uppercase text-slate-500"><tr><th scope="col" className={cell}>Person</th>{data.people[0].days.map(day => <th key={day.date} scope="col" className={`${cell} whitespace-nowrap`}>{dateLabel(day.date, true)}</th>)}<th scope="col" className={cell}>Total</th></tr></thead><tbody className="divide-y">{data.people.map(row => <tr key={row.id}><th scope="row" className={cell}><button className="font-semibold text-left underline decoration-slate-300" onClick={() => setPerson(row.id === data.userId ? 'me' : String(row.id))}>{row.name}</button></th>{row.days.map(day => <td key={day.date} className={`${cell} whitespace-nowrap ${day.assignments.length ? 'bg-amber-50' : ''}`}><div className="font-semibold">{day.minutes == null ? '—' : duration(day.minutes)}</div>{day.assignments.length ? <div className="mt-1 text-xs text-amber-900">Assigned: {duration(day.assignments.reduce((sum, item) => sum + item.minutes, 0))}</div> : null}</td>)}<td className={`${cell} whitespace-nowrap font-bold`}>{duration(row.days.reduce((sum, day) => sum + (day.minutes ?? 0), 0))}</td></tr>)}</tbody></table></div> : <Empty>No staff timesheets to show.</Empty>}
+      </form> : <Empty>No staff timesheets to show.</Empty>}
     </div> : null}
     {data ? <p className="text-xs text-slate-500">Weeks run Monday–Sunday. Assigned times use {data.timezone}.</p> : null}
     {assigning && options.data && data ? <AssignmentEditor people={options.data.people} initialUserId={single?.id ?? data.userId} initialDate={data.today >= week && data.today <= data.end ? data.today : week} timezone={data.timezone} onClose={() => setAssigning(false)} onSaved={() => { setAssigning(false); setNotice('Work time assigned.'); refresh() }} /> : null}
@@ -110,7 +127,7 @@ function WeeklyTimesheets({ revision }: { revision: number }) {
 }
 
 function AssignedTimes({ day, canAssign, busy, onRemove }: { day: Day; canAssign: boolean; busy: boolean; onRemove: (assignment: Assignment) => Promise<void> }) {
-  return day.assignments.length ? <div className="space-y-2">{day.assignments.map(item => <div key={item.id}><p className="whitespace-nowrap font-medium text-amber-950">{timeLabel(item.startTime)}–{timeLabel(item.endTime)}{item.endDate !== day.date ? ' (+1 day)' : ''}</p><p className="text-xs text-amber-900">{duration(item.minutes)} assigned{item.notes ? ` · ${item.notes}` : ''}</p>{canAssign ? <button type="button" disabled={busy} className="mt-1 text-xs text-slate-600 underline" aria-label={`Remove assigned time ${day.date} ${item.startTime}`} onClick={() => void onRemove(item)}>Remove</button> : null}</div>)}</div> : <span className="text-slate-400">—</span>
+  return day.assignments.length ? <div className="space-y-2">{day.assignments.map(item => <div key={item.id}><p className="text-xs font-medium text-amber-950"><span className="whitespace-nowrap">{timeLabel(item.startTime)}</span>–<span className="whitespace-nowrap">{timeLabel(item.endTime)}</span>{item.endDate !== day.date ? ' (+1 day)' : ''}</p><p className="break-words text-xs text-amber-900">{duration(item.minutes)} assigned{item.notes ? ` · ${item.notes}` : ''}</p>{canAssign ? <button type="button" disabled={busy} className="mt-1 text-xs text-slate-600 underline" aria-label={`Remove assigned time ${day.date} ${item.startTime}`} onClick={() => void onRemove(item)}>Remove</button> : null}</div>)}</div> : <span className="text-slate-400">—</span>
 }
 
 function AssignmentEditor({ people, initialUserId, initialDate, timezone, onClose, onSaved }: { people: Options['people']; initialUserId: number; initialDate: string; timezone: string; onClose: () => void; onSaved: () => void }) {

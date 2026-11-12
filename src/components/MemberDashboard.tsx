@@ -1943,7 +1943,7 @@ export default function MemberDashboard({
   }, [activeTab, messagesMaximized])
 
   return (
-    <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
+    <div className="portal-shell bg-gray-50">
       <StaffLegalPolicies portal="member" />
       {/* Member Portal Header Section - Dark Background */}
       <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
@@ -2037,7 +2037,7 @@ export default function MemberDashboard({
             })}
           </div>
         </nav>
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 ${activeTab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`min-w-0 flex flex-col min-h-0 flex-1 overscroll-y-none ${activeTab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
