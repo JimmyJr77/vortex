@@ -90,16 +90,13 @@ export async function resolveMemberOwnContactEmail(db, memberRow) {
   return mapContact(result.rows[0], 'member')
 }
 
-/**
- * List active legal guardians who share the member's active household.
- * parent_guardian_authority and family_member are the only authority sources.
- */
-export async function listMemberGuardianContacts(db, memberId) {
+/** Load active adult guardians who share the member's active household. */
+async function loadMemberGuardianContactRows(db, memberId) {
   const normalizedMemberId = positiveId(memberId)
   if (normalizedMemberId == null) return []
 
   const result = await db.query(
-    `SELECT DISTINCT guardian.id, guardian.first_name,
+    `SELECT DISTINCT guardian.id, guardian.first_name, guardian.last_name, guardian.phone,
             COALESCE(
               NULLIF(TRIM(guardian.email), ''),
               NULLIF(TRIM(guardian_user.email), '')
@@ -132,8 +129,22 @@ export async function listMemberGuardianContacts(db, memberId) {
     [normalizedMemberId],
   )
   return result.rows
+}
+
+export async function listMemberGuardianContacts(db, memberId) {
+  const rows = await loadMemberGuardianContactRows(db, memberId)
+  return rows
     .map((row) => mapContact(row, 'guardian'))
     .filter(Boolean)
+}
+
+export async function listMemberGuardianOutreachContacts(db, memberId) {
+  const rows = await loadMemberGuardianContactRows(db, memberId)
+  return rows.map((row) => ({
+    name: [row.first_name?.trim(), row.last_name?.trim()].filter(Boolean).join(' '),
+    email: isValidEmail(row.email) ? row.email.trim() : '',
+    phone: row.phone?.trim() || '',
+  })).filter(({ name, email, phone }) => name || email || phone)
 }
 
 /**

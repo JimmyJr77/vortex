@@ -1,5 +1,6 @@
 import { loadSchedulingCalendar } from './calendarQuery.js'
 import { sendEmail } from '../email/sendEmail.js'
+import { formatDateOnly, loadGroupDisplayLabels } from './slotDisplayLabel.js'
 
 export const ROSTER_TIME_ZONE = 'America/New_York'
 export const DEFAULT_ROSTER_RECIPIENT = 'team@vortexathletics.com'
@@ -72,7 +73,9 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;')
 }
 
-export async function loadRegistrationDetails(pool, { signupIds = null, registeredSince = null, registrationDate = null } = {}) {
+export async function loadRegistrationDetails(pool, {
+  signupIds = null, registeredSince = null, registrationDate = null, includeGroupSchedule = false,
+} = {}) {
   const ids = Array.isArray(signupIds) ? signupIds.map(Number).filter(Number.isFinite) : null
   const { resolveProgramsSchema } = await import('../programs/schema.js')
   const schema = await resolveProgramsSchema(pool)
@@ -81,9 +84,10 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
       SELECT
         s.id,
         s.member_id,
+        s.slot_group_id,
         s.status,
         s.created_at,
-        s.enrollment_start_date,
+        s.enrollment_start_date::text AS enrollment_start_date,
         s.responses,
         s.field_responses,
         COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
@@ -93,7 +97,7 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
         COALESCE(NULLIF(TRIM(p.display_name), ''), NULLIF(TRIM(sf.title), ''), 'Class') AS class_name,
         COALESCE(NULLIF(TRIM(pr.display_name), ''), NULLIF(TRIM(pr.name), '')) AS program_name,
         ts.schedule_mode,
-        ts.specific_date,
+        ts.specific_date::text AS specific_date,
         ts.day_of_week,
         ts.start_time,
         ts.end_time,
@@ -121,13 +125,17 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
     [ids, registeredSince, registrationDate],
   )
 
+  const groupLabels = includeGroupSchedule
+    ? (await loadGroupDisplayLabels(pool, result.rows.map((row) => row.slot_group_id), { activeOnly: true })).labels
+    : new Map()
+
   return result.rows.map((row) => {
     const responses = row.responses && Object.keys(row.responses).length
       ? row.responses
       : row.field_responses || {}
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const scheduleDate = row.schedule_mode === 'date' && row.specific_date
-      ? String(row.specific_date).slice(0, 10)
+      ? formatDateOnly(row.specific_date)
       : row.day_of_week != null
         ? dayNames[Number(row.day_of_week)]
         : null
@@ -144,14 +152,12 @@ export async function loadRegistrationDetails(pool, { signupIds = null, register
       programName: row.program_name || null,
       status: row.status,
       registeredAt: row.created_at,
-      enrollmentStartDate: row.enrollment_start_date
-        ? String(row.enrollment_start_date).slice(0, 10)
-        : null,
+      enrollmentStartDate: formatDateOnly(row.enrollment_start_date),
       chargedCents: cents(row.charged_cents),
       grossCents: cents(row.gross_cents),
       discountCents: cents(row.discount_cents),
       recurringMonthlyCents: cents(row.recurring_monthly_cents),
-      scheduleLabel: [scheduleDate, scheduleTime].filter(Boolean).join(' · '),
+      scheduleLabel: groupLabels.get(Number(row.slot_group_id)) || [scheduleDate, scheduleTime].filter(Boolean).join(' · '),
       details: responses,
     }
   })

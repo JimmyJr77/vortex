@@ -54,7 +54,7 @@ export function buildGroupDisplayLabel(occurrenceRows) {
 }
 
 /** Load group display labels and occurrence rows for signup slot labels. */
-export async function loadGroupDisplayLabels(pool, groupIds) {
+export async function loadGroupDisplayLabels(pool, groupIds, { activeOnly = false } = {}) {
   const labels = new Map()
   const rowsByGroupId = new Map()
   const ids = [...new Set(groupIds.filter((id) => id != null).map(Number))]
@@ -62,9 +62,10 @@ export async function loadGroupDisplayLabels(pool, groupIds) {
 
   const slotsRes = await pool.query(
     `
-    SELECT slot_group_id, week_letter, schedule_mode, specific_date, day_of_week, start_time, end_time
+    SELECT slot_group_id, week_letter, schedule_mode, specific_date::text AS specific_date, day_of_week, start_time, end_time
     FROM scheduling_time_slot
     WHERE slot_group_id = ANY($1::int[])
+      ${activeOnly ? 'AND is_active = TRUE' : ''}
     ORDER BY slot_group_id, week_letter NULLS LAST, day_of_week NULLS LAST,
       specific_date NULLS LAST, start_time, id
     `,

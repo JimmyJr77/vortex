@@ -1,4 +1,5 @@
 import { sendEmail } from '../email/sendEmail.js'
+import { listMemberGuardianOutreachContacts } from '../email/memberContact.js'
 import { DEFAULT_ROSTER_RECIPIENT, loadRegistrationDetails } from './dailyRoster.js'
 
 function money(value) {
@@ -21,10 +22,20 @@ function detailLabel(key) {
 function safeRegistrationDetails(details) {
   const excluded = new Set([
     'first_name', 'last_name', 'email', 'phone', 'password', 'signup_auth_token',
+    'parent_first_name', 'parent_last_name', 'parent_email', 'parent_phone',
   ])
   return Object.entries(details || {})
     .filter(([key, value]) => !excluded.has(key) && value != null && value !== '' && typeof value !== 'object')
     .map(([key, value]) => ({ label: detailLabel(key), value: String(value) }))
+}
+
+function submittedGuardianContact(details) {
+  const read = (key) => typeof details?.[key] === 'string' ? details[key].trim() : ''
+  return {
+    name: [read('parent_first_name'), read('parent_last_name')].filter(Boolean).join(' '),
+    email: read('parent_email'),
+    phone: read('parent_phone'),
+  }
 }
 
 // A family may enroll several athletes at once. Keep each athlete's details in
@@ -57,28 +68,43 @@ export async function sendRegistrationNotification(pool, {
   signupIds,
   paidCents = null,
   to = process.env.DAILY_ROSTER_EMAIL || DEFAULT_ROSTER_RECIPIENT,
+  send = sendEmail,
 } = {}) {
   const ids = [...new Set((signupIds || []).map(Number).filter(Number.isFinite))].sort((a, b) => a - b)
   if (!ids.length) return { sent: false, skipped: true, reason: 'no_signups' }
-  const registrations = await loadRegistrationDetails(pool, { signupIds: ids })
+  const registrations = await loadRegistrationDetails(pool, { signupIds: ids, includeGroupSchedule: true })
   if (!registrations.length) return { sent: false, skipped: true, reason: 'not_found' }
 
   const person = registrations[0]
+  let guardians = await listMemberGuardianOutreachContacts(pool, person.memberId)
+  if (!guardians.some((contact) => contact.email || contact.phone)) {
+    const submitted = registrations.map((item) => submittedGuardianContact(item.details))
+    const contact = submitted.find((item) => item.email || item.phone) || submitted.find((item) => item.name)
+    if (contact) guardians = [contact]
+  }
+  const contactRows = [
+    ['Athlete', person.name],
+    ...guardians.map(({ name, email, phone }) => ['Parent or guardian', [name, email, phone].filter(Boolean).join(' · ')]),
+  ]
+  if (!guardians.some((contact) => contact.email || contact.phone)) {
+    contactRows.push(['Registration email', person.email || 'Not provided'], ['Registration phone', person.phone || 'Not provided'])
+  }
   const totalCharged = registrations.reduce((sum, item) => sum + item.chargedCents, 0)
   const totalDiscount = registrations.reduce((sum, item) => sum + item.discountCents, 0)
   const totalRecurring = registrations.reduce((sum, item) => sum + item.recurringMonthlyCents, 0)
   const amountPaid = paidCents == null ? totalCharged : Math.max(0, Math.round(Number(paidCents) || 0))
   const additionalDetails = safeRegistrationDetails(person.details)
-  const subject = `New class registration: ${person.name}`
-  const classLines = registrations.map((item) =>
-    `${item.className}${item.programName ? ` (${item.programName})` : ''}${item.scheduleLabel ? ` — ${item.scheduleLabel}` : ''} — ${item.status}`,
-  )
+  const subject = 'New class registration'
+  const classLines = registrations.map((item) => [
+    item.programName ? `${item.className} (${item.programName})` : item.className,
+    item.scheduleLabel,
+    item.enrollmentStartDate && `Starts ${item.enrollmentStartDate}`,
+    item.status,
+  ].filter(Boolean).join(' — '))
   const text = [
     subject,
     '',
-    `Athlete: ${person.name}`,
-    `Email: ${person.email || 'Not provided'}`,
-    `Phone: ${person.phone || 'Not provided'}`,
+    ...contactRows.map(([label, value]) => `${label}: ${value}`),
     '',
     'Classes:',
     ...classLines.map((line) => `• ${line}`),
@@ -90,9 +116,7 @@ export async function sendRegistrationNotification(pool, {
   ].join('\n')
   const html = `<h1 style="font-size:22px;margin:0 0 18px">New class registration</h1>
     <table style="border-collapse:collapse;margin-bottom:18px">
-      <tr><td style="padding:4px 14px 4px 0;color:#666">Athlete</td><td><strong>${escapeHtml(person.name)}</strong></td></tr>
-      <tr><td style="padding:4px 14px 4px 0;color:#666">Email</td><td>${escapeHtml(person.email || 'Not provided')}</td></tr>
-      <tr><td style="padding:4px 14px 4px 0;color:#666">Phone</td><td>${escapeHtml(person.phone || 'Not provided')}</td></tr>
+      ${contactRows.map(([label, value]) => `<tr><td style="padding:4px 14px 4px 0;color:#666">${escapeHtml(label)}</td><td><strong>${escapeHtml(value)}</strong></td></tr>`).join('')}
     </table>
     <h2 style="font-size:17px;margin:0">Classes</h2>
     <ul style="padding-left:22px">${classLines.map((line) => `<li>${escapeHtml(line)}</li>`).join('')}</ul>
@@ -103,13 +127,13 @@ export async function sendRegistrationNotification(pool, {
     </table>
     ${additionalDetails.length ? `<h2 style="font-size:17px;margin:20px 0 6px">Registration details</h2><table style="border-collapse:collapse">${additionalDetails.map((item) => `<tr><td style="padding:4px 14px 4px 0;color:#666">${escapeHtml(item.label)}</td><td>${escapeHtml(item.value)}</td></tr>`).join('')}</table>` : ''}`
 
-  return sendEmail({
+  return send({
     to,
     subject,
     text,
     html,
     category: 'registration_alert',
-    templateVersion: 'registration_alert_v1',
+    templateVersion: 'registration_alert_v2',
     idempotencyKey: `registration-alert-${ids.join('-')}-${String(to).trim().toLowerCase()}`,
     // Operational alerts must not stop after the normal per-recipient transactional cap.
     skipPolicy: true,
