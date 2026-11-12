@@ -27,7 +27,7 @@ export function startDailyRosterScheduler(pool, {
     running = true
     try {
       if (!configured()) throw new Error('SMTP is not configured')
-      const result = await send(pool, { date })
+      const result = await send(pool, { date, now: current })
       if (!result.delivery?.sent && result.delivery?.reason !== 'duplicate') {
         throw new Error(`Daily roster was not sent: ${result.delivery?.reason || 'unknown'}`)
       }

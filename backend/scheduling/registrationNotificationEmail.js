@@ -1,5 +1,5 @@
 import { sendEmail } from '../email/sendEmail.js'
-import { listMemberGuardianOutreachContacts } from '../email/memberContact.js'
+import { listMemberGuardianOutreachContacts, submittedGuardianContact } from '../email/memberContact.js'
 import { DEFAULT_ROSTER_RECIPIENT, loadRegistrationDetails } from './dailyRoster.js'
 
 function money(value) {
@@ -27,15 +27,6 @@ function safeRegistrationDetails(details) {
   return Object.entries(details || {})
     .filter(([key, value]) => !excluded.has(key) && value != null && value !== '' && typeof value !== 'object')
     .map(([key, value]) => ({ label: detailLabel(key), value: String(value) }))
-}
-
-function submittedGuardianContact(details) {
-  const read = (key) => typeof details?.[key] === 'string' ? details[key].trim() : ''
-  return {
-    name: [read('parent_first_name'), read('parent_last_name')].filter(Boolean).join(' '),
-    email: read('parent_email'),
-    phone: read('parent_phone'),
-  }
 }
 
 // A family may enroll several athletes at once. Keep each athlete's details in

@@ -86,3 +86,46 @@ test('manual schedule email contains only the selected day roster', () => {
   assert.doesNotMatch(result.text, /New registrations|Unrelated New Athlete/)
   assert.doesNotMatch(result.html, /New registrations|Unrelated New Athlete/)
 })
+
+test('daily report shows inquiry, enrollment and billing details before the highlighted single-day roster', () => {
+  const result = renderDailyRosterEmail({
+    date: '2026-11-12',
+    dateLabel: 'Thursday, November 12, 2026',
+    classCount: 1,
+    athleteCount: 2,
+    report: {
+      inquiries: [{
+        contactName: 'Nell Silva', contactEmail: 'nell@example.com', contactPhone: '555-0100',
+        contactRole: 'parent', children: [{ name: 'Alex', age: 0 }, { name: 'Sam', age: 4 }],
+        interest: 'Twisters & Tumbling',
+      }],
+      enrollees: [{
+        name: 'Jaime Liu', age: 7, className: 'Twisters', programName: 'Gymnastics',
+        scheduleLabel: 'Monday · 16:00–17:00; Wednesday · 17:00–18:00', enrollmentStartDate: '2026-11-16',
+        guardians: [{ name: 'Kim Liu', email: 'kim@example.com', phone: '555-0102' }],
+      }],
+      adds: [{ name: 'Terry Lee', className: 'Cyclones', status: 'Promoted from waitlist' }],
+      drops: [{ name: 'Riley Kim', className: 'Twisters', status: 'Cancelled', effectiveDate: '2026-11-30' }],
+      unpaid: [{
+        payerName: 'Taylor Mills', remainingCents: 5500,
+        charges: [{ memberName: 'Charlie Mills', description: 'Twisters', remainingCents: 5500, reason: 'Card declined' }],
+      }],
+    },
+    classes: [{
+      startTime: '16:00', timeLabel: '4:00 PM–5:00 PM', className: 'Twisters', athleteCount: 2,
+      athletes: [
+        { name: 'Monthly Member', source: 'scheduling' },
+        { name: 'Single <Day>', source: 'drop_in', benefitType: 'admin_credit' },
+      ],
+    }],
+  })
+
+  assert.equal(result.subject, 'Vortex Daily Report — Thursday, November 12, 2026')
+  assert.match(result.text, /Inquiries[\s\S]*New enrollees and adds[\s\S]*Drops[\s\S]*Unpaid tuition[\s\S]*Today's class roster/)
+  assert.match(result.text, /Nell Silva\n\s+parent · nell@example\.com · 555-0100\n\s+Children: Alex \(Age 0\) \/ Sam \(Age 4\)/)
+  assert.match(result.text, /Jaime Liu \(Age 7\) — Twisters\n\s+Gymnastics · Monday · 16:00–17:00; Wednesday · 17:00–18:00\n\s+Start date: 2026-11-16\n\s+Parent or guardian: Kim Liu · kim@example\.com · 555-0102/)
+  assert.match(result.text, /Taylor Mills — \$55\.00 due\n\s+Charlie Mills · Twisters · \$55\.00 · Card declined/)
+  assert.match(result.html, /Twisters &amp; Tumbling/)
+  assert.match(result.html, /Monthly Member<\/li>[\s\S]*Drop-ins and make-ups \(1\)[\s\S]*Single &lt;Day&gt; \(Admin credit\)/)
+  assert.equal(result.html.split('Single &lt;Day&gt;').length, 2)
+})
