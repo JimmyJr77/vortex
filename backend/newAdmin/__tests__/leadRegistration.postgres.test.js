@@ -7,6 +7,7 @@ import { createLead, saveLead, listLeads } from '../leads.js'
 import { createLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, nextLeadUsername } from '../leadRegistration.js'
 import { insertSignupForMember } from '../../scheduling/handlers.js'
 import { sendLeadRegistrationEmail } from '../../email/leadRegistrationEmail.js'
+import { registerFamilySignupRoutes } from '../../platform/familySignup.js'
 
 // Fictional local data only. SMTP is injected and all database writes roll back.
 test('lead invitations reserve shared class places, require new credentials, and hand off without billing', {skip:process.env.RUN_LEAD_REGISTRATION_LOCAL_TEST !== 'true'}, async t=>{
@@ -25,7 +26,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','853_registration_hold_start_dates.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner=(await db.query("SELECT id,facility_id FROM app_user WHERE username='admin2'")).rows[0]
     assert.ok(owner,'Requires fictional local New Admin database')
     const facilityId=Number(owner.facility_id),nonce=Date.now()
@@ -107,6 +108,82 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(saved.inquiry.campers[0].dateOfBirth,'2015-06-15')
       assert.equal(saved.inquiry.athleteAge,8);assert.deepEqual(saved.inquiry.childAges,[8,6])
       await assert.rejects(()=>saveLead(pool,facilityId,lead.id,{inquiry:{campers:[{dateOfBirth:'2025-02-30'}]}},{}),/valid birthday/)
+    })
+    await t.test('invited parents see current class times instead of ended offerings', async () => {
+      const expiredGroup = (await db.query('INSERT INTO scheduling_slot_group(form_id,max_participants,is_active,active_end) VALUES($1,2,TRUE,CURRENT_DATE-1) RETURNING id', [form.id])).rows[0]
+      await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,1,'14:00','15:00',TRUE)", [form.id, expiredGroup.id])
+      const routes = new Map()
+      registerFamilySignupRoutes({ get: (path, handler) => routes.set(path, handler), post() {} }, pool)
+      const loadCatalog = async (path, params, query) => {
+        let payload
+        const response = { status: () => response, json: value => { payload = value } }
+        await routes.get(path)({ params, query }, response)
+        assert.equal(payload.success, true, payload.message)
+        return payload.data
+      }
+      const query = { leadRegistration: '1' }
+      const classes = await loadCatalog('/api/signup/catalog/programs/:programsId/classes', { programsId: program.id }, query)
+      assert.deepEqual(classes.map(item => item.id), [Number(klass.id)])
+      const offerings = await loadCatalog('/api/signup/catalog/classes/:classEventId/offerings', { classEventId: klass.id }, query)
+      assert.deepEqual(offerings.scheduleOptions.map(item => item.slotGroupId), [Number(group.id)])
+    })
+    await t.test('parent completes missing family, class, and date details in one invitation', async () => {
+      const familyLead = await createLead(pool, facilityId, {
+        firstName: 'Parent', lastName: 'Partial', email: `partial-${nonce}@example.test`,
+      })
+      const laterGroup = (await db.query('INSERT INTO scheduling_slot_group(form_id,max_participants,is_active) VALUES($1,4,TRUE) RETURNING id', [form.id])).rows[0]
+      const laterSlot = (await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,2,'17:00','18:00',TRUE) RETURNING id", [form.id, laterGroup.id])).rows[0]
+      const invitation = await createLeadInvitation(pool, {
+        facilityId, leadId: familyLead.id, userId: owner.id,
+        body: {
+          children: [{ firstName: 'Casey' }],
+          selections: [
+            { kind: 'reserved', programsId: program.id, classEventId: klass.id, timeSlotId: laterSlot.id },
+            { kind: 'class', childIndex: 0, programsId: program.id, classEventId: klass.id, enrollmentStartDate },
+            { kind: 'program', programsId: program.id },
+          ],
+        },
+      }, { sendInvitation })
+      const holdBefore = (await db.query('SELECT member_id,invite_child_index,enrollment_start_date FROM scheduling_signup WHERE account_invite_id=$1', [invitation.id])).rows[0]
+      assert.deepEqual(holdBefore, { member_id: null, invite_child_index: null, enrollment_start_date: null })
+      assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [laterGroup.id])).rows[0].n, 1)
+      await db.query('SAVEPOINT cancel_hold')
+      await db.query("UPDATE scheduling_signup SET status='cancelled' WHERE account_invite_id=$1", [invitation.id])
+      assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [laterGroup.id])).rows[0].n, 0)
+      await db.query('ROLLBACK TO SAVEPOINT cancel_hold')
+      await db.query('RELEASE SAVEPOINT cancel_hold')
+      const credentials = { token: captured.token, username: invitation.username, password: captured.password }
+      const opened = await openLeadRegistration(pool, invitation.id, credentials)
+      assert.equal(opened.guardian.phone, '')
+      assert.equal(opened.children[0].firstName, 'Casey')
+      assert.equal(opened.children[0].dateOfBirth, '')
+      assert.equal(opened.selections[0].childIndex, null)
+      assert.equal(opened.selections[1].enrollmentStartDate, enrollmentStartDate)
+
+      const enrollment = { classEventId: klass.id, schedulingFormId: form.id, slotGroupId: laterGroup.id, timeSlotId: laterSlot.id, enrollmentStartDate }
+      const completion = {
+        ...payload(), session: opened.session, primaryAdult: { ...payload().primaryAdult, firstName: 'Parent', lastName: 'Partial', email: familyLead.email, username: invitation.username },
+        additionalMembers: payload().additionalMembers.map(child => ({ ...child, gender: 'prefer-not-to-say' })),
+        enrollments: [0, 1, 2].map(memberIndex => ({ ...enrollment, memberIndex })),
+      }
+      await assert.rejects(() => completeLeadRegistration(pool, invitation.id, {
+        ...completion, enrollments: [{ ...enrollment, memberIndex: 0, enrollmentStartDate: '' }, ...completion.enrollments.slice(1)],
+      }), /Enter an enrollment start date/)
+      await assert.rejects(() => completeLeadRegistration(pool, invitation.id, {
+        ...completion, enrollments: [{ ...enrollment, memberIndex: 0, timeSlotId: slot.id }, ...completion.enrollments.slice(1)],
+      }), /Use the class or time selected/)
+      const saved = await completeLeadRegistration(pool, invitation.id, completion)
+      assert.equal(saved.enrollmentsPrepared, true)
+      assert.deepEqual(saved.pendingEnrollments.map(item => item.memberId), saved.memberIds)
+      const holdAfter = (await db.query('SELECT member_id,enrollment_start_date::text FROM scheduling_signup WHERE account_invite_id=$1', [invitation.id])).rows[0]
+      assert.equal(Number(holdAfter.member_id), Number(saved.payerMemberId))
+      assert.equal(holdAfter.enrollment_start_date, enrollmentStartDate)
+
+      await insertSignupForMember(db, { formId: form.id, formRow: form, slotGroupId: laterGroup.id, memberId: saved.memberIds[1],
+        responses: { first_name: 'Casey', last_name: 'Invite', email: familyLead.email }, firstOccurrenceId: laterSlot.id,
+        formTitle: form.title, mandateWaiver: false, enrollmentStartDate })
+      const reopened = await openLeadRegistration(pool, invitation.id, { ...credentials, password: completion.primaryAdult.password })
+      assert.deepEqual(reopened.result.pendingEnrollments.map(item => item.memberId), [saved.memberIds[0], saved.memberIds[2]])
     })
     await t.test('program archiving is blocked until all active classes are closed',async()=>{
       await rejectSql('UPDATE programs SET archived=TRUE WHERE id=$1',[program.id],/active classes/)

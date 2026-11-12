@@ -650,6 +650,7 @@ const spaOnlyPaths = [
   '/store',
   '/signup/family',
   '/signup/invite',
+  '/signup/lead',
   '/verify-email',
   '/registration/receipt',
   '/waivers-memberships',

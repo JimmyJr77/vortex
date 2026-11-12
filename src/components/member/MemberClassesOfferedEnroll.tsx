@@ -46,7 +46,7 @@ import { groupScheduleOptions } from '../signup/scheduleOptionGrouping'
 import OrderPricingSummary from '../pricing/OrderPricingSummary'
 import type { MemberEnrollmentRow } from './MemberEnrollmentsPanel'
 import EnrollmentStartDateField from '../enroll/EnrollmentStartDateField'
-import { formatDateShort } from '../../utils/dateUtils'
+import { dateInputValue, formatDateShort } from '../../utils/dateUtils'
 import {
   loadMemberEnrollmentDraft,
   memberEnrollmentDraftKey,
@@ -67,6 +67,12 @@ interface Props {
   programs: PublicProgramOffered[]
   members: EnrollableMember[]
   defaultMemberId: number
+  invitedEnrollment?: {
+    memberId: number
+    programsId: number
+    classEventId: number
+    enrollmentStartDate: string | null
+  }
   enrollments: MemberEnrollmentRow[]
   onEnrolled: () => void
 }
@@ -96,9 +102,11 @@ function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSk
 }
 
 export default function MemberClassesOfferedEnroll(props: Props) {
-  const [selectedMemberId, setSelectedMemberId] = useState(() => props.members.find((member) =>
-    loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id)).cart.length > 0,
-  )?.id ?? Number(props.defaultMemberId))
+  const [selectedMemberId, setSelectedMemberId] = useState(() => props.invitedEnrollment?.memberId
+    || props.members.find((member) =>
+      loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id)).cart.length > 0,
+    )?.id
+    || Number(props.defaultMemberId))
   const [drafts, setDrafts] = useState<Record<number, MemberEnrollmentDraft>>({})
   const rememberDraft = useCallback((memberId: number, draft: MemberEnrollmentDraft) => {
     setDrafts((current) => ({ ...current, [memberId]: draft }))
@@ -142,6 +150,7 @@ function AthleteEnrollment({
   onEnrolled,
   selectedMemberId,
   initialDraft,
+  invitedEnrollment,
   onSelectMember,
   onDraftChange,
   pendingMembers,
@@ -176,13 +185,19 @@ function AthleteEnrollment({
   const [membershipPromoCode, setMembershipPromoCode] = useState('')
   const [membershipPreview, setMembershipPreview] = useState<AnnualMembershipPreview | null>(null)
   const [membershipPromoLoading, setMembershipPromoLoading] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(() => programs
+    .find((program) => program.id === invitedEnrollment?.programsId)?.classes
+    .find((classItem) => classItem.id === invitedEnrollment?.classEventId)?.displayName ?? '')
   const [sportFilter, setSportFilter] = useState<string>('all')
   const [programFilter, setProgramFilter] = useState<number | typeof ANNUAL_MEMBERSHIP_PROGRAM_FILTER | 'all'>(
-    'all',
+    programs.find((program) => program.id === invitedEnrollment?.programsId)?.id ?? 'all',
   )
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
-  const [enrollmentStartDate, setEnrollmentStartDate] = useState(savedDraft.enrollmentStartDate)
+  const [enrollmentStartDate, setEnrollmentStartDate] = useState(() => savedDraft.enrollmentStartDate || (
+    !invitedEnrollment?.memberId || selectedMemberId === invitedEnrollment.memberId
+      ? dateInputValue(invitedEnrollment?.enrollmentStartDate)
+      : ''
+  ))
   const [startDateError, setStartDateError] = useState<string | null>(null)
   const startDateInputRef = useRef<HTMLInputElement>(null)
 

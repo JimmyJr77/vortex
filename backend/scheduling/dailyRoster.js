@@ -1,9 +1,14 @@
 import { loadSchedulingCalendar } from './calendarQuery.js'
 import { sendEmail } from '../email/sendEmail.js'
+import { listMemberGuardianOutreachContacts, submittedGuardianContact } from '../email/memberContact.js'
 import { formatDateOnly, loadGroupDisplayLabels } from './slotDisplayLabel.js'
+import { loadDailyReportActivity } from './dailyReportActivity.js'
+import { loadDailyReportInquiries } from './dailyReportInquiries.js'
+import { loadDailyReportUnpaid } from './dailyReportBilling.js'
 
 export const ROSTER_TIME_ZONE = 'America/New_York'
 export const DEFAULT_ROSTER_RECIPIENT = 'team@vortexathletics.com'
+const DAY_MS = 24 * 60 * 60 * 1000
 
 function cents(value) {
   return Math.round(Number(value) || 0)
@@ -73,12 +78,25 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;')
 }
 
+function ageOnDate(birthDate, date) {
+  const dob = validateRosterDate(birthDate)
+  if (!dob || dob > date) return null
+  return Number(date.slice(0, 4)) - Number(dob.slice(0, 4))
+    - (date.slice(5) < dob.slice(5) ? 1 : 0)
+}
+
 export async function loadRegistrationDetails(pool, {
-  signupIds = null, registeredSince = null, registrationDate = null, includeGroupSchedule = false,
+  signupIds = null, registeredSince = null, registrationDate = null, registeredThrough = null,
+  includeGroupSchedule = false, ageAsOf = null,
 } = {}) {
   const ids = Array.isArray(signupIds) ? signupIds.map(Number).filter(Number.isFinite) : null
   const { resolveProgramsSchema } = await import('../programs/schema.js')
   const schema = await resolveProgramsSchema(pool)
+  // Existing invitation holds are promoted in place. Initial charge creation can
+  // identify a recently completed checkout even when the hold itself is older.
+  const registeredAtSql = registeredThrough
+    ? 'CASE WHEN s.account_invite_id IS NOT NULL THEN COALESCE(c.created_at, s.created_at) ELSE s.created_at END'
+    : 's.created_at'
   const result = await pool.query(
     `
       SELECT
@@ -86,8 +104,9 @@ export async function loadRegistrationDetails(pool, {
         s.member_id,
         s.slot_group_id,
         s.status,
-        s.created_at,
+        ${registeredAtSql} AS registered_at,
         s.enrollment_start_date::text AS enrollment_start_date,
+        m.date_of_birth::text AS date_of_birth,
         s.responses,
         s.field_responses,
         COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
@@ -118,11 +137,12 @@ export async function loadRegistrationDetails(pool, {
       WHERE s.orphaned_at IS NULL
         AND s.archived_at IS NULL
         AND ($1::bigint[] IS NULL OR s.id = ANY($1::bigint[]))
-        AND ($2::timestamptz IS NULL OR s.created_at >= $2::timestamptz)
+        AND ($2::timestamptz IS NULL OR (${registeredAtSql}) >= $2::timestamptz)
         AND ($3::date IS NULL OR (s.created_at AT TIME ZONE '${ROSTER_TIME_ZONE}')::date = $3::date)
-      ORDER BY s.created_at, s.id
+        AND ($4::timestamptz IS NULL OR (${registeredAtSql}) < $4::timestamptz)
+      ORDER BY registered_at, s.id
     `,
-    [ids, registeredSince, registrationDate],
+    [ids, registeredSince, registrationDate, registeredThrough],
   )
 
   const groupLabels = includeGroupSchedule
@@ -151,8 +171,9 @@ export async function loadRegistrationDetails(pool, {
       className: row.class_name,
       programName: row.program_name || null,
       status: row.status,
-      registeredAt: row.created_at,
+      registeredAt: row.registered_at,
       enrollmentStartDate: formatDateOnly(row.enrollment_start_date),
+      ...(ageAsOf ? { age: ageOnDate(row.date_of_birth || responses.date_of_birth, ageAsOf) } : {}),
       chargedCents: cents(row.charged_cents),
       grossCents: cents(row.gross_cents),
       discountCents: cents(row.discount_cents),
@@ -165,6 +186,7 @@ export async function loadRegistrationDetails(pool, {
 
 export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   registeredSince = null,
+  registeredThrough = null,
   includeNewRegistrations = true,
 } = {}) {
   const rosterDate = validateRosterDate(date)
@@ -310,7 +332,12 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
 
   const newRegistrations = includeNewRegistrations
     ? await loadRegistrationDetails(pool, registeredSince
-      ? { registeredSince }
+      ? {
+          registeredSince,
+          registeredThrough,
+          includeGroupSchedule: registeredThrough != null,
+          ageAsOf: registeredThrough ? rosterDate : null,
+        }
       : { registrationDate: rosterDate })
     : []
 
@@ -326,41 +353,146 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   }
 }
 
+export async function buildVortexDailyReport(pool, date, { through = new Date() } = {}) {
+  const since = new Date(through.getTime() - DAY_MS)
+  const [roster, inquiries, unpaid] = await Promise.all([
+    buildDailyRoster(pool, date, { registeredSince: since, registeredThrough: through }),
+    loadDailyReportInquiries(pool, { since, through }),
+    loadDailyReportUnpaid(pool, { date }),
+  ])
+  const newEnrollees = roster.newRegistrations.filter(({ status }) => status === 'confirmed')
+  const guardiansByMemberId = new Map()
+  const registrationDetails = Promise.all(newEnrollees.map(async (registration) => {
+    if (!guardiansByMemberId.has(registration.memberId)) {
+      guardiansByMemberId.set(registration.memberId, listMemberGuardianOutreachContacts(pool, registration.memberId))
+    }
+    const contacts = await guardiansByMemberId.get(registration.memberId)
+    const submitted = submittedGuardianContact(registration.details)
+    const guardians = !contacts.some(({ email, phone }) => email || phone) && (submitted.email || submitted.phone)
+      ? [submitted]
+      : contacts.length ? contacts : [submitted].filter(({ name }) => name)
+    return { ...registration, guardians }
+  }))
+  const [enrollees, { adds, drops }] = await Promise.all([
+    registrationDetails,
+    loadDailyReportActivity(pool, { since, through, newSignupIds: newEnrollees.map(({ signupId }) => signupId) }),
+  ])
+  return { ...roster, report: { inquiries, enrollees, adds, drops, unpaid } }
+}
+
+function reportSections(roster, textLines) {
+  const { inquiries, enrollees, adds, drops, unpaid } = roster.report
+  const missing = 'Not recorded'
+  const money = (cents) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
+  const age = (years) => years == null ? 'Age not recorded' : `Age ${years}`
+  const formatActivity = ({ name, className, scheduleLabel, effectiveDate, status }) => ({
+    heading: [name, className].filter(Boolean).join(' — '),
+    details: [scheduleLabel, effectiveDate && `Effective ${effectiveDate}`, status].filter(Boolean),
+  })
+  const section = (title, rows, empty) => {
+    textLines.push(`${title} (${rows.length})`)
+    for (const { heading, details } of rows) textLines.push(`• ${heading}`, ...details.map((detail) => `  ${detail}`))
+    if (!rows.length) textLines.push(empty)
+    textLines.push('')
+    const content = rows.length
+      ? `<ul style="margin:8px 0 20px;padding-left:22px">${rows.map(({ heading, details }) => `<li style="padding:4px 0"><strong>${escapeHtml(heading)}</strong>${details.map((detail) => `<br>${escapeHtml(detail)}`).join('')}</li>`).join('')}</ul>`
+      : `<p style="margin:8px 0 20px;color:#6b7280">${escapeHtml(empty)}</p>`
+    return `<h2 style="font-size:18px;margin:0">${escapeHtml(title)} (${rows.length})</h2>${content}`
+  }
+  const month = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' })
+    .format(new Date(`${roster.date}T12:00:00Z`))
+  return [
+    section('Inquiries in the last 24 hours', inquiries.map((inquiry) => ({
+      heading: inquiry.contactName || 'Unnamed contact',
+      details: [
+        [inquiry.contactRole, inquiry.contactEmail || 'Email not recorded', inquiry.contactPhone || 'Phone not recorded'].filter(Boolean).join(' · '),
+        `Children: ${inquiry.children.map((child) => `${child.name || 'Name not recorded'} (${age(child.age)})`).join(' / ') || missing}`,
+        `Interested in: ${inquiry.interest || missing}`,
+      ],
+    })), 'No new inquiries recorded.'),
+    section('New enrollees and adds', [
+      ...enrollees.map((enrollment) => ({
+        heading: `${enrollment.name} (${age(enrollment.age)}) — ${enrollment.className}`,
+        details: [
+          [enrollment.programName, enrollment.scheduleLabel || 'Schedule not recorded'].filter(Boolean).join(' · '),
+          `Start date: ${enrollment.enrollmentStartDate || missing}`,
+          ...enrollment.guardians.map(({ name, email, phone }) =>
+            `Parent or guardian: ${name || 'Name not recorded'} · ${email || 'Email not recorded'} · ${phone || 'Phone not recorded'}`),
+          ...(!enrollment.guardians.length ? [`Parent or guardian: ${missing}`] : []),
+        ],
+      })),
+      ...adds.map(formatActivity),
+    ], 'No new enrollees or adds recorded.'),
+    section('Drops', drops.map(formatActivity), 'No drops recorded.'),
+    section(`Unpaid tuition due for ${month}`, unpaid.map((account) => ({
+      heading: `${account.payerName || account.payerEmail || `Billing account ${account.accountId}`} — ${money(account.remainingCents)} due`,
+      details: account.charges.map((charge) => [
+        charge.memberName, charge.description, money(charge.remainingCents), charge.reason,
+      ].filter(Boolean).join(' · ')),
+    })), 'No outstanding tuition due for this month.'),
+  ].join('')
+}
+
+const SINGLE_DAY_BENEFIT_LABELS = {
+  free_trial: 'Free trial',
+  annual_credit: 'Annual member credit',
+  admin_credit: 'Admin credit',
+  free_pass: 'Free pass',
+  promo_code: 'Registration code',
+}
+
 export function renderDailyRosterEmail(roster, { includeNewRegistrations = true } = {}) {
-  const subject = `Daily roster — ${roster.dateLabel}`
+  const title = roster.report ? 'Vortex Daily Report' : 'Daily roster'
+  const subject = `${title} — ${roster.dateLabel}`
   const textLines = [
     subject,
     `${roster.classCount} classes · ${roster.athleteCount} enrollments`,
     '',
   ]
-  if (includeNewRegistrations) {
+  let summaryHtml = ''
+  if (roster.report) {
+    summaryHtml = reportSections(roster, textLines)
+  } else if (includeNewRegistrations) {
     textLines.push(`New registrations: ${roster.newRegistrationCount || 0}`, '')
     for (const registration of roster.newRegistrations || []) {
       textLines.push(`• ${registration.name} — ${registration.className} (${registration.status})`)
     }
     if (!(roster.newRegistrations || []).length) textLines.push('No new registrations.')
     textLines.push('')
+    const newRegistrationsHtml = (roster.newRegistrations || []).length
+      ? `<ul style="margin:10px 0 22px;padding-left:22px">${roster.newRegistrations.map((registration) => `<li style="padding:3px 0"><strong>${escapeHtml(registration.name)}</strong> — ${escapeHtml(registration.className)} (${escapeHtml(registration.status)})</li>`).join('')}</ul>`
+      : '<p style="margin:8px 0 22px;color:#6b7280">No new registrations.</p>'
+    summaryHtml = `<h2 style="font-size:18px;margin:0">New registrations (${roster.newRegistrationCount || 0})</h2>${newRegistrationsHtml}`
   }
 
-  const newRegistrationsHtml = (roster.newRegistrations || []).length
-    ? `<ul style="margin:10px 0 22px;padding-left:22px">${roster.newRegistrations.map((registration) => `<li style="padding:3px 0"><strong>${escapeHtml(registration.name)}</strong> — ${escapeHtml(registration.className)} (${escapeHtml(registration.status)})</li>`).join('')}</ul>`
-    : '<p style="margin:8px 0 22px;color:#6b7280">No new registrations.</p>'
+  if (roster.report) textLines.push("Today's class roster", '')
   const sections = roster.classes.map((item) => {
     const heading = [item.startTime ? item.timeLabel : null, item.className, item.programName]
       .filter(Boolean)
       .join(' · ')
     textLines.push(heading, `${item.athleteCount} enrolled`)
-    if (item.athletes.length) item.athletes.forEach((athlete, index) => textLines.push(`${index + 1}. ${athlete.name}`))
-    else textLines.push('No enrolled athletes')
+    const scheduled = item.athletes.filter((athlete) => athlete.source !== 'drop_in')
+    const singleDay = item.athletes.filter((athlete) => athlete.source === 'drop_in')
+    if (scheduled.length) scheduled.forEach((athlete, index) => textLines.push(`${index + 1}. ${athlete.name}`))
+    else textLines.push(singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes')
+    const singleDayNames = singleDay.map((athlete) => {
+      const label = SINGLE_DAY_BENEFIT_LABELS[athlete.benefitType]
+      return label ? `${athlete.name} (${label})` : athlete.name
+    })
+    if (singleDayNames.length) textLines.push(`Drop-ins and make-ups (${singleDayNames.length})`, ...singleDayNames.map((name) => `• ${name}`))
     textLines.push('')
 
-    const athletesHtml = item.athletes.length
-      ? `<ol style="margin:10px 0 0;padding-left:22px">${item.athletes.map((athlete) => `<li style="padding:2px 0">${escapeHtml(athlete.name)}</li>`).join('')}</ol>`
-      : '<p style="margin:10px 0 0;color:#6b7280">No enrolled athletes</p>'
+    const athletesHtml = scheduled.length
+      ? `<ol style="margin:10px 0 0;padding-left:22px">${scheduled.map((athlete) => `<li style="padding:2px 0">${escapeHtml(athlete.name)}</li>`).join('')}</ol>`
+      : `<p style="margin:10px 0 0;color:#6b7280">${singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes'}</p>`
+    const singleDayHtml = singleDayNames.length
+      ? `<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:8px 12px;margin-top:12px"><strong>Drop-ins and make-ups (${singleDayNames.length})</strong><ul style="margin:4px 0 0;padding-left:18px">${singleDayNames.map((name) => `<li>${escapeHtml(name)}</li>`).join('')}</ul></div>`
+      : ''
     return `<section style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:0 0 14px">
       <h2 style="font-size:17px;margin:0;color:#111827">${escapeHtml(heading)}</h2>
       <p style="margin:5px 0 0;color:#4b5563">${item.athleteCount} enrolled</p>
       ${athletesHtml}
+      ${singleDayHtml}
     </section>`
   })
 
@@ -368,10 +500,10 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
   return {
     subject,
     text: textLines.join('\n').trim(),
-    html: `<h1 style="font-size:24px;margin:0 0 6px">Daily roster</h1>
+    html: `<h1 style="font-size:24px;margin:0 0 6px">${title}</h1>
       <p style="margin:0 0 22px;color:#4b5563">${escapeHtml(roster.dateLabel)} · ${roster.classCount} classes · ${roster.athleteCount} enrollments</p>
-      ${includeNewRegistrations ? `<h2 style="font-size:18px;margin:0">New registrations (${roster.newRegistrationCount || 0})</h2>
-      ${newRegistrationsHtml}` : ''}
+      ${summaryHtml}
+      ${roster.report ? '<h2 style="font-size:18px;margin:0 0 12px">Today’s class roster</h2>' : ''}
       ${sections.join('') || '<p>No classes are scheduled for this date.</p>'}`,
   }
 }
@@ -379,16 +511,15 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
 export async function sendDailyRoster(pool, {
   date = dateInTimeZone(),
   to = process.env.DAILY_ROSTER_EMAIL || DEFAULT_ROSTER_RECIPIENT,
-  registeredSince = null,
+  reportThrough = null,
   includeNewRegistrations = true,
   category = 'daily_roster',
   templateVersion = 'daily_roster_v1',
   idempotencyKey,
 } = {}) {
-  const roster = await buildDailyRoster(pool, date, {
-    registeredSince,
-    includeNewRegistrations,
-  })
+  const roster = reportThrough
+    ? await buildVortexDailyReport(pool, date, { through: reportThrough })
+    : await buildDailyRoster(pool, date, { includeNewRegistrations })
   const message = renderDailyRosterEmail(roster, { includeNewRegistrations })
   const delivery = await sendEmail({
     to,
@@ -400,15 +531,17 @@ export async function sendDailyRoster(pool, {
   return { roster, delivery, recipient: to }
 }
 
-/** Sends the once-daily operational roster, including registrations added in the last day. */
+/** Sends the once-daily operations report and class roster. */
 export async function emailDailyRoster(pool, {
-  date = dateInTimeZone(),
+  now = new Date(),
+  date = dateInTimeZone(now),
   to = process.env.DAILY_ROSTER_EMAIL || DEFAULT_ROSTER_RECIPIENT,
 } = {}) {
   return sendDailyRoster(pool, {
     date,
     to,
-    registeredSince: new Date(Date.now() - 24 * 60 * 60 * 1000),
+    reportThrough: now,
+    templateVersion: 'vortex_daily_report_v1',
     idempotencyKey: `daily-roster-${date}-${String(to).trim().toLowerCase()}`,
   })
 }

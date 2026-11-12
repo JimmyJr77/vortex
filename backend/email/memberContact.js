@@ -147,6 +147,15 @@ export async function listMemberGuardianOutreachContacts(db, memberId) {
   })).filter(({ name, email, phone }) => name || email || phone)
 }
 
+export function submittedGuardianContact(details) {
+  const read = (key) => typeof details?.[key] === 'string' ? details[key].trim() : ''
+  return {
+    name: [read('parent_first_name'), read('parent_last_name')].filter(Boolean).join(' '),
+    email: read('parent_email'),
+    phone: read('parent_phone'),
+  }
+}
+
 /**
  * Resolve the active household payer for a non-legal, billing-responsibility
  * fallback. This is deliberately separate from guardian authority.

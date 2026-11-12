@@ -233,17 +233,19 @@ are calculated from birthdays; legacy reported ages remain visible as original
 form information. Notes opens the inquiry information and shared account history
 in independently scrolling panels. Inquiry editing is available inside Notes.
 
-Conversion can send account setup only, program links, class links, or exact
-class/time reservations for multiple children. Exact reservations consume capacity
-immediately. The default deadline is seven days, editable from one to thirty;
+Conversion can send account setup only, program links, class links, or reservations
+for a specific class time. Staff can assign a selection to a known child or let
+the parent choose a family member. A start date is optional on every selection.
+Exact reservations consume capacity immediately. The default deadline is seven days, editable from one to thirty;
 expired holds stop consuming capacity without deleting their history. Other
 admission paths and waitlist promotion respect pending holds.
 
 The existing Vortex email sender delivers the username, temporary password, setup
 link, and ordered class links. Temporary credentials authorize only the invitation
 setup flow. Setup requires a different password and allows a username change.
-Canonical family signup creates shared family/member records and waiver signatures,
-then hands reserved selections to the existing authenticated checkout. Setup creates
+Family signup preloads the invitation details and collects the remaining family
+and enrollment information. It creates shared family/member records and waiver
+signatures, then hands the completed selections to the authenticated checkout. Setup creates
 no charges, payments, or subscriptions. Checkout reuses the held signup ID. Retrying
 conversion or account setup does not duplicate invitations, accounts, or holds.
 Failed email delivery remains visible and can be retried with the same invitation.

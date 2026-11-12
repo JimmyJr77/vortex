@@ -244,6 +244,16 @@ export default function MemberDashboard({
   onSwitchPortal,
 }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('home')
+  const [invitedEnrollment] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('enrollment') !== 'browse') return undefined
+    return {
+      memberId: Number(params.get('memberId')),
+      programsId: Number(params.get('programsId')),
+      classEventId: Number(params.get('classEventId')),
+      enrollmentStartDate: params.get('enrollmentStartDate'),
+    }
+  })
   const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
   const [messagesMaximized, setMessagesMaximized] = useState(false)
   const [eventMessagesLoadingId, setEventMessagesLoadingId] = useState<number | null>(null)
@@ -1279,6 +1289,7 @@ export default function MemberDashboard({
       setActiveTab('classes')
       setEnrollmentConfirmMessage('Your account is ready. Review the saved class selections for each athlete and complete checkout to confirm enrollment.')
     }
+    if (enrollmentStatus === 'browse') setActiveTab('classes')
 
     if (billingStatus === 'update' || billingStatus === 'portal-return') {
       setActiveTab('billing')
@@ -2461,6 +2472,7 @@ export default function MemberDashboard({
                       programs={classesOffered}
                       members={enrollableMembers}
                       defaultMemberId={Number(profileData.id)}
+                      invitedEnrollment={invitedEnrollment}
                       enrollments={enrollments}
                       onEnrolled={() => {
                         void fetchEnrollments()

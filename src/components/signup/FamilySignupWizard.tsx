@@ -198,11 +198,32 @@ const emptyEnrollment = (): EnrollmentRow => ({
   enrollmentStartDate: '',
 })
 
+export interface LeadEnrollmentSelection {
+  kind: 'program' | 'class' | 'reserved'
+  label: string
+  childIndex?: number | null
+  childName?: string
+  programsId: number
+  programName?: string
+  classEventId?: number
+  className?: string
+  schedulingFormId?: number
+  slotGroupId?: number
+  timeSlotId?: number
+  scheduleLabel?: string
+  enrollmentStartDate?: string | null
+}
+
 export interface LeadRegistrationSetup {
-  inviteId: number; token: string; session: string; username: string
+  inviteId: number
+  token: string
+  session: string
+  username: string
   guardian: { firstName: string; lastName: string; email: string; phone: string }
   children: { firstName?: string; lastName?: string; dateOfBirth?: string; gender?: string }[]
   waivers: PublicWaiverTemplate[]
+  selections: LeadEnrollmentSelection[]
+  focusedSelection?: number | null
 }
 
 interface FamilySignupWizardProps {
@@ -271,17 +292,37 @@ export default function FamilySignupWizard({
   const [familyMode, setFamilyMode] = useState<'new' | 'existing'>('new')
   const [existingFamilyId, setExistingFamilyId] = useState<number | null>(null)
   const [familySearch, setFamilySearch] = useState('')
-  const [primaryAdult, setPrimaryAdult] = useState<SignupMemberForm>(() => ({...emptyMember(), ...leadRegistration?.guardian, username: leadRegistration?.username || ''}))
-  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children || []).map(child => ({...emptyMember(), ...child, emailSource: 'parent' as const})))
+  const [primaryAdult, setPrimaryAdult] = useState<SignupMemberForm>(() => ({
+    ...emptyMember(),
+    ...leadRegistration?.guardian,
+    phone: formatPhoneForDisplay(leadRegistration?.guardian.phone),
+    username: leadRegistration?.username || '',
+  }))
+  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children ?? []).map((child) => ({
+    ...emptyMember(),
+    firstName: child.firstName ?? '',
+    lastName: child.lastName ?? '',
+    dateOfBirth: formatDateForInput(child.dateOfBirth),
+    gender: child.gender ?? '',
+  })))
   const [parentEmail, setParentEmail] = useState('')
   const [topPrograms, setTopPrograms] = useState<TopProgramOption[]>([])
   const [classesByProgram, setClassesByProgram] = useState<Record<number, ClassOption[]>>({})
   const [offeringsByClass, setOfferingsByClass] = useState<Record<number, ClassCatalogPack>>({})
-  const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([])
+  const [enrollments, setEnrollments] = useState<EnrollmentRow[]>(() => (leadRegistration?.selections ?? []).map((selection) => ({
+    ...emptyEnrollment(),
+    memberClientId: selection.childIndex != null ? additionalMembers[selection.childIndex]?.clientId ?? '' : '',
+    programsId: selection.programsId,
+    classEventId: selection.classEventId ?? '',
+    schedulingFormId: selection.schedulingFormId,
+    slotGroupId: selection.slotGroupId,
+    timeSlotId: selection.timeSlotId,
+    enrollmentStartDate: selection.enrollmentStartDate ?? '',
+  })))
   const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
   const prefillApplied = useRef(false)
   const [publicCartSelections] = useState(() =>
-    mode === 'public' && !returnTo && !isWaiversMemberships ? loadPublicEnrollmentCart() : [],
+    mode === 'public' && !returnTo && !leadRegistration ? loadPublicEnrollmentCart() : [],
   )
   const publicCartApplied = useRef(false)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
@@ -477,31 +518,39 @@ export default function FamilySignupWizard({
 
   const loadClassesForProgram = useCallback(async (programsId: number) => {
     if (classesByProgram[programsId]) return
-    const res = await fetch(`${apiUrl}/api/signup/catalog/programs/${programsId}/classes`)
-    const data = await res.json()
-    setClassesByProgram((prev) => ({ ...prev, [programsId]: data.data ?? [] }))
-  }, [apiUrl, classesByProgram])
+    try {
+      const leadQuery = leadRegistration ? '?leadRegistration=1' : ''
+      const res = await fetch(`${apiUrl}/api/signup/catalog/programs/${programsId}/classes${leadQuery}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Unable to load classes.')
+      setClassesByProgram((prev) => ({ ...prev, [programsId]: data.data ?? [] }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load classes.')
+    }
+  }, [apiUrl, classesByProgram, leadRegistration])
 
   const loadOfferingsForClass = useCallback(async (classEventId: number) => {
     if (offeringsByClass[classEventId]) return
-    const res = await fetch(`${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings`)
-    const data = await res.json()
-    const pack: ClassCatalogPack = data.data ?? {
-      formId: null,
-      offerings: [],
-      scheduleOptions: [],
+    try {
+      const leadQuery = leadRegistration ? '?leadRegistration=1' : ''
+      const res = await fetch(`${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings${leadQuery}`)
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'Unable to load class times.')
+      const pack: Partial<ClassCatalogPack> = data.data ?? {}
+      setOfferingsByClass((prev) => ({
+        ...prev,
+        [classEventId]: {
+          formId: pack.formId ?? null,
+          offerings: pack.offerings ?? [],
+          scheduleOptions: pack.scheduleOptions ?? [],
+          priceLabel: pack.priceLabel ?? null,
+          classActiveDates: pack.classActiveDates ?? null,
+        },
+      }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to load class times.')
     }
-    setOfferingsByClass((prev) => ({
-      ...prev,
-      [classEventId]: {
-        formId: pack.formId ?? null,
-        offerings: pack.offerings ?? [],
-        scheduleOptions: pack.scheduleOptions ?? [],
-        priceLabel: pack.priceLabel ?? null,
-        classActiveDates: pack.classActiveDates ?? null,
-      },
-    }))
-  }, [apiUrl, offeringsByClass])
+  }, [apiUrl, offeringsByClass, leadRegistration])
 
   const applyEnrollPrefill = useCallback(async () => {
     if (!enrollPrefill || prefillApplied.current) return
@@ -686,7 +735,7 @@ export default function FamilySignupWizard({
     <div className="grid gap-3 md:grid-cols-2">
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
-      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} onChange={(e) => onChange({ email: e.target.value })} />
+      <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} readOnly={Boolean(leadRegistration)} onChange={(e) => onChange({ email: e.target.value })} />
       <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number *" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }); setAddressVerified(false) }} />
@@ -905,6 +954,7 @@ export default function FamilySignupWizard({
   const validateFamilyMembersStep = (members: SignupMemberForm[] = additionalMembers) => {
     for (const member of members) {
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
+      if (!member.dateOfBirth) return `Date of birth is required for ${member.firstName || 'each member'}.`
       const minor = Boolean(member.dateOfBirth) && !isAdult(member.dateOfBirth)
       if (usesParentContactEmail(member)) {
         if (!minor) {
@@ -926,7 +976,6 @@ export default function FamilySignupWizard({
         if (member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
       }
-      if (!member.dateOfBirth) return `Date of birth is required for ${member.firstName || 'each member'}.`
     }
     return null
   }
@@ -934,18 +983,24 @@ export default function FamilySignupWizard({
   const validateEnrollmentStep = () => {
     const selectedSlots = new Set<string>()
     for (let i = 0; i < enrollments.length; i++) {
-      if (!enrollments[i].memberClientId) {
+      const row = enrollments[i]
+      if (!allAthletes.some((member) => member.clientId === row.memberClientId)) {
         return `Select a family member for enrollment ${i + 1}.`
       }
-      if (enrollments[i].classEventId !== '' && !enrollments[i].enrollmentStartDate) {
+      if (leadRegistration && row.classEventId === '') {
+        return `Select a class for enrollment ${i + 1}.`
+      }
+      if (row.classEventId !== '' && !row.enrollmentStartDate) {
         return `Select an enrollment start date for enrollment ${i + 1}.`
       }
-      const row = enrollments[i]
       const slots = row.selectedSlotKeys.length > 0
         ? row.selectedSlotKeys
         : row.slotGroupId != null && row.timeSlotId != null
           ? [slotOptionKey(row.slotGroupId, row.timeSlotId)]
           : []
+      if (leadRegistration && slots.length === 0) {
+        return `Select a class time for enrollment ${i + 1}.`
+      }
       for (const slot of slots) {
         const key = `${row.memberClientId}:${row.classEventId}:${slot}`
         if (selectedSlots.has(key)) {
@@ -1051,7 +1106,7 @@ export default function FamilySignupWizard({
     })
 
     const rows: Array<Record<string, unknown>> = []
-    for (const row of enrollments) {
+    for (const [index, row] of enrollments.entries()) {
       if (row.classEventId === '' || row.memberClientId === '') continue
       const classEventId = Number(row.classEventId)
       const pack = offeringsByClass[classEventId]
@@ -1059,18 +1114,22 @@ export default function FamilySignupWizard({
       const classOption = classes.find((c) => c.id === classEventId)
       const programOption = topPrograms.find((p) => p.id === Number(row.programsId))
       const memberIndex = memberIndexMap.get(row.memberClientId)
+      const invited = leadRegistration?.selections[index]
       const base = {
         memberIndex,
         classEventId,
         programId: classEventId,
         programsId: row.programsId !== '' ? Number(row.programsId) : undefined,
-        schedulingFormId: row.schedulingFormId ?? pack?.formId ?? undefined,
+        schedulingFormId: invited && invited.kind !== 'reserved'
+          ? pack?.formId ?? row.schedulingFormId
+          : row.schedulingFormId ?? pack?.formId ?? undefined,
         programName: programOption?.displayName || programOption?.name || classOption?.displayName || classOption?.name,
         className: classOption?.displayName || classOption?.name,
         classActiveDates: pack?.classActiveDates ?? undefined,
         daysPerWeek: 1,
         selectedPricingOptionKey: row.selectedPricingOptionKey,
         enrollmentStartDate: row.enrollmentStartDate || undefined,
+        scheduleLabel: invited?.scheduleLabel,
       }
 
       if (row.selectedSlotKeys.length > 0) {
@@ -1248,9 +1307,13 @@ export default function FamilySignupWizard({
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
       if (leadRegistration) {
-        const login = await fetch(`${apiUrl}/api/members/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({emailOrUsername:primaryAdult.username,password:primaryAdult.password}) }).then(response=>response.json()).catch(()=>null)
-        onComplete?.({...data.data,token:login?.token,member:login?.member})
-        setSuccessMessage('Account setup completed. Continue with your class registration links.')
+        const login = await fetch(`${apiUrl}/api/members/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emailOrUsername: primaryAdult.username, password: primaryAdult.password }),
+        }).then((response) => response.json()).catch(() => null)
+        onComplete?.({ ...data.data, token: login?.token, member: login?.member })
+        setSuccessMessage('Account setup completed.')
         return
       }
       if (publicCartSelections.length > 0) clearPublicEnrollmentCart()
@@ -1365,6 +1428,18 @@ export default function FamilySignupWizard({
         setError(err)
         return
       }
+      if (leadRegistration && !isWaiversMemberships) {
+        const programIds = new Set(leadRegistration.selections.filter((item) => item.kind === 'program').map((item) => item.programsId))
+        const classIds = new Set(leadRegistration.selections.flatMap((item) =>
+          item.kind === 'class' && item.classEventId != null ? [item.classEventId] : [],
+        ))
+        setLoading(true)
+        await Promise.all([
+          ...Array.from(programIds, loadClassesForProgram),
+          ...Array.from(classIds, loadOfferingsForClass),
+        ])
+        setLoading(false)
+      }
     }
     if (step === enrollmentStep && !isWaiversMemberships) {
       const err = validateEnrollmentStep()
@@ -1384,18 +1459,18 @@ export default function FamilySignupWizard({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Program enrollment</h3>
-        <button
+        {!leadRegistration && <button
           type="button"
           onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment()])}
           className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
         >
           <UserPlus className="w-4 h-4" /> Add enrollment
-        </button>
+        </button>}
       </div>
       <p className="text-sm text-gray-600">
-        Each enrollment is for one family member. To enroll another child in the same class,
-        use “Enroll another family member in this class” below. Changing the family member
-        on an existing enrollment only changes who that enrollment is for.
+        {leadRegistration
+          ? 'Review the selections in your invitation and fill in the remaining details before checkout.'
+          : 'Each enrollment is for one family member. To enroll another child in the same class, use “Enroll another family member in this class” below. Changing the family member on an existing enrollment only changes who that enrollment is for.'}
       </p>
       {enrollPrefill && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
@@ -1420,13 +1495,17 @@ export default function FamilySignupWizard({
         <p className="text-sm text-gray-500">Optional: enroll in a program now, or continue without enrolling and sign up for classes later.</p>
       )}
       {enrollments.map((row, index) => {
+        const invited = leadRegistration?.selections[index]
+        const reservedTime = invited?.kind === 'reserved'
+        const programLabel = invited?.programName ?? invited?.label.split(' / ')[0]
+        const classLabel = invited?.className ?? invited?.label.split(' / ')[1]?.split(' · ')[0] ?? invited?.label
         const classes = row.programsId !== '' ? (classesByProgram[Number(row.programsId)] ?? []) : []
         const catalog = row.classEventId !== '' ? offeringsByClass[Number(row.classEventId)] : null
         const scheduleOptions = catalog?.scheduleOptions ?? []
         const groupedScheduleOptions = groupScheduleOptions(scheduleOptions)
 
         return (
-          <div key={index} className="rounded-xl border border-gray-200 p-4 space-y-4">
+          <div key={index} className={`rounded-xl border p-4 space-y-4 ${leadRegistration?.focusedSelection === index ? 'border-vortex-red' : 'border-gray-200'}`}>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label htmlFor={`enrollment-member-${index}`} className="block text-xs font-semibold text-gray-600 mb-1">Family member</label>
@@ -1434,6 +1513,7 @@ export default function FamilySignupWizard({
                   id={`enrollment-member-${index}`}
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.memberClientId}
+                  disabled={invited?.childIndex != null}
                   onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
                 >
                   <option value="">Select family member</option>
@@ -1443,16 +1523,18 @@ export default function FamilySignupWizard({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">Program</label>
+                <label htmlFor={`enrollment-program-${index}`} className="block text-xs font-semibold text-gray-600 mb-1">Program</label>
                 <select
+                  id={`enrollment-program-${index}`}
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.programsId}
+                  disabled={Boolean(invited)}
                   onChange={(e) => updateEnrollmentRow(index, {
                     programsId: e.target.value === '' ? '' : Number(e.target.value),
                   })}
                 >
                   <option value="">Select program</option>
-                  {topPrograms.map((p) => (
+                  {invited ? <option value={invited.programsId}>{programLabel}</option> : topPrograms.map((p) => (
                     <option key={p.id} value={p.id}>{p.displayName || p.name}</option>
                   ))}
                 </select>
@@ -1460,21 +1542,29 @@ export default function FamilySignupWizard({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Class</label>
+              <label htmlFor={`enrollment-class-${index}`} className="block text-xs font-semibold text-gray-600 mb-1">Class</label>
               <select
+                id={`enrollment-class-${index}`}
                 className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                 value={row.classEventId}
-                disabled={row.programsId === ''}
+                disabled={row.programsId === '' || invited?.classEventId != null}
                 onChange={(e) => updateEnrollmentRow(index, {
                   classEventId: e.target.value === '' ? '' : Number(e.target.value),
                 })}
               >
                 <option value="">Select class</option>
-                {classes.map((c) => (
+                {invited?.classEventId != null ? <option value={invited.classEventId}>{classLabel}</option> : classes.map((c) => (
                   <option key={c.id} value={c.id}>{c.displayName || c.name}</option>
                 ))}
               </select>
             </div>
+
+            {invited?.kind === 'program' && classes.length === 0 && (
+              <p className="text-sm text-gray-600">
+                {classesByProgram[invited.programsId] ? 'No classes are currently available for this program.' : 'Classes could not be loaded.'}
+                {!classesByProgram[invited.programsId] && <button type="button" className="ml-2 text-vortex-red underline" onClick={() => void loadClassesForProgram(invited.programsId)}>Retry</button>}
+              </p>
+            )}
 
             {catalog?.classActiveDates && (
               <p className="text-sm text-gray-700">
@@ -1486,10 +1576,42 @@ export default function FamilySignupWizard({
               id={`family-enrollment-start-date-${index}`}
               value={row.enrollmentStartDate}
               onChange={(value) => updateEnrollmentRow(index, { enrollmentStartDate: value })}
-              required={row.classEventId !== ''}
+              required={Boolean(invited) || row.classEventId !== ''}
             />
 
-            {scheduleOptions.length > 0 && (
+            {reservedTime && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600">Reserved class time</p>
+                <p className="mt-1 text-sm">{invited.scheduleLabel ?? invited.label}</p>
+              </div>
+            )}
+
+            {invited && !reservedTime && row.classEventId !== '' && (
+              <div>
+                <label htmlFor={`enrollment-time-${index}`} className="mb-1 block text-xs font-semibold text-gray-600">Class time</label>
+                <select
+                  id={`enrollment-time-${index}`}
+                  className="h-10 w-full rounded-lg border border-gray-300 px-3 text-sm"
+                  value={row.selectedSlotKeys[0] ?? ''}
+                  onChange={(event) => updateEnrollmentRow(index, { selectedSlotKeys: event.target.value ? [event.target.value] : [] })}
+                >
+                  <option value="">Select class time</option>
+                  {groupedScheduleOptions.map((group) => (
+                    <optgroup key={group.options[0].slotGroupId} label={[group.offeringLabel, group.offeringDates].filter(Boolean).join(' · ')}>
+                      {group.options.map((option) => {
+                        const key = slotOptionKey(option.slotGroupId, option.timeSlotId)
+                        return <option key={key} value={key}>{option.scheduleLabel}</option>
+                      })}
+                    </optgroup>
+                  ))}
+                </select>
+                {catalog?.priceLabel && <p className="mt-1 text-xs text-gray-500">Typical price {catalog.priceLabel}</p>}
+                {catalog && scheduleOptions.length === 0 && <p className="mt-1 text-sm text-gray-600">No class times are currently available.</p>}
+                {!catalog && error && <button type="button" className="mt-1 text-sm text-vortex-red underline" onClick={() => void loadOfferingsForClass(Number(row.classEventId))}>Retry loading class times</button>}
+              </div>
+            )}
+
+            {!invited && scheduleOptions.length > 0 && (
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -1507,7 +1629,7 @@ export default function FamilySignupWizard({
               </div>
             )}
 
-            {!isMinorStart && allAthletes.length > 1 && row.classEventId !== '' && (
+            {!invited && !isMinorStart && allAthletes.length > 1 && row.classEventId !== '' && (
               <button
                 type="button"
                 onClick={() => setEnrollments((prev) => [...prev, {
@@ -1522,13 +1644,13 @@ export default function FamilySignupWizard({
                 Enroll another family member in this class
               </button>
             )}
-            <button
+            {!invited && <button
               type="button"
               onClick={() => setEnrollments((prev) => prev.filter((_, i) => i !== index))}
               className="text-xs text-red-600 font-semibold"
             >
               Remove enrollment
-            </button>
+            </button>}
           </div>
         )
       })}

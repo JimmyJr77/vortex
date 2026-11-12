@@ -592,7 +592,12 @@ function sqlClassHasSignupSlots(programAlias) {
   `
 }
 
-async function loadClassEnrollmentCatalog(pool, classEventId) {
+function currentScheduleWindow(formAlias) {
+  return `AND COALESCE((SELECT o.end_date FROM scheduling_offering o WHERE o.id=sg.offering_id),
+    sg.active_end,${formAlias}.end_date,'infinity'::date)>=CURRENT_DATE`
+}
+
+async function loadClassEnrollmentCatalog(pool, classEventId, currentOnly = false) {
   const schema = await resolveProgramsSchema(pool)
   const parentActiveColumn = await pool.query(
     `SELECT 1 FROM information_schema.columns
@@ -609,6 +614,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
       INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
       WHERE sf.program_id = $1
         AND sf.deleted_at IS NULL
+        ${currentOnly ? 'AND sf.is_active=TRUE' : ''}
         AND COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(p.is_active, TRUE) = TRUE
         AND COALESCE(pr.archived, FALSE) = FALSE
@@ -622,6 +628,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
             AND ts.is_active = TRUE
           WHERE sg.form_id = sf.id
             AND sg.is_active = TRUE
+            ${currentOnly ? currentScheduleWindow('sf') : ''}
         )
       ORDER BY sf.is_active DESC, sf.id DESC
       LIMIT 1
@@ -673,9 +680,10 @@ async function loadClassEnrollmentCatalog(pool, classEventId) {
 
   const groupsRes = await pool.query(
     `
-      SELECT id, offering_id, active_start, active_end, dates_tbd
-      FROM scheduling_slot_group
-      WHERE form_id = $1 AND is_active = TRUE
+      SELECT sg.id,sg.offering_id,sg.active_start,sg.active_end,sg.dates_tbd
+      FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
+      WHERE sg.form_id = $1 AND sg.is_active = TRUE
+      ${currentOnly ? currentScheduleWindow('sf') : ''}
     `,
     [formId],
   )
@@ -1651,6 +1659,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       await ensureSignupSchema(pool)
       const schema = await resolveProgramsSchema(pool)
       const programsId = Number(req.params.programsId)
+      const currentOnly = req.query.leadRegistration === '1'
       const signupSlotsClause = sqlClassHasSignupSlots('p')
       const result = await pool.query(
         `
@@ -1665,6 +1674,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
             FROM scheduling_form candidate
             WHERE candidate.program_id = p.id
               AND candidate.deleted_at IS NULL
+              ${currentOnly ? 'AND candidate.is_active=TRUE' : ''}
               AND EXISTS (
                 SELECT 1
                 FROM scheduling_slot_group sg
@@ -1674,6 +1684,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
                   AND ts.is_active = TRUE
                 WHERE sg.form_id = candidate.id
                   AND sg.is_active = TRUE
+                  ${currentOnly ? currentScheduleWindow('candidate') : ''}
               )
             ORDER BY candidate.is_active DESC, candidate.id DESC
             LIMIT 1
@@ -1704,7 +1715,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     try {
       await ensureSignupSchema(pool)
       const classEventId = Number(req.params.classEventId)
-      const catalog = await loadClassEnrollmentCatalog(pool, classEventId)
+      const catalog = await loadClassEnrollmentCatalog(pool, classEventId, req.query.leadRegistration === '1')
       res.json({ success: true, data: catalog })
     } catch (error) {
       res.status(500).json({ success: false, message: error.message })

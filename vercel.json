@@ -444,6 +444,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/signup/lead",
+      "destination": "/index.html"
+    },
+    {
       "source": "/verify-email",
       "destination": "/index.html"
     },

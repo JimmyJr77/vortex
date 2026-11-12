@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import Header from './components/Header'
 import HubSeo from './components/HubSeo'
 import ContactForm from './components/ContactForm'
@@ -71,6 +71,7 @@ function App() {
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'))
   const location = useLocation()
+  const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
   const {
     highlights,
     isOpen: isHighlightsOpen,
@@ -233,9 +234,9 @@ function App() {
     return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>
   }
 
-  // Check current required waivers before showing any destination, including
-  // storefront logins and restored member sessions. Staff-only logins skip this.
-  if (memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
+  // Check required waivers for restored member sessions. Lead registration
+  // uses the invited family's own sign-in and waiver steps.
+  if (!isLeadRegistration && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
@@ -244,7 +245,7 @@ function App() {
   }
 
   // If user is admin, show admin panel
-  if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
+  if (!isLeadRegistration && isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
     const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
       <Suspense fallback={<PageLoader />}>
@@ -258,7 +259,7 @@ function App() {
   }
 
   // If member is logged in and wants to see dashboard, show member dashboard
-  if (member && memberToken && showMemberDashboard) {
+  if (!isLeadRegistration && member && memberToken && showMemberDashboard) {
     if (activePortal === 'coach') {
       return (
         <Suspense fallback={<PageLoader />}>
