@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useState } from 'react'
+import { Fragment, Suspense, useCallback, useEffect, useState } from 'react'
 import { BookOpen, CreditCard, Inbox, RefreshCw, Users, ReceiptText, ChartNoAxesCombined, Home, Menu, X, Clock3, DollarSign } from 'lucide-react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import type { PortalId } from '../../utils/portalSession'
@@ -55,6 +55,16 @@ const sections = [
   { id: 'billing' as const, label: 'Billing', icon: CreditCard, permission: 'billing.view' },
   { id: 'timesheets' as const, label: 'Timesheets', icon: Clock3, permission: null },
 ]
+const navigationGroups: { label: string | null; sections: Section[] }[] = [
+  { label: null, sections: ['home', 'dashboard'] },
+  { label: 'Daily operations', sections: ['calendar', 'classes', 'floorPlanner', 'timesheets'] },
+  { label: 'People & communication', sections: ['members', 'leads', 'messaging'] },
+  { label: 'Finance', sections: ['billing', 'accounting'] },
+  { label: 'Sales & growth', sections: ['opportunityResearch', 'marketingVisibility', 'pricing', 'store'] },
+  { label: 'Content & resources', sections: ['highlightsEvents', 'faqLibrary', 'legal'] },
+  { label: 'Reporting', sections: ['dataAnalysis'] },
+  { label: 'Administration', sections: ['staffAccess', 'preferences', 'settings'] },
+]
 
 export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-admin'], onSwitchPortal }: {
   onLogout: () => void; availablePortals?: PortalId[]; onSwitchPortal?: (portal: PortalId) => void
@@ -74,7 +84,12 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const consumeBillingTarget = useCallback(() => setBillingTarget(null), [])
   const openMember = (id: number) => { setFamilyId(null); setMemberId(id); setSection('members') }
   const openBilling = (target: BillingTarget) => { setBillingTarget(target); setSection('billing') }
-  const visible = access.data ? [...sections.filter(item => item.permission === null || allowed(access.data!, item.permission)), ...legacySections.filter(item => item.tabs.some(tab => tab.permission === null || allowed(access.data!, tab.permission)))] : []
+  const accessible = access.data ? [...sections.filter(item => item.permission === null || allowed(access.data!, item.permission)), ...legacySections.filter(item => item.tabs.some(tab => tab.permission === null || allowed(access.data!, tab.permission)))] : []
+  const visibleGroups = navigationGroups.map(group => ({
+    label: group.label,
+    items: group.sections.flatMap(id => accessible.filter(item => item.id === id)),
+  })).filter(group => group.items.length > 0)
+  const visible = visibleGroups.flatMap(group => group.items)
   const current = visible.find(item => item.id === section) ?? visible.find(item => item.id === 'members') ?? visible[0]
   const navigate = (id: Section) => {
     setMessagesMaximized(false)
@@ -139,7 +154,10 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
     <div className={fullscreen ? "flex flex-col flex-1 min-h-0 overflow-hidden" : "container-admin pt-6 pb-6 flex flex-col lg:grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden"}>
       <nav id="new-admin-navigation" aria-label="Admin sections" className={`${fullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'} shrink-0 max-h-[45dvh] lg:max-h-none min-h-0 overflow-y-auto overscroll-contain`}>
         <div className="bg-white border border-gray-200 rounded-xl p-2">
-          {visible.map(item => <button type="button" key={item.id} onClick={() => navigate(item.id)} aria-current={current?.id === item.id ? 'page' : undefined} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${current?.id === item.id ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}><item.icon className="w-4 h-4 shrink-0" /><span className="text-left">{item.label}</span></button>)}
+          {visibleGroups.map(group => <Fragment key={group.label ?? 'start'}>
+            {group.label ? <h2 className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{group.label}</h2> : null}
+            {group.items.map(item => <button type="button" key={item.id} onClick={() => navigate(item.id)} aria-current={current?.id === item.id ? 'page' : undefined} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${current?.id === item.id ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}><item.icon className="w-4 h-4 shrink-0" /><span className="text-left">{item.label}</span></button>)}
+          </Fragment>)}
         </div>
       </nav>
       <main className={`min-w-0 min-h-0 flex-1 ${fixedPanel ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>

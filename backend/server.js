@@ -11325,9 +11325,9 @@ app.patch('/api/admin/programs/:id/archive', async (req, res) => {
     })
   } catch (error) {
     console.error('Archive program error:', error)
-    res.status(500).json({
+    res.status(error.code === 'P0001' ? 409 : 500).json({
       success: false,
-      message: 'Internal server error'
+      message: error.code === 'P0001' ? error.message : 'Internal server error'
     })
   }
 })

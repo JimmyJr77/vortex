@@ -99,6 +99,7 @@ import {
   mergeSignupFieldsForSave,
   validateSignupResponses,
 } from './signupFieldCatalog.js'
+import { updateScheduleSlots } from './updateScheduleSlots.js'
 import { expandSlotBatch } from './slotExpansion.js'
 import { expandCalendarRange } from './calendarExpansion.js'
 import {
@@ -3832,53 +3833,65 @@ export function createSchedulingHandlers(pool) {
         try {
           await client.query('BEGIN')
 
-          const groupRes = await client.query(
-            `
-            INSERT INTO scheduling_slot_group (
-              form_id, offering_id, schedule_mode, max_participants,
-              active_start, active_end, dates_tbd, inherits_offering_dates, is_active
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
-            RETURNING *
-            `,
-            [
-              req.params.formId,
-              value.offeringId ?? null,
-              value.scheduleMode,
-              value.maxParticipants,
-              resolvedActiveStart,
-              resolvedActiveEnd,
-              batchDatesTbd,
-              inheritsOfferingDates,
-            ],
-          )
-          groupRow = groupRes.rows[0]
-          const groupId = groupRow.id
-
-          for (const row of rows) {
-            const result = await client.query(
+          if (req.editSlotGroupId) {
+            const locked = await client.query('SELECT * FROM scheduling_slot_group WHERE id=$1 AND form_id=$2 FOR UPDATE', [req.editSlotGroupId, req.params.formId])
+            if (!locked.rows.length) throw new Error('Schedule not found')
+            const updated = await client.query(`UPDATE scheduling_slot_group SET offering_id=$1,schedule_mode=$2,
+              max_participants=$3,active_start=$4,active_end=$5,dates_tbd=$6,inherits_offering_dates=$7,
+              updated_at=now() WHERE id=$8 RETURNING *`,
+              [value.offeringId ?? null,value.scheduleMode,value.maxParticipants,resolvedActiveStart,
+                resolvedActiveEnd,batchDatesTbd,inheritsOfferingDates,req.editSlotGroupId])
+            groupRow = updated.rows[0]
+            inserted.push(...await updateScheduleSlots(client, groupRow, rows))
+          } else {
+            const groupRes = await client.query(
               `
-              INSERT INTO scheduling_time_slot (
-                form_id, slot_group_id, schedule_mode, week_letter, day_of_week, specific_date,
-                start_time, end_time, max_participants, active_start, active_end, dates_tbd, is_active
-              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, TRUE)
+              INSERT INTO scheduling_slot_group (
+                form_id, offering_id, schedule_mode, max_participants,
+                active_start, active_end, dates_tbd, inherits_offering_dates, is_active
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE)
               RETURNING *
               `,
               [
                 req.params.formId,
-                groupId,
-                row.scheduleMode,
-                row.weekLetter,
-                row.dayOfWeek,
-                row.specificDate,
-                row.startTime,
-                row.endTime,
+                value.offeringId ?? null,
+                value.scheduleMode,
                 value.maxParticipants,
-                row.activeStart,
-                row.activeEnd,
-                row.datesTbd,
+                resolvedActiveStart,
+                resolvedActiveEnd,
+                batchDatesTbd,
+                inheritsOfferingDates,
               ],
             )
-            inserted.push(result.rows[0])
+            groupRow = groupRes.rows[0]
+            const groupId = groupRow.id
+
+            for (const row of rows) {
+              const result = await client.query(
+                `
+                INSERT INTO scheduling_time_slot (
+                  form_id, slot_group_id, schedule_mode, week_letter, day_of_week, specific_date,
+                  start_time, end_time, max_participants, active_start, active_end, dates_tbd, is_active
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, TRUE)
+                RETURNING *
+                `,
+                [
+                  req.params.formId,
+                  groupId,
+                  row.scheduleMode,
+                  row.weekLetter,
+                  row.dayOfWeek,
+                  row.specificDate,
+                  row.startTime,
+                  row.endTime,
+                  value.maxParticipants,
+                  row.activeStart,
+                  row.activeEnd,
+                  row.datesTbd,
+                ],
+              )
+              inserted.push(result.rows[0])
+            }
           }
           await syncFormActiveDatesFromSlotGroups(client, Number(req.params.formId))
           await client.query('COMMIT')
@@ -4966,6 +4979,14 @@ export function createSchedulingHandlers(pool) {
 
     async updateSlotGroupMax(req, res) {
       try {
+        if (req.body.scheduleMode) {
+          const group = (await pool.query('SELECT form_id FROM scheduling_slot_group WHERE id=$1', [req.params.id])).rows[0]
+          if (!group) return res.status(404).json({ success: false, message: 'Schedule not found' })
+          return createSchedulingHandlers(pool).createSlotBatch({ ...req,
+            params: { ...req.params, formId: group.form_id }, editSlotGroupId: req.params.id,
+          }, res)
+        }
+
         const maxParticipants = Number(req.body.maxParticipants)
         if (!maxParticipants || maxParticipants < 1) {
           return res.status(400).json({ success: false, message: 'Invalid max participants' })

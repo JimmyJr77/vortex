@@ -2288,6 +2288,13 @@ export async function adminCreateSlotBatch(
   return data.data
 }
 
+export async function adminUpdateSlotGroup(id: number, payload: SlotBatchPayload): Promise<SchedulingSlotGroup> {
+  const res = await adminApiRequest(`/api/admin/scheduling/slot-groups/${id}`, {
+    method: 'PATCH', body: JSON.stringify(payload),
+  })
+  return parseJson(res)
+}
+
 export async function adminUpdateTimeSlot(
   id: number,
   payload: SlotBatchPayload,

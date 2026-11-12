@@ -38,7 +38,7 @@ const classRow = row => {
 export async function listClasses(db,facilityId,query={}) {
   const paging=pagination(query)
   const values=[id(facilityId),searchValue(query.search)]
-  const where=`p.facility_id=$1 AND p.archived IS NOT TRUE AND concat_ws(' ',p.display_name,pr.display_name) ILIKE $2 ESCAPE '\\'`
+  const where=`p.facility_id=$1 AND p.archived IS NOT TRUE AND pr.archived IS NOT TRUE AND concat_ws(' ',p.display_name,pr.display_name) ILIKE $2 ESCAPE '\\'`
   // Sort the full matching catalog using the canonical resolved class prices
   // and schedules, then paginate. This also avoids sorting formatted currency.
   sortClasses([],query.sort || 'class',query.direction || 'asc')

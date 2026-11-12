@@ -26,6 +26,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '849_staff_timesheets.sql',
   '850_weekly_timesheets.sql',
   '851_optional_class_dates.sql',
+  '852_enrollment_archive_guards.sql',
   '819_coaching_exercise_difficulty_complexity_compatibility.sql',
   '820_coaching_exercise_difficulty_complexity_nullable.sql',
   '818_coaching_athleticism_accelerator_library.sql',

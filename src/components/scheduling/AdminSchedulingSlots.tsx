@@ -6,7 +6,7 @@ import {
   adminCreateSlotBatch,
   adminDeleteSlotGroup,
   adminSaveSchedulingForm,
-  adminUpdateSlotGroupMax,
+  adminUpdateSlotGroup,
   dayAbbrev,
   schedulingHasMultipleWeeks,
   type SchedulingFormDetail,
@@ -653,27 +653,10 @@ const AdminSchedulingSlots = ({
       }
 
       if (editingSlotGroupId) {
-        const existing = detail.slotGroups?.find((g) => g.id === editingSlotGroupId)
-        const activeSignups =
-          (existing?.signupCount ?? 0) + (existing?.waitlistCount ?? 0)
-
-        if (activeSignups > 0) {
-          if (existing && existing.maxParticipants !== maxParticipants) {
-            await adminUpdateSlotGroupMax(editingSlotGroupId, maxParticipants)
-            await onRefresh()
-            resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
-            closeBuilder()
-            return
-          }
-          const proceed = confirm(
-            `${activeSignups} enrolled or waitlisted athlete(s) will move to Orphaned signups. Replace this schedule anyway?`,
-          )
-          if (!proceed) return
-        }
-
-        await adminDeleteSlotGroup(editingSlotGroupId)
+        await adminUpdateSlotGroup(editingSlotGroupId, payload)
+      } else {
+        await adminCreateSlotBatch(formId, payload)
       }
-      await adminCreateSlotBatch(formId, payload)
       await onRefresh()
       resetBuilderForm(extractLastTimeFromBuilder(weeks, dateEntries, scheduleMode))
       closeBuilder()
