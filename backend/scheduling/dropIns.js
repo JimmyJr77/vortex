@@ -1,3 +1,7 @@
+import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
+import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
+import { calculateDropInPrice } from '../shared/dropInPricing.js'
+export { calculateDropInPrice } from '../shared/dropInPricing.js'
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
@@ -32,20 +36,6 @@ export function resolveDropInOutcome({ member, benefits, useFreeTrial }) {
   }
 }
 
-export function calculateDropInPrice({ monthlyCents, annualMember, discountPercent = 0, isFree = false }) {
-  const divisor = annualMember ? 4 : 3
-  const baseCents = Math.max(0, Math.round(Number(monthlyCents || 0) / divisor))
-  const safeDiscount = annualMember
-    ? Math.min(100, Math.max(0, Number(discountPercent || 0)))
-    : 0
-  const discountCents = Math.round(baseCents * safeDiscount / 100)
-  return {
-    baseCents,
-    discountPercent: safeDiscount,
-    discountCents,
-    totalCents: isFree ? 0 : Math.max(0, baseCents - discountCents),
-  }
-}
 
 export function calculateDropInAvailability({ maxParticipants, monthlyEnrolled, dropInEnrolled }) {
   const maximum = Math.max(0, Number(maxParticipants) || 0)
@@ -85,6 +75,12 @@ function dateInTwoMonthWindow(date, now = new Date()) {
   const end = new Date(start)
   end.setMonth(end.getMonth() + 2)
   return value >= formatDateOnly(start) && value <= formatDateOnly(end)
+}
+
+function classDropInMonthlyCents(row) {
+  const effective=resolveEffectiveFormPricing(hydrateProgramPricingRow(row.pricing_program),row.pricing_form)
+  if (row.pricing_form && effective.costUnit==='per_month') return effective.costAmountCents
+  return monthlyCentsFromOptions(row.pricing_options,row.fallback_monthly_cents)
 }
 
 function monthlyCentsFromOptions(options, fallback = 0) {
@@ -384,11 +380,11 @@ async function loadCatalog(pool, member, { includeExcluded = false } = {}) {
            ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
            p.id AS class_id, p.display_name AS class_name, p.description AS class_description, p.skill_level,
            p.age_min, p.age_max,
-           top.id AS program_id, top.display_name AS program_name, top.description AS program_description,
+           to_jsonb(sf) AS pricing_form, to_jsonb(top) AS pricing_program, top.id AS program_id, top.display_name AS program_name, top.description AS program_description,
            COALESCE(top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
            primary_dt.name AS sport_name,
-           COALESCE(top.pricing_cost_options, '[]'::jsonb) AS pricing_options,
-           COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
+           CASE WHEN sf.class_monthly_price_cents IS NOT NULL THEN '[]'::jsonb ELSE COALESCE(sf.class_program_pricing->'pricing_cost_options',top.pricing_cost_options,'[]'::jsonb) END AS pricing_options,
+           COALESCE(sf.class_monthly_price_cents,(sf.class_program_pricing->>'pricing_slot_cost_monthly_cents')::integer,CASE WHEN sf.class_program_pricing IS NULL THEN top.pricing_slot_cost_monthly_cents END,sf.slot_cost_monthly_cents,0) AS fallback_monthly_cents,
            (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
       FROM scheduling_slot_group sg
       JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
@@ -456,7 +452,7 @@ async function loadCatalog(pool, member, { includeExcluded = false } = {}) {
     const dates = specificDate
       ? (dateInTwoMonthWindow(specificDate) ? [specificDate] : [])
       : occurrenceDatesThroughTwoMonths(row.day_of_week)
-    const monthlyCents = monthlyCentsFromOptions(row.pricing_options, row.fallback_monthly_cents)
+    const monthlyCents = classDropInMonthlyCents(row)
     const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
     if (!classesById.has(Number(row.class_id))) {
       classesById.set(Number(row.class_id), {
@@ -675,9 +671,9 @@ export function registerDropInRoutes(app, pool) {
                  THEN offering.end_date
                  ELSE COALESCE(sg.active_end, sf.end_date)
                END AS active_end,
-               COALESCE(top.pricing_cost_options,'[]'::jsonb) AS pricing_options,
-               top.id AS program_id,
-               COALESCE(top.pricing_slot_cost_monthly_cents, sf.slot_cost_monthly_cents, 0) AS fallback_monthly_cents,
+               CASE WHEN sf.class_monthly_price_cents IS NOT NULL THEN '[]'::jsonb ELSE COALESCE(sf.class_program_pricing->'pricing_cost_options',top.pricing_cost_options,'[]'::jsonb) END AS pricing_options,
+               to_jsonb(sf) AS pricing_form, to_jsonb(top) AS pricing_program, top.id AS program_id,
+               COALESCE(sf.class_monthly_price_cents,(sf.class_program_pricing->>'pricing_slot_cost_monthly_cents')::integer,CASE WHEN sf.class_program_pricing IS NULL THEN top.pricing_slot_cost_monthly_cents END,sf.slot_cost_monthly_cents,0) AS fallback_monthly_cents,
                (SELECT COUNT(*) FROM scheduling_signup s
                  WHERE s.slot_group_id=sg.id
                    AND s.status='confirmed'
@@ -725,7 +721,7 @@ export function registerDropInRoutes(app, pool) {
       const defaultOutcome = resolveDropInOutcome({ member, benefits, useFreeTrial })
       const benefitType = freePass?.benefitType ?? defaultOutcome.benefitType
       const status = defaultOutcome.status
-      const monthlyCents = monthlyCentsFromOptions(slot.rows[0].pricing_options, slot.rows[0].fallback_monthly_cents)
+      const monthlyCents = classDropInMonthlyCents(slot.rows[0])
       const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent, isFree: benefitType !== 'paid' })
       if (benefitType === 'paid' && price.baseCents <= 0) {
         throw new Error('Drop-in pricing is unavailable. Contact staff before registering.')

@@ -66,6 +66,11 @@ async function changeRevision(page: Page, action: string, summary: string) {
   await staged(page).getByRole('textbox', { name: 'Revision change summary', exact: false }).fill(summary)
   const pending = page.waitForResponse((response) => response.url().endsWith('/change'))
   await staged(page).getByRole('button', { name: action, exact: true }).click()
+  if (action === 'Archive revision') {
+    const confirmation = page.getByRole('dialog', { name: 'Archive item', exact: true })
+    await confirmation.getByLabel('Type ARCHIVE to confirm').fill('ARCHIVE')
+    await confirmation.getByRole('button', { name: 'Archive', exact: true }).click()
+  }
   return pending
 }
 

@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Archive, Loader2, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import {
@@ -203,7 +204,7 @@ const ProgramsSection = ({
   }
 
   const handleArchive = async (program: TopProgram) => {
-    if (!confirm(`Archive "${program.displayName}"?`)) return
+    if (!await confirmArchive(program.displayName)) return
     setActionId(program.id)
     try {
       await archiveTopProgram(program.id, true)

@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AdminClassSetupOverviewEditModal from './AdminClassSetupOverviewEditModal'
 import PrimarySportPicker from '../programs/PrimarySportPicker'
@@ -223,6 +224,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
 
   const handleSave = async () => {
     if (!row || !columnId) return
+    const archiving = columnId === 'status' && (target?.line ? statusValue !== 'Active' : statusValue === 'Legacy')
+    if (archiving && !await confirmArchive(target?.line ? `${row.className} · ${target.line.days} · ${target.line.times}` : row.className)) return
     if (
       !row.programsId &&
       columnId !== 'className' &&

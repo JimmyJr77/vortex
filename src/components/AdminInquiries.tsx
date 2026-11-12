@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import TextInput from './common/TextInput'
 import { useState, useEffect, useRef, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -396,7 +397,7 @@ export default function AdminInquiries() {
 
   const handleArchive = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation()
-    if (!confirm('Archive this inquiry?')) return
+    if (!await confirmArchive('This inquiry')) return
     
     try {
       const response = await adminApiRequest(`/api/admin/registrations/${id}`, {

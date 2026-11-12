@@ -1,5 +1,21 @@
 import { billConfirmedRegistration } from './registrationBilling.js'
 import { buildGroupDisplayLabel } from './slotDisplayLabel.js'
+import { persistEnrollmentPauseBilling } from './pauseEnrollmentBilling.js'
+import { recordBillingActivity } from '../billing/billingActivity.js'
+
+async function activateWaitlistBilling(db, signup) {
+  const context = (await db.query(`SELECT m.facility_id,a.id AS account_id,
+      (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(f.timezone,''),'America/New_York'))::date::text AS today,
+      EXISTS(SELECT 1 FROM billing_subscription s WHERE s.source_type='scheduling_signup' AND s.source_id=$1::text) AS had_tuition
+    FROM member m JOIN facility f ON f.id=m.facility_id
+    LEFT JOIN family_billing_account a ON a.family_id=m.family_id AND a.is_active=TRUE WHERE m.id=$2`,[signup.id,signup.member_id])).rows[0]
+  if (!context) throw new Error('The waitlisted student has no facility.')
+  if (!context.had_tuition) {
+    await db.query('UPDATE scheduling_signup SET enrollment_start_date=$2::date WHERE id=$1',[signup.id,context.today])
+    signup.enrollment_start_date = context.today
+  }
+  return context
+}
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -59,7 +75,7 @@ export async function computeSignupPositions(client, slotGroupId, signupId) {
     const posRes = await client.query(
       `
       SELECT rn FROM (
-        SELECT id, ROW_NUMBER() OVER (ORDER BY created_at, id) AS rn
+        SELECT id, ROW_NUMBER() OVER (ORDER BY COALESCE(waitlisted_at,created_at), id) AS rn
         FROM scheduling_signup
         WHERE slot_group_id = $1 AND status = 'waitlisted'
       ) ranked
@@ -78,14 +94,20 @@ export async function computeSignupPositions(client, slotGroupId, signupId) {
  * @param {number} slotGroupId
  * @param {number} slotsToFill
  */
-export async function promoteFromWaitlist(client, slotGroupId, slotsToFill, { billRegistration = billConfirmedRegistration } = {}) {
+export async function promoteFromWaitlist(client, slotGroupId, slotsToFill, { billRegistration = billConfirmedRegistration, prepareActivation = activateWaitlistBilling } = {}) {
   if (slotsToFill <= 0) return []
 
+  const capacity = await client.query(`SELECT GREATEST(0,g.max_participants-
+    (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.slot_group_id=g.id AND s.status='confirmed')-
+    pending_registration_holds(g.id)) AS available FROM scheduling_slot_group g WHERE g.id=$1 FOR UPDATE`,[slotGroupId])
+  slotsToFill = Math.min(slotsToFill,Number(capacity.rows[0]?.available ?? 0))
+  if (slotsToFill <= 0) return []
   const waitlisted = await client.query(
     `
     SELECT id FROM scheduling_signup
-    WHERE slot_group_id = $1 AND status = 'waitlisted'
-    ORDER BY created_at, id
+    WHERE slot_group_id = $1 AND status = 'waitlisted' AND archived_at IS NULL AND orphaned_at IS NULL
+      AND NOT EXISTS(SELECT 1 FROM enrollment_action a WHERE a.signup_id=scheduling_signup.id AND a.status='pending')
+    ORDER BY COALESCE(waitlisted_at,created_at), id
     LIMIT $2
     FOR UPDATE
     `,
@@ -98,7 +120,17 @@ export async function promoteFromWaitlist(client, slotGroupId, slotsToFill, { bi
       `UPDATE scheduling_signup SET status = 'confirmed' WHERE id = $1 RETURNING *`,
       [row.id],
     )
-    await billRegistration(client, updated.rows[0])
+    const signup = updated.rows[0]
+    const context = await prepareActivation(client,signup)
+    await billRegistration(client, signup)
+    if (context) {
+      if (context.had_tuition) await persistEnrollmentPauseBilling(client,{signupId:signup.id,enteringPaused:false,leavingPaused:true,effectiveDate:context.today})
+      const action = (await client.query(`INSERT INTO enrollment_action(signup_id,facility_id,requested_status,previous_status,effective_date,request_key,status,applied_at)
+        VALUES($1,$2,'confirmed','waitlisted',$3,$4,'applied',now()) RETURNING id`,
+      [signup.id,context.facility_id,context.today,`waitlist-promotion:${signup.id}:${Date.now()}`])).rows[0]
+      if (context.account_id) await recordBillingActivity(client,{eventKey:`enrollment-action:${action.id}`,accountId:Number(context.account_id),memberId:Number(signup.member_id),signupId:Number(signup.id),
+        eventType:'enrollment_status_changed',summary:`Waitlist activation effective ${context.today}.`,actorType:'system',beforeValue:{status:'waitlisted'},afterValue:{status:'confirmed'},details:{effectiveDate:context.today,actionId:Number(action.id)}})
+    }
     promoted.push(updated.rows[0])
   }
   return promoted

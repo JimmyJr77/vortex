@@ -3,7 +3,8 @@ import { ArrowDownToLine, Check, CreditCard, Loader2, ReceiptText, Search, Slide
 import { adminApiRequest } from '../../../utils/api'
 import { useRead, useSearch, type BillingTarget } from '../api'
 import { button, Empty, ErrorNotice, Loading, Pager } from '../shared'
-import DateRange, { filterInput, type DateRangeValue } from './DateRange'
+import DateRange, { filterInput } from './DateRange'
+import { presetRange, type DateRangeValue } from './dateRanges'
 import EntityPicker, { type EntityOption } from './EntityPicker'
 import AccountingDetails, { type AccountingSelection } from './Details'
 import { BillsTable, PaymentsTable } from './Tables'
@@ -26,7 +27,7 @@ interface Filters {
   pageSize: number
 }
 export interface AccountingWorkspaceState { view: AccountingView; filters: Record<AccountingView, Filters> }
-const freshFilters = (): Filters => ({ dates: { preset: 'all', from: '', through: '' }, dateField: 'billed', search: '', person: null, classOption: null, status: 'all', balancePeriod: 'all', kind: 'all', paymentStatus: 'all', sortBy: 'date', sortDir: 'desc', page: 1, pageSize: 25 })
+const freshFilters = (timezone = 'America/New_York'): Filters => ({ dates: presetRange('month', timezone), dateField: 'billed', search: '', person: null, classOption: null, status: 'all', balancePeriod: 'all', kind: 'all', paymentStatus: 'all', sortBy: 'date', sortDir: 'desc', page: 1, pageSize: 25 })
 const billStatuses = [{ value: 'all', label: 'All' }, { value: 'open', label: 'Open bills' }, { value: 'partial', label: 'Partially paid' }, { value: 'paid', label: 'Paid or credited' }, { value: 'credit', label: 'Credit line items' }, { value: 'voided', label: 'Voided' }, { value: 'historical', label: 'Historical' }]
 
 function queryFor(filters: Filters, view: AccountingView, search: string) {
@@ -120,7 +121,7 @@ export default function Accounting({ revision, onBilling, workspace, onWorkspace
   }
   const sort = (key: string) => update({ sortBy: key, sortDir: filters.sortBy === key && filters.sortDir === 'asc' ? 'desc' : 'asc' })
   const changeView = (next: AccountingView) => { setView(next); setSelected(null); setPersonQuery(''); setClassQuery(''); setExportError(null); setExported(false) }
-  const clear = () => { setSavedFilters(current => ({ ...current, [view]: freshFilters() })); setPersonQuery(''); setClassQuery(''); setSelected(null); setExportError(null); setExported(false) }
+  const clear = () => { setSavedFilters(current => ({ ...current, [view]: freshFilters(timezone) })); setPersonQuery(''); setClassQuery(''); setSelected(null); setExportError(null); setExported(false) }
 
   const exportCsv = async () => {
     setExporting(true); setExportError(null); setExported(false)

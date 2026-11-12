@@ -48,6 +48,12 @@ test('billing dashboard unifies imported cash, scopes facilities, respects ledge
         (1,'fixture','transaction','payment',4,1,'2026-02-01',-3000,'{"Type":"Payment","Class":"Historical Team"}'),
         (1,'fixture','transaction','refund',4,1,'2026-03-01',500,'{"Type":"Refund - Payment","Class":"Historical Team"}'),
         (1,'fixture','transaction','old-charge',4,1,'2026-02-01',999999,'{"Type":"Tuition"}'),
+        (1,'fixture','transaction','old-quarter-payment',4,1,'2025-10-01',-7000,'{"Type":"Payment"}'),
+        (1,'fixture','transaction','old-quarter-refund',4,1,'2025-10-31',2000,'{"Type":"Refund - Payment"}'),
+        (1,'fixture','transaction','outside-quarter-payment',4,1,'2025-09-30',-800000,'{"Type":"Payment"}'),
+        (1,'fixture','transaction','current-month-payment',4,1,'2026-11-05',-4000,'{"Type":"Payment"}'),
+        (1,'fixture','transaction','current-month-refund',4,1,'2026-11-07',1000,'{"Type":"Refund - Payment"}'),
+        (1,'fixture','transaction','future-payment',4,1,'2026-11-11',-900000,'{"Type":"Payment"}'),
         (2,'fixture','transaction','foreign',3,3,'2026-02-01',-999999,'{"Type":"Payment"}');
     `)
     const fingerprint = async () => (await pool.query(`SELECT md5(string_agg(value::text,'|' ORDER BY value::text)) AS hash FROM (
@@ -64,6 +70,13 @@ test('billing dashboard unifies imported cash, scopes facilities, respects ledge
     const data = await loadBillingDashboard(tracked,1,new Date('2026-11-10T12:00:00Z'))
     assert.equal(data.summary.twelveMonthIncomeCents,9500)
     assert.equal(data.summary.lastMonthIncomeCents,1000)
+    assert.equal(data.quarters[0].start,'2025-10')
+    assert.equal(data.quarters[0].netCents,5000)
+    assert.equal(data.quarters[3].netCents,6000) // Sep 30 local time, despite an Oct 1 UTC timestamp.
+    assert.equal(data.quarters[4].netCents,4000)
+    assert.equal(data.months.at(-1).netCents,3000)
+    assert.equal(data.summary.sixMonthAverageCents,7000 / 6)
+    assert.equal(data.summary.nineMonthAverageCents,9500 / 9)
     assert.equal(data.months.find(row=>row.key==='2026-09').receiptsCents,6000)
     assert.equal(data.months.find(row=>row.key==='2026-09').breakdowns.class.Team,6000)
     assert.equal(data.months.find(row=>row.key==='2026-02').breakdowns.class['Historical Team'],3000)

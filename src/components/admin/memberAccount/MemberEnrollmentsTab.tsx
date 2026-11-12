@@ -360,6 +360,7 @@ export default function MemberEnrollmentsTab({
       {activeRow && (
         <AdminEnrollmentActionModal
           row={activeRow}
+          member={groups.find(group => group.rows.some(row => row === activeRow)) ?? { id: selectedMemberId, firstName: memberName ?? 'Member', lastName: '' }}
           onClose={() => setActiveRow(null)}
           onChanged={() => {
             setActiveRow(null)

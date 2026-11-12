@@ -1135,7 +1135,7 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
   return { id: Number(row.id), memberId, status: 'confirmed', benefitType: row.benefit_type }
 }
 
-async function processFamilySignup(client, payload, options = {}) {
+export async function processFamilySignup(client, payload, options = {}) {
   const {
     facilityId: explicitFacilityId = null,
     joinExistingFamilyId = null,
@@ -1186,6 +1186,11 @@ async function processFamilySignup(client, payload, options = {}) {
     throw new Error('Primary adult passwords do not match.')
   }
 
+  // Invitation usernames stay available to the family that received them.
+  await client.query('SELECT pg_advisory_xact_lock(846001)')
+  const reservedUsername = await client.query(`SELECT id FROM account_invite WHERE LOWER(suggested_username)=LOWER($1)
+    AND used_at IS NULL AND expires_at>now() AND id IS DISTINCT FROM $2::bigint LIMIT 1`, [primaryAdult.username,options.leadInvitationId ?? null])
+  if (reservedUsername.rows.length) throw new Error('That username is reserved for another registration. Please choose another.')
   const primaryEmail = String(primaryAdult.email || '').trim()
   await assertMemberEmailAvailable(client, facilityId, primaryEmail)
 

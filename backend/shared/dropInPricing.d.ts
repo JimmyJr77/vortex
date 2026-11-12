@@ -1,0 +1,1 @@
+export function calculateDropInPrice(options: { monthlyCents: number; annualMember: boolean; discountPercent?: number; isFree?: boolean }): { baseCents: number; discountPercent: number; discountCents: number; totalCents: number }

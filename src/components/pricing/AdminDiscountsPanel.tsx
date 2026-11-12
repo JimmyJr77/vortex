@@ -27,6 +27,7 @@ import {
 
 interface Props {
   showSimulator?: boolean
+  canManage?: boolean
 }
 
 const TYPE_LABELS: Record<DiscountType, string> = {
@@ -68,7 +69,7 @@ function typeLabel(rule: DiscountRule): string {
   return TYPE_LABELS[rule.type]
 }
 
-const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
+const AdminDiscountsPanel = ({ showSimulator = false, canManage = true }: Props) => {
   const [rules, setRules] = useState<DiscountRule[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -148,7 +149,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
       <div className="rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <h3 className="font-bold text-gray-900">Discount rules</h3>
-          <div className="flex items-center gap-2">
+          {canManage ? <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
@@ -169,7 +170,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
             >
               <Plus className="w-4 h-4" /> New rule
             </button>
-          </div>
+          </div> : null}
         </div>
 
         {error && <p className="px-4 py-2 text-sm text-red-600">{error}</p>}
@@ -251,7 +252,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                     )}
                   </td>
                   <td className="px-4 py-2">
-                    <div className="flex items-center gap-2 justify-end">
+                    {canManage ? <div className="flex items-center gap-2 justify-end">
                       <button
                         type="button"
                         onClick={() => {
@@ -286,7 +287,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
                           <Trash2 className="w-4 h-4" />
                         </button>
                       )}
-                    </div>
+                    </div> : null}
                   </td>
                 </tr>
               ))}
@@ -298,7 +299,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
       {showSimulator && <OrderSimulator />}
 
       <PromoCodeEditor
-        open={promoEditorOpen}
+        open={canManage && promoEditorOpen}
         rule={editingRule?.type === 'promo_code' ? editingRule : null}
         onSave={handleSave}
         onClose={() => {
@@ -308,7 +309,7 @@ const AdminDiscountsPanel = ({ showSimulator = false }: Props) => {
       />
 
       <DiscountRuleEditor
-        open={editorOpen}
+        open={canManage && editorOpen}
         rule={editingRule?.type !== 'promo_code' ? editingRule : null}
         onSave={handleSave}
         onClose={() => {

@@ -71,6 +71,7 @@ export type InquiryInterest =
 export type InquiryClassType = (typeof INQUIRY_CLASS_TYPES)[number]
 
 export interface InquiryCamper {
+  gender?: string
   firstName?: string
   lastName?: string
   dateOfBirth?: string | null

@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import { useCallback, useEffect, useState } from 'react'
 import { Archive, Edit2, Loader2, Plus, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
@@ -139,7 +140,7 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
 
   const archiveCoach = async (coach: Coach) => {
     const isActive = coach.account_active === false
-    if (isActive && !confirm(`Archive ${coach.full_name}? They will lose login access.`)) return
+    if (!isActive && !await confirmArchive(coach.full_name, 'This coach account will be archived and will no longer be accessible for use. They will lose login access.')) return
     setSaving(true)
     setError(null)
     try {

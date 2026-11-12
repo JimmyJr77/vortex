@@ -451,7 +451,7 @@ const AdminSchedulingSlots = ({
     setDurationMode(end ? 'session' : 'evergreen')
     setActiveStart(start)
     setActiveEnd(end)
-  }, [formStartDate, formEndDate, offeringStartDate, offeringEndDate, editingSlotGroupId, builderOpen, activeStart])
+  }, [formStartDate, formEndDate, offeringStartDate, offeringEndDate, editingSlotGroupId, builderOpen])
 
   const addWeek = () => {
     if (weeks.length >= WEEK_LETTERS.length) return
@@ -556,10 +556,8 @@ const AdminSchedulingSlots = ({
   }
 
   const activeDatesValidationError = (() => {
-    if (!activeStart) return 'Start date is required for Active dates.'
     if (durationMode === 'session') {
-      if (!activeEnd) return 'End date is required for session Active dates.'
-      if (activeEnd < activeStart) return 'End date must be on or after the start date.'
+      if (activeStart && activeEnd && activeEnd < activeStart) return 'End date must be on or after the start date.'
     }
     return null
   })()
@@ -712,9 +710,9 @@ const AdminSchedulingSlots = ({
   const formatGroupActiveDates = (group: SchedulingSlotGroup) => {
     if (group.datesTbd) return 'Date TBD'
     if (group.activeStart || group.activeEnd) {
-      return `${group.activeStart || '—'} → ${group.activeEnd || '—'}`
+      return `${group.activeStart || '—'} → ${group.activeEnd || 'Ongoing'}`
     }
-    return '—'
+    return 'Ongoing'
   }
 
   const week = weeks[activeWeekIdx]
@@ -751,12 +749,12 @@ const AdminSchedulingSlots = ({
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {durationBtn('session', 'Session', 'Fixed start and end')}
-            {durationBtn('evergreen', 'Evergreen', 'Starts on a date, no end')}
+            {durationBtn('session', 'Session', 'Optional start and end')}
+            {durationBtn('evergreen', 'Evergreen', 'Optional start date, no end')}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-semibold mb-1">Start date</label>
+              <label className="block text-sm font-semibold mb-1">Start date (optional)</label>
               <input
                 type="date"
                 value={activeStart}
@@ -766,7 +764,7 @@ const AdminSchedulingSlots = ({
             </div>
             {durationMode === 'session' && (
               <div>
-                <label className="block text-sm font-semibold mb-1">End date</label>
+                <label className="block text-sm font-semibold mb-1">End date (optional)</label>
                 <input
                   type="date"
                   value={activeEnd}

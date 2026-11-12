@@ -1,9 +1,21 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { buildEnrollmentTrend, loadEnrollmentTrend } from '../enrollmentTrend.js'
-import { summarizeCurrent, summarizeMonths, acquisitionMetrics } from '../enrollmentMetrics.js'
+import { summarizeCurrent, summarizeMonths, summarizeQuarters, acquisitionMetrics } from '../enrollmentMetrics.js'
 import { saveMarketingSpend } from '../marketingSpend.js'
 const live = (id, family, start, extra = {}) => ({id, member_id:id, family_id:family, status:'confirmed', start_date:start, ...extra})
+
+test('dated waitlisting preserves prior enrollment and activation does not count a returning student as new', () => {
+  const events = [{signup_id:1,event_type:'enrollment_status_changed',before_value:{status:'confirmed'},after_value:{status:'waitlisted'},details:{effectiveDate:'2026-09-15',actionId:1}},
+    {signup_id:1,event_type:'enrollment_status_changed',before_value:{status:'waitlisted'},after_value:{status:'confirmed'},details:{effectiveDate:'2026-11-01',actionId:2}}]
+  const data=buildEnrollmentTrend({today:'2026-11-11',live:[live(1,1,'2026-01-01')],events})
+  assert.equal(data.months.find(month=>month.key==='2026-08').openingFamilies,1)
+  assert.equal(data.months.find(month=>month.key==='2026-09').canceledFamilies,1)
+  assert.equal(data.months.find(month=>month.key==='2026-10').openingFamilies,0)
+  assert.equal(data.months.find(month=>month.key==='2026-11').newFamilies,0)
+  const waiting=buildEnrollmentTrend({today:'2026-10-15',live:[live(1,1,'2026-01-01',{status:'waitlisted'})],events:[events[0]]})
+  assert.equal(waiting.months.find(month=>month.key==='2026-09').canceledFamilies,1)
+})
 
 test('rolling 12 completed months crosses years and excludes current-month additions/losses', () => {
   const result = buildEnrollmentTrend({today:'2026-01-15', live:[live(1,1,'2024-12-01',{cancel_date:'2025-12-20',status:'cancelled'}), live(2,2,'2025-02-01'), live(3,3,'2026-01-02')]})
@@ -42,6 +54,11 @@ test('family and student loss summaries use independent cohorts across the previ
     lastMonthLossRate:66.67,threeMonthLossRate:66.67/3,threeMonthRateMonths:3,
     twelveMonthLossRate:66.67/12,twelveMonthRateMonths:12,
   })
+  assert.equal(result.quarters[2].averageLossRate, 50 / 3)
+  assert.equal(result.studentQuarters[2].averageLossRate, 66.67 / 3)
+  assert.equal(result.studentQuarters[3].averageLossRate, 100)
+  assert.equal(result.studentQuarters[3].lossRateMonths, 1)
+  assert.equal(result.studentQuarters[4].averageLossRate, 66.67 / 12)
 })
 test('student summary coverage excludes unresolved students and unknown or zero starting populations independently of families', () => {
   const data = buildEnrollmentTrend({today:'2026-11-10',live:[
@@ -77,6 +94,8 @@ test('current counts deduplicate siblings and class repeats, exclude future/ende
   assert.equal(result.current.students,2)
   assert.equal(result.current.studentsPerFamily,2)
   assert.deepEqual(result.current.classes.map(row=>row.count),[2,1,0])
+  assert.deepEqual(result.current.familyBreakdowns.classes.map(row=>row.count),[1,1,0])
+  assert.deepEqual(result.current.familyBreakdowns.genders.map(row=>row.count),[1,1,0])
   assert.deepEqual(result.current.genders.map(row=>row.count),[1,1,0])
   assert.deepEqual(result.current.teams.map(row=>row.count),[1,1,0])
   assert.deepEqual(result.current.ages,[{label:'Age 8',count:1},{label:'Age 9',count:1}])
@@ -171,4 +190,53 @@ test('family membership sums siblings and classes before averaging households', 
   ])
   assert.equal(current.membership.averageMembershipCents,15000)
   assert.equal(current.membership.averageFamilyMembershipCents,22500)
+})
+
+test('calendar quarter totals cross years and exclude the current quarter from the four-quarter total', () => {
+  const result = buildEnrollmentTrend({ today: '2026-03-10', live: [
+    live(1, 1, '2024-12-01'),
+    live(2, 2, '2025-01-04', { status: 'cancelled', cancel_date: '2025-02-02' }),
+    live(3, 3, '2026-01-02'),
+    live(4, 3, '2026-03-04', { status: 'cancelled', cancel_date: '2026-03-06' }),
+    live(5, 4, '2026-03-11'),
+  ] })
+  assert.deepEqual(result.quarters.map(({start, end}) => [start, end]), [
+    ['2025-04', '2025-06'], ['2025-07', '2025-09'], ['2025-10', '2025-12'],
+    ['2026-01', '2026-03'], ['2025-01', '2025-12'],
+  ])
+  const current = result.quarters[3], full = result.quarters[4]
+  assert.equal(current.newFamilies, 1)
+  assert.equal(current.averageNewFamilies, 1 / 3)
+  assert.equal(current.cancellations, 0)
+  assert.equal(result.studentQuarters[3].newFamilies, 2)
+  assert.equal(result.studentQuarters[3].cancellations, 1)
+  assert.equal(full.newFamilies, 1)
+  assert.equal(full.averageNewFamilies, 1 / 12)
+  assert.equal(full.cancellations, 1)
+  assert.equal(full.averageCancellations, 1 / 12)
+})
+
+test('quarter loss averages share enrollment periods, include month-to-date, and retain zero and missing rate coverage', () => {
+  const months = Array.from({length:12}, (_, index) => ({
+    key:`2025-${String(index + 1).padStart(2, '0')}`, lossRate: index === 9 ? 30 : index === 10 ? null : index === 11 ? 0 : 10,
+  }))
+  const quarters = summarizeQuarters('2026-02-10', [
+    {key:'2024-12',lossRate:100}, ...months,
+    {key:'2026-01',lossRate:40}, {key:'2026-02',lossRate:60,partial:true}, {key:'2026-03',lossRate:100},
+  ])
+  assert.deepEqual(quarters.map(row => [row.start,row.end]), [
+    ['2025-04','2025-06'], ['2025-07','2025-09'], ['2025-10','2025-12'],
+    ['2026-01','2026-02'], ['2025-01','2025-12'],
+  ])
+  assert.equal(quarters[2].averageLossRate, 15)
+  assert.equal(quarters[2].lossRateMonths, 2)
+  assert.equal(quarters[3].averageLossRate, 50)
+  assert.equal(quarters[3].monthCount, 2)
+  assert.equal(quarters[3].lossRateMonths, 2)
+  assert.equal(quarters[4].averageLossRate, 120 / 11)
+  assert.equal(quarters[4].lossRateMonths, 11)
+  for (const row of summarizeQuarters('2026-02-10', [])) {
+    assert.equal(row.averageLossRate, null)
+    assert.equal(row.lossRateMonths, 0)
+  }
 })

@@ -198,7 +198,15 @@ const emptyEnrollment = (): EnrollmentRow => ({
   enrollmentStartDate: '',
 })
 
+export interface LeadRegistrationSetup {
+  inviteId: number; token: string; session: string; username: string
+  guardian: { firstName: string; lastName: string; email: string; phone: string }
+  children: { firstName?: string; lastName?: string; dateOfBirth?: string; gender?: string }[]
+  waivers: PublicWaiverTemplate[]
+}
+
 interface FamilySignupWizardProps {
+  leadRegistration?: LeadRegistrationSetup
   mode?: WizardMode
   editMemberId?: number | null
   returnTo?: string | null
@@ -248,6 +256,7 @@ export default function FamilySignupWizard({
   onComplete,
   onCancel,
   pendingDropInId = null,
+  leadRegistration,
 }: FamilySignupWizardProps) {
   const apiUrl = getApiUrl()
   const isAdmin = mode === 'admin'
@@ -262,8 +271,8 @@ export default function FamilySignupWizard({
   const [familyMode, setFamilyMode] = useState<'new' | 'existing'>('new')
   const [existingFamilyId, setExistingFamilyId] = useState<number | null>(null)
   const [familySearch, setFamilySearch] = useState('')
-  const [primaryAdult, setPrimaryAdult] = useState<SignupMemberForm>(emptyMember)
-  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>([])
+  const [primaryAdult, setPrimaryAdult] = useState<SignupMemberForm>(() => ({...emptyMember(), ...leadRegistration?.guardian, username: leadRegistration?.username || ''}))
+  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children || []).map(child => ({...emptyMember(), ...child, emailSource: 'parent' as const})))
   const [parentEmail, setParentEmail] = useState('')
   const [topPrograms, setTopPrograms] = useState<TopProgramOption[]>([])
   const [classesByProgram, setClassesByProgram] = useState<Record<number, ClassOption[]>>({})
@@ -317,6 +326,7 @@ export default function FamilySignupWizard({
   }, [primaryAdult])
 
   const loadCatalogAndWaivers = useCallback(async () => {
+    if (leadRegistration) { setWaivers(leadRegistration.waivers); return }
     try {
       const [programsRes, waiversRes] = await Promise.all([
         fetch(`${apiUrl}/api/signup/catalog/programs`),
@@ -335,7 +345,7 @@ export default function FamilySignupWizard({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load programs or waivers.')
     }
-  }, [apiUrl])
+  }, [apiUrl, leadRegistration])
 
   useEffect(() => {
     void loadCatalogAndWaivers()
@@ -1227,16 +1237,22 @@ export default function FamilySignupWizard({
       }
 
       const payload = buildPayload()
-      const endpoint = isAdmin ? '/api/admin/signup/family' : '/api/signup/family'
+      const endpoint = leadRegistration ? `/api/signup/lead/${leadRegistration.inviteId}/complete` : isAdmin ? '/api/admin/signup/family' : '/api/signup/family'
       const res = isAdmin
-        ? await adminApiRequest(endpoint, { method: 'POST', body: JSON.stringify(payload) })
+        ? await adminApiRequest(endpoint, { method: 'POST', body: JSON.stringify(leadRegistration ? { ...payload, token: leadRegistration.token, session: leadRegistration.session } : payload) })
         : await fetch(`${apiUrl}${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(leadRegistration ? { ...payload, token: leadRegistration.token, session: leadRegistration.session } : payload),
           })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
+      if (leadRegistration) {
+        const login = await fetch(`${apiUrl}/api/members/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({emailOrUsername:primaryAdult.username,password:primaryAdult.password}) }).then(response=>response.json()).catch(()=>null)
+        onComplete?.({...data.data,token:login?.token,member:login?.member})
+        setSuccessMessage('Account setup completed. Continue with your class registration links.')
+        return
+      }
       if (publicCartSelections.length > 0) clearPublicEnrollmentCart()
       if (isPublicFunnel) {
         trackEvent('sign_up', window.location.pathname, {
@@ -1556,6 +1572,7 @@ export default function FamilySignupWizard({
         </p>
       </div>
 
+      {leadRegistration && step === 1 && <p className="rounded-lg bg-blue-50 p-3 text-sm">Choose a new password to replace the temporary password. You may also change the suggested username.</p>}
       {error && <div className="rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}</div>}
 
       {step === 0 && isAdmin && (
@@ -1643,7 +1660,7 @@ export default function FamilySignupWizard({
             <div key={member.clientId} className="rounded-xl border border-gray-200 p-4 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-800">Family member {index + 1}</span>
-                <button type="button" onClick={() => setAdditionalMembers((prev) => prev.filter((m) => m.clientId !== member.clientId))} className="text-gray-500 hover:text-red-600">
+                <button type="button" disabled={Boolean(leadRegistration && index < leadRegistration.children.length)} aria-label={`Remove family member ${index + 1}`} onClick={() => setAdditionalMembers((prev) => prev.filter((m) => m.clientId !== member.clientId))} className="text-gray-500 hover:text-red-600">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

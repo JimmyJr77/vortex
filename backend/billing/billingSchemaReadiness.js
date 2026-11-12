@@ -37,6 +37,8 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
   '839_recurring_billing_progress.sql',
+  '845_dated_enrollment_actions.sql',
+  '846_lead_registration_invitations.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -97,9 +99,14 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
   '839_recurring_billing_progress.sql',
+  '845_dated_enrollment_actions.sql',
+  '846_lead_registration_invitations.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
+  'enrollment_action',
+  'enrollment_action_one_pending',
+  'enrollment_action_due',
   'billing_recurring_run',
   'billing_recurring_account_progress',
   'idx_billing_recurring_run_started',
@@ -185,6 +192,11 @@ export const REQUIRED_BILLING_RELATIONS = Object.freeze([
 ])
 
 export const DEPLOY_BILLING_COLUMNS = Object.freeze([
+  { tableName: 'scheduling_signup', columnName: 'account_invite_id' },
+  { tableName: 'scheduling_signup', columnName: 'reserved_until' },
+  { tableName: 'account_invite', columnName: 'temporary_password_hash' },
+  { tableName: 'scheduling_signup', columnName: 'waitlisted_at' },
+  { tableName: 'billing_pause_credit', columnName: 'revoked_cents' },
   { tableName: 'billing_monthly_invoice', columnName: 'enrollment_deletion_id' },
   { tableName: 'billing_monthly_invoice_line', columnName: 'deleted_charge_id' },
   { tableName: 'billing_payment_attempt_charge', columnName: 'deleted_charge_id' },

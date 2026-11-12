@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Archive,
@@ -480,8 +481,10 @@ export default function GymnasticsEvaluationPanel() {
     applyFormCards(template.cards, template.id, true)
   }
 
-  const archiveForm = (formId: string) => {
+  const archiveForm = async (formId: string) => {
     if (formId === DEFAULT_FORM_ID) return
+    const template = templates.find((item) => item.id === formId)
+    if (!template || !await confirmArchive(template.name)) return
     const next = templates.map((item) =>
       item.id === formId ? { ...item, archived: true } : item,
     )

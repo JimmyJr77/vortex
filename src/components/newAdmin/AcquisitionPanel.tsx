@@ -61,7 +61,7 @@ export default function AcquisitionPanel({ data, onRefresh }: {data: EnrollmentT
           <p className="mt-1 text-xs text-slate-500">Monthly marketing spend (left axis) and cost per new family (right axis)</p>
           {!acquisition.rows.some(item => item.spendCents != null) ? <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm text-slate-600">Add your monthly marketing spend to calculate acquisition costs.</p> : null}
           <div className="mt-4 h-72" role="img" aria-label="Marketing spending and acquisition cost by month. Exact values follow in the table.">
-            <ResponsiveContainer width="100%" height="100%"><ComposedChart data={chart} margin={{top:10,right:0,left:0,bottom:8}} accessibilityLayer>
+            <ResponsiveContainer width="100%" height={288} minWidth={0}><ComposedChart data={chart} margin={{top:10,right:0,left:0,bottom:8}} accessibilityLayer>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="label" tick={{fontSize:11}} minTickGap={20} />
               <YAxis yAxisId="spend" tickFormatter={value => `$${value}`} width={65} tick={{fontSize:11}} />

@@ -10,13 +10,14 @@ interface RevenueMonth {
   key: string; partial: boolean; receiptsCents: number; refundsCents: number; netCents: number
   breakdowns: Record<Breakdown, Record<string, number>>
 }
+interface RevenueQuarter { start: string; end: string; partial: boolean; netCents: number | null }
 interface AccountBalance {
   accountId: number; familyId: number; familyName: string; balanceCents: number
   overdueCents: number; currentCents: number; futureCents: number; creditCents: number
 }
 interface BillingData {
-  asOf: string; months: RevenueMonth[]; notes: string[]
-  summary: { twelveMonthIncomeCents: number; averageMonthlyIncomeCents: number; threeMonthIncomeCents: number; threeMonthAverageCents: number; lastMonthIncomeCents: number }
+  asOf: string; months: RevenueMonth[]; quarters?: RevenueQuarter[]; notes: string[]
+  summary: { twelveMonthIncomeCents: number; averageMonthlyIncomeCents: number; threeMonthIncomeCents: number; threeMonthAverageCents: number; lastMonthIncomeCents: number; sixMonthAverageCents?: number; nineMonthAverageCents?: number }
   unpaid: AccountBalance[]; credits: AccountBalance[]
 }
 const VIEWS = ['Timeline', 'Bar graph', 'Table'] as const
@@ -39,21 +40,50 @@ export default function BillingDashboard({ revision, onBilling }: { revision: nu
 function BillingContent({ data, onBilling }: { data: BillingData; onBilling: (target: BillingTarget) => void }) {
   const completed = data.months.filter(row => !row.partial), summary = data.summary
   const period = `${monthName(completed[0].key)} – ${monthName(completed.at(-1)!.key)}`
+  const monthOffset = (offset: number) => new Date(Date.UTC(Number(data.asOf.slice(0, 4)), Number(data.asOf.slice(5, 7)) - 1 + offset, 1)).toISOString().slice(0, 7)
+  const quarterOffset = (Number(data.asOf.slice(5, 7)) - 1) % 3
+  // An older API has only 13 months. Never label a truncated oldest quarter as a full total.
+  const quarters = data.quarters ?? Array.from({length:5}, (_, index) => {
+    const offset = -12 - quarterOffset + index * 3
+    const start = monthOffset(offset), end = monthOffset(index === 4 ? 0 : offset + 2)
+    const rows = data.months.filter(row => row.key >= start && row.key <= end)
+    return { start, end, partial: index === 4,
+      netCents: rows.length === (index === 4 ? quarterOffset + 1 : 3) ? rows.reduce((sum, row) => sum + row.netCents, 0) : null }
+  })
+  const average = (count: number) => completed.slice(-count).reduce((sum, row) => sum + row.netCents, 0) / count
   return <>
-    <p className="mt-5 text-sm text-slate-500">Net collected income · Payments minus refunds · Completed months</p>
-    <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-      <MetricCard label="Income last 12 months" value={money(summary.twelveMonthIncomeCents)} detail={period} />
-      <MetricCard label="Avg monthly income last 12 months" value={money(summary.averageMonthlyIncomeCents)} detail="Net income ÷ 12 completed months" />
-      <MetricCard label="Income last 3 months" value={money(summary.threeMonthIncomeCents)} detail={`${monthName(completed.at(-3)!.key)} – ${monthName(completed.at(-1)!.key)}`} />
-      <MetricCard label="Avg monthly income last 3 months" value={money(summary.threeMonthAverageCents)} detail="Net income ÷ 3 completed months" />
-      <MetricCard label="Last month income" value={money(summary.lastMonthIncomeCents)} detail={monthName(completed.at(-1)!.key)} />
-    </div>
+    <p className="mt-5 text-sm text-slate-500">Net collected revenue · Payments minus refunds · Current periods shown to date</p>
+    <RevenueCards title="Quarterly revenue" cards={quarters.map(row => ({
+      label: `CY ${row.start.slice(0, 4)} Q${Math.ceil(Number(row.start.slice(5, 7)) / 3)}${row.partial ? ' to date' : ''}`,
+      value: row.netCents, detail: `${monthName(row.start)} – ${monthName(row.end)}${row.partial ? ` · As of ${data.asOf}` : ''}`,
+    }))} />
+    <RevenueCards title="Monthly revenue" cards={data.months.slice(-5).map(row => ({
+      label: `${monthName(row.key)}${row.partial ? ' to date' : ''}`, value: row.netCents,
+      detail: row.partial ? `Month to date · As of ${data.asOf}` : 'Completed month',
+    }))} />
+    <RevenueCards title="Revenue averages & total" cards={[
+      ...[
+        {count:3,value:summary.threeMonthAverageCents}, {count:6,value:summary.sixMonthAverageCents ?? average(6)},
+        {count:9,value:summary.nineMonthAverageCents ?? average(9)}, {count:12,value:summary.averageMonthlyIncomeCents},
+      ].map(({count, value}) => ({label:`${count}-month average revenue`,value,
+        detail:`${monthName(completed.at(-count)!.key)} – ${monthName(completed.at(-1)!.key)} · Net revenue ÷ ${count} completed months`})),
+      {label:'Total revenue previous 12 months',value:summary.twelveMonthIncomeCents,detail:period},
+    ]} />
     <RevenueTrend months={data.months} />
     <AccountBalances data={data} onBilling={onBilling} />
     <details className="mt-5 text-xs leading-relaxed text-slate-600"><summary className="cursor-pointer font-semibold">Revenue and balance calculation details</summary>
       <ul className="mt-3 list-disc space-y-2 pl-5">{data.notes.map(note => <li key={note}>{note}</li>)}</ul>
     </details>
   </>
+}
+
+function RevenueCards({ title, cards }: {title: string; cards: Array<{label: string; value: number | null; detail: string}>}) {
+  return <section aria-label={title} className="mt-5">
+    <h3 className="mb-2 font-semibold">{title}</h3>
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      {cards.map(card => <MetricCard key={card.label} label={card.label} value={money(card.value)} detail={card.detail} />)}
+    </div>
+  </section>
 }
 
 function RevenueTrend({ months }: { months: RevenueMonth[] }) {
@@ -87,7 +117,7 @@ function RevenueTrend({ months }: { months: RevenueMonth[] }) {
         {group === 'all' ? <><td className="p-3">{money(row.receiptsCents)}</td><td className="p-3">{money(row.refundsCents)}</td></> : null}
         {series.map(label => <td key={label} className="p-3 font-semibold">{money(value(row, label))}</td>)}</tr>)}</tbody>
     </table></div> : <div className="mt-5 h-96" role="img" aria-label={`${view} of monthly revenue ${group === 'all' ? 'for all accounts' : `by ${group}`}. Exact values are available in Table view.`}>
-      <ResponsiveContainer width="100%" height="100%"><ComposedChart data={months} stackOffset="sign" margin={{ top: 12, right: 8, bottom: 8, left: 0 }} accessibilityLayer>
+      <ResponsiveContainer width="100%" height={384} minWidth={0}><ComposedChart data={months} stackOffset="sign" margin={{ top: 12, right: 8, bottom: 8, left: 0 }} accessibilityLayer>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
         <XAxis dataKey="key" tickFormatter={monthName} minTickGap={25} tick={{ fontSize: 11 }} />
         <YAxis tickFormatter={cents => `$${Number(cents) / 100}`} width={80} tick={{ fontSize: 11 }} />

@@ -63,3 +63,12 @@ test('expandCalendarRange includes day occurrences within offering window', () =
   const dates = result.events.map((e) => e.date)
   assert.ok(dates.includes('2026-09-02'), 'First September Wednesday should appear')
 })
+
+
+test('ongoing classes without either date boundary continue past their former end date', () => {
+  const result = expandCalendarRange({
+    startDate: '2027-07-01', endDate: '2027-07-31',
+    rows: [{...baseRow, offering_start_date: null, offering_end_date: null, form_end_date: null}],
+  })
+  assert.ok(result.events.some(event => event.date === '2027-07-07'))
+})

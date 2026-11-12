@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import TextInput from './common/TextInput'
 import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -290,7 +291,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const archiveAdminAccount = async (admin: AdminData) => {
     const isActive = admin.isActive === false
-    if (isActive && !confirm(`Archive ${admin.firstName} ${admin.lastName}?`)) return
+    if (!isActive && !await confirmArchive(`${admin.firstName} ${admin.lastName}`, 'This admin account will be archived and will no longer be accessible for use. They will lose login access.')) return
     try {
       const response = await adminApiRequest(`/api/admin/access/users/${admin.id}/active`, {
         method: 'PATCH',

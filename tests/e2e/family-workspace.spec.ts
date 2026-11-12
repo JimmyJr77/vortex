@@ -17,6 +17,7 @@ const workspace = {
 }
 async function prepare(page: Page, billing = true) {
   const requests: string[] = [], errors: string[] = []
+  const notes = [{ id: 1, subjectType: 'member', subjectId: 11, noteType: 'staff_note', body: 'Shared household correspondence', authorName: 'Coach Taylor', createdAt: '2026-11-09T12:00:00Z' }]
   page.on('pageerror', error => errors.push(error.message))
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
@@ -34,6 +35,12 @@ async function prepare(page: Page, billing = true) {
     if (path === '/api/admin/accounting/lines') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0, timezone: 'America/New_York', summary: { billedCents: 0, paidCents: 0, creditAppliedCents: 0, openCents: 0, creditCents: 0, openCount: 0 } }
     if (path === '/api/admin/new-admin/families') data = { rows: [{ id: 42, name: 'Rivera Family', archived: false, peopleCount: 2 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
     if (path === '/api/admin/new-admin/families/42/workspace') data = { ...workspace, financial: billing ? workspace.financial : null, permissions: { canViewBilling: billing } }
+    if (path === '/api/admin/new-admin/families/42/notes' || path === '/api/admin/new-admin/leads/55/notes') data = notes
+    if (path === '/api/admin/new-admin/leads') data = { rows: [{ id: 55, firstName: 'Alex', lastName: 'Rivera', email: 'alex@example.test', phone: '5550100000', status: 'converted', convertedMemberId: 10, contacted: true, followUp: true, createdAt: '2026-09-20', message: 'Interested in a first class.', inquiry: {} }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    if (path === '/api/admin/notes' && route.request().method() === 'POST') {
+      const note = { ...route.request().postDataJSON(), id: notes.length + 1, authorName: 'Workspace Admin', createdAt: '2026-11-11T12:00:00Z' }
+      notes.push(note); data = note
+    }
     if (path === '/api/admin/new-admin/families/42/history') data = { rows: [{ key: 'jackrabbit:1', date: null, kind: 'enrollment', memberId: 11, title: 'Older imported enrollment', summary: 'Source JR-100', source: 'Jackrabbit', amountCents: null }], nextCursor: null }
     if (path.endsWith('/overview')) data = {
       revision: 'fixture', account: { id: 7, familyId: 42, familyName: 'Rivera Family', payerMemberId: 10, billingEmail: 'alex@example.test', isActive: true, accountStatus: 'active' }, selectedMemberId: null, members: people,
@@ -44,7 +51,7 @@ async function prepare(page: Page, billing = true) {
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) })
   })
   await page.goto('/')
-  await page.getByRole('navigation', { name: 'New Admin sections' }).getByRole('button', { name: 'Members & accounts' }).click()
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Members & accounts' }).click()
   await page.getByRole('button', { name: 'Open family', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Rivera Family', exact: true })).toBeVisible()
   return { requests, errors }
@@ -60,10 +67,10 @@ test('family tabs share one response; history, billing return and mobile navigat
   await expect(region.getByRole('table')).toContainText('Jordan Rivera')
   await region.getByLabel('Show person').selectOption('10')
   await expect(region.getByRole('table')).not.toContainText('Youth Gymnastics')
-  await tabs.getByRole('button', { name: 'Trials', exact: true }).click()
+  await tabs.getByRole('button', { name: 'Trials and drop-ins', exact: true }).click()
   await region.getByLabel('Show person').selectOption('11')
   await expect(region.getByText('attended', { exact: true })).toBeVisible()
-  await tabs.getByRole('button', { name: 'Leads', exact: true }).click()
+  await tabs.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
   await expect(region.getByText('Interested in a first class.')).toBeVisible()
   await expect(region.getByText(/Sep 20, 2026 · Contact match/)).toBeVisible()
   await tabs.getByRole('button', { name: 'History', exact: true }).click()
@@ -96,7 +103,40 @@ test('member-view-only staff can browse family history without billing or edit c
   await expect(region.getByRole('button', { name: 'Billing & payments' })).toHaveCount(0)
   await expect(region.getByRole('button', { name: 'Edit', exact: true })).toHaveCount(0)
   await expect(region.getByRole('button', { name: 'Enroll family member' })).toHaveCount(0)
+  await region.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
+  await expect(region.getByText('Shared household correspondence')).toBeVisible()
+  await expect(region.getByRole('button', { name: 'Add note', exact: true })).toHaveCount(0)
+  await region.getByRole('button', { name: 'Overview', exact: true }).click()
   await region.getByRole('button', { name: 'Load older history' }).click()
   await expect(region.getByText('Older imported enrollment')).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('family Leads & Notes and Leads share correspondence and the top refresh remains the only refresh', async ({ page }) => {
+  const { errors } = await prepare(page)
+  const region = page.getByRole('region', { name: 'Unified family workspace' })
+  await expect(page.getByRole('button', { name: 'Refresh family', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Refresh Admin', exact: true })).toBeVisible()
+  await region.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
+  await expect(region.getByText('Shared household correspondence')).toBeVisible()
+  await region.getByLabel('Note for', { exact: true }).selectOption('11')
+  await region.getByLabel('Add a note', { exact: true }).fill('Added in the family workspace')
+  await region.getByRole('button', { name: 'Add note', exact: true }).click()
+  await expect(region.getByText('Added in the family workspace')).toBeVisible()
+  const navigation = page.getByRole('navigation', { name: 'Admin sections' })
+  await navigation.getByRole('button', { name: 'Leads', exact: true }).click()
+  await page.getByRole('button', { name: 'Notes', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Notes · Alex Rivera' })
+  await expect(dialog.getByText('Added in the family workspace')).toBeVisible()
+  await dialog.getByLabel('Add a note', { exact: true }).fill('Added from the lead')
+  await dialog.getByRole('button', { name: 'Add note', exact: true }).click()
+  await expect(dialog.getByText('Added from the lead')).toBeVisible()
+  await dialog.getByRole('button', { name: 'Close Notes · Alex Rivera', exact: true }).click()
+  await navigation.getByRole('button', { name: 'Members & accounts', exact: true }).click()
+  await page.getByRole('button', { name: 'Open family', exact: true }).click()
+  await region.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
+  await expect(region.getByText('Added from the lead')).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   expect(errors).toEqual([])
 })

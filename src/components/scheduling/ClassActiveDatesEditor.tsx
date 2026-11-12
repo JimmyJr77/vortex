@@ -35,10 +35,8 @@ const ClassActiveDatesEditor = ({
   }, [formId, startDate, endDate])
 
   const validationError = (() => {
-    if (!draftStart) return 'Start date is required.'
     if (durationMode === 'session') {
-      if (!draftEnd) return 'End date is required for session dates.'
-      if (draftEnd < draftStart) return 'End date must be on or after the start date.'
+      if (draftStart && draftEnd && draftEnd < draftStart) return 'End date must be on or after the start date.'
     }
     return null
   })()
@@ -55,7 +53,7 @@ const ClassActiveDatesEditor = ({
       : draftEnd !== (dateInputValue(endDate) || '')) ||
     (durationMode === 'session') !== Boolean(endDate)
 
-  const canSave = Boolean(draftStart) && !validationError && (dirty || !startDate)
+  const canSave = !validationError && dirty
 
   const durationBtn = (mode: DurationMode, label: string, hint: string) => {
     const active = durationMode === mode
@@ -124,15 +122,15 @@ const ClassActiveDatesEditor = ({
       <div>
         <label className="mb-2 block text-xs font-semibold text-gray-700">Offering type</label>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {durationBtn('session', 'Session dates', 'Fixed start and end dates')}
-          {durationBtn('evergreen', 'Evergreen class', 'Start date only — runs ongoing')}
+          {durationBtn('session', 'Session dates', 'Optional start and end dates')}
+          {durationBtn('evergreen', 'Evergreen class', 'Optional start date — ongoing')}
         </div>
       </div>
 
       <div className={`grid gap-3 ${durationMode === 'session' ? 'grid-cols-2' : 'grid-cols-1'}`}>
         <div>
           <label className="mb-1 block text-xs font-semibold text-gray-700">
-            {durationMode === 'evergreen' ? 'Starts on' : 'Start date'}
+            Start date (optional)
           </label>
           <input
             type="date"
@@ -143,7 +141,7 @@ const ClassActiveDatesEditor = ({
         </div>
         {durationMode === 'session' && (
           <div>
-            <label className="mb-1 block text-xs font-semibold text-gray-700">End date</label>
+            <label className="mb-1 block text-xs font-semibold text-gray-700">End date (optional)</label>
             <input
               type="date"
               value={draftEnd}

@@ -5,7 +5,7 @@ import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.
 import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
 import {
   addBillingMonths,
-  adjustmentCoversPeriod,
+  effectiveEnrollmentPriceAdjustments,
   applyEnrollmentPriceAdjustment,
   billingMonthInTimeZone,
   billingDateKey,
@@ -1112,9 +1112,7 @@ export async function buildCustomerBillingOverview(pool, {
         : displayPricingBySignup.get(Number(row.id)) ??
           effectivePricingBySignup.get(Number(row.id))
       const enrollmentPricingMonth = pricingLine?.pricingPeriodKey ?? pricingMonth
-      const activeAdjustments = rowAdjustments.filter(
-        (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, enrollmentPricingMonth),
-      )
+      const activeAdjustments = effectiveEnrollmentPriceAdjustments(rowAdjustments, enrollmentPricingMonth)
       const activeAdjustment = activeAdjustments.find(
         (adjustment) => adjustment.kind === 'fixed_final_price',
       ) ?? activeAdjustments[0] ?? null
@@ -1207,9 +1205,7 @@ export async function buildCustomerBillingOverview(pool, {
     const rowAdjustments = Number.isFinite(signupId) ? adjustmentsBySignup.get(signupId) ?? [] : []
     const pricingLine = displayPricingBySubscription.get(Number(row.id))
     const subscriptionPricingMonth = pricingLine ? displayPricing?.periodKey ?? pricingMonth : pricingMonth
-    const activeAdjustments = rowAdjustments.filter(
-      (adjustment) => adjustment.status === 'active' && adjustmentCoversPeriod(adjustment, subscriptionPricingMonth),
-    )
+    const activeAdjustments = effectiveEnrollmentPriceAdjustments(rowAdjustments, subscriptionPricingMonth)
     const activeAdjustment = activeAdjustments.find(
       (adjustment) => adjustment.kind === 'fixed_final_price',
     ) ?? activeAdjustments[0] ?? null

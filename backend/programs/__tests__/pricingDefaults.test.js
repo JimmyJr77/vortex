@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import {
   loadEffectivePricingForForm,
   resolveFormProgramsId,
+  resolveEffectiveFormPricing,
 } from '../pricingDefaults.js'
 
 function classMasterPool({ classProgramsId = 42, staleFormProgramsId = 7, priceCents = 15000 } = {}) {
@@ -65,4 +66,24 @@ test('forms without a Class Master row retain their direct parent link', async (
   })
 
   assert.equal(programsId, 7)
+})
+
+
+test('carried-over class rates stay fixed while program benefits retain their behavior', () => {
+  const program={pricing_cost_amount_cents:25000,pricing_cost_unit:'per_month',pricing_free_slots_per_user:2}
+  const form={class_program_pricing:{pricing_cost_amount_cents:12000,pricing_cost_unit:'per_month'},pricing_overrides_program:false}
+  const effective=resolveEffectiveFormPricing(program,form)
+  assert.equal(effective.costAmountCents,12000)
+  assert.equal(effective.freeSlotsPerUser,2)
+})
+
+test('an explicit free class never falls back to its old program price', () => {
+  const effective=resolveEffectiveFormPricing({pricing_slot_cost_monthly_cents:15000},{class_monthly_price_cents:0,pricing_overrides_program:true})
+  assert.equal(effective.costAmountCents,0)
+  assert.equal(effective.costUnit,'per_month')
+})
+
+test('new class pricing has no default program price', () => {
+  const effective=resolveEffectiveFormPricing({pricing_slot_cost_monthly_cents:15000},{class_program_pricing:{},pricing_overrides_program:true})
+  assert.equal(effective.costAmountCents,0)
 })

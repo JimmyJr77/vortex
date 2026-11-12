@@ -1,3 +1,4 @@
+import { processDueEnrollmentActions } from './datedEnrollmentActions.js'
 /**
  * Monthly recurring-charge generator (Billing Overhaul Phase 2b).
  *
@@ -192,6 +193,7 @@ export async function processRecurringBillingAccount(db, account, {
   asOfTimestamp,
   clock,
   maxCatchUpPerSub = 12,
+  datedActionProcessor = processDueEnrollmentActions,
   completionProcessor = autoCompleteEndedEnrollments,
   cancellationProcessor = processDueEnrollmentCancellations,
   scheduledPauseProcessor = applyScheduledPauses,
@@ -217,6 +219,7 @@ export async function processRecurringBillingAccount(db, account, {
   const canonicalLedgerOwned = collectionMode === 'canonical_household'
     || collectionMode === 'canonical_household_deferred'
 
+  const datedActionsApplied = await datedActionProcessor(db, { accountId: Number(fresh.id), facilityId: Number(fresh.facility_id) })
   const completedEnrollmentIds = await completionProcessor(db, {
     strict: true,
     accountId: Number(fresh.id),
@@ -237,7 +240,7 @@ export async function processRecurringBillingAccount(db, account, {
     asOfDate: clock.asOfDate,
     asOf: asOfTimestamp,
   })
-  const lifecycleChanges =
+  const lifecycleChanges = Number(datedActionsApplied ?? 0) +
     (completedEnrollmentIds?.length ?? 0) +
     (cancelledEnrollmentIds?.length ?? 0) +
     Number(scheduledPausesApplied ?? 0)

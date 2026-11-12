@@ -17,12 +17,12 @@ export async function loadBillingDashboard(pool, facilityId, now = new Date()) {
         FROM scoped_refunds refund CROSS JOIN clock
         WHERE ${settledRefundPredicate('refund')}
           AND refund.created_at <= $2::timestamptz
-          AND (refund.created_at AT TIME ZONE refund.timezone)::date >= (date_trunc('month',clock.today)-interval '12 months')::date
+          AND (refund.created_at AT TIME ZONE refund.timezone)::date >= (date_trunc('quarter',clock.today)-interval '12 months')::date
       ), report_payments AS (
         SELECT payment.*,(payment.paid_at AT TIME ZONE payment.timezone)::date::text AS occurred_date
         FROM scoped_payments payment CROSS JOIN clock
         WHERE payment.external_status IN ('settled','succeeded') AND payment.paid_at <= $2::timestamptz
-          AND ((payment.paid_at AT TIME ZONE payment.timezone)::date >= (date_trunc('month',clock.today)-interval '12 months')::date
+          AND ((payment.paid_at AT TIME ZONE payment.timezone)::date >= (date_trunc('quarter',clock.today)-interval '12 months')::date
             OR payment.id IN (SELECT payment_id FROM report_refunds))
       ), revenue_allocations AS (
         SELECT a.owner_id,a.billing_payment_id,

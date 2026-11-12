@@ -430,7 +430,12 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   const activeRules = rules
     // Membership-fee promos apply to the additional-fees layer, never tuition lines.
     .filter((r) => r.active !== false && withinWindow(r, now) && !promoTargetsMembershipFee(r))
+    .map((rule) => isMultiClassSystemRule(rule) || isHouseholdSpendVolumeRule(rule)
+      ? { ...rule, calcBase: 'post' } : rule)
     .sort((a, b) => {
+      const householdOrder = Number(isMultiClassSystemRule(a) || isHouseholdSpendVolumeRule(a)) -
+        Number(isMultiClassSystemRule(b) || isHouseholdSpendVolumeRule(b))
+      if (householdOrder) return householdOrder
       if (a.calcBase !== b.calcBase) return a.calcBase === 'pre' ? -1 : 1
       return (a.priority ?? 100) - (b.priority ?? 100)
     })
@@ -522,7 +527,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
   }
 
   function persistedManualSpec(line, rule) {
-    if (line?.shadowOnly !== true) return null
+    if (line?.shadowOnly !== true && !Array.isArray(line?.managedDiscountAssignments)) return null
     const managedAssignment = Array.isArray(line.managedDiscountAssignments)
       ? line.managedDiscountAssignments.find(
           (assignment) => Number(assignment?.manualDiscountRuleId) === Number(rule.id),
@@ -911,7 +916,58 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     })
   }
 
+  let manualDiscountsApplied = false
+  function applyUnlinkedManualDiscounts() {
+    if (manualDiscountsApplied) return
+    manualDiscountsApplied = true
+    for (const ls of lineState) {
+      if (ls.line.shadowOnly !== true) continue
+      if (
+        ls.applied.some(
+          (entry) =>
+            entry.source === 'manual' ||
+            (
+              ls.line.manualDiscountRuleId != null &&
+              Number(entry.ruleId) === Number(ls.line.manualDiscountRuleId)
+            ),
+        )
+      ) continue
+      // Once an enrollment has an effective-dated assignment record, that record is
+      // authoritative. A revoked or expired code must not fall back to stale legacy
+      // scheduling_signup manual_discount_* columns.
+      if (ls.line.managedDiscountAssignment === true) continue
+      let amount = 0
+      if (ls.line.manualDiscountCents != null) {
+        amount = Math.min(ls.runningCents, Math.max(0, Math.round(Number(ls.line.manualDiscountCents))))
+      } else if (ls.line.manualDiscountPct != null) {
+        amount = discountAmountCents(
+          ls.runningCents,
+          'percent',
+          Math.max(0, Number(ls.line.manualDiscountPct)) * 100,
+        )
+      }
+      if (amount <= 0) continue
+      ls.runningCents -= amount
+      ls.applied.push({
+        ruleId: ls.line.manualDiscountRuleId ?? null,
+        name: ls.line.manualDiscountReason || 'Manual enrollment discount',
+        type: 'manual',
+        amountCents: amount,
+        kind: 'discount',
+        source: 'manual',
+        amountType: ls.line.manualDiscountCents != null ? 'fixed' : 'percent',
+        amountValue:
+          ls.line.manualDiscountCents != null
+            ? Number(ls.line.manualDiscountCents)
+            : Number(ls.line.manualDiscountPct) * 100,
+      })
+    }
+
+  }
+
   for (const rule of activeRules) {
+    // Every tuition discount precedes the household discount, regardless of rule priority.
+    if (isMultiClassSystemRule(rule) || isHouseholdSpendVolumeRule(rule)) applyUnlinkedManualDiscounts()
     if (isMultiClassSystemRule(rule)) {
       applyMultiClassSystemDiscount(rule)
       continue
@@ -993,6 +1049,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
         }
         continue
       }
+      if (rule.config?.assignmentOnly) continue
       if (isFreeGrantRule(rule)) {
         const cfg = rule.config || {}
         if (!offeringMatchesRule(rule, ls.line)) continue
@@ -1048,51 +1105,7 @@ export function computeOrderDiscounts({ lines = [], rules = [], promoCodes = [],
     }
   }
 
-  // A free-form admin adjustment has no linked rule/priority. Preserve the
-  // established behavior by applying it after configured rules. This is also
-  // the fallback if a formerly linked rule has since been deactivated/deleted.
-  for (const ls of lineState) {
-    if (ls.line.shadowOnly !== true) continue
-    if (
-      ls.applied.some(
-        (entry) =>
-          entry.source === 'manual' ||
-          (
-            ls.line.manualDiscountRuleId != null &&
-            Number(entry.ruleId) === Number(ls.line.manualDiscountRuleId)
-          ),
-      )
-    ) continue
-    // Once an enrollment has an effective-dated assignment record, that record is
-    // authoritative. A revoked or expired code must not fall back to stale legacy
-    // scheduling_signup manual_discount_* columns.
-    if (ls.line.managedDiscountAssignment === true) continue
-    let amount = 0
-    if (ls.line.manualDiscountCents != null) {
-      amount = Math.min(ls.runningCents, Math.max(0, Math.round(Number(ls.line.manualDiscountCents))))
-    } else if (ls.line.manualDiscountPct != null) {
-      amount = discountAmountCents(
-        ls.runningCents,
-        'percent',
-        Math.max(0, Number(ls.line.manualDiscountPct)) * 100,
-      )
-    }
-    if (amount <= 0) continue
-    ls.runningCents -= amount
-    ls.applied.push({
-      ruleId: ls.line.manualDiscountRuleId ?? null,
-      name: ls.line.manualDiscountReason || 'Manual enrollment discount',
-      type: 'manual',
-      amountCents: amount,
-      kind: 'discount',
-      source: 'manual',
-      amountType: ls.line.manualDiscountCents != null ? 'fixed' : 'percent',
-      amountValue:
-        ls.line.manualDiscountCents != null
-          ? Number(ls.line.manualDiscountCents)
-          : Number(ls.line.manualDiscountPct) * 100,
-    })
-  }
+  applyUnlinkedManualDiscounts()
 
   const lineResults = lineState
     .filter((ls) => ls.includeInSubtotal !== false)

@@ -90,6 +90,7 @@ function recurringAccountFixture({
 
 function safeProcessors(overrides = {}) {
   return {
+    datedActionProcessor: async () => 0,
     collectPayments: true,
     completionProcessor: async () => [],
     cancellationProcessor: async () => [],
@@ -108,7 +109,7 @@ function safeProcessors(overrides = {}) {
 }
 
 test('any strict lifecycle or due-credit failure blocks canonical charges and household invoice', async (t) => {
-  for (const failedStage of ['completionProcessor', 'cancellationProcessor', 'scheduledPauseProcessor', 'pauseCreditProcessor']) {
+  for (const failedStage of ['datedActionProcessor', 'completionProcessor', 'cancellationProcessor', 'scheduledPauseProcessor', 'pauseCreditProcessor']) {
     await t.test(failedStage, async () => {
       const fixture = recurringAccountFixture()
       let reconciles = 0

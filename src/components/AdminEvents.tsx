@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Calendar, MapPin, CheckCircle, Award, Trophy, Search, ChevronUp, ChevronDown, Users, Image as ImageIcon, ChevronLeft, ChevronRight, MessageSquare, Loader2 } from 'lucide-react'
@@ -1077,7 +1078,9 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
   }
 
   const handleArchiveEvent = async (id: string | number, archived: boolean) => {
-    if (!confirm(archived ? 'Are you sure you want to archive this event?' : 'Are you sure you want to unarchive this event?')) return
+    const event = events.find((item) => String(item.id) === String(id))
+    if (archived && !await confirmArchive(event?.eventName || 'This event')) return
+    if (!archived && !confirm('Are you sure you want to unarchive this event?')) return
     
     try {
       const response = await adminApiRequest(`/api/admin/events/${id}/archive`, {

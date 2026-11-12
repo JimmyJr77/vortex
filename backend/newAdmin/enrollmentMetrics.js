@@ -21,16 +21,33 @@ export function summarizeMonths(months) {
   }
 }
 
+export function summarizeQuarters(asOf, months) {
+  const year = Number(asOf.slice(0, 4))
+  const monthIndex = Number(asOf.slice(5, 7)) - 1
+  const quarterStart = monthIndex - monthIndex % 3
+  const key = offset => new Date(Date.UTC(year, quarterStart + offset, 1)).toISOString().slice(0, 7)
+  const summarize = (start, end, monthCount) => {
+    const summary = summarizeMonths(months.filter(month => month.key >= start && month.key <= end))
+    return { start, end, monthCount, ...summary,
+      averageLossRate: summary.twelveMonthLossRate, lossRateMonths: summary.twelveMonthRateMonths }
+  }
+  return [
+    ...[-9, -6, -3, 0].map(offset => summarize(key(offset), key(offset === 0 ? monthIndex % 3 : offset + 2), offset === 0 ? monthIndex % 3 + 1 : 3)),
+    summarize(key(-12), key(-1), 12),
+  ]
+}
+
 export function summarizeCurrent(enrollments, classes, today, subscriptions = null) {
   const students = new Map(), families = new Set(), classCounts = new Map()
-  for (const item of classes) classCounts.set(String(item.id), { id: String(item.id), name: item.name, students: new Set() })
+  for (const item of classes) classCounts.set(String(item.id), { id: String(item.id), name: item.name, students: new Set(), families: new Set() })
   for (const row of enrollments) {
     if (row.member_id == null) continue
     const memberId = String(row.member_id)
     families.add(String(row.family_id))
     const key = String(row.class_id ?? `form-${row.form_id}`)
-    const klass = classCounts.get(key) ?? { id: key, name: row.class_name || 'Unnamed class', students: new Set() }
+    const klass = classCounts.get(key) ?? { id: key, name: row.class_name || 'Unnamed class', students: new Set(), families: new Set() }
     klass.students.add(memberId)
+    klass.families.add(String(row.family_id))
     classCounts.set(key, klass)
     const teamName = [row.class_name, row.program_name].filter(Boolean).join(' ')
     const isTeam = /\bteam\b/i.test(teamName.replace(/\bnon[ -]?team\b/gi, ''))
@@ -42,16 +59,27 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
   const gender = { Boys: 0, Girls: 0, 'Other / unspecified': 0 }
   const ageCounts = new Map()
   const teams = { Team: 0, 'Non-team': 0, Unspecified: 0 }
+  const familyGroups = { genders: new Map(), ages: new Map(), teams: new Map() }
+  function countFamily(groups, label, familyId) {
+    const matches = groups.get(label) ?? new Set()
+    matches.add(String(familyId))
+    groups.set(label, matches)
+  }
   for (const student of students.values()) {
     const value = String(student.gender ?? '').trim().toLowerCase()
-    gender[/^(m|male|boy)$/.test(value) ? 'Boys' : /^(f|female|girl)$/.test(value) ? 'Girls' : 'Other / unspecified']++
+    const genderLabel = /^(m|male|boy)$/.test(value) ? 'Boys' : /^(f|female|girl)$/.test(value) ? 'Girls' : 'Other / unspecified'
+    gender[genderLabel]++
+    countFamily(familyGroups.genders, genderLabel, student.family_id)
     const birth = String(student.date_of_birth ?? '').slice(0, 10)
     const validBirth = /^\d{4}-\d{2}-\d{2}$/.test(birth) && Number.isFinite(Date.parse(`${birth}T12:00:00Z`))
       && new Date(`${birth}T12:00:00Z`).toISOString().slice(0, 10) === birth && birth <= today
     const age = validBirth ? Number(today.slice(0, 4)) - Number(birth.slice(0, 4)) - (today.slice(5) < birth.slice(5) ? 1 : 0) : null
     const label = age == null || age > 120 ? 'Unspecified' : String(age)
     ageCounts.set(label, (ageCounts.get(label) ?? 0) + 1)
-    teams[student.team ? 'Team' : student.classified ? 'Non-team' : 'Unspecified']++
+    const teamLabel = student.team ? 'Team' : student.classified ? 'Non-team' : 'Unspecified'
+    teams[teamLabel]++
+    countFamily(familyGroups.ages, label, student.family_id)
+    countFamily(familyGroups.teams, teamLabel, student.family_id)
   }
   const count = students.size
   let membership = null
@@ -73,10 +101,21 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
       averageFamilyMembershipCents: families.size && priced.length ? monthlyRevenueCents / families.size : null }
   }
   const breakdown = values => Object.entries(values).map(([label, count]) => ({ label, count }))
+  const classBreakdown = population => [...classCounts.values()]
+    .map(row => ({ id: row.id, name: row.name, count: row[population].size }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+  const ageBreakdown = values => [...values]
+    .sort(([a], [b]) => a === 'Unspecified' ? 1 : b === 'Unspecified' ? -1 : Number(a) - Number(b))
+    .map(([label, count]) => ({ label: label === 'Unspecified' ? label : `Age ${label}`, count }))
+  const familyBreakdown = (groups, labels) => labels.map(label => ({ label, count: groups.get(label)?.size ?? 0 }))
   return { families: families.size, students: count, studentsPerFamily: families.size ? count / families.size : null,
-    classes: [...classCounts.values()].map(row => ({ id: row.id, name: row.name, count: row.students.size })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
-    genders: breakdown(gender), teams: breakdown(teams),
-    ages: [...ageCounts].sort(([a], [b]) => a === 'Unspecified' ? 1 : b === 'Unspecified' ? -1 : Number(a) - Number(b)).map(([label, count]) => ({ label: label === 'Unspecified' ? label : `Age ${label}`, count })),
+    classes: classBreakdown('students'), genders: breakdown(gender), teams: breakdown(teams), ages: ageBreakdown(ageCounts),
+    familyBreakdowns: {
+      classes: classBreakdown('families'),
+      genders: familyBreakdown(familyGroups.genders, Object.keys(gender)),
+      ages: ageBreakdown([...familyGroups.ages].map(([label, matches]) => [label, matches.size])),
+      teams: familyBreakdown(familyGroups.teams, Object.keys(teams)),
+    },
     membership }
 }
 

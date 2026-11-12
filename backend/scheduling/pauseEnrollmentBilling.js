@@ -1,3 +1,4 @@
+import { recordBillingActivity } from '../billing/billingActivity.js'
 /**
  * Billing side effects when an enrollment is paused or reactivated.
  *
@@ -24,33 +25,25 @@ import { ensureBillingAccount } from './persistSignupCharges.js'
 import { resolveFamilyEnrollmentPricing } from '../billing/familyEnrollmentPricing.js'
 import { billingMonthKey } from '../billing/customerBillingPricing.js'
 import { setStripeSubscriptionOperationalStatus } from '../billing/stripeSubscriptionSync.js'
+import { guardLegacyRemoteSubscriptionMutation } from '../billing/remoteSubscriptionMutationGuard.js'
 
 export async function ensurePauseCreditTable() {
   // Compatibility hook only. Migration 787 and process readiness own this
   // schema so an enrollment request or recurring worker cannot execute DDL.
 }
 
-async function signupChargedForMonth(pool, signupId, monthStart, monthEnd) {
-  try {
-    const res = await pool.query(
-      `
-      SELECT 1
-      FROM billing_charge
-      WHERE (
-          (source_type = 'scheduling_signup' AND source_id = $1)
-          OR (source_type = 'billing_subscription' AND source_id LIKE $2)
-        )
-        AND charge_type IN ('recurring', 'one_time')
-        AND COALESCE(service_period_start, created_at::date) >= $3::date
-        AND COALESCE(service_period_start, created_at::date) <= $4::date
-      LIMIT 1
-      `,
-      [String(signupId), `%:${monthStart.slice(0, 7)}%`, monthStart, monthEnd],
-    )
-    return res.rows.length > 0
-  } catch {
-    return false
-  }
+async function signupBilledForMonth(pool, signup, monthStart, monthEnd) {
+  const result = await pool.query(
+    `SELECT COALESCE(SUM(amount_cents), 0)::int AS billed_cents
+     FROM billing_charge
+     WHERE family_billing_account_id = $1 AND member_id = $2
+       AND (subscription_id = $3 OR (source_type = 'scheduling_signup' AND source_id = $4)
+         OR (source_type = 'billing_subscription' AND split_part(source_id, ':', 1) = $3::text))
+       AND COALESCE(service_period_start, created_at::date) BETWEEN $5::date AND $6::date
+       AND source_type NOT IN ('pause_credit','pause_credit_reversal')`,
+    [signup.family_billing_account_id, signup.member_id, signup.subscription_id, String(signup.id), monthStart, monthEnd],
+  )
+  return Math.max(0, Number(result.rows[0]?.billed_cents) || 0)
 }
 
 /**
@@ -96,17 +89,17 @@ export async function schedulePauseNextMonth(client, signupId, asOf = new Date()
 }
 
 /** Pause immediately with prorated billing credit. */
-export async function applyImmediatePause(client, signupId) {
+export async function applyImmediatePause(client, signupId, asOfDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())) {
   const { updateSignupLifecycleStatus } = await import('./enrollmentLifecycle.js')
   await updateSignupLifecycleStatus(client, signupId, 'paused')
   const res = await client.query(
     `
     UPDATE scheduling_signup
-    SET pause_mode = 'prorated', pause_effective_date = CURRENT_DATE
+    SET pause_mode = 'prorated', pause_effective_date = $2::date, paused_at = $2::date
     WHERE id = $1
     RETURNING *
     `,
-    [signupId],
+    [signupId, asOfDate],
   )
   return res.rows[0]
 }
@@ -128,9 +121,10 @@ export async function clearScheduledPause(client, signupId) {
 async function loadSignupBillingContext(pool, signupId) {
   const res = await pool.query(
     `
-    SELECT s.id, s.member_id, s.slot_group_id, s.time_slot_id, s.paused_at,
+    SELECT s.id, s.member_id, s.slot_group_id, s.time_slot_id, s.paused_at, s.pause_effective_date, s.enrollment_start_date,
+           GREATEST(s.enrollment_start_date, (SELECT MAX(effective_date) FROM enrollment_action WHERE signup_id=s.id AND requested_status='confirmed' AND status='applied')) AS billing_start_date,
            m.family_id,
-           bs.id AS subscription_id,
+           bs.id AS subscription_id, bs.family_billing_account_id, bs.stripe_subscription_id,
            bs.net_monthly_cents,
            bs.monthly_amount_cents,
            bs.discount_amount_cents,
@@ -142,53 +136,52 @@ async function loadSignupBillingContext(pool, signupId) {
      AND bs.source_id = s.id::text
      AND bs.status <> 'cancelled'
     WHERE s.id = $1
+    ORDER BY bs.id DESC NULLS LAST
+    LIMIT 1
     `,
     [signupId],
   )
   return res.rows[0] ?? null
 }
 
-async function recordPauseCredit(pool, signup) {
+export async function recordPauseCredit(pool, signup) {
   if (!signup?.slot_group_id || !signup.family_id) return null
 
-  const pauseDate = signup.paused_at
+  const pauseDate = signup.pause_effective_date
+    ? (signup.pause_effective_date instanceof Date ? todayDateOnly(signup.pause_effective_date) : String(signup.pause_effective_date).slice(0, 10))
+    : signup.paused_at
     ? todayDateOnly(signup.paused_at instanceof Date ? signup.paused_at : new Date(signup.paused_at))
     : todayDateOnly()
 
   const { monthStart, monthEnd } = monthBounds(pauseDate)
-  const netMonthly =
-    Number(signup.net_monthly_cents) ||
-    Math.max(0, Number(signup.monthly_amount_cents) - Number(signup.discount_amount_cents))
-
-  if (netMonthly <= 0) return null
-
   const rowsByGroup = await loadCalendarRowsForSlotGroups(pool, [Number(signup.slot_group_id)])
   const calendarRows = [...rowsByGroup.values()].flat()
-  const { creditCents, remainingClasses } = pauseCreditForLine(calendarRows, {
+  const { remainingClasses } = pauseCreditForLine(calendarRows, {
     slotGroupId: Number(signup.slot_group_id),
     timeSlotId: signup.time_slot_id != null ? Number(signup.time_slot_id) : null,
     pauseDate,
-    netMonthlyCents: netMonthly,
+    netMonthlyCents: 0,
   })
 
+  // Credit only this enrollment's billed tuition, never another family's charge or an unbilled month.
+  const billedCents = await signupBilledForMonth(pool, signup, monthStart, monthEnd)
+  const start = signup.billing_start_date ?? signup.enrollment_start_date
+  const startDate = start instanceof Date ? todayDateOnly(start) : String(start ?? monthStart).slice(0, 10)
+  const paidClasses = Math.min(CLASSES_PER_MONTH, remainingOccurrencesInMonth(calendarRows, {
+    slotGroupId: Number(signup.slot_group_id), timeSlotId: signup.time_slot_id == null ? null : Number(signup.time_slot_id),
+    fromDate: startDate > monthStart && startDate <= monthEnd ? startDate : monthStart,
+  }))
+  const remainingCreditCents = paidClasses > 0 ? Math.round(billedCents * Math.min(1, remainingClasses / paidClasses)) : 0
+  const priorCredits = await pool.query(
+    `SELECT COALESCE(SUM(credit_cents - revoked_cents), 0)::int AS cents FROM billing_pause_credit
+     WHERE scheduling_signup_id = $1 AND service_month = $2 AND pause_date <> $3::date
+       AND credit_kind IN ('pause', 'prorated_pause')`,
+    [signup.id, pauseDate.slice(0, 7), pauseDate],
+  )
+  const creditCents = Math.min(remainingCreditCents, Math.max(0, billedCents - Number(priorCredits.rows[0]?.cents ?? 0)))
   if (creditCents <= 0) return null
-
-  // At the start of a billing cycle with no charge yet, skip credit (pause blocks the bill).
-  const isMonthStart = pauseDate === monthStart
-  if (isMonthStart) {
-    const charged = await signupChargedForMonth(pool, signup.id, monthStart, monthEnd)
-    if (!charged) return null
-  }
-
-  try {
-    await ensurePauseCreditTable(pool)
-  } catch (err) {
-    console.warn('[pauseBilling] ensurePauseCreditTable:', err?.message ?? err)
-    return null
-  }
-
-  const account = await ensureBillingAccount(pool, Number(signup.family_id))
-  if (!account) return null
+  const account = signup.family_billing_account_id ? { id: signup.family_billing_account_id } : await ensureBillingAccount(pool, Number(signup.family_id))
+  if (!account) throw new Error('A billing account is required to record the pause credit.')
 
   const serviceMonth = pauseDate.slice(0, 7)
   const applyOnMonth = firstOfNextMonth(pauseDate).slice(0, 7)
@@ -203,7 +196,7 @@ async function recordPauseCredit(pool, signup) {
     ON CONFLICT (scheduling_signup_id, pause_date) DO UPDATE
       SET credit_cents = EXCLUDED.credit_cents,
           remaining_classes = EXCLUDED.remaining_classes,
-          apply_on_month = EXCLUDED.apply_on_month
+          apply_on_month = EXCLUDED.apply_on_month, revoked_cents = 0
     WHERE billing_pause_credit.applied_at IS NULL
     RETURNING id, credit_cents
     `,
@@ -375,13 +368,13 @@ export async function applyPendingPauseCredits(pool, {
     await ensurePauseCreditTable(pool)
     pending = await pool.query(
       `
-      SELECT pc.*, sf.title AS form_title
+      SELECT pc.*, (pc.credit_cents - COALESCE((to_jsonb(pc)->>'revoked_cents')::int,0)) AS credit_cents, sf.title AS form_title
       FROM billing_pause_credit pc
       JOIN scheduling_signup s ON s.id = pc.scheduling_signup_id
       JOIN scheduling_form sf ON sf.id = s.form_id
       JOIN family_billing_account account ON account.id = pc.family_billing_account_id
       JOIN family ON family.id = account.family_id
-      WHERE pc.applied_at IS NULL
+      WHERE pc.applied_at IS NULL AND pc.credit_cents > COALESCE((to_jsonb(pc)->>'revoked_cents')::int,0)
         AND pc.apply_on_month <= $1
         AND ($2::bigint IS NULL OR family.facility_id = $2)
         AND ($3::bigint IS NULL OR pc.family_billing_account_id = $3)
@@ -397,7 +390,11 @@ export async function applyPendingPauseCredits(pool, {
 
   let posted = 0
   for (const row of pending.rows) {
-    const sourceId = `pause:${row.scheduling_signup_id}:${row.pause_date}`
+    const pauseDate = row.pause_date instanceof Date ? todayDateOnly(row.pause_date) : String(row.pause_date).slice(0, 10)
+    const sourceId = `pause:${row.scheduling_signup_id}:${pauseDate}`
+    // Earlier releases embedded the driver's Date string in this key. Reuse
+    // either spelling after an interrupted posting instead of issuing a second credit.
+    const compatibleSourceIds = [...new Set([sourceId, `pause:${row.scheduling_signup_id}:${row.pause_date}`])]
     const description =
       row.credit_kind === 'prepaid_first_month'
         ? `First month prepayment credit — ${row.form_title || 'Class'}`
@@ -409,7 +406,8 @@ export async function applyPendingPauseCredits(pool, {
           (family_billing_account_id, member_id, source_type, source_id, description,
            amount_cents, gross_amount_cents, discount_amount_cents,
            charge_type, billing_interval)
-        VALUES ($1, $2, 'pause_credit', $3, $4, $5, $5, 0, 'credit', 'one_time')
+        SELECT $1, $2, 'pause_credit', $3, $4, $5, $5, 0, 'credit', 'one_time'
+        WHERE NOT EXISTS (SELECT 1 FROM billing_charge WHERE source_type='pause_credit' AND source_id=ANY($6::text[]))
         ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL
         DO NOTHING
         RETURNING id
@@ -420,6 +418,7 @@ export async function applyPendingPauseCredits(pool, {
           sourceId,
           description,
           -Math.abs(Number(row.credit_cents)),
+          compatibleSourceIds,
         ],
       )
       let chargeExists = ins.rows.length > 0
@@ -428,9 +427,9 @@ export async function applyPendingPauseCredits(pool, {
           `SELECT id, family_billing_account_id, member_id, amount_cents,
                   charge_type, billing_interval
              FROM billing_charge
-            WHERE source_type = 'pause_credit' AND source_id = $1
+            WHERE source_type = 'pause_credit' AND source_id = ANY($1::text[])
             LIMIT 1`,
-          [sourceId],
+          [compatibleSourceIds],
         )
         const prior = existing.rows[0] ?? null
         chargeExists = Boolean(prior) &&
@@ -462,7 +461,7 @@ export async function applyPendingPauseCredits(pool, {
          FROM billing_pause_credit pc
          JOIN family_billing_account account ON account.id = pc.family_billing_account_id
          JOIN family ON family.id = account.family_id
-        WHERE pc.applied_at IS NULL
+        WHERE pc.applied_at IS NULL AND pc.credit_cents > COALESCE((to_jsonb(pc)->>'revoked_cents')::int,0)
           AND pc.apply_on_month <= $1
           AND ($2::bigint IS NULL OR family.facility_id = $2)
           AND ($3::bigint IS NULL OR pc.family_billing_account_id = $3)
@@ -592,7 +591,7 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
     await ensurePauseCreditTable(pool)
     const credits = await pool.query(
       `
-      SELECT pc.scheduling_signup_id, pc.credit_cents, pc.pause_date, pc.apply_on_month,
+      SELECT pc.scheduling_signup_id, (pc.credit_cents - COALESCE((to_jsonb(pc)->>'revoked_cents')::int,0)) AS credit_cents, pc.pause_date, pc.apply_on_month,
              pc.remaining_classes, pc.credit_kind,
              sf.title AS class_name,
              m.first_name, m.last_name
@@ -600,7 +599,7 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
       JOIN scheduling_signup s ON s.id = pc.scheduling_signup_id
       JOIN scheduling_form sf ON sf.id = s.form_id
       LEFT JOIN member m ON m.id = pc.member_id
-      WHERE pc.applied_at IS NULL
+      WHERE pc.applied_at IS NULL AND pc.credit_cents > COALESCE((to_jsonb(pc)->>'revoked_cents')::int,0)
         AND pc.apply_on_month >= $2
         AND pc.family_billing_account_id IN (
           SELECT id FROM family_billing_account WHERE family_id = $1
@@ -643,15 +642,100 @@ export async function computeCarriedForwardLayer(pool, { memberId, asOfDate = nu
   return { enabled: true, items, ...carriedForwardTotals(items) }
 }
 
+/** Reconcile a resumed student's pending or posted credit without deleting any history. */
+export async function reconcilePauseCreditsOnResume(db, signup, resumeDate) {
+  const credits = (await db.query(`SELECT * FROM billing_pause_credit WHERE scheduling_signup_id=$1
+    AND credit_kind IN ('pause','prorated_pause') AND service_month >= $2 ORDER BY id FOR UPDATE`,
+  [signup.id, resumeDate.slice(0, 7)])).rows
+  const rowsByGroup = await loadCalendarRowsForSlotGroups(db, [Number(signup.slot_group_id)])
+  const calendarRows = [...rowsByGroup.values()].flat()
+  for (const credit of credits) {
+    const remaining = credit.service_month > resumeDate.slice(0, 7) ? Number(credit.remaining_classes) : remainingOccurrencesInMonth(calendarRows, {
+      slotGroupId: Number(signup.slot_group_id), timeSlotId: signup.time_slot_id == null ? null : Number(signup.time_slot_id), fromDate: resumeDate,
+    })
+    const originalClasses = Math.min(CLASSES_PER_MONTH, Number(credit.remaining_classes))
+    const missed = Math.min(originalClasses, Math.max(0, Number(credit.remaining_classes) - remaining))
+    const retainedCents = originalClasses > 0 ? Math.round(Number(credit.credit_cents) * missed / originalClasses) : 0
+    const revokedCents = Math.max(Number(credit.revoked_cents ?? 0), Number(credit.credit_cents) - retainedCents)
+    const difference = revokedCents - Number(credit.revoked_cents ?? 0)
+    if (difference <= 0) continue
+    if (credit.applied_at) await db.query(`INSERT INTO billing_charge
+      (family_billing_account_id,member_id,source_type,source_id,description,amount_cents,gross_amount_cents,discount_amount_cents,charge_type,billing_interval,service_period_start,service_period_end)
+      VALUES($1,$2,'pause_credit_reversal',$3,'Pause credit adjusted after reactivation',$4,$4,0,'adjustment','one_time',$5::date,($5::date+interval '1 month - 1 day')::date)
+      ON CONFLICT (source_type,source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+      [credit.family_billing_account_id,credit.member_id,`${credit.id}:${resumeDate}`,difference,`${credit.apply_on_month}-01`])
+    await db.query('UPDATE billing_pause_credit SET revoked_cents=$2 WHERE id=$1', [credit.id,revokedCents])
+    await recordBillingActivity(db, { eventKey: `pause-credit-resume:${credit.id}:${resumeDate}`, accountId: Number(credit.family_billing_account_id),
+      memberId: Number(signup.member_id), signupId: Number(signup.id), actorType: 'system', eventType: 'pause_credit_adjusted',
+      summary: `Pause credit adjusted for reactivation on ${resumeDate}.`, beforeValue: { creditCents: Number(credit.credit_cents) - Number(credit.revoked_cents ?? 0) },
+      afterValue: { creditCents: Number(credit.credit_cents) - revokedCents }, details: { effectiveDate: resumeDate, pauseCreditId: Number(credit.id) } })
+  }
+}
+
+async function prepareResumeBilling(db, signup, resumeDate) {
+  await reconcilePauseCreditsOnResume(db, signup, resumeDate)
+  const { monthStart,monthEnd } = monthBounds(resumeDate)
+  if (!signup.subscription_id) return
+  const monthAlreadyBilled = await signupBilledForMonth(db,signup,monthStart,monthEnd) > 0
+  // Pausing can void an upcoming bill after its cursor advanced. Rewind to the
+  // resumed period (or its next month when already billed); canonical period
+  // keys reuse existing bills and prevent duplicate collection.
+  await db.query('UPDATE billing_subscription SET next_bill_date=$2::date,updated_at=now() WHERE id=$1',
+    [signup.subscription_id,monthAlreadyBilled ? firstOfNextMonth(resumeDate) : monthStart])
+  if (monthAlreadyBilled) return
+  const pricing = await resolveFamilyEnrollmentPricing(db,{familyId:Number(signup.family_id),periodKey:resumeDate.slice(0,7),strictPricing:true,ensureSchema:false})
+  const line = pricing.lines.find(item => Number(item.signupId) === Number(signup.id))
+  if (!line) throw new Error('Reactivation tuition could not be priced.')
+  const calendars = await loadCalendarRowsForSlotGroups(db,[Number(signup.slot_group_id)])
+  const remaining = pauseCreditForLine([...calendars.values()].flat(),{slotGroupId:Number(signup.slot_group_id),timeSlotId:Number(signup.time_slot_id)||null,pauseDate:resumeDate,netMonthlyCents:line.netCents})
+  const credit = Math.max(0,Number(line.netCents)-remaining.creditCents)
+  if (credit > 0) await db.query(`INSERT INTO billing_charge
+    (family_billing_account_id,member_id,subscription_id,source_type,source_id,description,amount_cents,gross_amount_cents,discount_amount_cents,charge_type,billing_interval,service_period_start,service_period_end)
+    VALUES($1,$2,$3,'enrollment_resume_credit',$4,'Proration for weeks before reactivation',$5,$5,0,'credit','one_time',$6::date,$7::date)
+    ON CONFLICT (source_type,source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+    [signup.family_billing_account_id,signup.member_id,signup.subscription_id,`resume:${signup.id}:${resumeDate}`,-credit,monthStart,monthEnd])
+}
+
+/** Persist subscription state and the promised carry-forward credit in the caller's transaction. */
+export async function persistEnrollmentPauseBilling(db, { signupId, enteringPaused, leavingPaused, effectiveDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()), asOfDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date()), stripeStatusUpdater = setStripeSubscriptionOperationalStatus }) {
+  const signup = await loadSignupBillingContext(db, signupId)
+  if (!signup) throw new Error('Enrollment billing context could not be loaded.')
+  if (enteringPaused) {
+    const today = asOfDate
+    let date = signup.pause_effective_date instanceof Date ? todayDateOnly(signup.pause_effective_date) : String(signup.pause_effective_date ?? effectiveDate).slice(0,10)
+    while (date <= today) {
+      await recordPauseCredit(db, { ...signup, pause_effective_date: date })
+      date = firstOfNextMonth(date)
+    }
+  }
+  if (enteringPaused || leavingPaused) {
+    await setSubscriptionPausedForSource(db, { sourceType: 'scheduling_signup', sourceId: signupId, paused: enteringPaused })
+    if (leavingPaused && signup.subscription_id) await prepareResumeBilling(db, signup, effectiveDate)
+    if (signup.stripe_subscription_id) {
+      const status = enteringPaused ? 'paused' : 'active'
+      const guard = await guardLegacyRemoteSubscriptionMutation(db, {
+        accountId: signup.family_billing_account_id,
+        stripeSubscriptionId: signup.stripe_subscription_id,
+        operation: `enrollment_${status}`,
+      })
+      if (guard.allowed) {
+        const outcome = await stripeStatusUpdater(signup.stripe_subscription_id, status)
+        if (outcome?.status !== status) throw new Error('Enrollment billing could not be synchronized. Please retry the action.')
+      }
+    }
+  }
+  return signup
+}
+
 /**
  * Run after signup status commit when entering or leaving paused.
  * @param {'prorated'|'next_month'} [pauseMode] — prorated pauses now with mid-month credit; next_month skips credit.
  */
-export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPaused, leavingPaused, pauseMode = 'prorated' }) {
+export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPaused, leavingPaused, pauseMode = 'prorated', persisted = false }) {
   const signup = await loadSignupBillingContext(pool, signupId)
   if (!signup) return
 
-  if (enteringPaused) {
+  if (enteringPaused && !persisted) {
     await safeSetSubscriptionPausedForSource(pool, {
       sourceType: 'scheduling_signup',
       sourceId: signupId,
@@ -660,7 +744,7 @@ export async function handleEnrollmentPauseBilling(pool, { signupId, enteringPau
     if (pauseMode === 'prorated') {
       await recordPauseCredit(pool, signup)
     }
-  } else if (leavingPaused) {
+  } else if (leavingPaused && !persisted) {
     await safeSetSubscriptionPausedForSource(pool, {
       sourceType: 'scheduling_signup',
       sourceId: signupId,

@@ -1,6 +1,6 @@
 import { id } from './common.js'
 import { withFamilyRead } from './familyWorkspace.js'
-import { summarizeMonths, summarizeLossRates, summarizeCurrent, acquisitionMetrics } from './enrollmentMetrics.js'
+import { summarizeMonths, summarizeQuarters, summarizeLossRates, summarizeCurrent, acquisitionMetrics } from './enrollmentMetrics.js'
 
 const OPEN_END = '9999-12-31'
 function day(value) {
@@ -39,8 +39,11 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
     intervals.set(key, rows)
   }
   for (const row of live) {
-    if (!['confirmed', 'cancelled', 'completed', 'paused'].includes(row.status)) continue
+    if (!['confirmed', 'cancelled', 'completed', 'paused', 'waitlisted'].includes(row.status)) continue
     const start = day(row.start_date), activity = bySignup.get(String(row.id)) ?? []
+    const transitions = activity.filter(event => event.event_type === 'enrollment_status_changed' && day(event.details?.effectiveDate))
+      .sort((a,b) => day(a.details.effectiveDate).localeCompare(day(b.details.effectiveDate)) || Number(a.details.actionId)-Number(b.details.actionId))
+    if (row.status === 'waitlisted' && !transitions.some(event => ['confirmed','paused'].includes(event.before_value?.status) || event.after_value?.status === 'confirmed')) continue
     if (activity.some(e => e.event_type === 'canceled_enrollment_error_suppressed' || /^(test|erroneous sign[ -]?up)[.!\s]*$/i.test(e.details?.reason?.trim() ?? ''))) {
       excludedRecords++
       continue
@@ -64,8 +67,17 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
     }
     if (row.status === 'completed' && !end) { unresolvedRecords++; uncertainFrom.push(start); continue }
     if (start <= today && (!end || end > start)) {
-      add(entity(row), start, end ?? OPEN_END)
-      if (!end || end > today) activeLive.push(row)
+      let activeStart = transitions[0]?.before_value?.status === 'waitlisted' ? null : start
+      for (const event of transitions) {
+        const effective = day(event.details.effectiveDate)
+        if (effective > today || effective < start) continue
+        if (['waitlisted','cancelled'].includes(event.after_value?.status)) {
+          if (activeStart) add(entity(row),activeStart,earliest([effective,end]) ?? effective)
+          activeStart = null
+        } else if (['confirmed','paused'].includes(event.after_value?.status) && !activeStart) activeStart = effective
+      }
+      if (activeStart) add(entity(row), activeStart, end ?? OPEN_END)
+      if (activeStart && (!end || end > today)) activeLive.push(row)
       const key = String(entity(row))
       liveStarts.set(key, earliest([liveStarts.get(key), start]))
     }
@@ -124,36 +136,48 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
       partial, provisional: uncertainFrom.some(date => date <= cutoff) || Boolean(openHistory && historyThrough && cutoff > historyThrough),
     }
   }
-  const months = Array.from({ length: Number(today.slice(5, 7)) }, (_, index) => makeMonth(`${year}-${String(index + 1).padStart(2, '0')}-01`))
-  const rollingMonths = Array.from({ length: 12 }, (_, index) => makeMonth(new Date(Date.UTC(year, Number(today.slice(5, 7)) - 13 + index, 1)).toISOString().slice(0, 10)))
+  const monthNumber = Number(today.slice(5, 7))
+  const monthsByKey = new Map()
+  const monthAt = index => {
+    const start = new Date(Date.UTC(year, index, 1)).toISOString().slice(0, 10)
+    if (!monthsByKey.has(start)) monthsByKey.set(start, makeMonth(start))
+    return monthsByKey.get(start)
+  }
+  const months = Array.from({ length: monthNumber }, (_, index) => monthAt(index))
+  const rollingMonths = Array.from({ length: 12 }, (_, index) => monthAt(monthNumber - 13 + index))
+  const quarterHistoryLength = 13 + (monthNumber - 1) % 3
+  const quarterMonths = Array.from({ length: quarterHistoryLength }, (_, index) => monthAt(monthNumber - quarterHistoryLength + index))
+  const quarters = summarizeQuarters(today, quarterMonths)
   const summary = summarizeMonths(rollingMonths)
   const current = summarizeCurrent(activeLive, classes, today, subscriptions)
   const acquisition = spending == null ? null : acquisitionMetrics([...rollingMonths, months.at(-1)], spending, current, summary)
+  const periodNote = 'New enrollment, cancellation and loss rate cards use the same calendar quarters. The current quarter includes the current month to date; the previous four full quarters exclude the current quarter. Loss rate cards show the arithmetic average of monthly rates with a known, nonzero starting population. Totals and averages use recorded months only.'
   const notes = [
     'New families are counted once, at their first recorded enrollment start across Jackrabbit and Vortex. Siblings, additional classes, class transfers and returning families are not new families. Trials, inquiries, waitlists and future starts are excluded.',
     'Cancellations count families whose final enrollment ended during the month and who had not returned by month end (or the as-of date). This includes completed programs; paused enrollments remain enrolled. Multiple class cancellations count once per family.',
     'Loss rate = starting families lost ÷ families enrolled at the start of the month × 100. Families that both join and leave in a month appear in cancellations but are outside the starting cohort. Same-month returns are retained. A missing or zero starting population has no loss rate.',
   ]
-  notes.push('Summary cards use the previous 12 completed calendar months. Totals and averages use recorded months only; rate averages are arithmetic means of months with a nonzero known starting population. The current partial month is excluded.')
+  notes.push(periodNote)
   if (openHistory) notes.push(`Jackrabbit enrollment dates extend through ${historyThrough}. Open imported records are bridged to the same family's first Vortex enrollment where available; otherwise they stop at that history cutoff without being counted as cancellations.`)
   if (undatedCancellations) notes.push(`${undatedCancellations} canceled enrollment records have no end date and are excluded from active/loss counts; their first enrollment starts are retained.`)
   if (unresolvedRecords) notes.push(`${unresolvedRecords} records have incomplete dates or unresolved family ownership and are excluded.`)
   if (excludedRecords) notes.push(`${excludedRecords} enrollments explicitly marked as tests or enrollment errors are excluded.`)
-  let studentMonths, studentNotes, studentSummary
+  let studentMonths, studentNotes, studentSummary, studentQuarters
   if (population === 'families') {
     const student = buildEnrollmentTrend({ historical, live, events, today, population: 'students' }, now)
     studentMonths = student.months.map(({ openingFamilies, newFamilies, canceledFamilies, lostFamilies, ...month }) => ({
       ...month, openingStudents: openingFamilies, newStudents: newFamilies, canceledStudents: canceledFamilies, lostStudents: lostFamilies,
     }))
     studentSummary = summarizeLossRates(student.rollingMonths)
+    studentQuarters = student.quarters
     studentNotes = [
+      periodNote,
       'Students are counted once by their shared member ID across Jackrabbit and Vortex. Additional classes, transfers and returning students are not new students. Trials, waitlists and future starts are excluded.',
       'A student cancels when their final enrollment ends and they have not returned by month end. Paused enrollments remain enrolled. Loss rate uses only students enrolled at the start of the month.',
       'Imported records without a resolved student are excluded. Open imported records bridge only to the same student’s first Vortex enrollment; otherwise they stop at the history cutoff without an invented cancellation.',
-      'Family and student loss-rate cards use the same completed calendar months. Each population has its own starting cohort and known-month count; averages exclude the current partial month and months without a known, nonzero starting population.',
     ]
   }
-  return { year, asOf: today, months, studentMonths, studentNotes, studentSummary, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
+  return { year, asOf: today, months, studentMonths, studentNotes, studentSummary, studentQuarters, quarters, rollingMonths, summary, current, acquisition, notes, coverageStart, historyThrough, excludedRecords, undatedCancellations, unresolvedRecords }
 }
 
 // One bulk query over the local unified dataset, in a database-enforced read-only
@@ -177,10 +201,10 @@ export async function loadEnrollmentTrend(pool, facilityId, now = new Date(), { 
         LEFT JOIN programs pr ON pr.id=COALESCE(p.programs_id,sf.programs_id) AND pr.facility_id=$1
         WHERE e.record_facility_id=$1),'[]') AS enrollments,
       COALESCE((SELECT jsonb_agg(jsonb_build_object('signup_id',a.signup_id,'event_type',a.event_type,
-        'after_value',a.after_value,'details',a.details,'occurred_on',(a.occurred_at AT TIME ZONE loc.timezone)::date::text))
+        'before_value',a.before_value,'after_value',a.after_value,'details',a.details,'occurred_on',(a.occurred_at AT TIME ZONE loc.timezone)::date::text))
         FROM billing_account_activity a JOIN family_billing_account b ON b.id=a.family_billing_account_id
         JOIN family f ON f.id=b.family_id AND f.facility_id=$1
-        WHERE a.event_type IN ('enrollment_class_swapped','enrollment_cancelled_immediately','enrollment_cancellation_scheduled','canceled_enrollment_error_suppressed')),'[]') AS events,
+        WHERE a.event_type IN ('enrollment_status_changed','enrollment_class_swapped','enrollment_cancelled_immediately','enrollment_cancellation_scheduled','canceled_enrollment_error_suppressed')),'[]') AS events,
       COALESCE((SELECT jsonb_agg(jsonb_build_object('id',p.id,'name',p.display_name)) FROM program p
         WHERE p.facility_id=$1 AND p.is_active AND NOT COALESCE(p.archived,FALSE)),'[]') AS classes,
       ${canViewFinancial ? `COALESCE((SELECT jsonb_agg(jsonb_build_object('id',s.id,'member_id',s.member_id,'family_id',f.id,

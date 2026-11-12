@@ -400,3 +400,27 @@ test('nextSpendTierHint returns null at the top tier', () => {
   )
   assert.equal(hint, null)
 })
+
+test('free-form discounts reduce the household spend tier before a pre-base high-priority family rule', () => {
+  const lines = attachStats([
+    makeLine({ key: 'a', signupId: 1, shadowOnly: true, includeInSubtotal: false, baseCents: 15000, manualDiscountCents: 5000 }),
+    makeLine({ key: 'b', signupId: 2, shadowOnly: true, includeInSubtotal: false, baseCents: 15000 }),
+  ])
+  const result = computeOrderDiscounts({ lines, rules: [{ ...familySpendRule, calcBase: 'pre', priority: -100 }] })
+  // $300 less $50 manual = $250, then the 10% household tier = $225.
+  assert.equal(result.accountLines.reduce((total, line) => total + line.finalCents, 0), 22500)
+  assert.deepEqual(result.accountLines[0].applied.map(entry => entry.source), ['manual', 'automatic'])
+})
+
+test('dated manual discounts apply only to their assigned student and before the family discount', () => {
+  const rule = { id: -1, type: 'manual', name: 'Scholarship', amountType: 'fixed', amountValue: 5000,
+    applyTo: 'class', calcBase: 'pre', active: true, priority: 9999, stackable: true, config: { assignmentOnly: true } }
+  const lines = attachStats([
+    makeLine({ key: 'a', signupId: 1, shadowOnly: true, includeInSubtotal: false, baseCents: 15000,
+      managedDiscountAssignment: true, managedDiscountAssignments: [{ manualDiscountRuleId: -1, manualDiscountCents: 5000 }] }),
+    makeLine({ key: 'b', signupId: 2, shadowOnly: true, includeInSubtotal: false, baseCents: 15000 }),
+  ])
+  const result = computeOrderDiscounts({ lines, rules: [{ ...familySpendRule, calcBase: 'pre', priority: -100 }, rule] })
+  assert.equal(result.accountLines.reduce((total, line) => total + line.finalCents, 0), 22500)
+  assert.equal(result.accountLines[1].applied.some(entry => entry.ruleId === -1), false)
+})

@@ -924,7 +924,8 @@ export function registerProgramsAdminRoutes(app, pool) {
       await ensurePrimaryDisciplineTagColumn(pool)
       await ensureProgramPricingColumns(pool)
       const schema = await resolveProgramsSchema(pool)
-      const archived = Boolean(req.body.archived)
+      if (typeof req.body.archived !== 'boolean') return res.status(400).json({success:false,message:'archived must be a boolean.'})
+      const archived = req.body.archived
       const result = await pool.query(
         `UPDATE ${schema.programsTable} SET archived = $1, updated_at = CURRENT_TIMESTAMP
          WHERE id = $2 RETURNING id`,
@@ -936,7 +937,7 @@ export function registerProgramsAdminRoutes(app, pool) {
       res.json({ success: true, message: archived ? 'Program archived' : 'Program restored' })
     } catch (err) {
       console.error('[programs] archive top program:', err)
-      res.status(500).json({ success: false, message: 'Failed to archive program' })
+      res.status(err.code === 'P0001' ? 409 : 500).json({ success: false, message: err.code === 'P0001' ? err.message : 'Failed to archive program' })
     }
   })
 

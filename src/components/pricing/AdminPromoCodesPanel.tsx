@@ -41,7 +41,6 @@ const AdminPromoCodesPanel = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
-  const [sourceFilter, setSourceFilter] = useState<'all' | PromoCodeSourceType>('all')
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [sortKey, setSortKey] = useState<SortKey>('code')
   const [sortDir, setSortDir] = useState<SortDir>('asc')
@@ -50,7 +49,7 @@ const AdminPromoCodesPanel = () => {
     setLoading(true)
     setError(null)
     try {
-      setEntries(await adminFetchPromoCodes())
+      setEntries((await adminFetchPromoCodes()).filter(entry => entry.sourceType === 'discount'))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load promo codes')
     } finally {
@@ -83,9 +82,6 @@ const AdminPromoCodesPanel = () => {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     let rows = entries
-    if (sourceFilter !== 'all') {
-      rows = rows.filter((e) => e.sourceType === sourceFilter)
-    }
     if (activeFilter === 'active') rows = rows.filter((e) => e.active)
     if (activeFilter === 'inactive') rows = rows.filter((e) => !e.active)
     if (q) {
@@ -105,7 +101,7 @@ const AdminPromoCodesPanel = () => {
       }
       return compareValues(av, bv, sortDir)
     })
-  }, [entries, query, sourceFilter, activeFilter, sortKey, sortDir])
+  }, [entries, query, activeFilter, sortKey, sortDir])
 
   const sortableHeader = (label: string, column: SortKey) => (
     <button
@@ -124,7 +120,7 @@ const AdminPromoCodesPanel = () => {
         <div className="p-4 border-b border-gray-100">
           <h3 className="font-bold text-gray-900">Promo codes</h3>
           <p className="text-sm text-gray-500 mt-0.5">
-            Every discount and free pass has a promo code for tracking. Codes are auto-generated on
+            Discount promo codes and their usage are shared across admin views. Codes are auto-generated on
             save when left blank, and can be entered manually at checkout or in the editors.
           </p>
         </div>
@@ -139,18 +135,6 @@ const AdminPromoCodesPanel = () => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-          </div>
-          <div>
-            <label className="block text-xs font-semibold mb-1 text-gray-600">Source</label>
-            <select
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value as typeof sourceFilter)}
-            >
-              <option value="all">All</option>
-              <option value="discount">Discounts</option>
-              <option value="free_pass">Free passes</option>
-            </select>
           </div>
           <div>
             <label className="block text-xs font-semibold mb-1 text-gray-600">Status</label>

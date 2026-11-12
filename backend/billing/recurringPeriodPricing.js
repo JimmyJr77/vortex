@@ -1,7 +1,7 @@
 import { computeExistingEnrollmentDiscounts } from '../scheduling/orderPricing.js'
 import {
   addBillingMonths,
-  adjustmentCoversPeriod,
+  effectiveEnrollmentPriceAdjustments,
   applyEnrollmentPriceAdjustment,
   billingMonthInTimeZone,
   billingMonthKey,
@@ -257,18 +257,13 @@ export async function priceRecurringPeriod(pool, {
   }
   const effectiveAdjustmentsBySignup = new Map()
   for (const signupId of eligibleSignupIds) {
-    const proposed = (proposedBySignup.get(signupId) ?? []).filter(
-      (adjustment) => adjustmentCoversPeriod(adjustment, normalizedPeriodKey),
-    )
-    const proposedIds = new Set(proposed.map((adjustment) => Number(adjustment.id)))
-    const persisted = (historyBySignup.get(signupId) ?? []).filter(
-      (adjustment) =>
-        adjustment.status === 'active' &&
-        !excludedIds.has(Number(adjustment.id)) &&
-        !proposedIds.has(Number(adjustment.id)) &&
-        adjustmentCoversPeriod(adjustment, normalizedPeriodKey),
-    )
-    const effective = [...proposed, ...persisted]
+    const proposed = proposedBySignup.get(signupId) ?? []
+    const proposedIds = new Set(proposed.map(adjustment => Number(adjustment.id)))
+    const persisted = (historyBySignup.get(signupId) ?? []).filter(adjustment =>
+      !excludedIds.has(Number(adjustment.id)) && !proposedIds.has(Number(adjustment.id)))
+    const effective = effectiveEnrollmentPriceAdjustments([
+      ...proposed.map(adjustment => ({ ...adjustment, proposed: true })), ...persisted,
+    ], normalizedPeriodKey)
     if (effective.length > 0) effectiveAdjustmentsBySignup.set(signupId, effective)
   }
 
@@ -407,11 +402,12 @@ export async function priceRecurringPeriod(pool, {
       (adjustment) => ['promo_code', 'legacy_discount'].includes(adjustment.kind),
     )
     const appliedPromoAdjustments = promoAdjustments.filter((adjustment) =>
+      Number(runtimeDiscountRuleFromAdjustment(adjustment)?.amountValue) === 0 ||
       line.discountComponents?.some(
         (component) =>
           (
             component.ruleId != null &&
-            Number(component.ruleId) === Number(adjustmentValue(adjustment, 'discount_rule_id', 'discountRuleId'))
+            Number(component.ruleId) === runtimeDiscountRuleFromAdjustment(adjustment)?.id
           ) ||
           (
             component.promoCode &&
@@ -431,7 +427,7 @@ export async function priceRecurringPeriod(pool, {
         priceAdjustments: appliedPromoAdjustments,
       }
     }
-    if (strictPricing && promoAdjustments.length > 0) {
+    if (strictPricing && promoAdjustments.some(adjustment => Number(runtimeDiscountRuleFromAdjustment(adjustment)?.amountValue) !== 0) && line.netCents > 0) {
       const error = new Error(`Pricing engine did not apply enrollment ${line.signupId}'s effective promotion.`)
       error.code = 'recurring_pricing_adjustment_unresolved'
       throw error

@@ -82,18 +82,19 @@ test('waitlist promotion bills each admitted athlete on the same transaction con
   const { promoteFromWaitlist } = await import('../waitlist.js')
   const billed = []
   const db = { async query(sql, params) {
+    if (sql.includes('AS available')) return { rows: [{available:2}] }
     if (sql.includes('SELECT id')) return { rows: [{ id: 19 }, { id: 20 }] }
     return { rows: [{ ...signup, id: params[0], member_id: params[0] + 100 }] }
   } }
-  const promoted = await promoteFromWaitlist(db, 6, 2, { billRegistration: async (connection, row) => {
+  const promoted = await promoteFromWaitlist(db, 6, 2, { prepareActivation: async () => null, billRegistration: async (connection, row) => {
     assert.equal(connection, db); billed.push(row.member_id)
   } })
   assert.deepEqual(billed, [119, 120]); assert.equal(promoted.length, 2)
 })
 test('failed waitlist billing prevents a successful promotion result', async () => {
   const { promoteFromWaitlist } = await import('../waitlist.js')
-  const db = { query: async (sql) => ({ rows: sql.includes('SELECT id') ? [{ id: 19 }] : [signup] }) }
-  await assert.rejects(promoteFromWaitlist(db, 6, 1, { billRegistration: async () => { throw new Error('membership pricing unavailable') } }), /membership pricing unavailable/)
+  const db = { query: async (sql) => ({ rows: sql.includes('AS available') ? [{available:1}] : sql.includes('SELECT id') ? [{ id: 19 }] : [signup] }) }
+  await assert.rejects(promoteFromWaitlist(db, 6, 1, { prepareActivation: async () => null, billRegistration: async () => { throw new Error('membership pricing unavailable') } }), /membership pricing unavailable/)
 })
 
 test('resuming a billed registration preserves its existing price and discounts', async () => {
@@ -101,4 +102,10 @@ test('resuming a billed registration preserves its existing price and discounts'
     previewBuilder() { throw new Error('must not reprice an existing billed registration') },
     persist() { throw new Error('must not bill an existing registration twice') },
   })
+})
+
+test('pending registration holds leave no capacity for waitlist promotion',async()=>{
+  const {promoteFromWaitlist}=await import('../waitlist.js')
+  const db={query:async sql=>{assert.match(sql,/pending_registration_holds/);return {rows:[{available:0}]}}}
+  assert.deepEqual(await promoteFromWaitlist(db,6,2,{billRegistration(){throw Error('Must not bill a waiting athlete')}}),[])
 })

@@ -1782,6 +1782,10 @@ export type AdminEnrollmentStatus =
   | 'active'
 
 export interface AdminEnrollmentRow {
+  waitlist_position?: number | null
+  actions?: Array<{ id: number; status: 'pending' | 'applied' | 'cancelled'; requested_status: string; effective_date: string; requested_at: string; last_error: string | null }>
+
+  discount_assignment?: { fromMonth: string; throughMonth: string | null; name: string; amountType: 'percent' | 'fixed'; amountValue: number; duration: 'once' | 'monthly' | 'months'; durationMonths: number | null } | null
   id: number
   source: 'scheduling' | 'drop_in'
   sport_name: string | null
@@ -1932,11 +1936,14 @@ export async function adminFetchFormSlotEnrollments(
 export async function adminUpdateEnrollmentStatus(
   id: number,
   status: Exclude<AdminEnrollmentStatus, 'active'>,
-  options?: { pauseMode?: 'next_month' | 'prorated'; cancelScheduledPause?: boolean },
+  options?: { pauseMode?: 'next_month' | 'prorated'; cancelScheduledPause?: boolean; effectiveDate?: string; requestKey?: string; cancelScheduledAction?: boolean },
 ): Promise<void> {
   const body: Record<string, unknown> = { status }
   if (options?.pauseMode) body.pauseMode = options.pauseMode
   if (options?.cancelScheduledPause) body.cancelScheduledPause = true
+  if (options?.effectiveDate) body.effectiveDate = options.effectiveDate
+  if (options?.requestKey) body.requestKey = options.requestKey
+  if (options?.cancelScheduledAction) body.cancelScheduledAction = true
   const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(body),
@@ -1944,10 +1951,16 @@ export async function adminUpdateEnrollmentStatus(
   await parseJson(res)
 }
 
-export type SignupDiscountPayload =
+export type SignupDiscountPayload = {
+  duration?: 'once' | 'monthly' | 'months'
+  durationMonths?: number
+  effectiveFromMonth?: string
+  requestKey?: string
+} & (
   | { mode: 'manual'; amountCents?: number; percent?: number; reason?: string }
   | { mode: 'rule'; ruleId: number; reason?: string }
   | { mode: 'clear' }
+)
 
 export async function adminSetSignupDiscount(id: number, payload: SignupDiscountPayload): Promise<void> {
   const res = await adminApiRequest(`/api/admin/scheduling/signups/${id}/discount`, {
@@ -2194,7 +2207,7 @@ export interface FormActiveDatesResult {
 /** Set class Active dates (session / evergreen). Syncs form + selected offering. */
 export async function adminUpdateFormActiveDates(
   formId: number,
-  payload: { startDate: string; endDate?: string | null; evergreen?: boolean },
+  payload: { startDate?: string | null; endDate?: string | null; evergreen?: boolean },
 ): Promise<FormActiveDatesResult> {
   const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/active-dates`, {
     method: 'PUT',
@@ -2214,7 +2227,7 @@ export async function adminEnsureFormActiveDates(
   const existing = await adminFetchOfferings(formId)
   const selected = existing.find((o) => o.isSelected) ?? existing[0]
   if (selected) return selected
-  const startDate = seed?.startDate || new Date().toISOString().slice(0, 10)
+  const startDate = seed?.startDate ?? null
   const endDate = seed?.endDate ?? null
   const result = await adminUpdateFormActiveDates(
     formId,
@@ -2227,7 +2240,7 @@ export async function adminEnsureFormActiveDates(
 
 export async function adminCreateOffering(
   formId: number,
-  payload: { startDate: string; endDate?: string | null; evergreen?: boolean; label?: string | null },
+  payload: { startDate?: string | null; endDate?: string | null; evergreen?: boolean; label?: string | null },
 ): Promise<SchedulingOffering> {
   const res = await adminApiRequest(`/api/admin/scheduling/forms/${formId}/offerings`, {
     method: 'POST',
@@ -2238,7 +2251,7 @@ export async function adminCreateOffering(
 
 export async function adminUpdateOffering(
   id: number,
-  payload: Partial<{ startDate: string; endDate: string | null; evergreen: boolean; label: string | null }>,
+  payload: Partial<{ startDate: string | null; endDate: string | null; evergreen: boolean; label: string | null }>,
 ): Promise<SchedulingOffering> {
   const res = await adminApiRequest(`/api/admin/scheduling/offerings/${id}`, {
     method: 'PUT',
@@ -2315,6 +2328,7 @@ export async function adminFetchSignups(
 }
 
 export async function adminCreateSignup(payload: {
+  reenrollFromSignupId?: number
   formId: number
   slotGroupId: number
   timeSlotId?: number

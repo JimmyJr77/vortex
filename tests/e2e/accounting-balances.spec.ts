@@ -8,7 +8,7 @@ import { registerAccountingRoutes } from '../../backend/billing/accountingRoutes
 
 test('accounting reads current balances, upcoming bills, credits and preserved history through the real API', async ({ page }) => {
   const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL
-  test.skip(!connectionString, 'Requires an isolated local New Admin test database')
+  test.skip(!connectionString, 'Requires an isolated local Admin test database')
   test.setTimeout(60000)
   const url = new URL(connectionString!)
   expect(['localhost', '127.0.0.1', '[::1]']).toContain(url.hostname)
@@ -68,6 +68,8 @@ test('accounting reads current balances, upcoming bills, credits and preserved h
     })
     await page.setViewportSize({ width: 1440, height: 1100 })
     await page.goto('/')
+    await page.getByRole('button', { name: 'Open Accounting', exact: true }).click()
+    await page.getByRole('combobox', { name: 'Date range', exact: true }).selectOption('all')
     const balances = page.getByRole('region', { name: 'Current family account balances' })
     const comparison = page.getByRole('region', { name: 'Matched bill comparison' })
     await expect(balances.getByText('$50.00', { exact: true })).toBeVisible()

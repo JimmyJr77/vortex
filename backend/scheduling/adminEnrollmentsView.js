@@ -353,7 +353,7 @@ export async function buildAdminMemberEnrollments(
         )
       }
       const manualApplied = Math.max(0, Number(line.manualAdjustmentCents) || 0)
-      if (manualApplied > 0) manualAppliedBySignupId.set(signupId, manualApplied)
+      manualAppliedBySignupId.set(signupId, components.filter(entry => entry.source === 'manual').reduce((total, entry) => total + Number(entry.amountCents), manualApplied))
     }
   } catch (err) {
     console.warn('[adminEnrollmentsView] family pricing failed:', err.message)
@@ -422,6 +422,32 @@ export async function buildAdminMemberEnrollments(
     [memberId],
   )
 
+  const discountAssignments = await pool.query(
+    `SELECT DISTINCT ON (signup_id) signup_id, effective_from_month, effective_through_month, discount_rule_snapshot
+     FROM enrollment_price_adjustment
+     WHERE signup_id = ANY($1::bigint[]) AND status = 'active'
+       AND discount_rule_snapshot->>'assignmentSource' = 'enrollment_actions'
+     ORDER BY signup_id, id DESC`,
+    [schedulingResult.rows.map(row => Number(row.id))],
+  )
+  const discountAssignmentBySignup = new Map(discountAssignments.rows.map(row => [Number(row.signup_id), {
+    fromMonth: formatDateOnly(row.effective_from_month)?.slice(0, 7),
+    throughMonth: formatDateOnly(row.effective_through_month)?.slice(0, 7) ?? null,
+    ...row.discount_rule_snapshot,
+  }]))
+
+  const actions = await pool.query(
+    `SELECT action.*, action.effective_date::text AS effective_date
+       FROM enrollment_action action
+      WHERE action.signup_id = ANY($1::bigint[])
+      ORDER BY action.effective_date DESC, action.id DESC`,
+    [schedulingResult.rows.map(row => Number(row.id))],
+  )
+  const positions = await pool.query(`SELECT id,ROW_NUMBER() OVER (PARTITION BY slot_group_id ORDER BY COALESCE(waitlisted_at,created_at),id)::int AS position
+    FROM scheduling_signup WHERE status='waitlisted' AND archived_at IS NULL AND orphaned_at IS NULL AND slot_group_id=ANY($1::bigint[])`,
+    [[...new Set(schedulingResult.rows.map(row => row.slot_group_id).filter(Boolean))]])
+  const waitlistBySignup = new Map(positions.rows.map(row => [Number(row.id), Number(row.position)]))
+
   const groupIds = schedulingResult.rows
     .filter((row) => row.time_slot_id == null && row.slot_group_id != null)
     .map((row) => Number(row.slot_group_id))
@@ -476,6 +502,9 @@ export async function buildAdminMemberEnrollments(
       {
         id: Number(row.id),
         source: 'scheduling',
+        waitlist_position: waitlistBySignup.get(Number(row.id)) ?? null,
+        actions: actions.rows.filter(action => Number(action.signup_id) === Number(row.id)),
+        discount_assignment: discountAssignmentBySignup.get(Number(row.id)) ?? null,
         sport_name: sportName,
         program_name: programName,
         class_name: className,

@@ -3,17 +3,14 @@ import { Loader2 } from 'lucide-react'
 import {
   adminFetchSchedulingForm,
   adminSaveSchedulingForm,
-  resetClassPricing,
 } from '../../utils/schedulingApi'
 import type { AdminProgramPricing, TopProgram } from '../../utils/programsApi'
 import { formatSchedulingCosts } from '../../utils/classSchedulingSummary'
 import PricingCostsFields from './PricingCostsFields'
 import {
   pricingValuesFromClass,
-  pricingValuesFromProgram,
   type PricingCostsValues,
 } from './pricingCosts'
-import ConfirmPricingActionModal from './ConfirmPricingActionModal'
 import PricingBenefitSelectionField from './PricingBenefitSelectionField'
 
 interface Props {
@@ -22,14 +19,12 @@ interface Props {
   onRefresh: () => Promise<void>
 }
 
-const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
+const AdminPricingClassPanel = ({ classRow, onRefresh }: Props) => {
   const [values, setValues] = useState<PricingCostsValues>(() => pricingValuesFromClass(classRow))
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [resetting, setResetting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
-  const [confirmReset, setConfirmReset] = useState(false)
   const [formTitle, setFormTitle] = useState(classRow.displayName)
 
   const inherits = !classRow.pricingOverridesProgram
@@ -49,14 +44,8 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
       .catch(() => setFormTitle(classRow.displayName))
   }, [formId, classRow.displayName])
 
-  const programDefaultsLabel = formatSchedulingCosts({
-    slotCostMonthlyCents: program.pricingSlotCostMonthlyCents,
-    freeSlotsPerUser: program.pricingFreeSlotsPerUser,
-    maxFreeSlotsTotal: program.pricingMaxFreeSlotsTotal,
-  })
-
   const handleCustomize = () => {
-    setValues(pricingValuesFromProgram(program))
+    setValues(pricingValuesFromClass(classRow))
     setEditing(true)
     setSaved(false)
   }
@@ -92,21 +81,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
     }
   }
 
-  const handleReset = async () => {
-    if (!formId) return
-    setResetting(true)
-    setError(null)
-    try {
-      await resetClassPricing(formId)
-      await onRefresh()
-      setConfirmReset(false)
-      setEditing(false)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to reset')
-    } finally {
-      setResetting(false)
-    }
-  }
 
   if (!formId) {
     return (
@@ -118,17 +92,10 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
 
   return (
     <div className="space-y-4 text-sm">
-      <div className="rounded-lg bg-gray-100 border border-gray-200 px-4 py-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
-          Program defaults ({program.displayName})
-        </p>
-        <p className="text-gray-800">{programDefaultsLabel}</p>
-      </div>
-
       {inherits && !editing ? (
         <div className="space-y-3">
           <span className="inline-flex items-center rounded-full bg-green-50 border border-green-200 px-2.5 py-1 text-xs font-medium text-green-800">
-            Using program defaults
+            Carried-over class pricing
           </span>
           <p className="text-gray-700">
             Effective pricing:{' '}
@@ -150,7 +117,7 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
         <div className="space-y-3">
           {!inherits && (
             <span className="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-medium text-amber-900">
-              Custom override
+              Class pricing
             </span>
           )}
           <PricingCostsFields
@@ -167,18 +134,8 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
               className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-60 inline-flex items-center gap-2"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-              Save override
+              Save class pricing
             </button>
-            {!inherits && (
-              <button
-                type="button"
-                onClick={() => setConfirmReset(true)}
-                disabled={resetting}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-60"
-              >
-                Reset to program defaults
-              </button>
-            )}
             {editing && inherits && (
               <button
                 type="button"
@@ -206,15 +163,6 @@ const AdminPricingClassPanel = ({ classRow, program, onRefresh }: Props) => {
         />
       )}
 
-      <ConfirmPricingActionModal
-        open={confirmReset}
-        title="Reset class pricing"
-        message={`Reset pricing for "${classRow.displayName}" to ${program.displayName} program defaults?`}
-        confirmLabel="Reset"
-        loading={resetting}
-        onCancel={() => setConfirmReset(false)}
-        onConfirm={() => void handleReset()}
-      />
     </div>
   )
 }

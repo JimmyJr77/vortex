@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useState } from 'react'
 import { Archive, Ban, Calendar, Check, Mail, MailPlus } from 'lucide-react'
 import {
@@ -216,6 +217,7 @@ const AdminSignupsTable = ({ signups, detail, formId, onRefresh }: Props) => {
                           title="Archive signup"
                           disabled={signupActionId === s.id}
                           onClick={async () => {
+                            if (!await confirmArchive('This signup')) return
                             setSignupActionId(s.id)
                             try {
                               await adminArchiveSignup(s.id, true)

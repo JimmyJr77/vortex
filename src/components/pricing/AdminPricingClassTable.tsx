@@ -52,7 +52,7 @@ const AdminPricingClassTable = ({ program, classes, onRefresh }: Props) => {
                   {classRow.pricingOverridesProgram ? (
                     <span className="text-amber-800">Custom override</span>
                   ) : (
-                    <span className="text-green-700">Using defaults</span>
+                    <span className="text-green-700">Carried-over price</span>
                   )}
                 </td>
                 <td className={`${tdClass} text-center`} onClick={(e) => e.stopPropagation()}>

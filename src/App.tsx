@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import Header from './components/Header'
@@ -32,6 +32,7 @@ const Value = lazyWithRetry(() => import('./components/Value'))
 const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
 const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupFamilyPage'))
+const SignupLeadPage = lazyWithRetry(() => import('./components/signup/SignupLeadPage'))
 const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
@@ -44,6 +45,7 @@ const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsO
 const NewAdmin = lazyWithRetry(() => import('./components/newAdmin/NewAdmin'))
 const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
+const MemberWaiverPrompt = lazyWithRetry(() => import('./components/MemberWaiverPrompt'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
 const Storefront = lazyWithRetry(() => import('./components/store/Storefront'))
 const I9PreparerPortal = lazyWithRetry(() => import('./components/payroll/I9PreparerPortal'))
@@ -64,6 +66,8 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
+  const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
+  const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'))
   const location = useLocation()
@@ -146,6 +150,7 @@ function App() {
   }
 
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
+    setWaiversCheckedToken(null)
     persistMemberSession(token, accountData)
     if (getAvailablePortals(accountData).includes('admin')) {
       persistAdminSessionFromAccount(token, accountData)
@@ -166,6 +171,7 @@ function App() {
 
   const handleLogout = () => {
     clearPortalSession()
+    setWaiversCheckedToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -175,6 +181,7 @@ function App() {
 
   const handleMemberLogout = () => {
     clearPortalSession()
+    setWaiversCheckedToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -228,6 +235,16 @@ function App() {
     return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>
   }
 
+  // Check current required waivers before showing any destination, including
+  // storefront logins and restored member sessions. Staff-only logins skip this.
+  if (memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
+      </Suspense>
+    )
+  }
+
   // If user is admin, show admin panel
   if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
     const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
@@ -277,12 +294,11 @@ function App() {
       <Header 
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
-        member={member}
-        availablePortals={availablePortals}
-        onSwitchPortal={switchPortal}
+        isLoggedIn={Boolean(member) || isAdmin}
         onMemberDashboardClick={() => {
           const portals = getAvailablePortals(member)
-          switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : 'admin')
+          const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
+          switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
       />
       <Suspense fallback={<PageLoader />}>
@@ -344,6 +360,7 @@ function App() {
             path="/contact"
             element={<ContactLocationPage onInquireClick={handleContactClick} />}
           />
+          <Route path="/signup/lead" element={<SignupLeadPage />} />
           <Route
             path="/signup/family"
             element={<SignupFamilyPage />}

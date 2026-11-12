@@ -6,10 +6,6 @@ import {
   type AdminProgramPricing,
   type TopProgram,
 } from '../../utils/programsApi'
-import {
-  formatProgramPricingOptionsSummary,
-  programPricingOptionsFromProgram,
-} from '../../utils/programPricingOptions'
 import AdminPricingProgramPanel from './AdminPricingProgramPanel'
 
 const thClass = 'px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'
@@ -97,9 +93,9 @@ const AdminPricingProgramTable = () => {
         <thead className="bg-gray-50 sticky top-0 z-10">
           <tr>
             <th className={thClass}>Program</th>
-            <th className={thClass}>Default pricing</th>
+            <th className={thClass}>Pricing</th>
             <th className={thClass}>Classes</th>
-            <th className={thClass}>Overrides</th>
+            <th className={thClass}>Customized classes</th>
             <th className={`${thClass} w-12 text-center`}>Details</th>
           </tr>
         </thead>
@@ -117,9 +113,7 @@ const AdminPricingProgramTable = () => {
                 >
                   <td className={`${tdClass} font-medium`}>{program.displayName}</td>
                   <td className={tdClass}>
-                    {formatProgramPricingOptionsSummary(
-                      programPricingOptionsFromProgram(program),
-                    )}
+                    Set per class
                   </td>
                   <td className={tdClass}>{stats.classCount}</td>
                   <td className={tdClass}>{stats.overrideCount}</td>

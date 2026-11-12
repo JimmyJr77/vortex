@@ -804,6 +804,8 @@ export async function buildSignupOrderPreview(
     promoCodes = [],
     memberContext = null,
     expandHouseholdExisting = true,
+    discountAssignmentsBySlotKey = {},
+    ruleSnapshots = [],
     pricingDate = Date.now(),
     ensureSchema = true,
     excludeSignupIds = [],
@@ -1258,6 +1260,8 @@ export async function buildSignupOrderPreview(
     familyScopeValidated: canonicalFamilyValidated,
     memberId,
     newSignupItems: freePasses.adjustedSignupItems,
+    discountAssignmentsBySlotKey,
+    ruleSnapshots,
     formRows,
     scopeMeta,
     existingCount: existing.length,
@@ -1723,6 +1727,7 @@ export async function computeDiscountLayer(
     promoCodes = [],
     memberContext = null,
     previewExistingLines = [],
+    discountAssignmentsBySlotKey = {},
     replaceDbLines = false,
     excludeSignupIds = [],
     pricingDate = Date.now(),
@@ -1807,7 +1812,6 @@ export async function computeDiscountLayer(
     if (existingIndex >= 0) rules[existingIndex] = merged
     else rules.push(merged)
   }
-  if (!rules.length) return empty
 
   const memberCity = memberContext?.city ?? null
   const memberSchool = memberContext?.school ?? null
@@ -1839,6 +1843,7 @@ export async function computeDiscountLayer(
     )
     lines.push({
       key: item.slotKey,
+      ...(discountAssignmentsBySlotKey[item.slotKey] ? { managedDiscountAssignment: true, managedDiscountAssignments: discountAssignmentsBySlotKey[item.slotKey] } : {}),
       formId: item.formId,
       programId: scope?.programsId ?? null,
       sportId: scope?.sportId ?? null,
@@ -1929,6 +1934,32 @@ export async function computeDiscountLayer(
   // own canonical shadow lines, so only use this fallback when it did not.
   if (!previewExistingLinesAttached) {
     for (const line of previewExistingLines ?? []) lines.push({ ...line })
+  }
+
+  // Checkout and class changes must use the same effective-dated assignments as recurring billing.
+  // Recurring pricing already supplies authoritative overrides (including proposed changes).
+  const unmanagedLines = lines.filter(line => line.shadowOnly && line.signupId != null && !line.managedDiscountAssignment)
+  if (unmanagedLines.length) {
+    const { effectiveEnrollmentPriceAdjustments, billingMonthKey } = await import('../billing/customerBillingPricing.js')
+    const { runtimeDiscountRuleFromAdjustment, persistedDiscountFromAdjustment } = await import('../billing/recurringPeriodPricing.js')
+    const history = await pool.query('SELECT * FROM enrollment_price_adjustment WHERE signup_id = ANY($1::bigint[]) ORDER BY id DESC',
+      [[...new Set(unmanagedLines.map(line => Number(line.signupId)))]])
+    for (const line of unmanagedLines) {
+      const assignments = history.rows.filter(row => Number(row.signup_id) === Number(line.signupId))
+      if (!assignments.some(row => ['promo_code', 'legacy_discount'].includes(row.kind))) continue
+      const effective = effectiveEnrollmentPriceAdjustments(assignments, billingMonthKey(new Date(pricingDate)))
+        .filter(row => ['promo_code', 'legacy_discount'].includes(row.kind))
+      line.managedDiscountAssignment = true
+      line.managedDiscountAssignments = effective.map(persistedDiscountFromAdjustment).filter(Boolean)
+      for (const adjustment of effective) {
+        const rule = runtimeDiscountRuleFromAdjustment(adjustment)
+        if (!rule) continue
+        const index = rules.findIndex(existing => Number(existing.id) === rule.id)
+        const normalized = { ...rule, type: rule.type ?? 'manual', calcBase: rule.calcBase ?? 'pre', applyTo: rule.applyTo ?? 'class', scopeLevel: rule.scopeLevel ?? 'global' }
+        if (index >= 0) rules[index] = { ...rules[index], ...normalized }
+        else rules.push(normalized)
+      }
+    }
   }
 
   const { computeOrderDiscounts } = await import('./discountEngine.js')

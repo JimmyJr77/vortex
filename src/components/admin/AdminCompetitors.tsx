@@ -253,7 +253,7 @@ export default function AdminCompetitors() {
             <Target className="h-5 w-5 text-vortex-red" />
           </div>
           <div className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={260} minWidth={0}>
               <BarChart data={competitors} layout="vertical" margin={{ left: 8, right: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eef0f2" />
                 <XAxis type="number" domain={[0, 100]} tickLine={false} axisLine={false} fontSize={11} />

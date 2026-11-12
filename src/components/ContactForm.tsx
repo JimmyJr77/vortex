@@ -39,9 +39,9 @@ interface ContactFormProps {
   embedded?: boolean
 }
 
-type AthleteRow = { dateOfBirth: string }
+type AthleteRow = { dateOfBirth: string; gender: string }
 
-const emptyAthlete = (): AthleteRow => ({ dateOfBirth: '' })
+const emptyAthlete = (): AthleteRow => ({ dateOfBirth: '', gender: '' })
 
 const ContactForm = ({
   isOpen = false,
@@ -158,7 +158,7 @@ const ContactForm = ({
     for (let i = 0; i < athletes.length; i++) {
       const dob = athletes[i].dateOfBirth.trim()
       if (!dob) continue
-      completedAthletes.push({ dateOfBirth: dob })
+      completedAthletes.push({ dateOfBirth: dob, gender: athletes[i].gender || undefined })
     }
 
     let interestsToSubmit = [...selectedInterests]
@@ -328,7 +328,7 @@ const ContactForm = ({
   const addAthlete = () => setAthletes((prev) => [...prev, emptyAthlete()])
 
   const updateAthlete = (index: number, dateOfBirth: string) => {
-    setAthletes((prev) => prev.map((row, i) => (i === index ? { dateOfBirth } : row)))
+    setAthletes((prev) => prev.map((row, i) => (i === index ? { ...row, dateOfBirth } : row)))
   }
 
   const removeAthlete = (index: number) => {
@@ -498,7 +498,7 @@ const ContactForm = ({
                   {athletes.map((athlete, index) => (
                     <li
                       key={index}
-                      className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
+                      className="flex flex-wrap items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
                     >
                       <label className="text-sm text-gray-600 shrink-0">DOB</label>
                       <input
@@ -508,6 +508,7 @@ const ContactForm = ({
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         aria-label={`Athlete ${index + 1} date of birth`}
                       />
+                      <select aria-label={`Athlete ${index + 1} gender`} value={athlete.gender} onChange={event => setAthletes(rows => rows.map((row,i) => i === index ? {...row,gender:event.target.value} : row))} className="min-w-0 rounded-lg border border-gray-300 p-2 text-sm"><option value="">Gender</option><option value="male">Male</option><option value="female">Female</option></select>
                       <button
                         type="button"
                         onClick={() => removeAthlete(index)}

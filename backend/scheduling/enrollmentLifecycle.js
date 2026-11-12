@@ -37,14 +37,14 @@ export async function updateSignupLifecycleStatus(client, signupId, targetStatus
         client.query(
           `
           UPDATE scheduling_signup
-          SET status = $1,
+          SET status = $1::text,
               paused_at = CASE
-                WHEN $1 = 'paused' THEN now()
-                WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                WHEN $1::text = 'paused' THEN now()
+                WHEN $1::text IN ('confirmed', 'waitlisted') THEN NULL
                 ELSE paused_at END,
               completed_at = CASE
-                WHEN $1 = 'completed' THEN now()
-                WHEN $1 IN ('confirmed', 'waitlisted') THEN NULL
+                WHEN $1::text = 'completed' THEN now()
+                WHEN $1::text IN ('confirmed', 'waitlisted') THEN NULL
                 ELSE completed_at END
           WHERE id = $2 RETURNING *
           `,

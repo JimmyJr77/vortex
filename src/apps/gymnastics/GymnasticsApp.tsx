@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import GymnasticsHeader from './GymnasticsHeader'
@@ -63,6 +63,7 @@ const WaiversMembershipsPage = lazyWithRetry(
 )
 const DropInPage = lazyWithRetry(() => import('../../components/DropInPage'))
 const MemberDashboard = lazyWithRetry(() => import('../../components/MemberDashboard'))
+const MemberWaiverPrompt = lazyWithRetry(() => import('../../components/MemberWaiverPrompt'))
 const CoachDashboard = lazyWithRetry(() => import('../../components/CoachDashboard'))
 const NewAdmin = lazyWithRetry(() => import('../../components/newAdmin/NewAdmin'))
 const Admin = lazyWithRetry(() => import('../../components/Admin'))
@@ -88,6 +89,8 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   )
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
+  const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
+  const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const [activePortal, setActivePortal] = useState<PortalId>(() =>
     localStorage.getItem('vortex_admin') === 'true' ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website',
@@ -138,6 +141,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   }
 
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
+    setWaiversCheckedToken(null)
     setSportSiteContext('gymnastics')
     persistMemberSession(token, accountData)
     if (getAvailablePortals(accountData).includes('admin')) {
@@ -152,6 +156,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   const handleAdminLogout = () => {
     clearPortalSession()
+    setWaiversCheckedToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -161,6 +166,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   const handleMemberLogout = () => {
     clearPortalSession()
+    setWaiversCheckedToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -198,6 +204,14 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
     setActivePortal(portal)
     setShowMemberDashboard(true)
+  }
+
+  if (memberToken && getAvailablePortals(member).includes('member') && waiversCheckedToken !== memberToken) {
+    return (
+      <Suspense fallback={<PageLoader />}>
+        <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
+      </Suspense>
+    )
   }
 
   if (isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {

@@ -1,3 +1,7 @@
+import { prepareDatedEnrollmentAction, processDueEnrollmentActions } from './datedEnrollmentActions.js'
+import { recordBillingActivity } from '../billing/billingActivity.js'
+import { createEnrollmentPriceAdjustment } from '../billing/customerBillingAdjustments.js'
+import { requireAdminFacilityScope } from '../billing/adminFacilityScope.js'
 import { billConfirmedRegistration } from './registrationBilling.js'
 import { requireSignupCheckout } from './signupPaymentGate.js'
 import crypto from 'crypto'
@@ -37,12 +41,13 @@ import { getStripeClient } from '../billing/stripeBilling.js'
 import { createEnrollmentStripeSubscriptions, createEnrollmentAnnualMembershipSubscriptions } from '../billing/stripeEnrollmentCheckout.js'
 import {
   safeCancelSubscriptionsForSource,
+  cancelSubscriptionsForSource,
   reactivateSubscriptionForSource,
   setSubscriptionPausedForSource,
 } from './billingSubscriptions.js'
 import { ensureEnrollmentLifecycleColumns, updateSignupLifecycleStatus } from './enrollmentLifecycle.js'
 import { trySavepoint } from './transactionSavepoint.js'
-import { handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts, applyScheduledPauses, schedulePauseNextMonth, applyImmediatePause, clearScheduledPause } from './pauseEnrollmentBilling.js'
+import { persistEnrollmentPauseBilling, handleEnrollmentPauseBilling, syncFamilyEnrollmentDiscounts, applyScheduledPauses, schedulePauseNextMonth, applyImmediatePause, clearScheduledPause } from './pauseEnrollmentBilling.js'
 import { buildAdminMemberEnrollments, autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import {
   buildAdminEnrollmentsByMember,
@@ -106,6 +111,7 @@ import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, b
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 import { normalizeEnrollmentStartDate } from './enrollmentStartDate.js'
+import { billingDateKey } from '../billing/customerBillingPricing.js'
 import {
   authorizeSignupBatchPayer,
   findExplicitlyLinkedSchedulingMember,
@@ -191,7 +197,7 @@ async function orphanSignupsForSlotGroup(db, groupId) {
   }
 }
 
-async function insertSignupForMember(
+export async function insertSignupForMember(
   client,
   {
     formId,
@@ -225,12 +231,12 @@ async function insertSignupForMember(
     `
     SELECT sg.max_participants,
       (SELECT COUNT(*)::int FROM scheduling_signup s
-       WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
+       WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') + pending_registration_holds(sg.id,$3) AS signup_count
     FROM scheduling_slot_group sg
     WHERE sg.id = $1 AND sg.form_id = $2 AND sg.is_active = TRUE
     FOR UPDATE OF sg
     `,
-    [slotGroupId, formId],
+    [slotGroupId, formId, memberId],
   )
 
   if (lock.rows.length === 0) {
@@ -243,8 +249,14 @@ async function insertSignupForMember(
   const signupStatus =
     Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
 
+  const reserved = await client.query(`SELECT id FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
+    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])
+  const reservedId = reserved.rows[0]?.id
   const insert = await client.query(
-    `
+    reservedId ? `UPDATE scheduling_signup SET
+      form_id=$1,time_slot_id=$2,slot_group_id=$3,member_id=$4,first_name=$5,last_name=$6,email=$7,phone=$8,
+      field_responses=$9,responses=$10,status=$11,admin_stub=$12,pricing_option_key=$13,enrollment_start_date=COALESCE($14::date,CURRENT_DATE)
+      WHERE id=$15 RETURNING *` : `
     INSERT INTO scheduling_signup
       (form_id, time_slot_id, slot_group_id, member_id,
        first_name, last_name, email, phone, field_responses, responses, status, admin_stub,
@@ -268,6 +280,7 @@ async function insertSignupForMember(
       adminStub,
       pricingOptionKey || null,
       normalizeEnrollmentStartDate(enrollmentStartDate),
+      ...(reservedId ? [reservedId] : []),
     ],
   )
 
@@ -641,11 +654,11 @@ function mapOfferingRow(row) {
 
 function validateOfferingDateRange(startDate, endDate, evergreen) {
   const start = formatDateOnly(startDate)
-  if (!start) return { ok: false, message: 'Invalid start date' }
+  if (startDate && !start) return { ok: false, message: 'Invalid start date' }
   if (evergreen) return { ok: true, startDate: start, endDate: null }
   const end = formatDateOnly(endDate)
-  if (!end) return { ok: false, message: 'Invalid end date' }
-  if (end < start) {
+  if (endDate && !end) return { ok: false, message: 'Invalid end date' }
+  if (start && end && end < start) {
     return { ok: false, message: 'End date must be on or after the start date.' }
   }
   return { ok: true, startDate: start, endDate: end }
@@ -659,21 +672,22 @@ async function syncFormActiveDatesFromSlotGroups(client, formId) {
   const agg = await client.query(
     `
     SELECT
-      MIN(active_start) AS start_date,
+      COUNT(*) AS group_count,
+      CASE WHEN COUNT(*) FILTER (WHERE active_start IS NULL) > 0 THEN NULL
+        ELSE MIN(active_start) END AS start_date,
       CASE
-        WHEN COUNT(*) FILTER (WHERE active_start IS NOT NULL AND active_end IS NULL AND dates_tbd IS NOT TRUE) > 0
+        WHEN COUNT(*) FILTER (WHERE active_end IS NULL AND dates_tbd IS NOT TRUE) > 0
           THEN NULL
         ELSE MAX(active_end)
       END AS end_date
     FROM scheduling_slot_group
     WHERE form_id = $1
       AND dates_tbd IS NOT TRUE
-      AND active_start IS NOT NULL
     `,
     [formId],
   )
   const startDate = formatDateOnly(agg.rows[0]?.start_date)
-  if (!startDate) return null
+  if (Number(agg.rows[0]?.group_count) === 0) return null
   const endDate = formatDateOnly(agg.rows[0]?.end_date)
 
   const formUpdate = await client.query(
@@ -956,7 +970,7 @@ async function attachPositionsToSignups(db, rows) {
       SELECT id, slot_group_id, status,
         ROW_NUMBER() OVER (
           PARTITION BY slot_group_id, status
-          ORDER BY created_at, id
+          ORDER BY CASE WHEN status='waitlisted' THEN COALESCE(waitlisted_at,created_at) ELSE created_at END, id
         ) AS rn
       FROM scheduling_signup
       WHERE slot_group_id = ANY($1::bigint[])
@@ -1189,14 +1203,14 @@ function sanitizeOfferingBody(body = {}) {
 }
 
 const offeringSchema = Joi.object({
-  startDate: Joi.string().required(),
+  startDate: Joi.string().allow('', null).optional(),
   evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
 })
 
 const offeringUpdateSchema = Joi.object({
-  startDate: Joi.string().optional(),
+  startDate: Joi.string().allow('', null).optional(),
   evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
   label: Joi.string().max(255).allow('', null).optional(),
@@ -1204,7 +1218,7 @@ const offeringUpdateSchema = Joi.object({
 
 /** Class-level Active dates (session / evergreen). Dual-writes form + selected offering. */
 const formActiveDatesSchema = Joi.object({
-  startDate: Joi.string().required(),
+  startDate: Joi.string().allow('', null).optional(),
   evergreen: Joi.boolean().valid(true).optional(),
   endDate: Joi.string().allow('', null).optional(),
 })
@@ -1334,6 +1348,7 @@ const programOptionsQuerySchema = Joi.object({
 })
 
 const adminSignupSchema = Joi.object({
+  reenrollFromSignupId: Joi.number().integer().positive().optional(),
   formId: Joi.number().integer().required(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
@@ -1840,6 +1855,7 @@ export function createSchedulingHandlers(pool) {
         } catch (pauseSweepErr) {
           console.warn('[scheduling] scheduled-pause sweep:', pauseSweepErr.message)
         }
+        await processDueEnrollmentActions(pool, { facilityId: req.canonicalAccess?.facilityId ?? null, memberId })
         const result = await buildAdminMemberEnrollments(pool, memberId)
         if (!result.member) {
           return res.status(404).json({ success: false, message: 'Member not found' })
@@ -1962,125 +1978,21 @@ export function createSchedulingHandlers(pool) {
       if (!Number.isFinite(signupId)) {
         return res.status(400).json({ success: false, message: 'Invalid signup id' })
       }
-      const mode = req.body?.mode // 'manual' | 'rule' | 'clear'
-      const client = await pool.connect()
       try {
-        try {
-          await ensureEnrollmentLifecycleColumns(pool)
-        } catch (schemaErr) {
-          console.warn('[scheduling] discount schema ensure:', schemaErr?.message ?? schemaErr)
-        }
-        await client.query('BEGIN')
-        const existing = await client.query(
-          'SELECT * FROM scheduling_signup WHERE id = $1 FOR UPDATE',
-          [signupId],
-        )
-        if (existing.rows.length === 0) {
-          await client.query('ROLLBACK')
-          return res.status(404).json({ success: false, message: 'Signup not found' })
-        }
-        const discountMemberId = Number(existing.rows[0].member_id)
-
-        let cents = null
-        let pct = null
-        let reason = req.body?.reason != null ? String(req.body.reason).slice(0, 500) : null
-        let ruleId = null
-
-        if (mode === 'clear') {
-          // leave all null
-        } else if (mode === 'rule') {
-          ruleId = req.body?.ruleId != null ? Number(req.body.ruleId) : null
-          if (!Number.isFinite(ruleId)) {
-            await client.query('ROLLBACK')
-            return res.status(400).json({ success: false, message: 'ruleId is required for rule mode' })
-          }
-          const ruleRes = await client.query(
-            `SELECT id, name, amount_type, amount_value FROM discount_rule WHERE id = $1`,
-            [ruleId],
-          )
-          if (ruleRes.rows.length === 0) {
-            await client.query('ROLLBACK')
-            return res.status(404).json({ success: false, message: 'Discount rule not found' })
-          }
-          const rule = ruleRes.rows[0]
-          // percent rules store amount_value in basis points (5000 = 50%); fixed in cents.
-          if (String(rule.amount_type) === 'percent') {
-            pct = Number(rule.amount_value) / 100
-          } else {
-            cents = Math.max(0, Math.round(Number(rule.amount_value)))
-          }
-          if (!reason) reason = rule.name
-        } else if (mode === 'manual') {
-          if (req.body?.amountCents != null) {
-            cents = Math.max(0, Math.round(Number(req.body.amountCents)))
-          } else if (req.body?.percent != null) {
-            pct = Math.max(0, Math.min(100, Number(req.body.percent)))
-          } else {
-            await client.query('ROLLBACK')
-            return res.status(400).json({ success: false, message: 'amountCents or percent is required' })
-          }
-        } else {
-          await client.query('ROLLBACK')
-          return res.status(400).json({ success: false, message: 'Invalid discount mode' })
-        }
-
-        await client.query(
-          `UPDATE scheduling_signup
-           SET manual_discount_cents = $2, manual_discount_pct = $3,
-               manual_discount_reason = $4, manual_discount_rule_id = $5
-           WHERE id = $1`,
-          [signupId, cents, pct, reason, ruleId],
-        )
-
-        // Reflect the discount on the recurring subscription so monthly totals + the ledger update.
-        await trySavepoint(
-          client,
-          async () => {
-            const subRes = await client.query(
-              `SELECT id, monthly_amount_cents FROM billing_subscription
-               WHERE source_type = 'scheduling_signup' AND source_id = $1 AND status <> 'cancelled'
-               ORDER BY id DESC LIMIT 1`,
-              [String(signupId)],
-            )
-            if (subRes.rows.length > 0) {
-              const sub = subRes.rows[0]
-              const gross = Number(sub.monthly_amount_cents) || 0
-              const discountCents =
-                cents != null ? cents : pct != null ? Math.round((gross * pct) / 100) : 0
-              const net = Math.max(0, gross - discountCents)
-              await client.query(
-                `UPDATE billing_subscription
-                 SET discount_amount_cents = $2, net_monthly_cents = $3, updated_at = now()
-                 WHERE id = $1`,
-                [sub.id, discountCents, net],
-              )
-            }
-          },
-          { logPrefix: '[scheduling] discount subscription sync' },
-        )
-
-        await client.query('COMMIT')
-        try {
-          const familyRes = await pool.query('SELECT family_id FROM member WHERE id = $1', [
-            discountMemberId,
-          ])
-          const discountFamilyId = familyRes.rows[0]?.family_id
-          if (discountFamilyId != null) {
-            await syncFamilyEnrollmentDiscounts(pool, Number(discountFamilyId))
-          }
-        } catch (syncErr) {
-          console.warn('[scheduling] discount family billing sync:', syncErr.message)
-        }
-        res.json({ success: true })
-      } catch (err) {
-        await client.query('ROLLBACK').catch(() => {})
-        console.error('[scheduling] adminSetSignupDiscount:', err)
-        res.status(500).json({
-          success: false,
-          message: err?.message || 'Failed to apply discount',
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId ?? req.platformAuth?.user?.facility_id ?? null })
+        const result = await createEnrollmentPriceAdjustment(pool, {
+          signupId, facilityId, actorUserId: req.platformAuth?.user?.id ?? req.adminId ?? null,
+          input: { ...req.body, kind: 'enrollment_discount' },
         })
-      } finally {
-        client.release()
+        if (result.adjustment.status === 'sync_failed') {
+          return res.status(409).json({ success: false, message: 'The discount was saved but billing synchronization needs a retry from the account pricing history.', data: result })
+        }
+        const family = await pool.query('SELECT family_id FROM family_billing_account WHERE id = (SELECT family_billing_account_id FROM enrollment_price_adjustment WHERE id = $1)', [result.adjustment.id])
+        if (family.rows[0]?.family_id) await syncFamilyEnrollmentDiscounts(pool, Number(family.rows[0].family_id), { strict: true })
+        res.json({ success: true, data: result })
+      } catch (err) {
+        console.error('[scheduling] adminSetSignupDiscount:', err)
+        res.status(err.statusCode ?? 400).json({ success: false, message: err?.message || 'Failed to apply discount' })
       }
     },
 
@@ -4233,6 +4145,22 @@ export function createSchedulingHandlers(pool) {
         const client = await pool.connect()
         try {
           await client.query('BEGIN')
+          let reenrollSource = null
+          if (value.reenrollFromSignupId != null) {
+            const source = await client.query('SELECT * FROM scheduling_signup WHERE id = $1 FOR UPDATE', [value.reenrollFromSignupId])
+            reenrollSource = source.rows[0]
+            if (!reenrollSource || Number(reenrollSource.member_id) !== Number(value.memberId)) throw new Error('The previous enrollment does not belong to this student.')
+            if (!['cancelled', 'completed'].includes(reenrollSource.status)) throw new Error('Only a disenrolled or completed enrollment can be reenrolled. Reactivate a paused enrollment instead.')
+            const previousEnd = billingDateKey(reenrollSource.cancel_effective_date ?? reenrollSource.completed_at)
+            if (previousEnd && value.enrollmentStartDate < previousEnd) throw new Error('Reenrollment cannot begin before the previous enrollment ended.')
+            if (reenrollSource.re_enrolled_signup_id != null) {
+              const previous = await client.query('SELECT * FROM scheduling_signup WHERE id = $1', [reenrollSource.re_enrolled_signup_id])
+              if (!previous.rows[0]) throw new Error('The linked reenrollment is unavailable.')
+              const positions = await computeSignupPositions(client, previous.rows[0].slot_group_id, previous.rows[0].id)
+              await client.query('COMMIT')
+              return res.json({ success: true, message: 'Already reenrolled. Open the latest enrollment to manage it.', data: mapSignupRow(previous.rows[0], positions) })
+            }
+          }
 
           let memberId = value.memberId != null ? Number(value.memberId) : null
           let member = null
@@ -4272,10 +4200,13 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
+          const billingContact = member.email ? null : (await client.query(`SELECT COALESCE(NULLIF(a.billing_email,''),payer.email) AS email
+            FROM family_billing_account a LEFT JOIN member payer ON payer.id=a.payer_member_id
+            WHERE a.family_id=$1 AND a.is_active=TRUE ORDER BY a.id LIMIT 1`,[member.family_id])).rows[0]
           const responses = {
             first_name: member.first_name,
             last_name: member.last_name,
-            email: member.email,
+            email: member.email || reenrollSource?.email || value.email || billingContact?.email || '',
             phone: member.phone || value.phone || value.responses?.phone || null,
             ...value.responses,
           }
@@ -4358,6 +4289,14 @@ export function createSchedulingHandlers(pool) {
             })
           }
 
+          await client.query(`INSERT INTO enrollment_action(signup_id,facility_id,requested_status,previous_status,effective_date,requested_by_user_id,request_key,status,applied_at)
+            SELECT $1,m.facility_id,$2,$3,$4::date,$5,$6,'applied',now() FROM member m WHERE m.id=$7`,
+          [signupResult.signupId,signupResult.signupStatus,reenrollSource?.status ?? 'new',value.enrollmentStartDate,
+            req.canonicalAccess?.userId ?? req.platformAuth?.user?.id ?? req.adminId ?? null,`enroll:${signupResult.signupId}`,memberId])
+          if (signupResult.signupStatus === 'waitlisted') await client.query('UPDATE scheduling_signup SET waitlisted_at=$2::date WHERE id=$1',[signupResult.signupId,value.enrollmentStartDate])
+          if (reenrollSource) {
+            await client.query('UPDATE scheduling_signup SET re_enrolled_at = now(), re_enrolled_signup_id = $2 WHERE id = $1', [reenrollSource.id, signupResult.signupId])
+          }
           await client.query('COMMIT')
 
           if (createdNewStubMemberId) {
@@ -4632,7 +4571,7 @@ export function createSchedulingHandlers(pool) {
         }
 
         const cancelScheduledPause = Boolean(req.body.cancelScheduledPause)
-        const pauseModeRequest = req.body.pauseMode === 'prorated' ? 'prorated' : 'next_month'
+        const pauseModeRequest = req.body.effectiveDate || req.body.pauseMode === 'prorated' ? 'prorated' : 'next_month'
 
         const client = await pool.connect()
         let updatedRow = null
@@ -4641,9 +4580,16 @@ export function createSchedulingHandlers(pool) {
         let targetStatus = status
         let scheduledPauseOnly = false
         let pauseBillingMode = null
+        let datedAction = null
+        let effectiveDate = req.body.effectiveDate ?? null
 
         try {
           await client.query('BEGIN')
+          if (effectiveDate || req.body.cancelScheduledAction) {
+            const account = (await client.query(`SELECT a.id FROM scheduling_signup s JOIN member m ON m.id=s.member_id
+              JOIN family_billing_account a ON a.family_id=m.family_id AND a.is_active=TRUE WHERE s.id=$1`, [req.params.id])).rows[0]
+            if (account) await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [`household-monthly-invoice:${account.id}`])
+          }
 
           const existing = await client.query(
             'SELECT * FROM scheduling_signup WHERE id = $1 FOR UPDATE',
@@ -4655,8 +4601,26 @@ export function createSchedulingHandlers(pool) {
           }
 
           const signup = existing.rows[0]
+          if (signup.status === 'pending_setup') throw Object.assign(new Error('This reservation is pending account setup and payment. Complete the registration invitation first.'), {statusCode:409})
           previousStatus = signup.status
           targetStatus = status
+          if (req.body.cancelScheduledAction) {
+            await client.query("UPDATE enrollment_action SET status='cancelled',cancelled_at=now() WHERE signup_id=$1 AND status='pending'", [signup.id])
+            await client.query('COMMIT')
+            return res.json({ success: true })
+          }
+          if (effectiveDate) {
+            const prepared = await prepareDatedEnrollmentAction(client, { signup, targetStatus: status, effectiveDate,
+              requestKey: req.body.requestKey, actorUserId: req.canonicalAccess?.userId ?? req.platformAuth?.user?.id ?? null,
+              scheduledActionId: req.scheduledEnrollmentActionId ?? null })
+            datedAction = prepared.action
+            if (prepared.scheduled || prepared.replayed) {
+              await client.query('COMMIT')
+              return res.json({ success: true, data: { scheduled: prepared.scheduled || datedAction?.status === 'pending', effectiveDate, actionId: datedAction?.id } })
+            }
+            effectiveDate = datedAction.effective_date
+          }
+          if (status === 'paused' && !['confirmed', 'paused'].includes(previousStatus)) throw new Error('Only active enrollments can be paused.')
 
           if (cancelScheduledPause) {
             updatedRow = await clearScheduledPause(client, req.params.id)
@@ -4667,14 +4631,14 @@ export function createSchedulingHandlers(pool) {
               targetStatus = updatedRow.status
               scheduledPauseOnly = true
             } else {
-              updatedRow = await applyImmediatePause(client, req.params.id)
+              updatedRow = await applyImmediatePause(client, req.params.id, effectiveDate ?? undefined)
               targetStatus = 'paused'
               pauseBillingMode = 'prorated'
             }
           } else {
             if (
               status === 'confirmed' &&
-              (previousStatus === 'cancelled' || previousStatus === 'completed') &&
+              (previousStatus === 'cancelled' || previousStatus === 'completed' || previousStatus === 'waitlisted' || previousStatus === 'paused') &&
               signup.slot_group_id
             ) {
               await client.query(
@@ -4685,7 +4649,7 @@ export function createSchedulingHandlers(pool) {
                 `
                 SELECT sg.max_participants,
                   (SELECT COUNT(*)::int FROM scheduling_signup s
-                   WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') AS signup_count
+                   WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') + pending_registration_holds(sg.id) AS signup_count
                 FROM scheduling_slot_group sg
                 WHERE sg.id = $1
                 `,
@@ -4696,8 +4660,8 @@ export function createSchedulingHandlers(pool) {
                 return res.status(400).json({ success: false, message: 'Time slot no longer exists' })
               }
               const { max_participants, signup_count } = capRes.rows[0]
-              targetStatus =
-                Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
+              if (datedAction && Number(signup_count) >= Number(max_participants)) throw new Error('This class is full. Increase capacity or keep the student waitlisted.')
+              targetStatus = Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
             }
 
             if (signup.pause_effective_date) {
@@ -4722,13 +4686,28 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
+          if (effectiveDate) {
+            if (targetStatus === 'waitlisted') await client.query('UPDATE scheduling_signup SET waitlisted_at=$2::date WHERE id=$1', [signup.id, effectiveDate])
+            if (targetStatus === 'cancelled') await client.query('UPDATE scheduling_signup SET cancel_effective_date=$2::date, cancel_requested_at=now() WHERE id=$1', [signup.id, effectiveDate])
+            if (targetStatus === 'confirmed' && previousStatus === 'waitlisted') {
+              const hadTuition = (await client.query("SELECT 1 FROM billing_subscription WHERE source_type='scheduling_signup' AND source_id=$1 LIMIT 1", [String(signup.id)])).rows.length > 0
+              if (!hadTuition) await client.query('UPDATE scheduling_signup SET enrollment_start_date=$2::date WHERE id=$1', [signup.id, effectiveDate])
+            }
+            updatedRow = (await client.query('SELECT * FROM scheduling_signup WHERE id=$1', [signup.id])).rows[0]
+          }
+
           if (targetStatus === 'confirmed' && previousStatus !== 'confirmed') {
             await billConfirmedRegistration(client, updatedRow)
-            if (previousStatus === 'paused') {
+            if (previousStatus === 'paused' || previousStatus === 'waitlisted') {
               await setSubscriptionPausedForSource(client, {
                 sourceType: 'scheduling_signup', sourceId: req.params.id, paused: false,
               })
             }
+          }
+
+          if (targetStatus === 'waitlisted' && previousStatus === 'confirmed') {
+            await client.query('UPDATE scheduling_signup SET pause_effective_date=$2::date WHERE id=$1', [signup.id, effectiveDate ?? new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date())])
+            await persistEnrollmentPauseBilling(client, { signupId: signup.id, enteringPaused: true, leavingPaused: false })
           }
 
           // Freeing a confirmed spot (cancel/complete) can promote from the waitlist.
@@ -4754,7 +4733,12 @@ export function createSchedulingHandlers(pool) {
           // Keep recurring subscriptions in sync with signup status.
           const source = { sourceType: 'scheduling_signup', sourceId: req.params.id }
           if (targetStatus === 'cancelled' && previousStatus !== 'cancelled') {
-            await safeCancelSubscriptionsForSource(client, source)
+            if (datedAction && previousStatus === 'confirmed') {
+              await client.query('UPDATE scheduling_signup SET pause_effective_date=$2::date WHERE id=$1', [signup.id, effectiveDate])
+              await persistEnrollmentPauseBilling(client, { signupId: signup.id, enteringPaused: true, leavingPaused: false, effectiveDate })
+            }
+            if (datedAction) await cancelSubscriptionsForSource(client, { ...source, endDate: effectiveDate })
+            else await safeCancelSubscriptionsForSource(client, source)
             await safeRestorePassCreditsForSignup(client, {
               signupId: req.params.id,
               reason: 'Enrollment cancelled',
@@ -4767,6 +4751,22 @@ export function createSchedulingHandlers(pool) {
             }
           }
 
+          if ((!scheduledPauseOnly && targetStatus === 'paused' && previousStatus !== 'paused') ||
+              (targetStatus === 'confirmed' && ['paused', 'waitlisted'].includes(previousStatus))) {
+            await persistEnrollmentPauseBilling(client, {
+              signupId: Number(updatedRow.id), enteringPaused: targetStatus === 'paused', leavingPaused: ['paused', 'waitlisted'].includes(previousStatus), effectiveDate: effectiveDate ?? undefined,
+            })
+          }
+          if (datedAction) {
+            await client.query("UPDATE enrollment_action SET status='applied',applied_at=now(),last_error=NULL WHERE id=$1", [datedAction.id])
+            const account = (await client.query(`SELECT a.id FROM family_billing_account a JOIN member m ON m.family_id=a.family_id WHERE m.id=$1 AND a.is_active=TRUE`, [signup.member_id])).rows[0]
+            if (account) await recordBillingActivity(client, {
+              eventKey: `enrollment-action:${datedAction.id}`, accountId: Number(account.id), memberId: Number(signup.member_id), signupId: Number(signup.id),
+              actorUserId: datedAction.requested_by_user_id, actorType: datedAction.requested_by_user_id ? 'admin' : 'system',
+              eventType: 'enrollment_status_changed', summary: `Enrollment ${targetStatus} effective ${effectiveDate}.`,
+              beforeValue: { status: previousStatus }, afterValue: { status: targetStatus, effectiveDate }, details: { effectiveDate, actionId: Number(datedAction.id) },
+            })
+          }
           await client.query('COMMIT')
         } catch (txErr) {
           await client.query('ROLLBACK')
@@ -4775,7 +4775,7 @@ export function createSchedulingHandlers(pool) {
           client.release()
         }
 
-        if (promotedRows.length > 0) {
+        if (!req.skipNotifications && promotedRows.length > 0) {
           await sendPromotionEmails(pool, promotedRows)
         }
 
@@ -4791,11 +4791,14 @@ export function createSchedulingHandlers(pool) {
                 enteringPaused: enteringPaused || pauseBillingMode === 'prorated',
                 leavingPaused,
                 pauseMode: pauseBillingMode ?? 'prorated',
+                persisted: true,
               })
             } catch (pauseBillErr) {
               console.warn('[scheduling] pause billing follow-up:', pauseBillErr?.message ?? pauseBillErr)
             }
           } else if (
+            (targetStatus === 'waitlisted' && previousStatus !== 'waitlisted') ||
+            (targetStatus === 'confirmed' && previousStatus === 'waitlisted') ||
             (targetStatus === 'cancelled' && previousStatus !== 'cancelled') ||
             (targetStatus === 'completed' && previousStatus !== 'completed') ||
             ((targetStatus === 'confirmed' || targetStatus === 'waitlisted') &&
@@ -4816,7 +4819,7 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        if (updatedRow && targetStatus === 'confirmed' && previousStatus === 'cancelled') {
+        if (!req.skipNotifications && updatedRow && targetStatus === 'confirmed' && previousStatus === 'cancelled') {
           try {
             const receipt = await notifyEnrollmentReceiptForSignup(pool, updatedRow.id, 'confirmed')
             if (receipt.sent) {
@@ -4828,7 +4831,7 @@ export function createSchedulingHandlers(pool) {
           } catch (emailErr) {
             console.error('[scheduling] reconfirm email failed:', emailErr.message)
           }
-        } else if (updatedRow && targetStatus === 'waitlisted' && previousStatus === 'cancelled') {
+        } else if (!req.skipNotifications && updatedRow && targetStatus === 'waitlisted' && previousStatus === 'cancelled') {
           try {
             const receipt = await notifyEnrollmentReceiptForSignup(pool, updatedRow.id, 'waitlisted')
             if (receipt.sent) {
@@ -4842,7 +4845,7 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        if (updatedRow?.form_id) {
+        if (!req.skipNotifications && updatedRow?.form_id) {
           try {
             const schedMsg = await notifySignupStatusChange(pool, updatedRow, {
               previousStatus,
@@ -4872,7 +4875,7 @@ export function createSchedulingHandlers(pool) {
         res.json({ success: true, data: mapSignupRow(updatedRow, positions) })
       } catch (err) {
         console.error('[scheduling] updateSignupStatus:', err)
-        res.status(500).json({
+        res.status(err.statusCode ?? 400).json({
           success: false,
           message: err?.message || 'Failed to update signup',
         })

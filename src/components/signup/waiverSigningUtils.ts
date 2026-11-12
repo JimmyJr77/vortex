@@ -30,7 +30,7 @@ export function validateWaiverSigning({
       return `Please agree to ${waiver.name}.`
     }
   }
-  if (!agreeAll) return 'Please check "I AGREE TO ALL OF THE ABOVE".'
+  if (!agreeAll) return 'Please check "I AGREE TO THE SELECTED WAIVERS ABOVE".'
   if (!signatureName.trim()) return 'Full name signature is required.'
   return null
 }

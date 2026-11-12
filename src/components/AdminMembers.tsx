@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import { Fragment, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
@@ -487,6 +488,9 @@ export default function AdminMembers({
   }, [fetchMembers])
 
   const handleArchiveMember = async (id: number, archived: boolean): Promise<boolean> => {
+    const member = directory.rows.find((item) => item.id === id)
+    if (archived && !await confirmArchive(member ? `${member.firstName} ${member.lastName}` : 'This member')) return false
+    if (!archived && !confirm('Are you sure you want to unarchive this member?')) return false
     try {
       if (archived) {
         const preflightResponse = await adminApiRequest(`/api/admin/members/${id}/archive-check`)
@@ -504,7 +508,6 @@ export default function AdminMembers({
         }
       }
 
-      if (!confirm(archived ? 'Are you sure you want to archive this member?' : 'Are you sure you want to unarchive this member?')) return false
       const response = await adminApiRequest(`/api/admin/members/${id}/archive`, {
         method: 'PATCH',
         body: JSON.stringify({ archived }),

@@ -7,13 +7,13 @@ export const HEADER_ACTION_BTN =
   'inline-flex items-center justify-center gap-2 h-9 px-3 md:px-4 rounded-lg font-semibold transition-colors text-sm shrink-0'
 
 const PORTAL_LABELS: Record<'admin' | 'new-admin' | 'coach' | 'member', string> = {
-  admin: 'Admin',
-  'new-admin': 'New Admin',
+  admin: 'Legacy Admin',
+  'new-admin': 'Admin',
   coach: 'Coach',
   member: 'Member',
 }
 
-const PORTAL_ORDER: Array<'admin' | 'new-admin' | 'coach' | 'member'> = ['admin', 'new-admin', 'coach', 'member']
+const PORTAL_ORDER: Array<'admin' | 'new-admin' | 'coach' | 'member'> = ['new-admin', 'admin', 'coach', 'member']
 
 interface PortalNavButtonsProps {
   activePortal: 'admin' | 'new-admin' | 'coach' | 'member'

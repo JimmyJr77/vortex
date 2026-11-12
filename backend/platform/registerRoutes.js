@@ -24,6 +24,7 @@ import { composeEmailHtml, emailButtonHtml, EMAIL_LAYOUT_VERSION, escapeHtml } f
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { API_BUILD_ID } from '../buildInfo.js'
 import { loadPortalConfig, savePortalConfig } from './portalSettings.js'
+import { missingRequiredWaiverIds } from './waiverCompletion.js'
 import {
   stripeEnabled as isStripeEnabled,
   completePaymentMethodSetupSession,
@@ -4607,7 +4608,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
 
     const requiredIds = await activeWaiverTemplateIds(pool, authz.facilityId, { requiredOnly: true })
-    const missingRequired = requiredIds.filter((id) => !acceptedTemplateIds.includes(id))
+    const missingRequired = await missingRequiredWaiverIds(pool, {
+      facilityId: authz.facilityId,
+      memberIds: authz.targetMemberIds,
+      requiredIds,
+      acceptedTemplateIds,
+    })
     if (missingRequired.length > 0) {
       return res.status(400).json({
         success: false,

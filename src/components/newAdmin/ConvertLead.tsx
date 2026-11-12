@@ -1,0 +1,55 @@
+import { useState, type FormEvent } from 'react'
+import { allowed, request, useRead, type Access } from './api'
+import { button, Dialog, ErrorNotice, input, Loading, primary } from './shared'
+import type { Lead, LeadChild } from './leadTypes'
+
+type Selection = { kind: 'program' | 'class' | 'reserved'; childIndex: number | ''; programsId: number | ''; classEventId: number | ''; timeSlotId: number | ''; enrollmentStartDate: string }
+type CatalogRow = { programs_id: number; program_name: string; class_id: number | null; class_name: string; slot_id: number | null; day_of_week: number; specific_date: string | null; start_time: string; end_time: string; max_participants: number; occupied: number }
+type Invitation = { id: number; status: string; username: string; email: string; expiresAt: string; selections: { label: string; childName: string; kind: string }[] }
+const unique = (rows: CatalogRow[], key: 'programs_id' | 'class_id' | 'slot_id') => rows.filter((row, index) => row[key] && rows.findIndex(other => other[key] === row[key]) === index)
+
+export default function ConvertLead({ lead, access, onClose, onSent }: { lead: Lead; access: Access; onClose: () => void; onSent: () => void }) {
+  const catalog = useRead<CatalogRow[]>('/api/admin/new-admin/lead-registration/catalog')
+  const existing = useRead<Invitation>(lead.invitation ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
+  const [result, setResult] = useState<Invitation | null>(null)
+  const [children, setChildren] = useState<LeadChild[]>(lead.inquiry?.campers || [])
+  const [selections, setSelections] = useState<Selection[]>([])
+  const [instructions, setInstructions] = useState('')
+  const [holdDays, setHoldDays] = useState(7)
+  const [mode, setMode] = useState('invite')
+  const [memberId, setMemberId] = useState('')
+  const [requestKey] = useState(() => crypto.randomUUID())
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const invitation = result || (existing.data?.status !== 'expired' ? existing.data : null)
+  const canReserve = allowed(access, 'scheduling.manage')
+  const submit = async (event: FormEvent) => {
+    event.preventDefault(); setBusy(true); setError(null)
+    try {
+      if (mode === 'existing') {
+        await request(`/api/admin/new-admin/leads/${lead.id}/convert`, { method: 'POST', body: JSON.stringify({ memberId: Number(memberId) }) }); onSent(); onClose(); return
+      }
+      const saved = await request<Invitation>(`/api/admin/new-admin/leads/${lead.id}/convert`, { method: 'POST', body: JSON.stringify({ mode: 'invite', children, selections, instructions, holdDays, requestKey }) })
+      setResult(saved); onSent()
+    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Unable to send registration invitation.') }
+    finally { setBusy(false) }
+  }
+  const resend = async () => {
+    if (!invitation) return
+    setBusy(true); setError(null)
+    try { setResult(await request<Invitation>(`/api/admin/new-admin/lead-registration/${invitation.id}/send`, { method: 'POST' })); onSent() }
+    catch (caught) { setError(caught instanceof Error ? caught.message : 'Unable to send invitation.') }
+    finally { setBusy(false) }
+  }
+  const update = (index: number, values: Partial<Selection>) => setSelections(selections.map((item, i) => i === index ? { ...item, ...values } : item))
+  return <Dialog title={`Convert ${lead.firstName} ${lead.lastName}`} onClose={onClose}><ErrorNotice message={error || catalog.error || existing.error} />{existing.loading ? <Loading /> : invitation ? <section className="max-w-3xl space-y-4"><h3 className="text-lg font-semibold">{invitation.status === 'sent' ? 'Registration email sent' : invitation.status === 'completed' ? 'Account setup completed' : 'Invitation saved — email not sent'}</h3><p>{invitation.email || lead.email} · Username: <strong>{invitation.username}</strong></p><p>Registration deadline: {new Date(invitation.expiresAt).toLocaleDateString()}. Reserved places remain pending setup and payment until that date.</p><ul className="list-inside list-disc">{invitation.selections.map((item, index) => <li key={index}>{item.childName} · {item.label} {item.kind === 'reserved' ? '(reserved)' : ''}</li>)}</ul>{invitation.status !== 'completed' && <button className={primary} disabled={busy} onClick={() => void resend()}>{busy ? 'Sending…' : invitation.status === 'sent' ? 'Resend registration email' : 'Retry sending email'}</button>}<button className={`${button} ml-2`} onClick={onClose}>Done</button></section> : <form onSubmit={submit} className="space-y-5"><p className="max-w-3xl text-sm text-slate-600">Send one family invitation to {lead.email}. The parent signs in, changes the temporary password, confirms each child, and signs the required forms. Then they follow the class links and finish payment.</p><fieldset disabled={busy} className="space-y-5"><label className="block max-w-lg text-sm font-medium">Conversion<select className={input} value={mode} onChange={event => setMode(event.target.value)}><option value="invite">Send new family registration invitation</option><option value="existing">Link verified existing member (no new credentials)</option></select></label>{mode === 'existing' ? <label className="block max-w-lg text-sm font-medium">Verified member ID<input className={input} type="number" min="1" required value={memberId} onChange={event => setMemberId(event.target.value)} /></label> : <>
+    <section className="space-y-3"><h3 className="font-semibold">Children</h3><p className="text-sm text-slate-500">Add every child you are recommending classes for. Parents will confirm birthdays and complete any missing details.</p>{children.map((child, index) => <div key={index} className="grid gap-3 rounded-lg border p-3 sm:grid-cols-4">{(['firstName', 'lastName', 'dateOfBirth'] as const).map(key => <label key={key} className="text-sm">Child {index + 1} {{ firstName: 'first name', lastName: 'last name', dateOfBirth: 'birthday' }[key]}<input className={input} type={key === 'dateOfBirth' ? 'date' : 'text'} value={child[key] || ''} onChange={event => setChildren(children.map((item, i) => i === index ? { ...item, [key]: event.target.value } : item))} /></label>)}<label className="text-sm">Gender<select className={input} value={child.gender || ''} onChange={event => setChildren(children.map((item, i) => i === index ? { ...item, gender: event.target.value } : item))}><option value="">Not provided</option><option value="male">Male</option><option value="female">Female</option></select></label></div>)}<button type="button" className={button} onClick={() => setChildren([...children, { lastName: lead.lastName }])}>Add child</button></section>
+    <section className="space-y-3"><h3 className="font-semibold">Class links and reservations</h3><p className="text-sm text-slate-500">Leave this empty to send account setup only. Add any mix of program links, class links, and reserved class times for one or more children.</p>{selections.map((item, index) => {
+      const rows = catalog.data || []
+      const classes = rows.filter(row => Number(row.programs_id) === Number(item.programsId))
+      const slots = classes.filter(row => Number(row.class_id) === Number(item.classEventId))
+      return <fieldset key={index} className="grid gap-3 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-3"><legend className="px-1 font-medium">Selection {index + 1}</legend><label className="text-sm">Link type<select className={input} value={item.kind} onChange={event => update(index, { kind: event.target.value as Selection['kind'] })}><option value="program">Choose from a program</option><option value="class">Choose a time for a class</option>{canReserve && <option value="reserved">Reserve a class and time</option>}</select></label><label className="text-sm">Child<select required={item.kind === 'reserved'} className={input} value={item.childIndex} onChange={event => update(index, { childIndex: event.target.value === '' ? '' : Number(event.target.value) })}><option value="">Any family member</option>{children.map((child, i) => <option key={i} value={i}>{child.firstName || `Child ${i + 1}`} {child.lastName}</option>)}</select></label><label className="text-sm">Program<select className={input} required value={item.programsId} onChange={event => update(index, { programsId: Number(event.target.value), classEventId: '', timeSlotId: '' })}><option value="">Select program</option>{unique(rows, 'programs_id').map(row => <option key={row.programs_id} value={row.programs_id}>{row.program_name}</option>)}</select></label>{item.kind !== 'program' && <label className="text-sm">Class<select className={input} required value={item.classEventId} onChange={event => update(index, { classEventId: Number(event.target.value), timeSlotId: '' })}><option value="">Select class</option>{unique(classes, 'class_id').map(row => <option key={row.class_id} value={row.class_id!}>{row.class_name}</option>)}</select></label>}{item.kind === 'reserved' && <><label className="text-sm">Class time<select className={input} required value={item.timeSlotId} onChange={event => update(index, { timeSlotId: Number(event.target.value) })}><option value="">Select time</option>{unique(slots, 'slot_id').map(row => <option key={row.slot_id} value={row.slot_id!} disabled={Number(row.occupied) >= Number(row.max_participants)}>{row.specific_date || ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][row.day_of_week]} {row.start_time?.slice(0,5)}–{row.end_time?.slice(0,5)} · {Math.max(0, Number(row.max_participants)-Number(row.occupied))} spots</option>)}</select></label><label className="text-sm">Enrollment start date<input className={input} type="date" required value={item.enrollmentStartDate} onChange={event => update(index, { enrollmentStartDate: event.target.value })} /></label></>}<button type="button" className={button} onClick={() => setSelections(selections.filter((_, i) => i !== index))}>Remove selection {index + 1}</button></fieldset>
+    })}<button type="button" className={button} disabled={catalog.loading} onClick={() => setSelections([...selections, { kind: 'program', childIndex: '', programsId: '', classEventId: '', timeSlotId: '', enrollmentStartDate: '' }])}>Add class link or reservation</button></section>
+    <label className="block max-w-xs text-sm font-medium">Days to finish registration<input className={input} type="number" min="1" max="30" required value={holdDays} onChange={event => setHoldDays(Number(event.target.value))} /><span className="text-xs text-slate-500">Reserved spots are released when this deadline passes.</span></label><label className="block text-sm font-medium">Instructions for the parent<textarea className={input} rows={3} maxLength={4000} value={instructions} onChange={event => setInstructions(event.target.value)} /></label></>}
+    <button className={primary} disabled={busy || catalog.loading}>{busy ? 'Submitting…' : mode === 'existing' ? 'Link member' : 'Send registration email'}</button></fieldset></form>}</Dialog>
+}

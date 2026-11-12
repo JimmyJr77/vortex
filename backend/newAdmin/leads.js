@@ -1,26 +1,30 @@
+import { appendStaffNote } from '../notes/handlers.js'
 import { createPortalFamilyMember, initializeSignupBillingAccount, isAdultOnDate } from '../platform/familySignup.js'
-import { id, inputError, pagination, pageResult, searchValue } from './common.js'
+import { id, inputError, pagination, pageResult } from './common.js'
+import { inquiryInput } from './leadInquiry.js'
+import { leadFilters } from './leadFilters.js'
+import { loadAccountNotes } from './accountNotes.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
   return { id: Number(row.id), firstName: row.first_name, lastName: row.last_name,
     email: row.email, phone: row.phone, status: (row.converted_member_id || row.member_id) ? 'converted' : row.lead_status || 'new',
+    contacted: Boolean(row.contacted), followUp: Boolean(row.follow_up), firstContactedAt: row.first_contacted_at ?? null,
+    inquiry: { athleteAge: row.athlete_age, interests: row.interests_array ?? row.interests, interest: row.interest, classTypes: row.class_types, childAges: row.child_ages, campers: row.campers, submitterRole: row.submitter_role, source: row.inquiry_source },
+    invitation: row.invitation ?? null,
     notes: row.admin_notes || '', message: row.message || '', createdAt: row.created_at,
     convertedMemberId: (row.converted_member_id ?? row.member_id) == null ? null : Number(row.converted_member_id ?? row.member_id) }
 }
 
 export async function listLeads(db, facilityId, query = {}) {
   const paging = pagination(query)
-  const status = String(query.status || '')
-  if (status && !LEAD_STATUSES.includes(status)) throw inputError('Invalid lead status.')
-  const values = [id(facilityId, 'facility'), searchValue(query.search), status]
-  const where = `facility_id = $1 AND archived IS NOT TRUE
-    AND (concat_ws(' ',first_name,last_name,email,phone) ILIKE $2 ESCAPE '\\')
-    AND ($3::text = '' OR (CASE WHEN COALESCE(converted_member_id,member_id) IS NOT NULL THEN 'converted' ELSE COALESCE(lead_status,'new') END) = $3)`
+  const { where, values, join } = leadFilters(query, id(facilityId, 'facility'), LEAD_STATUSES)
   const [rows, count] = await Promise.all([
-    db.query(`SELECT id,first_name,last_name,email,phone,lead_status,admin_notes,message,created_at,converted_member_id,member_id
-      FROM registrations WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT $4 OFFSET $5`, [...values, paging.pageSize, paging.offset]),
-    db.query(`SELECT COUNT(*)::int AS total FROM registrations WHERE ${where}`, values),
+    db.query(`SELECT r.*, (SELECT jsonb_build_object('id',ai.id,'username',ai.suggested_username,'expiresAt',ai.expires_at,
+        'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
+        FROM account_invite ai WHERE ai.registration_id=r.id AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
+      FROM registrations r ${join} WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
+    db.query(`SELECT COUNT(*)::int AS total FROM registrations r ${join} WHERE ${where}`, values),
   ])
   return pageResult(rows.rows.map(leadRow), count.rows[0].total, paging)
 }
@@ -42,29 +46,79 @@ export function leadInput(body, { partial = false } = {}) {
     if (!LEAD_STATUSES.includes(body.status) || body.status === 'converted') throw inputError('Use conversion to mark a lead as converted.')
     result.status = body.status
   }
+  for (const key of ['contacted', 'followUp']) {
+    if (Object.hasOwn(body, key)) {
+      if (typeof body[key] !== 'boolean') throw inputError(`${key} must be a boolean.`)
+      result[key] = body[key]
+    }
+  }
+  if (result.contacted === true && result.status === 'new') result.status = 'contacted'
+  if (result.contacted === false && result.status === 'contacted') result.status = 'new'
+  if (Object.hasOwn(body, 'inquiry')) result.inquiry = inquiryInput(body.inquiry)
   return result
 }
 
 export async function createLead(db, facilityId, body) {
   const input = leadInput(body)
   const result = await db.query(`INSERT INTO registrations
-    (facility_id,first_name,last_name,email,phone,admin_notes,message,lead_status,contacted)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-  [id(facilityId),input.firstName,input.lastName,input.email,input.phone,input.notes,input.message,input.status || 'new',input.status === 'contacted'])
+    (facility_id,first_name,last_name,email,phone,admin_notes,message,lead_status,contacted,follow_up,first_contacted_at)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $9::boolean THEN now() ELSE NULL END) RETURNING *`,
+  [id(facilityId),input.firstName,input.lastName,input.email,input.phone,input.notes,input.message,input.status || (input.contacted ? 'contacted' : 'new'),input.contacted ?? input.status === 'contacted',input.followUp ?? false])
+  if (input.inquiry) return updateLead(db, facilityId, result.rows[0].id, { inquiry: input.inquiry })
   return leadRow(result.rows[0])
 }
 
 export async function updateLead(db, facilityId, leadId, body) {
   const input = leadInput(body, { partial: true })
-  const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status' }
+  const inquiry = input.inquiry
+  delete input.inquiry
+  const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status',contacted:'contacted',followUp:'follow_up' }
   const values = [id(leadId), id(facilityId)]
   const updates = Object.entries(input).map(([key,value]) => { values.push(value); return `${columns[key]} = $${values.length}` })
+  const inquiryColumns = { interests: 'interests_array', classTypes: 'class_types', campers: 'campers', submitterRole: 'submitter_role', source: 'inquiry_source', interest: 'interest', athleteAge: 'athlete_age', childAges: 'child_ages' }
+  for (const [key, value] of Object.entries(inquiry || {})) {
+    values.push(key === 'campers' ? JSON.stringify(value) : value)
+    updates.push(`${inquiryColumns[key]} = $${values.length}${key === 'campers' ? '::jsonb' : ''}`)
+    if (key === 'interests') { values.push(value.join(', ')); updates.push(`interests = $${values.length}`) }
+  }
   if (!updates.length) throw inputError('No supported changes were supplied.')
-  if (input.status) updates.push(`contacted = (CASE WHEN converted_member_id IS NOT NULL THEN TRUE ELSE '${input.status}' <> 'new' END)`)
+  if (input.status && input.contacted === undefined) updates.push(`contacted = ('${input.status}' <> 'new')`)
+  if (input.contacted === true || (input.status && input.status !== 'new')) updates.push('first_contacted_at = COALESCE(first_contacted_at, now())')
+  if (input.contacted !== undefined && !input.status) updates.push(`lead_status = CASE WHEN COALESCE(converted_member_id,member_id) IS NOT NULL THEN 'converted' WHEN lead_status IN ('new','contacted') OR lead_status IS NULL THEN '${input.contacted ? 'contacted' : 'new'}' ELSE lead_status END`)
   const result = await db.query(`UPDATE registrations SET ${updates.join(',')},updated_at=now()
     WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE RETURNING *`, values)
   if (!result.rows[0]) throw inputError('Lead not found.',404)
   return leadRow(result.rows[0])
+}
+
+/** Save form edits and their dated staff note together; original note entries remain intact. */
+export async function saveLead(pool, facilityId, leadId, body, req) {
+  const db = await pool.connect()
+  try {
+    await db.query('BEGIN')
+    const before = await db.query('SELECT admin_notes,updated_at FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE', [id(leadId), id(facilityId)])
+    if (!before.rows[0]) throw inputError('Lead not found.', 404)
+    if (Object.hasOwn(body, 'notes') && before.rows[0].admin_notes?.trim()) {
+      await db.query(`INSERT INTO note(subject_type,subject_id,note_type,body,source,created_at)
+        SELECT 'registration',$1,'staff_note',$2,'legacy_inquiry_note',$3
+        WHERE NOT EXISTS (SELECT 1 FROM note WHERE subject_type='registration' AND subject_id=$1 AND is_deleted=FALSE AND TRIM(body)=TRIM($2))`,
+      [id(leadId),before.rows[0].admin_notes,before.rows[0].updated_at])
+    }
+    const saved = await updateLead(db, facilityId, leadId, body)
+    if (body.notes?.trim() && body.notes.trim() !== String(before.rows[0].admin_notes ?? '').trim()) {
+      await appendStaffNote(db, req, 'registration', leadId, body.notes.trim(), 'inquiry_admin_notes')
+    }
+    await db.query('COMMIT')
+    return saved
+  } catch (error) { await db.query('ROLLBACK'); throw error } finally { db.release() }
+}
+
+/** Account notes share the existing note table and explicit member/family links. */
+export async function leadNotes(db, facilityId, leadId) {
+  const lead = (await db.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2', [id(leadId), id(facilityId)])).rows[0]
+  if (!lead) throw inputError('Lead not found.', 404)
+  const memberId = lead.converted_member_id ?? lead.member_id ?? null
+  return loadAccountNotes(db, { facilityId, memberId, leadId: id(leadId) })
 }
 
 /** Shared canonical member creation; never provisions remote billing or guesses identity. */

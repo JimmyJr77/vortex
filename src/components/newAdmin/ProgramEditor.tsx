@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useState, type FormEvent } from 'react'
 import { type TopProgram } from '../../utils/programsApi'
 import { request, useRead } from './api'
@@ -54,6 +55,15 @@ function ProgramForm({ program, onClose, onSaved }: { program?: TopProgram; onCl
     }
   }
 
+  async function archive() {
+    if (!program) return
+    if (!program.archived && !await confirmArchive(program.displayName)) return
+    setBusy(true); setError(null)
+    try { await request(`${path}/${program.id}/archive`, {method:'PATCH',body:JSON.stringify({archived:!program.archived})}); onSaved() }
+    catch (caught) { setError(caught instanceof Error ? caught.message : 'Unable to archive the program.') }
+    finally { setBusy(false) }
+  }
+
   return <form className="mt-4" onSubmit={save}>
     <fieldset disabled={busy} className="space-y-4">
       <label className="block text-sm font-medium">Program name<input className={input} required maxLength={program ? 255 : 100} value={displayName} onChange={event => setDisplayName(event.target.value)} /></label>
@@ -61,7 +71,7 @@ function ProgramForm({ program, onClose, onSaved }: { program?: TopProgram; onCl
       <label className="block text-sm font-medium">Description<textarea className={input} rows={4} maxLength={1000} value={description} onChange={event => setDescription(event.target.value)} /></label>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={excludeFromDropIns} onChange={event => setExcludeFromDropIns(event.target.checked)} />Exclude from drop-ins</label>
       <ErrorNotice message={error} />
-      <div className="flex justify-end gap-2"><button type="button" className={button} onClick={onClose}>Cancel</button><button className={primary}>{busy ? 'Saving…' : program ? 'Save program' : 'Create program'}</button></div>
+      <div className="flex justify-end gap-2">{program && <button type="button" className={`${button} mr-auto text-red-700`} onClick={() => void archive()}>{program.archived ? 'Restore program' : 'Archive program'}</button>}<button type="button" className={button} onClick={onClose}>Cancel</button><button className={primary}>{busy ? 'Saving…' : program ? 'Save program' : 'Create program'}</button></div>
     </fieldset>
   </form>
 }

@@ -1,3 +1,4 @@
+import { confirmArchive } from '../utils/confirmArchive'
 import { useState, useEffect, Fragment, useCallback, useMemo, useRef, type RefObject } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Edit2, Archive, X, Plus, Search, ChevronDown, ChevronUp, Loader2, Trash2, Layers, ArrowUpDown, ArrowUp, ArrowDown, ArrowRight, RefreshCw, Filter } from 'lucide-react'
@@ -730,6 +731,7 @@ export default function AdminClasses({
   }
 
   const handleArchiveProgram = async (id: number, archived: boolean) => {
+    if (archived && !await confirmArchive(programs.find((program) => program.id === id)?.displayName || 'This class')) return
     try {
       const response = await adminApiRequest(`/api/admin/programs/${id}/archive`, {
         method: 'PATCH',
@@ -865,6 +867,7 @@ export default function AdminClasses({
   }
 
   const handleArchiveCategory = async (id: number, archived: boolean) => {
+    if (archived && !await confirmArchive(categories.find((category) => category.id === id)?.displayName || 'This program')) return
     try {
       const response = await adminApiRequest(`/api/admin/categories/${id}/archive`, {
         method: 'PATCH',

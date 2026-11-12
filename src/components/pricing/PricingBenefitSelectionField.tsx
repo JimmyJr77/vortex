@@ -25,6 +25,7 @@ interface Props {
   title?: string
   description?: string
   compact?: boolean
+  includeFreePasses?: boolean
 }
 
 function selectionKey(benefitType: string, benefitId: number) {
@@ -48,6 +49,7 @@ const PricingBenefitSelectionField = ({
   title = 'Discounts & free passes',
   description = 'Select which benefits apply at this level. Auto-apply enrolls without a code; member code lets families enter the promo at signup.',
   compact = false,
+  includeFreePasses = true,
 }: Props) => {
   const [options, setOptions] = useState<BenefitOption[]>([])
   const [selections, setSelections] = useState<PricingBenefitSelection[]>([])
@@ -62,7 +64,7 @@ const PricingBenefitSelectionField = ({
     try {
       const [rulesRes, passes, current] = await Promise.all([
         adminFetchDiscountRules(),
-        adminFetchFreePasses(),
+        includeFreePasses ? adminFetchFreePasses() : Promise.resolve([]),
         adminFetchBenefitSelections(scopeLevel, scopeRefId),
       ])
       const ruleOptions: BenefitOption[] = rulesRes.rules
@@ -92,7 +94,7 @@ const PricingBenefitSelectionField = ({
     } finally {
       setLoading(false)
     }
-  }, [scopeLevel, scopeRefId])
+  }, [scopeLevel, scopeRefId, includeFreePasses])
 
   useEffect(() => {
     void load()
@@ -181,7 +183,7 @@ const PricingBenefitSelectionField = ({
         <p className="text-sm text-gray-400">Loading…</p>
       ) : options.length === 0 ? (
         <p className="text-sm text-gray-500">
-          Create discounts or free passes in their tabs first, then select them here.
+          {includeFreePasses ? 'Create discounts or free passes in their tabs first, then select them here.' : 'Create a discount or promo code on the Discounts tab, then select it here.'}
         </p>
       ) : (
         <ul className={`space-y-2 overflow-y-auto ${compact ? 'max-h-40' : 'max-h-64'}`}>

@@ -12,6 +12,6 @@ export default function EnrollmentActions({ memberId, enrollmentId, onClose, onC
 }) {
   const state = useRead<AdminMemberEnrollments>(`/api/admin/scheduling/members/${memberId}/enrollments`)
   const row = state.data?.rows.find(item => item.id === enrollmentId && item.source === 'scheduling')
-  if (row) return <Suspense fallback={<Loading />}><Actions row={row} onClose={onClose} onChanged={onChanged} /></Suspense>
+  if (row && state.data?.member) return <Suspense fallback={<Loading />}><Actions row={row} member={state.data.member} onClose={onClose} onChanged={onChanged} /></Suspense>
   return <Dialog title="Enrollment actions" onClose={onClose}>{state.loading ? <Loading label="Loading enrollment…" /> : <ErrorNotice message={state.error || 'This enrollment is no longer available. Refresh the account.'} />}</Dialog>
 }

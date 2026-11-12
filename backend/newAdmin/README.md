@@ -92,17 +92,58 @@ migration apply/no-op/checksum checks. All database fixtures are synthetic and l
 
 ## Enrollment & Loss Data
 
-The dashboard's seven summary cards use the 12 calendar months preceding the
-facility-local current month. The last-month card is the last completed month.
-New-family and cancellation totals sum known observations; monthly averages divide
-by their observed-month count. Loss-rate averages are arithmetic means of known,
-nonzero-denominator monthly rates. Cards show how many months contribute when less
-than the requested window is available. January-to-date trend views remain available.
-Each loss-rate card shows both families and students, independent of the chart's
-population toggle. Student summaries use the full rolling window, including the
-previous year, from the same shared enrollment snapshot. Each population retains
-its own known-month count. Unavailable student history never falls back to family
-rates. Family acquisition and lifetime-value estimates still use family loss rates.
+### Enrollment actions and lead follow-up
+
+Migration 845 adds dated enrollment actions, waitlist timestamps and pause-credit
+reversals. Deploy it before starting the updated backend or recurring worker.
+Manage enrollment in both admin views uses the same scheduling and billing commands.
+Staff can backdate actions, apply them today, or schedule them. A date cannot precede
+the enrollment or its latest recorded action. Future status changes keep the current
+state until due; the recurring worker applies them before posting/collection, and
+opening the student's enrollment also processes due actions. Only one pending status
+change is allowed per enrollment; it can be canceled without deleting its history.
+
+Waitlists have stable chronological positions. Activation checks capacity and uses
+the existing subscription when present. Reenrollment creates a linked new enrollment
+and preserves the canceled/completed original. Class transfers preserve remaining
+manual-discount windows, reverse unused billed service, and retain source billing
+until a future move date. Backdated transfers credit later source bills and post replacement tuition for
+intervening months in the same transaction, using canonical period keys. Existing
+invoice and payment history remains intact; no card charge is initiated by a move.
+
+Manual and promotional tuition discounts precede household multi-class discounts.
+Manage-enrollment discounts use one billing month, an inclusive number of billing
+months, or an open monthly window. Replacing/clearing appends dated price history;
+expired replacements never revive older discounts. Discounts set while paused or
+waitlisted start no earlier than next month and only affect active tuition. Mid-month
+pauses credit unused scheduled sessions against this enrollment's actual billed
+tuition for the following month. Reactivation adjusts credits for sessions resumed
+and restores the next bill cursor without charging a month twice. Billing failures
+roll back the status change and its credit together. Legacy Stripe identifiers are
+checked against canonical collection ownership before pause/reactivation updates.
+
+Leads exposes contacted and follow-up flags, the original inquiry, and dated notes
+from the linked family account. Existing notes are preserved before form edits;
+new notes use the same note table and facility authorization as the original admin.
+
+Regression coverage: `tests/e2e/new-admin-enrollment-actions.spec.ts` and the rollback-only
+`backend/billing/__tests__/enrollmentActions.postgres.test.js` (opt in with
+`RUN_ENROLLMENT_ACTIONS_LOCAL_TEST=true` after seeding the fictional local demo).
+The database test disables Stripe and automatic collection, asserts no remote
+subscription exists, and rolls back every fixture, bill and audit change.
+
+New enrollment, cancellation and loss-rate cards share five calendar reporting
+periods: the previous three quarters, the current quarter to date, and the previous
+four full quarters combined. The current quarter includes the current partial month;
+the four-quarter summary excludes the entire current quarter. The Families/Students
+selector updates all three rows together using the same shared enrollment snapshot.
+New enrollment and cancellation totals sum known observations; monthly averages
+divide by their observed-month count. Each loss-rate card shows the arithmetic mean
+of known, nonzero-denominator monthly rates within its period. Rates are not summed
+or presented as cumulative quarter churn. Cards show how many months contribute
+when less than the requested window is available. Unavailable student history never
+falls back to family rates. January-to-date trend views remain available. Family
+acquisition and lifetime-value estimates still use completed-month family loss rates.
 The UI no longer shows provisional markers or the recorded-history banner.
 
 The frontend retains the existing timeline when an older backend response lacks
@@ -157,8 +198,13 @@ ledger CTE over shared account records, including Jackrabbit cash history. No ne
 migration, billing worker, collection schedule or payment API is introduced.
 
 Income means successful payments minus successful refunds, grouped in the facility
-zone by cash date. Cards show the previous 12 completed months, their monthly
-average, the last three completed months and their monthly average, and last month.
+zone by cash date. Three rows of five cards show (1) the four previous calendar
+quarters and current quarter to date, (2) the four previous completed months and
+current month to date, and (3) monthly averages over the previous 3, 6, 9 and 12
+completed months, followed by the total for those previous 12 months. The shared
+ledger read starts at the beginning of the oldest full quarter; that extra history
+does not expand the rolling averages or 13-month chart. Current periods stop at the
+as-of date. Older API responses cannot show an incomplete quarter as a full total.
 The chart includes the current partial month. Class/gender/age views are computed
 locally from the same response. Payment allocations determine attribution; refund
 reversals retain original receipt attribution, while non-refund reallocations
@@ -174,3 +220,86 @@ ledger balances appear as credits. Imported transactions contribute cash history
 but never create a second current debt/credit balance. Family links open the
 existing billing workspace. These views do not provision, reconcile, allocate,
 charge, refund or update any billing records.
+
+### Lead invitations and class reservations
+
+New Admin keeps inquiry edits in `registrations`, account notes in the existing
+`note` table, invitations in `account_invite`, and reserved class places in
+`scheduling_signup`. Migration 846 adds invitation metadata and the `pending_setup`
+signup status; it does not create a second account or enrollment dataset.
+
+Contacted and follow-up are independently editable in the lead list. Kid ages
+are calculated from birthdays; legacy reported ages remain visible as original
+form information. Notes opens the inquiry information and shared account history
+in independently scrolling panels. Inquiry editing is available inside Notes.
+
+Conversion can send account setup only, program links, class links, or exact
+class/time reservations for multiple children. Exact reservations consume capacity
+immediately. The default deadline is seven days, editable from one to thirty;
+expired holds stop consuming capacity without deleting their history. Other
+admission paths and waitlist promotion respect pending holds.
+
+The existing Vortex email sender delivers the username, temporary password, setup
+link, and ordered class links. Temporary credentials authorize only the invitation
+setup flow. Setup requires a different password and allows a username change.
+Canonical family signup creates shared family/member records and waiver signatures,
+then hands reserved selections to the existing authenticated checkout. Setup creates
+no charges, payments, or subscriptions. Checkout reuses the held signup ID. Retrying
+conversion or account setup does not duplicate invitations, accounts, or holds.
+Failed email delivery remains visible and can be retried with the same invitation.
+
+Migration 847 guards program archiving in the database: every active class must
+first be closed or archived. An archived program cannot gain an active class until
+it is restored. Class archiving uses the existing class archive endpoint; program
+archiving is available at the bottom left of Edit program. Archive operations
+preserve enrollment, account, payment, and billing history.
+
+Local verification includes `tests/e2e/lead-registration.spec.ts` and
+`tests/e2e/new-admin-enrollment-actions.spec.ts`. The rollback-only PostgreSQL
+rehearsal is `backend/newAdmin/__tests__/leadRegistration.postgres.test.js`, enabled
+with `RUN_LEAD_REGISTRATION_LOCAL_TEST=true` against the fictional local
+`vortex_new_admin_dev` database. Its email sender is injected; it sends no email.
+
+## Staff timesheets
+
+Timesheets opens to the current Monday–Sunday week. Users enter daily hours and
+notes, choose a week with a date picker or arrows, and see admin-assigned times
+highlighted separately. Moving between weeks or people first saves pending edits.
+Assignments never count as actual hours and never limit what the person may log.
+Admins with `timesheets.view_all` can view everyone or one person and assign/remove
+work times in the same facility. Everyone edits only their own actual hours.
+
+Migration 849 adds the original time log and retained change history. Migration 850
+adds weekly daily totals, assignments, and their before/after audit history. These
+records use canonical `app_user` IDs and require no payroll profile. Existing detailed
+logs populate daily totals until a user explicitly records a daily total; that total
+then takes precedence, so hours are never counted twice. Explicit zero and blank
+are retained with version numbers. Concurrent stale saves are rejected atomically.
+Assignments are soft removed; actual hours and history remain unchanged.
+
+The interface defaults to self and uses facility-local dates. Existing portal access
+rules still apply. The `timesheets.view_all` permission is granted to admin roles by
+default, with explicit permission overrides respected. Staff without it receive no
+staff directory. There are no payroll, enrollment, or billing writes.
+
+PostgreSQL/HTTP coverage is in `timesheets.postgres.test.js`; browser coverage is in
+`tests/e2e/new-admin-timesheets.spec.ts`.
+
+## Pricing and billing workspaces
+
+Both admin portals now render the same flat class-cost list. Pricing and Create/Edit
+Class share the canonical form-price writer. Price-only changes never overwrite class
+metadata; the class list, edit dialog, legacy scheduling reads, and registration
+pricing use the same saved amounts and default drop-in formula. Existing subscription
+amounts, enrollments, discounts, and financial records are preserved. There is no
+editable program default price.
+
+Discounts, rules, promo codes, class/program benefit assignments, and additional fees
+use the existing records. Free Passes is removed from pricing navigation, selectors,
+and rule/promo listings; historical grants and redemptions are not deleted.
+
+New Admin Billing includes Account Billing & Enrollments, the existing billing review
+panels, and Stripe Payments. Existing permission checks and owner-only access to the
+Stripe-wide payment list are retained. Family-to-billing navigation still opens the
+requested account. Coverage: `new-admin-pricing-billing.spec.ts`,
+`family-workspace.spec.ts`, and `classPricing.postgres.test.js`.

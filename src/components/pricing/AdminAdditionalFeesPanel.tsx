@@ -33,7 +33,7 @@ async function isAdditionalFeesApiAvailable(): Promise<boolean> {
   }
 }
 
-const AdminAdditionalFeesPanel = () => {
+const AdminAdditionalFeesPanel = ({ canManage = true }: { canManage?: boolean }) => {
   const [fees, setFees] = useState<AdditionalFee[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -116,7 +116,7 @@ const AdminAdditionalFeesPanel = () => {
           ) : null
         }
       >
-        <div className="flex items-center justify-end mb-3">
+        {canManage ? <div className="flex items-center justify-end mb-3">
           <button
             type="button"
             onClick={() => {
@@ -127,7 +127,7 @@ const AdminAdditionalFeesPanel = () => {
           >
             <Plus className="w-4 h-4" /> New fee
           </button>
-        </div>
+        </div> : null}
 
         {error && <p className="text-sm text-red-600 mb-2">{error}</p>}
 
@@ -177,7 +177,7 @@ const AdminAdditionalFeesPanel = () => {
                       </span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <div className="flex items-center gap-1 justify-end">
+                      {canManage ? <div className="flex items-center gap-1 justify-end">
                         <button
                           type="button"
                           onClick={() => {
@@ -195,7 +195,7 @@ const AdminAdditionalFeesPanel = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                      </div>
+                      </div> : null}
                     </td>
                   </tr>
                 ))}
@@ -206,7 +206,7 @@ const AdminAdditionalFeesPanel = () => {
       </CollapsiblePricingSection>
 
       <AdditionalFeeEditor
-        open={editorOpen}
+        open={canManage && editorOpen}
         fee={editingFee}
         onSave={handleSave}
         onClose={() => {

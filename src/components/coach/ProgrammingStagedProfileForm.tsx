@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Taxonomy } from '../../coach/taxonomy'
 import type { StagedCanonicalRevisionChange, StagedCanonicalRevisionView } from '../../coach/workoutExerciseProposals'
@@ -51,8 +52,9 @@ export function ProgrammingStagedProfileForm({ view, taxonomy, disabled, needsRe
     if (!editable || !dirty || errors.length || !summaryValid) return
     onChange({ action: 'edit', expectedEventHash: event.contentHash, changeSummary: summary, profile: { ...profile, ...parsed } })
   }
-  const transition = (action: 'submit' | 'return' | 'archive') => {
+  const transition = async (action: 'submit' | 'return' | 'archive') => {
     if (disabled || needsReload || dirty || !summaryValid) return
+    if (action === 'archive' && !await confirmArchive(`${event.card.displayName} revision`)) return
     onChange({ action, expectedEventHash: event.contentHash, changeSummary: summary })
   }
   const discard = () => {

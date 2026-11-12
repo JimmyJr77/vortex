@@ -200,6 +200,9 @@ async function createPrerequisiteSchema(client) {
       id BIGSERIAL PRIMARY KEY
     );
 
+    -- Existing application tables required by the additive lead invitation migration.
+    CREATE TABLE registrations (id SERIAL PRIMARY KEY);
+    CREATE TABLE account_invite (id BIGSERIAL PRIMARY KEY);
     CREATE TABLE program (id BIGSERIAL PRIMARY KEY, name TEXT, display_name TEXT);
     CREATE TABLE scheduling_form (id BIGSERIAL PRIMARY KEY, program_id BIGINT, title TEXT, end_date DATE);
     CREATE TABLE scheduling_offering (id BIGSERIAL PRIMARY KEY, end_date DATE);

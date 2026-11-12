@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useCallback } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -24,6 +24,7 @@ import { getSpecialPageHref } from '../../utils/specialPageLinks'
 
 const Admin = lazyWithRetry(() => import('../Admin'))
 const MemberDashboard = lazyWithRetry(() => import('../MemberDashboard'))
+const MemberWaiverPrompt = lazyWithRetry(() => import('../MemberWaiverPrompt'))
 
 function AdminLoader() {
   return (
@@ -70,8 +71,10 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   const [isAdmin, setIsAdmin] = useState(
     () => localStorage.getItem('vortex_admin') === 'true',
   )
-  const [member, setMember] = useState<unknown>(null)
+  const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
+  const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
+  const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const {
     highlights,
@@ -102,6 +105,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   }, [isPreview])
 
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
+    setWaiversCheckedToken(null)
     setSportSiteContext(config.key)
     localStorage.setItem('vortex_member_token', token)
     localStorage.setItem('vortex_member', JSON.stringify(accountData))
@@ -115,6 +119,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   }
 
   const handleMemberLogout = () => {
+    setWaiversCheckedToken(null)
     localStorage.removeItem('vortex_member_token')
     localStorage.removeItem('vortex_member')
     setMemberToken(null)
@@ -123,11 +128,20 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   }
 
   const handleAdminLogout = () => {
+    setWaiversCheckedToken(null)
     localStorage.removeItem('vortex_admin')
     localStorage.removeItem('adminToken')
     localStorage.removeItem('vortex-admin-info')
     localStorage.removeItem('vortex-admin-id')
     setIsAdmin(false)
+  }
+
+  if (memberToken && getAvailablePortals(member).includes('member') && waiversCheckedToken !== memberToken) {
+    return (
+      <Suspense fallback={<AdminLoader />}>
+        <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={() => { handleAdminLogout(); handleMemberLogout() }} />
+      </Suspense>
+    )
   }
 
   if (isAdmin) {

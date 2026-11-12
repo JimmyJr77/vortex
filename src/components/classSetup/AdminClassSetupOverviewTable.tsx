@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useEffect, useMemo, useState } from 'react'
 import { Archive, Copy, Loader2, Search, Trash2, Users, X } from 'lucide-react'
 import OverviewColumnHeader, { ClearFiltersButton } from './OverviewColumnHeader'
@@ -224,7 +225,8 @@ const AdminClassSetupOverviewTable = ({
     if (!unlocked || copyMode) return
     if (line.timeSlotId == null) return
     const archived = line.isActive !== false
-    if (!window.confirm(`${archived ? 'Archive' : 'Restore'} "${row.className} · ${line.days} · ${line.times}"? This changes only this schedule line.`)) return
+    if (archived && !await confirmArchive(`${row.className} · ${line.days} · ${line.times}`, 'This schedule line will be archived and will no longer be accessible for use. Other schedule lines will remain unchanged.')) return
+    if (!archived && !window.confirm(`Restore "${row.className} · ${line.days} · ${line.times}"? This changes only this schedule line.`)) return
     setPendingAction({ classId: row.classId, kind: 'archive' })
     setActionError(null)
     try {

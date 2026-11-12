@@ -1214,6 +1214,7 @@ const registrationSchema = Joi.object({
     firstName: Joi.string().min(1).max(50).optional().allow('', null),
     lastName: Joi.string().min(1).max(50).optional().allow('', null),
     dateOfBirth: Joi.string().isoDate().required(),
+    gender: Joi.string().valid('male', 'female').optional().allow('', null),
   })).optional().allow(null),
   submitterRole: Joi.string().valid('Athlete', 'Parent/Guardian', 'Other').optional().allow('', null),
   inquirySource: Joi.string().max(500).optional().allow('', null),
@@ -3149,6 +3150,7 @@ app.post('/api/registrations', async (req, res) => {
               const row = {}
               if (c.firstName) row.firstName = c.firstName
               if (c.lastName) row.lastName = c.lastName
+              if (c.gender) row.gender = c.gender
               if (c.dateOfBirth) {
                 row.dateOfBirth = String(c.dateOfBirth).slice(0, 10)
               }
@@ -10667,6 +10669,7 @@ app.get('/api/admin/programs', async (req, res) => {
         ), 0) as "slotCount"
         ${includePricing === 'true' ? `,
         sf.id as "schedulingFormId",
+        sf.class_program_pricing, sf.class_monthly_price_cents, sf.cost_unit AS "formCostUnit", sf.cost_amount_cents AS "formCostAmountCents",
         sf.pricing_overrides_program as "pricingOverridesProgram",
         sf.max_slots_per_user as "formMaxSlotsPerUser",
         sf.slot_cost_monthly_cents as "formSlotCostMonthlyCents",
@@ -10706,7 +10709,8 @@ app.get('/api/admin/programs', async (req, res) => {
             pricing_max_free_slots_total: row.programMaxFreeSlotsTotal,
           },
           {
-            id: row.schedulingFormId,
+            id: row.schedulingFormId, cost_unit: row.formCostUnit, cost_amount_cents: row.formCostAmountCents,
+            class_program_pricing: row.class_program_pricing, class_monthly_price_cents: row.class_monthly_price_cents,
             pricing_overrides_program: row.pricingOverridesProgram,
             max_slots_per_user: row.formMaxSlotsPerUser,
             slot_cost_monthly_cents: row.formSlotCostMonthlyCents,

@@ -13,63 +13,29 @@ import {
 } from '../utils/ninjaProgram'
 import { HUB_HEADER_LOGO } from '../utils/seo'
 import { getSiteEnrollHref } from '../utils/enrollSite'
-import type { PortalId } from '../utils/portalSession'
-
-const PORTAL_OPTIONS = [
-  { id: 'admin', label: 'Admin' },
-  { id: 'new-admin', label: 'New Admin' },
-  { id: 'coach', label: 'Coach' },
-  { id: 'member', label: 'Member' },
-] as const
 
 interface HeaderProps {
   onContactClick: () => void
   onAdminLoginClick?: () => void
-  member?: unknown
+  isLoggedIn?: boolean
   onMemberDashboardClick?: () => void
-  availablePortals?: PortalId[]
-  onSwitchPortal?: (portal: PortalId) => void
 }
 
-const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardClick, availablePortals = [], onSwitchPortal }: HeaderProps) => {
+const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
   useSiteHeaderHeight(headerRef)
   const location = useLocation()
   const { pages: specialPages } = useSpecialPages()
   const showPrimaryActions = true
-  const hasMobilePrimaryActions = showPrimaryActions || Boolean(member && onMemberDashboardClick)
-  const handleProfileClick = () => {
-    if (member && onMemberDashboardClick) {
-      onMemberDashboardClick()
-      return
-    }
-    onAdminLoginClick?.()
-  }
-  const portalOptions = PORTAL_OPTIONS.filter(option => availablePortals.includes(option.id))
-  const profileControl = portalOptions.length && onSwitchPortal ? (
-    <select
-      aria-label="Open a portal"
-      value=""
-      onChange={event => {
-        const option = portalOptions.find(item => item.id === event.target.value)
-        if (option) {
-          setIsMenuOpen(false)
-          onSwitchPortal(option.id)
-        }
-      }}
-      className="h-9 max-w-32 rounded-lg border border-white/30 bg-black px-2 text-sm font-semibold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-    >
-      <option value="" disabled>Portals</option>
-      {portalOptions.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
-    </select>
-  ) : (
+  const hasMobilePrimaryActions = showPrimaryActions || Boolean(isLoggedIn && onMemberDashboardClick)
+  const profileControl = isLoggedIn ? null : (
     <button
       type="button"
-      onClick={handleProfileClick}
+      onClick={onAdminLoginClick}
       className="text-white transition-colors duration-300 hover:text-vortex-red"
-      aria-label={member ? 'Open member portal' : 'Account login'}
-      title={member ? 'Member Portal' : 'Account Login'}
+      aria-label="Account login"
+      title="Account Login"
     >
       <UserCircle size={28} />
     </button>
@@ -158,7 +124,7 @@ const Header = ({ onContactClick, onAdminLoginClick, member, onMemberDashboardCl
             )}
 
             {/* Member Dashboard or Login Button */}
-            {member && onMemberDashboardClick ? (
+            {isLoggedIn && onMemberDashboardClick ? (
               <motion.button
                 onClick={onMemberDashboardClick}
                 className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"

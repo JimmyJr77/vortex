@@ -8,14 +8,26 @@ export interface LossRateSummary {
   lastMonthLossRate: number | null; threeMonthLossRate: number | null; threeMonthRateMonths: number
   twelveMonthLossRate: number | null; twelveMonthRateMonths: number
 }
+export interface QuarterSummary {
+  start: string; end: string; monthCount: number
+  newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
+  cancellations: number | null; averageCancellations: number | null; cancellationMonths: number
+  averageLossRate?: number | null; lossRateMonths?: number
+  // Older quarter responses expose the same period average under rolling-summary names.
+  twelveMonthLossRate?: number | null; twelveMonthRateMonths?: number
+}
+interface CurrentBreakdowns {
+  classes: Array<{id: string; name: string; count: number}>; genders: Breakdown[]; ages: Breakdown[]; teams: Breakdown[]
+}
 export interface EnrollmentTrendData {
+  quarters?: QuarterSummary[]; studentQuarters?: QuarterSummary[]
   studentMonths?: Array<Omit<EnrollmentMonth, 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
   year: number; asOf: string; coverageStart: string | null; months: EnrollmentMonth[]; rollingMonths: EnrollmentMonth[]; notes: string[]
   summary: LossRateSummary & { newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
     cancellations: number | null; averageCancellations: number | null; cancellationMonths: number }
   studentSummary?: LossRateSummary
-  current: { families: number; students: number; studentsPerFamily: number | null
-    classes: Array<{id: string; name: string; count: number}>; genders: Breakdown[]; ages: Breakdown[]; teams: Breakdown[]
+  current: CurrentBreakdowns & { families: number; students: number; studentsPerFamily: number | null
+    familyBreakdowns?: CurrentBreakdowns
     membership: { monthlyRevenueCents: number; averageMembershipCents: number | null; averageFamilyMembershipCents?: number | null; pricedStudents: number } | null }
   acquisition: { rows: AcquisitionMonth[]; includedMonths: number; totalSpendCents: number; newFamilies: number; cacCents: number | null
     retentionMonths: number | null; familyLifetimeRevenueCents: number | null; revenuePerDollar: number | null } | null

@@ -21,7 +21,7 @@ export default function EntityPicker({ label, allLabel, placeholder, selected, q
   const [active, setActive] = useState(-1)
   const available = loading ? [] : options
   return <div className="relative" onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false) }}>
-    <label htmlFor={id} className="text-xs font-semibold text-slate-600">{label}</label>
+    <label htmlFor={id} className="block text-xs font-semibold text-slate-600">{label}</label>
     <div className="relative">
       <input
         id={id}

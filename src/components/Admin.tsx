@@ -4,56 +4,27 @@ import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
 import AdminInquiries from './AdminInquiries'
 import AdminMembers from './AdminMembers'
 import AdminClasses from './AdminClasses'
-import AdminEvents from './AdminEvents'
-import AdminAnalytics from './AdminAnalytics'
-import AdminHighlights from './AdminHighlights'
-import AdminSpecialPages from './AdminSpecialPages'
 import AdminScheduling from './AdminScheduling'
-import AdminCalendar from './scheduling/AdminCalendar'
-import AdminPricing from './AdminPricing'
 import AdminSignups from './AdminSignups'
 import AdminMultiClassPasses from './AdminMultiClassPasses'
-import AdminDbQueries from './AdminDbQueries'
-import AdminSchools from './AdminSchools'
-import AdminAccess from './AdminAccess'
-import AdminCustomerBilling from './AdminCustomerBilling'
 import AdminBillingOverview from './AdminBillingOverview'
 import BillingAnomaliesPanel from './admin/BillingAnomaliesPanel'
-import AdminStore from './admin/AdminStore'
-import BillingRecoveryAlerts from './billing/BillingRecoveryAlerts'
-import CancellationReviewPanel from './billing/CancellationReviewPanel'
-import DisputeCasesPanel from './billing/DisputeCasesPanel'
-import StripeOperationsPanel from './billing/StripeOperationsPanel'
-import StripePaymentsPanel from './billing/StripePaymentsPanel'
-import AdminWaivers from './AdminWaivers'
 import StaffLegalPolicies from './legal/StaffLegalPolicies'
-import AdminStaffLegal from './legal/AdminStaffLegal'
-import AdminSettings from './admin/AdminSettings'
-import AdminCoaches from './AdminCoaches'
-import AdminClassSetupOverview from './classSetup/AdminClassSetupOverview'
 import AdminEventSignups from './AdminEventSignups'
-import AdminInsurance from './AdminInsurance'
-import AdminMessagesPanel from './admin/AdminMessagesPanel'
 import AdminHomePanel from './admin/AdminHomePanel'
 import AdminDashboard from './admin/AdminDashboard'
-import AdminMarketingVisibility from './admin/AdminMarketingVisibility'
-import AdminOpportunities from './AdminOpportunities'
-import AdminCompetitors from './admin/AdminCompetitors'
-import MessagingFaqMasterPanel from './messaging/MessagingFaqMasterPanel'
 import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
-import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import {
   NOTIFICATION_NAV_EVENT,
   type NotificationNavigateDetail,
 } from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, CalendarDays, CreditCard, FileText, Sparkles, Database, Settings, Menu, X, MessageSquare, Bell, CircleHelp, Megaphone, Target, LayoutDashboard, ShoppingBag, Landmark } from 'lucide-react'
+import { Home, Users, Inbox, BookOpen, ClipboardList, Menu, X, LayoutDashboard, Landmark } from 'lucide-react'
 import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
 import type { PortalId } from '../utils/portalSession'
 
 const AdminPayroll = lazy(() => import('./payroll/AdminPayroll'))
-const FloorPlanner = lazy(() => import('./floorPlanner/FloorPlanner'))
 
 interface AdminProps {
   onLogout: () => void
@@ -61,34 +32,6 @@ interface AdminProps {
   onSwitchPortal?: (portal: PortalId) => void
 }
 
-interface Program {
-  id: number // Database column: id
-  category?: string // Legacy enum value - kept for backward compatibility, use categoryId instead
-  categoryId?: number | null // Foreign key to program_categories table - SINGLE SOURCE OF TRUTH
-  categoryName?: string | null // From database join with program_categories.name
-  categoryDisplayName?: string | null // From database join with program_categories.display_name - SINGLE SOURCE OF TRUTH
-  name: string // Database column: name
-  displayName: string // Database column: display_name
-  skillLevel: string | null // Database column: skill_level (enum value from database)
-  ageMin: number | null // Database column: age_min
-  ageMax: number | null // Database column: age_max
-  description: string | null // Database column: description
-  skillRequirements: string | null // Database column: skill_requirements
-  isActive: boolean // Database column: is_active
-  archived?: boolean // Database column: archived
-  createdAt: string // Database column: created_at
-  updatedAt: string // Database column: updated_at
-}
-
-interface Category {
-  id: number
-  name: string
-  displayName: string
-  description?: string | null
-  archived: boolean
-  createdAt: string
-  updatedAt: string
-}
 
 type TabType = 'floorPlanner' | 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'staffLegal' | 'email' | 'messages' | 'faqs' | 'preferences'
 
@@ -101,51 +44,20 @@ interface AccessContext {
   userId?: number | null
 }
 
-interface BillingAccountTarget {
-  familyId: number
-  memberId: number | null
-}
 
 const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; masterAdminOnly?: boolean }> = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'payroll', label: 'Payroll', permission: 'payroll.view' },
-  { id: 'opportunities', label: 'Research board', permission: 'analytics.view' },
-  { id: 'admins', label: 'Staff Access', permission: 'admin_access.manage' },
   { id: 'membership', label: 'Members', permission: 'members.view' },
   { id: 'billingOverview', label: 'Billing Overview', permission: 'billing.view' },
-  { id: 'messages', label: 'Messages' },
-  { id: 'faqs', label: 'FAQ library' },
-  { id: 'access', label: 'Staff Access', permission: 'admin_access.manage' },
   { id: 'users', label: 'Inquiries', permission: 'members.view' },
-  { id: 'classSetupOverview', label: 'Class Master', permission: 'classes.view' },
   { id: 'classes', label: 'Program & Class Creation', permission: 'classes.view' },
-  { id: 'coaches', label: 'Coach Assignments', permission: 'classes.manage' },
   { id: 'scheduling', label: 'Class & Event Scheduling', permission: 'scheduling.view' },
   { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
-  { id: 'calendar', label: 'Calendar', permission: 'scheduling.view' },
-  { id: 'floorPlanner', label: 'Floor Planner', permission: 'scheduling.view' },
-  { id: 'pricing', label: 'Pricing', permission: 'pricing.view' },
-  { id: 'customerBilling', label: 'Account Billing & Enrollments', permission: 'billing.view' },
   { id: 'billingAnomalies', label: 'Billing Anomalies', permission: 'billing.view' },
-  { id: 'store', label: 'Store', permission: 'billing.view' },
-  { id: 'billing', label: 'Billing', permission: 'billing.view' },
-  { id: 'stripePayments', label: 'Stripe Payments', permission: 'billing.view', masterAdminOnly: true },
-  { id: 'waivers', label: 'Waivers', permission: 'waivers.view' },
-  { id: 'insurance', label: 'Insurance', permission: 'waivers.view' },
-  { id: 'staffLegal', label: 'Staff Policies and Signatures', permission: 'waivers.view' },
   { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
   { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
   { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
-  { id: 'specialPages', label: 'Special Pages', permission: 'classes.view' },
-  { id: 'highlights', label: 'Popups', permission: 'classes.view' },
-  { id: 'events', label: 'Events', permission: 'classes.view' },
-  { id: 'dbQueries', label: 'Database Queries', permission: 'admin_access.manage' },
-  { id: 'email', label: 'Email', permission: 'admin_access.manage' },
-  { id: 'schools', label: 'Schools', permission: 'schools.view' },
-  { id: 'analytics', label: 'Analytics & Engagement', permission: 'analytics.view' },
-  { id: 'marketing', label: 'Marketing & Visibility', permission: 'analytics.view' },
-  { id: 'competitors', label: 'Competitors', permission: 'analytics.view' },
-  { id: 'preferences', label: 'Preferences' },
 ]
 
 const tabLabel = (id: TabType): string => tabDefinitions.find((t) => t.id === id)?.label ?? id
@@ -161,23 +73,10 @@ const GROUPS: GroupDef[] = [
   { id: 'home', label: 'Home', icon: Home, sections: [] },
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, sections: ['dashboard'] },
   { id: 'payroll', label: 'Payroll', icon: Landmark, sections: ['payroll'] },
-  { id: 'calendar', label: 'Calendar', icon: CalendarDays, sections: ['calendar'] },
-  { id: 'floorPlanner', label: 'Floor Planner', icon: LayoutDashboard, sections: ['floorPlanner'] },
-  { id: 'messaging', label: 'Messages', icon: MessageSquare, sections: ['messages'] },
   { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'customerBilling', 'billingAnomalies', 'access'] },
-  { id: 'store', label: 'Store', icon: ShoppingBag, sections: ['store'] },
+  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'billingAnomalies'] },
   { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
-  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classSetupOverview', 'classesEvents', 'classes', 'scheduling', 'coaches'] },
-  { id: 'pricingBilling', label: 'Pricing & Billing', icon: CreditCard, sections: ['pricing', 'billing', 'stripePayments'] },
-  { id: 'highlightsEvents', label: 'Pages & Popups', icon: Sparkles, sections: ['specialPages', 'highlights', 'events'] },
-  { id: 'opportunityResearch', label: 'Opportunities', icon: Target, sections: ['opportunities'] },
-  { id: 'marketingVisibility', label: 'Marketing & Visibility', icon: Megaphone, sections: ['marketing', 'competitors'] },
-  { id: 'dataAnalysis', label: 'Database & Analysis', icon: Database, sections: ['analytics', 'dbQueries', 'schools'] },
-  { id: 'faqLibrary', label: 'FAQ library', icon: CircleHelp, sections: ['faqs'] },
-  { id: 'legal', label: 'Legal', icon: FileText, sections: ['waivers', 'insurance', 'staffLegal'] },
-  { id: 'preferences', label: 'Preferences', icon: Bell, sections: ['preferences'] },
-  { id: 'settings', label: 'Settings', icon: Settings, sections: ['email'] },
+  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classesEvents', 'classes', 'scheduling'] },
 ]
 
 const groupForSection = (tab: TabType): GroupId =>
@@ -189,15 +88,10 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const [activeGroup, setActiveGroup] = useState<GroupId>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'payroll':'home')
   const [navOpen, setNavOpen] = useState(false)
   const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
-  const [programs, setPrograms] = useState<Program[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [schedulingIntent, setSchedulingIntent] = useState<SchedulingNavigationIntent | null>(null)
   const [schedulingNavKey, setSchedulingNavKey] = useState(0)
   const [accessContext, setAccessContext] = useState<AccessContext | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
-  const [openMessageThreadId, setOpenMessageThreadId] = useState<number | null>(null)
-  const [messagesMaximized, setMessagesMaximized] = useState(false)
-  const [billingAccountTarget, setBillingAccountTarget] = useState<BillingAccountTarget | null>(null)
 
   useEffect(() => {
     if (!getAdminToken()) {
@@ -280,27 +174,20 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     setActiveGroup(groupForSection(tab))
   }, [])
 
+  const openAdminBilling = useCallback((familyId?: number, memberId: number | null = null) => {
+    sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ section: 'billing', familyId, memberId }))
+    onSwitchPortal?.('new-admin')
+  }, [onSwitchPortal])
+
   useEffect(() => {
     if (accessLoading) return
     const params = new URLSearchParams(window.location.search)
     const familyId = Number(params.get('adminBillingFamilyId'))
     const memberId = Number(params.get('adminBillingMemberId'))
-    if (!Number.isSafeInteger(familyId) || familyId <= 0) return
-    setBillingAccountTarget({
-      familyId,
-      memberId: Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null,
-    })
-    goToSection('customerBilling')
-  }, [accessLoading, goToSection])
-
-  const adminFetch = useCallback(async <T,>(endpoint: string, options: RequestInit = {}): Promise<T> => {
-    const res = await adminApiRequest(endpoint, options)
-    const json = await res.json().catch(() => ({}))
-    if (!res.ok || json?.success === false) {
-      throw new Error(json?.message || `Request failed: ${res.status}`)
+    if (Number.isSafeInteger(familyId) && familyId > 0) {
+      openAdminBilling(familyId, Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null)
     }
-    return (json?.data ?? json) as T
-  }, [])
+  }, [accessLoading, openAdminBilling])
 
   const openGroup = useCallback(
     (groupId: GroupId) => {
@@ -318,13 +205,17 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     const onNavigateNotification = (evt: globalThis.Event) => {
       const detail = (evt as CustomEvent<NotificationNavigateDetail>).detail
       if (!detail || detail.portal !== 'admin') return
+      if (detail.section === 'messages' || detail.section === 'billing') {
+        sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ notification: detail }))
+        onSwitchPortal?.('new-admin')
+        return
+      }
       if (detail.group) openGroup(detail.group as GroupId)
       if (detail.section) goToSection(detail.section as TabType)
-      if (detail.threadId != null) setOpenMessageThreadId(detail.threadId)
     }
     window.addEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
     return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
-  }, [goToSection, openGroup])
+  }, [goToSection, openGroup, onSwitchPortal])
 
   useEffect(() => {
     if (accessLoading || activeGroup === 'home') return
@@ -336,125 +227,24 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     }
   }, [accessLoading, activeGroup, activeTab, visibleSectionsForGroup])
 
-  useEffect(() => {
-    if (activeTab !== 'messages' && messagesMaximized) setMessagesMaximized(false)
-  }, [activeTab, messagesMaximized])
-
-  useEffect(() => {
-    if (activeTab === 'events') {
-      fetchAllCategories()
-      fetchAllPrograms()
-    }
-  }, [activeTab])
-
-  const fetchAllPrograms = async () => {
-    try {
-      const response = await adminApiRequest('/api/admin/programs')
-      
-      if (!response.ok) {
-        throw new Error(`Backend returned error`)
-      }
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        setPrograms(data.data || [])
-      } else {
-        setPrograms([])
-      }
-    } catch (error) {
-      console.error('Error fetching programs:', error)
-      setPrograms([])
-    }
-  }
-
-  const fetchAllCategories = async () => {
-    try {
-      // Fetch both archived and active categories
-      const [activeResponse, archivedResponse] = await Promise.all([
-        adminApiRequest('/api/admin/categories?archived=false'),
-        adminApiRequest('/api/admin/categories?archived=true')
-      ])
-      
-      if (!activeResponse.ok || !archivedResponse.ok) {
-        throw new Error(`Backend returned error`)
-      }
-      
-      const [activeData, archivedData] = await Promise.all([
-        activeResponse.json(),
-        archivedResponse.json()
-      ])
-      
-      if (activeData.success && archivedData.success) {
-        setCategories([...activeData.data, ...archivedData.data])
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    }
-  }
-
   const renderSection = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <AdminDashboard onOpenCustomerBilling={() => goToSection('customerBilling')} onOpenEnrollments={() => goToSection('signups')} />
+        return <AdminDashboard onOpenCustomerBilling={() => openAdminBilling()} onOpenEnrollments={() => goToSection('signups')} />
       case 'payroll':
         return <Suspense fallback={<div className="py-16 text-center text-sm font-semibold text-slate-500">Loading payroll…</div>}><AdminPayroll /></Suspense>
-      case 'opportunities':
-        return <AdminOpportunities />
-      case 'analytics':
-        return <AdminAnalytics />
-      case 'marketing':
-        return <AdminMarketingVisibility canManage={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('marketing.manage'))} />
-      case 'competitors':
-        return <AdminCompetitors />
-      case 'access':
-        return <AdminAccess currentUserId={accessContext?.userId ?? null} />
-      case 'billing':
-        return (
-          <div className="space-y-6">
-            <BillingRecoveryAlerts />
-            <CancellationReviewPanel />
-            <DisputeCasesPanel />
-            <StripeOperationsPanel />
-          </div>
-        )
-      case 'stripePayments':
-        return <StripePaymentsPanel />
-      case 'customerBilling':
-        return (
-          <AdminCustomerBilling
-            accountTarget={billingAccountTarget}
-            onAccountTargetConsumed={() => setBillingAccountTarget(null)}
-          />
-        )
       case 'billingOverview':
         return (
           <AdminBillingOverview
             onOpenFamily={(familyId, memberId) => {
-              setBillingAccountTarget({ familyId, memberId })
-              goToSection('customerBilling')
+              openAdminBilling(familyId, memberId)
             }}
           />
         )
       case 'billingAnomalies':
         return <BillingAnomaliesPanel onOpenAccount={(familyId) => {
-          setBillingAccountTarget({ familyId, memberId: null })
-          goToSection('customerBilling')
+          openAdminBilling(familyId)
         }} />
-      case 'store':
-        return <AdminStore />
-      case 'waivers':
-        return <AdminWaivers />
-      case 'staffLegal':
-        return <AdminStaffLegal />
-      case 'insurance':
-        return <AdminInsurance />
-      case 'dbQueries':
-        return <AdminDbQueries />
-      case 'email':
-        return <AdminSettings />
-      case 'schools':
-        return <AdminSchools />
       case 'scheduling':
         return (
           <AdminScheduling
@@ -463,12 +253,6 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             onNavigationIntentConsumed={() => setSchedulingIntent(null)}
           />
         )
-      case 'calendar':
-        return <AdminCalendar />
-      case 'floorPlanner':
-        return <Suspense fallback={<p className="p-6 text-gray-500">Loading Floor Planner…</p>}><FloorPlanner canManage={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('scheduling.manage'))} userId={accessContext?.userId ?? null} /></Suspense>
-      case 'pricing':
-        return <AdminPricing />
       case 'signups':
         return <AdminSignups />
       case 'multiClassPasses':
@@ -485,22 +269,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             }}
           />
         )
-      case 'classSetupOverview':
-        return <AdminClassSetupOverview />
-      case 'coaches':
-        return <AdminCoaches isMasterAdmin={accessContext?.isMasterAdmin ?? false} />
       case 'classesEvents':
         return <AdminClasses spreadsheetOnly />
-      case 'highlights':
-        return <AdminHighlights />
-      case 'specialPages':
-        return <AdminSpecialPages />
-      case 'events':
-        return <AdminEvents programs={programs} categories={categories} adminInfo={adminInfo} />
-      case 'admins':
-        // Retain old deep links while consolidating the duplicate Admins and
-        // Access screens around the canonical staff-access model.
-        return <AdminAccess currentUserId={accessContext?.userId ?? null} />
       case 'membership':
         return (
           <AdminMembers
@@ -525,30 +295,13 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             )}
           />
         )
-      case 'messages':
-        return (
-          <AdminMessagesPanel
-            initialThreadId={openMessageThreadId}
-            onInitialThreadOpened={() => setOpenMessageThreadId(null)}
-            maximized={messagesMaximized}
-            onMaximizedChange={setMessagesMaximized}
-          />
-        )
-      case 'faqs':
-        return (
-          <div className="flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden">
-            <MessagingFaqMasterPanel role="admin" fetcher={adminFetch} />
-          </div>
-        )
-      case 'preferences':
-        return <PortalPreferencesPanel role="admin" fetcher={adminFetch} />
       default:
         return <AdminInquiries />
     }
   }
 
   const groupSections = activeGroup === 'home' ? [] : visibleSectionsForGroup(activeGroup)
-  const messagingFullscreen = messagesMaximized && activeTab === 'messages'
+  const messagingFullscreen = false
 
   return (
     <div className="min-h-screen h-dvh max-h-dvh bg-gray-50 flex flex-col overflow-hidden">
@@ -561,7 +314,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
               {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <h1 className="text-3xl md:text-5xl font-display font-bold text-white">
-              VORTEX <span className="text-vortex-red">ADMIN</span>
+              VORTEX <span className="text-vortex-red">LEGACY ADMIN</span>
             </h1>
           </div>
           <PortalNavButtons
@@ -576,7 +329,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
 
       {/* Workspace: sidebar groups + main content */}
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
+        <nav aria-label="Legacy Admin sections" className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
           <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
             {visibleGroups.map((group) => {
               const Icon = group.icon

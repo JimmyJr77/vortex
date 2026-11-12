@@ -1,3 +1,6 @@
+import { loadCalendarRowsForSlotGroups } from '../scheduling/freePassEngine.js'
+import { prorationForLine } from '../scheduling/firstMonthProration.js'
+import { normalizeEnrollmentDiscountRequest } from './enrollmentDiscountRequest.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { priceRecurringPeriod } from './recurringPeriodPricing.js'
 import { syncEnrollmentStripePriceSchedule } from './stripePriceSchedules.js'
@@ -18,6 +21,10 @@ import { resolveProgramsSchema } from '../programs/schema.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
+
+function adjustmentRequestFingerprint(input) {
+  return JSON.stringify(Object.fromEntries(Object.entries(input ?? {}).filter(([key]) => key !== 'requestKey').sort(([a], [b]) => a.localeCompare(b))))
+}
 
 function parseJson(value, fallback = {}) {
   if (value == null) return fallback
@@ -241,6 +248,7 @@ export async function resolvePromoAdjustment(pool, context, rawCode, requestedFr
 
 async function normalizeAdjustmentRequest(pool, context, input) {
   const kind = input?.kind
+  if (kind === 'enrollment_discount') return normalizeEnrollmentDiscountRequest(pool, context, input)
   if (!['fixed_final_price', 'promo_code'].includes(kind)) {
     throw new Error('Adjustment kind must be fixed_final_price or promo_code.')
   }
@@ -423,7 +431,7 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     {
       kind: normalized.kind,
       promoCode: normalized.promo?.code ?? null,
-      discountRuleId: normalized.promo?.snapshot?.id ?? null,
+      discountRuleId: normalized.promo?.snapshot?.id > 0 ? normalized.promo.snapshot.id : null,
       discountRuleSnapshot: normalized.promo?.snapshot ?? null,
     },
   )
@@ -446,7 +454,7 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     kind: normalized.kind,
     final_price_cents: normalized.finalPriceCents,
     promo_code: normalized.promo?.code ?? null,
-    discount_rule_id: normalized.promo?.snapshot?.id ?? null,
+    discount_rule_id: normalized.promo?.snapshot?.id > 0 ? normalized.promo.snapshot.id : null,
     discount_rule_snapshot: normalized.promo?.snapshot ?? null,
     effective_from_month: normalized.effectiveFrom,
     effective_through_month: normalized.effectiveThrough,
@@ -482,7 +490,17 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     ) ?? applyEnrollmentPriceAdjustment(baseline, hypothetical)
     const postedAmount = postedByPeriod.get(periodKey)
     const alreadyPosted = postedAmount != null
-    const retroactiveDifferenceCents = postedPriceDifferenceCents(adjusted.netCents, postedAmount)
+    let adjustedPeriodCents = adjusted.netCents
+    const firstServiceDate = context.subscription_start_date ?? context.enrollment_start_date ?? context.signup_created_at
+    if (input?.kind === 'enrollment_discount' && alreadyPosted && billingMonthKey(firstServiceDate) === periodKey) {
+      const calendars = await loadCalendarRowsForSlotGroups(pool, [Number(context.slot_group_id)])
+      const rows = calendars.get(Number(context.slot_group_id)) ?? []
+      if (!rows.length) throw new Error('The enrollment calendar is required to prorate its discount.')
+      const fromDate = firstServiceDate instanceof Date ? firstServiceDate.toISOString().slice(0, 10) : String(firstServiceDate).slice(0, 10)
+      const proration = prorationForLine(rows, { slotGroupId: Number(context.slot_group_id), timeSlotId: Number(context.time_slot_id) || null, fromDate })
+      adjustedPeriodCents = Math.round(adjusted.netCents * (proration.classStartsFutureMonth ? 1 : proration.ratio))
+    }
+    const retroactiveDifferenceCents = postedPriceDifferenceCents(adjustedPeriodCents, postedAmount)
     months.push({
       periodKey,
       standardPriceCents: adjusted.grossCents,
@@ -507,6 +525,8 @@ export async function previewEnrollmentPriceAdjustment(pool, {
     0,
   )
   return {
+    requestKey: input?.requestKey ?? null,
+    requestFingerprint: adjustmentRequestFingerprint(input),
     signupId: Number(context.signup_id),
     billingSubscriptionId: Number(context.billing_subscription_id),
     memberId: Number(context.member_id),
@@ -700,15 +720,48 @@ export async function createEnrollmentPriceAdjustment(pool, {
   input,
 }) {
   if (actorUserId == null) throw new Error('Authenticated administrator identity is required.')
-  const preview = await previewEnrollmentPriceAdjustment(pool, { signupId, facilityId, input })
+  let preview
   const context = await loadEnrollmentPriceContext(pool, signupId, facilityId)
   const client = await pool.connect()
   let adjustment
   let retroactiveEntries = []
-  const createdSummary = `${preview.kind === 'fixed_final_price' ? 'Final monthly price' : `Promo ${preview.promoCode}`} applied to ${context.class_name}.`
+  let createdSummary
   try {
     await client.query('BEGIN')
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [`household-monthly-invoice:${context.family_billing_account_id}`])
     await client.query(`SELECT pg_advisory_xact_lock($1::bigint)`, [Number(signupId)])
+    if (input?.requestKey) {
+      if (!/^[A-Za-z0-9_.:-]{8,120}$/.test(input.requestKey)) throw new Error('Invalid discount request key.')
+      const previous = await client.query(
+        `SELECT * FROM enrollment_price_adjustment WHERE signup_id = $1 AND preview_snapshot->>'requestKey' = $2 ORDER BY id DESC LIMIT 1`,
+        [signupId, input.requestKey],
+      )
+      if (previous.rows[0]) {
+        const previousPreview = parseJson(previous.rows[0].preview_snapshot)
+        if (previousPreview.requestFingerprint && previousPreview.requestFingerprint !== adjustmentRequestFingerprint(input)) {
+          throw new Error('This request key belongs to a different discount. Close and reopen the enrollment to make another change.')
+        }
+        await client.query('COMMIT')
+        return { adjustment: mapPriceAdjustment(previous.rows[0]), preview: previous.rows[0].preview_snapshot, retroactiveEntries: [], replayed: true }
+      }
+    }
+    if (input?.kind === 'enrollment_discount') {
+      const previous = (await client.query(`SELECT s.* FROM scheduling_signup s WHERE s.id=$1 AND NOT EXISTS
+        (SELECT 1 FROM enrollment_price_adjustment a WHERE a.signup_id=s.id AND a.kind IN ('promo_code','legacy_discount'))`, [signupId])).rows[0]
+      if (previous && (Number(previous.manual_discount_cents) > 0 || Number(previous.manual_discount_pct) > 0)) {
+        const amountType = previous.manual_discount_cents != null ? 'fixed' : 'percent'
+        const amountValue = amountType === 'fixed' ? Number(previous.manual_discount_cents) : Math.round(Number(previous.manual_discount_pct) * 100)
+        const snapshot = { id: -Number(signupId), name: previous.manual_discount_reason || 'Existing enrollment discount', type: 'manual',
+          amountType, amountValue, applyTo: 'class', calcBase: 'pre', stackable: true, config: { assignmentOnly: true } }
+        await client.query(`INSERT INTO enrollment_price_adjustment
+          (family_billing_account_id,member_id,signup_id,billing_subscription_id,kind,discount_rule_snapshot,effective_from_month,reason,status,created_by_user_id)
+          VALUES($1,$2,$3,$4,'legacy_discount',$5::jsonb,$6::date,'Preserved existing enrollment discount','active',$7)`,
+        [context.family_billing_account_id,context.member_id,signupId,context.billing_subscription_id,JSON.stringify(snapshot),
+          normalizeBillingMonth(context.subscription_start_date ?? context.enrollment_start_date ?? context.signup_created_at),actorUserId])
+      }
+    }
+    preview = await previewEnrollmentPriceAdjustment(client, { signupId, facilityId, input })
+    createdSummary = `${preview.kind === 'fixed_final_price' ? 'Final monthly price' : preview.kind === 'legacy_discount' ? 'Enrollment discount' : `Promo ${preview.promoCode}`} applied to ${context.class_name}.`
     await assertAdjustmentWindowAvailable(
       client,
       signupId,
@@ -717,7 +770,7 @@ export async function createEnrollmentPriceAdjustment(pool, {
       {
         kind: preview.kind,
         promoCode: preview.promoCode,
-        discountRuleId: preview.promoRule?.id ?? null,
+        discountRuleId: preview.promoRule?.id > 0 ? preview.promoRule.id : null,
         discountRuleSnapshot: preview.promoRule,
       },
     )
@@ -752,7 +805,7 @@ export async function createEnrollmentPriceAdjustment(pool, {
         preview.kind,
         preview.finalPriceCents,
         preview.promoCode,
-        preview.promoRule?.id ?? null,
+        preview.promoRule?.id > 0 ? preview.promoRule.id : null,
         preview.promoRule ? JSON.stringify(preview.promoRule) : null,
         preview.effectiveFromMonth,
         preview.effectiveThroughMonth,
@@ -765,6 +818,16 @@ export async function createEnrollmentPriceAdjustment(pool, {
       ],
     )
     adjustment = inserted.rows[0]
+    if (input?.kind === 'enrollment_discount') {
+      const rule = preview.promoRule
+      await client.query(
+        `UPDATE scheduling_signup SET manual_discount_cents = $2, manual_discount_pct = $3,
+           manual_discount_reason = $4, manual_discount_rule_id = $5 WHERE id = $1`,
+        [signupId, rule.amountType === 'fixed' && rule.amountValue > 0 ? rule.amountValue : null,
+          rule.amountType === 'percent' ? rule.amountValue / 100 : null,
+          input.mode === 'clear' ? null : preview.reason, rule.selectedRuleId ?? null],
+      )
+    }
     if (preview.kind === 'promo_code' && preview.promoRule?.id) {
       const firstMonth = preview.months[0]
       await client.query(

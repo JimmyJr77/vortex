@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useCallback, useEffect, useState } from 'react'
 import { Archive, Loader2, Pencil, Plus, Trash2, RotateCcw } from 'lucide-react'
 import {
@@ -65,7 +66,7 @@ const ClassEventsPanel = ({
   }
 
   const handleArchive = async (item: ClassEvent) => {
-    if (!confirm(`Archive "${item.displayName}"?`)) return
+    if (!await confirmArchive(item.displayName)) return
     setActionId(item.id)
     try {
       await archiveClassEvent(item.id, true)

@@ -4,7 +4,7 @@ import { useRead, type BillingTarget } from './api'
 import BillingDashboard from './BillingDashboard'
 import EnrollmentPopulation, { MetricCard } from './EnrollmentPopulation'
 import AcquisitionPanel from './AcquisitionPanel'
-import { number, monthName, type EnrollmentTrendData } from './enrollmentTypes'
+import { number, type EnrollmentTrendData, type QuarterSummary } from './enrollmentTypes'
 export type { EnrollmentTrendData } from './enrollmentTypes'
 import { ErrorNotice, Loading } from './shared'
 
@@ -26,27 +26,51 @@ export default function EnrollmentDashboard({ revision, canViewBilling, onBillin
 
 function EnrollmentContent({ initialData }: {initialData: EnrollmentTrendData}) {
   const [data, setData] = useState(initialData)
+  const [population, setPopulation] = useState<'Families' | 'Students'>('Families')
   return <>
-    <EnrollmentTrend data={data} />
-    {data.current ? <EnrollmentPopulation current={data.current} asOf={data.asOf} /> : null}
+    <EnrollmentTrend data={data} population={population} setPopulation={setPopulation} />
+    {data.current ? <EnrollmentPopulation current={data.current} asOf={data.asOf} students={population === 'Students'} /> : null}
     {data.current && data.permissions ? <AcquisitionPanel data={data} onRefresh={setData} /> : null}
   </>
 }
 
-function LossRateCard({ label, values }: {label: string; values: Array<{population: string; value: number | null | undefined; detail: string}>}) {
-  return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5" aria-label={label}>
-    <h3 className="text-sm font-medium text-slate-600">{label}</h3>
-    <dl className="mt-4 space-y-4">{values.map(({ population, value, detail }) => <div key={population} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-1">
-      <dt className="text-sm font-semibold text-slate-700">{population}</dt>
-      <dd className={`font-bold text-red-700 ${value == null ? 'text-lg' : 'text-3xl'}`}>{rate(value)}</dd>
-      <dd className="col-span-2 text-xs leading-relaxed text-slate-500">{detail}</dd>
-    </div>)}</dl>
-  </article>
+const quarterName = (key: string) => `CY ${key.slice(0, 4)} Q${Math.ceil(Number(key.slice(5)) / 3)}`
+function QuarterlyCards({ quarters, title, noun }: { quarters: QuarterSummary[]; title: string; noun: string }) {
+  return <div className="mb-5 space-y-4">
+    {(['New enrollments', 'Cancellations', 'Loss rate'] as const).map(metric => {
+      const additions = metric === 'New enrollments'
+      const loss = metric === 'Loss rate'
+      const heading = additions ? `New ${noun}` : `${title} ${loss ? 'loss rate' : 'cancellations'}`
+      return <section key={metric} aria-label={heading}>
+        <h3 className="mb-2 font-semibold">{heading}</h3>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {quarters.map((quarter, index) => {
+            const total = index === 4
+            const current = index === 3
+            const label = total ? 'Previous 4 full quarters' : `${quarterName(quarter.start)}${current ? ' to date' : ''}`
+            const averageLossRate = quarter.averageLossRate !== undefined ? quarter.averageLossRate : quarter.twelveMonthLossRate
+            const average = additions ? quarter.averageNewFamilies : quarter.averageCancellations
+            const recorded = loss ? quarter.lossRateMonths ?? quarter.twelveMonthRateMonths ?? 0 : additions ? quarter.newFamilyMonths : quarter.cancellationMonths
+            return <MetricCard key={label} label={label} value={loss ? rate(averageLossRate) : number(additions ? quarter.newFamilies : quarter.cancellations)}
+              color={loss ? 'text-red-700' : additions ? 'text-blue-700' : 'text-amber-700'} detail={<>
+                <p>{loss ? 'Avg monthly loss rate' : `Monthly avg: ${number(average, 1)}`}</p>
+                {total && <p>{quarterName(quarter.start)} – {quarterName(quarter.end)}</p>}
+                {recorded < quarter.monthCount && <p>{recorded} of {quarter.monthCount} months with recorded data</p>}
+                {current && <p>Includes the current month to date</p>}
+              </>} />
+          })}
+        </div>
+      </section>
+    })}
+  </div>
 }
 
-function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
+function EnrollmentTrend({ data, population, setPopulation }: {
+  data: EnrollmentTrendData
+  population: 'Families' | 'Students'
+  setPopulation: (population: 'Families' | 'Students') => void
+}) {
   const [view, setView] = useState<typeof VIEWS[number]>('Timeline')
-  const [population, setPopulation] = useState<'Families' | 'Students'>('Families')
   const students = population === 'Students'
   const noun = students ? 'students' : 'families'
   const title = students ? 'Student' : 'Family'
@@ -54,35 +78,9 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
     newFamilies: row.newStudents, canceledFamilies: row.canceledStudents, lostFamilies: row.lostStudents})) : data.months
   const hasData = months.some(row => row.newFamilies != null)
   const latest = data.months.at(-1)
-  const summary = data.summary
-  const studentSummary = data.studentSummary
-  // Frontend and backend releases can arrive independently. Older API responses
-  // still contain the full timeline; show expanded cards once their data arrives.
-  const period = data.rollingMonths?.length ? `${monthName(data.rollingMonths[0].key)} – ${monthName(data.rollingMonths.at(-1)!.key)}` : null
-  const coverage = (count: number, expected: number) => count === expected ? `${count} completed months` : `${count} of ${expected} months with recorded data`
+  const quarters = students ? data.studentQuarters : data.quarters
   return <>
-    {summary && period ? <><p className="mb-3 text-sm text-slate-500">Rolling summary · {period} · Excludes the current month</p>
-    <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      {[
-        { label: 'New Families last 12 months', value: number(summary.newFamilies), detail: coverage(summary.newFamilyMonths, 12), color: 'text-blue-700' },
-        { label: 'Avg new families per month', value: number(summary.averageNewFamilies, 1), detail: coverage(summary.newFamilyMonths, 12), color: 'text-blue-700' },
-        { label: 'Cancellations last 12 months', value: number(summary.cancellations), detail: coverage(summary.cancellationMonths, 12), color: 'text-amber-700' },
-        { label: 'Avg cancellations per month', value: number(summary.averageCancellations, 1), detail: coverage(summary.cancellationMonths, 12), color: 'text-amber-700' },
-      ].map(card => <MetricCard key={card.label} {...card} />)}
-    </div>
-    <div className="mb-5 grid gap-3 lg:grid-cols-3">
-      {[
-        { label: 'Last month loss rate', familyRate: summary.lastMonthLossRate, studentRate: studentSummary?.lastMonthLossRate,
-          familyDetail: monthName(data.rollingMonths.at(-1)!.key), studentDetail: monthName(data.rollingMonths.at(-1)!.key) },
-        { label: 'Previous 3 months avg loss rate', familyRate: summary.threeMonthLossRate, studentRate: studentSummary?.threeMonthLossRate,
-          familyDetail: coverage(summary.threeMonthRateMonths, 3), studentDetail: coverage(studentSummary?.threeMonthRateMonths ?? 0, 3) },
-        { label: 'Previous 12 months avg loss rate', familyRate: summary.twelveMonthLossRate, studentRate: studentSummary?.twelveMonthLossRate,
-          familyDetail: coverage(summary.twelveMonthRateMonths, 12), studentDetail: coverage(studentSummary?.twelveMonthRateMonths ?? 0, 12) },
-      ].map(card => <LossRateCard key={card.label} label={card.label} values={[
-        { population: 'Families', value: card.familyRate, detail: card.familyDetail },
-        { population: 'Students', value: card.studentRate, detail: studentSummary ? card.studentDetail : 'Student loss history is unavailable' },
-      ]} />)}
-    </div></> : null}
+    {quarters?.length ? <QuarterlyCards quarters={quarters} title={title} noun={noun} /> : null}
     <div role="group" aria-label={`${title} enrollment trend`} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h3 className="font-bold">{title} enrollment trend · {data.year}</h3><p className="mt-1 text-sm text-slate-500">January – {latest?.label} · As of {data.asOf}{latest?.partial ? ' · Current month is partial' : ''}</p></div>
@@ -112,7 +110,7 @@ function EnrollmentTrend({ data }: { data: EnrollmentTrendData }) {
       </div> : <div className="mt-5">
         <p className="mb-3 text-xs text-slate-500">Left axis: {noun} (count) · Right axis: loss rate (%) · Table shows exact values.</p>
         <div className="h-80 w-full" role="img" aria-label={`${view} of monthly new ${noun}, cancellations and ${title.toLowerCase()} loss percentage. Exact values are available in the Table view.`}>
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer width="100%" height={320} minWidth={0}>
             <ComposedChart data={months} margin={{ top: 12, right: 0, bottom: 8, left: 0 }} accessibilityLayer>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="label" tick={{ fontSize: 12 }} minTickGap={12} />

@@ -21,6 +21,8 @@ interface ScheduleChoice {
 }
 
 interface ClassSwapPreview {
+  laterSourceCreditCents?: number
+  replacementCatchupCents?: number
   effectiveDate: string
   sourceMonthlyCents: number
   replacementMonthlyCents: number
@@ -36,11 +38,13 @@ interface ClassSwapPreview {
 }
 
 interface Props {
-  members: CustomerBillingMember[]
+  members: (Pick<CustomerBillingMember, 'id' | 'name'> & { isActive?: boolean })[]
   initialMemberId: number | null
+  initialEnrollmentDate?: string
   onClose: () => void
   onCreated: (message: string) => void
-  swapEnrollment?: CustomerBillingEnrollment | null
+  swapEnrollment?: Pick<CustomerBillingEnrollment, 'id' | 'memberName' | 'class_name' | 'program_name'> | null
+  reenrollEnrollment?: { id: number; formId: number | null } | null
 }
 
 function money(cents: number) {
@@ -106,21 +110,23 @@ function scheduleChoices(detail: SchedulingFormDetail | null): ScheduleChoice[] 
 export default function NewBillingEnrollmentModal({
   members,
   initialMemberId,
+  initialEnrollmentDate,
   onClose,
   onCreated,
   swapEnrollment = null,
+  reenrollEnrollment = null,
 }: Props) {
   const [selectedMemberId, setSelectedMemberId] = useState<number | ''>(
     initialMemberId ?? members[0]?.id ?? '',
   )
-  const [enrollmentDate, setEnrollmentDate] = useState(getTodayDateString())
+  const [enrollmentDate, setEnrollmentDate] = useState(initialEnrollmentDate ?? getTodayDateString())
   const [forms, setForms] = useState<SchedulingFormSummary[]>([])
   const [formsLoading, setFormsLoading] = useState(true)
   const [formsError, setFormsError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [programFilter, setProgramFilter] = useState('all')
   const [dateFilter, setDateFilter] = useState<'all' | 'enrollable'>('enrollable')
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(null)
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(reenrollEnrollment?.formId ?? null)
   const [formDetail, setFormDetail] = useState<SchedulingFormDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
@@ -272,6 +278,7 @@ export default function NewBillingEnrollmentModal({
         memberId: selectedMember.id,
         enrollmentStartDate: enrollmentDate,
         sendEmails: true,
+        reenrollFromSignupId: reenrollEnrollment?.id,
       })
       onCreated(`${selectedMember.name} was added to ${classLabel(selectedForm)}. The billing account has been refreshed.`)
     } catch (caught) {
@@ -349,13 +356,13 @@ export default function NewBillingEnrollmentModal({
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">{isSwap ? 'Replacement class' : 'Class'}</dt><dd className="mt-1 font-semibold text-gray-950">{classLabel(selectedForm)}</dd><dd className="text-sm text-gray-600">{programLabel(selectedForm)}</dd></div>
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Schedule</dt><dd className="mt-1 font-semibold text-gray-950">{selectedSchedule.label}</dd><dd className="text-sm text-gray-600">{selectedSchedule.availability}</dd></div>
               </dl>
-              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Original class through move date</span><strong className="mt-1 block text-lg">{money(swapPreview.sourceFirstPeriodCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'} will be removed from its bill</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement class for the remaining month</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div><p className="mt-4 font-semibold">The original and replacement class lines will be prorated in place. Any settled payment is reassigned to the replacement class where applicable; no separate class-swap credit line is created.</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
+              {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Original class through move date</span><strong className="mt-1 block text-lg">{money(swapPreview.sourceFirstPeriodCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'} will be removed from its bill</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement class for the remaining month</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div>{Boolean(swapPreview.laterSourceCreditCents) && <p className="mt-3">Credits for later bills from the original class: <strong>{money(swapPreview.laterSourceCreditCents ?? 0)}</strong>.</p>}{Boolean(swapPreview.replacementCatchupCents) && <p className="mt-3">Replacement tuition for later months: <strong>{money(swapPreview.replacementCatchupCents ?? 0)}</strong>.</p>}<p className="mt-4 font-semibold">The original and replacement class lines will be prorated in place. Any settled payment is reassigned to the replacement class where applicable; no separate class-swap credit line is created.</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
             </div>
           ) : (
             <div className="space-y-6">
               <div className="grid gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 md:grid-cols-2">
-                {isSwap ? <div className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Athlete</span><div className="mt-2 h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 font-normal text-gray-900">{selectedMember?.name ?? swapEnrollment?.memberName}</div><p className="mt-1 text-xs font-normal text-gray-500">Replacing {swapEnrollment?.class_name || 'the current class'}.</p></div> : <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Family member</span><select aria-label="Family member" value={selectedMemberId} onChange={(event) => { setSelectedMemberId(event.target.value ? Number(event.target.value) : ''); setReviewing(false) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"><option value="">Select a family member</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}{member.isActive ? '' : ' (inactive)'}</option>)}</select></label>}
-                <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4" /> {isSwap ? 'Move effective date' : 'Enrollment start date'}</span><input aria-label={isSwap ? 'Move effective date' : 'Enrollment start date'} type="date" min={isSwap ? undefined : getTodayDateString()} value={enrollmentDate} onChange={(event) => { setEnrollmentDate(event.target.value); setReviewing(false); setSwapPreview(null) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900" /></label>
+                {isSwap ? <div className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Athlete</span><div className="mt-2 h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 font-normal text-gray-900">{selectedMember?.name ?? swapEnrollment?.memberName}</div><p className="mt-1 text-xs font-normal text-gray-500">Replacing {swapEnrollment?.class_name || 'the current class'}.</p></div> : <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><Users className="h-4 w-4" /> Family member</span><select aria-label="Family member" value={selectedMemberId} onChange={(event) => { setSelectedMemberId(event.target.value ? Number(event.target.value) : ''); setReviewing(false) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900"><option value="">Select a family member</option>{members.map((member) => <option key={member.id} value={member.id}>{member.name}{member.isActive === false ? ' (inactive)' : ''}</option>)}</select></label>}
+                <label className="text-sm font-semibold text-gray-700"><span className="flex items-center gap-2"><CalendarDays className="h-4 w-4" /> {isSwap ? 'Move effective date' : 'Enrollment start date'}</span><input aria-label={isSwap ? 'Move effective date' : 'Enrollment start date'} type="date" value={enrollmentDate} onChange={(event) => { setEnrollmentDate(event.target.value); setReviewing(false); setSwapPreview(null) }} className="mt-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 font-normal text-gray-900" /></label>
               </div>
               {isSwap ? <label className="block text-sm font-semibold text-gray-700">Administrative reason<textarea aria-label="Class move reason" rows={2} value={swapReason} onChange={(event) => { setSwapReason(event.target.value); setReviewing(false); setSwapPreview(null) }} className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-normal text-gray-900" placeholder="Required for the billing and enrollment audit" /></label> : null}
 

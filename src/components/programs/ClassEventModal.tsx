@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useState, type ReactNode } from 'react'
 import { Loader2, Pencil, X } from 'lucide-react'
 import {
   createClassEvent,
@@ -16,6 +16,8 @@ interface ProgramOption {
 }
 
 interface Props {
+  pricingFields?: ReactNode
+  saveClass?: (programsId: number, data: ClassEventFormData) => Promise<void>
   open: boolean
   programsId: number
   programsDisplayName?: string
@@ -44,6 +46,8 @@ const emptyForm = (): ClassEventFormData => ({
 
 const ClassEventModal = ({
   open,
+  pricingFields,
+  saveClass,
   programsId,
   programsDisplayName,
   availablePrograms = [],
@@ -111,7 +115,9 @@ const ClassEventModal = ({
       }
       const abridgedName = (form.abridgedName ?? '').trim() || form.displayName.trim()
       const payload = { ...form, abridgedName }
-      if (editing) {
+      if (saveClass) {
+        await saveClass(selectedProgramsId, { ...payload, isActive: selectedProgramActive ? form.isActive : false })
+      } else if (editing) {
         await updateClassEvent(editing.id, {
           ...payload,
           ...(!lockProgram || canReselectProgram ? { programsId: selectedProgramsId } : {}),
@@ -187,6 +193,7 @@ const ClassEventModal = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          {pricingFields}
           {showProgramDropdown && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Program *</label>

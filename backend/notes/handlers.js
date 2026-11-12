@@ -43,9 +43,10 @@ async function subjectBelongsToFacility(pool, subjectType, subjectId, facilityId
          LEFT JOIN member linked_member ON linked_member.id = registration.member_id
         WHERE registration.id = $1
           AND (
-            linked_member.facility_id = $2
+            registration.facility_id = $2
+            OR (registration.facility_id IS NULL AND linked_member.facility_id = $2)
             OR (
-              registration.member_id IS NULL
+              registration.facility_id IS NULL AND registration.member_id IS NULL
               AND (SELECT COUNT(*) FROM facility) = 1
               AND EXISTS (SELECT 1 FROM facility WHERE id = $2)
             )

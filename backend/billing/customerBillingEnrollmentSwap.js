@@ -1,3 +1,5 @@
+import { loadEnrollmentDiscountTransfer, persistEnrollmentDiscountTransfer } from './enrollmentDiscountTransfer.js'
+import { billingDateKey, addBillingMonths } from './customerBillingPricing.js'
 import { billRegistrationMembership } from '../scheduling/registrationMembership.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
 import { bindEqualValueClassTransferCheckout } from './classTransferCheckoutBinding.js'
@@ -14,8 +16,7 @@ import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurr
 import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 
 function dateOnly(value) {
-  const match = String(value ?? '').match(/^\d{4}-\d{2}-\d{2}/)
-  return match ? match[0] : null
+  return billingDateKey(value)
 }
 
 function dayBefore(date) {
@@ -55,7 +56,7 @@ export function normalizeCustomerBillingClassSwapInput(input = {}, now = new Dat
   const rawTimeSlotId = input.targetTimeSlotId == null || input.targetTimeSlotId === ''
     ? null
     : Number(input.targetTimeSlotId)
-  const effectiveDate = dateOnly(input.effectiveDate) ?? todayDateOnly(now)
+  const effectiveDate = input.effectiveDate == null || input.effectiveDate === '' ? todayDateOnly(now) : dateOnly(input.effectiveDate)
   const reason = String(input.reason ?? '').trim()
   const today = todayDateOnly(now)
   if (!Number.isInteger(targetFormId) || targetFormId <= 0) throw new Error('Choose the replacement class.')
@@ -82,7 +83,7 @@ export function validateCustomerBillingClassSwapEffectiveDate(request, sourceEnr
 
 export function classSwapSettlement({ targetProratedCents = 0, unusedSourceCreditCents = 0 } = {}) {
   const targetChargeCents = cents(targetProratedCents)
-  const sourceCreditCents = cents(unusedSourceCreditCents)
+  const sourceCreditCents = Math.round(Number(unusedSourceCreditCents) || 0)
   const ledgerDeltaCents = targetChargeCents - sourceCreditCents
   return {
     targetChargeCents,
@@ -336,6 +337,8 @@ async function loadSwapSourceContext(db, { signupId, facilityId = null, forUpdat
             signup.slot_group_id, signup.time_slot_id, signup.first_name,
             signup.last_name, signup.email, signup.phone, signup.field_responses,
             signup.responses, signup.admin_stub, signup.pricing_option_key,
+            EXISTS(SELECT 1 FROM enrollment_action a WHERE a.signup_id=signup.id AND a.status='pending') AS has_pending_action,
+            (SELECT MAX(a.effective_date)::text FROM enrollment_action a WHERE a.signup_id=signup.id AND a.status='applied') AS latest_action_date,
             member.family_id, family.facility_id,
             form.title AS class_name,
             subscription.id AS billing_subscription_id,
@@ -361,6 +364,7 @@ async function loadSwapSourceContext(db, { signupId, facilityId = null, forUpdat
   const context = result.rows[0]
   if (!context) throw new Error('A current recurring enrollment could not be found.')
   if (context.signup_status !== 'confirmed') throw new Error('Only current confirmed enrollments can be moved.')
+  if (context.has_pending_action) throw new Error('Cancel the scheduled enrollment action before switching classes.')
   if (context.cancel_effective_date) throw new Error('This enrollment already has a scheduled cancellation or class move.')
   if (context.subscription_status !== 'active') throw new Error('Only active recurring enrollments can be moved.')
   return context
@@ -415,8 +419,7 @@ async function loadPostedSourceAmount(db, context, periodKey) {
             MIN(id)::bigint AS related_charge_id
        FROM billing_charge
       WHERE family_billing_account_id = $1
-        AND amount_cents > 0
-        AND charge_type IN ('recurring', 'one_time', 'adjustment')
+        AND charge_type IN ('recurring', 'one_time', 'adjustment', 'credit')
         AND ((source_type = 'scheduling_signup' AND source_id = $2) OR subscription_id = $3)
         AND to_char(COALESCE(service_period_start, created_at::date), 'YYYY-MM') = $4`,
     [context.family_billing_account_id, String(context.signup_id), context.billing_subscription_id, periodKey],
@@ -425,6 +428,19 @@ async function loadPostedSourceAmount(db, context, periodKey) {
     amountCents: cents(result.rows[0]?.amount_cents),
     relatedChargeId: result.rows[0]?.related_charge_id == null ? null : Number(result.rows[0].related_charge_id),
   }
+}
+
+async function loadLaterSourceBills(db, context, effectiveDate, today) {
+  if (effectiveDate.slice(0,7) >= today.slice(0,7)) return []
+  return (await db.query(`SELECT date_trunc('month',COALESCE(c.service_period_start,c.created_at::date))::date::text AS month,
+      c.amount_cents+COALESCE((SELECT SUM(a.amount_cents) FROM billing_charge a WHERE a.related_charge_id=c.id
+        AND a.family_billing_account_id=c.family_billing_account_id AND a.source_type IN ('charge_adjustment','refund_offset')),0) AS amount_cents,c.id AS charge_id
+    FROM billing_charge c WHERE c.family_billing_account_id=$1 AND c.subscription_id=$2
+      AND NOT(c.related_charge_id IS NOT NULL AND c.source_type IN ('charge_adjustment','refund_offset'))
+      AND COALESCE(c.service_period_start,c.created_at::date) >= (date_trunc('month',$3::date)+interval '1 month')::date
+      AND COALESCE(c.service_period_start,c.created_at::date) < (date_trunc('month',$4::date)+interval '1 month')::date
+    ORDER BY 1,c.id`,
+  [context.family_billing_account_id,context.billing_subscription_id,effectiveDate,today])).rows.map(row => ({month:row.month,amountCents:Number(row.amount_cents),chargeId:Number(row.charge_id)})).filter(row=>row.amountCents!==0)
 }
 
 export function priceCustomerBillingClassSwapTargetFromOrderPreview(orderPreview, request) {
@@ -473,6 +489,7 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     loadSwapTarget(db, request, { forUpdate }),
   ])
   validateCustomerBillingClassSwapEffectiveDate(request, context.enrollment_start_date)
+  if (context.latest_action_date && request.effectiveDate < context.latest_action_date) throw new Error('A class move cannot precede the last recorded enrollment action.')
   if (
     Number(context.slot_group_id) === Number(target.slot_group_id) &&
     Number(context.time_slot_id ?? 0) === Number(target.time_slot_id ?? 0)
@@ -480,7 +497,11 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     throw new Error('Choose a different class or schedule for this move.')
   }
 
+  const discountTransfer = await loadEnrollmentDiscountTransfer(db, signupId, request.effectiveDate)
   const orderPreview = await buildSignupOrderPreview(db, {
+    discountAssignmentsBySlotKey: { [targetSlotKey(request)]: discountTransfer.assignments },
+    ruleSnapshots: discountTransfer.rules,
+    pricingDate: new Date(`${request.effectiveDate}T12:00:00Z`),
     memberId: Number(context.member_id),
     newSignups: [{
       formId: request.targetFormId,
@@ -517,9 +538,24 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
       })
     : { creditCents: 0, ratio: 0, remainingClasses: 0 }
   const unusedSourceCreditCents = Math.min(posted.amountCents, cents(sourceCredit.creditCents))
+  const laterSourceBills = await loadLaterSourceBills(db,context,request.effectiveDate,request.today)
+  const laterSourceCreditCents = laterSourceBills.reduce((sum,row) => sum+row.amountCents,0)
+  const catchupMonths = []
+  for (let month=addBillingMonths(request.effectiveDate,1);month.slice(0,7)<=request.today.slice(0,7);month=addBillingMonths(month,1)) {
+    if (catchupMonths.length>=120) throw new Error('A class move cannot require more than 120 months of billing corrections.')
+    const discounts = await loadEnrollmentDiscountTransfer(db,signupId,month)
+    const order = await buildSignupOrderPreview(db,{
+      memberId:Number(context.member_id),memberContext:{familyId:Number(context.family_id)},excludeSignupIds:[Number(context.signup_id)],
+      newSignups:[{formId:request.targetFormId,slotGroupId:request.targetSlotGroupId,timeSlotId:request.targetTimeSlotId,enrollmentStartDate:month}],
+      pricingDate:new Date(`${month}T12:00:00Z`),discountAssignmentsBySlotKey:{[targetSlotKey(request)]:discounts.assignments},ruleSnapshots:discounts.rules,
+    })
+    const priced=priceCustomerBillingClassSwapTargetFromOrderPreview(order,request)
+    catchupMonths.push({month,netCents:priced.netCents})
+  }
+  const replacementCatchupCents=catchupMonths.reduce((sum,row)=>sum+row.netCents,0)
   const settlement = classSwapSettlement({
-    targetProratedCents: replacement.firstChargeCents,
-    unusedSourceCreditCents,
+    targetProratedCents: replacement.firstChargeCents+replacementCatchupCents,
+    unusedSourceCreditCents: unusedSourceCreditCents+laterSourceCreditCents,
   })
 
   return {
@@ -538,6 +574,10 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
     sourceRemainingClasses: Number(sourceCredit.remainingClasses ?? 0),
     sourceCreditRatio: Number(sourceCredit.ratio ?? 0),
     unusedSourceCreditCents,
+    laterSourceBills,
+    laterSourceCreditCents,
+    catchupMonths,
+    replacementCatchupCents,
     sourceFirstPeriodCents: Math.max(0, posted.amountCents - unusedSourceCreditCents),
     replacementFirstMonthCents: replacement.firstChargeCents,
     replacementFirstMonthRatio: Number(replacement.firstMonth?.ratio ?? 0),
@@ -591,6 +631,9 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
   let committed = null
   try {
     await client.query('BEGIN')
+    const lockedAccount = (await client.query(`SELECT a.id FROM scheduling_signup s JOIN member m ON m.id=s.member_id
+      JOIN family_billing_account a ON a.family_id=m.family_id AND a.is_active=TRUE WHERE s.id=$1`,[signupId])).rows[0]
+    if (lockedAccount) await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [`household-monthly-invoice:${lockedAccount.id}`])
     await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [Number(signupId)])
     const eventKey = `customer-billing-class-swap:${requestKey}`
     const existing = await client.query(
@@ -656,9 +699,10 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
     )
     await client.query(
       `UPDATE billing_subscription
-          SET status = 'cancelled', end_date = $2::date, next_bill_date = NULL, updated_at = now()
+          SET status = CASE WHEN $3::boolean THEN 'cancelled' ELSE status END, end_date = $2::date,
+              next_bill_date = CASE WHEN $3::boolean THEN NULL ELSE next_bill_date END, updated_at = now()
         WHERE id = $1 AND status = 'active'`,
-      [context.billing_subscription_id, dayBefore(request.effectiveDate)],
+      [context.billing_subscription_id, dayBefore(request.effectiveDate), effectiveImmediately],
     )
 
     const replacementSubscription = await upsertSubscriptionForSource(client, {
@@ -673,6 +717,11 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       firstBillDate: preview.replacementPrepaidFirstMonthCents > 0 ? preview.replacementFirstBillDate : null,
     })
     if (!replacementSubscription) throw new Error('The replacement billing subscription could not be created.')
+    const discountTransfer = await loadEnrollmentDiscountTransfer(client, signupId, request.effectiveDate)
+    await persistEnrollmentDiscountTransfer(client, { transfers: discountTransfer.transfers,
+      signupId: insertedSignup.id, subscriptionId: replacementSubscription.id, accountId: context.family_billing_account_id,
+      memberId: context.member_id, effectiveMonth: request.effectiveDate, actorUserId })
+
 
     let replacementChargeId = null
     if (preview.replacementFirstMonthCents > 0) {
@@ -774,6 +823,33 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       sourceAdjustmentChargeId = adjustment.rows[0]?.id == null ? null : Number(adjustment.rows[0].id)
     }
 
+    for (const prior of preview.laterSourceBills ?? []) {
+      await client.query(`INSERT INTO billing_charge
+        (family_billing_account_id,member_id,subscription_id,related_charge_id,source_type,source_id,description,
+         amount_cents,gross_amount_cents,discount_amount_cents,charge_type,billing_interval,service_period_start,service_period_end,collection_status,created_by_user_id)
+        VALUES($1,$2,$3,$4,'charge_adjustment',$5,$6,$7,0,0,'adjustment','one_time',$8::date,($8::date+interval '1 month - 1 day')::date,'none',$9)
+        ON CONFLICT(source_type,source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+      [context.family_billing_account_id,context.member_id,context.billing_subscription_id,prior.chargeId,
+        `class-swap:${context.signup_id}:${insertedSignup.id}:${prior.chargeId}:${prior.month}`,`Transfer adjustment — ${context.class_name} (${prior.month.slice(0,7)})`,
+        -prior.amountCents,prior.month,actorUserId])
+    }
+    // Staff-authorized backdating posts each replacement period locally in this
+    // same transaction. Existing monthly invoices/payments remain untouched; the
+    // canonical subscription+month key makes worker retries reuse these bills.
+    for (const period of preview.catchupMonths ?? []) {
+      const priced=await resolveFamilyEnrollmentPricing(client,{familyId:Number(context.family_id),periodKey:period.month,strictPricing:true,ensureSchema:false})
+      const line=priced.lines.find(row=>Number(row.signupId)===Number(insertedSignup.id))
+      if (!line || Number(line.netCents)!==period.netCents) throw new Error('Replacement tuition changed during the move. Review the class move again.')
+      if (line.netCents>0) await billRegistrationMembership(client,Number(context.member_id))
+      await client.query(`INSERT INTO billing_charge
+        (family_billing_account_id,member_id,subscription_id,source_type,source_id,description,amount_cents,gross_amount_cents,
+         discount_amount_cents,charge_type,billing_interval,service_period_start,service_period_end,price_adjustment_id,collection_status,created_by_user_id)
+        VALUES($1,$2,$3,'billing_subscription',$4,$5,$6,$7,$8,'recurring','month',$9::date,($9::date+interval '1 month - 1 day')::date,$10,'unpaid',$11)
+        ON CONFLICT(source_type,source_id) WHERE source_id IS NOT NULL DO NOTHING`,
+      [context.family_billing_account_id,context.member_id,replacementSubscription.id,`${replacementSubscription.id}:${period.month.slice(0,7)}`,
+        target.class_name,line.netCents,line.grossCents,line.discountCents,period.month,line.priceAdjustmentId ?? null,actorUserId])
+      await client.query('UPDATE billing_subscription SET next_bill_date=$2::date WHERE id=$1',[replacementSubscription.id,addBillingMonths(period.month,1)])
+    }
     const paymentReallocation = await reallocateSettledClassSwapPayments(client, {
       accountId: Number(context.family_billing_account_id),
       sourceChargeId: preview.sourceRelatedChargeId,

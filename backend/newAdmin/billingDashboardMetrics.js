@@ -34,9 +34,11 @@ function split(cents, weights) {
 }
 
 export function buildBillingDashboard({ today, payments = [], refunds = [], allocations = [], lines = [], accounts = [] }) {
-  const months = Array.from({ length: 13 }, (_, index) => ({ key: monthOffset(today, index - 12), partial: index === 12,
+  const quarterOffset = (Number(today.slice(5, 7)) - 1) % 3
+  const historyLength = 13 + quarterOffset
+  const historyMonths = Array.from({ length: historyLength }, (_, index) => ({ key: monthOffset(today, index - historyLength + 1), partial: index === historyLength - 1,
     receiptsCents: 0, refundsCents: 0, netCents: 0, breakdowns: { class: Object.create(null), gender: Object.create(null), age: Object.create(null) } }))
-  const byMonth = new Map(months.map(row => [row.key, row]))
+  const byMonth = new Map(historyMonths.map(row => [row.key, row]))
   const byPayment = new Map(payments.map(row => [String(row.id), row]))
   const byAllocation = new Map()
   for (const row of allocations) {
@@ -69,7 +71,17 @@ export function buildBillingDashboard({ today, payments = [], refunds = [], allo
     const weights = row.has_charge ? [{ row, weight: 1 }] : paymentWeights(byPayment.get(String(row.payment_id)))
     record(row, -amount(row.amount_cents), 'refund', weights)
   }
+  // Keep the chart and rolling averages on their existing 12-month window while
+  // retaining the extra one or two months needed for four complete quarters.
+  const months = historyMonths.slice(-13)
   const completed = months.slice(0, 12), lastThree = completed.slice(-3)
+  const quarters = Array.from({length:5}, (_, index) => {
+    const offset = -12 - quarterOffset + index * 3
+    const start = monthOffset(today, offset), end = monthOffset(today, index === 4 ? 0 : offset + 2)
+    const rows = historyMonths.filter(row => row.key >= start && row.key <= end)
+    return { start, end, partial: index === 4, receiptsCents: sum(rows, 'receiptsCents'),
+      refundsCents: sum(rows, 'refundsCents'), netCents: sum(rows, 'netCents') }
+  })
   const balances = new Map(accounts.map(row => [String(row.id), { accountId: Number(row.id), familyId: Number(row.family_id),
     familyName: row.family_name || `Family ${row.family_id}`, balanceCents: amount(row.balance_cents),
     overdueCents: 0, currentCents: 0, futureCents: 0, creditCents: Math.max(0, -amount(row.balance_cents)), lines: [] }]))
@@ -88,14 +100,17 @@ export function buildBillingDashboard({ today, payments = [], refunds = [], allo
     delete account.lines
   }
   const rows = [...balances.values()]
-  return { asOf: today, months, summary: {
+  return { asOf: today, months, quarters, summary: {
     twelveMonthIncomeCents: sum(completed, 'netCents'), averageMonthlyIncomeCents: sum(completed, 'netCents') / 12,
     threeMonthIncomeCents: sum(lastThree, 'netCents'), threeMonthAverageCents: sum(lastThree, 'netCents') / 3,
+    sixMonthAverageCents: sum(completed.slice(-6), 'netCents') / 6,
+    nineMonthAverageCents: sum(completed.slice(-9), 'netCents') / 9,
     lastMonthIncomeCents: completed.at(-1).netCents,
   }, unpaid: rows.filter(row => row.overdueCents > 0 || row.currentCents > 0).sort((a, b) => b.overdueCents + b.currentCents - a.overdueCents - a.currentCents),
   credits: rows.filter(row => row.creditCents > 0).sort((a, b) => b.creditCents - a.creditCents),
   notes: [
-    'Income is successful payments minus successful refunds, dated in the facility time zone. Summary cards cover the previous 12 completed months; the graph also includes this month to date. Months without recorded receipts or refunds contribute $0.',
+    'Revenue is successful payments minus successful refunds, dated in the facility time zone. Quarterly cards show the previous four full calendar quarters and the current quarter to date. Monthly cards show the previous four completed months and the current month to date.',
+    'Monthly averages use the previous 3, 6, 9 or 12 completed calendar months, including months with no recorded revenue as $0. The previous-12-month total excludes the current month. The graph shows the previous 12 months plus this month to date.',
     'Jackrabbit and Vortex transactions come from the shared account tables. Historical imports contribute to income; only the current billing ledger determines debt and available account credit.',
     'Class and student breakdowns follow recorded payment allocations. Refunds follow their linked charge or payment. Category views show revenue with recorded class or student details; All includes the full income total. Age is measured on the transaction date.',
     'Unpaid amounts use each charge’s service month (or billed month when absent), after payments and corrections. Unapplied account funds reduce the oldest remaining debt first for display. Future bills are excluded. Credits show the net credit balance after all recorded bills. Opening this dashboard does not collect or reallocate money.',

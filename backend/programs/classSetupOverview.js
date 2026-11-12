@@ -123,7 +123,7 @@ function pricingDisplayFromOptions(options) {
  * Class Master Cost per Month: class form override when set, otherwise program defaults.
  */
 export function resolveClassSetupPricingDisplay(programPricingRow, formPricingRow) {
-  const hydratedProgram = hydrateProgramPricingRow(programPricingRow)
+  const hydratedProgram = hydrateProgramPricingRow(formPricingRow?.class_program_pricing ?? programPricingRow)
   const programOptionsDisplay = pricingDisplayFromOptions(hydratedProgram?.pricing_cost_options ?? [])
   const effective = resolveEffectiveFormPricing(hydratedProgram, formPricingRow)
   const usesClassOverride = formHasCustomPricingOverride(formPricingRow)
@@ -212,6 +212,7 @@ export async function buildClassSetupOverview(pool) {
         sf.id AS form_id,
         sf.is_active AS form_active,
         sf.description AS form_description,
+        sf.class_program_pricing, sf.class_monthly_price_cents,
         sf.pricing_overrides_program AS pricing_overrides_program,
         sf.cost_amount_cents AS form_cost_amount_cents,
         sf.cost_unit AS form_cost_unit,
@@ -337,6 +338,7 @@ export async function buildClassSetupOverview(pool) {
         pricing_cost_amount_cents: row.pricing_cost_amount_cents,
       },
       {
+        class_program_pricing: row.class_program_pricing, class_monthly_price_cents: row.class_monthly_price_cents,
         pricing_overrides_program: row.pricing_overrides_program,
         cost_amount_cents: row.form_cost_amount_cents,
         cost_unit: row.form_cost_unit,

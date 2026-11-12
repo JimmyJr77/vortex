@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp, Vote, ListChecks } from 'lucide-react'
 import RecipientPicker from './RecipientPicker'
@@ -152,6 +153,7 @@ export default function ThreadHeaderMenu({
 
   const hideFromInbox = async () => {
     if (!onHideFromInbox) return
+    if (!await confirmArchive(subject || 'This conversation', 'This conversation will be archived from your inbox and will no longer be accessible for use there. Other participants will retain access.')) return
     setSaving(true)
     try {
       await onHideFromInbox()

@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import type { PublicWaiverTemplate } from './waiverSigningUtils'
 
 interface WaiverSigningBlockProps {
@@ -30,6 +31,7 @@ export default function WaiverSigningBlock({
   readOnly = false,
 }: WaiverSigningBlockProps) {
   const today = new Date().toLocaleDateString()
+  const formId = useId()
 
   return (
     <div className="space-y-5">
@@ -103,8 +105,9 @@ export default function WaiverSigningBlock({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name (signature)</label>
+              <label htmlFor={`${formId}-signature`} className="block text-xs font-semibold text-gray-600 mb-1">Full Name (signature)</label>
               <input
+                id={`${formId}-signature`}
                 className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white"
                 value={signatureName}
                 onChange={(e) => onSignatureNameChange(e.target.value)}
@@ -112,8 +115,9 @@ export default function WaiverSigningBlock({
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Date</label>
+              <label htmlFor={`${formId}-date`} className="block text-xs font-semibold text-gray-600 mb-1">Date</label>
               <input
+                id={`${formId}-date`}
                 className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm bg-gray-100"
                 value={today}
                 readOnly
@@ -122,8 +126,9 @@ export default function WaiverSigningBlock({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Comments (optional)</label>
+            <label htmlFor={`${formId}-comments`} className="block text-xs font-semibold text-gray-600 mb-1">Comments (optional)</label>
             <textarea
+              id={`${formId}-comments`}
               className="w-full min-h-20 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
               value={comments}
               onChange={(e) => onCommentsChange(e.target.value)}

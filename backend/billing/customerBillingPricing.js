@@ -91,6 +91,27 @@ export function adjustmentCoversPeriod(adjustment, periodValue) {
   return period >= from && (through == null || period <= through)
 }
 
+/** Manage-enrollment discounts are append-only replacements, effective from a billing month.
+ * A later, expired assignment must never revive an older indefinite discount. */
+export function effectiveEnrollmentPriceAdjustments(history, periodValue) {
+  const period = normalizeBillingMonth(periodValue)
+  const active = history.filter(row => row.status === 'active' || row.proposed === true)
+  const assignmentSnapshot = row => parseSnapshot(row.discount_rule_snapshot ?? row.discountRuleSnapshot)
+  const isManaged = row => assignmentSnapshot(row).assignmentSource === 'enrollment_actions'
+  const replacements = active.filter(row => isManaged(row) &&
+    normalizeBillingMonth(row.effective_from_month ?? row.effectiveFromMonth) <= period)
+    .sort((a, b) => Number(b.proposed === true) - Number(a.proposed === true) ||
+      Number(b.id) - Number(a.id))
+  const latest = replacements[0]
+  return active.filter(row => {
+    if (!adjustmentCoversPeriod(row, period)) return false
+    if (isManaged(row)) return row === latest
+    // Preserve independent promo assignments; replace the old unscoped manual discount.
+    if (latest && row.kind === 'legacy_discount' && !(row.promo_code ?? row.promoCode)) return false
+    return true
+  })
+}
+
 function parseSnapshot(value) {
   if (!value) return {}
   if (typeof value === 'object') return value

@@ -9,7 +9,7 @@ test('strict pause-credit idempotency rejects a mismatched existing charge', asy
   const pool = {
     async query(sql) {
       const text = String(sql)
-      if (/SELECT pc\.\*, sf\.title/.test(text)) {
+      if (/SELECT pc\.\*,.*sf\.title/.test(text)) {
         return {
           rows: [{
             id: 11,

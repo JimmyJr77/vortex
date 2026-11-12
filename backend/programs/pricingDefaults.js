@@ -42,7 +42,20 @@ export function readFormOverrideCost(formRow) {
 
 /** True when the form stores its own price, not just the override flag with inherited program cost. */
 export function formHasCustomPricingOverride(formRow) {
-  return Boolean(formRow?.pricing_overrides_program) && readFormOverrideCost(formRow) != null
+  return formRow?.class_monthly_price_cents != null || (Boolean(formRow?.pricing_overrides_program) && readFormOverrideCost(formRow) != null)
+}
+
+/** Freeze rates only; program benefits and facility identity keep their existing behavior. */
+export function classPricingProgramRow(programRow, formRow) {
+  const snapshot = formRow?.class_program_pricing
+  if (snapshot == null) return programRow
+  return hydrateProgramPricingRow({
+    ...programRow,
+    pricing_slot_cost_monthly_cents: snapshot.pricing_slot_cost_monthly_cents ?? 0,
+    pricing_cost_amount_cents: snapshot.pricing_cost_amount_cents ?? 0,
+    pricing_cost_unit: snapshot.pricing_cost_unit ?? 'per_month',
+    pricing_cost_options: snapshot.pricing_cost_options ?? [],
+  })
 }
 
 /**
@@ -50,6 +63,9 @@ export function formHasCustomPricingOverride(formRow) {
  * Cost falls through to the next level only when the current level has no cost configured.
  */
 export function resolveEffectiveFormPricing(programRow, formRow) {
+  // Keep the original inherited configuration attached to this class, rather
+  // than following later changes to the program's legacy pricing columns.
+  programRow = classPricingProgramRow(programRow, formRow)
   const overrides = Boolean(formRow?.pricing_overrides_program)
 
   const formCost = readCost(formRow, {
@@ -64,7 +80,9 @@ export function resolveEffectiveFormPricing(programRow, formRow) {
   })
 
   let cost
-  if (overrides) {
+  if (formRow?.class_monthly_price_cents != null) {
+    cost = { amountCents: Number(formRow.class_monthly_price_cents), unit: 'per_month' }
+  } else if (overrides) {
     cost = formCost ?? programCost ?? { amountCents: 0, unit: 'per_month' }
   } else {
     cost = programCost ?? formCost ?? { amountCents: 0, unit: 'per_month' }
@@ -205,9 +223,8 @@ export async function resolveFormProgramsId(pool, formRow) {
 
 export async function loadEffectivePricingForForm(pool, formRow) {
   const programsId = await resolveFormProgramsId(pool, formRow)
-  const programRow = hydrateProgramPricingRow(
-    programsId != null ? await loadProgramPricingRow(pool, programsId) : null,
-  )
+  const liveProgram = programsId != null ? await loadProgramPricingRow(pool, programsId) : null
+  const programRow = hydrateProgramPricingRow(classPricingProgramRow(liveProgram, formRow))
   const effective = resolveEffectiveFormPricing(programRow, formRow)
   return {
     programRow,
@@ -216,27 +233,12 @@ export async function loadEffectivePricingForForm(pool, formRow) {
   }
 }
 
-export async function resetClassPricingToProgram(pool, formId) {
-  const result = await pool.query(
-    `UPDATE scheduling_form
-     SET pricing_overrides_program = FALSE, updated_at = now()
-     WHERE id = $1 AND deleted_at IS NULL
-     RETURNING id`,
-    [formId],
-  )
-  return result.rows.length > 0
+export async function resetClassPricingToProgram() {
+  throw Object.assign(new Error('Pricing is managed per class; program price resets are no longer supported.'), { statusCode: 409 })
 }
 
-export async function resetAllClassesPricingToProgram(pool, programsId) {
-  const result = await pool.query(
-    `UPDATE scheduling_form
-     SET pricing_overrides_program = FALSE, updated_at = now()
-     WHERE deleted_at IS NULL
-       AND (programs_id = $1 OR program_id IN (SELECT id FROM program WHERE programs_id = $1))
-     RETURNING id`,
-    [programsId],
-  )
-  return result.rowCount ?? result.rows.length
+export async function resetAllClassesPricingToProgram() {
+  return resetClassPricingToProgram()
 }
 
 export function mapProgramPricingFields(row) {

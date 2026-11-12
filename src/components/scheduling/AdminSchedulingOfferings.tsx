@@ -79,10 +79,8 @@ const AdminSchedulingOfferings = ({
   }
 
   const getDraftValidation = (): string | null => {
-    if (!draft.startDate) return 'Start date is required.'
     if (durationMode === 'session') {
-      if (!draft.endDate) return 'End date is required for session Active dates.'
-      if (draft.endDate < draft.startDate) {
+      if (draft.startDate && draft.endDate && draft.endDate < draft.startDate) {
         return 'End date must be on or after the start date.'
       }
     }
@@ -96,7 +94,7 @@ const AdminSchedulingOfferings = ({
     draft.endDate < new Date().toISOString().slice(0, 10)
 
   const canSave =
-    Boolean(draft.startDate) && (durationMode === 'evergreen' || Boolean(draft.endDate)) && !draftValidation
+    !draftValidation
 
   const handleSave = async () => {
     const validation = getDraftValidation()
@@ -222,14 +220,14 @@ const AdminSchedulingOfferings = ({
         <div>
           <label className="block text-xs font-semibold mb-2">Active dates type</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {durationBtn('session', 'Session dates', 'Fixed start and end dates')}
+            {durationBtn('session', 'Session dates', 'Optional start and end dates')}
             {durationBtn('evergreen', 'Evergreen class', 'No end date — runs ongoing')}
           </div>
         </div>
         <div className={`grid gap-3 ${durationMode === 'session' ? 'grid-cols-2' : 'grid-cols-1'}`}>
           <div>
             <label className="block text-xs font-semibold mb-1">
-              {durationMode === 'evergreen' ? 'Starts on' : 'Start date'}
+              Start date (optional)
             </label>
             <input
               type="date"
@@ -240,7 +238,7 @@ const AdminSchedulingOfferings = ({
           </div>
           {durationMode === 'session' && (
             <div>
-              <label className="block text-xs font-semibold mb-1">End date</label>
+              <label className="block text-xs font-semibold mb-1">End date (optional)</label>
               <input
                 type="date"
                 value={draft.endDate}

@@ -57,7 +57,7 @@ export default function EnrollmentTrend({ data }: { data: EnrollmentTrendData })
         <div className="mt-5">
           <p className="mb-3 text-xs text-gray-500">Left axis: family loss rate (%) · Right axis: new families (count). Use Table for exact values.</p>
           <div className="h-80 w-full" role="img" aria-label={`${view} of monthly family loss percentage and new family counts. Exact values are available in the Table view.`}>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height={320} minWidth={0}>
               <ComposedChart data={data.months} margin={{ top: 12, right: 12, bottom: 8, left: 0 }} accessibilityLayer>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="label" tickFormatter={(label, index) => `${label}${data.months[index]?.provisional ? '*' : ''}`} tick={{ fontSize: 12 }} />

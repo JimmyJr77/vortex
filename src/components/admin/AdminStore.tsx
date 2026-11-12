@@ -1,3 +1,4 @@
+import { confirmArchive } from '../../utils/confirmArchive'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Archive, Check, ClipboardList, Copy, Download, History, LoaderCircle, Mail, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
 import {
@@ -848,7 +849,10 @@ export default function AdminStore() {
                     <div className="inline-flex items-center gap-1">
                       <button type="button" aria-label={`Edit ${product.name}`} title="Edit item" disabled={saving} onClick={() => startEditingProduct(product)} className="inline-flex rounded p-1.5 text-gray-700 hover:bg-gray-100 hover:text-gray-950 disabled:opacity-40"><Pencil className="h-3.5 w-3.5" /></button>
                       <button type="button" aria-label={`Copy ${product.name}`} title="Copy item" disabled={saving || !product.isActive} onClick={() => quickCopyProduct(product)} className="inline-flex rounded p-1.5 text-gray-700 hover:bg-gray-100 hover:text-gray-950 disabled:opacity-40"><Copy className="h-3.5 w-3.5" /></button>
-                      <button type="button" aria-label={`Archive ${product.name}`} title="Archive item" disabled={saving || !product.isActive} onClick={() => updateProduct(product, { isActive: false }, 'Item archived.')} className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"><Archive className="h-3.5 w-3.5" /></button>
+                      <button type="button" aria-label={`Archive ${product.name}`} title="Archive item" disabled={saving || !product.isActive} onClick={async () => {
+                        if (!await confirmArchive(product.name)) return
+                        updateProduct(product, { isActive: false }, 'Item archived.')
+                      }} className="rounded p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40"><Archive className="h-3.5 w-3.5" /></button>
                     </div>
                   </td>
                 </tr>

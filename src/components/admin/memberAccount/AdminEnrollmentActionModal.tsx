@@ -1,22 +1,27 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useState, type ReactNode } from 'react'
 import {
   Loader2,
   X,
   Pause,
   Play,
-  CheckCircle2,
+  ArrowRightLeft,
+  UserPlus,
+  ListOrdered,
   UserMinus,
   Percent,
-  Trash2,
 } from 'lucide-react'
 import {
   adminUpdateEnrollmentStatus,
   adminSetSignupDiscount,
-  adminDeleteEnrollment,
   adminFetchDiscountRules,
   type AdminEnrollmentRow,
   type DiscountRule,
 } from '../../../utils/schedulingApi'
+import { lazyWithRetry } from '../../../utils/chunkLoadRecovery'
+import { getTodayDateString } from '../../../utils/dateUtils'
+
+const EnrollmentPicker = lazyWithRetry(() => import('../../customerBilling/NewBillingEnrollmentModal'))
+
 import { normalizeAdminEnrollmentStatus } from './adminEnrollmentStatus'
 
 const STATUS_META = {
@@ -100,10 +105,12 @@ function ActionButton({
 
 export default function AdminEnrollmentActionModal({
   row,
+  member,
   onClose,
   onChanged,
 }: {
   row: AdminEnrollmentRow
+  member: { id: number; firstName: string; lastName: string }
   onClose: () => void
   onChanged: () => void
 }) {
@@ -111,14 +118,22 @@ export default function AdminEnrollmentActionModal({
   const hasScheduledPause = Boolean(row.pause_effective_date) && status !== 'paused'
   const [busy, setBusy] = useState<string | null>(null)
   const [err, setErr] = useState<string | null>(null)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [enrollmentAction, setEnrollmentAction] = useState<'reenroll' | 'switch' | null>(null)
   const [showPauseOptions, setShowPauseOptions] = useState(false)
-  const [pauseMode, setPauseMode] = useState<'next_month' | 'prorated'>('next_month')
+  const [actionDate, setActionDate] = useState(getTodayDateString())
+  const pendingAction = row.actions?.find(action => action.status === 'pending')
 
   const [discountMode, setDiscountMode] = useState<'percent' | 'amount' | 'rule'>('percent')
   const [percent, setPercent] = useState('')
   const [amount, setAmount] = useState('')
   const [ruleId, setRuleId] = useState<number | ''>('')
+  const [duration, setDuration] = useState<'once' | 'monthly' | 'months'>(row.discount_assignment?.duration ?? 'monthly')
+  const [durationMonths, setDurationMonths] = useState(String(row.discount_assignment?.durationMonths ?? 3))
+  const thisMonth = getTodayDateString().slice(0, 7)
+  const nextMonth = new Date(Date.UTC(Number(thisMonth.slice(0,4)), Number(thisMonth.slice(5,7)), 1)).toISOString().slice(0,7)
+  const minimumDiscountMonth = status === 'paused' || status === 'waitlisted' ? nextMonth : thisMonth
+  const [effectiveFromMonth, setEffectiveFromMonth] = useState(minimumDiscountMonth)
+  const [requestKey] = useState(() => crypto.randomUUID())
   const [reason, setReason] = useState(row.manual_discount_reason ?? '')
   const [rules, setRules] = useState<DiscountRule[]>([])
 
@@ -148,40 +163,58 @@ export default function AdminEnrollmentActionModal({
     }
   }
 
+  const changeStatus = (target: 'confirmed' | 'waitlisted' | 'cancelled' | 'paused') => adminUpdateEnrollmentStatus(row.id, target, { effectiveDate: actionDate, requestKey: `${requestKey}-${target}-${actionDate}`, pauseMode: 'prorated' })
+
   const applyDiscount = () =>
     run('discount', async () => {
+      const months = Number(durationMonths)
+      if (duration === 'months' && (!Number.isInteger(months) || months < 1 || months > 120)) throw new Error('Enter a duration from 1 to 120 months')
+      const timing = { duration, durationMonths: duration === 'months' ? months : undefined, effectiveFromMonth, requestKey }
       if (discountMode === 'rule') {
         if (ruleId === '') throw new Error('Select a discount rule')
-        await adminSetSignupDiscount(row.id, { mode: 'rule', ruleId: Number(ruleId), reason: reason || undefined })
+        await adminSetSignupDiscount(row.id, { ...timing, mode: 'rule', ruleId: Number(ruleId), reason: reason || undefined })
       } else if (discountMode === 'amount') {
         const dollars = Number(amount)
         if (!Number.isFinite(dollars) || dollars <= 0) throw new Error('Enter a valid dollar amount')
         await adminSetSignupDiscount(row.id, {
-          mode: 'manual',
+          ...timing, mode: 'manual',
           amountCents: Math.round(dollars * 100),
           reason: reason || undefined,
         })
       } else {
         const pct = Number(percent)
         if (!Number.isFinite(pct) || pct <= 0 || pct > 100) throw new Error('Enter a percent between 1 and 100')
-        await adminSetSignupDiscount(row.id, { mode: 'manual', percent: pct, reason: reason || undefined })
+        await adminSetSignupDiscount(row.id, { ...timing, mode: 'manual', percent: pct, reason: reason || undefined })
       }
     })
 
+  if (enrollmentAction) return <Suspense fallback={<div role="status">Loading enrollment options…</div>}>
+    <EnrollmentPicker
+      members={[{ id: member.id, name: `${member.firstName} ${member.lastName}`.trim() }]}
+      initialMemberId={member.id}
+      initialEnrollmentDate={actionDate}
+      onClose={() => setEnrollmentAction(null)}
+      onCreated={onChanged}
+      swapEnrollment={enrollmentAction === 'switch' ? { id: row.id, memberName: `${member.firstName} ${member.lastName}`.trim(), class_name: row.class_name, program_name: row.program_name } : null}
+      reenrollEnrollment={enrollmentAction === 'reenroll' ? { id: row.id, formId: row.form_id } : null}
+    />
+  </Suspense>
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => { if (!busy) onClose() }}>
       <div
+        role="dialog" aria-modal="true" aria-label="Manage enrollment"
         className="w-full max-w-md rounded-xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">
           <div>
-            <div className="text-sm font-semibold text-gray-900">{row.class_name || 'Enrollment'}</div>
+            <div className="text-sm font-semibold text-gray-900">{row.class_name || 'Enrollment'}</div><p className="mt-1 text-sm text-gray-600">{member.firstName} {member.lastName}{row.waitlist_position ? ` · Waitlist #${row.waitlist_position}` : ''}</p>
             <div className="text-xs text-gray-500">
               {[row.program_name, row.schedule].filter(Boolean).join(' · ') || '—'}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
+          <button type="button" aria-label="Close enrollment actions" disabled={Boolean(busy)} onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -192,16 +225,24 @@ export default function AdminEnrollmentActionModal({
           )}
 
           <div>
+              <label className="mb-3 block text-sm font-medium text-gray-700">Action date
+                <input type="date" required value={actionDate} disabled={Boolean(busy)} onChange={event => setActionDate(event.target.value)} className="mt-1 w-full rounded-md border border-gray-300 p-2" />
+              </label>
+              <p className="mb-3 text-xs text-gray-500">Actions use this date. Future changes are scheduled; past dates are recorded with their billing adjustments.</p>
+              {pendingAction && <div className="mb-3 rounded-md bg-blue-50 p-3 text-sm">Scheduled: {pendingAction.requested_status === 'confirmed' ? 'Activate' : pendingAction.requested_status} on {pendingAction.effective_date.slice(0, 10)}.
+                {pendingAction.last_error && <p className="mt-1 text-red-700">{pendingAction.last_error}</p>}
+                <button className="mt-2 block underline" disabled={Boolean(busy)} onClick={() => run('cancel-action', () => adminUpdateEnrollmentStatus(row.id, 'confirmed', { cancelScheduledAction: true }))}>Cancel scheduled action</button>
+              </div>}
               <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Status
               </div>
-              <div className="flex flex-wrap gap-2">
-                {status === 'paused' ? (
+              <fieldset disabled={Boolean(busy) || Boolean(pendingAction) || !actionDate} className="flex flex-wrap gap-2">
+                {status === 'paused' || status === 'waitlisted' ? (
                   <ActionButton
                     icon={<Play className="w-4 h-4" />}
-                    label="Activate"
+                    label={status === 'waitlisted' ? 'Activate' : 'Reactivate'}
                     busy={busy === 'activate'}
-                    onClick={() => run('activate', () => adminUpdateEnrollmentStatus(row.id, 'confirmed'))}
+                    onClick={() => run('activate', () => changeStatus('confirmed'))}
                   />
                 ) : hasScheduledPause ? (
                   <ActionButton
@@ -218,78 +259,46 @@ export default function AdminEnrollmentActionModal({
                   <ActionButton
                     icon={<Pause className="w-4 h-4" />}
                     label="Pause"
-                    disabled={status === 'cancelled' || status === 'completed'}
+                    disabled={status !== 'active'}
                     busy={busy === 'pause'}
                     onClick={() => {
                       setShowPauseOptions(true)
-                      setPauseMode('next_month')
                     }}
                   />
                 )}
+                {(status === 'active' || status === 'paused') && <ActionButton icon={<ListOrdered className="w-4 h-4" />} label="Waitlist" onClick={() => run('waitlist', () => changeStatus('waitlisted'))} />}
                 {(status === 'cancelled' || status === 'completed') && (
                   <ActionButton
-                    icon={<Play className="w-4 h-4" />}
-                    label="Reactivate"
-                    busy={busy === 'reactivate'}
-                    onClick={() => run('reactivate', () => adminUpdateEnrollmentStatus(row.id, 'confirmed'))}
+                    icon={<UserPlus className="w-4 h-4" />}
+                    label="Reenroll"
+                    onClick={() => setEnrollmentAction('reenroll')}
                   />
                 )}
-                <ActionButton
-                  icon={<CheckCircle2 className="w-4 h-4" />}
-                  label="Mark Completed"
-                  disabled={status === 'completed'}
-                  busy={busy === 'complete'}
-                  onClick={() => run('complete', () => adminUpdateEnrollmentStatus(row.id, 'completed'))}
-                />
+                {(status === 'active' || status === 'paused') && <ActionButton
+                  icon={<ArrowRightLeft className="w-4 h-4" />}
+                  label="Switch class"
+                  disabled={status === 'paused'}
+                  onClick={() => setEnrollmentAction('switch')}
+                />}
                 <ActionButton
                   icon={<UserMinus className="w-4 h-4" />}
                   label="Disenroll"
                   disabled={status === 'cancelled'}
                   busy={busy === 'disenroll'}
-                  onClick={() => run('disenroll', () => adminUpdateEnrollmentStatus(row.id, 'cancelled'))}
+                  onClick={() => run('disenroll', () => changeStatus('cancelled'))}
                 />
-              </div>
+              </fieldset>
 
               {showPauseOptions && status !== 'paused' && !hasScheduledPause && (
                 <div className="mt-3 rounded-md border border-blue-100 bg-blue-50/50 px-3 py-3 space-y-3">
-                  <div className="text-xs font-semibold text-gray-700">When should billing pause?</div>
-                  <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`pause-mode-${row.id}`}
-                      checked={pauseMode === 'next_month'}
-                      onChange={() => setPauseMode('next_month')}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      <span className="font-medium">Start of next month</span>
-                      <span className="block text-xs text-gray-500">
-                        Stays active through this month; no mid-month credit.
-                      </span>
-                    </span>
-                  </label>
-                  <label className="flex items-start gap-2 text-sm text-gray-700 cursor-pointer">
-                    <input
-                      type="radio"
-                      name={`pause-mode-${row.id}`}
-                      checked={pauseMode === 'prorated'}
-                      onChange={() => setPauseMode('prorated')}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      <span className="font-medium">Pause now (prorated)</span>
-                      <span className="block text-xs text-gray-500">
-                        Pauses immediately; unused sessions this month become a credit on next bill.
-                      </span>
-                    </span>
-                  </label>
+                  <p className="text-sm text-gray-700">Pause effective {actionDate}. Unused billed weeks are credited to the account for the following month.</p>
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      disabled={busy === 'pause'}
+                      disabled={Boolean(busy)}
                       onClick={() =>
                         run('pause', () =>
-                          adminUpdateEnrollmentStatus(row.id, 'paused', { pauseMode }),
+                          changeStatus('paused'),
                         )
                       }
                       className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
@@ -315,10 +324,14 @@ export default function AdminEnrollmentActionModal({
               )}
           </div>
 
+          {row.actions && row.actions.length > 0 && <section><h3 className="mb-2 text-xs font-semibold uppercase text-gray-500">Action history</h3><ol className="space-y-2 text-xs text-gray-600">{row.actions.map(action => <li key={action.id}>{action.requested_status === 'confirmed' ? 'Activated' : action.requested_status} · Effective {action.effective_date.slice(0, 10)} · {action.status}<span className="block text-gray-400">Recorded {new Date(action.requested_at).toLocaleString()}</span></li>)}</ol></section>}
           <div>
               <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 <Percent className="w-3.5 h-3.5" /> Discount
               </div>
+              {row.discount_assignment && <p className="mb-2 text-xs text-gray-600">
+                {row.discount_assignment.amountValue === 0 ? 'Discount cleared' : row.discount_assignment.name}: {row.discount_assignment.fromMonth}{row.discount_assignment.throughMonth ? ` through ${row.discount_assignment.throughMonth}` : ' onward'}.
+              </p>}
               <div className="flex gap-2 mb-2 text-xs">
                 {(['percent', 'amount', 'rule'] as const).map((m) => (
                   <button
@@ -339,6 +352,7 @@ export default function AdminEnrollmentActionModal({
               {discountMode === 'percent' && (
                 <input
                   type="number"
+                  aria-label="Discount percentage"
                   min={1}
                   max={100}
                   value={percent}
@@ -350,6 +364,7 @@ export default function AdminEnrollmentActionModal({
               {discountMode === 'amount' && (
                 <input
                   type="number"
+                  aria-label="Discount amount"
                   min={0}
                   step="0.01"
                   value={amount}
@@ -360,6 +375,7 @@ export default function AdminEnrollmentActionModal({
               )}
               {discountMode === 'rule' && (
                 <select
+                  aria-label="Discount rule"
                   value={ruleId}
                   onChange={(e) => setRuleId(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm"
@@ -373,6 +389,20 @@ export default function AdminEnrollmentActionModal({
                 </select>
               )}
 
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <label className="text-xs text-gray-600">Length of time
+                  <select aria-label="Discount duration" value={duration} onChange={(event) => setDuration(event.target.value as typeof duration)} className="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm">
+                    <option value="once">1 time</option><option value="monthly">Monthly</option><option value="months">Duration of months</option>
+                  </select>
+                </label>
+                <label className="text-xs text-gray-600">Starts billing month
+                  <input aria-label="Discount start month" type="month" min={minimumDiscountMonth} value={effectiveFromMonth} onChange={(event) => setEffectiveFromMonth(event.target.value)} className="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm" />
+                </label>
+                {duration === 'months' && <label className="text-xs text-gray-600">Number of months
+                  <input aria-label="Number of discount months" type="number" min={1} max={120} value={durationMonths} onChange={(event) => setDurationMonths(event.target.value)} className="mt-1 w-full rounded-md border border-gray-300 p-2 text-sm" />
+                </label>}
+              </div>
+              <p className="mt-2 text-xs text-gray-500">{duration === 'once' ? 'Applies to the selected billing month only.' : duration === 'monthly' ? 'Repeats each month until cleared or replaced.' : 'Ends automatically after the selected number of billing months.'} Discounts apply before the family multi-class discount.</p>
               <input
                 type="text"
                 value={reason}
@@ -385,7 +415,7 @@ export default function AdminEnrollmentActionModal({
                 <button
                   type="button"
                   onClick={applyDiscount}
-                  disabled={busy === 'discount'}
+                  disabled={Boolean(busy)}
                   className="inline-flex items-center gap-1 rounded-md bg-amber-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-60"
                 >
                   {busy === 'discount' && <Loader2 className="w-4 h-4 animate-spin" />} Apply discount
@@ -393,8 +423,8 @@ export default function AdminEnrollmentActionModal({
                 {(row.manual_discount_cents != null || row.manual_discount_pct != null) && (
                   <button
                     type="button"
-                    onClick={() => run('clear', () => adminSetSignupDiscount(row.id, { mode: 'clear' }))}
-                    disabled={busy === 'clear'}
+                    onClick={() => run('clear', () => adminSetSignupDiscount(row.id, { mode: 'clear', effectiveFromMonth, requestKey: `${requestKey}-clear` }))}
+                    disabled={Boolean(busy)}
                     className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
                   >
                     Clear
@@ -403,45 +433,7 @@ export default function AdminEnrollmentActionModal({
               </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-red-500">
-              Danger zone
-            </div>
-            {confirmingDelete ? (
-              <div className="rounded-md bg-red-50 px-3 py-3">
-                <p className="text-sm text-red-700 mb-2">
-                  Permanently delete this enrollment record? This cannot be undone.
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      run('delete', () => adminDeleteEnrollment(row.id))
-                    }
-                    disabled={busy === 'delete'}
-                    className="inline-flex items-center gap-1 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
-                  >
-                    {busy === 'delete' && <Loader2 className="w-4 h-4 animate-spin" />} Confirm delete
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingDelete(false)}
-                    className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setConfirmingDelete(true)}
-                className="inline-flex items-center gap-1 rounded-md border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" /> Delete enrollment
-              </button>
-            )}
-          </div>
+
         </div>
       </div>
     </div>

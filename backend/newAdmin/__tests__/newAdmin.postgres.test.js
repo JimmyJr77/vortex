@@ -38,6 +38,8 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
     await pool.query(await fs.readFile(new URL('../../migrations/842_jackrabbit_history.sql',import.meta.url),'utf8'))
     await pool.query(await fs.readFile(new URL('../../migrations/843_shared_account_records.sql',import.meta.url),'utf8'))
     await pool.query(await fs.readFile(new URL('../../migrations/844_enrollment_marketing_spend.sql',import.meta.url),'utf8'))
+    await pool.query(await fs.readFile(new URL('../../migrations/845_dated_enrollment_actions.sql',import.meta.url),'utf8'))
+    await pool.query(await fs.readFile(new URL('../../migrations/846_lead_registration_invitations.sql',import.meta.url),'utf8'))
     const first=await createFacility(),second=await createFacility()
     const client=await pool.connect()
     let member
@@ -194,6 +196,7 @@ test('New Admin PostgreSQL and HTTP isolation, conversion, and migration rehears
     // Delete only this test's explicitly tracked fixtures; never reset shared data.
     await pool.query('DELETE FROM new_admin_lead_ownership_audit WHERE registration_id=ANY($1::int[])',[leadIds])
     await pool.query('DELETE FROM registrations WHERE id=ANY($1::int[])',[leadIds])
+    await pool.query('DELETE FROM enrollment_action WHERE facility_id=ANY($1::bigint[])',[facilityIds])
     await pool.query('DELETE FROM scheduling_signup WHERE form_id IN (SELECT f.id FROM scheduling_form f JOIN program p ON p.id=f.program_id WHERE p.facility_id=ANY($1::bigint[]))',[facilityIds])
     await pool.query('DELETE FROM program WHERE facility_id=ANY($1::bigint[])',[facilityIds])
     await pool.query('DELETE FROM family_billing_account WHERE family_id IN (SELECT id FROM family WHERE facility_id=ANY($1::bigint[]))',[facilityIds])
