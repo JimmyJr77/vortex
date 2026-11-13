@@ -12,6 +12,7 @@ import {
 import Login from '../Login'
 import { getApiUrl } from '../../utils/api'
 import { parseDateOnly } from '../../utils/dateUtils'
+import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import {
   persistMemberSession,
   type PortalAccount,
@@ -396,6 +397,10 @@ export default function WaiversMembershipsPage() {
     if (!token) return
     if (!addForm.firstName.trim() || !addForm.lastName.trim()) {
       setError('First and last name are required.')
+      return
+    }
+    if (addForm.phone && !isCompletePhoneNumber(addForm.phone)) {
+      setError(PHONE_FORMAT_ERROR)
       return
     }
     if (!addForm.dateOfBirth) {
@@ -811,7 +816,7 @@ export default function WaiversMembershipsPage() {
                 type="tel"
                 value={addForm.phone}
                 onChange={(e) => setAddForm((prev) => ({ ...prev, phone: e.target.value }))}
-                placeholder="Phone (optional)"
+                aria-label="Phone (optional)"
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               />
               <DateOfBirthInput

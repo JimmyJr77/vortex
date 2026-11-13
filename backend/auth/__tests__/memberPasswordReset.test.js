@@ -16,6 +16,9 @@ function resetPool({ user = null, users = null } = {}) {
       if (normalizedSql.startsWith('SELECT account.id, account.email, account.full_name')) {
         return { rows: users ?? (user ? [user] : []) }
       }
+      if (normalizedSql.startsWith('UPDATE app_user')) {
+        return { rows: user ? [{ id: user.id }] : [] }
+      }
       return { rows: [] }
     },
     release() {
@@ -51,7 +54,7 @@ test('unknown member reset returns generic no-account result without sending', a
   assert.equal(sent, false)
   assert.deepEqual(events.map((event) => event.sql), [
     'BEGIN',
-    'SELECT account.id, account.email, account.full_name FROM app_user account JOIN member linked_member ON linked_member.app_user_id = account.id AND linked_member.facility_id = account.facility_id WHERE LOWER(BTRIM(account.email)) = $1 AND account.is_active = TRUE AND account.member_portal_access_active = TRUE AND linked_member.is_active = TRUE ORDER BY account.id LIMIT 2 FOR UPDATE',
+    'SELECT account.id, account.email, account.full_name FROM app_user account JOIN member linked_member ON linked_member.app_user_id = account.id AND linked_member.facility_id = account.facility_id WHERE LOWER(BTRIM(account.email)) = $1 AND account.is_active = TRUE AND account.member_portal_access_active = TRUE AND linked_member.is_active = TRUE ORDER BY account.id LIMIT 2 FOR UPDATE OF linked_member',
     'COMMIT',
     'RELEASE',
   ])
@@ -145,7 +148,7 @@ test('accepted email commits the password and forces a change at login', async (
   assert.deepEqual(result, { accountFound: true, sent: true, userId: 42 })
   assert.equal(deliveredPassword, 'TempPassword1')
   const appUserUpdate = events.find((event) => event.sql.startsWith('UPDATE app_user'))
-  assert.deepEqual(appUserUpdate.params, [42, 'hash:TempPassword1'])
+  assert.deepEqual(appUserUpdate.params, [42, 'hash:TempPassword1', account.email])
   assert.ok(events.find((event) => event.sql.startsWith('UPDATE member')))
   assert.ok(events.findIndex((event) => event.sql === 'COMMIT') > events.findIndex((event) => event.sql.startsWith('UPDATE member')))
 })

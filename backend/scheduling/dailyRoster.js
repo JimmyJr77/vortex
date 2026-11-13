@@ -5,6 +5,7 @@ import { formatDateOnly, loadGroupDisplayLabels } from './slotDisplayLabel.js'
 import { loadDailyReportActivity } from './dailyReportActivity.js'
 import { loadDailyReportInquiries } from './dailyReportInquiries.js'
 import { loadDailyReportUnpaid } from './dailyReportBilling.js'
+import { normalizePhoneNumber } from '../phoneNumbers.js'
 
 export const ROSTER_TIME_ZONE = 'America/New_York'
 export const DEFAULT_ROSTER_RECIPIENT = 'team@vortexathletics.com'
@@ -162,12 +163,13 @@ export async function loadRegistrationDetails(pool, {
     const scheduleTime = row.start_time
       ? `${formatTime(row.start_time)}${row.end_time ? `–${formatTime(row.end_time)}` : ''}`
       : null
+    const phone = row.phone || responses.phone || responses.parent_phone || ''
     return {
       signupId: Number(row.id),
       memberId: row.member_id != null ? Number(row.member_id) : null,
       name: `${row.first_name || ''} ${row.last_name || ''}`.trim() || 'Unnamed athlete',
       email: row.email || responses.email || responses.parent_email || '',
-      phone: row.phone || responses.phone || responses.parent_phone || '',
+      phone: normalizePhoneNumber(phone) ?? phone,
       className: row.class_name,
       programName: row.program_name || null,
       status: row.status,
@@ -284,7 +286,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         name: `${signup.first_name || ''} ${signup.last_name || ''}`.trim() || 'Unnamed athlete',
         age: signup.age != null ? Number(signup.age) : null,
         email: signup.email || '',
-        phone: signup.phone || '',
+        phone: normalizePhoneNumber(signup.phone) ?? (signup.phone || ''),
         status: 'confirmed',
         enrollmentType: signup.enrollment_type,
         billingType: signup.billing_type,
@@ -305,7 +307,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         name: `${dropIn.first_name || ''} ${dropIn.last_name || ''}`.trim() || 'Unnamed athlete',
         age: dropIn.age != null ? Number(dropIn.age) : null,
         email: dropIn.email || '',
-        phone: dropIn.phone || '',
+        phone: normalizePhoneNumber(dropIn.phone) ?? (dropIn.phone || ''),
         status: dropIn.status,
         enrollmentType: 'drop_in',
         billingType: 'one_time',
@@ -405,7 +407,7 @@ function reportSections(roster, textLines) {
     section('Inquiries in the last 24 hours', inquiries.map((inquiry) => ({
       heading: inquiry.contactName || 'Unnamed contact',
       details: [
-        [inquiry.contactRole, inquiry.contactEmail || 'Email not recorded', inquiry.contactPhone || 'Phone not recorded'].filter(Boolean).join(' · '),
+        [inquiry.contactType, inquiry.contactRole, inquiry.contactEmail || 'Email not recorded', inquiry.contactPhone || 'Phone not recorded'].filter(Boolean).join(' · '),
         `Children: ${inquiry.children.map((child) => `${child.name || 'Name not recorded'} (${age(child.age)})`).join(' / ') || missing}`,
         `Interested in: ${inquiry.interest || missing}`,
       ],

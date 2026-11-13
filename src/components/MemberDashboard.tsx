@@ -6,7 +6,7 @@ import { Calendar, Search, Edit2, CheckCircle, MapPin, Award, Users, Trophy, Eye
 import { getApiUrl } from '../utils/api'
 import DateOfBirthInput from './DateOfBirthInput'
 import { formatDateForDisplay, getTodayDateString, parseDateOnly } from '../utils/dateUtils'
-import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 import { fetchClassesOffered, fetchMemberMultiClassPasses, type PublicProgramOffered, type MemberMultiClassPassBalance } from '../utils/publicClassesApi'
 import { confirmEnrollmentCheckoutSession, clearPendingEnrollmentId, readPendingEnrollmentId } from '../utils/schedulingApi'
 import { trackEvent } from '../utils/analyticsClient'
@@ -29,7 +29,7 @@ import PortalPreferencesPanel from './messaging/PortalPreferencesPanel'
 import MemberMasterFaqsPanel from './messaging/MemberMasterFaqsPanel'
 import WaiverSigningBlock from './signup/WaiverSigningBlock'
 import { validateWaiverSigning } from './signup/waiverSigningUtils'
-import type { PortalId } from '../utils/portalSession'
+import type { PortalAccount, PortalId } from '../utils/portalSession'
 import { firstVisiblePortalTab, isPortalTabVisible, buildPortalNavRenderList, type PortalNavLayoutItem } from '../utils/portalTabConfig'
 
 interface MemberDashboardProps {
@@ -38,6 +38,7 @@ interface MemberDashboardProps {
   onReturnToWebsite?: () => void
   availablePortals?: PortalId[]
   onSwitchPortal?: (portal: PortalId) => void
+  onCredentialsChanged: (credentials: Pick<PortalAccount, 'username' | 'mustChangePassword'>) => void
 }
 
 export type MemberTab = 'home' | 'profile' | 'classes' | 'events' | 'store' | 'billing' | 'waivers' | 'training' | 'progress' | 'messages' | 'faqs' | 'preferences'
@@ -242,6 +243,7 @@ export default function MemberDashboard({
   onLogout,
   availablePortals = ['member'],
   onSwitchPortal,
+  onCredentialsChanged,
 }: MemberDashboardProps) {
   const [activeTab, setActiveTab] = useState<MemberTab>('home')
   const [invitedEnrollment] = useState(() => {
@@ -372,6 +374,9 @@ export default function MemberDashboard({
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [changingPassword, setChangingPassword] = useState(false)
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null)
+  const [usernameForm, setUsernameForm] = useState<{ username: string | null; currentPassword: string }>({ username: null, currentPassword: '' })
+  const [changingUsername, setChangingUsername] = useState(false)
+  const [usernameMessage, setUsernameMessage] = useState<string | null>(null)
   const [enrollmentConfirmMessage, setEnrollmentConfirmMessage] = useState<string | null>(null)
   const [enrollmentConfirmError, setEnrollmentConfirmError] = useState<string | null>(null)
   const [enrollmentConfirming, setEnrollmentConfirming] = useState(false)
@@ -626,14 +631,13 @@ export default function MemberDashboard({
 
   // Light edit-form field updater (writes into contactInfo.tempData consumed by handleSaveMemberEdit)
   const updateEditContact = useCallback((memberId: string, field: string, value: string) => {
-    const nextValue = field === 'phone' ? formatPhoneNumber(value) : value
     handleUpdateMember(memberId, (prev) => ({
       ...prev,
       sections: {
         ...prev.sections,
         contactInfo: {
           ...prev.sections.contactInfo,
-          tempData: { ...prev.sections.contactInfo.tempData, [field]: nextValue },
+          tempData: { ...prev.sections.contactInfo.tempData, [field]: value },
         },
       },
     }))
@@ -651,7 +655,11 @@ export default function MemberDashboard({
       const firstName = member.sections.contactInfo.tempData.firstName ?? member.firstName
       const lastName = member.sections.contactInfo.tempData.lastName ?? member.lastName
       const email = member.sections.contactInfo.tempData.email ?? member.email
-      const phone = member.sections.contactInfo.tempData.phone ?? member.phone
+      const phone = formatPhoneForDisplay(member.sections.contactInfo.tempData.phone ?? member.phone)
+      if (phone && phone !== formatPhoneForDisplay(member.phone) && !isCompletePhoneNumber(phone)) {
+        alert(PHONE_FORMAT_ERROR)
+        return
+      }
       const addressStreet = member.sections.contactInfo.tempData.addressStreet ?? member.addressStreet ?? ''
       const addressCity = member.sections.contactInfo.tempData.addressCity ?? member.addressCity ?? ''
       const addressState = member.sections.contactInfo.tempData.addressState ?? member.addressState ?? ''
@@ -679,7 +687,7 @@ export default function MemberDashboard({
             first_name: firstName,
             last_name: lastName,
             email: email || null,
-            phone: phone ? cleanPhoneNumber(phone) : null,
+            phone: phone || null,
             address: address || null,
             ...(!(profileData?.dateOfBirth || profileData?.date_of_birth) && member.dateOfBirth
               ? { date_of_birth: member.dateOfBirth } : {}),
@@ -702,7 +710,7 @@ export default function MemberDashboard({
             first_name: firstName,
             last_name: lastName,
             email: email || null,
-            phone: phone ? cleanPhoneNumber(phone) : null,
+            phone: phone || null,
             address: address || null
           })
         })
@@ -1006,6 +1014,10 @@ export default function MemberDashboard({
     }
     if (!addFamilyMemberData.firstName.trim() || !addFamilyMemberData.lastName.trim()) {
       setError('First and last name are required')
+      return
+    }
+    if (addFamilyMemberData.phone && !isCompletePhoneNumber(addFamilyMemberData.phone)) {
+      setError(PHONE_FORMAT_ERROR)
       return
     }
     if (!addFamilyMemberData.dateOfBirth) {
@@ -1591,6 +1603,38 @@ export default function MemberDashboard({
     }
   }
 
+  const submitUsernameChange = async () => {
+    if (!token || !profileData) return
+    const username = (usernameForm.username ?? profileData.username ?? '').trim()
+    if (!username || !usernameForm.currentPassword) {
+      setUsernameMessage('Username and current password are required.')
+      return
+    }
+    setChangingUsername(true)
+    setUsernameMessage(null)
+    try {
+      const response = await fetch(`${apiUrl}/api/members/change-username`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, currentPassword: usernameForm.currentPassword }),
+      })
+      const payload = await response.json().catch(() => ({}))
+      const savedUsername = payload.data?.username
+      if (!response.ok || payload.success !== true || typeof savedUsername !== 'string') {
+        throw new Error(payload.message || 'Unable to change username')
+      }
+      setProfileData((profile) => profile && { ...profile, username: savedUsername })
+      setMembers((list) => list.map((member) => member.id === profileData.id ? { ...member, username: savedUsername } : member))
+      setUsernameForm({ username: null, currentPassword: '' })
+      setUsernameMessage('Username updated successfully.')
+      onCredentialsChanged({ username: savedUsername })
+    } catch (error) {
+      setUsernameMessage(error instanceof Error ? error.message : 'Unable to change username')
+    } finally {
+      setChangingUsername(false)
+    }
+  }
+
   const submitPasswordChange = async () => {
     if (!token) return
     if (!passwordForm.currentPassword || !passwordForm.newPassword) {
@@ -1599,6 +1643,10 @@ export default function MemberDashboard({
     }
     if (passwordForm.newPassword.length < 8) {
       setPasswordMessage('New password must be at least 8 characters.')
+      return
+    }
+    if (new TextEncoder().encode(passwordForm.newPassword).length > 72) {
+      setPasswordMessage('New password must be 72 bytes or fewer.')
       return
     }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -1620,12 +1668,13 @@ export default function MemberDashboard({
         }),
       })
       const data = await response.json().catch(() => ({}))
-      if (!response.ok || data.success === false) {
+      if (!response.ok || data.success !== true) {
         throw new Error(data.message || 'Unable to change password')
       }
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
       setPasswordMessage('Password updated successfully.')
-      await fetchProfileData()
+      setProfileData((profile) => profile && { ...profile, mustChangePassword: false })
+      onCredentialsChanged({ mustChangePassword: false })
     } catch (error) {
       setPasswordMessage(error instanceof Error ? error.message : 'Unable to change password')
     } finally {
@@ -2121,43 +2170,103 @@ export default function MemberDashboard({
                 )}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-3">
                   <h3 className="text-xl font-bold text-black">Account Security</h3>
-                  <p className="text-sm text-gray-600">
-                    Change your password anytime. {profileData?.mustChangePassword ? 'A password change is required for this account.' : ''}
-                  </p>
-                  {passwordMessage && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{passwordMessage}</div>
+                  {profileData?.mustChangePassword && (
+                    <p className="text-sm text-gray-600">A password change is required for this account.</p>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <input
-                      type="password"
-                      value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                      placeholder="Current password"
-                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
-                    />
-                    <input
-                      type="password"
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
-                      placeholder="New password"
-                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
-                    />
-                    <input
-                      type="password"
-                      value={passwordForm.confirmPassword}
-                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                      placeholder="Confirm new password"
-                      className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void submitPasswordChange()}
-                    disabled={changingPassword}
-                    className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
+                  <form
+                    className="space-y-3"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      void submitUsernameChange()
+                    }}
                   >
-                    {changingPassword ? 'Updating...' : 'Update Password'}
-                  </button>
+                    {usernameMessage && (
+                      <div role="status" className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{usernameMessage}</div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <label className="flex flex-col gap-1 text-sm font-medium">
+                        Username
+                        <input
+                          value={usernameForm.username ?? profileData?.username ?? ''}
+                          onChange={(event) => setUsernameForm((prev) => ({ ...prev, username: event.target.value }))}
+                          autoComplete="username"
+                          autoCapitalize="none"
+                          spellCheck={false}
+                          maxLength={50}
+                          required
+                          className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-sm font-medium">
+                        Current password to change username
+                        <input
+                          type="password"
+                          value={usernameForm.currentPassword}
+                          onChange={(event) => setUsernameForm((prev) => ({ ...prev, currentPassword: event.target.value }))}
+                          autoComplete="current-password"
+                          required
+                          className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                        />
+                      </label>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={changingUsername || changingPassword || !profileData}
+                      className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
+                    >
+                      {changingUsername ? 'Updating...' : 'Update Username'}
+                    </button>
+                  </form>
+                  <form
+                    className="space-y-3 border-t border-gray-200 pt-3"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      void submitPasswordChange()
+                    }}
+                  >
+                    {passwordMessage && (
+                      <div role="status" className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{passwordMessage}</div>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <input
+                        type="password"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                        placeholder="Current password"
+                        aria-label="Current password"
+                        autoComplete="current-password"
+                        required
+                        className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                      />
+                      <input
+                        type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
+                        placeholder="New password"
+                        aria-label="New password"
+                        autoComplete="new-password"
+                        required
+                        className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                      />
+                      <input
+                        type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                        placeholder="Confirm new password"
+                        aria-label="Confirm new password"
+                        autoComplete="new-password"
+                        required
+                        className="h-10 rounded-lg border border-gray-300 px-3 text-sm"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={changingPassword || changingUsername}
+                      className="px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
+                    >
+                      {changingPassword ? 'Updating...' : 'Update Password'}
+                    </button>
+                  </form>
                 </div>
                 {/* Members Section - Matching AdminMembers Format */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
@@ -2219,11 +2328,9 @@ export default function MemberDashboard({
                           onChange={(e) =>
                             setAddFamilyMemberData((prev) => ({
                               ...prev,
-                              phone: formatPhoneNumber(e.target.value),
+                              phone: e.target.value,
                             }))
                           }
-                          placeholder={PHONE_INPUT_PLACEHOLDER}
-                          maxLength={PHONE_INPUT_MAX_LENGTH}
                           className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
                         />
                         <DateOfBirthInput
@@ -2307,7 +2414,7 @@ export default function MemberDashboard({
                                 </td>
                                 <td className="py-3 px-4 align-middle text-gray-700">
                                   {member.email ? <div>{member.email}</div> : <span className="text-gray-400">—</span>}
-                                  {member.phone && <div className="text-xs text-gray-500">{member.phone}</div>}
+                                  {member.phone && <div className="text-xs text-gray-500">{formatPhoneForDisplay(member.phone)}</div>}
                                 </td>
                                 <td className="py-3 px-4 align-middle text-gray-700">
                                   {member.age ?? '—'}
@@ -3128,7 +3235,7 @@ export default function MemberDashboard({
                     </div>
                     <div>
                       <span className="text-xs font-semibold text-gray-500">Phone:</span>
-                      <div className="text-gray-900">{viewingMember.phone || 'N/A'}</div>
+                      <div className="text-gray-900">{formatPhoneForDisplay(viewingMember.phone) || 'N/A'}</div>
                     </div>
                     <div>
                       <span className="text-xs font-semibold text-gray-500">Username:</span>
@@ -3263,7 +3370,7 @@ export default function MemberDashboard({
                               {familyMember.phone && (
                                 <div>
                                   <span className="text-xs font-semibold text-gray-500">Phone:</span>
-                                  <div className="text-gray-900">{familyMember.phone}</div>
+                                  <div className="text-gray-900">{formatPhoneForDisplay(familyMember.phone)}</div>
                                 </div>
                               )}
                               {familyMember.dateOfBirth && (
@@ -3425,8 +3532,6 @@ export default function MemberDashboard({
                           type="tel"
                           value={field('phone', member.phone)}
                           onChange={(e) => updateEditContact(member.id, 'phone', e.target.value)}
-                          placeholder={PHONE_INPUT_PLACEHOLDER}
-                          maxLength={PHONE_INPUT_MAX_LENGTH}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                         />
                       </div>

@@ -1,4 +1,4 @@
-import {cleanPhoneNumber} from '../../utils/phoneUtils'
+import { cleanPhoneNumber, formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import TextInput from '../common/TextInput'
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
@@ -63,6 +63,12 @@ export default function MessagingNotificationPreferences({
   }, [load])
 
   const save = async () => {
+    const phone = formatPhoneForDisplay(prefs.phone_e164)
+    if (phone && !isCompletePhoneNumber(phone)) {
+      setSaved(false)
+      setError(PHONE_FORMAT_ERROR)
+      return
+    }
     setSaving(true)
     setSaved(false)
     setError(null)
@@ -72,7 +78,7 @@ export default function MessagingNotificationPreferences({
         body: JSON.stringify({
           allow_critical_email: prefs.allow_critical_email,
           allow_critical_sms: prefs.allow_critical_sms,
-          phone_e164: prefs.phone_e164?.trim() ? `+1${cleanPhoneNumber(prefs.phone_e164).replace(/^1(?=\d{10}$)/, '')}` : null,
+          phone_e164: phone ? `+1${cleanPhoneNumber(phone)}` : null,
         }),
       }) as NotificationPrefs
       setPrefs({
@@ -134,7 +140,7 @@ export default function MessagingNotificationPreferences({
           type="tel"
           value={prefs.phone_e164 ?? ''}
           onChange={(e) => setPrefs((p) => ({ ...p, phone_e164: e.target.value }))}
-          placeholder="+15551234567"
+          aria-label="SMS phone number"
           className={`w-full border border-gray-300 rounded-md px-3 py-2 ${isPage ? 'text-sm' : 'text-xs'}`}
         />
       )}

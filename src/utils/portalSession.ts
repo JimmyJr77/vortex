@@ -11,6 +11,7 @@ export interface PortalAccount {
   fullName?: string
   phone?: string
   username?: string
+  mustChangePassword?: boolean
   role?: string
   roles?: PortalRole[]
   availablePortals?: string[]
@@ -64,6 +65,21 @@ export function clearPortalSession(): void {
 export function persistMemberSession(token: string, account: PortalAccount): void {
   localStorage.setItem('vortex_member_token', token)
   localStorage.setItem('vortex_member', JSON.stringify(account))
+}
+
+export function updateMemberSessionCredentials(
+  token: string,
+  credentials: Pick<PortalAccount, 'username' | 'mustChangePassword'>,
+): PortalAccount | null {
+  if (getMemberSessionToken() !== token) return null
+  const account = getLoggedInMemberAccount()
+  if (!account) return null
+  const updated = { ...account, ...credentials }
+  persistMemberSession(token, updated)
+  if (credentials.username !== undefined && localStorage.getItem('adminToken') === token) {
+    persistAdminSessionFromAccount(token, updated)
+  }
+  return updated
 }
 
 export async function loginMemberWithCredentials(apiUrl: string, credentials: {

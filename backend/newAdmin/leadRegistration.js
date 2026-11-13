@@ -169,6 +169,18 @@ async function remainingEnrollments(db, result) {
   return { ...result, pendingEnrollments: result.pendingEnrollments.filter(item => !finished.has(`${item.memberId}:${item.slotGroupId}`)) }
 }
 
+async function findCompletedRegistrationLogin(db, invite, identifier) {
+  const candidates = await findActiveMemberLoginCandidates(db, identifier)
+  if (candidates.length !== 1) return null
+  const [login] = candidates
+  if (String(login.facility_id) !== String(invite.facility_id) || login.member_portal_access_active !== true) return null
+  const member = await db.query(
+    'SELECT id FROM member WHERE id=$1 AND app_user_id=$2 AND facility_id=$3 AND is_active=TRUE',
+    [invite.pending_payload.result?.payerMemberId, login.id, invite.facility_id],
+  )
+  return member.rows.length === 1 ? login : null
+}
+
 export async function openLeadRegistration(db, inviteId, body) {
   const invite = await loadInvitation(db, inviteId, body.token)
   if (new Date(invite.expires_at) <= new Date() && !invite.used_at) throw inputError('This registration link has expired. Please ask Vortex to send a new invitation.', 410)
@@ -176,11 +188,8 @@ export async function openLeadRegistration(db, inviteId, body) {
   const password = typeof body.password === 'string' ? body.password : ''
   let passwordHash = null
   if (invite.used_at) {
-    const candidates = await findActiveMemberLoginCandidates(db, identifier)
-    if (candidates.length === 1 && String(candidates[0].facility_id) === String(invite.facility_id)) {
-      const member = await db.query('SELECT id FROM member WHERE id=$1 AND app_user_id=$2 AND facility_id=$3', [invite.pending_payload.result?.payerMemberId, candidates[0].id, invite.facility_id])
-      if (member.rows.length === 1) passwordHash = candidates[0].password_hash
-    }
+    const login = await findCompletedRegistrationLogin(db, invite, identifier)
+    passwordHash = login?.password_hash
   } else if (identifier.toLowerCase() === invite.suggested_username.toLowerCase()) {
     passwordHash = invite.temporary_password_hash
   }
@@ -263,7 +272,16 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
     const lead = (await db.query(`SELECT id, converted_member_id, member_id, archived FROM registrations
       WHERE id=$1 AND facility_id=$2 FOR UPDATE`, [inviteReference.registration_id, inviteReference.facility_id])).rows[0]
     const invite = await loadInvitation(db, inviteId, body.token, true)
+    const primaryAdult = body.primaryAdult || {}
     if (invite.used_at) {
+      const username = String(primaryAdult.username ?? '').trim()
+      const password = primaryAdult.password
+      const login = await findCompletedRegistrationLogin(db, invite, username)
+      if (!login?.password_hash || username.toLowerCase() !== login.username?.trim().toLowerCase() ||
+          typeof password !== 'string' || Buffer.byteLength(password, 'utf8') > 72 ||
+          !await bcrypt.compare(password, login.password_hash)) {
+        throw inputError('This account is already set up. Sign in with your current Member Portal credentials.', 409)
+      }
       const result = await remainingEnrollments(db, invite.pending_payload.result)
       await db.query('COMMIT')
       return result
@@ -272,7 +290,6 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
       throw inputError('This lead already has an account or is no longer open. Contact Vortex to continue.', 409)
     }
     if (new Date(invite.expires_at) <= new Date()) throw inputError('This invitation has expired. Ask Vortex for a new invitation.', 410)
-    const primaryAdult = body.primaryAdult || {}
     if (normalizeSignupEmail(primaryAdult.email) !== String(invite.invitee_email).trim().toLowerCase()) throw inputError('Use the email address that received this invitation.')
     if (await bcrypt.compare(String(primaryAdult.password || ''), invite.temporary_password_hash)) throw inputError('Choose a new password, different from the temporary password.')
     const children = Array.isArray(body.additionalMembers) ? body.additionalMembers : []

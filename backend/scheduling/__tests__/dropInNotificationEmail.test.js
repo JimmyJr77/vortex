@@ -60,7 +60,7 @@ test('confirmed drop-in sends one member receipt and one team alert exactly once
   assert.equal(deliveries[1].category, 'registration_alert')
   assert.equal(deliveries[1].skipPolicy, true)
   assert.match(deliveries[1].text, /Booking email: jamie@example\.com/)
-  assert.match(deliveries[1].text, /Booking phone: 4435550100/)
+  assert.match(deliveries[1].text, /Booking phone: 443-555-0100/)
 })
 
 test('only the team alert includes guardian outreach details with the class date and time', async () => {
@@ -76,12 +76,12 @@ test('only the team alert includes guardian outreach details with the class date
     send: async (message) => { deliveries.push(message); return { sent: true } },
   })
   const [receipt, alert] = deliveries
-  assert.doesNotMatch(receipt.text, /Morgan|parent@example\.com|4435550101/)
+  assert.doesNotMatch(receipt.text, /Morgan|parent@example\.com|443-555-0101/)
   assert.equal(alert.subject, 'New single-day enrollment: Beginner Gymnastics')
   assert.match(alert.text, /Athlete: Jamie Rivera/)
   assert.match(alert.text, /Parent or guardian: Morgan Rivera/)
   assert.match(alert.text, /Parent or guardian email: parent@example\.com/)
-  assert.match(alert.html, /4435550101/)
+  assert.match(alert.html, /443-555-0101/)
   assert.match(alert.text, /Class: Beginner Gymnastics \(Gymnastics\)/)
   assert.match(alert.text, /Saturday, August 15, 2026 · 9:00 AM–10:00 AM/)
   assert.deepEqual(findPromotionalContent(receipt.subject, receipt.text, alert.subject, alert.text), [])

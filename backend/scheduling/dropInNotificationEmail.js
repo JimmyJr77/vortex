@@ -3,6 +3,7 @@ import { findPromotionalContent } from '../email/emailCategories.js'
 import { listMemberGuardianOutreachContacts } from '../email/memberContact.js'
 import { DEFAULT_ROSTER_RECIPIENT } from './dailyRoster.js'
 import { formatDateOnly } from './slotActiveDates.js'
+import { normalizePhoneNumber } from '../phoneNumbers.js'
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -78,7 +79,9 @@ function teamContactDetails(row, guardians) {
     ...(guardian.phone ? [['Parent or guardian phone', guardian.phone]] : []),
   ])
   if (!guardians.some((guardian) => guardian.email)) details.push(['Booking email', row.email || 'Not provided'])
-  if (!guardians.some((guardian) => guardian.phone)) details.push(['Booking phone', row.phone || 'Not provided'])
+  if (!guardians.some((guardian) => guardian.phone)) {
+    details.push(['Booking phone', normalizePhoneNumber(row.phone) ?? (row.phone || 'Not provided')])
+  }
   return details
 }
 

@@ -46,7 +46,7 @@ export async function resetMemberPasswordByEmail(
          AND linked_member.is_active = TRUE
        ORDER BY account.id
        LIMIT 2
-       FOR UPDATE`,
+       FOR UPDATE OF linked_member`,
       [normalizedEmail],
     )
 
@@ -59,12 +59,18 @@ export async function resetMemberPasswordByEmail(
     const temporaryPassword = createTemporaryPassword(12)
     const passwordHash = await hashPassword(temporaryPassword)
 
-    await client.query(
+    const updatedAccount = await client.query(
       `UPDATE app_user
        SET password_hash = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1`,
-      [user.id, passwordHash],
+       WHERE id = $1 AND LOWER(BTRIM(email)) = $3
+         AND is_active = TRUE AND member_portal_access_active = TRUE
+       RETURNING id`,
+      [user.id, passwordHash, normalizedEmail],
     )
+    if (updatedAccount.rows.length !== 1) {
+      await client.query('COMMIT')
+      return { accountFound: false, sent: false, userId: null }
+    }
     await client.query(
       `UPDATE member
        SET must_change_password = TRUE, updated_at = CURRENT_TIMESTAMP

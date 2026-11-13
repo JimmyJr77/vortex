@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Edit2, Loader2, Save, Shield, UserPlus, X, Archive, Trash2 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import { isDefaultMasterEmail } from '../utils/defaultMasterAccount'
-import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 
 interface AdminInfo {
   email: string
@@ -187,6 +187,10 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
   }
 
   const handleUpdateMyAccount = async () => {
+    if (myAccountData.phone && myAccountData.phone !== formatPhoneForDisplay(adminInfo?.phone) && !isCompletePhoneNumber(myAccountData.phone)) {
+      alert(PHONE_FORMAT_ERROR)
+      return
+    }
     try {
       const adminId = localStorage.getItem('vortex-admin-id')
       if (!adminId) return
@@ -251,6 +255,10 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
 
   const handleUpdateOtherAdmin = async () => {
     if (!editingOtherAdmin) return
+    if (otherAdminData.phone && otherAdminData.phone !== formatPhoneForDisplay(editingOtherAdmin.phone) && !isCompletePhoneNumber(otherAdminData.phone)) {
+      alert(PHONE_FORMAT_ERROR)
+      return
+    }
     const isProtected = isProtectedDefaultMaster(editingOtherAdmin)
     const updateData: AdminUpdateData = isProtected
       ? {
@@ -356,7 +364,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       </td>
       <td className={tdClass}>{admin.username || '—'}</td>
       <td className={tdClass}>{admin.email}</td>
-      <td className={tdClass}>{admin.phone || '—'}</td>
+      <td className={tdClass}>{formatPhoneForDisplay(admin.phone) || '—'}</td>
       <td className={`${tdClass} w-0`}>
         <div className="flex items-center gap-1">
           {options?.showEdit && (
@@ -395,7 +403,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
               >
                 <Archive className="w-4 h-4" />
               </button>
-              <button
+              {admin.isActive === false && <button
                 type="button"
                 className={`${iconBtn} text-red-600 hover:bg-red-50`}
                 title="Delete admin permanently"
@@ -405,7 +413,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                 }}
               >
                 <Trash2 className="w-4 h-4" />
-              </button>
+              </button>}
             </>
           )}
           {!options?.showEdit && !options?.showMasterActions && (
@@ -586,11 +594,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       type="tel"
                       value={myAccountData.phone}
                       onChange={(e) =>
-                        setMyAccountData({ ...myAccountData, phone: formatPhoneNumber(e.target.value) })
+                        setMyAccountData({ ...myAccountData, phone: e.target.value })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder={PHONE_INPUT_PLACEHOLDER}
-                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
@@ -709,11 +715,9 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                       type="tel"
                       value={adminFormData.phone}
                       onChange={(e) =>
-                        setAdminFormData({ ...adminFormData, phone: formatPhoneNumber(e.target.value) })
+                        setAdminFormData({ ...adminFormData, phone: e.target.value })
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder={PHONE_INPUT_PLACEHOLDER}
-                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
@@ -773,7 +777,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
               <input type="text" value={otherAdminData.firstName} onChange={(e) => setOtherAdminData({ ...otherAdminData, firstName: e.target.value })} placeholder="First name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               <input type="text" value={otherAdminData.lastName} onChange={(e) => setOtherAdminData({ ...otherAdminData, lastName: e.target.value })} placeholder="Last name" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               <input type="email" value={otherAdminData.email} onChange={(e) => setOtherAdminData({ ...otherAdminData, email: e.target.value })} placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" />
-              <TextInput type="tel" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: formatPhoneNumber(e.target.value) })} placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} className="border rounded-lg px-3 py-2 text-sm" />
+              <TextInput type="tel" aria-label="Phone" value={otherAdminData.phone} onChange={(e) => setOtherAdminData({ ...otherAdminData, phone: e.target.value })} className="border rounded-lg px-3 py-2 text-sm" />
               <input type="text" value={otherAdminData.username} onChange={(e) => setOtherAdminData({ ...otherAdminData, username: e.target.value })} placeholder="Username" className="border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100" disabled={isProtectedDefaultMaster(editingOtherAdmin)} />
               {!isProtectedDefaultMaster(editingOtherAdmin) && (
                 <input type="password" value={otherAdminData.password} onChange={(e) => setOtherAdminData({ ...otherAdminData, password: e.target.value })} placeholder="New password (optional)" className="border rounded-lg px-3 py-2 text-sm" />

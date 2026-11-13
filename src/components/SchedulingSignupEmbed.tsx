@@ -675,7 +675,7 @@ const SchedulingSignupEmbed = ({
         setSignupAuthToken(session.signupAuthToken)
         setAccountEmail(session.email)
         saveSchedulingMemberEmail(session.email)
-        setIdentityPhase('ready')
+        setIdentityPhase(session.mustChangePassword ? 'must_change_password' : 'ready')
         setIsNewUser(false)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Invalid sign-in link'))

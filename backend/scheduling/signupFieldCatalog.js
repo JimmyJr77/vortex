@@ -1,3 +1,5 @@
+import { normalizeOptionalPhoneNumber, normalizePhoneNumber } from '../phoneNumbers.js'
+
 export const DEFAULT_SIGNUP_FIELDS = ['first_name', 'last_name', 'email']
 
 export const MANDATE_WAIVER_PARENT_FIELDS = [
@@ -30,6 +32,17 @@ export function mergeSignupFieldsForSave(signupFields, mandateWaiver) {
   const base = [...new Set([...DEFAULT_SIGNUP_FIELDS, ...signupFields])]
   if (!mandateWaiver) return base
   return [...new Set([...base, ...MANDATE_WAIVER_PARENT_FIELDS])]
+}
+
+export function normalizeSignupResponsePhones(responses, { preserveLegacy = false } = {}) {
+  const normalized = { ...responses }
+  for (const key of ['phone', 'parent_phone']) {
+    if (!Object.hasOwn(normalized, key)) continue
+    normalized[key] = preserveLegacy
+      ? normalizePhoneNumber(normalized[key]) ?? normalized[key]
+      : normalizeOptionalPhoneNumber(normalized[key])
+  }
+  return normalized
 }
 
 export function validateSignupResponses(enabledKeys, responses, { mandateWaiver = false } = {}) {

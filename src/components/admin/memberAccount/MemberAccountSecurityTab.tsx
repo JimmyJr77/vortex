@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { Loader2, Power } from 'lucide-react'
 import { adminApiRequest } from '../../../utils/api'
 
@@ -15,6 +15,8 @@ type PortalAccess = {
   canRestore: boolean
   memberIsActive: boolean
   accountIsActive: boolean
+  hasPassword: boolean
+  isStaff: boolean
   suspensionReasons: PortalSuspensionReason[]
 }
 
@@ -39,6 +41,9 @@ export default function MemberAccountSecurityTab({
   memberId: number
   onAccessChange?: () => void | Promise<void>
 }) {
+  const inputId = useId()
+  const [savedUsername, setSavedUsername] = useState('')
+  const [username, setUsername] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [saving, setSaving] = useState(false)
@@ -56,11 +61,16 @@ export default function MemberAccountSecurityTab({
       const payload = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(payload.message || 'Failed to load Member Portal access')
       if (requestSequence !== portalRequestSequence.current) return
+      const currentUsername = payload.data?.username ?? ''
+      setSavedUsername(currentUsername)
+      setUsername(currentUsername)
       setPortalAccess({
         status: payload.data?.status ?? 'no_login',
         canRestore: payload.data?.canRestore === true,
         memberIsActive: payload.data?.memberIsActive === true,
         accountIsActive: payload.data?.accountIsActive === true,
+        hasPassword: payload.data?.hasPassword === true,
+        isStaff: payload.data?.isStaff === true,
         suspensionReasons: Array.isArray(payload.data?.suspensionReasons)
           ? payload.data.suspensionReasons
           : [],
@@ -80,9 +90,13 @@ export default function MemberAccountSecurityTab({
     void loadPortalAccess()
   }, [loadPortalAccess])
 
-  const updatePassword = async () => {
+  const usernameChanged = username.trim() !== savedUsername.trim()
+  const settingUpLogin = portalAccess?.status === 'no_login' || portalAccess?.status === 'setup_required'
+  const needsPassword = settingUpLogin && !portalAccess?.hasPassword
+
+  const updateCredentials = async () => {
     setMessage(null)
-    if (newPassword.length < 8) {
+    if ((needsPassword || newPassword) && newPassword.length < 8) {
       setMessage({ ok: false, text: 'Password must be at least 8 characters.' })
       return
     }
@@ -93,21 +107,24 @@ export default function MemberAccountSecurityTab({
 
     setSaving(true)
     try {
+      const credentials: { username?: string; password?: string } = {}
+      if (usernameChanged) credentials.username = username.trim()
+      if (newPassword) credentials.password = newPassword
       const res = await adminApiRequest(`/api/admin/members/${memberId}`, {
         method: 'PUT',
-        body: JSON.stringify({ password: newPassword }),
+        body: JSON.stringify(credentials),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to update password')
+        throw new Error(data.message || 'Failed to update login credentials')
       }
-      setMessage({ ok: true, text: 'Password updated successfully.' })
+      setMessage({ ok: true, text: 'Login credentials updated.' })
       setNewPassword('')
       setConfirmPassword('')
       await loadPortalAccess()
       await onAccessChange?.()
     } catch (err) {
-      setMessage({ ok: false, text: err instanceof Error ? err.message : 'Failed to update password' })
+      setMessage({ ok: false, text: err instanceof Error ? err.message : 'Failed to update login credentials' })
     } finally {
       setSaving(false)
     }
@@ -150,6 +167,7 @@ export default function MemberAccountSecurityTab({
     .filter((reason): reason is string => Boolean(reason)) ?? []
   const credentialsBlocked = portalLoading
     || portalAccess?.memberIsActive !== true
+    || portalAccess.isStaff
     || portalAccess.suspensionReasons.some((reason) => (
       reason === 'login_link_invalid' || reason === 'account_inactive'
     ))
@@ -174,7 +192,7 @@ export default function MemberAccountSecurityTab({
           <button
             type="button"
             onClick={() => void updatePortalAccess()}
-            disabled={updatingPortal}
+            disabled={updatingPortal || saving}
             className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 disabled:opacity-50"
           >
             {updatingPortal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Power className="h-4 w-4" />}
@@ -190,9 +208,10 @@ export default function MemberAccountSecurityTab({
           ))}
         </div>
       )}
+      {portalAccess?.isStaff && <p className="text-sm text-gray-500">Edit this staff login’s username and password in Staff Access.</p>}
 
       {message && (
-        <div
+        <div role={message.ok ? 'status' : 'alert'}
           className={`rounded-lg px-3 py-2 text-sm ${
             message.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
           }`}
@@ -202,24 +221,41 @@ export default function MemberAccountSecurityTab({
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">New password</label>
+        <div className="sm:col-span-2">
+          <label htmlFor={`${inputId}-username`} className="block text-xs font-semibold text-gray-600 mb-1">Username</label>
           <input
+            id={`${inputId}-username`}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            disabled={credentialsBlocked || saving}
+            maxLength={50}
+            className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+          />
+        </div>
+        <div>
+          <label htmlFor={`${inputId}-password`} className="block text-xs font-semibold text-gray-600 mb-1">New password</label>
+          <input
+            id={`${inputId}-password`}
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            disabled={credentialsBlocked}
+            disabled={credentialsBlocked || saving}
             className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
             autoComplete="new-password"
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">Confirm password</label>
+          <label htmlFor={`${inputId}-confirm-password`} className="block text-xs font-semibold text-gray-600 mb-1">Confirm password</label>
           <input
+            id={`${inputId}-confirm-password`}
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            disabled={credentialsBlocked}
+            disabled={credentialsBlocked || saving}
             className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
             autoComplete="new-password"
           />
@@ -228,12 +264,14 @@ export default function MemberAccountSecurityTab({
 
       <button
         type="button"
-        onClick={() => void updatePassword()}
-        disabled={credentialsBlocked || saving || !newPassword || !confirmPassword}
+        onClick={() => void updateCredentials()}
+        disabled={credentialsBlocked || saving || updatingPortal
+          || (needsPassword && !newPassword) || (!usernameChanged && !newPassword)
+          || (Boolean(newPassword) && !confirmPassword)}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-50"
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-        {portalStatus === 'no_login' || portalStatus === 'setup_required' ? 'Enable Member Portal' : 'Update password'}
+        {settingUpLogin ? 'Enable Member Portal' : 'Save login credentials'}
       </button>
     </div>
   )

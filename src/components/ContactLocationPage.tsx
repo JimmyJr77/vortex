@@ -6,6 +6,7 @@ import {
   SERVICE_AREAS,
   TEAM_EMAIL,
   TEAM_PHONE,
+  TEAM_PHONE_E164,
 } from '../config/contact'
 
 interface ContactLocationPageProps {
@@ -36,7 +37,7 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
 
     <section className="section-padding">
       <div className="container-custom grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <a className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-vortex-red" href={`tel:${TEAM_PHONE}`}>
+        <a className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-vortex-red" href={`tel:${TEAM_PHONE_E164}`}>
           <Phone className="h-7 w-7 text-vortex-red" aria-hidden="true" />
           <h2 className="mt-4 text-xl font-bold text-black">Call Vortex</h2>
           <p className="mt-2 text-gray-700">{TEAM_PHONE}</p>

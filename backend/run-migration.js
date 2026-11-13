@@ -196,7 +196,7 @@ async function ensureRuntimeBaseTables(client) {
       id SERIAL PRIMARY KEY,
       first_name VARCHAR(50) NOT NULL,
       last_name VARCHAR(50) NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
+      email VARCHAR(255) NOT NULL,
       phone VARCHAR(20),
       athlete_age INTEGER,
       interests TEXT,

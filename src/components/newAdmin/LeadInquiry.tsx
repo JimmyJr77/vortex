@@ -1,7 +1,9 @@
+import { formatPhoneForDisplay, isCompletePhoneNumber } from '../../utils/phoneUtils'
 import { useState, type FormEvent } from 'react'
 import { calculateAge, formatDateForDisplay } from '../../utils/dateUtils'
 import { button, input, primary, ErrorNotice } from './shared'
 import { request } from './api'
+import TextInput from '../common/TextInput'
 import type { Lead, LeadChild } from './leadTypes'
 
 export function KidDetails({ children }: { children: LeadChild[] }) {
@@ -12,13 +14,14 @@ export function KidDetails({ children }: { children: LeadChild[] }) {
 }
 
 export function LeadFields({ lead, onSaved, onCancel }: { lead: Lead | null; onSaved: (lead: Lead) => void; onCancel: () => void }) {
-  const [draft, setDraft] = useState({ firstName: lead?.firstName || '', lastName: lead?.lastName || '', email: lead?.email || '', phone: lead?.phone || '', message: lead?.message || '' })
+  const [draft, setDraft] = useState({ firstName: lead?.firstName || '', lastName: lead?.lastName || '', email: lead?.email || '', phone: formatPhoneForDisplay(lead?.phone), message: lead?.message || '' })
   const [inquiry, setInquiry] = useState({ submitterRole: lead?.inquiry?.submitterRole || '', source: lead?.inquiry?.source || '', interest: lead?.inquiry?.interest || '', interests: Array.isArray(lead?.inquiry?.interests) ? lead.inquiry.interests.join(', ') : lead?.inquiry?.interests || '', classTypes: (lead?.inquiry?.classTypes || []).join(', ') })
   const [children, setChildren] = useState<LeadChild[]>(lead?.inquiry?.campers || [])
   const [originalAge, setOriginalAge] = useState(String(lead?.inquiry?.athleteAge ?? ''))
   const [originalChildAges, setOriginalChildAges] = useState((lead?.inquiry?.childAges || []).join(', '))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const unchangedLegacyPhone = draft.phone === formatPhoneForDisplay(lead?.phone) && !isCompletePhoneNumber(draft.phone)
   const save = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError(null)
     try {
@@ -27,7 +30,7 @@ export function LeadFields({ lead, onSaved, onCancel }: { lead: Lead | null; onS
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Unable to save lead.') }
     finally { setBusy(false) }
   }
-  return <form onSubmit={save} className="space-y-4"><ErrorNotice message={error} /><fieldset disabled={busy} className="space-y-4"><div className="grid gap-3 sm:grid-cols-2">{(['firstName', 'lastName', 'email', 'phone'] as const).map(key => <label key={key} className="text-sm font-medium">{{ firstName: 'First name', lastName: 'Last name', email: 'Email', phone: 'Phone' }[key]}<input className={input} required={key !== 'phone'} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} value={draft[key]} onChange={event => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</div>
+  return <form onSubmit={save} className="space-y-4"><ErrorNotice message={error} /><fieldset disabled={busy} className="space-y-4"><div className="grid gap-3 sm:grid-cols-2">{(['firstName', 'lastName', 'email', 'phone'] as const).map(key => <label key={key} className="text-sm font-medium">{{ firstName: 'First name', lastName: 'Last name', email: 'Email', phone: 'Phone' }[key]}<TextInput className={input} required={key !== 'phone'} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} pattern={key === 'phone' && unchangedLegacyPhone ? '.*' : undefined} value={draft[key]} onChange={event => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</div>
     {(['submitterRole', 'interests', 'classTypes', 'interest', 'source'] as const).map(key => <label key={key} className="block text-sm font-medium">{{ submitterRole: 'Submitted by', interests: 'Interests (separate with commas)', classTypes: 'Class types (separate with commas)', interest: 'Original interest', source: 'Inquiry source' }[key]}<input className={input} value={inquiry[key]} onChange={event => setInquiry({ ...inquiry, [key]: event.target.value })} /></label>)}
     <label className="block text-sm font-medium">Inquiry message<textarea className={input} rows={4} value={draft.message} onChange={event => setDraft({ ...draft, message: event.target.value })} /></label>
     {lead?.inquiry?.athleteAge != null && <label className="block text-sm font-medium">Age reported on original form<input className={input} type="number" min="0" max="120" step="1" value={originalAge} onChange={event => setOriginalAge(event.target.value)} /></label>}
@@ -38,5 +41,5 @@ export function LeadFields({ lead, onSaved, onCancel }: { lead: Lead | null; onS
 
 export function InquiryInformation({ lead }: { lead: Lead }) {
   const inquiry = lead.inquiry || {}
-  return <dl className="space-y-3 text-sm"><div><dt className="font-semibold">Contact</dt><dd>{lead.firstName} {lead.lastName}<br />{lead.email}<br />{lead.phone || 'No phone'}</dd></div><div><dt className="font-semibold">Submitted</dt><dd>{new Date(lead.createdAt).toLocaleString()}</dd></div>{Object.entries(inquiry).filter(([key, value]) => key !== 'campers' && value != null && value !== '' && (!Array.isArray(value) || value.length)).map(([key, value]) => <div key={key}><dt className="font-semibold">{{ athleteAge: 'Age reported on original form', childAges: 'Ages reported on original form', interests: 'Interests', interest: 'Original interest', classTypes: 'Class types', submitterRole: 'Submitted by', source: 'Inquiry source' }[key] || key}</dt><dd className="whitespace-pre-wrap">{Array.isArray(value) ? value.join(', ') : String(value)}</dd></div>)}<div><dt className="font-semibold">Children</dt><dd><KidDetails children={inquiry.campers || []} />{inquiry.campers?.map((child, index) => child.dateOfBirth ? <p key={index} className="mt-1 text-slate-500">Child {index + 1} birthday: {formatDateForDisplay(child.dateOfBirth)}</p> : null)}</dd></div><div><dt className="font-semibold">Inquiry message</dt><dd className="whitespace-pre-wrap">{lead.message || 'No message'}</dd></div></dl>
+  return <dl className="space-y-3 text-sm"><div><dt className="font-semibold">Contact</dt><dd>{lead.firstName} {lead.lastName}<br />{lead.email}<br />{formatPhoneForDisplay(lead.phone) || 'No phone'}</dd></div><div><dt className="font-semibold">Submitted</dt><dd>{new Date(lead.createdAt).toLocaleString()}</dd></div>{Object.entries(inquiry).filter(([key, value]) => key !== 'campers' && value != null && value !== '' && (!Array.isArray(value) || value.length)).map(([key, value]) => <div key={key}><dt className="font-semibold">{{ athleteAge: 'Age reported on original form', childAges: 'Ages reported on original form', interests: 'Interests', interest: 'Original interest', classTypes: 'Class types', submitterRole: 'Submitted by', source: 'Inquiry source' }[key] || key}</dt><dd className="whitespace-pre-wrap">{Array.isArray(value) ? value.join(', ') : String(value)}</dd></div>)}<div><dt className="font-semibold">Children</dt><dd><KidDetails children={inquiry.campers || []} />{inquiry.campers?.map((child, index) => child.dateOfBirth ? <p key={index} className="mt-1 text-slate-500">Child {index + 1} birthday: {formatDateForDisplay(child.dateOfBirth)}</p> : null)}</dd></div><div><dt className="font-semibold">Inquiry message</dt><dd className="whitespace-pre-wrap">{lead.message || 'No message'}</dd></div></dl>
 }

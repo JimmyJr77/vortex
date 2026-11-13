@@ -1,18 +1,23 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { Archive, TriangleAlert, X } from 'lucide-react'
+import { Archive, Trash2, TriangleAlert, X } from 'lucide-react'
 
 interface Props {
   itemName: string
   warning?: string
+  action?: 'archive' | 'delete'
   onComplete: (confirmed: boolean) => void
 }
 
-export default function ArchiveConfirmationDialog({ itemName, warning, onComplete }: Props) {
+export default function ArchiveConfirmationDialog({ itemName, warning, action = 'archive', onComplete }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const id = useId()
   const [confirmation, setConfirmation] = useState('')
-  const confirmed = confirmation === 'ARCHIVE'
+  const deleting = action === 'delete'
+  const verb = deleting ? 'Delete permanently' : 'Archive'
+  const keyword = deleting ? 'DELETE' : 'ARCHIVE'
+  const Icon = deleting ? Trash2 : Archive
+  const confirmed = confirmation === keyword
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -52,9 +57,9 @@ export default function ArchiveConfirmationDialog({ itemName, warning, onComplet
       }}>
         <div className="flex items-center justify-between gap-4">
           <h2 id={`${id}-title`} className="flex items-center gap-2 text-xl font-bold">
-            <Archive className="h-5 w-5" aria-hidden="true" />Archive item
+            <Icon className="h-5 w-5" aria-hidden="true" />{deleting ? verb : 'Archive item'}
           </h2>
-          <button type="button" aria-label="Close archive confirmation" onClick={() => onComplete(false)} className="rounded-lg p-2 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600">
+          <button type="button" aria-label={deleting ? 'Close delete confirmation' : 'Close archive confirmation'} onClick={() => onComplete(false)} className="rounded-lg p-2 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
@@ -64,7 +69,7 @@ export default function ArchiveConfirmationDialog({ itemName, warning, onComplet
           <p id={`${id}-warning`}><strong>Warning:</strong> {warning ?? 'This item will be archived and will no longer be accessible for use.'}</p>
         </div>
         <div>
-          <label htmlFor={`${id}-confirmation`} className="block text-sm font-medium">Type ARCHIVE to confirm</label>
+          <label htmlFor={`${id}-confirmation`} className="block text-sm font-medium">Type {keyword} to confirm</label>
           <input
             ref={inputRef}
             id={`${id}-confirmation`}
@@ -79,7 +84,7 @@ export default function ArchiveConfirmationDialog({ itemName, warning, onComplet
         </div>
         <div className="flex justify-end gap-3">
           <button type="button" onClick={() => onComplete(false)} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50">Cancel</button>
-          <button type="submit" disabled={!confirmed} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">Archive</button>
+          <button type="submit" disabled={!confirmed} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">{verb}</button>
         </div>
       </form>
     </dialog>

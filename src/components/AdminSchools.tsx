@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../utils/phoneUtils'
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Users, Check, GitMerge, Trash2, X, School as SchoolIcon } from 'lucide-react'
@@ -307,7 +308,7 @@ export default function AdminSchools() {
                     <tr key={m.id} className="border-t border-gray-100 even:bg-gray-50">
                       <td className="px-3 py-2 text-gray-900">{m.firstName} {m.lastName}</td>
                       <td className="px-3 py-2 text-gray-700">{m.email || '—'}</td>
-                      <td className="px-3 py-2 text-gray-700">{m.phone || '—'}</td>
+                      <td className="px-3 py-2 text-gray-700">{formatPhoneForDisplay(m.phone) || '—'}</td>
                       <td className="px-3 py-2 text-gray-700">{m.familyName || '—'}</td>
                     </tr>
                   ))}

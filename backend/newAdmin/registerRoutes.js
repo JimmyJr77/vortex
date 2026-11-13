@@ -17,6 +17,7 @@ import { familyNotes } from './accountNotes.js'
 import { timesheetOptions,listTimesheets,changeTimesheet } from './timesheets.js'
 import { weeklyTimesheets,saveWeeklyHours,assignTime } from './weeklyTimesheets.js'
 import { listCrm, loadCrmDetail } from './crm.js'
+import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -71,8 +72,10 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   // Retain the old lead screen's full array contract and existing edit handlers,
   // but apply the same facility boundary and permissions used by New Admin.
   app.get('/api/admin/registrations',allow('members.view'),handler(async req=>{
-    const result=await pool.query(`SELECT * FROM registrations WHERE facility_id=$1 AND archived IS NOT TRUE
-      AND COALESCE(converted_member_id, member_id) IS NULL ORDER BY created_at DESC,id DESC`,[facility(req)])
+    const result=await pool.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id
+      FROM registrations r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
+      WHERE r.facility_id=$1 AND r.archived IS NOT TRUE
+      AND COALESCE(r.converted_member_id, r.member_id) IS NULL ORDER BY r.created_at DESC,r.id DESC`,[facility(req)])
     return result.rows
   }))
   const legacyLeadGuard=async(req,res,next)=>{

@@ -7,25 +7,19 @@ import {
   verifySignupAuthToken,
 } from '../signupAuth.js'
 
-test('verifyMemberPassword accepts linked app_user password when member hash differs', async () => {
+test('verifyMemberPassword accepts only the canonical password for a linked login', async () => {
   const appHash = await bcrypt.hash('portal-password', 4)
   const memberHash = await bcrypt.hash('old-stub-password', 4)
 
-  const ok = await verifyMemberPassword(
-    { password_hash: memberHash, app_user_password_hash: appHash },
-    'portal-password',
-  )
-  assert.equal(ok, true)
+  const linked = { app_user_id: 12, password_hash: memberHash, app_user_password_hash: appHash }
+  assert.equal(await verifyMemberPassword(linked, 'portal-password'), true)
+  assert.equal(await verifyMemberPassword(linked, 'old-stub-password'), false)
+  assert.equal(await verifyMemberPassword({ ...linked, app_user_password_hash: null }, 'old-stub-password'), false)
 })
 
-test('verifyMemberPassword falls back to app_user hash when member hash is empty', async () => {
-  const appHash = await bcrypt.hash('portal-password', 4)
-
-  const ok = await verifyMemberPassword(
-    { password_hash: null, app_user_password_hash: appHash },
-    'portal-password',
-  )
-  assert.equal(ok, true)
+test('verifyMemberPassword still recognizes a legacy password for an unlinked member', async () => {
+  const memberHash = await bcrypt.hash('legacy-password', 4)
+  assert.equal(await verifyMemberPassword({ app_user_id: null, password_hash: memberHash }, 'legacy-password'), true)
 })
 
 test('signup token carries signed actor, target, grant, and account authority', () => {

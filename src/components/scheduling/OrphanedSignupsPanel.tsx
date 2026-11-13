@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useEffect, useRef, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
@@ -167,7 +168,7 @@ const OrphanedSignupsPanel = ({ orphanedSignups, forms, onRefresh }: Props) => {
                     </td>
                     <td className="py-2 pr-3 text-gray-700">
                       <div>{orphan.email || '—'}</div>
-                      {orphan.phone && <div className="text-gray-500">{orphan.phone}</div>}
+                      {orphan.phone && <div className="text-gray-500">{formatPhoneForDisplay(orphan.phone)}</div>}
                     </td>
                     <td className="py-2 pr-3 text-gray-700">
                       {snapshot.formTitle || orphan.formTitle}

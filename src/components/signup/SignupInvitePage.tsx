@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { getApiUrl } from '../../utils/api'
-import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../utils/phoneUtils'
+import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import { isAdult } from '../../utils/dateUtils'
 import WaiverSigningBlock from './WaiverSigningBlock'
 import { validateWaiverSigning, type PublicWaiverTemplate } from './waiverSigningUtils'
@@ -134,12 +134,29 @@ export default function SignupInvitePage() {
       setError('First and last name are required.')
       return
     }
+    if (primaryAdult.phone && !isCompletePhoneNumber(primaryAdult.phone)) {
+      setError(PHONE_FORMAT_ERROR)
+      return
+    }
     if (!primaryAdult.dateOfBirth || !isAdult(primaryAdult.dateOfBirth)) {
       setError('Parent/guardian must be 18 or older.')
       return
     }
+    const username = primaryAdult.username.trim()
+    if (!username) {
+      setError('Username is required.')
+      return
+    }
+    if (/[@\s\p{C}]/u.test(username)) {
+      setError('Choose a username without @, spaces, or control characters.')
+      return
+    }
     if (!primaryAdult.password || primaryAdult.password.length < 8) {
       setError('Password must be at least 8 characters.')
+      return
+    }
+    if (new TextEncoder().encode(primaryAdult.password).length > 72) {
+      setError('Choose a password of 72 bytes or fewer.')
       return
     }
     if (primaryAdult.password !== primaryAdult.confirmPassword) {
@@ -244,15 +261,15 @@ export default function SignupInvitePage() {
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={primaryAdult.firstName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, firstName: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={primaryAdult.lastName} onChange={(e) => setPrimaryAdult((p) => ({ ...p, lastName: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email" value={primaryAdult.email} onChange={(e) => setPrimaryAdult((p) => ({ ...p, email: e.target.value }))} />
-          <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder={PHONE_INPUT_PLACEHOLDER} maxLength={PHONE_INPUT_MAX_LENGTH} value={primaryAdult.phone} onChange={(e) => setPrimaryAdult((p) => ({ ...p, phone: formatPhoneNumber(e.target.value) }))} />
+          <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-label="Phone number" value={primaryAdult.phone} onChange={(e) => setPrimaryAdult((p) => ({ ...p, phone: e.target.value }))} />
           <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street" value={primaryAdult.addressStreet} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressStreet: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City" value={primaryAdult.addressCity} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressCity: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="State" value={primaryAdult.addressState} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressState: e.target.value }))} />
           <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="ZIP" value={primaryAdult.addressZip} onChange={(e) => setPrimaryAdult((p) => ({ ...p, addressZip: e.target.value }))} />
           <DateOfBirthInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={primaryAdult.dateOfBirth} onChange={(e) => setPrimaryAdult((p) => ({ ...p, dateOfBirth: e.target.value }))} required />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username" value={primaryAdult.username} onChange={(e) => setPrimaryAdult((p) => ({ ...p, username: e.target.value }))} />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Password" value={primaryAdult.password} onChange={(e) => setPrimaryAdult((p) => ({ ...p, password: e.target.value }))} />
-          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Confirm password" value={primaryAdult.confirmPassword} onChange={(e) => setPrimaryAdult((p) => ({ ...p, confirmPassword: e.target.value }))} />
+          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username" autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={50} value={primaryAdult.username} onChange={(e) => setPrimaryAdult((p) => ({ ...p, username: e.target.value }))} />
+          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Password" autoComplete="new-password" value={primaryAdult.password} onChange={(e) => setPrimaryAdult((p) => ({ ...p, password: e.target.value }))} />
+          <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder="Confirm password" autoComplete="new-password" value={primaryAdult.confirmPassword} onChange={(e) => setPrimaryAdult((p) => ({ ...p, confirmPassword: e.target.value }))} />
         </div>
 
         <WaiverSigningBlock

@@ -19,7 +19,7 @@ import { trackEvent } from '../../../utils/analyticsClient'
 import { pushGtmEvent } from '../../../utils/googleAnalytics'
 import { getVisitorId, getSessionId } from '../../../utils/visitorId'
 import { getAttributionPayload } from '../../../utils/utmCapture'
-import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../../../utils/phoneUtils'
+import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../../utils/phoneUtils'
 
 type CamperRow = { dateOfBirth: string; gender: string }
 
@@ -58,7 +58,7 @@ const SummerCampInquiryForm = () => {
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'phone' ? formatPhoneNumber(value) : value,
+      [name]: value,
     }))
   }
 
@@ -115,15 +115,14 @@ const SummerCampInquiryForm = () => {
       return
     }
 
-    const phone = cleanPhoneNumber(formData.phone)
+    const phone = formData.phone
     if (!phone) {
       alert('Phone number is required.')
       setIsSubmitting(false)
       return
     }
-    const digitsOnly = phone.replace(/\D/g, '')
-    if (digitsOnly.length < 10) {
-      alert('Phone number must be at least 10 digits long.')
+    if (!isCompletePhoneNumber(phone)) {
+      alert(PHONE_FORMAT_ERROR)
       setIsSubmitting(false)
       return
     }
@@ -171,7 +170,7 @@ const SummerCampInquiryForm = () => {
 
       const result = await response.json()
 
-      if (result.success || result.message === 'Email already registered') {
+      if (result.success) {
         const params = {
           form_name: 'camp_interest',
           lead_type: 'camp_inquiry',
@@ -252,8 +251,6 @@ const SummerCampInquiryForm = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                placeholder={PHONE_INPUT_PLACEHOLDER}
-                maxLength={PHONE_INPUT_MAX_LENGTH}
               />
             </div>
           </div>

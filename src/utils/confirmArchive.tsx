@@ -5,6 +5,14 @@ let confirmationOpen = false
 
 /** Every user-initiated archive must await this before changing data. */
 export function confirmArchive(itemName: string, warning?: string): Promise<boolean> {
+  return confirmRecordAction(itemName, 'archive', warning)
+}
+
+export function confirmPermanentDelete(itemName: string): Promise<boolean> {
+  return confirmRecordAction(itemName, 'delete', 'This permanently deletes the record and cannot be undone.')
+}
+
+function confirmRecordAction(itemName: string, action: 'archive' | 'delete', warning?: string): Promise<boolean> {
   // A second click must not create another confirmation or share the first approval.
   if (confirmationOpen || typeof document === 'undefined') return Promise.resolve(false)
   confirmationOpen = true
@@ -24,6 +32,6 @@ export function confirmArchive(itemName: string, warning?: string): Promise<bool
       confirmationOpen = false
       resolve(confirmed)
     }
-    root.render(<ArchiveConfirmationDialog itemName={itemName} warning={warning} onComplete={complete} />)
+    root.render(<ArchiveConfirmationDialog itemName={itemName} warning={warning} action={action} onComplete={complete} />)
   })
 }

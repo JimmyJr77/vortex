@@ -1,6 +1,7 @@
 import { settledRefundPredicate, chargeCreditApplicationSql } from './billingLedgerSql.js'
 import { getStripeClient, stripeEnabled } from './stripeBilling.js'
 import { loadCanonicalFinancialSnapshot } from './canonicalBillingAccount.js'
+import { phoneSearchPattern } from '../phoneNumbers.js'
 import { buildAdminMemberEnrollments } from '../scheduling/adminEnrollmentsView.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow } from '../scheduling/slotDisplayLabel.js'
 import {
@@ -391,15 +392,11 @@ export async function searchCustomerBilling(pool, { facilityId, query, limit = 5
          OR CONCAT_WS(' ', m.first_name, m.last_name) ILIKE $3
          OR COALESCE(m.email, '') ILIKE $3
          OR COALESCE(m.phone, '') ILIKE $3
-         OR (
-           regexp_replace($4, '\\D', '', 'g') <> ''
-           AND regexp_replace(COALESCE(m.phone, ''), '\\D', '', 'g')
-             LIKE '%' || regexp_replace($4, '\\D', '', 'g') || '%'
-         )
+         OR ($4::text IS NOT NULL AND regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $4)
        )
      ORDER BY m.is_active DESC, m.last_name, m.first_name, m.id
      LIMIT $5`,
-    [facilityId, numericFamilyId, `%${value}%`, value, Math.min(100, Math.max(1, Number(limit) || 50))],
+    [facilityId, numericFamilyId, `%${value}%`, phoneSearchPattern(value), Math.min(100, Math.max(1, Number(limit) || 50))],
   )
   return result.rows.map((row) => ({
     familyId: Number(row.family_id),

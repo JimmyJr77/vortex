@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useCallback, useEffect, useState } from 'react'
 import { Loader2, Users } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
@@ -83,7 +84,7 @@ export default function RosterPanel() {
                 <div key={m.id} className="p-4 grid gap-3 lg:grid-cols-[1fr_150px_1fr_auto] lg:items-center">
                   <div>
                     <div className="font-semibold text-gray-900">{m.first_name} {m.last_name}</div>
-                    <div className="text-xs text-gray-500">{[m.email, m.phone].filter(Boolean).join(' · ')}</div>
+                    <div className="text-xs text-gray-500">{[m.email, formatPhoneForDisplay(m.phone)].filter(Boolean).join(' · ')}</div>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-xs font-semibold text-center ${
                     m.waiver_status === 'current'

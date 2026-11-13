@@ -6,6 +6,7 @@ import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'luci
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
+import { formatPhoneForDisplay } from '../utils/phoneUtils'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
@@ -46,7 +47,7 @@ export default function DropInPage() {
     firstName: loggedInAccount?.firstName?.trim() ?? '',
     lastName: loggedInAccount?.lastName?.trim() ?? '',
     email: loggedInAccount?.email?.trim() ?? '',
-    phone: loggedInAccount?.phone?.trim() ?? '',
+    phone: formatPhoneForDisplay(loggedInAccount?.phone),
     useFreeTrial: true,
     promoCode: '',
   })

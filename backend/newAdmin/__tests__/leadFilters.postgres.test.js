@@ -20,7 +20,8 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     await db.query(`
       CREATE TABLE facility(id bigint PRIMARY KEY,timezone text);
       CREATE TABLE family(id bigint PRIMARY KEY,facility_id bigint);
-      CREATE TABLE member(id bigint PRIMARY KEY,facility_id bigint,family_id bigint);
+      CREATE TABLE member(id bigint PRIMARY KEY,facility_id bigint,family_id bigint,email text,app_user_id bigint,is_active boolean DEFAULT TRUE);
+      CREATE TABLE app_user(id bigint PRIMARY KEY,facility_id bigint,email text,is_active boolean DEFAULT TRUE);
       CREATE TABLE family_member(family_id bigint,member_id bigint,is_active boolean);
       CREATE TABLE account_record_source(family_id bigint,member_id bigint,facility_id bigint,deleted boolean);
       CREATE TABLE registrations(id bigint PRIMARY KEY,facility_id bigint,first_name text,last_name text,email text,phone text,
@@ -33,7 +34,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         author_name text,created_at timestamptz DEFAULT now(),source text,is_deleted boolean DEFAULT FALSE);
       INSERT INTO facility VALUES(1,'America/New_York'),(2,'America/New_York');
       INSERT INTO family VALUES(1,1),(2,2),(3,1);
-      INSERT INTO member VALUES(1,1,1),(2,1,1),(3,1,1),(4,2,2);
+      INSERT INTO member(id,facility_id,family_id) VALUES(1,1,1),(2,1,1),(3,1,1),(4,2,2);
       INSERT INTO family_member VALUES(1,1,TRUE),(1,2,TRUE),(1,3,FALSE),(2,4,TRUE);
       INSERT INTO registrations(id,facility_id,first_name,last_name,email,phone,contacted,follow_up) VALUES
         (1,1,'Alex','Inquiry','alex@example.test','(202) 555-0111',FALSE,TRUE),
@@ -78,6 +79,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     })
     await t.test('contact search normalizes phone punctuation; keywords search messages, interests and shared notes', async () => {
       assert.deepEqual(await ids({search:'2025550111'}),[1])
+      assert.deepEqual(await ids({search:'+1 (202) 555-0111'}),[1])
       assert.deepEqual(await ids({search:'Alex Inquiry'}),[1])
       assert.deepEqual(await ids({search:'robin@example.test'}),[])
       assert.deepEqual(await ids({keywords:'gymnastics Tuesday Tumbling'}),[1])
@@ -115,6 +117,24 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       for(const query of [{contacted:'yes'},{converted:'nope'},{ageMin:'-1'},{ageMax:'3.5'},{ageMin:'15',ageMax:'4'},{gender:'invalid'}]) {
         await assert.rejects(listLeads(db,1,query),error=>error.statusCode===400)
       }
+    })
+    await t.test('matching active members by normalized email leaves inquiries in the follow-up queue without creating links', async () => {
+      await db.query(`
+        UPDATE member SET email='  ALEX@Example.test ' WHERE id=1;
+        UPDATE member SET email='sam@example.test' WHERE id=4;
+        UPDATE member SET email='invalid@example.test',is_active=FALSE WHERE id=3;
+        INSERT INTO app_user(id,facility_id,email) VALUES(1,1,'taylor@example.test');
+        UPDATE member SET app_user_id=1 WHERE id=2;
+      `)
+      const { rows } = await listLeads(db, 1)
+      assert.deepEqual(rows.map(row => [row.id, row.matchedMemberId, row.convertedMemberId]), [
+        [8,null,null], [4,2,null], [3,null,null], [1,1,null],
+      ])
+      await db.query("UPDATE member SET email='alex@example.test' WHERE id=2")
+      const { rows: [ambiguous] } = await listLeads(db, 1, { search: 'alex@example.test' })
+      assert.equal(ambiguous.matchedMemberId, null)
+      assert.deepEqual((await leadNotes(db,1,1)).map(note=>note.body).sort(),
+        ['Call Tuesday','Gymnastics trial request','Original inquiry note'])
     })
   } finally { await db.query('ROLLBACK'); await db.end() }
 })

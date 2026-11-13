@@ -60,7 +60,7 @@ test('new portal login uses a generated app_user id and stores credentials only 
   assert.equal(await bcrypt.compare('Strong password 123', loginInsert.params[4]), true)
 })
 
-test('password update preserves staff roles on an explicitly linked login', async () => {
+test('password update preserves identifiers and staff roles on an explicitly linked login', async () => {
   const calls = []
   const client = {
     async query(sql, params = []) {
@@ -91,9 +91,9 @@ test('password update preserves staff roles on an explicitly linked login', asyn
   const loginUpdate = calls.find((call) => call.text.includes('UPDATE app_user'))
   assert.ok(loginUpdate)
   const setClause = loginUpdate.text.slice(0, loginUpdate.text.indexOf('WHERE'))
-  assert.doesNotMatch(setClause, /role\s*=|is_active\s*=|facility_id\s*=/)
-  assert.match(loginUpdate.text, /WHERE id = \$6\s+AND facility_id = \$7/)
-  assert.deepEqual(loginUpdate.params.slice(5), [15, 4])
+  assert.doesNotMatch(setClause, /(?:role|is_active|facility_id|username|email|phone|full_name)\s*=/)
+  assert.match(loginUpdate.text, /WHERE account.id = \$2\s+AND account.facility_id = \$3/)
+  assert.deepEqual(loginUpdate.params.slice(1), [15, 4, true, false])
   assert.equal(calls.some((call) => call.text.includes('INSERT INTO app_user')), false)
 })
 

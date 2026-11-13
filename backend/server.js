@@ -41,6 +41,7 @@ import pkg from 'pg'
 import { registerNewAdminRoutes } from './newAdmin/registerRoutes.js'
 import { registerAdminAccountReadRoutes } from './accounts/adminAccountReadRoutes.js'
 import Joi from 'joi'
+import { normalizePhoneNumber, normalizeUpdatedPhoneNumber, PHONE_FORMAT_ERROR, phoneSearchPattern } from './phoneNumbers.js'
 import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
@@ -57,7 +58,7 @@ import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
 import { initDropInTables, registerDropInRoutes } from './scheduling/dropIns.js'
 import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
 import { registerCampRegistrationRoutes } from './campRegistrations/registerRoutes.js'
-import { applyRegistrationAttribution } from './analytics/adminHandlers.js'
+import { registerPublicInquiryRoutes } from './newAdmin/publicInquiries.js'
 import { initDbFeatureTables } from './dbfeatures/initTables.js'
 import { registerSchoolsRoutes } from './schools/registerRoutes.js'
 import { registerNotesRoutes } from './notes/registerRoutes.js'
@@ -79,6 +80,7 @@ import { isAdultInTimeZone, isValidCalendarDate } from './members/dateOnlyAge.js
 import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { getMemberArchivePreflight, setMemberArchived } from './members/memberArchive.js'
+import { deleteArchivedMember } from './members/memberDeletion.js'
 import {
   canEditHouseholdMember,
   canRequestHouseholdMemberRemoval,
@@ -99,7 +101,12 @@ import {
 import { assertLegacyBillingRetirementDeploymentReady } from './billing/billingLegacyRetirement.js'
 import { resolveCanonicalActiveMemberFamilyId } from './billing/householdMembership.js'
 import { registerPlatformRoutes } from './platform/registerRoutes.js'
-import { registerFamilySignupRoutes, createPortalFamilyMember } from './platform/familySignup.js'
+import {
+  assertUsernameIsNotReserved,
+  createPortalFamilyMember,
+  registerFamilySignupRoutes,
+  validateSignupUsername,
+} from './platform/familySignup.js'
 import { queryFamilyMemberEnrollments } from './platform/memberEnrollments.js'
 import { listActiveFamilyMemberIds } from './platform/familyMembers.js'
 import { registerCoachPortalRoutes } from './platform/coachPortalRoutes.js'
@@ -443,7 +450,7 @@ export const initDatabase = async () => {
         id SERIAL PRIMARY KEY,
         first_name VARCHAR(50) NOT NULL,
         last_name VARCHAR(50) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
+        email VARCHAR(255) NOT NULL,
         phone VARCHAR(20),
         athlete_age INTEGER CHECK (athlete_age >= 5 AND athlete_age <= 18),
         interests TEXT,
@@ -1190,48 +1197,6 @@ export const initDatabase = async () => {
 }
 
 // Validation schemas
-const registrationSchema = Joi.object({
-  firstName: Joi.string().min(2).max(50).required(),
-  lastName: Joi.string().min(2).max(50).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().max(20).optional().allow('', null),
-  athleteAge: Joi.number().integer().min(5).max(18).optional().allow(null, ''),
-  interests: Joi.alternatives().try(
-    Joi.array().items(Joi.string().max(100)), // New multi-select interests (array of strings) - checked first
-    Joi.string().max(500) // Legacy field for backward compatibility (single string)
-  ).optional().allow(null),
-  interest: Joi.string().max(100).optional().allow('', null), // Legacy single interest selection
-  classTypes: Joi.array().items(Joi.string().valid(
-    'Adult Classes',
-    'Youth Classes',
-    'Camps',
-    'Homeschool Program',
-    'Child Classes',
-    'Gymnastics Summer Camp',
-    'Summer Athletic Development Program',
-  )).optional().allow(null),
-  childAges: Joi.array().items(Joi.number().integer().min(1).max(18)).optional().allow(null),
-  campers: Joi.array().items(Joi.object({
-    firstName: Joi.string().min(1).max(50).optional().allow('', null),
-    lastName: Joi.string().min(1).max(50).optional().allow('', null),
-    dateOfBirth: Joi.string().isoDate().required(),
-    gender: Joi.string().valid('male', 'female').optional().allow('', null),
-  })).optional().allow(null),
-  submitterRole: Joi.string().valid('Athlete', 'Parent/Guardian', 'Other').optional().allow('', null),
-  inquirySource: Joi.string().max(500).optional().allow('', null),
-  message: Joi.string().max(1000).optional().allow('', null),
-  newsletter: Joi.boolean().optional().allow(null).default(false),
-  visitorId: Joi.string().max(64).optional().allow('', null),
-  sessionId: Joi.string().max(64).optional().allow('', null),
-  landingPage: Joi.string().max(500).optional().allow('', null),
-  hostname: Joi.string().max(255).optional().allow('', null),
-  utmSource: Joi.string().max(100).optional().allow('', null),
-  utmMedium: Joi.string().max(100).optional().allow('', null),
-  utmCampaign: Joi.string().max(100).optional().allow('', null),
-  utmContent: Joi.string().max(100).optional().allow('', null),
-  utmTerm: Joi.string().max(100).optional().allow('', null),
-})
-
 const newsletterSchema = Joi.object({
   email: Joi.string().email().required()
 })
@@ -1251,6 +1216,11 @@ const memberPasswordResetRequestSchema = Joi.object({
 const memberChangePasswordSchema = Joi.object({
   currentPassword: Joi.string().required(),
   newPassword: Joi.string().min(8).required(),
+})
+
+const memberChangeUsernameSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  username: Joi.string().trim().required(),
 })
 
 const eventSchema = Joi.object({
@@ -1604,7 +1574,9 @@ const emergencyContactSchema = Joi.object({
   memberId: Joi.number().integer().required(),
   name: Joi.string().min(1).max(200).required(),
   relationship: Joi.string().max(100).optional().allow('', null),
-  phone: Joi.string().max(20).required(),
+  phone: Joi.string().required().custom((value, helpers) => (
+    normalizePhoneNumber(value) ?? helpers.error('any.invalid')
+  )).messages({ 'any.invalid': PHONE_FORMAT_ERROR }),
   email: Joi.string().email().optional().allow('', null)
 })
 
@@ -1941,6 +1913,7 @@ const syncMemberPortalIdentity = async (
   {
     passwordHash = null,
     identityFieldsChanged = true,
+    changedIdentityFields = null,
     actorUserId = null,
     allowStaffSelfEdit = false,
   } = {},
@@ -1972,17 +1945,16 @@ const syncMemberPortalIdentity = async (
   const fullName = `${member.first_name || ''} ${member.last_name || ''}`.trim()
   const hasIdentifier = Boolean(member.email || member.username)
 
-  if (passwordHash && !hasIdentifier) {
-    const error = new Error('Add an email or username before setting up Member Portal access.')
-    error.statusCode = 400
-    throw error
-  }
-
   if (member.app_user_id) {
     const linkedIdentity = await client.query(
       `SELECT
          account.id,
          account.is_active,
+         account.full_name,
+         account.email,
+         account.phone,
+         account.username,
+         account.address,
          (
            facility.owner_user_id = account.id
            OR account.role::text IN ('MASTER_ADMIN', 'ADMIN', 'COACH')
@@ -2022,6 +1994,17 @@ const syncMemberPortalIdentity = async (
     if (!identityFieldsChanged && !passwordHash) {
       return { userId: Number(linkedIdentity.rows[0].id), created: false }
     }
+    const account = linkedIdentity.rows[0]
+    const useMemberValue = (field) => identityFieldsChanged
+      && (changedIdentityFields === null || changedIdentityFields.has(field))
+    const email = useMemberValue('email') ? member.email : account.email
+    const username = useMemberValue('username') ? member.username : account.username
+    if (!email?.trim() && !username?.trim()
+      && (passwordHash || account.email?.trim() || account.username?.trim())) {
+      const error = new Error('Keep an email or username so this member can sign in.')
+      error.statusCode = 400
+      throw error
+    }
     const updated = await client.query(
       `UPDATE app_user
           SET full_name = $2,
@@ -2036,12 +2019,12 @@ const syncMemberPortalIdentity = async (
         RETURNING id, is_active`,
       [
         member.app_user_id,
-        fullName,
-        member.email || null,
-        member.phone || null,
-        member.username || null,
+        useMemberValue('full_name') ? fullName : account.full_name,
+        email || null,
+        (useMemberValue('phone') ? member.phone : account.phone) || null,
+        username || null,
         passwordHash,
-        member.address || null,
+        (useMemberValue('address') ? member.address : account.address) || null,
         member.facility_id,
       ],
     )
@@ -2051,6 +2034,12 @@ const syncMemberPortalIdentity = async (
       throw error
     }
     return { userId: Number(updated.rows[0].id), created: false }
+  }
+
+  if (passwordHash && !hasIdentifier) {
+    const error = new Error('Add an email or username before setting up Member Portal access.')
+    error.statusCode = 400
+    throw error
   }
 
   if (!hasIdentifier || !passwordHash) {
@@ -2594,8 +2583,7 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/members') || path.startsWith('/families') || path.startsWith('/users')) {
     if (method === 'GET') return 'members.view'
     if (path.includes('/archive')) return 'members.archive'
-    // Permanently deleting a member is master-admin only (enforced again in the
-    // route handler). Family delete keeps the legacy members.edit mapping.
+    // Member archive and deletion also require the canonical facility Owner.
     if (method === 'DELETE' && path.startsWith('/members')) return 'members.delete'
     return 'members.edit'
   }
@@ -2656,6 +2644,13 @@ app.use('/api/admin', async (req, res, next) => {
     }
   })
 })
+
+function requireMemberLifecycleOwner(req, res, next) {
+  if (req.canonicalAccess?.isOwner !== true) {
+    return res.status(403).json({ success: false, message: 'Only the facility Owner can archive or permanently delete members.' })
+  }
+  return next()
+}
 
 // Analytics & consent (public + admin)
 registerAdminAccountReadRoutes(app, pool, { jwtSecret: JWT_SECRET })
@@ -3100,193 +3095,7 @@ app.get('/api/verify/module1', async (req, res) => {
   }
 })
 
-// Submit registration
-app.post('/api/registrations', async (req, res) => {
-  try {
-    // Validate input
-    const { error, value } = registrationSchema.validate(req.body, {
-      abortEarly: false,
-      allowUnknown: false,
-      stripUnknown: true
-    })
-    if (error) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation error',
-        errors: error.details.map(detail => detail.message)
-      })
-    }
-
-    // Check if email already exists
-    const existingRegistration = await pool.query(
-      'SELECT id FROM registrations WHERE email = $1',
-      [value.email]
-    )
-
-    if (existingRegistration.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Email already registered'
-      })
-    }
-
-    // Handle interests - can be array (new) or string (legacy)
-    let interestsString = null
-    let interestsArray = null
-    if (value.interests) {
-      if (Array.isArray(value.interests)) {
-        // New multi-select format
-        interestsArray = value.interests
-        interestsString = value.interests.join(', ') // Also store as string for compatibility
-      } else {
-        // Legacy string format
-        interestsString = value.interests
-      }
-    }
-
-    const campersParam =
-      value.campers && value.campers.length > 0
-        ? JSON.stringify(
-            value.campers.map((c) => {
-              const row = {}
-              if (c.firstName) row.firstName = c.firstName
-              if (c.lastName) row.lastName = c.lastName
-              if (c.gender) row.gender = c.gender
-              if (c.dateOfBirth) {
-                row.dateOfBirth = String(c.dateOfBirth).slice(0, 10)
-              }
-              return row
-            }),
-          )
-        : null
-
-    let submitterRole = value.submitterRole || null
-    if (!submitterRole) {
-      const campClassTypes = ['Camps', 'Gymnastics Summer Camp']
-      const hasCampClass = value.classTypes?.some((t) => campClassTypes.includes(t))
-      if (hasCampClass || value.inquirySource === '/camp_interest') {
-        submitterRole = 'Parent/Guardian'
-      }
-    }
-
-    try {
-      const result = await pool.query(`
-        INSERT INTO registrations 
-        (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, campers, message, submitter_role, inquiry_source)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14)
-        RETURNING id, created_at
-      `, [
-        value.firstName,
-        value.lastName,
-        value.email,
-        value.phone || null,
-        value.athleteAge || null,
-        interestsString,
-        interestsArray,
-        value.interest || null,
-        value.classTypes && value.classTypes.length > 0 ? value.classTypes : null,
-        value.childAges && value.childAges.length > 0 ? value.childAges : null,
-        campersParam,
-        value.message || null,
-        submitterRole,
-        value.inquirySource || null,
-      ])
-
-      const inquiryId = result.rows[0].id
-      try {
-        await applyRegistrationAttribution(pool, inquiryId, value)
-      } catch (attrErr) {
-        console.warn('[registrations] attribution attach failed:', attrErr.message)
-      }
-
-      console.log('✅ Registration inserted successfully:', {
-        id: inquiryId,
-        email: value.email,
-        created_at: result.rows[0].created_at
-      })
-
-      res.json({
-        success: true,
-        message: 'Registration submitted successfully',
-        id: inquiryId
-      })
-    } catch (insertError) {
-      // If column doesn't exist error, try to add it and retry
-      if (insertError.code === '42703' || (insertError.message && insertError.message.includes('column') && insertError.message.includes('does not exist'))) {
-        console.log('⚠️ Missing column detected, attempting to add columns...')
-        try {
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interests_array TEXT[]`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS interest VARCHAR(100)`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS class_types TEXT[]`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS child_ages INTEGER[]`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS campers JSONB`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS submitter_role VARCHAR(50)`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS inquiry_source VARCHAR(500)`)
-          await pool.query(`ALTER TABLE registrations ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE`)
-          
-          // Retry the insert
-          const result = await pool.query(`
-            INSERT INTO registrations 
-            (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest, class_types, child_ages, campers, message, submitter_role, inquiry_source)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14)
-            RETURNING id, created_at
-          `, [
-            value.firstName,
-            value.lastName,
-            value.email,
-            value.phone || null,
-            value.athleteAge || null,
-            interestsString,
-            interestsArray,
-            value.interest || null,
-            value.classTypes && value.classTypes.length > 0 ? value.classTypes : null,
-            value.childAges && value.childAges.length > 0 ? value.childAges : null,
-            campersParam,
-            value.message || null,
-            submitterRole,
-            value.inquirySource || null,
-          ])
-          
-          const inquiryId = result.rows[0].id
-          try {
-            await applyRegistrationAttribution(pool, inquiryId, value)
-          } catch (attrErr) {
-            console.warn('[registrations] attribution attach failed:', attrErr.message)
-          }
-
-          console.log('✅ Registration inserted successfully after adding columns:', {
-            id: inquiryId,
-            email: value.email
-          })
-          
-          res.json({
-            success: true,
-            message: 'Registration submitted successfully',
-            id: inquiryId
-          })
-        } catch (retryError) {
-          throw retryError // Re-throw to be caught by outer catch
-        }
-      } else {
-        throw insertError // Re-throw other errors
-      }
-    }
-
-  } catch (error) {
-    console.error('Registration error:', error)
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      detail: error.detail,
-      constraint: error.constraint
-    })
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
-  }
-})
+registerPublicInquiryRoutes(app, pool)
 
 // Subscribe to newsletter
 app.post('/api/newsletter', async (req, res) => {
@@ -3406,13 +3215,14 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
     } = req.body
 
     const existingResult = await pool.query(
-      'SELECT contacted, admin_notes, follow_up FROM registrations WHERE id = $1',
+      'SELECT contacted, admin_notes, follow_up, phone FROM registrations WHERE id = $1',
       [id],
     )
     if (existingResult.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Registration not found' })
     }
     const existing = existingResult.rows[0]
+    const nextPhone = normalizeUpdatedPhoneNumber(phone, existing.phone)
     const finalContacted =
       contacted !== undefined ? !!contacted : !!existing.contacted
     const finalAdminNotes =
@@ -3450,7 +3260,7 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       first_name,
       last_name,
       email,
-      phone,
+      nextPhone,
       athlete_age,
       interestsString,
       interestsArrayValue,
@@ -3486,6 +3296,9 @@ app.put('/api/admin/registrations/:id', async (req, res) => {
       message: 'Registration updated successfully'
     })
   } catch (error) {
+    if (error.statusCode === 400) {
+      return res.status(400).json({ success: false, message: error.message })
+    }
     console.error('Update registration error:', error)
     res.status(500).json({
       success: false,
@@ -3637,12 +3450,15 @@ app.get('/api/admin/members', async (req, res) => {
       
       // Search filter
       if (search) {
+        const phoneParam = ++paramCount
+        params.push(phoneSearchPattern(search))
         paramCount++
         query += ` AND (
           m.first_name ILIKE $${paramCount} OR 
           m.last_name ILIKE $${paramCount} OR 
         COALESCE(m.email, '') ILIKE $${paramCount} OR
         COALESCE(m.phone, '') ILIKE $${paramCount} OR
+        regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $${phoneParam} OR
         COALESCE(f.family_name, '') ILIKE $${paramCount}
         )`
         params.push(`%${search}%`)
@@ -4268,7 +4084,7 @@ app.post('/api/admin/athletes', (_req, res) => {
 })
 
 // Explain whether a member can be archived before showing the confirmation.
-app.get('/api/admin/members/:id/archive-check', async (req, res) => {
+app.get('/api/admin/members/:id/archive-check', requireMemberLifecycleOwner, async (req, res) => {
   try {
     const memberId = Number(req.params.id)
     if (!Number.isInteger(memberId) || memberId <= 0) {
@@ -4314,7 +4130,7 @@ app.get('/api/admin/members/:id/archive-check', async (req, res) => {
 
 // Archive/unarchive the member record. Member Portal suspension is managed
 // separately so restoring one dimension cannot silently restore the other.
-app.patch('/api/admin/members/:id/archive', async (req, res) => {
+app.patch('/api/admin/members/:id/archive', requireMemberLifecycleOwner, async (req, res) => {
   try {
     const memberId = Number(req.params.id)
     const { archived } = req.body
@@ -5461,10 +5277,13 @@ app.put('/api/admin/families/:id', async (req, res) => {
 })
 
 // Archive/unarchive family (admin endpoint)
-app.patch('/api/admin/families/:id/archive', async (req, res) => {
+app.patch('/api/admin/families/:id/archive', requireMemberLifecycleOwner, async (req, res) => {
   try {
     const { id } = req.params
     const { archived } = req.body
+    if (typeof archived !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'archived must be a boolean value' })
+    }
     
     const facilityId = req.canonicalAccess.facilityId
     
@@ -5484,6 +5303,21 @@ app.patch('/api/admin/families/:id/archive', async (req, res) => {
       if (updatedFamily.rows.length === 0) {
         await client.query('ROLLBACK')
         return res.status(404).json({ success: false, message: 'Family not found' })
+      }
+
+      if (archived) {
+        const { rows } = await client.query(
+          `SELECT 1 FROM family_member membership
+           JOIN member ON member.id = membership.member_id AND member.facility_id = $2
+           JOIN facility ON facility.owner_user_id = member.app_user_id
+           WHERE membership.family_id = $1 AND membership.is_active = TRUE
+           LIMIT 1`,
+          [id, facilityId],
+        )
+        if (rows.length > 0) {
+          await client.query('ROLLBACK')
+          return res.status(409).json({ success: false, message: 'The facility Owner account cannot be archived.' })
+        }
       }
       
       // Update member status for all members in this family
@@ -5811,12 +5645,13 @@ app.get('/api/admin/members/search', async (req, res) => {
           m.last_name ILIKE $2 OR
           m.email ILIKE $2 OR
           m.phone ILIKE $2 OR
+          regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $3 OR
           m.username ILIKE $2 OR
           (m.first_name || ' ' || m.last_name) ILIKE $2
         )
     `
     
-    const params = [facilityId, searchQuery]
+    const params = [facilityId, searchQuery, phoneSearchPattern(q)]
     
     // Filter to adults only if requested (for parent/guardian selection)
     if (adultsOnly === 'true') {
@@ -5890,11 +5725,12 @@ app.get('/api/admin/search-members', async (req, res) => {
             m.last_name ILIKE $2 OR 
             m.email ILIKE $2 OR
             m.phone ILIKE $2 OR
+            regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $3 OR
             (m.first_name || ' ' || m.last_name) ILIKE $2
           )
         ORDER BY m.last_name, m.first_name
         LIMIT 50
-      `, [facilityId, `%${searchQuery}%`])
+      `, [facilityId, `%${searchQuery}%`, phoneSearchPattern(searchQuery)])
       
       const users = result.rows.map(row => ({
         id: row.id,
@@ -5936,14 +5772,8 @@ app.get('/api/admin/search-users', async (req, res) => {
     
     const searchQuery = q.trim()
     
-    // Normalize phone number - strip all non-numeric characters
-    const normalizePhone = (phone) => phone.replace(/\D/g, '')
-    const isPhoneNumber = /^\d+$/.test(normalizePhone(searchQuery)) && normalizePhone(searchQuery).length >= 7
-    
-    // If it looks like a phone number, search with normalized version
-    const phoneSearchTerm = isPhoneNumber ? normalizePhone(searchQuery) : searchQuery
     const nameSearchTerm = `%${searchQuery}%`
-    const phoneSearchTermPattern = `%${phoneSearchTerm}%`
+    const phoneSearchTermPattern = phoneSearchPattern(searchQuery)
     
     // This compatibility search returns canonical member records only. Never
     // join a member to an app_user by matching numeric ids; login identity is
@@ -5969,7 +5799,7 @@ app.get('/api/admin/search-users', async (req, res) => {
             OR CONCAT_WS(' ', m.first_name, m.last_name) ILIKE $2
             OR COALESCE(m.email, '') ILIKE $2
             OR COALESCE(m.phone, '') ILIKE $2
-            OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(COALESCE(m.phone, ''), '-', ''), '(', ''), ')', ''), ' ', ''), '.', '') ILIKE $3
+            OR regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $3
           )
         ORDER BY full_name_for_sort, first_name, last_name
         LIMIT 50
@@ -6021,9 +5851,13 @@ app.get('/api/admin/members/:id', async (req, res) => {
         END as age,
         f.family_name,
         f.family_username,
-        f.id as family_id
+        f.id as family_id,
+        login.username AS login_username,
+        login.id IS NOT NULL AS has_login,
+        NULLIF(login.password_hash, '') IS NOT NULL AS has_login_password
       FROM member m
       LEFT JOIN family f ON m.family_id = f.id AND f.facility_id = m.facility_id
+      LEFT JOIN app_user login ON login.id = m.app_user_id AND login.facility_id = m.facility_id
       WHERE m.id = $1
         AND m.facility_id = $2
     `
@@ -6104,6 +5938,9 @@ app.get('/api/admin/members/:id', async (req, res) => {
         email: member.email,
         phone: member.phone,
         username: member.username,
+        hasLogin: member.has_login,
+        hasLoginPassword: member.has_login_password,
+        loginUsername: member.login_username,
         dateOfBirth: member.date_of_birth,
         age: member.age ? parseInt(member.age) : null,
         familyId: member.family_id,
@@ -6155,10 +5992,14 @@ app.get('/api/admin/members/:id/portal-access', async (req, res) => {
          member_row.id,
          member_row.is_active AS member_is_active,
          member_row.app_user_id,
+         CASE WHEN login.id IS NOT NULL THEN login.username ELSE member_row.username END AS username,
+         NULLIF(login.password_hash, '') IS NOT NULL AS has_password,
+         cardinality(access.staff_roles) > 0 AS is_staff,
          access.is_active AS account_is_active,
          access.member_portal_access_active,
          access.member_portal_status
        FROM member member_row
+       LEFT JOIN app_user login ON login.id = member_row.app_user_id AND login.facility_id = member_row.facility_id
        LEFT JOIN v_app_user_access_context access
          ON access.user_id = member_row.app_user_id
         AND access.facility_id = member_row.facility_id
@@ -6185,6 +6026,9 @@ app.get('/api/admin/members/:id/portal-access', async (req, res) => {
       data: {
         status,
         userId: row.app_user_id == null ? null : Number(row.app_user_id),
+        username: row.username,
+        hasPassword: row.has_password,
+        isStaff: row.is_staff === true,
         memberIsActive: row.member_is_active === true,
         accountIsActive: row.account_is_active === true,
         memberPortalAccessActive: row.member_portal_access_active === true,
@@ -6604,21 +6448,28 @@ app.put('/api/admin/members/:id', async (req, res) => {
     const { error, value } = memberUpdateSchema.validate(req.body, { abortEarly: false })
     if (error) {
       await client.query('ROLLBACK')
-      console.error('[PUT /api/admin/members/:id] Validation error:', error.details)
+      console.error('[PUT /api/admin/members/:id] Validation error:', error.details.map(detail => detail.message))
       return res.status(400).json({
         success: false,
-        message: 'Validation error',
+        message: error.details[0].message,
         errors: error.details.map(detail => detail.message)
       })
     }
+    if (value.password && Buffer.byteLength(value.password, 'utf8') > 72) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({ success: false, message: 'Password must be 72 bytes or fewer.' })
+    }
+    if (value.username?.trim()) await client.query('SELECT pg_advisory_xact_lock(846001)')
     
     // Check if member exists
     const memberCheck = await client.query(
-      `SELECT id, date_of_birth, facility_id, is_active,
-              first_name, last_name, email, phone, username, address
+      `SELECT member.id, member.date_of_birth, member.facility_id, member.is_active,
+              member.first_name, member.last_name, member.email, member.phone, member.username, member.address,
+              login.id IS NOT NULL AS has_login, login.email AS login_email, login.username AS login_username
          FROM member
-        WHERE id = $1 AND facility_id = $2
-        FOR UPDATE`,
+         LEFT JOIN app_user login ON login.id = member.app_user_id AND login.facility_id = member.facility_id
+        WHERE member.id = $1 AND member.facility_id = $2
+        FOR UPDATE OF member`,
       [id, req.canonicalAccess.facilityId],
     )
     if (memberCheck.rows.length === 0) {
@@ -6630,18 +6481,35 @@ app.put('/api/admin/members/:id', async (req, res) => {
     }
     
     const existingMember = memberCheck.rows[0]
+    if (value.phone !== undefined) value.phone = normalizeUpdatedPhoneNumber(value.phone, existingMember.phone)
     const normalizedIdentityValue = (input) => String(input ?? '').trim()
-    const identityFieldsChanged = [
-      [value.firstName, existingMember.first_name],
-      [value.lastName, existingMember.last_name],
-      [value.email, existingMember.email],
-      [value.phone, existingMember.phone],
-      [value.username, existingMember.username],
-      [value.address, existingMember.address],
-    ].some(([nextValue, currentValue]) => (
+    const currentUsername = existingMember.has_login ? existingMember.login_username : existingMember.username
+    const currentEmail = existingMember.has_login ? existingMember.login_email : existingMember.email
+    if (value.username !== undefined) {
+      value.username = normalizedIdentityValue(value.username) || null
+      if (value.username && value.username !== normalizedIdentityValue(currentUsername)) {
+        try {
+          validateSignupUsername(value.username)
+          await assertUsernameIsNotReserved(client, value.username)
+        } catch (usernameError) {
+          await client.query('ROLLBACK')
+          return res.status(usernameError.statusCode || 400).json({ success: false, message: usernameError.message })
+        }
+      }
+    }
+    const changedIdentityFields = new Set([
+      ['full_name', value.firstName, existingMember.first_name],
+      ['full_name', value.lastName, existingMember.last_name],
+      ['email', value.email, currentEmail],
+      ['phone', value.phone === undefined ? undefined : normalizePhoneNumber(value.phone) ?? value.phone,
+        normalizePhoneNumber(existingMember.phone) ?? existingMember.phone],
+      ['username', value.username, currentUsername],
+      ['address', value.address, existingMember.address],
+    ].filter(([, nextValue, currentValue]) => (
       nextValue !== undefined
       && normalizedIdentityValue(nextValue) !== normalizedIdentityValue(currentValue)
-    ))
+    )).map(([field]) => field))
+    const identityFieldsChanged = changedIdentityFields.size > 0
     if (value.password && existingMember.is_active !== true) {
       await client.query('ROLLBACK')
       return res.status(409).json({
@@ -6728,6 +6596,7 @@ app.put('/api/admin/members/:id', async (req, res) => {
     }
     if (value.password !== undefined && value.password) {
       portalPasswordHash = await bcrypt.hash(value.password, 10)
+      updates.push('must_change_password = FALSE')
     }
     // hasCompletedWaivers and waiverCompletionDate remain accepted for one
     // compatibility window, but are intentionally not writable here. Current
@@ -6864,6 +6733,7 @@ app.put('/api/admin/members/:id', async (req, res) => {
     await syncMemberPortalIdentity(client, Number(id), {
       passwordHash: portalPasswordHash,
       identityFieldsChanged,
+      changedIdentityFields,
     })
     
     await client.query('COMMIT')
@@ -7305,98 +7175,31 @@ app.delete('/api/admin/families/:familyId/members/:memberId', async (req, res) =
 })
 
 // Delete member (admin endpoint) - facility Owner only.
-// Administrators can archive members but cannot permanently delete them.
-app.delete('/api/admin/members/:id', async (req, res) => {
-  if (req.isMasterAdmin !== true) {
-    return res.status(403).json({
-      success: false,
-      message: 'Only the facility Owner can permanently delete members.',
-    })
+app.delete('/api/admin/members/:id', requireMemberLifecycleOwner, async (req, res) => {
+  const memberId = Number(req.params.id)
+  if (!Number.isSafeInteger(memberId) || memberId <= 0) {
+    return res.status(400).json({ success: false, message: 'Invalid member id.' })
   }
-
-  const { id } = req.params
-
-  if (await isDefaultMasterMemberId(id, req.canonicalAccess.facilityId)) {
-    return res.status(400).json({
-      success: false,
-      message: 'The facility Owner account cannot be deleted.',
-    })
-  }
-
-  const client = await pool.connect()
   try {
-    await client.query('BEGIN')
-
-    // Capture the linked login account before removing the member row.
-    const memberResult = await client.query(
-      `SELECT app_user_id
-         FROM member
-        WHERE id = $1
-          AND facility_id = $2
-        FOR UPDATE`,
-      [id, req.canonicalAccess.facilityId],
-    )
-    if (memberResult.rows.length === 0) {
-      await client.query('ROLLBACK')
-      return res.status(404).json({ success: false, message: 'Member not found' })
-    }
-    const appUserId = memberResult.rows[0].app_user_id
-
-    // Remove the member; FK rules (CASCADE / SET NULL) clean up dependents
-    // such as scheduling signups, waivers, schools, and family links.
-    await client.query(
-      'DELETE FROM member WHERE id = $1 AND facility_id = $2',
-      [id, req.canonicalAccess.facilityId],
-    )
-
-    // Delete the linked login account only when it is a member-only account
-    // that no longer backs any other member record.
-    if (appUserId) {
-      const otherMembers = await client.query(
-        `SELECT COUNT(*)::int AS count
-           FROM member
-          WHERE app_user_id = $1
-            AND facility_id = $2`,
-        [appUserId, req.canonicalAccess.facilityId],
-      )
-      if (otherMembers.rows[0].count === 0) {
-        const rolesResult = await client.query(
-          `
-            SELECT role_key FROM (
-              SELECT role::text AS role_key FROM app_user WHERE id = $1
-              UNION
-              SELECT role::text AS role_key FROM app_user_role WHERE user_id = $1
-            ) roles
-          `,
-          [appUserId],
-        )
-        const roles = rolesResult.rows.map((row) => row.role_key)
-        const memberOnly = roles.length > 0 && roles.every((role) => role === 'MEMBER_ATHLETE')
-        // A member deletion must never remove a shared staff identity. Legacy
-        // member-only login rows may be retired with the member record.
-        if (memberOnly) {
-          await client.query(
-            'DELETE FROM app_user WHERE id = $1 AND facility_id = $2',
-            [appUserId, req.canonicalAccess.facilityId],
-          )
-        }
-      }
-    }
-
-    await client.query('COMMIT')
+    await deleteArchivedMember(pool, { memberId, facilityId: req.canonicalAccess.facilityId })
     res.json({
       success: true,
       message: 'Member deleted successfully',
     })
   } catch (error) {
-    await client.query('ROLLBACK')
+    if (error.statusCode === 404 || error.statusCode === 409) {
+      return res.status(error.statusCode).json({
+        success: false,
+        code: error.code,
+        message: error.message,
+        blockers: error.blockers,
+      })
+    }
     console.error('Delete member error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
     })
-  } finally {
-    client.release()
   }
 })
 
@@ -7728,56 +7531,119 @@ app.post('/api/members/request-password-reset', passwordResetLimiter, async (req
   }
 })
 
-app.post('/api/members/change-password', authenticateMember, async (req, res) => {
+const changeMemberCredentials = (schema) => async (req, res) => {
+  const { error, value } = schema.validate(req.body)
+  if (error) {
+    return res.status(400).json({ success: false, message: error.details[0].message })
+  }
+
+  const { currentPassword, newPassword, username } = value
+  if (newPassword !== undefined && Buffer.byteLength(newPassword, 'utf8') > 72) {
+    return res.status(400).json({ success: false, message: 'New password must be 72 bytes or fewer.' })
+  }
+  if (username !== undefined) {
+    try {
+      validateSignupUsername(username)
+    } catch (validationError) {
+      return res.status(400).json({ success: false, message: validationError.message })
+    }
+  }
+
+  const userId = req.userId
+  const { facilityId, memberId } = req.canonicalAccess
+  let client
   try {
-    const { error, value } = memberChangePasswordSchema.validate(req.body)
-    if (error) {
-      return res.status(400).json({ success: false, message: 'Validation error' })
+    client = await pool.connect()
+    await client.query('BEGIN')
+    if (username !== undefined) {
+      await client.query('SELECT pg_advisory_xact_lock(846001)')
     }
 
-    const userId = req.userId || req.memberId
-    const userResult = await pool.query(
-      `SELECT id, password_hash
-         FROM app_user
+    const linkedMember = await client.query(
+      `SELECT id FROM member
+        WHERE id = $1
+          AND app_user_id = $2
+          AND facility_id = $3
+          AND is_active = TRUE
+        FOR UPDATE`,
+      [memberId, userId, facilityId],
+    )
+    if (!linkedMember.rowCount) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ success: false, message: 'Member account not found.' })
+    }
+
+    const login = await client.query(
+      `SELECT password_hash, username FROM app_user
         WHERE id = $1
           AND facility_id = $2
           AND is_active = TRUE
-        LIMIT 1`,
-      [userId, req.canonicalAccess.facilityId],
+          AND member_portal_access_active = TRUE
+        FOR UPDATE`,
+      [userId, facilityId],
     )
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'User not found' })
+    const current = login.rows[0]
+    if (!current) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ success: false, message: 'Member account not found.' })
     }
-
-    const current = userResult.rows[0]
-    const isValid = await bcrypt.compare(value.currentPassword, current.password_hash || '')
-    if (!isValid) {
+    if (!(await bcrypt.compare(currentPassword, current.password_hash || ''))) {
+      await client.query('ROLLBACK')
       return res.status(401).json({ success: false, message: 'Current password is incorrect' })
     }
 
-    const newHash = await bcrypt.hash(value.newPassword, 10)
-    await pool.query(
+    if (username !== undefined) {
+      if (username !== current.username) {
+        await assertUsernameIsNotReserved(client, username)
+      }
+      await client.query(
+        `UPDATE app_user
+            SET username = $3, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1 AND facility_id = $2`,
+        [userId, facilityId, username],
+      )
+      await client.query(
+        `UPDATE member
+            SET username = $4, updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1 AND app_user_id = $2 AND facility_id = $3`,
+        [memberId, userId, facilityId, username],
+      )
+      await client.query('COMMIT')
+      return res.json({ success: true, message: 'Username updated successfully', data: { username } })
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10)
+    await client.query(
       `UPDATE app_user
           SET password_hash = $3, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-          AND facility_id = $2`,
-      [userId, req.canonicalAccess.facilityId, newHash],
+        WHERE id = $1 AND facility_id = $2`,
+      [userId, facilityId, newHash],
     )
-    await pool.query(
+    await client.query(
       `UPDATE member
           SET must_change_password = FALSE, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-          AND app_user_id = $2
-          AND facility_id = $3`,
-      [req.canonicalAccess.memberId, userId, req.canonicalAccess.facilityId],
+        WHERE id = $1 AND app_user_id = $2 AND facility_id = $3`,
+      [memberId, userId, facilityId],
     )
-
+    await client.query('COMMIT')
     res.json({ success: true, message: 'Password updated successfully' })
   } catch (error) {
-    console.error('Member change password error:', error)
+    await client?.query('ROLLBACK').catch(() => {})
+    if (error.code === '23505' && username !== undefined) {
+      return res.status(409).json({ success: false, message: 'That username is already in use.' })
+    }
+    if (error.statusCode === 409) {
+      return res.status(409).json({ success: false, message: error.message })
+    }
+    console.error('Member credential change error:', error)
     res.status(500).json({ success: false, message: 'Internal server error' })
+  } finally {
+    client?.release()
   }
-})
+}
+
+app.post('/api/members/change-password', authenticateMember, changeMemberCredentials(memberChangePasswordSchema))
+app.post('/api/members/change-username', authenticateMember, changeMemberCredentials(memberChangeUsernameSchema))
 
 // Get current member and their family (protected endpoint) - uses same query structure as admin members
 app.get('/api/members/me', authenticateMember, async (req, res) => {
@@ -7805,7 +7671,8 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
         m.is_active,
         m.family_is_active,
         membership.family_id,
-        m.username,
+        account.username,
+        m.must_change_password,
         m.profile_complete,
         m.signup_source,
         m.gender,
@@ -7822,6 +7689,9 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
           ELSE NULL 
         END as age
       FROM member m
+      JOIN app_user account
+        ON account.id = m.app_user_id
+       AND account.facility_id = m.facility_id
       LEFT JOIN family_member membership
         ON membership.member_id = m.id
        AND membership.is_active = TRUE
@@ -7874,7 +7744,7 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
           m.family_is_active,
           membership.family_id,
           m.app_user_id,
-          m.username,
+          account.username,
           m.created_at,
           m.updated_at,
           f.family_name,
@@ -7887,6 +7757,9 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
           ON m.id = membership.member_id
          AND m.facility_id = $2
          AND m.is_active = TRUE
+        LEFT JOIN app_user account
+          ON account.id = m.app_user_id
+         AND account.facility_id = m.facility_id
         JOIN family f
           ON f.id = membership.family_id
          AND f.facility_id = $2
@@ -7992,6 +7865,7 @@ app.get('/api/members/me', authenticateMember, async (req, res) => {
     const isCoachUser = req.canonicalAccess.portalAccess.coach
     const hasMemberPortal = req.canonicalAccess.portalAccess.member
     currentUser.memberId = currentMemberRow.id
+    currentUser.mustChangePassword = currentMemberRow.must_change_password === true
     currentUser.householdAccess = serializeHouseholdAccess(householdAccess)
     currentUser.availablePortals = [
       ...(hasMemberPortal ? ['member'] : []),
@@ -8050,14 +7924,20 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
         member.phone,
         member.address,
         member.date_of_birth
-      FROM app_user account
-      JOIN member
+      FROM (
+        SELECT * FROM member
+        WHERE id = $2 AND app_user_id = $1 AND facility_id = $3 AND is_active = TRUE
+        FOR UPDATE
+      ) member
+      JOIN app_user account
         ON member.app_user_id = account.id
        AND member.facility_id = account.facility_id
       WHERE account.id = $1
         AND member.id = $2
         AND account.facility_id = $3
-      FOR UPDATE OF account, member
+        AND account.is_active = TRUE
+        AND account.member_portal_access_active = TRUE
+      FOR UPDATE OF account
     `, [userId, memberId, req.canonicalAccess.facilityId])
 
     if (currentResult.rows.length === 0) {
@@ -8085,7 +7965,7 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
     const nextFirstName = first_name === undefined ? current.first_name : String(first_name).trim()
     const nextLastName = last_name === undefined ? current.last_name : String(last_name).trim()
     const nextEmail = email === undefined ? current.email : normalizeOptional(email)
-    const nextPhone = phone === undefined ? current.phone : normalizeOptional(phone)
+    const nextPhone = normalizeUpdatedPhoneNumber(phone, current.phone)
     const nextAddress = address === undefined ? current.address : normalizeOptional(address)
 
     if (!nextFirstName || !nextLastName) {
@@ -8149,10 +8029,11 @@ app.put('/api/members/me', authenticateMember, async (req, res) => {
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
     console.error('Update member error:', error)
-    const status = error?.code === '23505' ? 409 : 500
+    const status = error?.code === '23505' ? 409 : Number(error?.statusCode) || 500
     res.status(status).json({
       success: false,
-      message: status === 409 ? 'That email is already in use.' : 'Internal server error'
+      message: status === 409 ? 'That email is already in use.'
+        : status < 500 ? error.message : 'Internal server error'
     })
   } finally {
     client.release()
@@ -8492,9 +8373,9 @@ app.put('/api/members/family/:id', authenticateMember, async (req, res) => {
     const nextEmail = email === undefined
       ? (linkedAccount?.email ?? current.email)
       : normalizeOptional(email)
-    const nextPhone = phone === undefined ? current.phone : normalizeOptional(phone)
+    const nextPhone = normalizeUpdatedPhoneNumber(phone, current.phone)
     const nextAddress = address === undefined ? current.address : normalizeOptional(address)
-    const nextUsername = linkedAccount?.username ?? current.username ?? null
+    const nextUsername = linkedAccount ? linkedAccount.username : current.username ?? null
 
     if (!nextFirstName || !nextLastName) {
       await client.query('ROLLBACK')

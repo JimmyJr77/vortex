@@ -97,11 +97,6 @@ export async function initDbFeatureTables(pool) {
 
     // ── Backfills (idempotent) ──────────────────────────────────────────────
     try {
-      await backfillRegistrationMembers(pool)
-    } catch (err) {
-      console.warn('[initDbFeatureTables] Registration member backfill skipped:', err.message)
-    }
-    try {
       await backfillNotesFromRegistrations(pool)
     } catch (err) {
       console.warn('[initDbFeatureTables] Notes backfill skipped:', err.message)
@@ -116,26 +111,6 @@ export async function initDbFeatureTables(pool) {
   } catch (error) {
     console.error('❌ DB feature tables initialization error:', error)
   }
-}
-
-// Link registrations to members by email, then phone, where not already linked.
-async function backfillRegistrationMembers(pool) {
-  await pool.query(`
-    UPDATE registrations r
-    SET member_id = m.id
-    FROM member m
-    WHERE r.member_id IS NULL
-      AND r.email IS NOT NULL
-      AND lower(m.email) = lower(r.email)
-  `)
-  await pool.query(`
-    UPDATE registrations r
-    SET member_id = m.id
-    FROM member m
-    WHERE r.member_id IS NULL
-      AND r.phone IS NOT NULL AND r.phone <> ''
-      AND m.phone = r.phone
-  `)
 }
 
 // Seed the note log from existing registration message + admin_notes.

@@ -1,4 +1,4 @@
-import { Suspense, useState, type FormEvent } from 'react'
+import { Suspense, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { allowed, request, useRead, type Access } from './api'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -109,10 +109,10 @@ function WeeklyTimesheets({ revision }: { revision: number }) {
           <tbody className="divide-y divide-slate-100">{data.people.map(row => <tr key={row.id}>
             <th scope="row" className={`${cell} sticky left-0 z-10 bg-white font-semibold`}>{person === 'all' ? <button type="button" className="text-left underline decoration-slate-300" onClick={() => setPerson(row.id === data.userId ? 'me' : String(row.id))}>{row.name}</button> : row.name}</th>
             {row.days.map(day => <td key={day.date} className={`px-3 py-3 align-top ${day.assignments.length ? 'bg-amber-50' : ''}`}>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-3">
                 {editable ? <input aria-label={`Hours worked ${day.date}`} className={`${input} !mt-0 min-w-0`} type="number" min="0" max="24" step="0.01" placeholder="0" disabled={saving} value={draftFor(day).hours} onChange={event => update(day, { hours: event.target.value })} /> : <span className="block font-semibold">{day.minutes == null ? '—' : duration(day.minutes)}</span>}
                 {day.assignments.length ? <AssignedTimes day={day} canAssign={data.canAssign} busy={saving} onRemove={removeAssignment} /> : null}
-                {editable ? <input aria-label={`Notes ${day.date}`} className={`${input} !mt-0 min-w-0 !px-2 !py-1.5 !text-xs`} maxLength={2000} disabled={saving} placeholder="Notes" value={draftFor(day).notes} onChange={event => update(day, { notes: event.target.value })} /> : day.notes ? <p className="break-words text-xs text-slate-500">{day.notes}</p> : null}
+                {editable ? <TimesheetNotes date={day.date} disabled={saving} value={draftFor(day).notes} onChange={notes => update(day, { notes })} /> : day.notes ? <p className="whitespace-pre-wrap break-words text-xs text-slate-500">{day.notes}</p> : null}
               </div>
             </td>)}
             <td className={`${cell} whitespace-nowrap font-bold`}>{duration(editable ? actualTotal : row.days.reduce((sum, day) => sum + (day.minutes ?? 0), 0))}</td>
@@ -124,6 +124,27 @@ function WeeklyTimesheets({ revision }: { revision: number }) {
     {data ? <p className="text-xs text-slate-500">Weeks run Monday–Sunday. Assigned times use {data.timezone}.</p> : null}
     {assigning && options.data && data ? <AssignmentEditor people={options.data.people} initialUserId={single?.id ?? data.userId} initialDate={data.today >= week && data.today <= data.end ? data.today : week} timezone={data.timezone} onClose={() => setAssigning(false)} onSaved={() => { setAssigning(false); setNotice('Work time assigned.'); refresh() }} /> : null}
   </section>
+}
+
+function TimesheetNotes({ date, disabled, value, onChange }: { date: string; disabled: boolean; value: string; onChange: (value: string) => void }) {
+  const ref = useRef<HTMLTextAreaElement>(null)
+  useLayoutEffect(() => {
+    const element = ref.current
+    if (!element) return
+    const resize = () => {
+      element.style.height = 'auto'
+      element.style.height = `${element.scrollHeight + element.offsetHeight - element.clientHeight}px`
+    }
+    resize()
+    let width = element.getBoundingClientRect().width
+    const observer = new ResizeObserver(() => {
+      const nextWidth = element.getBoundingClientRect().width
+      if (nextWidth !== width) { width = nextWidth; resize() }
+    })
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [value])
+  return <textarea ref={ref} aria-label={`Notes ${date}`} className={`${input} !mt-0 min-w-0 resize-none overflow-hidden whitespace-pre-wrap break-words !px-2 !py-1.5 !text-xs`} rows={1} maxLength={2000} disabled={disabled} placeholder="Notes" value={value} onChange={event => onChange(event.target.value)} />
 }
 
 function AssignedTimes({ day, canAssign, busy, onRemove }: { day: Day; canAssign: boolean; busy: boolean; onRemove: (assignment: Assignment) => Promise<void> }) {

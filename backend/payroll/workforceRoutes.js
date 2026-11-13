@@ -1,4 +1,5 @@
 import {readI9Qualification,saveI9Qualification} from './i9Qualification.js'
+import {normalizeUpdatedPhoneNumber} from '../phoneNumbers.js'
 import {readI9DifferentSupplementDraft,saveI9DifferentSupplementDraft} from './i9DifferentSupplementDraft.js'
 import {signI9DifferentSupplement} from './i9DifferentSupplementSigning.js'
 import {listI9DifferentSupplementCopies,uploadI9DifferentSupplementCopy,viewI9DifferentSupplementCopy,recordI9DifferentSupplementCopyPage} from './i9DifferentSupplementCopies.js'
@@ -198,7 +199,8 @@ export function registerWorkforceAdminRoutes(app,pool) {
   const before=(await db.query('SELECT * FROM payroll_settings WHERE facility_id=$1 FOR UPDATE',[f])).rows[0]
   if(!before) throw fail('Payroll settings not found.',404)
   const policy={...before.onboarding_policy}
-  for(const k of ['businessPhone','handbookText','benefitsText','firstDayInstructions','paySchedule','payrollProviderUrl','sickLeavePay']) if(b[k]!==undefined) policy[k]=clean(b[k],20000)
+  for(const k of ['handbookText','benefitsText','firstDayInstructions','paySchedule','payrollProviderUrl','sickLeavePay']) if(b[k]!==undefined) policy[k]=clean(b[k],20000)
+  if(b.businessPhone!==undefined)policy.businessPhone=normalizeUpdatedPhoneNumber(b.businessPhone,policy.businessPhone)||''
   if(b.benefitPlans!==undefined){if(b.expectedBenefitCatalog!==(before.onboarding_policy?.benefitCatalog||''))throw fail('The benefit catalog changed. Reload employer setup before publishing.',409);if(typeof b.benefitsCatalogEvidence!=='string'||b.benefitsCatalogEvidence.trim().length<12||b.benefitsCatalogEvidence.length>2000)throw fail('Provide the reviewed plan and rate source.');if(b.benefitsCatalogConfirmed!==true)throw fail('Confirm the published plan terms, monthly contributions and tax treatment.');policy.benefitCatalog=JSON.stringify(validateBenefitPlans(b.benefitPlans))}
   if(policy.payrollProviderUrl) { let u; try{u=new URL(policy.payrollProviderUrl)}catch{throw fail('Use a valid HTTPS payroll provider URL.')}; if(u.protocol!=='https:'||u.username||u.password) throw fail('Use a valid HTTPS payroll provider URL.') }
   const values={}

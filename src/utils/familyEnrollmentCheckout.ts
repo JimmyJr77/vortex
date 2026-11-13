@@ -33,7 +33,7 @@ export async function continueFamilyEnrollmentCheckout(apiUrl: string, result: {
   saveFamilyCheckoutSelections(Number(result.payerMemberId), result.pendingEnrollments)
   try {
     const { token, member } = await loginMemberWithCredentials(apiUrl, {
-      emailOrUsername: credentials.email || credentials.username || '',
+      emailOrUsername: credentials.username || credentials.email || '',
       password: credentials.password,
     })
     persistMemberSession(token, member)

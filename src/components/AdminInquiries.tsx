@@ -7,7 +7,7 @@ import { adminApiRequest } from '../utils/api'
 import { notesApi, type Note } from '../utils/adminFeaturesApi'
 import type { InquiryCamper } from '../config/inquiryOptions'
 import { INQUIRY_CLASS_TYPES, LEGACY_INQUIRY_CLASS_TYPES } from '../config/inquiryOptions'
-import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 
 const PROGRAM_INTEREST_VALUES = new Set<string>([
   ...INQUIRY_CLASS_TYPES,
@@ -69,6 +69,7 @@ interface User {
   created_at: string
   newsletter: boolean
   archived?: boolean
+  matched_member_id?: number | null
   contacted?: boolean
   follow_up?: boolean
   admin_notes?: string | null
@@ -268,7 +269,7 @@ export default function AdminInquiries() {
       first_name: merged.first_name,
       last_name: merged.last_name,
       email: merged.email,
-      phone: merged.phone,
+      phone: formatPhoneForDisplay(merged.phone) || null,
       athlete_age: merged.athlete_age,
       interests: merged.interests,
       interests_array: merged.interests_array,
@@ -384,6 +385,10 @@ export default function AdminInquiries() {
 
     const user = users.find((u) => u.id === editingId)
     if (!user) return
+    if (editData.phone && editData.phone !== formatPhoneForDisplay(user.phone) && !isCompletePhoneNumber(editData.phone)) {
+      alert(PHONE_FORMAT_ERROR)
+      return
+    }
 
     try {
       await persistRegistration(user, editData)
@@ -857,6 +862,7 @@ export default function AdminInquiries() {
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 border-r border-gray-200">
                         {user.first_name}
+                        {user.matched_member_id ? <span className="block text-xs text-gray-500">Member inquiry</span> : null}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
                         <div className="max-w-[200px] truncate" title={user.email}>
@@ -864,7 +870,7 @@ export default function AdminInquiries() {
                         </div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 border-r border-gray-200">
-                        {user.phone || '-'}
+                        {formatPhoneForDisplay(user.phone) || '-'}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-900 border-r border-gray-200">
                         <div className="max-w-[140px] truncate" title={formatAthletes(user)}>
@@ -960,10 +966,8 @@ export default function AdminInquiries() {
                                           type="tel"
                                           value={editData.phone || ''}
                                           onChange={(e) =>
-                                            setEditData({ ...editData, phone: formatPhoneNumber(e.target.value) })
+                                            setEditData({ ...editData, phone: e.target.value })
                                           }
-                                          placeholder={PHONE_INPUT_PLACEHOLDER}
-                                          maxLength={PHONE_INPUT_MAX_LENGTH}
                                           className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                         />
                                       </div>
@@ -1170,7 +1174,7 @@ export default function AdminInquiries() {
                                       </div>
                                       <div>
                                         <span className="text-gray-600 font-semibold">Phone:</span>
-                                        <div className="text-gray-900 mt-1">{user.phone || '-'}</div>
+                                        <div className="text-gray-900 mt-1">{formatPhoneForDisplay(user.phone) || '-'}</div>
                                       </div>
                                       <div>
                                         <span className="text-gray-600 font-semibold">Role:</span>

@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit'
 import { llmGenerateText, isLlmConfigured } from '../platform/aiService.js'
 import { OPPORTUNITY_CATEGORIES, seedOpportunities } from './opportunityData.js'
+import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 
 const VALID_STATUS = new Set(['new', 'researching', 'contacted', 'negotiating', 'won', 'passed'])
 const VALID_PRIORITY = new Set(['high', 'medium', 'low'])
@@ -77,7 +78,7 @@ export async function initOpportunityTables(pool) {
   if (legacy.rowCount > 0) await insertSeedOpportunities(pool)
 }
 
-function payload(body = {}) {
+function payload(body = {}, currentPhone) {
   return {
     name: clean(body.name, 240),
     category: OPPORTUNITY_CATEGORIES.includes(body.category) ? body.category : OPPORTUNITY_CATEGORIES[0],
@@ -89,7 +90,7 @@ function payload(body = {}) {
     deadline: body.deadline || null,
     contactName: clean(body.contactName, 200),
     contactEmail: clean(body.contactEmail, 240),
-    contactPhone: clean(body.contactPhone, 80),
+    contactPhone: normalizeUpdatedPhoneNumber(body.contactPhone, currentPhone) ?? '',
     websiteUrl: clean(body.websiteUrl, 1500),
     sourceUrl: clean(body.sourceUrl, 1500),
     audience: clean(body.audience),
@@ -148,9 +149,9 @@ export function registerOpportunityRoutes(app, pool) {
   })
 
   app.post('/api/admin/opportunities', async (req, res) => {
-    const item = payload(req.body)
-    if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
     try {
+      const item = payload(req.body)
+      if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
       const duplicate = await pool.query(
         `SELECT id FROM admin_opportunities WHERE LOWER(name)=LOWER($1)
          AND COALESCE(LOWER(location),'')=COALESCE(LOWER($2),'') LIMIT 1`,
@@ -167,15 +168,18 @@ export function registerOpportunityRoutes(app, pool) {
       `, [...Object.values(item), req.adminId])
       res.status(201).json({ success: true, data: mapRow(rows[0]) })
     } catch (error) {
+      if (error.statusCode === 400) return res.status(400).json({ success: false, message: error.message })
       console.error('[opportunities] create failed:', error)
       res.status(500).json({ success: false, message: 'Unable to create opportunity' })
     }
   })
 
   app.put('/api/admin/opportunities/:id', async (req, res) => {
-    const item = payload(req.body)
-    if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
     try {
+      const current = await pool.query('SELECT contact_phone FROM admin_opportunities WHERE id = $1', [req.params.id])
+      if (!current.rows[0]) return res.status(404).json({ success: false, message: 'Opportunity not found' })
+      const item = payload(req.body, current.rows[0].contact_phone)
+      if (!item.name) return res.status(400).json({ success: false, message: 'Name is required' })
       const duplicate = await pool.query(
         `SELECT id FROM admin_opportunities WHERE id <> $3 AND LOWER(name)=LOWER($1)
          AND COALESCE(LOWER(location),'')=COALESCE(LOWER($2),'') LIMIT 1`,
@@ -195,6 +199,7 @@ export function registerOpportunityRoutes(app, pool) {
       if (!rows[0]) return res.status(404).json({ success: false, message: 'Opportunity not found' })
       res.json({ success: true, data: mapRow(rows[0]) })
     } catch (error) {
+      if (error.statusCode === 400) return res.status(400).json({ success: false, message: error.message })
       console.error('[opportunities] update failed:', error)
       res.status(500).json({ success: false, message: 'Unable to update opportunity' })
     }

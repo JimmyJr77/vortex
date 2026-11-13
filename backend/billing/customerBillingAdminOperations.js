@@ -1,4 +1,5 @@
 import crypto from 'node:crypto'
+import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyRefundReceipt } from '../email/memberNotifications.js'
@@ -192,7 +193,7 @@ export async function updateAdminCustomerBillingAccount(pool, {
           Number(familyId),
           payerMemberId,
           has('billingEmail') ? optionalText(input.billingEmail) : before.billing_email,
-          has('billingPhone') ? optionalText(input.billingPhone) : before.billing_phone,
+          normalizeUpdatedPhoneNumber(input.billingPhone, before.billing_phone),
           has('billingStreet') ? optionalText(input.billingStreet) : before.billing_street,
           has('billingCity') ? optionalText(input.billingCity) : before.billing_city,
           has('billingState') ? optionalText(input.billingState) : before.billing_state,

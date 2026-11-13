@@ -150,7 +150,7 @@ test('active admin and member identity routes are facility and household scoped'
   assert.doesNotMatch(memberList, /SELECT id FROM facility LIMIT 1/)
   assert.match(userList, /WHERE u\.facility_id = \$1/)
   assert.match(userRead, /u\.id = \$1 AND u\.facility_id = \$2/)
-  assert.match(memberUpdate, /AND facility_id = \$2/)
+  assert.match(memberUpdate, /AND member\.facility_id = \$2/)
   assert.match(memberUpdate, /Unarchive the member record before enabling or changing Member Portal credentials/)
   assert.match(memberUpdate, /if \(updates\.length === 0 && !portalPasswordHash && !guardianRelationshipsChanged\)/)
   assert.match(memberUpdate, /if \(guardianRelationshipsChanged && !isChild\)/)
@@ -159,8 +159,7 @@ test('active admin and member identity routes are facility and household scoped'
   assert.match(memberUpdate, /identityFieldsChanged/)
   assert.doesNotMatch(memberUpdate, /updates\.push\(`password_hash/)
   assert.doesNotMatch(memberUpdate, /updates\.push\(`parent_guardian_ids/)
-  assert.match(memberDelete, /WHERE id = \$1\s+AND facility_id = \$2\s+FOR UPDATE/)
-  assert.doesNotMatch(memberDelete, /memberOnly \|\| req\.isMasterAdmin/)
+  assert.match(memberDelete, /deleteArchivedMember\(pool, \{ memberId, facilityId: req\.canonicalAccess\.facilityId \}\)/)
   assert.match(familyMemberUpdate, /membership\.family_id = \$(?:3|9)/)
   assert.match(familyMemberUpdate, /getHouseholdAccessForUser\(userId, client\)/)
   assert.match(familyMemberUpdate, /canEditHouseholdMember\(access, familyMemberId\)/)
@@ -235,4 +234,19 @@ test('member archive changes lifecycle without rewriting portal or derived statu
   assert.match(mutation, /SET is_active = \$1/)
   assert.doesNotMatch(mutation, /UPDATE app_user/)
   assert.doesNotMatch(mutation, /status\s*=/)
+})
+
+test('member archive and permanent deletion require the canonical facility Owner', async () => {
+  const source = await fs.readFile(serverSourceUrl, 'utf8')
+  const guard = block(source, 'function requireMemberLifecycleOwner', '// Analytics & consent')
+  assert.match(guard, /req\.canonicalAccess\?\.isOwner !== true/)
+  assert.match(guard, /status\(403\)/)
+  for (const route of [
+    "app.get('/api/admin/members/:id/archive-check'",
+    "app.patch('/api/admin/members/:id/archive'",
+    "app.patch('/api/admin/families/:id/archive'",
+    "app.delete('/api/admin/members/:id'",
+  ]) {
+    assert.ok(source.includes(`${route}, requireMemberLifecycleOwner,`), route)
+  }
 })

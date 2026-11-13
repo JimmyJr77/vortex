@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import os from 'node:os'
+import bcrypt from 'bcryptjs'
 import pg from 'pg'
 import { createLead, saveLead, listLeads, convertLead } from '../leads.js'
 import { createLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, nextLeadUsername } from '../leadRegistration.js'
@@ -9,12 +10,18 @@ import { insertSignupForMember } from '../../scheduling/handlers.js'
 import { sendLeadRegistrationEmail } from '../../email/leadRegistrationEmail.js'
 import { registerFamilySignupRoutes } from '../../platform/familySignup.js'
 import { confirmPaidDropIns } from '../../scheduling/dropInCheckout.js'
+import { loadDailyReportInquiries } from '../../scheduling/dailyReportInquiries.js'
+import { findActiveMemberLoginCandidates } from '../../auth/memberLoginIdentifiers.js'
+import { loadCanonicalAccessContext } from '../../platform/accessContext.js'
+import { validateRehearsalDatabaseUrl } from '../migrationAudit.js'
 
 // Fictional local data only. SMTP is injected and all database writes roll back.
 test('lead invitations reserve shared class places, require new credentials, and hand off without billing', {skip:process.env.RUN_LEAD_REGISTRATION_LOCAL_TEST !== 'true'}, async t=>{
   process.env.STRIPE_ENABLED='false'
   process.env.BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED='false'
-  const db=new pg.Client({connectionString:`postgresql://${os.userInfo().username}@127.0.0.1:5432/vortex_new_admin_dev`})
+  const connectionString = validateRehearsalDatabaseUrl(process.env.NEW_ADMIN_TEST_DATABASE_URL
+    || `postgresql://${os.userInfo().username}@127.0.0.1:5432/vortex_new_admin_dev`, { nodeEnv: process.env.NODE_ENV })
+  const db=new pg.Client({connectionString})
   await db.connect()
   let depth=0
   const adapter={release(){},async query(sql,args){
@@ -28,7 +35,10 @@ test('lead invitations reserve shared class places, require new credentials, and
   try {
     await db.query('BEGIN')
     for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','853_registration_hold_start_dates.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
-    const owner=(await db.query("SELECT id,facility_id FROM app_user WHERE username='admin2'")).rows[0]
+    const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
+      LEFT JOIN facility f ON f.owner_user_id=u.id
+      WHERE u.username='admin2' OR f.id IS NOT NULL
+      ORDER BY (u.username='admin2') DESC NULLS LAST,u.id LIMIT 1`)).rows[0]
     assert.ok(owner,'Requires fictional local New Admin database')
     const facilityId=Number(owner.facility_id),nonce=Date.now()
     const program=(await db.query('INSERT INTO programs(facility_id,name,display_name,is_active) VALUES($1,$2,$2,TRUE) RETURNING id',[facilityId,`Invitation test ${nonce}`])).rows[0]
@@ -38,6 +48,8 @@ test('lead invitations reserve shared class places, require new credentials, and
     const slot=(await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,1,'16:00','17:00',TRUE) RETURNING id",[form.id,group.id])).rows[0]
     const children=[{firstName:'Casey',lastName:'Invite',dateOfBirth:'2016-06-15',gender:'female'},{firstName:'Alex',lastName:'Invite',dateOfBirth:'2018-01-20',gender:'male'}]
     const lead=await createLead(pool,facilityId,{firstName:'Testparent',lastName:'Invite',email:`lead-${nonce}@example.test`,phone:'2025550101',inquiry:{campers:children}})
+    const reportThrough = new Date(Date.now() + 60 * 1000)
+    const reportBounds = { since: new Date(reportThrough.getTime() - 24 * 60 * 60 * 1000), through: reportThrough }
     const enrollmentStartDate=new Date().toISOString().slice(0,10)
     const selections=children.map((_,childIndex)=>({kind:'reserved',childIndex,programsId:program.id,classEventId:klass.id,timeSlotId:slot.id,enrollmentStartDate}))
     const beforeBilling=(await db.query('SELECT (SELECT count(*) FROM billing_charge) AS charges,(SELECT count(*) FROM billing_payment) AS payments,(SELECT count(*) FROM billing_subscription) AS subscriptions')).rows[0]
@@ -55,6 +67,23 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(duplicate.id,invitation.id);assert.equal(sendCount,1)
       assert.notEqual(await nextLeadUsername(db,'Testparent','Invite'),invitation.username)
       const listed=await listLeads(pool,facilityId,{search:lead.email});assert.equal(listed.rows[0].invitation.status,'sent')
+    })
+    await t.test('explicitly resending an invitation leaves the daily inquiry unchanged', async () => {
+      const matchingInquiries = async () => (await loadDailyReportInquiries(pool, reportBounds))
+        .filter(inquiry => inquiry.contactEmail === lead.email)
+      const matchingRegistrations = async () => (await db.query('SELECT id, created_at FROM registrations WHERE email=$1 ORDER BY id', [lead.email])).rows
+      const before = await matchingInquiries()
+      const beforeRows = await matchingRegistrations()
+      assert.deepEqual(before.map(inquiry => inquiry.id), [lead.id])
+      assert.equal(before[0].contactType, 'Lead')
+      assert.equal(beforeRows.length, 1)
+
+      const beforeDelivery = sendCount
+      const resent = await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id, resend: true }, { sendInvitation })
+      assert.equal(resent.id, invitation.id)
+      assert.equal(sendCount, beforeDelivery + 1)
+      assert.deepEqual(await matchingRegistrations(), beforeRows)
+      assert.deepEqual(await matchingInquiries(), before)
     })
     await t.test('pending seats cannot be taken by another admission path',async()=>{
       await rejectSql("INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status) VALUES($1,$2,$3,'Other','Child','other@example.test','confirmed')",[form.id,group.id,slot.id],/reserved/)
@@ -82,17 +111,29 @@ test('lead invitations reserve shared class places, require new credentials, and
       Object.assign(completion.primaryAdult, {username:` ${chosenUsername} `, email:` ${lead.email.toUpperCase()} `, phone:'+1 (202) 555-0101'})
       result=await completeLeadRegistration(pool,invitation.id,completion)
       assert.equal(result.memberIds.length,3);assert.equal(result.pendingEnrollments.length,2)
-      assert.deepEqual(await completeLeadRegistration(pool,invitation.id,payload()),JSON.parse(JSON.stringify(result)))
+      assert.deepEqual(await completeLeadRegistration(pool,invitation.id,completion),JSON.parse(JSON.stringify(result)))
+      await assert.rejects(() => completeLeadRegistration(pool,invitation.id,payload()), /already set up/)
+      await assert.rejects(() => completeLeadRegistration(pool,invitation.id,{
+        ...completion, primaryAdult:{ ...completion.primaryAdult, password:'DifferentPassword!' },
+      }), /already set up/)
       assert.deepEqual((await listLeads(pool,facilityId,{search:lead.email})).rows,[])
       const linkedLead=(await listLeads(pool,facilityId,{search:lead.email,converted:'true'})).rows[0]
       assert.equal(linkedLead.convertedMemberId,Number(result.payerMemberId))
       assert.equal(linkedLead.invitation.status,'completed')
+      const reportInquiries = await loadDailyReportInquiries(pool, reportBounds)
+      assert.equal(reportInquiries.find(inquiry => inquiry.id === lead.id)?.contactType, 'Member')
       const login=(await db.query('SELECT u.id,u.email,u.username,u.phone FROM app_user u JOIN member m ON m.app_user_id=u.id WHERE m.id=$1',[result.payerMemberId])).rows[0]
-      assert.equal(login.email,lead.email);assert.equal(login.username,chosenUsername);assert.equal(login.phone,'2025550101')
+      assert.equal(login.email,lead.email);assert.equal(login.username,chosenUsername);assert.equal(login.phone,'202-555-0101')
       for(const identifier of [chosenUsername,lead.email.toUpperCase(),'+1 (202) 555-0101']){
+        const candidates = await findActiveMemberLoginCandidates(db, identifier)
+        assert.deepEqual(candidates.map(candidate => candidate.id), [login.id])
+        assert.equal(await bcrypt.compare(completion.primaryAdult.password, candidates[0].password_hash), true)
+        assert.equal(await bcrypt.compare(captured.password, candidates[0].password_hash), false)
         const resumed=await openLeadRegistration(pool,invitation.id,{token:captured.token,username:identifier,password:completion.primaryAdult.password})
         assert.equal(resumed.completed,true)
       }
+      assert.equal((await loadCanonicalAccessContext(db, login.id))?.portalAccess.member, true)
+      assert.deepEqual(await findActiveMemberLoginCandidates(db, invitation.username), [])
       await assert.rejects(()=>openLeadRegistration(pool,invitation.id,{token:captured.token,username:invitation.username,password:captured.password}),/Incorrect/)
       await db.query('SAVEPOINT duplicate_phone_login')
       try {
@@ -134,10 +175,13 @@ test('lead invitations reserve shared class places, require new credentials, and
         await db.query('RELEASE SAVEPOINT drop_in_checkout')
       }
     })
-    await t.test('checkout adopts the held signup instead of creating another enrollment',async()=>{
+    await t.test('checkout adopts the held signup and uses the guardian contact for a child without email',async()=>{
       const hold=(await db.query('SELECT id FROM scheduling_signup WHERE account_invite_id=$1 AND invite_child_index=0',[invitation.id])).rows[0]
-      const admission=await insertSignupForMember(db,{formId:form.id,formRow:form,slotGroupId:group.id,memberId:result.memberIds[1],responses:{first_name:'Casey',last_name:'Invite',email:lead.email},firstOccurrenceId:slot.id,formTitle:form.title,mandateWaiver:false,enrollmentStartDate})
+      const child=(await db.query('SELECT email FROM member WHERE id=$1',[result.memberIds[1]])).rows[0]
+      assert.equal(child.email,null)
+      const admission=await insertSignupForMember(db,{formId:form.id,formRow:form,slotGroupId:group.id,memberId:result.memberIds[1],responses:{first_name:'Casey',last_name:'Invite',email:child.email},firstOccurrenceId:slot.id,formTitle:form.title,mandateWaiver:false,enrollmentStartDate})
       assert.equal(Number(admission.signupId),Number(hold.id));assert.equal(admission.signupStatus,'confirmed')
+      assert.equal(admission.signupRow.email,lead.email)
       assert.equal((await db.query('SELECT count(*)::int AS n FROM scheduling_signup WHERE account_invite_id=$1',[invitation.id])).rows[0].n,2)
       const again=await openLeadRegistration(pool,invitation.id,{token:captured.token,username:lead.email,password:'ReplacementPassword32!'})
       assert.equal(again.result.pendingEnrollments.length,1)
@@ -239,9 +283,10 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(Number(holdAfter.member_id), Number(saved.payerMemberId))
       assert.equal(holdAfter.enrollment_start_date, enrollmentStartDate)
 
-      await insertSignupForMember(db, { formId: form.id, formRow: form, slotGroupId: laterGroup.id, memberId: saved.memberIds[1],
-        responses: { first_name: 'Casey', last_name: 'Invite', email: familyLead.email }, firstOccurrenceId: laterSlot.id,
+      const admission = await insertSignupForMember(db, { formId: form.id, formRow: form, slotGroupId: laterGroup.id, memberId: saved.memberIds[1],
+        responses: { first_name: 'Casey', last_name: 'Invite' }, firstOccurrenceId: laterSlot.id,
         formTitle: form.title, mandateWaiver: false, enrollmentStartDate })
+      assert.equal(admission.signupRow.email, familyLead.email)
       const reopened = await openLeadRegistration(pool, invitation.id, { ...credentials, password: completion.primaryAdult.password })
       assert.deepEqual(reopened.result.pendingEnrollments.map(item => item.memberId), [saved.memberIds[0], saved.memberIds[2]])
     })

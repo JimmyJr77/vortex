@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronsUpDown, Search } from 'lucide-react'
 import { formatDateShort } from '../../utils/dateUtils'
@@ -64,6 +65,7 @@ interface Inquiry {
   firstName: string
   lastName: string
   status: string
+  memberInquiry?: boolean
   message: string | null
   notes: string | null
   createdAt: string | null
@@ -150,7 +152,7 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
           <h3 className="font-semibold text-slate-950">Contact and profile</h3>
           <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {([
-              ['Email', person.email], ['Phone', person.phone], ['Address', data.address],
+              ['Email', person.email], ['Phone', formatPhoneForDisplay(person.phone)], ['Address', data.address],
               ...(person.kind === 'family' ? [] : [['Age', displayAge(person.age)], ['Date of birth', displayDate(person.dateOfBirth)], ['Gender', data.gender], ['Username', data.username]]),
               ['Family', person.familyName], ['Last updated', displayDate(person.updatedAt)],
             ] as [string, string | null][]).map(([label, value]) => <div key={label} className="min-w-0">
@@ -174,7 +176,7 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
             {data.people.map(related => <li key={related.id} className="grid gap-1 py-2 text-sm sm:grid-cols-[minmax(9rem,1fr)_4rem_minmax(10rem,1fr)_minmax(8rem,auto)] sm:gap-3">
               <div><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => onMember(related.id)}>{related.name}</button>{!related.isActive ? <span className="ml-2 text-xs text-slate-600">Inactive</span> : null}</div>
               <span className="text-slate-600">{related.age != null ? `Age ${related.age}` : unknown}</span>
-              <span className="break-all text-slate-600">{related.email || unknown}</span><span className="text-slate-600">{related.phone || unknown}</span>
+              <span className="break-all text-slate-600">{related.email || unknown}</span><span className="text-slate-600">{formatPhoneForDisplay(related.phone) || unknown}</span>
             </li>)}
           </ul>
         </section> : null}
@@ -196,12 +198,12 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
           </> : classes ? <p className="p-4 text-sm text-slate-600">No class history on this page.</p> : null}
           {data.classes.totalPages > 1 ? <Pager data={{ ...data.classes, page }} onPage={setPage} /> : null}
         </section>
-        {data.inquiries.length ? <section aria-label="Lead history" className="rounded-xl border border-slate-200 p-4">
-          <h3 className="font-semibold text-slate-950">Lead history</h3>
+        {data.inquiries.length ? <section aria-label="Inquiry history" className="rounded-xl border border-slate-200 p-4">
+          <h3 className="font-semibold text-slate-950">Inquiry history</h3>
           <ul className="mt-2 divide-y divide-slate-100">{data.inquiries.map(inquiry => {
             const interests = inquiryInterests(inquiry)
             return <li key={inquiry.id} className="space-y-1 py-2 text-sm">
-              <div className="flex flex-wrap items-center gap-2"><span className="font-semibold">{inquiry.firstName} {inquiry.lastName}</span><Status value={inquiry.status} /><span className="text-slate-600">{displayDate(inquiry.createdAt)}</span></div>
+              <div className="flex flex-wrap items-center gap-2"><span className="font-semibold">{inquiry.firstName} {inquiry.lastName}</span>{inquiry.memberInquiry ? <Status value="member inquiry" /> : null}<Status value={inquiry.status} /><span className="text-slate-600">{displayDate(inquiry.createdAt)}</span></div>
               <div className="flex flex-wrap gap-2 text-xs text-slate-600">
                 {inquiry.source ? <span>{inquiry.source}</span> : null}
                 {inquiry.contacted ? <span>Contacted</span> : null}
@@ -340,14 +342,14 @@ export default function CRM({ revision, onMember, onFamily }: {
             <tbody className="divide-y divide-slate-100">{state.data.rows.map(row => <tr key={`${row.kind}-${row.id}`}>
               <td className="px-3 py-3 align-top"><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4 hover:text-vortex-red" onClick={() => setSelected(row)}>{row.name}</button><p className="mt-0.5 text-xs text-slate-600">{kinds[row.kind]}</p></td>
               <td className="px-3 py-3 align-top">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'}` : row.familyName || unknown}</td><td className="px-3 py-3 align-top">{displayAge(row.age)}</td>
-              <td className="max-w-52 break-all px-3 py-3 align-top">{row.email || unknown}</td><td className="whitespace-nowrap px-3 py-3 align-top">{row.phone || unknown}</td>
+              <td className="max-w-52 break-all px-3 py-3 align-top">{row.email || unknown}</td><td className="whitespace-nowrap px-3 py-3 align-top">{formatPhoneForDisplay(row.phone) || unknown}</td>
               <td className="px-3 py-3 align-top">{row.childCount ?? 0}</td><td className="px-3 py-3 align-top"><Activity person={row} /></td><td className="px-3 py-3 align-top"><FamilyActivity person={row} /></td><td className="whitespace-nowrap px-3 py-3 align-top">{displayDate(row.updatedAt)}</td>
             </tr>)}</tbody>
           </table>
         </div>
         <ul aria-label="CRM records" className="divide-y divide-slate-100 lg:hidden">{state.data.rows.map(row => <li key={`${row.kind}-${row.id}`} className="space-y-2 p-4 text-sm">
           <div className="flex items-start justify-between gap-3"><div className="min-w-0"><button type="button" className="break-words text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => setSelected(row)}>{row.name}</button><p className="text-xs text-slate-600">{kinds[row.kind]}{row.familyName && row.kind !== 'family' ? ` · ${row.familyName}` : ''}</p></div><Activity person={row} /></div>
-          <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-700"><span className="break-all">{row.email || 'No email'}</span><span>{row.phone || 'No phone'}</span></p>
+          <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-700"><span className="break-all">{row.email || 'No email'}</span><span>{formatPhoneForDisplay(row.phone) || 'No phone'}</span></p>
           <p className="text-xs text-slate-600">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'} · ` : row.age != null ? `Age ${row.age} · ` : ''}{row.childCount ?? 0} {(row.childCount ?? 0) === 1 ? 'child' : 'children'}</p>
           <div className="text-xs"><FamilyActivity person={row} /></div>
         </li>)}</ul>

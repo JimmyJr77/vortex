@@ -1,3 +1,5 @@
+import { phoneSearchPattern } from '../phoneNumbers.js'
+
 const DEFAULT_PAGE_SIZE = 25
 const MAX_PAGE_SIZE = 100
 
@@ -371,12 +373,14 @@ function buildDirectoryPredicates(parsed, values) {
   const predicates = []
   if (parsed.search) {
     const placeholder = addValue(values, `%${escapeLike(parsed.search)}%`)
+    const digits = phoneSearchPattern(parsed.search)
     searchPredicates.push(`(
       directory.first_name ILIKE ${placeholder} ESCAPE '\\'
       OR directory.last_name ILIKE ${placeholder} ESCAPE '\\'
       OR CONCAT_WS(' ', directory.first_name, directory.last_name) ILIKE ${placeholder} ESCAPE '\\'
       OR COALESCE(directory.email, '') ILIKE ${placeholder} ESCAPE '\\'
       OR COALESCE(directory.phone, '') ILIKE ${placeholder} ESCAPE '\\'
+      ${digits ? `OR regexp_replace(COALESCE(directory.phone, ''), '[^0-9]', '', 'g') LIKE ${addValue(values, digits)}` : ''}
       OR COALESCE(directory.family_name, '') ILIKE ${placeholder} ESCAPE '\\'
     )`)
   }

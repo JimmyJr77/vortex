@@ -1,5 +1,6 @@
 import { inputError, searchValue } from './common.js'
 import { accountNotesSql } from './accountNotes.js'
+import { phoneSearchPattern } from '../phoneNumbers.js'
 
 const booleanFilter = (value, label) => {
   if (value == null || value === '') return null
@@ -20,8 +21,8 @@ export function leadFilters(query, facilityId, statuses) {
   const search = String(query.search ?? '').trim()
   if (search) {
     const text = bind(searchValue(search))
-    const digits = search.replace(/\D/g, '')
-    clauses.push(`(concat_ws(' ',r.first_name,r.last_name,r.email,r.phone) ILIKE ${text} ESCAPE '\\'${digits.length >= 3 && /^[\d\s()+.-]+$/.test(search) ? ` OR regexp_replace(COALESCE(r.phone,''),'[^0-9]','','g') LIKE ${bind(`%${digits}%`)}` : ''})`)
+    const phoneSearch = phoneSearchPattern(search)
+    clauses.push(`(concat_ws(' ',r.first_name,r.last_name,r.email,r.phone) ILIKE ${text} ESCAPE '\\'${phoneSearch ? ` OR regexp_replace(COALESCE(r.phone,''),'[^0-9]','','g') LIKE ${bind(phoneSearch)}` : ''})`)
   }
   const status = String(query.status || '')
   if (status && !statuses.includes(status)) throw inputError('Invalid lead status.')

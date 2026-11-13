@@ -12,7 +12,7 @@
 
 import crypto from 'crypto'
 import rateLimit from 'express-rate-limit'
-import { authMiddleware, requirePermission, requireAnyPermission } from './registerRoutes.js'
+import { authMiddleware, requireCoachPermissions } from './registerRoutes.js'
 import { sendEmail, isEmailConfigured } from '../email/sendEmail.js'
 import { llmDraftCanonicalExerciseCard, llmInterpretWorkoutIntent, llmProgressNarrative } from './aiService.js'
 import { buildProgressReportPdf } from './pdfReport.js'
@@ -366,8 +366,8 @@ export async function loadSessionPhaseTaxonomy(pool, logger = console) {
 
 export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
   const auth = authMiddleware(pool, jwtSecret)
-  const can = (permission) => requirePermission(pool, jwtSecret, permission)
-  const canAny = (permissions) => requireAnyPermission(pool, jwtSecret, permissions)
+  const can = (permission) => requireCoachPermissions(pool, jwtSecret, [permission])
+  const canAny = (permissions) => requireCoachPermissions(pool, jwtSecret, permissions)
   const canonicalAiDraftLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 10,

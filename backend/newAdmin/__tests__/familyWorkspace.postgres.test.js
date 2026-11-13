@@ -25,6 +25,7 @@ test('family workspace preserves ledger/history, scopes families, paginates with
     await pool.query(fixture.replaceAll('public.', `"${schema}".`))
     await installSharedAccountRecords(pool)
     await pool.query(`
+      ALTER TABLE app_user ADD COLUMN facility_id bigint, ADD COLUMN email text, ADD COLUMN is_active boolean;
       CREATE TABLE parent_guardian_authority(parent_member_id bigint,child_member_id bigint,has_legal_authority boolean);
       CREATE TABLE registrations(id int PRIMARY KEY,first_name text,last_name text,member_id bigint,lead_status text,created_at timestamp,
         first_contacted_at timestamptz,follow_up boolean,archived boolean,message text,admin_notes text);
@@ -128,6 +129,16 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       await pool.query('UPDATE registrations SET facility_id=1,converted_member_id=2 WHERE id=1')
       const result = await loadFamilyWorkspace(pool, { facilityId: 1, familyId: 1 })
       assert.equal(result.leads.rows[0].linkType, 'explicit_conversion')
+    })
+    await t.test('same-facility contact matches appear in staff inquiries without adding an account link', async () => {
+      await pool.query(`ALTER TABLE registrations ADD COLUMN email text;
+        UPDATE member SET email='parent@example.test' WHERE id=1;
+        INSERT INTO registrations(id,first_name,last_name,lead_status,created_at,facility_id,email) VALUES
+          (2,'Returning','Parent','new',now(),1,'PARENT@example.test'),
+          (3,'Foreign','Inquiry','new',now(),2,'parent@example.test')`)
+      const result = await loadFamilyWorkspace(pool, { facilityId: 1, familyId: 1 })
+      assert.deepEqual(result.leads.rows.map(row => [row.id,row.linkType]), [[2,'contact_match'],[1,'explicit_conversion']])
+      assert.equal(result.history.rows.find(row => row.key === 'inquiry:2').memberId, 1)
     })
   } finally {
     await pool.end()

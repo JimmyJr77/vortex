@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../utils/phoneUtils'
 import { useCallback, useEffect, useState } from 'react'
 import { AlertTriangle, CheckCircle2, Copy, Link2, Loader2, Mail, Plus, Receipt, RefreshCw, Repeat, Tag } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
@@ -746,7 +747,7 @@ export default function AdminFamilyBilling() {
                   <div key={member.id} className="mt-1 text-xs text-gray-600">
                     {member.name || `Member #${member.id}`}
                     {member.email ? ` · ${member.email}` : ''}
-                    {member.phone ? ` · ${member.phone}` : ''}
+                    {member.phone ? ` · ${formatPhoneForDisplay(member.phone)}` : ''}
                     {member.address ? ` · ${member.address}` : ''}
                   </div>
                 ))}

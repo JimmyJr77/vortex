@@ -182,7 +182,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
         {access.data && current?.id === 'dashboard' ? <Dashboard revision={revision} canViewBilling={allowed(access.data, 'billing.view')} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
         {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
-        {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} /> : null}
+        {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onOpenMember={openMember} /> : null}
         {access.data && current?.id === 'crm' ? <CRM revision={revision} onMember={openMember} onFamily={openFamily} /> : null}
         {access.data && current?.id === 'classes' ? <Classes access={access.data} revision={revision} onMember={openMember} /> : null}
         {access.data && current?.id === 'timesheets' ? <Timesheets revision={revision} access={access.data} /> : null}

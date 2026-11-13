@@ -6,7 +6,8 @@ import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'luci
 import ScheduleOptionCheckboxGrid from './ScheduleOptionCheckboxGrid'
 import { groupScheduleOptions } from './scheduleOptionGrouping'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
-import { cleanPhoneNumber, formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH } from '../../utils/phoneUtils'
+import { loginMemberWithCredentials } from '../../utils/portalSession'
+import { cleanPhoneNumber, formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
 import { maybeSuggestUsername } from '../../utils/signupUsername'
 import { graduationYearsForPicker } from '../../utils/promoDiscountModel'
@@ -65,6 +66,9 @@ interface ApiMemberRecord {
   email?: string | null
   phone?: string | null
   username?: string | null
+  hasLogin?: boolean
+  hasLoginPassword?: boolean
+  loginUsername?: string | null
   dateOfBirth?: string | null
   gender?: string | null
   address?: string | null
@@ -94,6 +98,8 @@ interface SignupMemberForm {
   confirmPassword: string
   emailSource?: EmailSource
   portalAccessRequested?: boolean
+  hasLogin?: boolean
+  hasLoginPassword?: boolean
   currentSchool?: string
   graduationYear?: number | ''
 }
@@ -241,12 +247,10 @@ function mapApiMemberToForm(
   primaryEmail?: string,
   billing?: { billingStreet?: string | null; billingCity?: string | null; billingState?: string | null; billingZip?: string | null },
 ): SignupMemberForm {
-  const addressSource = record.address
-    || (record.billingStreet ? combineAddress(record.billingStreet, record.billingCity || '', record.billingState || '', record.billingZip || '') : '')
-    || (billing?.billingStreet ? combineAddress(billing.billingStreet, billing.billingCity || '', billing.billingState || '', billing.billingZip || '') : '')
-  const addressParts = parseAddress(addressSource)
+  const addressParts = parseAddress(record.address)
   const email = record.email || ''
-  const emailSource: EmailSource = primaryEmail && email && email.toLowerCase() !== primaryEmail.toLowerCase() ? 'youth' : 'parent'
+  const emailSource: EmailSource = email && (!primaryEmail || email.toLowerCase() !== primaryEmail.toLowerCase()) ? 'youth' : 'parent'
+  const username = (record.hasLogin ? record.loginUsername : record.username) || ''
   return {
     clientId: crypto.randomUUID(),
     memberId: record.id,
@@ -254,17 +258,19 @@ function mapApiMemberToForm(
     lastName: record.lastName || '',
     email,
     phone: formatPhoneForDisplay(record.phone),
-    addressStreet: addressParts.street,
-    addressCity: addressParts.city,
-    addressState: addressParts.state,
-    addressZip: addressParts.zip,
+    addressStreet: addressParts.street || record.billingStreet || billing?.billingStreet || '',
+    addressCity: addressParts.city || record.billingCity || billing?.billingCity || '',
+    addressState: addressParts.state || record.billingState || billing?.billingState || '',
+    addressZip: addressParts.zip || record.billingZip || billing?.billingZip || '',
     dateOfBirth: record.dateOfBirth ? formatDateForInput(record.dateOfBirth) : '',
     gender: record.gender || '',
-    username: record.username || '',
+    username,
     password: '',
     confirmPassword: '',
     emailSource,
-    portalAccessRequested: Boolean(record.username),
+    portalAccessRequested: record.hasLogin === true || Boolean(username),
+    hasLogin: record.hasLogin === true,
+    hasLoginPassword: record.hasLoginPassword === true,
     currentSchool: record.currentSchool || '',
     graduationYear: record.graduationYear ?? '',
   }
@@ -288,6 +294,7 @@ export default function FamilySignupWizard({
   const [step, setStep] = useState(isAdmin ? 0 : 1)
   const [accountLoaded, setAccountLoaded] = useState(!isAdminEdit)
   const [editFamilyId, setEditFamilyId] = useState<number | null>(null)
+  const loadedAdminMembers = useRef(new Map<number, SignupMemberForm>())
   const [savedMemberIds, setSavedMemberIds] = useState<number[]>([])
   const [familyMode, setFamilyMode] = useState<'new' | 'existing'>('new')
   const [existingFamilyId, setExistingFamilyId] = useState<number | null>(null)
@@ -422,17 +429,19 @@ export default function FamilySignupWizard({
           const others = records.filter((r) => r.id !== payerRecord?.id)
           if (!payerRecord) throw new Error('Family has no members to edit')
 
-          const primary = mapApiMemberToForm(payerRecord, payerRecord.email || undefined, billing)
+          const primary = mapApiMemberToForm(payerRecord, undefined, billing)
+          const additional = others.map((member) => mapApiMemberToForm(member, primary.email || undefined, billing))
           if (!cancelled) {
+            loadedAdminMembers.current = new Map([primary, ...additional].map((member) => [member.memberId!, member]))
             setPrimaryAdult(primary)
-            setAdditionalMembers(
-              others.map((m) => mapApiMemberToForm(m, primary.email || undefined, billing)),
-            )
+            setAdditionalMembers(additional)
           }
         } else {
           setSavedMemberIds([anchor.id])
           if (!cancelled) {
-            setPrimaryAdult(mapApiMemberToForm(anchor))
+            const primary = mapApiMemberToForm(anchor)
+            loadedAdminMembers.current = new Map([[anchor.id, primary]])
+            setPrimaryAdult(primary)
             setAdditionalMembers([])
           }
         }
@@ -650,11 +659,21 @@ export default function FamilySignupWizard({
     }
   }, [isMinorStart, additionalMembers.length])
 
-  const suggestUsernameForMember = (
-    firstName: string,
-    lastName: string,
-    currentUsername: string,
-  ) => maybeSuggestUsername(apiUrl, firstName, lastName, currentUsername)
+  const suggestUsernameForMember = async (member: SignupMemberForm, isPrimary = false) => {
+    if (isAdminEdit || (isPrimary && leadRegistration)) return
+    const { clientId, firstName, lastName, username } = member
+    const suggested = await maybeSuggestUsername(apiUrl, firstName, lastName, username)
+    if (!suggested) return
+
+    const applySuggestion = (current: SignupMemberForm) => (
+      current.clientId === clientId && current.firstName === firstName && current.lastName === lastName
+        && current.username === username && (isPrimary || current.portalAccessRequested === true)
+        ? { ...current, username: suggested }
+        : current
+    )
+    if (isPrimary) setPrimaryAdult(applySuggestion)
+    else setAdditionalMembers((current) => current.map(applySuggestion))
+  }
 
   const graduationYears = useMemo(() => graduationYearsForPicker(), [])
 
@@ -716,18 +735,14 @@ export default function FamilySignupWizard({
     fieldIdPrefix: string,
     showLogin = true,
   ) => {
-    const handleNameBlur = async () => {
-      if (leadRegistration) return
-      const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
-      if (suggested) onChange({ username: suggested })
-    }
+    const handleNameBlur = () => void suggestUsernameForMember(member, true)
 
     return (
     <div className="grid gap-3 md:grid-cols-2">
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" value={member.email} readOnly={Boolean(leadRegistration)} onChange={(e) => onChange({ email: e.target.value })} />
-      <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number *" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+      <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-label="Phone number" aria-required="true" value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }); setAddressVerified(false) }} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }); setAddressVerified(false) }} />
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.addressState} onChange={(e) => { onChange({ addressState: e.target.value }); setAddressVerified(false) }}>
@@ -796,10 +811,9 @@ export default function FamilySignupWizard({
     const isAddedLeadMember = Boolean(leadRegistration && index >= leadRegistration.children.length)
     const nameLabelClass = leadRegistration ? 'text-xs font-semibold text-gray-600' : 'sr-only'
 
-    const handleNameBlur = async () => {
+    const handleNameBlur = () => {
       if (member.portalAccessRequested !== true) return
-      const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
-      if (suggested) onChange({ username: suggested })
+      void suggestUsernameForMember(member)
     }
 
     return (
@@ -847,7 +861,7 @@ export default function FamilySignupWizard({
           )}
         </div>
         <div className="self-end">
-          <TextInput className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" placeholder="Phone number" maxLength={PHONE_INPUT_MAX_LENGTH} value={member.phone} onChange={(e) => onChange({ phone: formatPhoneNumber(e.target.value) })} />
+          <TextInput className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-label="Phone number" value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
         </div>
         <SignupBirthdayField id={`${fieldIdPrefix}-birthday`} value={member.dateOfBirth} onChange={(dateOfBirth) => onChange({ dateOfBirth })} />
         <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
@@ -862,6 +876,7 @@ export default function FamilySignupWizard({
             type="checkbox"
             className="mt-1"
             checked={member.portalAccessRequested === true}
+            disabled={isAdminEdit && member.hasLogin}
             onChange={(e) => {
               const checked = e.target.checked
               onChange(checked
@@ -872,10 +887,11 @@ export default function FamilySignupWizard({
                     password: '',
                     confirmPassword: '',
                   })
+              if (checked) void suggestUsernameForMember(member)
             }}
           />
           <span>
-            Create a separate Member Portal login
+            {isAdminEdit && member.hasLogin ? 'Member Portal login' : 'Create a separate Member Portal login'}
             <span className="mt-0.5 block text-xs text-gray-500">
               Leave this off for children or anyone who does not need their own sign-in. Access can be set up later.
             </span>
@@ -883,9 +899,9 @@ export default function FamilySignupWizard({
         </label>
         {member.portalAccessRequested === true && (
           <>
-            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
-            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
-            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Username *" autoComplete="username" autoCapitalize="none" spellCheck={false} maxLength={50} value={member.username} onChange={(e) => onChange({ username: e.target.value })} />
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" autoComplete="new-password" placeholder={isAdminEdit ? 'New password (optional)' : 'Password *'} value={member.password} onChange={(e) => onChange({ password: e.target.value })} />
+            <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="password" autoComplete="new-password" placeholder={isAdminEdit ? 'Confirm new password' : 'Confirm password *'} value={member.confirmPassword} onChange={(e) => onChange({ confirmPassword: e.target.value })} />
           </>
         )}
         {renderYouthAthleteFields(member, onChange, `${fieldIdPrefix}-${index}`)}
@@ -916,19 +932,20 @@ export default function FamilySignupWizard({
       if (!minor?.firstName || !minor?.lastName) return 'Minor first and last name are required.'
       if (!minor.dateOfBirth || isAdult(minor.dateOfBirth)) return 'Minor must be under 18.'
       if (!minor.currentSchool?.trim()) return 'Current school is required for youth athletes.'
+      if (minor.phone && !isCompletePhoneNumber(minor.phone)) return PHONE_FORMAT_ERROR
       if (!parentEmail.trim()) return 'Parent/guardian email is required.'
       return null
     }
     if (!adult.firstName || !adult.lastName) return 'First and last name are required.'
     if (!adult.email?.trim()) return 'Email is required.'
     if (!isAdminEdit && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(adult.email.trim())) return 'Enter a valid email address.'
-    if (cleanPhoneNumber(adult.phone || '').length !== 10) return 'A valid 10-digit phone number is required.'
+    if (!isCompletePhoneNumber(adult.phone || '')) return 'A valid 10-digit phone number is required.'
     if (!adult.addressStreet?.trim()) return 'Street address is required.'
     if (!adult.addressCity?.trim()) return 'City is required.'
     if (!adult.addressState?.trim()) return 'State is required.'
     if (!adult.addressZip?.trim()) return 'ZIP code is required.'
     if (!adult.dateOfBirth || !isAdult(adult.dateOfBirth)) return 'Primary account holder must be 18 or older.'
-    if (!adult.username?.trim()) return 'Username is required.'
+    if (!adult.username?.trim() && !isAdminEdit) return 'Username is required.'
     if (!isAdminEdit && /[@\s\p{C}]/u.test(adult.username.trim())) return 'Choose a username without @, spaces, or control characters.'
     if (!isAdminEdit && /^\+?[\d().-]+$/.test(adult.username.trim()) && /^1?\d{10}$/.test(cleanPhoneNumber(adult.username))) return 'Choose a username that is different from a phone number.'
     if (!isAdminEdit) {
@@ -937,6 +954,7 @@ export default function FamilySignupWizard({
       if (adult.password !== adult.confirmPassword) return 'Passwords do not match.'
     } else if (adult.password) {
       if (adult.password.length < 8) return 'Password must be at least 8 characters.'
+      if (new TextEncoder().encode(adult.password).length > 72) return 'Choose a password of 72 bytes or fewer.'
       if (adult.password !== adult.confirmPassword) return 'Passwords do not match.'
     }
     return null
@@ -948,6 +966,7 @@ export default function FamilySignupWizard({
     for (const member of members) {
       if (!member.firstName || !member.lastName) return 'Each family member needs a first and last name.'
       if (!member.dateOfBirth) return `Date of birth is required for ${member.firstName || 'each member'}.`
+      if (member.phone && !isCompletePhoneNumber(member.phone)) return `Enter a 10-digit phone number for ${member.firstName}.`
       const minor = Boolean(member.dateOfBirth) && !isAdult(member.dateOfBirth)
       if (usesParentContactEmail(member)) {
         if (!minor) {
@@ -959,14 +978,15 @@ export default function FamilySignupWizard({
       } else if (!member.email?.trim()) {
         return `Email is required for ${member.firstName || 'each member'}.`
       }
-      if (member.portalAccessRequested === true && !member.username?.trim()) {
+      if (member.portalAccessRequested === true && !member.username?.trim() && !(isAdminEdit && member.hasLogin)) {
         return `Username is required to create Member Portal access for ${member.firstName || 'this member'}.`
       }
       if (!isAdminEdit && member.portalAccessRequested === true) {
         if (!member.password || member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
-      } else if (member.portalAccessRequested === true && member.password) {
+      } else if (isAdminEdit && member.portalAccessRequested === true && (!member.hasLoginPassword || member.password)) {
         if (member.password.length < 8) return `Password must be at least 8 characters for ${member.firstName || 'each member'}.`
+        if (new TextEncoder().encode(member.password).length > 72) return `Choose a password of 72 bytes or fewer for ${member.firstName || 'each member'}.`
         if (member.password !== member.confirmPassword) return `Passwords do not match for ${member.firstName || 'each member'}.`
       }
     }
@@ -1005,32 +1025,26 @@ export default function FamilySignupWizard({
     return null
   }
 
-  const buildMemberUpdatePayload = (member: SignupMemberForm, inheritPrimaryAddress = false) => {
-    const street = inheritPrimaryAddress ? primaryAdult.addressStreet : member.addressStreet
-    const city = inheritPrimaryAddress ? primaryAdult.addressCity : member.addressCity
-    const state = inheritPrimaryAddress ? primaryAdult.addressState : member.addressState
-    const zip = inheritPrimaryAddress ? primaryAdult.addressZip : member.addressZip
+  const buildMemberUpdatePayload = (member: SignupMemberForm, primary: SignupMemberForm) => {
+    const isPrimary = member.memberId === primary.memberId
+    const { addressStreet: street, addressCity: city, addressState: state, addressZip: zip } = primary
     const payload: Record<string, unknown> = {
       firstName: member.firstName,
       lastName: member.lastName,
-      email: usesParentContactEmail(member) ? null : (member.email || null),
-      emailSource: member.emailSource ?? 'parent',
-      phone: member.phone ? cleanPhoneNumber(member.phone) : null,
+      email: !isPrimary && usesParentContactEmail(member) ? null : (member.email.trim() || null),
+      phone: formatPhoneForDisplay(member.phone) || null,
       address: combineAddress(street, city, state, zip) || null,
-      username: member.username || null,
+      username: member.username.trim() || null,
       dateOfBirth: member.dateOfBirth || null,
       gender: member.gender || null,
     }
-    if (member === primaryAdult) {
-      payload.billingStreet = primaryAdult.addressStreet || null
-      payload.billingCity = primaryAdult.addressCity || null
-      payload.billingState = primaryAdult.addressState || null
-      payload.billingZip = primaryAdult.addressZip || null
+    if (isPrimary) {
+      payload.billingStreet = street || null
+      payload.billingCity = city || null
+      payload.billingState = state || null
+      payload.billingZip = zip || null
     }
-    if (member.graduationYear !== '' && member.graduationYear != null) {
-      payload.graduationYear = member.graduationYear
-    }
-    if (member.password && member.password.length >= 8) {
+    if (member.password) {
       payload.password = member.password
     }
     return payload
@@ -1038,12 +1052,18 @@ export default function FamilySignupWizard({
 
   const saveAdminEdit = async () => {
     const membersToSave = [primaryAdult, ...additionalMembers]
+    const originalPrimary = primaryAdult.memberId == null ? undefined : loadedAdminMembers.current.get(primaryAdult.memberId)
     for (const member of membersToSave) {
       if (!member.memberId) continue
-      const inheritAddress = member !== primaryAdult
+      const original = loadedAdminMembers.current.get(member.memberId)
+      if (!original || !originalPrimary) continue
+      const previous = buildMemberUpdatePayload(original, originalPrimary)
+      const payload = Object.fromEntries(Object.entries(buildMemberUpdatePayload(member, primaryAdult))
+        .filter(([key, value]) => value !== previous[key]))
+      if (Object.keys(payload).length === 0) continue
       const res = await adminApiRequest(`/api/admin/members/${member.memberId}`, {
         method: 'PUT',
-        body: JSON.stringify(buildMemberUpdatePayload(member, inheritAddress)),
+        body: JSON.stringify(payload),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -1300,12 +1320,11 @@ export default function FamilySignupWizard({
       const data = await res.json()
       if (!res.ok) throw new Error(data.message || 'Signup failed')
       if (leadRegistration) {
-        const login = await fetch(`${apiUrl}/api/members/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ emailOrUsername: primaryAdult.username, password: primaryAdult.password }),
-        }).then((response) => response.json()).catch(() => null)
-        onComplete?.({ ...data.data, token: login?.token, member: login?.member })
+        const login = await loginMemberWithCredentials(apiUrl, {
+          emailOrUsername: primaryAdult.username,
+          password: primaryAdult.password,
+        }).catch(() => null)
+        onComplete?.({ ...data.data, ...login })
         setSuccessMessage('Account setup completed.')
         return
       }
@@ -1340,23 +1359,12 @@ export default function FamilySignupWizard({
       }
       if (isWaiversMemberships) {
         try {
-          const loginRes = await fetch(`${apiUrl}/api/members/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              emailOrUsername: primaryAdult.email || primaryAdult.username,
-              password: primaryAdult.password,
-            }),
+          const login = await loginMemberWithCredentials(apiUrl, {
+            emailOrUsername: primaryAdult.username,
+            password: primaryAdult.password,
           })
-          const loginData = await loginRes.json()
-          if (loginRes.ok && loginData.success) {
-            onComplete?.({
-              ...data.data,
-              token: loginData.token,
-              member: loginData.member,
-            })
-            return
-          }
+          onComplete?.({ ...data.data, ...login })
+          return
         } catch (loginErr) {
           console.warn('[signup] auto-login after waivers signup failed:', loginErr)
         }
@@ -1396,15 +1404,7 @@ export default function FamilySignupWizard({
       return
     }
     if (step === 1) {
-      let adult = primaryAdult
-      if (!isMinorStart && !leadRegistration) {
-        const suggested = await suggestUsernameForMember(adult.firstName, adult.lastName, adult.username)
-        if (suggested) {
-          adult = { ...adult, username: suggested }
-          setPrimaryAdult(adult)
-        }
-      }
-      const err = validatePrimaryStep(adult)
+      const err = validatePrimaryStep()
       if (err) {
         setError(err)
         return
@@ -1415,16 +1415,7 @@ export default function FamilySignupWizard({
       }
     }
     if (step === 2 && !isMinorStart) {
-      const updatedMembers = await Promise.all(
-        additionalMembers.map(async (member) => {
-          const suggested = await suggestUsernameForMember(member.firstName, member.lastName, member.username)
-          return suggested ? { ...member, username: suggested } : member
-        }),
-      )
-      if (updatedMembers.some((member, index) => member.username !== additionalMembers[index]?.username)) {
-        setAdditionalMembers(updatedMembers)
-      }
-      const err = validateFamilyMembersStep(updatedMembers)
+      const err = validateFamilyMembersStep()
       if (err) {
         setError(err)
         return
@@ -1767,7 +1758,7 @@ export default function FamilySignupWizard({
               </div>
               <p className="mt-2 font-medium text-gray-800">{primaryAdult.firstName} {primaryAdult.lastName}</p>
               <p className="break-all text-sm text-gray-600">{primaryAdult.email}</p>
-              <p className="text-sm text-gray-600">{primaryAdult.phone}</p>
+              <p className="text-sm text-gray-600">{formatPhoneForDisplay(primaryAdult.phone)}</p>
             </section>
           )}
           <div className="flex items-center justify-between">

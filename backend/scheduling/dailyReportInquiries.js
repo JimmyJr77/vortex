@@ -1,4 +1,6 @@
 import { calendarDateParts } from '../members/dateOnlyAge.js'
+import { inquiryMemberMatchJoin } from '../newAdmin/inquiryMemberMatch.js'
+import { normalizePhoneNumber } from '../phoneNumbers.js'
 
 function cleanText(value) {
   return String(value ?? '').trim()
@@ -50,9 +52,15 @@ export async function loadDailyReportInquiries(pool, { since, through }) {
     SELECT r.id, r.first_name, r.last_name, r.email, r.phone, r.submitter_role,
            r.campers, r.child_ages, r.athlete_age, r.interests_array, r.interests,
            r.interest, r.class_types, r.message,
+           (inquiry_contact.member_id IS NOT NULL OR EXISTS (
+             SELECT 1 FROM member linked_member
+              WHERE linked_member.id = COALESCE(r.converted_member_id, r.member_id)
+                AND linked_member.facility_id = r.facility_id AND linked_member.is_active IS TRUE
+           )) AS is_member_inquiry,
            r.created_at AT TIME ZONE 'UTC' AS received_at,
            ((r.created_at AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York')::date::text AS received_date
       FROM registrations r
+      ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
      WHERE r.archived IS NOT TRUE
        AND r.created_at >= ($1::timestamptz AT TIME ZONE 'UTC')
        AND r.created_at < ($2::timestamptz AT TIME ZONE 'UTC')
@@ -67,8 +75,9 @@ export async function loadDailyReportInquiries(pool, { since, through }) {
       receivedAt: row.received_at,
       contactName: fullName(row.first_name, row.last_name),
       contactEmail: cleanText(row.email),
-      contactPhone: cleanText(row.phone),
+      contactPhone: normalizePhoneNumber(row.phone) ?? cleanText(row.phone),
       contactRole: cleanText(row.submitter_role),
+      contactType: row.is_member_inquiry ? 'Member' : 'Lead',
       children: inquiryChildren(row),
       interest: inquiryInterest(row),
     }

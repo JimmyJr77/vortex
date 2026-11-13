@@ -15,6 +15,7 @@ import {
   getAvailablePortals,
   persistAdminSessionFromAccount,
   persistMemberSession,
+  updateMemberSessionCredentials,
   type PortalAccount,
   type PortalId,
 } from './utils/portalSession'
@@ -280,6 +281,10 @@ function App() {
           onReturnToWebsite={() => switchPortal('website')}
           availablePortals={availablePortals}
           onSwitchPortal={switchPortal}
+          onCredentialsChanged={(credentials) => {
+            const updated = updateMemberSessionCredentials(memberToken, credentials)
+            if (updated) setMember(updated)
+          }}
         />
       </Suspense>
     )

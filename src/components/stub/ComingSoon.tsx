@@ -14,6 +14,7 @@ import { setSportSiteContext } from '../../utils/sportSite'
 import {
   getAvailablePortals,
   persistAdminSessionFromAccount,
+  updateMemberSessionCredentials,
   type PortalAccount,
 } from '../../utils/portalSession'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
@@ -159,6 +160,10 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
           member={member}
           onLogout={handleMemberLogout}
           onReturnToWebsite={() => setShowMemberDashboard(false)}
+          onCredentialsChanged={(credentials) => {
+            const updated = updateMemberSessionCredentials(memberToken, credentials)
+            if (updated) setMember(updated)
+          }}
         />
       </Suspense>
     )

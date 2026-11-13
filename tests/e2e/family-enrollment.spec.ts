@@ -174,7 +174,7 @@ test('family signup copies a class into a separate enrollment without replacing 
   await expect(page.getByText('This class time is selected more than once for the same family member. Choose a different family member or remove the duplicate enrollment.')).toBeVisible()
 })
 
-async function fillPrimaryAdult(page: Page) {
+async function fillPrimaryAdult(page: Page, username = 'fixture-parent', onUsernameEntered?: () => Promise<void>) {
   await page.getByPlaceholder('First name *', { exact: true }).fill('Parent')
   await page.getByPlaceholder('Last name *', { exact: true }).fill('Example')
   await page.getByPlaceholder('Email *', { exact: true }).fill('parent@example.invalid')
@@ -184,7 +184,8 @@ async function fillPrimaryAdult(page: Page) {
   await page.locator('select').filter({ has: page.locator('option[value="MD"]') }).selectOption('MD')
   await page.getByPlaceholder('ZIP *').fill('20715')
   await page.getByLabel('Date of Birth', { exact: false }).fill('1980-01-01')
-  await page.getByPlaceholder('Username *').fill('fixture-parent')
+  await page.getByPlaceholder('Username *').fill(username)
+  await onUsernameEntered?.()
   await page.getByPlaceholder('Password *', { exact: true }).fill('FixtureOnly123!')
   await page.getByPlaceholder('Confirm password *').fill('FixtureOnly123!')
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
@@ -213,25 +214,40 @@ test('checkout failure cannot confirm enrollment or discard the selected class',
 
 for (const loginFails of [false, true]) test(`family account creation hands classes to checkout (login failure: ${loginFails})`, async ({ page }) => {
   const requests = await setup(page, { stripe: true })
+  const credentials = { emailOrUsername: 'Parent', password: 'FixtureOnly123!' }
+  let releaseSuggestion!: () => void
+  const chosenUsername = new Promise<void>((resolve) => { releaseSuggestion = resolve })
   await page.route('**/api/signup/waivers', (route) => json(route, [{ id: 1, name: 'Test waiver', body: 'Test terms', version: '1', is_required: true }]))
+  await page.route('**/api/signup/suggest-username?*', async (route) => {
+    await chosenUsername
+    await json(route, { username: 'fixture-parent' })
+  })
   await page.route('**/api/signup/family', async (route) => {
     const body = route.request().postDataJSON()
     expect(body.enrollments).toHaveLength(1)
+    expect(body.primaryAdult).toMatchObject({ username: credentials.emailOrUsername, password: credentials.password })
     await json(route, { payerMemberId: 101, enrollmentReceipts: [], pendingEnrollments: [{
       memberId: 101, classEventId: 2, formId: 3, slotGroupId: 4, timeSlotId: 5,
       classLabel: 'Test Class', scheduleLabel: 'Monday', programsId: 1, enrollmentStartDate: '2027-01-04',
     }] })
   })
-  await page.route('**/api/members/login', (route) => loginFails
-    ? route.fulfill({ status: 503, json: { success: false } })
-    : route.fulfill({ json: { success: true, token: 'fixture-token', member: { id: 101 } } }))
+  await page.route('**/api/members/login', (route) => {
+    expect(route.request().postDataJSON()).toEqual(credentials)
+    return loginFails
+      ? route.fulfill({ status: 503, json: { success: false } })
+      : route.fulfill({ json: { success: true, token: 'fixture-token', member: { id: 101 } } })
+  })
   // Render the member checkout fixture at the real handoff destination.
   await page.route('**/?enrollment=review', async (route) => {
     const response = await route.fetch({ url: new URL(fixture, route.request().url()).href })
     await route.fulfill({ response, body: (await response.text()).replace('./family-enrollment.tsx', '/tests/e2e/fixtures/family-enrollment.tsx') })
   })
+  const suggestionResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/signup/suggest-username')
   await page.goto(fixture + '?family=1')
-  await fillPrimaryAdult(page)
+  await fillPrimaryAdult(page, credentials.emailOrUsername, async () => {
+    releaseSuggestion()
+    await suggestionResponse
+  })
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await page.getByRole('button', { name: 'Add enrollment', exact: true }).click()
   await page.getByLabel('Family member', { exact: true }).selectOption({ label: 'Parent Example' })

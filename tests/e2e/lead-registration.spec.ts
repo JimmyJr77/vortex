@@ -66,6 +66,7 @@ test('conversion supports partial child details and optional dates for every lin
 
 test('invited parent fills missing family and class details before continuing to checkout',async({page})=>{
   let completion:Record<string,unknown>|null=null
+  const memberLogins: unknown[] = []
   const waivers=[{id:1,name:'Test waiver',body:'Fixture waiver',version:'1',is_required:true}]
   const pendingEnrollments=[
     {memberId:9,programsId:1,classEventId:2,formId:3,slotGroupId:4,timeSlotId:5,classLabel:'Gymnastics Basics',enrollmentStartDate:'2027-01-12'},
@@ -89,7 +90,14 @@ test('invited parent fills missing family and class details before continuing to
     if(path.endsWith('/catalog/programs/1/classes')) data=[{id:2,name:'Gymnastics Basics',schedulingFormId:3}]
     if(path.endsWith('/catalog/classes/2/offerings')) data={formId:3,offerings:[],scheduleOptions:[{slotGroupId:4,timeSlotId:5,scheduleLabel:'Thursday 16:00–17:00'}]}
     if(path.endsWith('/lead/8/complete')) {completion=route.request().postDataJSON();data=result}
-    if(path==='/api/members/login') return route.fulfill({json:{success:true,token:'new-member-token',member:{id:9,firstName:'Jordan',lastName:'Rivera',availablePortals:['member']}}})
+    if(path==='/api/members/login') {
+      const credentials = route.request().postDataJSON()
+      memberLogins.push(credentials)
+      if (credentials.emailOrUsername !== 'jordan' || credentials.password !== 'NewPassword123!') {
+        return route.fulfill({status:401,json:{success:false,message:'Invalid login or password.'}})
+      }
+      return route.fulfill({json:{success:true,token:'new-member-token',member:{id:9,firstName:'Jordan',lastName:'Rivera',availablePortals:['member']}}})
+    }
     await route.fulfill({json:{success:true,data}})
   })
   await page.goto('/signup/lead?invite=8&token=fixture-token&selection=1')
@@ -181,6 +189,10 @@ test('invited parent fills missing family and class details before continuing to
   await page.getByRole('button',{name:'Sign in to finish registration'}).click()
   await page.getByRole('button',{name:'Review classes and complete enrollment'}).click()
   await expect(page).toHaveURL('/?enrollment=review')
+  expect(memberLogins).toEqual([
+    {emailOrUsername:'jordan',password:'NewPassword123!'},
+    {emailOrUsername:'jordan',password:'NewPassword123!'},
+  ])
   await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:9:10') || 'null'))).toMatchObject({cart:[{classEventId:6,enrollmentStartDate:'2027-01-10'}]})
 })
 

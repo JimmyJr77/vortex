@@ -72,7 +72,7 @@ test('CRM filters and sorts activity on the server and opens paginated history o
   const dialog = page.getByRole('dialog', { name: 'Rivera Family' })
   await expect(dialog.getByRole('region', { name: 'Children', exact: true })).toContainText('Age 10')
   await expect(dialog.getByRole('region', { name: 'Class history', exact: true })).toContainText('Foundations')
-  await expect(dialog.getByRole('region', { name: 'Lead history', exact: true })).toContainText('Interested in gymnastics.')
+  await expect(dialog.getByRole('region', { name: 'Inquiry history', exact: true })).toContainText('Interested in gymnastics.')
   await dialog.getByRole('button', { name: 'Next', exact: true }).click()
   await expect(dialog.getByRole('region', { name: 'Class history', exact: true })).toContainText('Youth Tumbling')
   expect(detailRequests).toEqual([`${crmPath}/family/42?page=1&pageSize=15`, `${crmPath}/family/42?page=2&pageSize=15`])

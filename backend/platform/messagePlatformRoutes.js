@@ -195,7 +195,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           ok(res, await updateNotificationPreferences(pool, facilityId, viewer, req.body || {}))
         }
       } catch (error) {
-        bad(res, error.message, 500)
+        bad(res, error.message, error.statusCode === 400 ? 400 : 500)
       }
     }
   }

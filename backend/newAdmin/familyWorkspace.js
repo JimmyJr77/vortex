@@ -1,4 +1,6 @@
 import { id, inputError, pagination, searchValue, date, memberRow } from './common.js'
+import { phoneSearchPattern } from '../phoneNumbers.js'
+import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { loadWorkspacePaymentMethod } from './paymentMethodSummary.js'
 import { canonicalActiveHouseholdMemberPredicate } from '../billing/householdMembership.js'
 import { loadCanonicalFinancialSnapshot } from '../billing/canonicalBillingAccount.js'
@@ -35,14 +37,15 @@ export async function listFamilies(pool, facilityId, query = {}) {
       AND (f.family_name ILIKE $2 ESCAPE '\\' OR EXISTS (
         SELECT 1 FROM member m WHERE m.facility_id=$1
         AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'f.id' })}
-        AND concat_ws(' ',m.first_name,m.last_name,m.email,m.phone) ILIKE $2 ESCAPE '\\'))
+        AND (concat_ws(' ',m.first_name,m.last_name,m.email,m.phone) ILIKE $2 ESCAPE '\\'
+          OR ($6::text IS NOT NULL AND regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $6))))
     ), page AS (SELECT * FROM matches ORDER BY lower(family_name),id LIMIT $4 OFFSET $5)
     SELECT (SELECT count(*)::int FROM matches) AS total,
       COALESCE((SELECT jsonb_agg(row ORDER BY lower(row.family_name),row.id) FROM (
         SELECT p.*, (SELECT count(*)::int FROM member m WHERE m.facility_id=$1
           AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'p.id' })}) AS people_count
         FROM page p) row),'[]'::jsonb) AS rows`,
-  [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset])
+  [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset, phoneSearchPattern(String(query.search ?? '').slice(0, 200))])
   const row = result.rows[0]
   return { rows: (row?.rows ?? []).map(r => ({ id: Number(r.id), name: r.family_name || 'Unnamed family', archived: Boolean(r.archived), peopleCount: r.people_count })),
     total: row?.total ?? 0, page: paging.page, pageSize: paging.pageSize, totalPages: Math.ceil((row?.total ?? 0) / paging.pageSize) }
@@ -78,6 +81,7 @@ async function readPeople(db, familyId, facilityId) {
   const result = await db.query(`/* family-workspace:people */
     SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,
       $1::bigint AS family_id,
+      EXISTS(SELECT 1 FROM facility f WHERE f.id=m.facility_id AND f.owner_user_id=m.app_user_id) AS is_owner,
       ARRAY(SELECT a.child_member_id FROM parent_guardian_authority a
         JOIN member child ON child.id=a.child_member_id AND child.facility_id=$2
         WHERE a.parent_member_id=m.id AND a.has_legal_authority=TRUE ORDER BY a.child_member_id) AS guardian_for,
@@ -87,7 +91,7 @@ async function readPeople(db, familyId, facilityId) {
       OR (m.family_id=$1 AND NOT EXISTS(SELECT 1 FROM family_member fm WHERE fm.member_id=m.id))
       OR EXISTS(SELECT 1 FROM account_record_source h WHERE h.family_id=$1 AND h.member_id=m.id AND h.facility_id=$2 AND NOT h.deleted))
     ORDER BY current_household DESC,m.last_name,m.first_name,m.id`, [familyId, facilityId])
-  return result.rows.map(r => ({ ...memberRow(r), name: `${r.first_name} ${r.last_name}`.trim(), currentHousehold: r.current_household, guardianFor: r.guardian_for.map(Number) }))
+  return result.rows.map(r => ({ ...memberRow(r), name: `${r.first_name} ${r.last_name}`.trim(), isOwner: r.is_owner, currentHousehold: r.current_household, guardianFor: r.guardian_for.map(Number) }))
 }
 
 export function participationStatus(row, today) {
@@ -164,14 +168,15 @@ export async function readFamilyHistory(db, { familyId, facilityId, memberIds, c
       ) t WHERE t.record_family_id=$1 AND t.record_facility_id=$2 AND $4
       UNION ALL
       SELECT 'inquiry:'||r.id,r.created_at AT TIME ZONE 'UTC','inquiry',
-        COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id),
+        COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id),
         'Inquiry · '||concat_ws(' ',r.first_name,r.last_name),
         concat_ws(' · ',r.lead_status,r.message,r.admin_notes,
           CASE WHEN to_jsonb(r)->>'converted_member_id' IS NOT NULL THEN 'Explicit conversion' ELSE 'Contact match' END),
         'Vortex',NULL::bigint
-      FROM registrations r WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR
+      FROM registrations r ${inquiryMemberMatchJoin("NULLIF(to_jsonb(r)->>'facility_id','')::bigint", "to_jsonb(r)->>'email'")}
+      WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR
         (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2)))
-        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id)=ANY($3::bigint[])
+        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($3::bigint[])
       UNION ALL
       SELECT 'activity:'||a.id,a.occurred_at,'account_activity',a.member_id,a.summary,
         a.event_type,'Vortex',NULL::bigint
@@ -212,10 +217,13 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
       count(*) OVER()::int AS total FROM drop_in_registration d
       JOIN member m ON m.id=d.member_id AND m.facility_id=$2 LEFT JOIN scheduling_form f ON f.id=d.form_id
       WHERE d.member_id=ANY($1::bigint[]) ORDER BY d.class_date DESC,d.id DESC LIMIT 25`, [memberIds, facilityId])
-    const leads = await db.query(`/* family-workspace:leads */ SELECT id,first_name,last_name,lead_status,created_at,first_contacted_at,follow_up,
-      NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint AS converted_member_id,member_id,archived,message,admin_notes,count(*) OVER()::int AS total
-      FROM registrations r WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2))) AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,member_id)=ANY($1::bigint[])
-      ORDER BY created_at DESC,id DESC LIMIT 25`, [memberIds, facilityId])
+    const leads = await db.query(`/* family-workspace:leads */ SELECT r.id,r.first_name,r.last_name,r.lead_status,r.created_at,r.first_contacted_at,r.follow_up,
+      NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint AS converted_member_id,r.archived,r.message,r.admin_notes,count(*) OVER()::int AS total
+      FROM registrations r ${inquiryMemberMatchJoin("NULLIF(to_jsonb(r)->>'facility_id','')::bigint", "to_jsonb(r)->>'email'")}
+      WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(
+        SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2)))
+        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($1::bigint[])
+      ORDER BY r.created_at DESC,r.id DESC LIMIT 25`, [memberIds, facilityId])
     const history = await readFamilyHistory(db, { familyId: resolved, facilityId, memberIds, canViewBilling })
     let financial = null
     if (canViewBilling) {

@@ -29,13 +29,14 @@ export async function findMemberByEmail(db, email) {
   const res = await db.query(
     `
     SELECT m.*,
-      (au.password_hash IS NOT NULL AND au.password_hash <> '') AS has_password,
+      (COALESCE(CASE WHEN m.app_user_id IS NULL THEN m.password_hash ELSE au.password_hash END, '') <> '') AS has_password,
       au.password_hash AS app_user_password_hash
     FROM member m
     LEFT JOIN app_user au
       ON au.id = m.app_user_id
      AND au.facility_id = m.facility_id
      AND au.is_active = TRUE
+     AND au.member_portal_access_active = TRUE
     WHERE m.is_active = TRUE
       AND (
         LOWER(TRIM(m.email)) = $1
@@ -75,33 +76,48 @@ export async function findMemberForAppUser(db, userId) {
   return res.rows[0] || null
 }
 
-async function syncAppUser(client, member, passwordHash) {
-  const fullName = `${member.first_name} ${member.last_name}`.trim()
+async function syncAppUser(client, member, passwordHash, {
+  allowStaffPasswordChange = true,
+  requireActivePortal = false,
+} = {}) {
   const facilityId = member.facility_id
   if (member.app_user_id) {
     const updated = await client.query(
       `
-      UPDATE app_user
-      SET full_name = $1, email = $2, phone = $3, username = $4,
-          password_hash = $5, updated_at = NOW()
-      WHERE id = $6
-        AND facility_id = $7
-      RETURNING id
+      UPDATE app_user account
+      SET password_hash = $1, updated_at = NOW()
+      FROM facility
+      WHERE account.id = $2
+        AND account.facility_id = $3
+        AND facility.id = account.facility_id
+        AND (NOT $5 OR (account.is_active AND account.member_portal_access_active))
+        AND ($4 OR (
+          facility.owner_user_id IS DISTINCT FROM account.id
+          AND account.role::text NOT IN ('MASTER_ADMIN', 'ADMIN', 'COACH')
+          AND NOT EXISTS (
+            SELECT 1 FROM app_user_role
+             WHERE user_id = account.id AND role::text IN ('MASTER_ADMIN', 'ADMIN', 'COACH')
+          )
+        ))
+      RETURNING account.id, account.email
       `,
       [
-        fullName,
-        member.email,
-        member.phone,
-        member.username,
         passwordHash,
         member.app_user_id,
         facilityId,
+        allowStaffPasswordChange,
+        requireActivePortal,
       ],
     )
     if (updated.rows.length === 0) {
-      throw new Error('The linked Member Portal login is missing or belongs to another facility.')
+      const message = allowStaffPasswordChange
+        ? 'The linked Member Portal login could not be updated.'
+        : 'The linked login could not be updated. Manage staff passwords through Staff Access.'
+      throw Object.assign(new Error(message), {
+        statusCode: 409,
+      })
     }
-    return Number(updated.rows[0].id)
+    return updated.rows[0]
   }
 
   if (!member.email && !member.username) {
@@ -121,12 +137,13 @@ async function syncAppUser(client, member, passwordHash) {
     throw new Error('A login with this email or username already exists. Link it explicitly instead of creating another identity.')
   }
 
+  const fullName = `${member.first_name} ${member.last_name}`.trim()
   const created = await client.query(
     `INSERT INTO app_user (
        full_name, email, phone, username, password_hash,
        role, is_active, facility_id, created_at, updated_at
      ) VALUES ($1, $2, $3, $4, $5, 'MEMBER_ATHLETE'::user_role, TRUE, $6, NOW(), NOW())
-     RETURNING id`,
+     RETURNING id, email`,
     [fullName, member.email, member.phone, member.username, passwordHash, facilityId],
   )
   const userId = Number(created.rows[0].id)
@@ -146,7 +163,7 @@ async function syncAppUser(client, member, passwordHash) {
   )
   member.app_user_id = userId
   member.password_hash = null
-  return userId
+  return created.rows[0]
 }
 
 function generateUsernameFromEmail(email) {
@@ -191,7 +208,11 @@ export async function createMemberStub(
   return member.id
 }
 
-export async function updateMemberPassword(client, memberId, password, { mustChangePassword = false } = {}) {
+export async function updateMemberPassword(client, memberId, password, {
+  mustChangePassword = false,
+  requireTemporaryPassword = false,
+  allowStaffPasswordChange = true,
+} = {}) {
   const passwordHash = await bcrypt.hash(password, 10)
   const res = await client.query(
     `
@@ -207,7 +228,13 @@ export async function updateMemberPassword(client, memberId, password, { mustCha
     throw new Error('Member not found')
   }
   const member = res.rows[0]
-  await syncAppUser(client, member, passwordHash)
+  if (requireTemporaryPassword && !member.must_change_password) {
+    throw Object.assign(new Error('Sign in to the Member Portal to change your password.'), { statusCode: 409 })
+  }
+  const login = await syncAppUser(client, member, passwordHash, {
+    allowStaffPasswordChange,
+    requireActivePortal: requireTemporaryPassword,
+  })
   await client.query(
     `UPDATE member
         SET password_hash = NULL,
@@ -218,7 +245,7 @@ export async function updateMemberPassword(client, memberId, password, { mustCha
   )
   member.password_hash = null
   member.must_change_password = Boolean(mustChangePassword)
-  return member
+  return { ...member, loginEmail: login.email }
 }
 
 export async function refreshMemberProfileComplete(client, memberId) {

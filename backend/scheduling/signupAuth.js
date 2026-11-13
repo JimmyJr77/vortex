@@ -152,14 +152,8 @@ export async function verifyMagicToken(pool, { token, formId, email }) {
 
 export async function verifyMemberPassword(memberRow, password) {
   if (!password) return false
-  const memberHash = memberRow?.password_hash
-  if (memberHash) {
-    const memberOk = await bcrypt.compare(password, memberHash)
-    if (memberOk) return true
-  }
-  const appUserHash = memberRow?.app_user_password_hash
-  if (appUserHash) {
-    return bcrypt.compare(password, appUserHash)
-  }
-  return false
+  const hash = memberRow?.app_user_id != null
+    ? memberRow.app_user_password_hash
+    : memberRow?.password_hash
+  return Boolean(hash) && bcrypt.compare(password, hash)
 }

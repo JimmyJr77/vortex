@@ -8,6 +8,7 @@ import {
   JACKRABBIT_PARENT_PORTAL_URL,
   TEAM_EMAIL,
   TEAM_PHONE,
+  TEAM_PHONE_E164,
 } from '../config/contact'
 import { trackEvent, trackOutboundClickEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
@@ -218,7 +219,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-vortex-red" />
                   <a
-                    href="tel:+14434224794"
+                    href={`tel:${TEAM_PHONE_E164}`}
                     className="text-gray-300 hover:text-vortex-red transition-colors"
                     onClick={() =>
                       trackEvent('phone_click', window.location.pathname, {

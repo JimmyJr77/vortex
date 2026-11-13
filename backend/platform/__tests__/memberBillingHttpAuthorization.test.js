@@ -104,6 +104,27 @@ function memberHeaders(extra = {}) {
   }
 }
 
+test('coach-only credentials reach the Coach Portal while Admin Portal access stays restricted', async () => {
+  let account = { role: 'COACH', member_id: null }
+  const pool = {
+    async query(sql) {
+      if (sql.includes('FROM role r')) return { rows: [{ key: 'coach_portal.access' }] }
+      const auth = authenticationRows(sql, account)
+      if (auth) return auth
+      throw new Error(`Unexpected coach authorization query: ${sql}`)
+    },
+  }
+  const app = createPlatformApp(pool)
+  const headers = memberHeaders()
+  const coach = await invokeRoute(app, { path: '/api/coach/me', headers })
+  assert.equal(coach.status, 200)
+  assert.equal(coach.body.data.id, 9)
+  assert.equal((await invokeRoute(app, { path: '/api/admin/access/users', headers })).status, 403)
+
+  account = { role: 'COACH', member_id: null, can_access_coach_portal: false }
+  assert.equal((await invokeRoute(app, { path: '/api/coach/me', headers })).status, 403)
+})
+
 test('canonical member HTTP endpoints remain available when the global rollout flag is off', { concurrency: false }, async () => {
   const previousReadMode = process.env.BILLING_CANONICAL_READ_MODE
   process.env.BILLING_CANONICAL_READ_MODE = 'off'

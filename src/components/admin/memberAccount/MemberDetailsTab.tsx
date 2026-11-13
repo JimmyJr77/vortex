@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../../utils/phoneUtils'
 import type { ReactNode } from 'react'
 import { formatDateForDisplay, formatTimestampDate } from '../../../utils/dateUtils'
 import type { MemberDetailData, MemberDirectorySummary, MemberFamilyData } from './types'
@@ -107,7 +108,7 @@ export default function MemberDetailsTab({ member, familyData, directorySummary 
           <DetailItem label="First name">{member.firstName}</DetailItem>
           <DetailItem label="Last name">{member.lastName}</DetailItem>
           <DetailItem label="Email">{member.email || 'N/A'}</DetailItem>
-          <DetailItem label="Phone">{member.phone || 'N/A'}</DetailItem>
+          <DetailItem label="Phone">{formatPhoneForDisplay(member.phone) || 'N/A'}</DetailItem>
           <DetailItem label="Username">{member.username || 'N/A'}</DetailItem>
           <DetailItem label="Date of birth">{member.dateOfBirth ? formatDateForDisplay(member.dateOfBirth) : 'N/A'}</DetailItem>
           {member.age != null && <DetailItem label="Age">{member.age}</DetailItem>}
@@ -182,7 +183,7 @@ export default function MemberDetailsTab({ member, familyData, directorySummary 
             {member.parentGuardians.map((g) => (
               <div key={g.id} className="text-sm border border-gray-100 rounded-lg p-3">
                 <div className="font-medium text-gray-900">{g.firstName} {g.lastName}</div>
-                <div className="text-gray-600">{[g.email, g.phone, g.username].filter(Boolean).join(' · ') || '—'}</div>
+                <div className="text-gray-600">{[g.email, formatPhoneForDisplay(g.phone), g.username].filter(Boolean).join(' · ') || '—'}</div>
               </div>
             ))}
           </div>
@@ -205,7 +206,7 @@ export default function MemberDetailsTab({ member, familyData, directorySummary 
                 )}
                 <div className="font-medium text-gray-900">{fm.firstName} {fm.lastName}</div>
                 <div className="text-gray-600 text-xs mt-0.5">
-                  {[fm.email, fm.phone, fm.isFamilyPayer ? 'Payer' : null, fm.isActive === false ? 'Archived' : null]
+                  {[fm.email, formatPhoneForDisplay(fm.phone), fm.isFamilyPayer ? 'Payer' : null, fm.isActive === false ? 'Archived' : null]
                     .filter(Boolean)
                     .join(' · ')}
                 </div>
@@ -223,7 +224,7 @@ export default function MemberDetailsTab({ member, familyData, directorySummary 
               <div key={c.id ?? idx} className="text-sm border border-gray-100 rounded-lg p-3">
                 <div className="font-medium text-gray-900">{c.name || 'Contact'}</div>
                 <div className="text-gray-600">
-                  {[c.relationship, c.phone, c.email].filter(Boolean).join(' · ') || '—'}
+                  {[c.relationship, formatPhoneForDisplay(c.phone), c.email].filter(Boolean).join(' · ') || '—'}
                 </div>
               </div>
             ))}

@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import type { MessageChecklist, MessagePoll, MessagingRole } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
@@ -160,7 +161,7 @@ export function MessageChecklistBlock({
                 {assigned && (
                   <div className="mt-1 text-xs text-gray-600 space-y-0.5">
                     <div className="font-medium text-gray-900">{assignedName || 'Claimed'}</div>
-                    {assignedPhone && <div>{assignedPhone}</div>}
+                    {assignedPhone && <div>{formatPhoneForDisplay(assignedPhone)}</div>}
                     {claimNote && <div className="italic">{claimNote}</div>}
                   </div>
                 )}

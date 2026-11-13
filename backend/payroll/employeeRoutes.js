@@ -1,4 +1,5 @@
 import {registerEmployeeHealthPlanDisclosure} from './healthPlanDisclosure.js'
+import {normalizeUpdatedPhoneNumber} from '../phoneNumbers.js'
 import {registerHealthElection} from './healthElection.js'
 import {registerPayrollAccountLink} from './accountLink.js'
 import {registerEmployeeMarylandAgreementSigning} from './marylandAgreementSigning.js'
@@ -162,9 +163,9 @@ export function registerPayrollEmployeeRoutes(app, pool, {paymentFetcher=fetch,r
     const client=await pool.connect()
     try {
       await client.query('BEGIN')
-      await lockPayrollEmployeeSession(client,req.payrollEmployee,req)
+      const current = await lockPayrollEmployeeSession(client,req.payrollEmployee,req)
       const { rows } = await client.query(`UPDATE payroll_employee SET preferred_name=$1, phone=$2, updated_at=now()
-        WHERE id=$3 AND facility_id=$4 RETURNING *`, [clean(req.body?.preferredName, 120) || null, clean(req.body?.phone, 40) || null, req.payrollEmployee.employee_id, req.payrollEmployee.facility_id])
+        WHERE id=$3 AND facility_id=$4 RETURNING *`, [clean(req.body?.preferredName, 120) || null, normalizeUpdatedPhoneNumber(req.body?.phone, current.phone), req.payrollEmployee.employee_id, req.payrollEmployee.facility_id])
       await client.query('COMMIT')
       res.json({ success: true, data: publicEmployee(rows[0]) })
     } catch (error) {

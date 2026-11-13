@@ -1,3 +1,5 @@
+import {normalizeOptionalPhoneNumber} from '../phoneNumbers.js'
+
 // Structural validation for employee-entered Section 1; this does not establish
 // employment eligibility, document authenticity, or an electronic signature.
 export const I9_EDITION='01/20/25'
@@ -23,7 +25,8 @@ export function i9Section1Input(body,context){
  if(b.edition!==I9_EDITION)throw fail('Use the retained I-9 edition 01/20/25.')
  const p=object(b.personal,['lastName','firstName','middleInitial','otherLastNames','address','apartment','city','state','postalCode','dateOfBirth','ssn','email','phone'],'employee information')
  const personal=Object.fromEntries(['lastName','firstName','address','city','state','postalCode'].map(key=>[key,text(p[key],key,true)]))
- for(const key of ['middleInitial','otherLastNames','apartment','email','phone'])personal[key]=text(p[key],key)
+ for(const key of ['middleInitial','otherLastNames','apartment','email'])personal[key]=text(p[key],key)
+ personal.phone=normalizeOptionalPhoneNumber(p.phone)
  personal.dateOfBirth=date(p.dateOfBirth,'date of birth')
  if(personal.dateOfBirth>today)throw fail('Date of birth cannot be in the future.')
  personal.ssn=text(p.ssn,'Social Security number',false,11)?.replaceAll('-','')||null

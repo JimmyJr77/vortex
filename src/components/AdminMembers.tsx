@@ -1,8 +1,6 @@
-import { confirmArchive } from '../utils/confirmArchive'
 import { Fragment, useCallback, useDeferredValue, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Archive,
   ArrowDownUp,
   Check,
   ChevronDown,
@@ -19,6 +17,7 @@ import {
 } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
 import MemberAccountPanel from './admin/memberAccount/MemberAccountPanel'
+import MemberRecordActions from './admin/MemberRecordActions'
 import type { MemberAccountTab, MemberDirectorySummary } from './admin/memberAccount/types'
 import {
   buildAccountDirectoryQuery,
@@ -32,11 +31,6 @@ import {
   type AccountDirectorySortKey,
 } from './admin/accountDirectory'
 import FamilySignupWizard from './signup/FamilySignupWizard'
-
-interface MemberArchiveBlocker {
-  type: string
-  message: string
-}
 
 interface DirectoryPage {
   rows: AccountDirectoryRow[]
@@ -184,16 +178,6 @@ const QUICK_VIEWS: QuickView[] = [
   },
   { id: 'archived', label: 'Archived', filters: quickViewFilters({ record: ['archived'] }) },
 ]
-
-function formatArchiveBlockers(blockers: MemberArchiveBlocker[]): string {
-  return [
-    'This member cannot be archived yet:',
-    '',
-    ...blockers.map((blocker) => `• ${blocker.message}`),
-    '',
-    'Resolve the items above, then try archiving again.',
-  ].join('\n')
-}
 
 function filtersEqual(left: AccountDirectoryFilters, right: AccountDirectoryFilters): boolean {
   return FACET_DEFINITIONS.every(({ key }) => (
@@ -356,7 +340,7 @@ interface AdminMembersProps {
   canCreateAccounts?: boolean
   canViewBilling?: boolean
   canEditMembers?: boolean
-  canArchiveMembers?: boolean
+  isMasterAdmin?: boolean
   canManageClasses?: boolean
 }
 
@@ -364,7 +348,7 @@ export default function AdminMembers({
   canCreateAccounts = false,
   canViewBilling = false,
   canEditMembers = false,
-  canArchiveMembers = false,
+  isMasterAdmin = false,
   canManageClasses = false,
 }: AdminMembersProps) {
   const [directory, setDirectory] = useState<DirectoryPage>(EMPTY_DIRECTORY_PAGE)
@@ -382,7 +366,7 @@ export default function AdminMembers({
   const [accountEditMemberId, setAccountEditMemberId] = useState<number | null>(null)
   const [expandedMemberId, setExpandedMemberId] = useState<number | null>(null)
   const [expandedTab, setExpandedTab] = useState<MemberAccountTab>('details')
-  const showActions = canViewBilling || canEditMembers || canArchiveMembers
+  const showActions = canViewBilling || canEditMembers || isMasterAdmin
 
   const fetchMembers = useCallback(async () => {
     const requestId = ++requestSequence.current
@@ -486,46 +470,6 @@ export default function AdminMembers({
       setSeedingDevMembers(false)
     }
   }, [fetchMembers])
-
-  const handleArchiveMember = async (id: number, archived: boolean): Promise<boolean> => {
-    const member = directory.rows.find((item) => item.id === id)
-    if (archived && !await confirmArchive(member ? `${member.firstName} ${member.lastName}` : 'This member')) return false
-    if (!archived && !confirm('Are you sure you want to unarchive this member?')) return false
-    try {
-      if (archived) {
-        const preflightResponse = await adminApiRequest(`/api/admin/members/${id}/archive-check`)
-        const preflightData = await preflightResponse.json().catch(() => ({}))
-        const blockers = Array.isArray(preflightData.blockers)
-          ? preflightData.blockers as MemberArchiveBlocker[]
-          : []
-        if (blockers.length > 0) {
-          alert(formatArchiveBlockers(blockers))
-          return false
-        }
-        if (!preflightResponse.ok || preflightData.canArchive !== true) {
-          alert(preflightData.message || 'Unable to check whether this member can be archived.')
-          return false
-        }
-      }
-
-      const response = await adminApiRequest(`/api/admin/members/${id}/archive`, {
-        method: 'PATCH',
-        body: JSON.stringify({ archived }),
-      })
-      const data = await response.json().catch(() => ({}))
-      if (response.ok) {
-        await fetchMembers()
-        return true
-      }
-      const blockers = Array.isArray(data.blockers) ? data.blockers as MemberArchiveBlocker[] : []
-      alert(blockers.length > 0 ? formatArchiveBlockers(blockers) : data.message || 'Failed to archive/unarchive member')
-      return false
-    } catch (error) {
-      console.error('Error archiving member:', error)
-      alert('Failed to archive/unarchive member')
-      return false
-    }
-  }
 
   const openAccountEditWizard = (memberId: number) => {
     if (!canEditMembers) return
@@ -782,17 +726,10 @@ export default function AdminMembers({
                               >
                                 <Edit2 className="h-4 w-4" />
                               </button> : null}
-                              {canArchiveMembers && !member.staffAccess.roles.includes('OWNER') ? (
-                                <button
-                                  type="button"
-                                  className={memberIconBtn}
-                                  title={isActive ? 'Archive member' : 'Unarchive member'}
-                                  aria-label={`${isActive ? 'Archive' : 'Unarchive'} ${member.firstName} ${member.lastName}`}
-                                  onClick={() => void handleArchiveMember(member.id, isActive)}
-                                >
-                                  <Archive className="h-4 w-4" />
-                                </button>
-                              ) : null}
+                              {isMasterAdmin && !member.staffAccess.roles.includes('OWNER') ? <MemberRecordActions
+                                record={{ kind: 'member', id: member.id, name: `${member.firstName} ${member.lastName}`, archived: !isActive }}
+                                onChanged={() => { if (isExpanded) setExpandedMemberId(null); void fetchMembers() }}
+                              /> : null}
                             </div>
                           </td> : null}
                         </tr>

@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import FamilySignupWizard, { type LeadRegistrationSetup } from './FamilySignupWizard'
 import { getApiUrl } from '../../utils/api'
-import { persistMemberSession, type PortalAccount } from '../../utils/portalSession'
+import { loginMemberWithCredentials, persistMemberSession, type PortalAccount } from '../../utils/portalSession'
 import { saveFamilyCheckoutSelections, type PendingFamilyEnrollment } from '../../utils/familyEnrollmentCheckout'
 
 type Result = {
@@ -61,12 +61,11 @@ export default function SignupLeadPage() {
       if (!response.ok || !data.success) throw new Error(data.message || 'Unable to open registration.')
       const invitation = data.data as Invitation
       if (invitation.completed && invitation.result) {
-        const memberLogin = await fetch(`${getApiUrl()}/api/members/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ emailOrUsername: username, password }),
-        }).then((res) => res.json()).catch(() => null)
-        complete({ ...invitation.result, token: memberLogin?.token, member: memberLogin?.member })
+        const memberLogin = await loginMemberWithCredentials(getApiUrl(), {
+          emailOrUsername: username,
+          password,
+        })
+        complete({ ...invitation.result, ...memberLogin })
       }
       setInfo(invitation)
       setPassword('')

@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { Fragment, type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ClipboardList,
@@ -47,7 +48,7 @@ function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDail
     for (const athlete of item.athletes) {
       rows.push([
         item.className, item.programName || '', item.timeLabel, athlete.name,
-        String(athlete.age ?? ''), athlete.email, athlete.phone,
+        String(athlete.age ?? ''), athlete.email, formatPhoneForDisplay(athlete.phone),
       ])
     }
   }
@@ -690,7 +691,7 @@ function DailyEnrollmentsView() {
                           <td className="break-words p-3 font-semibold text-gray-900">{athlete.name}</td>
                           <td className="p-3 text-gray-600">{athlete.age ?? '—'}</td>
                           <td className="break-words p-3 text-gray-600">{athlete.email || '—'}</td>
-                          <td className="break-words p-3 text-gray-600">{athlete.phone || '—'}</td>
+                          <td className="break-words p-3 text-gray-600">{formatPhoneForDisplay(athlete.phone) || '—'}</td>
                         </tr>
                       ))}
                     </tbody>

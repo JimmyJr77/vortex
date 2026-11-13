@@ -33,6 +33,10 @@ export async function findActiveEnrollmentCheckoutBalanceCollector(db, accountId
                   THEN ROUND((pending.preview_snapshot#>>'{firstMonth,totalCents}')::numeric)
                 END, 0)
                 + COALESCE(CASE
+                  WHEN jsonb_typeof(pending.preview_snapshot#>'{oneTimeTuition,totalCents}') = 'number'
+                  THEN ROUND((pending.preview_snapshot#>>'{oneTimeTuition,totalCents}')::numeric)
+                END, 0)
+                + COALESCE(CASE
                   WHEN jsonb_typeof(pending.preview_snapshot->'passPurchaseTotalCents') = 'number'
                   THEN ROUND((pending.preview_snapshot->>'passPurchaseTotalCents')::numeric)
                 END, 0)
@@ -130,6 +134,10 @@ export async function findCompletedPaidCheckoutFulfillmentGap(db, accountId) {
                 + COALESCE(CASE
                   WHEN jsonb_typeof(pending.preview_snapshot#>'{firstMonth,totalCents}') = 'number'
                   THEN ROUND((pending.preview_snapshot#>>'{firstMonth,totalCents}')::numeric)
+                END, 0)
+                + COALESCE(CASE
+                  WHEN jsonb_typeof(pending.preview_snapshot#>'{oneTimeTuition,totalCents}') = 'number'
+                  THEN ROUND((pending.preview_snapshot#>>'{oneTimeTuition,totalCents}')::numeric)
                 END, 0)
                 + COALESCE(CASE
                   WHEN jsonb_typeof(pending.preview_snapshot->'passPurchaseTotalCents') = 'number'

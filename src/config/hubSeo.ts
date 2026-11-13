@@ -1,4 +1,5 @@
 import { buildCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
+import { TEAM_PHONE } from './contact'
 
 export interface HubRouteSeo {
   path: string
@@ -85,14 +86,14 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     path: '/contact',
     title: 'Contact Vortex Athletics | Bowie, MD Gym & Training',
     description:
-      'Visit Vortex Athletics at 4961 Tesla Dr in Bowie, MD. Call (443) 422-4794 or ask about gymnastics, youth training, trials, and enrollment.',
+      `Visit Vortex Athletics at 4961 Tesla Dr in Bowie, MD. Call ${TEAM_PHONE} or ask about gymnastics, youth training, trials, and enrollment.`,
     priority: 0.7,
   },
   {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',
     description:
-      'Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email team@vortexathletics.com or call (443) 422-4794.',
+      `Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email team@vortexathletics.com or call ${TEAM_PHONE}.`,
     priority: 0.5,
   },
   {

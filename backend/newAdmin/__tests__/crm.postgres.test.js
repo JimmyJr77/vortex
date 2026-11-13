@@ -109,4 +109,15 @@ test('CRM paginates the facility directory and computes activity from enrollment
     assert.deepEqual(older.classes.rows.map(row => [row.className, row.source]), [['Imported class', 'Jackrabbit']])
     assert.ok(family.people.some(row => row.id === 6 && row.isActive === false))
   })
+
+  await t.test('member contact matches appear on the member record and stay out of the prospect directory', async () => {
+    await pool.query(`INSERT INTO registrations(id,facility_id,first_name,last_name,email,lead_status,message) VALUES
+      (4,1,'Returning','Contact','PARENT@example.test','new','Member inquiry'),
+      (5,2,'Other','Facility','parent@example.test','new','Out of facility'),
+      (6,1,'Open','Contact','foreign-staff@example.test','new','Foreign email is not a member match')`)
+    const prospects = await listCrm(pool, 1, { source: 'lead' })
+    assert.deepEqual(prospects.rows.map(row => row.id).sort(), [2,6])
+    const member = await loadCrmDetail(pool, 1, 'member', 1)
+    assert.deepEqual(member.inquiries.map(inquiry => [inquiry.id, inquiry.memberInquiry]), [[4,true],[1,true]])
+  })
 })

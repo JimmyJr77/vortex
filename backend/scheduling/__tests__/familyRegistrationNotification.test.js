@@ -109,11 +109,11 @@ test('team registration alert includes canonical guardian and every class occurr
   assert.equal(message.category, 'registration_alert')
   assert.equal(message.idempotencyKey, 'registration-alert-11-12-team@vortexathletics.com')
   assert.match(message.text, /Athlete: Jamie Rivera/)
-  assert.match(message.text, /Parent or guardian: Riley Rivera & Co · parent@example\.com · 4435550101/)
+  assert.match(message.text, /Parent or guardian: Riley Rivera & Co · parent@example\.com · 443-555-0101/)
   assert.doesNotMatch(message.text, /old@example\.com|athlete@example\.com/)
   assert.match(message.text, /Tumbling <Level 1> \(Gymnastics & Movement\).*Monday · 16:00–17:00; Wednesday · 17:30–18:30.*Starts 2026-11-16.*confirmed/)
   assert.match(message.text, /Balance Basics.*Friday.*6:00 PM–7:00 PM.*waitlisted/)
-  assert.match(message.html, /Riley Rivera &amp; Co · parent@example\.com · 4435550101/)
+  assert.match(message.html, /Riley Rivera &amp; Co · parent@example\.com · 443-555-0101/)
   assert.match(message.html, /Tumbling &lt;Level 1&gt; \(Gymnastics &amp; Movement\)/)
 })
 
@@ -131,8 +131,8 @@ test('team registration alert falls back to submitted parent details when no gua
   })
 
   const message = await captureRegistrationAlert(pool, [11])
-  assert.match(message.text, /Parent or guardian: Leslie Rivera · legacy-parent@example\.com · 4435550102/)
-  assert.match(message.html, /Leslie Rivera · legacy-parent@example\.com · 4435550102/)
+  assert.match(message.text, /Parent or guardian: Leslie Rivera · legacy-parent@example\.com · 443-555-0102/)
+  assert.match(message.html, /Leslie Rivera · legacy-parent@example\.com · 443-555-0102/)
 })
 
 test('team registration alert labels the adult signup contact without inventing a guardian', async () => {
@@ -141,7 +141,7 @@ test('team registration alert labels the adult signup contact without inventing 
   const message = await captureRegistrationAlert(pool, [11])
   assert.doesNotMatch(message.text, /Parent or guardian/i)
   assert.match(message.text, /Registration email: athlete@example\.com/)
-  assert.match(message.text, /Registration phone: 4435550100/)
+  assert.match(message.text, /Registration phone: 443-555-0100/)
   assert.match(message.html, /Registration email.*athlete@example\.com/)
-  assert.match(message.html, /Registration phone.*4435550100/)
+  assert.match(message.html, /Registration phone.*443-555-0100/)
 })

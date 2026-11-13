@@ -88,11 +88,12 @@ export async function classDetail(db,facilityId,classId,query={}) {
 }
 
 export async function memberDetail(db,facilityId,memberId,query={}) {
-  const selected=await db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id
+  const selected=await db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id,
+    EXISTS(SELECT 1 FROM facility f WHERE f.id=m.facility_id AND f.owner_user_id=m.app_user_id) AS is_owner
     FROM member m LEFT JOIN family_member fm ON fm.member_id=m.id AND fm.is_active=TRUE
     WHERE m.id=$1 AND m.facility_id=$2`,[id(memberId,'member'),id(facilityId)])
   if (!selected.rows[0]) throw inputError('Member not found.',404)
-  const member=memberRow(selected.rows[0]),paging=pagination(query)
+  const member={...memberRow(selected.rows[0]),isOwner:selected.rows[0].is_owner},paging=pagination(query)
   const [household,people,enrollments,count]=await Promise.all([
     db.query(`SELECT f.id,f.family_name,b.id AS billing_account_id,b.payer_member_id FROM family f
       LEFT JOIN family_billing_account b ON b.family_id=f.id AND b.is_active=TRUE WHERE f.id=$1 AND f.facility_id=$2`,[member.familyId,facilityId]),

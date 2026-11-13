@@ -96,7 +96,7 @@ test('daily report shows inquiry, enrollment and billing details before the high
     report: {
       inquiries: [{
         contactName: 'Nell Silva', contactEmail: 'nell@example.com', contactPhone: '555-0100',
-        contactRole: 'parent', children: [{ name: 'Alex', age: 0 }, { name: 'Sam', age: 4 }],
+        contactType: 'Member', contactRole: 'parent', children: [{ name: 'Alex', age: 0 }, { name: 'Sam', age: 4 }],
         interest: 'Twisters & Tumbling',
       }],
       enrollees: [{
@@ -122,7 +122,7 @@ test('daily report shows inquiry, enrollment and billing details before the high
 
   assert.equal(result.subject, 'Vortex Daily Report — Thursday, November 12, 2026')
   assert.match(result.text, /Inquiries[\s\S]*New enrollees and adds[\s\S]*Drops[\s\S]*Unpaid tuition[\s\S]*Today's class roster/)
-  assert.match(result.text, /Nell Silva\n\s+parent · nell@example\.com · 555-0100\n\s+Children: Alex \(Age 0\) \/ Sam \(Age 4\)/)
+  assert.match(result.text, /Nell Silva\n\s+Member · parent · nell@example\.com · 555-0100\n\s+Children: Alex \(Age 0\) \/ Sam \(Age 4\)/)
   assert.match(result.text, /Jaime Liu \(Age 7\) — Twisters\n\s+Gymnastics · Monday · 16:00–17:00; Wednesday · 17:00–18:00\n\s+Start date: 2026-11-16\n\s+Parent or guardian: Kim Liu · kim@example\.com · 555-0102/)
   assert.match(result.text, /Taylor Mills — \$55\.00 due\n\s+Charlie Mills · Twisters · \$55\.00 · Card declined/)
   assert.match(result.html, /Twisters &amp; Tumbling/)

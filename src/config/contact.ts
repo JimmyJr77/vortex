@@ -1,8 +1,9 @@
 /** Public contact email shown in footer, contact form, etc. */
 export const TEAM_EMAIL = 'team@vortexathletics.com'
 
-/** Public phone number (display + tel: link). */
-export const TEAM_PHONE = '+1 (443) 422-4794'
+/** Public phone number and international dialing value. */
+export const TEAM_PHONE = '443-422-4794'
+export const TEAM_PHONE_E164 = `+1${TEAM_PHONE.replaceAll('-', '')}`
 
 /** Jackrabbit Parent Portal (member account login). */
 export const JACKRABBIT_PARENT_PORTAL_URL =
@@ -22,7 +23,7 @@ export const BUSINESS_NAP = {
   addressRegion: 'MD',
   postalCode: '20715',
   addressCountry: 'US',
-  phone: TEAM_PHONE,
+  phone: TEAM_PHONE_E164,
   email: TEAM_EMAIL,
 } as const
 

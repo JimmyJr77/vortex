@@ -4,6 +4,8 @@
 
 /** @typedef {{ userId?: number, memberId?: number }} MessageViewer */
 
+import { normalizeOptionalPhoneNumber } from '../phoneNumbers.js'
+
 const DEFAULT_TAG_SEED = [
   ['team-comms', 'Team Comms', 1],
   ['event-info', 'Event Info', 2],
@@ -721,7 +723,8 @@ export async function updateNotificationPreferences(pool, facilityId, viewer, pr
   const identity = await resolveNotificationIdentity(pool, viewer)
   const allowEmail = Boolean(prefs?.allow_critical_email)
   const allowSms = Boolean(prefs?.allow_critical_sms)
-  const phone = prefs?.phone_e164 != null ? String(prefs.phone_e164).trim() || null : null
+  const displayPhone = normalizeOptionalPhoneNumber(prefs?.phone_e164)
+  const phone = displayPhone ? `+1${displayPhone.replaceAll('-', '')}` : null
   const payload = {
     allow_critical_email: allowEmail,
     allow_critical_sms: allowSms,

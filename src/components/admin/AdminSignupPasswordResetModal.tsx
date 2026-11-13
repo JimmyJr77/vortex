@@ -24,7 +24,6 @@ const AdminSignupPasswordResetModal = ({ signup, open, onClose, onSuccess }: Pro
 
   if (!open) return null
 
-  const email = signup.email || String(signup.responses.email || '')
   const name = [signup.firstName || signup.responses.first_name, signup.lastName || signup.responses.last_name]
     .filter(Boolean)
     .join(' ')
@@ -92,7 +91,6 @@ const AdminSignupPasswordResetModal = ({ signup, open, onClose, onSuccess }: Pro
         <form onSubmit={(e) => void handleSubmit(e)} className="px-5 py-4 space-y-4">
           <p className="text-sm text-gray-600">
             {name ? <span className="font-semibold text-black">{name}</span> : 'Member'}
-            {email ? <span className="block mt-1">{email}</span> : null}
           </p>
 
           <div className="space-y-2">
@@ -107,7 +105,7 @@ const AdminSignupPasswordResetModal = ({ signup, open, onClose, onSuccess }: Pro
               <span>
                 Email a temporary password
                 <span className="block text-xs text-gray-500 mt-0.5">
-                  The member must choose a new password after signing in once.
+                  Sent to the linked account’s email. The member must choose a new password after signing in.
                 </span>
               </span>
             </label>

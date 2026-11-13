@@ -7,6 +7,7 @@ import {
   GOOGLE_MAPS_URL,
   TEAM_EMAIL,
   TEAM_PHONE,
+  TEAM_PHONE_E164,
 } from '../../config/contact'
 import { getSiteEnrollHref } from '../../utils/enrollSite'
 
@@ -28,7 +29,7 @@ export default function SupportPage() {
         </li>
         <li>
           Phone:{' '}
-          <a href="tel:+14434224794" className="text-vortex-red hover:underline">
+          <a href={`tel:${TEAM_PHONE_E164}`} className="text-vortex-red hover:underline">
             {TEAM_PHONE}
           </a>
         </li>

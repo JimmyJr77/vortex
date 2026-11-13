@@ -2,6 +2,9 @@ import jwt from 'jsonwebtoken'
 import { registerStaffLegalRoutes } from '../legal/registerRoutes.js'
 import { registerFloorPlannerRoutes } from './floorPlannerRoutes.js'
 import bcrypt from 'bcryptjs'
+import { assertUsernameIsNotReserved, validateSignupUsername } from './familySignup.js'
+import { normalizeOptionalPhoneNumber, normalizeUpdatedPhoneNumber, phoneSearchPattern } from '../phoneNumbers.js'
+import { normalizeSignupResponsePhones } from '../scheduling/signupFieldCatalog.js'
 import {
   getCoachClassAssignment,
   queryCoachRosterMembers,
@@ -743,10 +746,14 @@ function requirePermission(pool, jwtSecret, permission) {
   ]
 }
 
-function requireAnyPermission(pool, jwtSecret, permissions) {
+export function requireCoachPermissions(pool, jwtSecret, permissions) {
   return [
-    ...adminPortalAuthMiddleware(pool, jwtSecret),
+    authMiddleware(pool, jwtSecret),
     (req, res, next) => {
+      const { portalAccess } = req.platformAuth
+      if (!portalAccess.coach && !portalAccess.admin) {
+        return res.status(403).json({ success: false, message: 'Staff portal access required.' })
+      }
       if (permissions.some((permission) => hasPermission(req.platformAuth, permission))) {
         next()
         return
@@ -770,28 +777,41 @@ function requireFacilityOwner(pool, jwtSecret) {
 
 async function deleteAppUserCompletely(client, userId, facilityId) {
   const target = await client.query(
-    `SELECT id
+    `SELECT id, is_active, staff_access_active, member_portal_access_active, EXISTS (
+         SELECT 1 FROM facility WHERE owner_user_id = app_user.id
+       ) AS is_owner,
+       (role::text IN ('ADMIN', 'MASTER_ADMIN', 'COACH') OR EXISTS (
+         SELECT 1 FROM app_user_role
+         WHERE user_id = app_user.id AND role::text IN ('ADMIN', 'MASTER_ADMIN', 'COACH')
+       )) AS is_staff
        FROM app_user
       WHERE id = $1
         AND facility_id = $2
       FOR UPDATE`,
     [userId, facilityId],
   )
-  if (target.rows.length === 0) {
-    throw accessMutationError('Staff account not found.', 404)
-  }
+  const user = target.rows[0]
+  if (!user) throw accessMutationError('Login account not found.', 404)
+  if (user.is_owner) throw accessMutationError('The facility Owner account cannot be deleted.', 409)
 
   const linkedMember = await client.query(
     `SELECT id
        FROM member
       WHERE app_user_id = $1
-        AND facility_id = $2
       LIMIT 1`,
-    [userId, facilityId],
+    [userId],
   )
   if (linkedMember.rows.length > 0) {
     throw accessMutationError(
-      'This staff login is linked to a member. Suspend staff access instead so the member record and Member Portal login are preserved.',
+      'This login is linked to a member. Use the member archive workflow so the member record and Member Portal login are preserved.',
+      409,
+    )
+  }
+  const accessSuspended = user.staff_access_active === false
+    && (user.is_staff || user.member_portal_access_active === false)
+  if (user.is_active !== false && !accessSuspended) {
+    throw accessMutationError(
+      user.is_staff ? 'Suspend staff access before permanently deleting this login.' : 'Only inactive, unlinked logins can be permanently deleted here.',
       409,
     )
   }
@@ -1260,17 +1280,28 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   })
 
   app.get('/api/admin/access/users', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
-    const includeNonStaff = String(req.query?.scope || '').toLowerCase() === 'all'
+    const scope = String(req.query?.scope || '').toLowerCase()
+    const archivedLogins = scope === 'archived-logins'
+    if (archivedLogins && req.platformAuth.isMasterAdmin !== true) {
+      return res.status(403).json({ success: false, message: 'Only the facility Owner can view archived login accounts.' })
+    }
     const users = await pool.query(
       `
         SELECT
           access.*
         FROM v_app_user_access_context access
         WHERE access.facility_id = $1
-          AND ($2::boolean = TRUE OR cardinality(access.staff_roles) > 0)
+          AND ($2::boolean OR $3::boolean OR cardinality(access.staff_roles) > 0)
+          AND (NOT $3::boolean OR (
+            (access.is_active = FALSE OR (
+              access.staff_access_active = FALSE AND access.member_portal_access_active = FALSE
+            ))
+            AND NOT EXISTS (SELECT 1 FROM facility WHERE owner_user_id = access.user_id)
+            AND NOT EXISTS (SELECT 1 FROM member WHERE app_user_id = access.user_id)
+          ))
         ORDER BY access.full_name, access.email
       `,
-      [req.platformAuth.user.facility_id, includeNonStaff],
+      [req.platformAuth.user.facility_id, scope === 'all', archivedLogins],
     )
     res.json({
       success: true,
@@ -1304,7 +1335,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const fullName = String(req.body?.fullName || '').trim()
     const email = req.body?.email ? String(req.body.email).trim() : null
     const username = req.body?.username ? String(req.body.username).trim() : null
-    const phone = req.body?.phone ? String(req.body.phone).trim() : null
+    let phone
+    try {
+      phone = normalizeOptionalPhoneNumber(req.body?.phone)
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
+    }
     const password = String(req.body?.password || '')
     const roles = normalizeStaffStorageRoles(Array.isArray(req.body?.roles) ? req.body.roles : ['ADMIN'])
     if (!fullName || !password || roles.length === 0) {
@@ -1312,6 +1348,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
     if (password.length < 8) {
       return res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' })
+    }
+    if (Buffer.byteLength(password, 'utf8') > 72) {
+      return res.status(400).json({ success: false, message: 'Password must be 72 bytes or fewer.' })
     }
     if (!email && !username) {
       return res.status(400).json({ success: false, message: 'Email or username is required.' })
@@ -1321,6 +1360,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         success: false,
         message: 'Enter a valid email. Usernames cannot contain @.',
       })
+    }
+    try {
+      validateSignupUsername(username)
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
     }
     if (roles.includes('MASTER_ADMIN')) {
       return res.status(400).json({
@@ -1344,6 +1388,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
+      if (username) {
+        await client.query('SELECT pg_advisory_xact_lock(846001)')
+        await assertUsernameIsNotReserved(client, username)
+      }
       const created = await client.query(
         `
           INSERT INTO app_user (facility_id, role, email, phone, full_name, username, password_hash, is_active)
@@ -1373,10 +1421,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, data: { id: userId } })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})
-      const status = error?.code === '23505' ? 409 : 400
+      const status = error?.code === '23505' ? 409 : errorStatus(error, 400)
       res.status(status).json({
         success: false,
-        message: status === 409
+        message: error?.code === '23505'
           ? 'Email or username already exists.'
           : error?.code === '23514'
             ? 'Enter a valid email. Usernames cannot contain @.'
@@ -1514,10 +1562,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.patch('/api/admin/access/users/:userId/active', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
+  app.patch('/api/admin/access/users/:userId/active', ...requireFacilityOwner(pool, jwtSecret), async (req, res) => {
     const userId = Number(req.params.userId)
-    const isActive = req.body?.isActive === true
-    if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+    const isActive = req.body?.isActive
+    if (!Number.isSafeInteger(userId) || userId <= 0) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+    if (typeof isActive !== 'boolean') return res.status(400).json({ success: false, message: 'isActive must be a boolean value.' })
     const target = await pool.query(
       'SELECT is_active FROM app_user WHERE id = $1 AND facility_id = $2',
       [userId, req.platformAuth.user.facility_id],
@@ -1584,7 +1633,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       ? String(req.body.fullName).trim().replace(/\s+/g, ' ')
       : null
     const email = req.body?.email != null ? String(req.body.email).trim() : null
-    const phone = req.body?.phone != null ? String(req.body.phone).trim() : null
+    const phone = req.body?.phone
     const username = req.body?.username != null ? String(req.body.username).trim() : null
     const address = req.body?.address != null ? String(req.body.address).trim() : null
     const password = req.body?.password ? String(req.body.password) : null
@@ -1598,7 +1647,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (password !== null && password.length < 8) {
       return res.status(400).json({ success: false, message: 'Password must be at least 8 characters.' })
     }
-    if ((email && !email.includes('@')) || (username && username.includes('@'))) {
+    if (password && Buffer.byteLength(password, 'utf8') > 72) {
+      return res.status(400).json({ success: false, message: 'Password must be 72 bytes or fewer.' })
+    }
+    if (email && !email.includes('@')) {
       return res.status(400).json({
         success: false,
         message: 'Enter a valid email. Usernames cannot contain @.',
@@ -1616,10 +1668,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       updates.push(`email = $${paramCount++}`)
       values.push(email)
     }
-    if (phone !== null) {
-      updates.push(`phone = $${paramCount++}`)
-      values.push(phone || null)
-    }
     if (username !== null) {
       updates.push(`username = $${paramCount++}`)
       values.push(username || null)
@@ -1633,7 +1681,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       updates.push(`password_hash = $${paramCount++}`)
       values.push(passwordHash)
     }
-    if (updates.length === 0) {
+    if (updates.length === 0 && phone === undefined) {
       return res.status(400).json({ success: false, message: 'No changes provided.' })
     }
 
@@ -1642,6 +1690,16 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const client = await pool.connect()
     try {
       await client.query('BEGIN')
+      if (username) await client.query('SELECT pg_advisory_xact_lock(846001)')
+      const linkedMembers = await client.query(
+        `SELECT id
+           FROM member
+          WHERE app_user_id = $1
+            AND facility_id = $2
+          ORDER BY id
+          FOR UPDATE`,
+        [userId, facilityId],
+      )
       const existing = await client.query(
         `SELECT
            account.id,
@@ -1674,12 +1732,25 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       const current = existing.rows[0]
       const nextFullName = fullName ?? current.full_name
       const nextEmail = email ?? current.email
-      const nextPhone = phone === null ? current.phone : phone || null
+      const nextPhone = normalizeUpdatedPhoneNumber(phone, current.phone)
+      if (phone !== undefined) {
+        updates.push(`phone = $${paramCount++}`)
+        values.push(nextPhone)
+      }
       const nextUsername = username === null ? current.username : username || null
       const nextAddress = address === null ? current.address : address || null
       if (!nextEmail && !nextUsername) {
         await client.query('ROLLBACK')
         return res.status(400).json({ success: false, message: 'Email or username is required.' })
+      }
+      if (nextUsername && nextUsername !== current.username) {
+        try {
+          validateSignupUsername(nextUsername)
+          await assertUsernameIsNotReserved(client, nextUsername)
+        } catch (error) {
+          await client.query('ROLLBACK')
+          return res.status(errorStatus(error, 400)).json({ success: false, message: error.message })
+        }
       }
 
       const conflict = await client.query(
@@ -1698,15 +1769,6 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         return res.status(409).json({ success: false, message: 'Email or username already in use.' })
       }
 
-      const linkedMembers = await client.query(
-        `SELECT id
-           FROM member
-          WHERE app_user_id = $1
-            AND facility_id = $2
-          ORDER BY id
-          FOR UPDATE`,
-        [userId, facilityId],
-      )
       if (linkedMembers.rows.length > 1) {
         await client.query('ROLLBACK')
         return res.status(409).json({
@@ -1747,6 +1809,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
                   phone = $5,
                   username = $6,
                   address = $7,
+                  must_change_password = CASE WHEN $10 THEN FALSE ELSE must_change_password END,
                   updated_at = now()
             WHERE id = $1
               AND app_user_id = $8
@@ -1761,6 +1824,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             nextAddress,
             userId,
             facilityId,
+            Boolean(password),
           ],
         )
       }
@@ -1787,7 +1851,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
 
   app.delete('/api/admin/access/users/:userId', ...requireFacilityOwner(pool, jwtSecret), async (req, res) => {
     const userId = Number(req.params.userId)
-    if (!Number.isFinite(userId)) return res.status(400).json({ success: false, message: 'Invalid user id.' })
+    if (!Number.isSafeInteger(userId) || userId <= 0) return res.status(400).json({ success: false, message: 'Invalid user id.' })
     if (userId === Number(req.platformAuth.user.id)) {
       return res.status(400).json({ success: false, message: 'You cannot delete your own account.' })
     }
@@ -1803,8 +1867,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       res.json({ success: true, message: 'Account deleted permanently.' })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})
-      console.error('Delete access user error:', error)
+      if (error.code === '23503') {
+        return res.status(409).json({ success: false, message: 'This login is linked to retained staff, invitation, or other business records. Keep the login suspended.' })
+      }
       const status = errorStatus(error, 500)
+      if (status >= 500) console.error('Delete access user error:', error)
       res.status(status).json({
         success: false,
         message: status < 500 ? error.message : 'Internal server error',
@@ -1824,7 +1891,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           au.full_name,
           au.email,
           au.phone,
-          au.is_active as account_active,
+          (au.is_active AND au.staff_access_active) as account_active,
           cp.bio,
           COALESCE(cp.is_active, true) as coach_active,
           COALESCE(
@@ -1929,14 +1996,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     const updated = await pool.query(
       `
         INSERT INTO coach_profile (user_id, bio, is_active)
-        VALUES ($1, $2, COALESCE($3, true))
+        SELECT id, $2, is_active AND staff_access_active
+        FROM app_user WHERE id = $1 AND facility_id = $3
         ON CONFLICT (user_id) DO UPDATE SET
           bio = EXCLUDED.bio,
-          is_active = EXCLUDED.is_active,
           updated_at = now()
         RETURNING *
       `,
-      [userId, req.body?.bio || null, req.body?.isActive !== false],
+      [userId, req.body?.bio || null, req.platformAuth.user.facility_id],
     )
     await pool.query(`INSERT INTO app_user_role (user_id, role) VALUES ($1, 'COACH'::user_role) ON CONFLICT DO NOTHING`, [userId])
     res.json({ success: true, data: updated.rows[0] })
@@ -2049,18 +2116,14 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
               OR CONCAT_WS(' ', m.first_name, m.last_name) ILIKE $3
               OR COALESCE(m.email, '') ILIKE $3
               OR COALESCE(m.phone, '') ILIKE $3
-              OR (
-                regexp_replace($4, '\\D', '', 'g') <> ''
-                AND regexp_replace(COALESCE(m.phone, ''), '\\D', '', 'g')
-                  LIKE '%' || regexp_replace($4, '\\D', '', 'g') || '%'
-              )
+              OR regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $4
               OR COALESCE(m.address, '') ILIKE $3
               OR CONCAT_WS(' ', m.billing_street, m.billing_city, m.billing_state, m.billing_zip) ILIKE $3
             )
           ORDER BY f.id, m.last_name, m.first_name, m.id
           LIMIT 100
         `,
-        [facilityId, numericFamilyId, searchPattern, query],
+        [facilityId, numericFamilyId, searchPattern, phoneSearchPattern(query)],
       )
 
       const families = new Map()
@@ -2222,6 +2285,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     if (!(await memberBelongsToFamily(pool, payerMemberId, familyId, facilityId))) {
       return res.status(400).json({ success: false, message: 'Payer must belong to this family.' })
     }
+    let billingPhone
+    try {
+      billingPhone = normalizeUpdatedPhoneNumber(req.body?.billingPhone, beforeAccount.billing_phone)
+    } catch (error) {
+      return res.status(400).json({ success: false, message: error.message })
+    }
     const updated = await pool.query(
       `
         UPDATE family_billing_account
@@ -2241,7 +2310,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         familyId,
         payerMemberId,
         req.body?.billingEmail ?? null,
-        req.body?.billingPhone ?? null,
+        billingPhone,
         req.body?.billingStreet ?? null,
         req.body?.billingCity ?? null,
         req.body?.billingState ?? null,
@@ -3635,6 +3704,9 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     try {
       const base = publicAppUrl()
       const analyticsContext = sanitizeCheckoutAnalytics(analytics)
+      // Reject invalid phone responses before collecting payment. Keep the
+      // original payload for request idempotency; signup normalizes on write.
+      normalizeSignupResponsePhones(responses)
       const result = await createEnrollmentCheckoutSession(pool, {
         account,
         memberId,
@@ -4731,7 +4803,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
-  app.get('/api/coach/me', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+  app.get('/api/coach/me', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access']), async (req, res) => {
     const ctx = req.platformAuth
     res.json({
       success: true,
@@ -4745,7 +4817,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
-  app.get('/api/coach/classes', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+  app.get('/api/coach/classes', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access']), async (req, res) => {
     await ensureCoachClassAssignmentSchema(pool)
     const schema = await resolveProgramsSchema(pool)
     const result = await pool.query(
@@ -4793,7 +4865,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: result.rows })
   })
 
-  app.get('/api/coach/members', ...requireAnyPermission(pool, jwtSecret, ['coach_portal.access', 'plans.assign']), async (req, res) => {
+  app.get('/api/coach/members', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access', 'plans.assign']), async (req, res) => {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const coachUserId = Number(req.platformAuth.user.id)
@@ -4809,7 +4881,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.get('/api/coach/assign/drilldown', ...requirePermission(pool, jwtSecret, 'plans.assign'), async (req, res) => {
+  app.get('/api/coach/assign/drilldown', ...requireCoachPermissions(pool, jwtSecret, ['plans.assign']), async (req, res) => {
     try {
       const sportId = req.query.sportId != null ? Number(req.query.sportId) : null
       const programId = req.query.programId != null ? Number(req.query.programId) : null
@@ -4825,7 +4897,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.get('/api/coach/classes/:id/roster', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+  app.get('/api/coach/classes/:id/roster', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access']), async (req, res) => {
     await ensureCoachOperationalTables(pool)
     const assignmentId = Number(req.params.id)
     const coachUserId = req.platformAuth.user.id
@@ -4847,7 +4919,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true, data: roster })
   })
 
-  app.put('/api/coach/classes/:id/roster/:memberId/note', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+  app.put('/api/coach/classes/:id/roster/:memberId/note', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access']), async (req, res) => {
     await ensureCoachOperationalTables(pool)
     const assignmentId = Number(req.params.id)
     const memberId = Number(req.params.memberId)
@@ -4922,7 +4994,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.get('/api/coach/portal-config', ...requirePermission(pool, jwtSecret, 'coach_portal.access'), async (req, res) => {
+  app.get('/api/coach/portal-config', ...requireCoachPermissions(pool, jwtSecret, ['coach_portal.access']), async (req, res) => {
     try {
       const facilityId = req.platformAuth?.user?.facility_id ?? null
       const config = await loadPortalConfig(pool, facilityId)
@@ -5010,4 +5082,4 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   console.log('✅ Platform access, billing, waiver, and coach routes registered')
 }
 
-export { authMiddleware, requirePermission, requireAnyPermission, hasPermission }
+export { authMiddleware, requirePermission, hasPermission }

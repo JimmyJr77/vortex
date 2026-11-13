@@ -1,3 +1,5 @@
+import {normalizePhoneNumber} from '../phoneNumbers.js'
+
 // Drafts intentionally accept incomplete entries. They cannot carry a signature,
 // employer decision or an assertion that Section 1 is complete.
 const fail=message=>Object.assign(new Error(message),{status:400})
@@ -13,6 +15,7 @@ export function i9DraftInput(input){
   if(typeof value!=='string'||value.length>200||/[\u0000-\u001f\u007f]/.test(value))throw fail('Use plain text without control characters in the I-9 draft.')
   result[key]=value.normalize('NFC')
  }
+ result.phone=normalizePhoneNumber(result.phone)??result.phone
  if(!/^[\d-]{0,11}$/.test(result.ssn)||!/^[\d-]{0,10}$/.test(result.dateOfBirth))throw fail('Use a partial SSN or date in its expected format.')
  for(const [key,allowed] of Object.entries(choices))if(!allowed.includes(result[key]))throw fail('Use a supported I-9 draft choice.')
  for(const key of flags){const value=input[key]??null;if(value!==null&&typeof value!=='boolean')throw fail('Use yes, no or unanswered for the I-9 draft questions.');result[key]=value}

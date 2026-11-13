@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay, isCompletePhoneNumber } from '../utils/phoneUtils'
 import AddCreditModal from './customerBilling/AddCreditModal'
 import TextInput from './common/TextInput'
 import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
@@ -74,7 +75,7 @@ function billingContactDraft(account: CustomerBillingOverview['account']): Conta
   return {
     payerMemberId: account.payerMemberId,
     billingEmail: account.billingEmail || '',
-    billingPhone: account.billingPhone || '',
+    billingPhone: formatPhoneForDisplay(account.billingPhone),
     billingStreet: account.billingStreet || '',
     billingCity: account.billingCity || '',
     billingState: account.billingState || '',
@@ -579,7 +580,7 @@ function SearchResults({
         >
           <span className="min-w-0">
             <strong className="block truncate text-sm text-gray-950">{result.name}</strong>
-            <span className="block truncate text-xs text-gray-500">{result.email || 'No email'} · {result.phone || 'No phone'}</span>
+            <span className="block truncate text-xs text-gray-500">{result.email || 'No email'} · {formatPhoneForDisplay(result.phone) || 'No phone'}</span>
           </span>
           <span className="shrink-0 text-right text-xs text-gray-500">
             <span className="block font-medium text-gray-700">{result.familyName}</span>
@@ -1515,6 +1516,11 @@ export default function AdminCustomerBilling({
 
   const saveContact = async () => {
     if (!overview || !editingContact || !canManageContact || saving) return
+    const { billingPhone } = contactDraft
+    if (billingPhone && billingPhone !== formatPhoneForDisplay(overview.account.billingPhone) && !isCompletePhoneNumber(billingPhone)) {
+      setError('Enter a 10-digit billing phone number.')
+      return
+    }
     setSaving(true)
     setError(null)
     try {

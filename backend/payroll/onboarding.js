@@ -1,5 +1,6 @@
 import {exemptLeaveWorkweek} from './exemptWorkweek.js'
 import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'node:crypto'
+import { normalizeOptionalPhoneNumber, normalizePhoneNumber } from '../phoneNumbers.js'
 
 export const TASKS = [
  ['PROFILE', 'Personal details & emergency contact', 'EMPLOYEE', 'Confirm your legal name, home address, phone, and emergency contact.'],
@@ -66,6 +67,8 @@ export function validateResponse(key, body, employee, policy) {
  const text=(k,n=1000)=>String(body[k]??'').trim().slice(0,n)
  if (key==='PROFILE') {
   for(const k of ['legalFirstName','legalLastName','address','city','state','postalCode','phone','emergencyName','emergencyPhone','emergencyRelationship']) { response[k]=text(k); if(!response[k]) throw new Error('Complete all personal and emergency contact fields.') }
+  response.phone=normalizeOptionalPhoneNumber(body.phone)
+  response.emergencyPhone=normalizeOptionalPhoneNumber(body.emergencyPhone)
  } else if(key==='PAYMENT') {
   if(!['CHECK','DIRECT_DEPOSIT'].includes(body.method)) throw new Error('Choose a payment method.')
   response.method=body.method
@@ -94,7 +97,8 @@ export function onboardingDraft(key, body) {
   if(typeof body[field]!=='string')throw new Error('Draft answers must be text.')
   const limit=field==='note'?4000:field==='signature'?200:1000
   if(body[field].length>limit)throw new Error(`Draft answer exceeds ${limit} characters.`)
-  result[field]=body[field].trim()
+  const value=body[field].trim()
+  result[field]=field==='phone'||field==='emergencyPhone'?normalizePhoneNumber(value)??value:value
  }
  if(result.method&&!['CHECK','DIRECT_DEPOSIT'].includes(result.method))throw new Error('Choose a payment method.')
  return result

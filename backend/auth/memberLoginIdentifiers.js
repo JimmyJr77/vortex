@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { getPhoneDigits } from '../phoneNumbers.js'
 
 const emailFormat = Joi.string().max(254).email({ tlds: { allow: false } })
 
@@ -8,11 +9,7 @@ export function normalizeSignupEmail(value) {
 }
 
 export function normalizeLoginPhone(value) {
-  const phone = String(value ?? '').trim()
-  if (!/^\+?[\d().\s-]+$/.test(phone)) return null
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 11 && digits.startsWith('1')) return digits.slice(1)
-  return digits.length === 10 && !phone.startsWith('+') ? digits : null
+  return getPhoneDigits(String(value ?? ''))
 }
 
 export async function findActiveMemberLoginCandidates(db, identifier) {

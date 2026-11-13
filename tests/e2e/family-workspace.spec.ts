@@ -19,7 +19,11 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
   const requests: string[] = [], errors: string[] = []
   const noteWrites: unknown[] = []
   const memberWrites: unknown[] = []
+  const credentialWrites: unknown[] = []
+  let username = 'alex-original'
+  const lifecycleWrites: string[] = []
   let household = people
+  let archivedLogins = [{ id: 99, fullName: 'Orphaned Login', email: 'archived@example.test', username: 'old-login' }]
   const notes = [
     { id: 1, subjectType: 'member', subjectId: 11, noteType: 'staff_note', body: 'Shared household correspondence', authorName: 'Coach Taylor', createdAt: '2026-11-09T12:00:00Z' },
     { id: 2, subjectType: 'registration', subjectId: 55, noteType: 'staff_note', body: 'Trial reminder sent', authorName: 'Coach Morgan', createdAt: '2026-11-10T12:00:00Z' },
@@ -41,6 +45,27 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
     if (path === '/api/admin/accounting/lines') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0, timezone: 'America/New_York', summary: { billedCents: 0, paidCents: 0, creditAppliedCents: 0, openCents: 0, creditCents: 0, openCount: 0 } }
     if (path === '/api/admin/new-admin/families') data = { rows: [{ id: 42, name: 'Rivera Family', archived: false, peopleCount: 2 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
     if (path === '/api/admin/new-admin/families/42/workspace') data = { ...workspace, people: household, financial: billing ? workspace.financial : null, permissions: { canViewBilling: billing } }
+    if (path === '/api/admin/members/11/archive-check') return route.fulfill({ json: { success: true, canArchive: true } })
+    if (path === '/api/admin/members/11/archive' && route.request().method() === 'PATCH') {
+      lifecycleWrites.push('archive member')
+      const active = route.request().postDataJSON().archived !== true
+      household = household.map(person => person.id === 11 ? { ...person, isActive: active, currentHousehold: active } : person)
+    }
+    if (path === '/api/admin/members/11' && route.request().method() === 'DELETE') {
+      lifecycleWrites.push('delete member')
+      household = household.filter(person => person.id !== 11)
+    }
+    if (path === '/api/admin/members/10/portal-access') data = { username, hasPassword: true, status: 'active', memberIsActive: true, accountIsActive: true, suspensionReasons: [] }
+    if (path === '/api/admin/members/10' && route.request().method() === 'PUT') {
+      const payload = route.request().postDataJSON()
+      credentialWrites.push(payload)
+      if (payload.username !== undefined) username = payload.username
+    }
+    if (path === '/api/admin/access/users' && url.searchParams.get('scope') === 'archived-logins') data = archivedLogins
+    if (path === '/api/admin/access/users/99' && route.request().method() === 'DELETE') {
+      lifecycleWrites.push('delete login')
+      archivedLogins = []
+    }
     if (path === '/api/admin/new-admin/members' && route.request().method() === 'POST') {
       const { familyId, legalGuardianMemberId, ...member } = route.request().postDataJSON()
       memberWrites.push({ familyId, legalGuardianMemberId, ...member })
@@ -72,8 +97,23 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Members & accounts' }).click()
   await page.getByRole('button', { name: 'Open family', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Rivera Family', exact: true })).toBeVisible()
-  return { requests, errors, noteWrites, memberWrites }
+  return { requests, errors, noteWrites, memberWrites, lifecycleWrites, credentialWrites }
 }
+
+test('family workspace saves and reloads a member login username', async ({ page }) => {
+  const { credentialWrites } = await prepare(page)
+  await page.getByRole('button', { name: 'Account security for Alex Rivera' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Alex Rivera · Account security' })
+  const username = dialog.getByLabel('Username', { exact: true })
+  await expect(username).toHaveValue('alex-original')
+  await username.fill('alex-updated')
+  await dialog.getByRole('button', { name: 'Save login credentials' }).click()
+  await expect(dialog.getByText('Login credentials updated.')).toBeVisible()
+  expect(credentialWrites).toEqual([{ username: 'alex-updated' }])
+  await dialog.getByRole('button', { name: /Close/ }).click()
+  await page.getByRole('button', { name: 'Account security for Alex Rivera' }).click()
+  await expect(username).toHaveValue('alex-updated')
+})
 
 test('family tabs share one response; history, billing return and mobile navigation work', async ({ page }) => {
   const { requests, errors } = await prepare(page)
@@ -125,17 +165,26 @@ test('staff can add a youth member directly to the open family', async ({ page }
   await dialog.getByLabel('Last name').fill('Rivera')
   await dialog.getByLabel('Date of birth').fill('2018-05-14')
   await dialog.getByLabel('Email (optional)').fill('casey@example.test')
-  await dialog.getByLabel('Phone (optional)').fill('5550100012')
+  const phone = dialog.getByLabel('Phone (optional)')
+  await phone.fill('55501')
   await dialog.getByLabel('Legal guardian').selectOption('10')
-  await dialog.getByRole('button', { name: 'Add family member', exact: true }).click()
+  const submit = dialog.getByRole('button', { name: 'Add family member', exact: true })
+  await submit.click()
+  await expect(phone).toBeFocused()
+  expect(memberWrites).toEqual([])
+
+  await phone.fill('+1 (555) 010-0012')
+  await expect(phone).toHaveValue('555-010-0012')
+  await submit.click()
 
   await expect(dialog).toHaveCount(0)
   await expect(region.getByRole('button', { name: 'People', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(region.getByText('Casey Rivera', { exact: true })).toBeVisible()
+  await expect(region.getByText(/555-010-0012/)).toBeVisible()
   await expect(region.getByText('Guardian for Jordan Rivera, Casey Rivera', { exact: true })).toBeVisible()
   expect(memberWrites).toEqual([{
     familyId: 42, legalGuardianMemberId: 10, firstName: 'Casey', lastName: 'Rivera', dateOfBirth: '2018-05-14',
-    email: 'casey@example.test', phone: '5550100012',
+    email: 'casey@example.test', phone: '555-010-0012',
   }])
   expect(requests.filter(path => path === '/api/admin/new-admin/families/42/workspace')).toHaveLength(2)
   expect(errors).toEqual([])
@@ -145,6 +194,7 @@ test('staff with member edit access can add an adult without scheduling access',
   const { memberWrites } = await prepare(page, false, ['members.view', 'members.edit'])
   const region = page.getByRole('region', { name: 'Unified family workspace' })
   await expect(region.getByRole('button', { name: 'Enroll family member', exact: true })).toHaveCount(0)
+  await expect(region.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })).toHaveCount(0)
   await region.getByRole('button', { name: 'New family member', exact: true }).click()
 
   const dialog = page.getByRole('dialog', { name: 'New family member', exact: true })
@@ -161,6 +211,34 @@ test('staff with member edit access can add an adult without scheduling access',
   }])
 })
 
+test('owner archives a person before deleting the record and can remove an archived unlinked login', async ({ page }) => {
+  const { lifecycleWrites } = await prepare(page)
+  const region = page.getByRole('region', { name: 'Unified family workspace' })
+  await expect(region.getByRole('button', { name: 'Permanently delete Jordan Rivera' })).toHaveCount(0)
+  await region.getByRole('button', { name: 'Archive Jordan Rivera' }).click()
+  const archiveDialog = page.getByRole('dialog', { name: 'Archive item' })
+  await archiveDialog.getByLabel('Type ARCHIVE to confirm').fill('ARCHIVE')
+  await archiveDialog.getByRole('button', { name: 'Archive', exact: true }).click()
+
+  await region.getByRole('button', { name: 'Permanently delete Jordan Rivera' }).click()
+  const deleteDialog = page.getByRole('dialog', { name: 'Delete permanently' })
+  const confirmDelete = deleteDialog.getByRole('button', { name: 'Delete permanently', exact: true })
+  await expect(confirmDelete).toBeDisabled()
+  await deleteDialog.getByLabel('Type DELETE to confirm').fill('DELETE')
+  await confirmDelete.click()
+  await expect(region.getByText('Jordan Rivera', { exact: true })).toHaveCount(0)
+  expect(lifecycleWrites).toEqual(['archive member', 'delete member'])
+
+  await region.getByRole('button', { name: 'All families and people' }).click()
+  await page.getByRole('button', { name: 'Archived logins', exact: true }).click()
+  await page.getByRole('searchbox', { name: 'Search archived logins' }).fill('archived@example.test')
+  await page.getByRole('button', { name: 'Permanently delete Orphaned Login' }).click()
+  await deleteDialog.getByLabel('Type DELETE to confirm').fill('DELETE')
+  await confirmDelete.click()
+  await expect(page.getByText('No archived logins match your search.')).toBeVisible()
+  expect(lifecycleWrites).toEqual(['archive member', 'delete member', 'delete login'])
+})
+
 test('member-view-only staff can browse family history without billing or edit controls', async ({ page }) => {
   const { errors } = await prepare(page, false)
   const region = page.getByRole('region', { name: 'Unified family workspace' })
@@ -169,6 +247,7 @@ test('member-view-only staff can browse family history without billing or edit c
   await expect(region.getByRole('button', { name: 'Edit', exact: true })).toHaveCount(0)
   await expect(region.getByRole('button', { name: 'Enroll family member' })).toHaveCount(0)
   await expect(region.getByRole('button', { name: 'New family member', exact: true })).toHaveCount(0)
+  await expect(region.getByRole('button', { name: /^Archive / })).toHaveCount(0)
   await region.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
   await region.getByRole('searchbox', { name: 'Search notes' }).fill('coach taylor')
   await expect(region.getByRole('region', { name: 'Notes', exact: true })).toContainText('Shared household correspondence')

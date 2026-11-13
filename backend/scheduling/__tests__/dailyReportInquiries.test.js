@@ -15,6 +15,7 @@ test('daily inquiries retain siblings, legacy ages, and distinct requests from a
     email: 'casey@example.test',
     phone: '2025550100',
     submitter_role: 'Parent/Guardian',
+    is_member_inquiry: true,
     campers: [{ firstName: 'Taylor', dateOfBirth: '2018-11-12' }, { dateOfBirth: '2026-11-11' }],
     interests_array: ['Tumbling'],
     interests: 'Tumbling',
@@ -25,26 +26,30 @@ test('daily inquiries retain siblings, legacy ages, and distinct requests from a
     assert.deepEqual(bounds, [since, through])
     return { rows: [
       first,
-      { ...first, id: 5, email: 'CASEY@example.test' },
+      { ...first, id: 5, email: 'CASEY@example.test', phone: '+1 (202) 555-0100' },
       { ...first, id: 4, message: 'A different request' },
-      { id: 3, campers: [{ dateOfBirth: '2018-02-30' }], child_ages: [6, 9], interest: 'Camps' },
-      { id: 2, athlete_age: 12, message: '  Interested in a Friday\ntrial.  ' },
+      { ...first, id: 3, email: 'casey.parent@example.test', is_member_inquiry: false },
+      { id: 2, campers: [{ dateOfBirth: '2018-02-30' }], child_ages: [6, 9], interest: 'Camps' },
+      { id: 1, athlete_age: 12, message: '  Interested in a Friday\ntrial.  ' },
     ] }
   } }
 
   const inquiries = await loadDailyReportInquiries(db, { since, through })
-  assert.deepEqual(inquiries.map(({ id }) => id), [6, 4, 3, 2])
+  assert.deepEqual(inquiries.map(({ id }) => id), [6, 4, 3, 2, 1])
   assert.deepEqual(inquiries[0], {
     id: 6,
     receivedAt,
     contactName: 'Casey Parent',
     contactEmail: 'casey@example.test',
-    contactPhone: '2025550100',
+    contactPhone: '202-555-0100',
     contactRole: 'Parent/Guardian',
+    contactType: 'Member',
     children: [{ name: 'Taylor', age: 7 }, { name: '', age: 0 }],
     interest: 'Tumbling, Youth Classes',
   })
-  assert.deepEqual(inquiries[2].children, [{ name: '', age: 6 }, { name: '', age: 9 }])
-  assert.deepEqual(inquiries[3].children, [{ name: '', age: 12 }])
-  assert.equal(inquiries[3].interest, 'Interested in a Friday trial.')
+  assert.equal(inquiries[2].contactEmail, 'casey.parent@example.test')
+  assert.equal(inquiries[2].contactType, 'Lead')
+  assert.deepEqual(inquiries[3].children, [{ name: '', age: 6 }, { name: '', age: 9 }])
+  assert.deepEqual(inquiries[4].children, [{ name: '', age: 12 }])
+  assert.equal(inquiries[4].interest, 'Interested in a Friday trial.')
 })

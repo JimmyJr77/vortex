@@ -7,7 +7,7 @@ import {
   adaptRegistrationPayloadForApi,
   getRegistrationApiCapabilities,
 } from '../utils/registrationApi'
-import { TEAM_EMAIL } from '../config/contact'
+import { TEAM_EMAIL, TEAM_PHONE } from '../config/contact'
 import { getAttributionPayload } from '../utils/utmCapture'
 import { getVisitorId, getSessionId } from '../utils/visitorId'
 import { getActiveConsent } from '../utils/consent'
@@ -15,7 +15,7 @@ import { trackEvent } from '../utils/analyticsClient'
 import { pushGtmEvent } from '../utils/googleAnalytics'
 import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
-import { cleanPhoneNumber, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 import {
   ATHLETICS_SPORT_INTERESTS,
   ATHLETICS_TRAINING_INTERESTS,
@@ -138,20 +138,11 @@ const ContactForm = ({
       return
     }
 
-    let cleanPhone = formData.phone?.trim() || ''
-    if (cleanPhone) {
-      cleanPhone = cleanPhoneNumber(cleanPhone)
-      const digitsOnly = cleanPhone
-      if (digitsOnly.length > 0 && digitsOnly.length < 10) {
-        alert('Phone number must be at least 10 digits long.')
-        setIsSubmitting(false)
-        return
-      }
-      if (digitsOnly.length > 15) {
-        alert('Phone number is too long. Maximum 15 digits allowed.')
-        setIsSubmitting(false)
-        return
-      }
+    const phone = formData.phone
+    if (phone && !isCompletePhoneNumber(phone)) {
+      alert(PHONE_FORMAT_ERROR)
+      setIsSubmitting(false)
+      return
     }
 
     const completedAthletes: InquiryCamper[] = []
@@ -181,7 +172,7 @@ const ContactForm = ({
         newsletter,
       }
 
-      if (cleanPhone) payload.phone = cleanPhone
+      if (phone) payload.phone = phone
       if (interestsToSubmit.length > 0) payload.interests = interestsToSubmit
       if (selectedClassTypes.length > 0) payload.classTypes = selectedClassTypes
       if (completedAthletes.length > 0) payload.campers = completedAthletes
@@ -197,25 +188,12 @@ const ContactForm = ({
       const capabilities = await getRegistrationApiCapabilities()
       const apiPayload = adaptRegistrationPayloadForApi(payload, capabilities.registrationInquiryOverhaul)
 
-      let response: Response
-      try {
-        response = await fetch(`${apiUrl}/api/registrations`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(apiPayload),
-          signal: AbortSignal.timeout(10000),
-        })
-      } catch (fetchError: unknown) {
-        const err = fetchError as { name?: string }
-        if (err.name === 'AbortError' || err.name === 'TypeError') {
-          const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
-          pendingSubmissions.push({ ...payload, timestamp: new Date().toISOString() })
-          localStorage.setItem('vortex_pending_submissions', JSON.stringify(pendingSubmissions))
-          setIsSubmitted(true)
-          return
-        }
-        throw fetchError
-      }
+      const response = await fetch(`${apiUrl}/api/registrations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiPayload),
+        signal: AbortSignal.timeout(10000),
+      })
 
       const result = await response.json()
 
@@ -235,21 +213,6 @@ const ContactForm = ({
 
         fireGenerateLead()
         setIsSubmitted(true)
-      } else if (result.message === 'Email already registered') {
-        if (newsletter) {
-          try {
-            await fetch(`${apiUrl}/api/newsletter`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: formData.email }),
-              signal: AbortSignal.timeout(5000),
-            })
-          } catch (error) {
-            console.error('Newsletter subscription error:', error)
-          }
-        }
-        fireGenerateLead()
-        setIsSubmitted(true)
       } else {
         const errorMessage =
           result.errors && result.errors.length > 0
@@ -257,28 +220,9 @@ const ContactForm = ({
             : result.message || 'Please try again.'
         alert(`Registration failed: ${errorMessage}`)
       }
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Registration error:', error)
-      try {
-        const pendingSubmissions = JSON.parse(localStorage.getItem('vortex_pending_submissions') || '[]')
-        pendingSubmissions.push({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          submitterRole,
-          phone: cleanPhone || undefined,
-          interests: selectedInterests.length > 0 ? selectedInterests : undefined,
-          message: formData.message || undefined,
-          newsletter,
-          inquirySource,
-          timestamp: new Date().toISOString(),
-        })
-        localStorage.setItem('vortex_pending_submissions', JSON.stringify(pendingSubmissions))
-        alert("We've received your information and stored it locally. We'll process it once our server is back online. Thank you!")
-        setIsSubmitted(true)
-      } catch {
-        alert('Unable to submit. Please check your connection and try again later.')
-      }
+      alert('Unable to confirm your submission. Please check your connection and try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -306,7 +250,7 @@ const ContactForm = ({
     const { name, value } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'phone' ? formatPhoneNumber(value) : value,
+      [name]: value,
     }))
   }
 
@@ -472,8 +416,6 @@ const ContactForm = ({
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                  placeholder={PHONE_INPUT_PLACEHOLDER}
-                  maxLength={PHONE_INPUT_MAX_LENGTH}
                 />
               </div>
             </div>
@@ -664,7 +606,7 @@ const ContactForm = ({
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
               <Phone className="w-4 h-4" />
-              <span>+1 (443) 422-4794</span>
+              <span>{TEAM_PHONE}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Mail className="w-4 h-4" />

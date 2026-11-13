@@ -1,3 +1,4 @@
+import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useState } from 'react'
 import { claimSignupItem, respondToSignupSheet, unclaimSignupItem } from './messagingApi'
 import type { MessageChecklist, MessagingRole, SignupResponse, SignupSheetType } from './types'
@@ -243,7 +244,7 @@ function SignupParticipateCard({
                       {responseLabel(response)}
                       {guestCount != null ? ` · ${guestCount} guest${guestCount === 1 ? '' : 's'}` : ''}
                     </div>
-                    {phone && <div className="text-xs text-gray-600">{phone}</div>}
+                    {phone && <div className="text-xs text-gray-600">{formatPhoneForDisplay(phone)}</div>}
                     {notes && <div className="text-xs text-gray-500 italic">{notes}</div>}
                   </div>
                 )
@@ -283,7 +284,7 @@ function SignupParticipateCard({
                 {claimed && (
                   <div className="rounded-md bg-gray-50 px-2.5 py-2 text-xs text-gray-600 space-y-0.5">
                     <div className="font-medium text-gray-900">{assignedName || 'Claimed'}</div>
-                    {assignedPhone && <div>{assignedPhone}</div>}
+                    {assignedPhone && <div>{formatPhoneForDisplay(assignedPhone)}</div>}
                     {note && <div className="italic">{note}</div>}
                   </div>
                 )}

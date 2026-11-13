@@ -8,6 +8,7 @@ import crypto from 'crypto'
 import Joi from 'joi'
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
+import { normalizeOptionalPhoneNumber, normalizePhoneNumber } from '../phoneNumbers.js'
 import {
   countActiveSignupsForMember,
   countActiveSignupsForPricingScope,
@@ -17,6 +18,7 @@ import {
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
+import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.js'
 import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
 import {
   buildDailyRoster,
@@ -97,6 +99,7 @@ import {
 import {
   DEFAULT_SIGNUP_FIELDS,
   mergeSignupFieldsForSave,
+  normalizeSignupResponsePhones,
   validateSignupResponses,
 } from './signupFieldCatalog.js'
 import { updateScheduleSlots } from './updateScheduleSlots.js'
@@ -251,9 +254,19 @@ export async function insertSignupForMember(
   const signupStatus =
     Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
 
-  const reserved = await client.query(`SELECT id FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
-    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])
-  const reservedId = reserved.rows[0]?.id
+  const reserved = (await client.query(`SELECT id, email FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
+    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])).rows[0]
+  const reservedId = reserved?.id
+  if (!isValidEmail(responses.email)) {
+    const contact = await resolveMemberContactEmail(client, { id: memberId }, { includeBillingPayer: true })
+    const email = contact?.email || reserved?.email
+    if (!isValidEmail(email)) {
+      const error = new Error('Add a contact email for the athlete or their household before registering.')
+      error.statusCode = 400
+      throw error
+    }
+    responses = { ...responses, email }
+  }
   const insert = await client.query(
     reservedId ? `UPDATE scheduling_signup SET
       form_id=$1,time_slot_id=$2,slot_group_id=$3,member_id=$4,first_name=$5,last_name=$6,email=$7,phone=$8,
@@ -274,7 +287,7 @@ export async function insertSignupForMember(
       memberId,
       responses.first_name || null,
       responses.last_name || null,
-      responses.email || null,
+      responses.email,
       responses.phone || null,
       JSON.stringify(responses),
       JSON.stringify(responses),
@@ -1292,13 +1305,15 @@ const enrollmentStartDateSchema = Joi.string()
     'string.pattern.base': 'Enrollment start date must use YYYY-MM-DD format.',
   })
 
+const schedulingNewPassword = Joi.string().min(6).max(72, 'utf8')
+
 const signupSchema = Joi.object({
   formId: Joi.number().integer().required(),
   slotGroupId: Joi.number().integer().required(),
   timeSlotId: Joi.number().integer().optional(),
   responses: Joi.object().default({}),
   signupAuthToken: Joi.string().trim().optional(),
-  password: Joi.string().min(6).optional(),
+  password: schedulingNewPassword.optional(),
   promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
   enrollmentStartDate: enrollmentStartDateSchema.required(),
 }).custom((val, helpers) => {
@@ -1333,7 +1348,7 @@ const batchSignupSchema = Joi.object({
   signups: Joi.array().items(signupItemSchema).min(1).max(20).required(),
   responses: Joi.object().default({}),
   signupAuthToken: Joi.string().trim().optional(),
-  password: Joi.string().min(6).optional(),
+  password: schedulingNewPassword.optional(),
   promoCodes: Joi.array().items(Joi.string().trim().max(100)).max(10).default([]),
 }).custom((val, helpers) => {
   if (!val.signupAuthToken && !val.password) {
@@ -1439,7 +1454,7 @@ const memberPasswordUpdateSchema = Joi.object({
   mode: Joi.string().valid('manual', 'email_temp').required(),
   password: Joi.when('mode', {
     is: 'manual',
-    then: Joi.string().min(6).required(),
+    then: schedulingNewPassword.required(),
     otherwise: Joi.forbidden(),
   }),
 })
@@ -1452,10 +1467,10 @@ const dailyRosterEmailSchema = Joi.object({
 const authChangePasswordSchema = Joi.object({
   formId: Joi.number().integer().required(),
   signupAuthToken: Joi.string().trim().required(),
-  password: Joi.string().min(6).required(),
+  password: schedulingNewPassword.required(),
 })
 
-export function createSchedulingHandlers(pool) {
+export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTemporaryPasswordEmail } = {}) {
   return {
     async listPublicForms(req, res) {
       try {
@@ -2173,9 +2188,16 @@ export function createSchedulingHandlers(pool) {
         }
 
         const client = await pool.connect()
+        let member
+        let signupAuthToken
         try {
           await client.query('BEGIN')
-          await updateMemberPassword(client, memberId, value.password, { mustChangePassword: false })
+          member = await updateMemberPassword(client, memberId, value.password, { requireTemporaryPassword: true })
+          signupAuthToken = await issueSignupAuthForForm(client, value.formId, member, {
+            actorMemberId: signupAuthority.actorMemberId,
+            familyBillingAccountId: signupAuthority.familyBillingAccountId,
+            authorityGrant: signupAuthority.grant,
+          })
           await client.query('COMMIT')
         } catch (txErr) {
           await client.query('ROLLBACK')
@@ -2184,12 +2206,6 @@ export function createSchedulingHandlers(pool) {
           client.release()
         }
 
-        const member = await findMemberById(pool, memberId)
-        const signupAuthToken = await issueSignupAuthForForm(pool, value.formId, member, {
-          actorMemberId: signupAuthority.actorMemberId,
-          familyBillingAccountId: signupAuthority.familyBillingAccountId,
-          authorityGrant: signupAuthority.grant,
-        })
         res.json({
           success: true,
           data: {
@@ -2207,7 +2223,7 @@ export function createSchedulingHandlers(pool) {
         if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
           return res.status(401).json({ success: false, message: 'Sign-in session expired. Please sign in again.' })
         }
-        res.status(500).json({ success: false, message: err.message || 'Failed to update password' })
+        res.status(err.statusCode || 500).json({ success: false, message: err.message || 'Failed to update password' })
       }
     },
 
@@ -2275,6 +2291,7 @@ export function createSchedulingHandlers(pool) {
             signupAuthToken,
             memberId: Number(member.id),
             profileComplete: Boolean(member.profile_complete),
+            mustChangePassword: Boolean(member.must_change_password),
             firstName: member.first_name,
             lastName: member.last_name,
             email: member.email,
@@ -2401,7 +2418,7 @@ export function createSchedulingHandlers(pool) {
 
         let memberId = null
         let createdNewStubMemberId = null
-        let responses = { ...value.responses }
+        let responses = normalizeSignupResponsePhones(value.responses)
 
         if (value.signupAuthToken) {
           const auth = verifySignupAuthToken(value.signupAuthToken, value.formId, {
@@ -2416,7 +2433,7 @@ export function createSchedulingHandlers(pool) {
             first_name: member.first_name,
             last_name: member.last_name,
             email: member.email,
-            phone: member.phone || responses.phone,
+            phone: normalizePhoneNumber(member.phone) ?? member.phone,
             ...responses,
           }
         } else if (value.password) {
@@ -2653,7 +2670,8 @@ export function createSchedulingHandlers(pool) {
         let memberId = null
         let createdNewStubMemberId = null
         let signupAuthority = null
-        let responses = { ...value.responses }
+        const preserveLegacy = Boolean(stripeCheckoutSessionId || settlement)
+        let responses = normalizeSignupResponsePhones(value.responses, { preserveLegacy })
 
         if (value.signupAuthToken) {
           const authFormId =
@@ -2689,7 +2707,7 @@ export function createSchedulingHandlers(pool) {
             first_name: member.first_name,
             last_name: member.last_name,
             email: member.email,
-            phone: member.phone || responses.phone,
+            phone: normalizePhoneNumber(member.phone) ?? member.phone,
             ...responses,
           }
         } else if (value.password && resolvedEntries.length > 0) {
@@ -4127,6 +4145,9 @@ export function createSchedulingHandlers(pool) {
           })
         }
 
+        const phone = normalizeOptionalPhoneNumber(value.phone)
+        const submittedResponses = normalizeSignupResponsePhones(value.responses)
+
         const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [value.formId])
         if (formRes.rows.length === 0 || formRes.rows[0].deleted_at || !formRes.rows[0].is_active) {
           return res.status(404).json({ success: false, message: 'Scheduling form not available' })
@@ -4203,7 +4224,7 @@ export function createSchedulingHandlers(pool) {
                 lastName,
                 email,
                 password: generatedPassword,
-                phone: value.phone ? String(value.phone) : null,
+                phone: phone ?? submittedResponses.phone ?? null,
               })
               createdNewStubMemberId = memberId
               member = await findMemberById(client, memberId)
@@ -4217,8 +4238,8 @@ export function createSchedulingHandlers(pool) {
             first_name: member.first_name,
             last_name: member.last_name,
             email: member.email || reenrollSource?.email || value.email || billingContact?.email || '',
-            phone: member.phone || value.phone || value.responses?.phone || null,
-            ...value.responses,
+            phone: normalizePhoneNumber(member.phone) ?? (member.phone || phone),
+            ...submittedResponses,
           }
 
           const profileComplete =
@@ -4400,7 +4421,7 @@ export function createSchedulingHandlers(pool) {
         }
       } catch (err) {
         console.error('[scheduling] adminCreateSignup:', err)
-        res.status(500).json({ success: false, message: err.message || 'Failed to create signup' })
+        res.status(err?.statusCode ?? 500).json({ success: false, message: err.message || 'Failed to create signup' })
       }
     },
 
@@ -5081,40 +5102,46 @@ export function createSchedulingHandlers(pool) {
         if (error) {
           return res.status(400).json({ success: false, message: error.details[0].message })
         }
-        const signupRes = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [
-          req.params.id,
-        ])
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
+        const signupRes = await pool.query(
+          `SELECT signup.member_id
+             FROM scheduling_signup signup
+             JOIN member ON member.id = signup.member_id
+            WHERE signup.id = $1 AND member.facility_id = $2`,
+          [req.params.id, facilityId],
+        )
         if (signupRes.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Signup not found' })
         }
-        const signup = signupRes.rows[0]
-        if (!signup.member_id) {
-          return res.status(400).json({ success: false, message: 'Signup has no linked member account' })
-        }
-
-        const responses =
-          signup.responses && Object.keys(signup.responses).length > 0
-            ? signup.responses
-            : signup.field_responses || {}
-        const registrantEmail = String(responses.email || signup.email || '').trim()
-        const registrantFirstName = String(responses.first_name || signup.first_name || '').trim()
-
-        let passwordToSet = value.password
-        let mustChangePassword = false
-        let emailed = false
-
-        if (value.mode === 'email_temp') {
-          if (!registrantEmail) {
-            return res.status(400).json({ success: false, message: 'Signup has no email address' })
-          }
-          passwordToSet = generateTemporaryPassword()
-          mustChangePassword = true
-        }
+        const emailTemporaryPassword = value.mode === 'email_temp'
+        const passwordToSet = emailTemporaryPassword ? generateTemporaryPassword() : value.password
 
         const client = await pool.connect()
         try {
           await client.query('BEGIN')
-          await updateMemberPassword(client, signup.member_id, passwordToSet, { mustChangePassword })
+          const member = await updateMemberPassword(client, signupRes.rows[0].member_id, passwordToSet, {
+            mustChangePassword: emailTemporaryPassword,
+            allowStaffPasswordChange: false,
+          })
+          if (emailTemporaryPassword) {
+            const registrantEmail = String(member.loginEmail || '').trim()
+            if (!isValidEmail(registrantEmail)) {
+              throw Object.assign(new Error('The linked login has no valid email address.'), { statusCode: 400 })
+            }
+            try {
+              const delivery = await sendTemporaryEmail({
+                registrantFirstName: member.first_name,
+                registrantEmail,
+                temporaryPassword: passwordToSet,
+              })
+              if (!delivery?.sent) throw new Error('Email delivery was not accepted')
+            } catch (emailErr) {
+              console.error('[scheduling] temp password email failed:', emailErr.message)
+              throw Object.assign(new Error('Could not email a temporary password. The current password is still active.'), {
+                statusCode: 503,
+              })
+            }
+          }
           await client.query('COMMIT')
         } catch (txErr) {
           await client.query('ROLLBACK')
@@ -5123,35 +5150,13 @@ export function createSchedulingHandlers(pool) {
           client.release()
         }
 
-        if (value.mode === 'email_temp') {
-          try {
-            await sendTemporaryPasswordEmail({
-              registrantFirstName,
-              registrantEmail,
-              temporaryPassword: passwordToSet,
-            })
-            emailed = true
-          } catch (emailErr) {
-            console.error('[scheduling] temp password email failed:', emailErr.message)
-            return res.status(503).json({
-              success: false,
-              message: emailErr.message || 'Password updated but failed to send email',
-            })
-          }
-        }
-
         res.json({
           success: true,
-          message:
-            value.mode === 'email_temp'
-              ? emailed
-                ? 'Temporary password emailed'
-                : 'Temporary password set'
-              : 'Password updated',
+          message: emailTemporaryPassword ? 'Temporary password emailed' : 'Password updated',
         })
       } catch (err) {
         console.error('[scheduling] updateSignupMemberPassword:', err)
-        res.status(500).json({ success: false, message: err.message || 'Failed to update password' })
+        res.status(err.statusCode || 500).json({ success: false, message: err.message || 'Failed to update password' })
       }
     },
 

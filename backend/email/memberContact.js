@@ -1,3 +1,5 @@
+import { normalizePhoneNumber } from '../phoneNumbers.js'
+
 export function isValidEmail(e) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e || '').trim())
 }
@@ -143,7 +145,7 @@ export async function listMemberGuardianOutreachContacts(db, memberId) {
   return rows.map((row) => ({
     name: [row.first_name?.trim(), row.last_name?.trim()].filter(Boolean).join(' '),
     email: isValidEmail(row.email) ? row.email.trim() : '',
-    phone: row.phone?.trim() || '',
+    phone: normalizePhoneNumber(row.phone) ?? (row.phone?.trim() || ''),
   })).filter(({ name, email, phone }) => name || email || phone)
 }
 
@@ -152,7 +154,7 @@ export function submittedGuardianContact(details) {
   return {
     name: [read('parent_first_name'), read('parent_last_name')].filter(Boolean).join(' '),
     email: read('parent_email'),
-    phone: read('parent_phone'),
+    phone: normalizePhoneNumber(details?.parent_phone) ?? read('parent_phone'),
   }
 }
 

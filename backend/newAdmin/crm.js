@@ -1,6 +1,8 @@
 import { calendarDateParts } from '../members/dateOnlyAge.js'
+import { phoneSearchPattern } from '../phoneNumbers.js'
 import { hasActiveAnnualMembershipSql } from '../scheduling/annualMembership.js'
 import { id, inputError, pagination, pageResult, searchValue } from './common.js'
+import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 
 const SORT_COLUMNS = Object.freeze({
   id: 'id', name: 'lower(name)', firstName: 'lower(first_name)', lastName: 'lower(last_name)',
@@ -115,8 +117,8 @@ function buildListQuery(facilityId, filters, target = null) {
   const show = kind => !filters.sources.length || filters.sources.includes(kind)
   const classTerm = filters.classSearch ? bind(searchValue(filters.classSearch)) : null
   const search = filters.search ? bind(searchValue(filters.search)) : null
-  const phoneSearch = filters.search.replace(/[^0-9]/g, '')
-  const digits = phoneSearch.length >= 3 && /^[\d()+.\s-]+$/.test(filters.search) ? bind(`%${phoneSearch}%`) : null
+  const phoneSearch = phoneSearchPattern(filters.search)
+  const digits = phoneSearch ? bind(phoneSearch) : null
   const ageClauses = []
   if (filters.minAge != null) ageClauses.push(`candidate.age >= ${bind(filters.minAge)}`)
   if (filters.maxAge != null) ageClauses.push(`candidate.age <= ${bind(filters.maxAge)}`)
@@ -183,7 +185,9 @@ function buildListQuery(facilityId, filters, target = null) {
       GREATEST(jsonb_array_length(CASE WHEN jsonb_typeof(r.campers) = 'array' THEN r.campers ELSE '[]'::jsonb END),
         COALESCE(cardinality(r.child_ages), 0), CASE WHEN r.athlete_age BETWEEN 0 AND 17 AND lower(r.submitter_role) IS DISTINCT FROM 'athlete' THEN 1 ELSE 0 END), 0,
       COALESCE(r.updated_at, r.created_at) AT TIME ZONE 'UTC', FALSE, FALSE, FALSE, FALSE
-    FROM registrations r WHERE r.facility_id = $1 AND COALESCE(r.converted_member_id, r.member_id) IS NULL ${targetId ? `AND r.id = ${targetId}` : ''}`,
+    FROM registrations r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
+    WHERE r.facility_id = $1 AND COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NULL
+    ${targetId ? `AND r.id = ${targetId}` : ''}`,
     show('staff') && `SELECT u.id, 'staff', split_part(btrim(u.full_name), ' ', 1),
       regexp_replace(btrim(u.full_name), '^[^ ]+ *', ''), u.full_name, u.email, u.phone, NULL::int, NULL::text,
       NULL::bigint, NULL::text, 'inactive', FALSE, u.is_active IS NOT TRUE, NULL::text, 0, 0,
@@ -322,9 +326,11 @@ async function readInquiries(pool, facilityId, leadId, memberIds) {
   return (await pool.query(`/* CRM inquiries */ WITH ctx AS (${facilityContext})
     SELECT r.id, r.first_name, r.last_name, r.lead_status, r.message, r.admin_notes, r.created_at,
       r.campers, r.child_ages, r.athlete_age, r.interest, r.interests_array, r.class_types, r.submitter_role,
-      r.inquiry_source, r.contacted, r.follow_up, ctx.today::text
+      r.inquiry_source, r.contacted, r.follow_up, ctx.today::text,
+      COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NOT NULL AS member_inquiry
     FROM registrations r JOIN ctx ON ctx.id = r.facility_id
-    WHERE r.id = $2 OR COALESCE(r.converted_member_id, r.member_id) = ANY($3::bigint[])
+    ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
+    WHERE r.id = $2 OR COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) = ANY($3::bigint[])
     ORDER BY r.created_at DESC NULLS LAST, r.id DESC LIMIT 25`, [facilityId, leadId, memberIds])).rows
 }
 
@@ -359,7 +365,7 @@ export async function loadCrmDetail(pool, facilityId, kind, recordId, query = {}
     children: leadId ? leadChildren(inquiries[0]) : currentHousehold
       .filter(row => row.age == null ? row.dependent : row.age < 18).map(personDetails),
     inquiries: inquiries.map(row => ({ id: Number(row.id), firstName: row.first_name, lastName: row.last_name,
-      status: row.lead_status ?? 'new', message: row.message, notes: row.admin_notes, createdAt: row.created_at,
+      status: row.lead_status ?? 'new', memberInquiry: row.member_inquiry, message: row.message, notes: row.admin_notes, createdAt: row.created_at,
       source: row.inquiry_source, submitterRole: row.submitter_role, interest: row.interest, interests: row.interests_array,
       classTypes: row.class_types, contacted: row.contacted, followUp: row.follow_up, children: leadChildren(row) })),
     address: individual?.address ?? null, gender: individual?.gender ?? null, username: individual?.username ?? staff?.rows[0]?.username ?? null }

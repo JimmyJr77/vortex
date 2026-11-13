@@ -10,6 +10,7 @@ import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 import { loadActiveAnnualMembership } from './annualMembership.js'
 import { toUtcDateString } from './membershipAnniversary.js'
 import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.js'
+import { normalizePhoneNumber, normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -631,7 +632,8 @@ export function registerDropInRoutes(app, pool) {
       const { slotGroupId, classDate, firstName, lastName, email, phone, useFreeTrial, promoCode } = req.body || {}
       const authenticatedMember = await resolveMember(client, req)
       const bookingEmail = authenticatedMember?.email?.trim() || String(email ?? '').trim()
-      const bookingPhone = authenticatedMember?.phone?.trim() || String(phone ?? '').trim() || null
+      const savedPhone = authenticatedMember?.phone?.trim() || null
+      const bookingPhone = normalizeUpdatedPhoneNumber(phone, savedPhone)
       if (!slotGroupId || !/^\d{4}-\d{2}-\d{2}$/.test(String(classDate)) || !firstName || !lastName || !bookingEmail) {
         return res.status(400).json({ success: false, message: 'Class, date, athlete name, and email are required.' })
       }
@@ -751,7 +753,7 @@ export function registerDropInRoutes(app, pool) {
          RETURNING id`,
         [
           member?.id ?? null, slot.rows[0].form_id, slotGroupId, classDate,
-          String(firstName).trim(), String(lastName).trim(), bookingEmail, bookingPhone,
+          String(firstName).trim(), String(lastName).trim(), bookingEmail, normalizePhoneNumber(bookingPhone) ?? bookingPhone,
           benefitType, freePass?.templateId ?? null, freePass?.grantId ?? null,
           freePass?.promoCode ?? null, price.baseCents, price.discountPercent, price.totalCents, status,
         ],
@@ -817,6 +819,7 @@ export function registerDropInRoutes(app, pool) {
       res.status(201).json({ success: true, data: { id: Number(inserted.rows[0].id), status, benefitType, enrollmentStartDate: classDate, ...price, accountRequired: status === 'account_required', signupUrl: status === 'account_required' ? `/signup/family?dropIn=${inserted.rows[0].id}` : null } })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})
+      if (error.statusCode === 400) return res.status(400).json({ success: false, message: error.message })
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'This free trial or class date has already been registered.' })
       console.error('[drop-ins] register:', error)
       res.status(500).json({ success: false, message: 'Failed to register for this drop-in.' })

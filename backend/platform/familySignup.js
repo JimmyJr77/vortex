@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { loadCanonicalAccessContext } from './accessContext.js'
 import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
+import { normalizeOptionalPhoneNumber, normalizePhoneNumber, normalizeUpdatedPhoneNumber, PHONE_FORMAT_ERROR } from '../phoneNumbers.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
 import {
   createAccountInviteTokenRecord,
@@ -93,10 +94,12 @@ function validateSignupPassword(password, confirmPassword, label) {
   if (password !== confirmPassword) throw new Error(`${label} passwords do not match.`)
 }
 
-async function assertUsernameIsNotReserved(client, username, leadInvitationId = null) {
+export async function assertUsernameIsNotReserved(client, username, leadInvitationId = null) {
   const reserved = await client.query(`SELECT id FROM account_invite WHERE LOWER(BTRIM(suggested_username))=LOWER($1)
     AND used_at IS NULL AND expires_at>now() AND id IS DISTINCT FROM $2::bigint LIMIT 1`, [username, leadInvitationId])
-  if (reserved.rows.length) throw new Error('That username is reserved for another registration. Please choose another.')
+  if (reserved.rows.length) {
+    throw Object.assign(new Error('That username is reserved for another registration. Please choose another.'), { statusCode: 409 })
+  }
 }
 
 function memberUsesParentContactEmail(memberInput, payerEmail, asOfDate) {
@@ -892,11 +895,15 @@ async function suggestUsername(client, firstName, lastName) {
   while (counter < 100) {
     const existing = await client.query(
       `
-        SELECT 1 FROM member WHERE LOWER(username) = LOWER($1)
+        SELECT 1 FROM member WHERE LOWER(BTRIM(username)) = LOWER($1)
         UNION ALL
         SELECT 1 FROM app_user
-         WHERE LOWER(username) = LOWER($1)
-            OR LOWER(email) = LOWER($1)
+         WHERE LOWER(BTRIM(username)) = LOWER($1)
+            OR LOWER(BTRIM(email)) = LOWER($1)
+        UNION ALL
+        SELECT 1 FROM account_invite
+         WHERE LOWER(BTRIM(suggested_username)) = LOWER($1)
+           AND used_at IS NULL AND expires_at > now()
         LIMIT 1
       `,
       [username],
@@ -1057,6 +1064,7 @@ export async function createPortalFamilyMember(client, {
   familyId,
   responsibleMember,
   legalGuardianMemberId = null,
+  storedPhone = null,
   input,
 }) {
   const firstName = String(input?.firstName || input?.first_name || '').trim()
@@ -1095,7 +1103,7 @@ export async function createPortalFamilyMember(client, {
     firstName,
     lastName,
     email,
-    phone: input?.phone || null,
+    phone: normalizeUpdatedPhoneNumber(input?.phone, normalizePhoneNumber(storedPhone) ?? storedPhone),
     dateOfBirth: dob,
     signupSource: 'portal_add_family',
   }, {
@@ -1189,9 +1197,9 @@ export async function processFamilySignup(client, payload, options = {}) {
   }
   const primaryEmail = normalizeSignupEmail(primaryAdultInput.email)
   if (!primaryEmail) throw new Error('Enter a valid email address for the primary adult.')
-  const primaryPhone = normalizeLoginPhone(primaryAdultInput.phone)
+  const primaryPhone = normalizePhoneNumber(primaryAdultInput.phone)
   if (!primaryPhone) {
-    throw new Error('Primary adult phone must be a valid 10-digit number.')
+    throw new Error(`Primary adult phone: ${PHONE_FORMAT_ERROR}`)
   }
   const primaryUsername = validateSignupUsername(primaryAdultInput.username)
   if (!primaryUsername) throw new Error('Primary adult username is required.')
@@ -1317,8 +1325,8 @@ export async function processFamilySignup(client, payload, options = {}) {
     }
 
     if (String(merged.phone ?? '').trim()) {
-      merged.phone = normalizeLoginPhone(merged.phone)
-      if (!merged.phone) throw new Error(`Enter a valid 10-digit phone number for ${merged.firstName} ${merged.lastName}.`)
+      merged.phone = normalizePhoneNumber(merged.phone)
+      if (!merged.phone) throw new Error(`${merged.firstName} ${merged.lastName}'s phone: ${PHONE_FORMAT_ERROR}`)
     }
 
     if (merged.useParentPassword === true) {
@@ -1930,7 +1938,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           minor.firstName,
           minor.lastName,
           minor.email || null,
-          minor.phone || null,
+          normalizeOptionalPhoneNumber(minor.phone),
           minor.dateOfBirth,
           minor.gender || null,
         ],
@@ -2059,7 +2067,18 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           message: 'This invite has already been used. Log in to the member portal instead.',
         })
       }
-      const invite = match.invite
+      await client.query('BEGIN')
+      const { rows: [invite] } = await client.query(
+        `SELECT * FROM account_invite WHERE id = $1 AND invite_type = 'minor_guardian' FOR UPDATE`,
+        [match.invite.id],
+      )
+      if (!invite || invite.used_at) {
+        await client.query('ROLLBACK')
+        return res.status(410).json({
+          success: false,
+          message: 'This invite is no longer available. Log in to the member portal instead.',
+        })
+      }
 
       const primaryAdult = req.body?.primaryAdult || req.body?.adult || req.body
       const waivers = req.body?.waivers || {}
@@ -2068,8 +2087,6 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       const minorMemberId = Number(payload.minorMemberId)
       let minorName = null
       const invitePendingEnrollments = []
-
-      await client.query('BEGIN')
 
       const result = await processFamilySignup(client, {
         primaryAdult,

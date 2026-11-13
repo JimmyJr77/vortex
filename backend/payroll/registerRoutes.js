@@ -1,4 +1,5 @@
 import {taxLiabilityReport} from './taxLiabilityReport.js'
+import {normalizeOptionalPhoneNumber,normalizeUpdatedPhoneNumber} from '../phoneNumbers.js'
 import {registerHistoricalEmploymentWageReview} from './historicalEmploymentWageReview.js'
 import {loadEmploymentTaxWageHistory} from './employmentTaxWageHistory.js'
 import {registerHealthPlanDisclosure} from './healthPlanDisclosure.js'
@@ -881,7 +882,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
           preferred_name, job_title, employment_status, pay_type, hourly_rate_cents, hire_date,
           work_state, residence_state, primary_work_location, personal_email, phone, notes,annual_salary_cents,overtime_classification
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$17,$9,$10,$11,$12,$13,$14,$15,$16,$18,$19) RETURNING *
-      `, [req.canonicalAccess.facilityId, clean(body.employeeNumber, 40), clean(body.legalFirstName, 120), clean(body.legalMiddleName, 120) || null, clean(body.legalLastName, 120), clean(body.preferredName, 120) || null, clean(body.jobTitle, 160) || 'Employee', 'ONBOARDING', rate, body.hireDate, clean(body.workState, 2).toUpperCase() || 'MD', clean(body.residenceState, 2).toUpperCase() || 'MD', clean(body.primaryWorkLocation, 500) || null, clean(body.personalEmail, 320).toLowerCase() || null, clean(body.phone, 40) || null, clean(body.notes, 3000) || null,payType,salary,payType==='SALARY'?'EXEMPT_REVIEW':'NONEXEMPT'])
+      `, [req.canonicalAccess.facilityId, clean(body.employeeNumber, 40), clean(body.legalFirstName, 120), clean(body.legalMiddleName, 120) || null, clean(body.legalLastName, 120), clean(body.preferredName, 120) || null, clean(body.jobTitle, 160) || 'Employee', 'ONBOARDING', rate, body.hireDate, clean(body.workState, 2).toUpperCase() || 'MD', clean(body.residenceState, 2).toUpperCase() || 'MD', clean(body.primaryWorkLocation, 500) || null, clean(body.personalEmail, 320).toLowerCase() || null, normalizeOptionalPhoneNumber(body.phone), clean(body.notes, 3000) || null,payType,salary,payType==='SALARY'?'EXEMPT_REVIEW':'NONEXEMPT'])
       if(payType==='HOURLY')await client.query(`INSERT INTO payroll_pay_rate (facility_id,employee_id,effective_on,hourly_rate_cents,reason,created_by) VALUES ($1,$2,$3,$4,'Initial hiring rate',$5)`,[rows[0].facility_id,rows[0].id,rows[0].hire_date,rate,req.adminId])
       await ensureOnboarding(client, rows[0])
       await audit(client, req, 'CREATE', 'employee', rows[0].id, null, rows[0])
@@ -942,7 +943,7 @@ export function registerPayrollRoutes(app, pool, {retirementReceiptReader,retire
         allowed(body.directDepositStatus, ['NOT_CONFIGURED', 'INVITED', 'ACTIVE'], current.direct_deposit_status),
         body.primaryWorkLocation === undefined ? current.primary_work_location : clean(body.primaryWorkLocation, 500) || null,
         body.personalEmail === undefined ? current.personal_email : clean(body.personalEmail, 320).toLowerCase() || null,
-        body.phone === undefined ? current.phone : clean(body.phone, 40) || null,
+        normalizeUpdatedPhoneNumber(body.phone, current.phone),
         body.notes === undefined ? current.notes : clean(body.notes, 3000) || null,
         req.params.id, req.canonicalAccess.facilityId,
       ])

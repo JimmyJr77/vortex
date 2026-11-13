@@ -123,7 +123,7 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
     try {
       const res = await adminApiRequest(`/api/admin/coaches/${editingCoach.id}/profile`, {
         method: 'PUT',
-        body: JSON.stringify({ bio: editBio, isActive: editingCoach.coach_active }),
+        body: JSON.stringify({ bio: editBio }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -263,7 +263,7 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
                       >
                         <Archive className="w-4 h-4" />
                       </button>
-                      <button
+                      {!accountActive && <button
                         type="button"
                         title="Delete coach permanently"
                         onClick={() => {
@@ -273,7 +273,7 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
                         className="p-1.5 rounded hover:bg-red-50 text-red-600"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </button>}
                     </div>
                   )}
                 </div>

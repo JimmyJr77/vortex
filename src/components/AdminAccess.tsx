@@ -2,7 +2,7 @@ import TextInput from './common/TextInput'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Loader2, Power, Save, UserPlus, X } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-import { formatPhoneForDisplay, formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 
 interface AccessUser {
   id: number
@@ -96,7 +96,7 @@ function combineFullName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.trim()
 }
 
-export default function AdminAccess({ currentUserId = null }: { currentUserId?: number | null }) {
+export default function AdminAccess({ currentUserId = null, isMasterAdmin = false }: { currentUserId?: number | null; isMasterAdmin?: boolean }) {
   const [users, setUsers] = useState<AccessUser[]>([])
   const [roles, setRoles] = useState<AccessRole[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -235,7 +235,12 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
 
   const saveProfileAndAccess = async () => {
     if (!selectedUserId || !canEditSelectedProfile) return
-    if (profileForm.username.includes('@')) {
+    if (profileForm.phone && profileForm.phone !== formatPhoneForDisplay(selectedUser?.phone) && !isCompletePhoneNumber(profileForm.phone)) {
+      setError(PHONE_FORMAT_ERROR)
+      return
+    }
+    const username = profileForm.username.trim()
+    if (username !== selectedUser?.username && username.includes('@')) {
       setError('Username cannot contain @. Use the email field for email sign-in.')
       return
     }
@@ -249,12 +254,12 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
       const body: Record<string, string> = {
         fullName: combineFullName(profileForm.firstName, profileForm.lastName),
         phone: profileForm.phone.trim(),
-        username: profileForm.username.trim(),
       }
+      if (username !== (selectedUser?.username ?? '').trim()) body.username = username
       if (profileForm.email.trim()) {
         body.email = profileForm.email.trim()
       }
-      if (profileForm.password.trim()) {
+      if (profileForm.password) {
         body.password = profileForm.password
       }
       const profileRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}`, {
@@ -265,6 +270,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
         const data = await profileRes.json().catch(() => ({}))
         throw new Error(data.message || 'Failed to update account profile')
       }
+      setProfileForm((prev) => ({ ...prev, password: '' }))
 
       if (!selectedUserIsOwner) {
         const roleRes = await adminApiRequest(`/api/admin/access/users/${selectedUserId}/roles`, {
@@ -289,7 +295,6 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
         }
       }
 
-      setProfileForm((prev) => ({ ...prev, password: '' }))
       await load()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save profile and access settings')
@@ -337,6 +342,10 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
       setError('Username cannot contain @. Use the email field for email sign-in.')
       return
     }
+    if (newStaffForm.phone && !isCompletePhoneNumber(newStaffForm.phone)) {
+      setError(PHONE_FORMAT_ERROR)
+      return
+    }
 
     setCreatingStaff(true)
     setError(null)
@@ -368,7 +377,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
   }
 
   const updateActiveStatus = async () => {
-    if (!selectedUser || selectedUserIsOwner) return
+    if (!isMasterAdmin || !selectedUser || selectedUserIsOwner) return
     const nextActive = !selectedUser.isActive
     if (!nextActive && !window.confirm(`Suspend staff access for ${selectedUser.fullName}?`)) return
 
@@ -474,7 +483,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-end">
-                    {!selectedUserIsOwner && (
+                    {isMasterAdmin && !selectedUserIsOwner && (
                       <button
                         type="button"
                         onClick={() => void updateActiveStatus()}
@@ -541,26 +550,28 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
                       type="tel"
                       value={profileForm.phone}
                       onChange={(e) =>
-                        setProfileForm((prev) => ({ ...prev, phone: formatPhoneNumber(e.target.value) }))
+                        setProfileForm((prev) => ({ ...prev, phone: e.target.value }))
                       }
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                      placeholder={PHONE_INPUT_PLACEHOLDER}
-                      maxLength={PHONE_INPUT_MAX_LENGTH}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">Username</label>
+                    <label htmlFor="staff-access-username" className="block text-xs font-medium text-gray-700 mb-1">Username</label>
                     <input
+                      id="staff-access-username"
                       type="text"
+                      autoComplete="username"
                       value={profileForm.username}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, username: e.target.value }))}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">New password</label>
+                    <label htmlFor="staff-access-password" className="block text-xs font-medium text-gray-700 mb-1">New password</label>
                     <input
+                      id="staff-access-password"
                       type="password"
+                      autoComplete="new-password"
                       value={profileForm.password}
                       onChange={(e) => setProfileForm((prev) => ({ ...prev, password: e.target.value }))}
                       placeholder="Leave blank to keep current"
@@ -763,9 +774,7 @@ export default function AdminAccess({ currentUserId = null }: { currentUserId?: 
                 <TextInput
                   type="tel"
                   value={newStaffForm.phone}
-                  onChange={(event) => setNewStaffForm((current) => ({ ...current, phone: formatPhoneNumber(event.target.value) }))}
-                  maxLength={PHONE_INPUT_MAX_LENGTH}
-                  placeholder={PHONE_INPUT_PLACEHOLDER}
+                  onChange={(event) => setNewStaffForm((current) => ({ ...current, phone: event.target.value }))}
                   className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                 />
               </label>

@@ -1,7 +1,7 @@
 import TextInput from './common/TextInput'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { formatDateForInput, calculateAge, getTodayDateString, formatTimestampDate } from '../utils/dateUtils'
-import { formatPhoneNumber, PHONE_INPUT_MAX_LENGTH, PHONE_INPUT_PLACEHOLDER } from '../utils/phoneUtils'
+import { formatPhoneForDisplay } from '../utils/phoneUtils'
 
 type FamilyMemberData = {
   id: string
@@ -261,12 +261,7 @@ export default function MemberFormSection({
                     <TextInput
                       type="tel"
                       value={member.sections.contactInfo.tempData.phone}
-                      onChange={(e) => {
-                        const formatted = formatPhoneNumber(e.target.value)
-                        handleContactInfoChange('phone', formatted)
-                      }}
-                      placeholder={PHONE_INPUT_PLACEHOLDER}
-                      maxLength={PHONE_INPUT_MAX_LENGTH}
+                      onChange={(e) => handleContactInfoChange('phone', e.target.value)}
                       className="w-full px-3 py-2 bg-white text-gray-900 rounded-lg border border-gray-300"
                       autoComplete="off"
                       required
@@ -685,7 +680,7 @@ export default function MemberFormSection({
                                       <div className="text-sm text-gray-600">{familyMember.email}</div>
                                     )}
                                     {familyMember.phone && (
-                                      <div className="text-sm text-gray-600">{familyMember.phone}</div>
+                                      <div className="text-sm text-gray-600">{formatPhoneForDisplay(familyMember.phone)}</div>
                                     )}
                                   </div>
                                   {isSelected && (
@@ -806,7 +801,7 @@ export default function MemberFormSection({
                                   <div className="text-sm text-gray-600">{parent.email}</div>
                                 )}
                                 {parent.phone && (
-                                  <div className="text-sm text-gray-600">{parent.phone}</div>
+                                  <div className="text-sm text-gray-600">{formatPhoneForDisplay(parent.phone)}</div>
                                   )}
                                 </div>
                                 {isSelected && (
