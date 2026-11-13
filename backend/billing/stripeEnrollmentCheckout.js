@@ -43,6 +43,7 @@ import {
   verifySignupAuthToken,
 } from '../scheduling/signupAuth.js'
 import { findMemberById } from '../members/createMemberStub.js'
+import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 import { billingMigrationCollectionLocked } from './canonicalBillingMigrationState.js'
@@ -1675,6 +1676,15 @@ export async function createEnrollmentCheckoutSession(
       pendingEnrollmentId: Number(existingRequest.id),
       preview: existingRequest.preview_snapshot ?? null,
       replayed: true,
+    }
+  }
+
+  if (slotSignups.length && !isValidEmail(batchPayload.responses?.email)) {
+    const contact = await resolveMemberContactEmail(pool, { id: enrolledMemberId }, { includeBillingPayer: true })
+    if (!contact) {
+      const error = new Error('Add a contact email for the athlete or their household before paying.')
+      error.statusCode = 400
+      throw error
     }
   }
 
