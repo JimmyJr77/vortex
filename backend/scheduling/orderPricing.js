@@ -1,4 +1,4 @@
-import { requiredRegistrationFees, monthlyRegistrationRequiresMembership } from './registrationMembership.js'
+import { requiredRegistrationFees, registrationRequiresMembership } from './registrationMembership.js'
 import { loadEffectivePricingForForm, parseProgramPromoCodes } from '../programs/pricingDefaults.js'
 import {
   costFromPricingOptionKey,
@@ -1335,10 +1335,15 @@ export async function buildSignupOrderPreview(
     attachClassDisplayFields(item, displayContext),
   )
 
-  const firstMonth = await computeFirstMonthLayer(pool, {
-    newSignupItems: newSignupsWithDisplay,
-    discounts,
-  })
+  const tuitionLines = enrollmentTuitionLines(newSignupsWithDisplay, discounts)
+  const oneTimeItems = tuitionLines.filter(({ item }) => item.billingType === 'one_time').map(({ item, effectiveNetCents }) => ({
+    slotKey: item.slotKey,
+    formTitle: item.formTitle,
+    displayLine: item.displayLine,
+    amountCents: effectiveNetCents,
+  }))
+  const oneTimeTuition = { items: oneTimeItems, totalCents: oneTimeItems.reduce((sum, item) => sum + item.amountCents, 0) }
+  const firstMonth = await computeFirstMonthLayer(pool, { tuitionLines })
 
   const additionalFees = await computeAdditionalFeesLayer(pool, {
     facilityId: pricingFacilityId,
@@ -1346,6 +1351,7 @@ export async function buildSignupOrderPreview(
     newSignupItems: newSignupsWithDisplay,
     discounts,
     firstMonth,
+    oneTimeTuition,
     formRows,
     scopeMeta,
     offeringBySlotGroup,
@@ -1408,6 +1414,7 @@ export async function buildSignupOrderPreview(
     freePasses,
     discounts,
     firstMonth,
+    oneTimeTuition,
     additionalFees,
     additionalFeesMonthly,
     additionalFeesOneTime,
@@ -1569,7 +1576,41 @@ export async function computeFreePassLayer(
  * under prorated accounts but charge the full first service month at checkout; that
  * amount is carried forward as a credit against the first monthly bill.
  */
-export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, asOfDate = null }) {
+function enrollmentTuitionLines(newSignupItems, discounts) {
+  const discountLineByKey = new Map((discounts?.enabled ? discounts.lines : []).map((line) => [line.key, line]))
+  const lines = newSignupItems.filter((item) => item.lineType === 'slot').map((item) => {
+    const discount = discountLineByKey.get(item.slotKey)
+    const baseCents = discount?.baseCents ?? Math.round((item.incrementalMonthly || 0) * 100)
+    return { item, baseCents, netCents: discount?.finalCents ?? baseCents }
+  })
+  const orderDiscountCents = (discounts?.enabled ? discounts.orderDiscounts : []).reduce(
+    (sum, discount) => sum + (discount.amountCents || 0), 0,
+  )
+  // Allocate only the cart's share of account-wide discounts, once across both
+  // recurring and one-time tuition lines.
+  const cartBaseCents = lines.reduce((sum, line) => sum + line.baseCents, 0)
+  const householdBaseCents = (discounts?.enabled ? discounts.accountLines ?? [] : []).reduce(
+    (sum, line) => sum + Math.max(0, Math.round(Number(line.baseCents) || 0)), 0,
+  ) + cartBaseCents
+  const cartDiscountCents = householdBaseCents > 0
+    ? Math.min(orderDiscountCents, Math.round(orderDiscountCents * cartBaseCents / householdBaseCents))
+    : 0
+  let remainingDiscount = cartDiscountCents
+  return lines.map((line, index) => {
+    const share = cartDiscountCents > 0 && cartBaseCents > 0
+      ? index === lines.length - 1
+        ? remainingDiscount
+        : Math.min(remainingDiscount, Math.round(cartDiscountCents * line.baseCents / cartBaseCents))
+      : 0
+    remainingDiscount -= share
+    return { ...line, effectiveNetCents: Math.max(0, line.netCents - share) }
+  })
+}
+
+export async function computeFirstMonthLayer(pool, {
+  newSignupItems = [], discounts = null, asOfDate = null,
+  tuitionLines = enrollmentTuitionLines(newSignupItems, discounts),
+}) {
   const empty = {
     enabled: false,
     periodStart: null,
@@ -1578,9 +1619,7 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
     items: [],
     totalCents: 0,
   }
-  const recurringItems = newSignupItems.filter(
-    (item) => item.lineType === 'slot' && item.billingType === 'recurring',
-  )
+  const recurringItems = tuitionLines.filter(({ item, baseCents }) => item.billingType === 'recurring' && baseCents > 0)
   if (!recurringItems.length) return empty
 
   try {
@@ -1594,60 +1633,9 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
 
     const defaultFromDate = asOfDate ?? todayDateOnly()
 
-    const slotGroupIds = [...new Set(recurringItems.map((i) => i.slotGroupId).filter((id) => id != null))]
+    const slotGroupIds = [...new Set(recurringItems.map(({ item }) => item.slotGroupId).filter((id) => id != null))]
     const rowsByGroup = await loadCalendarRowsForSlotGroups(pool, slotGroupIds)
     const calendarRows = [...rowsByGroup.values()].flat()
-
-    // Per-line net after per-line discounts, from the discount layer when available.
-    const discountLineByKey = new Map(
-      discounts?.enabled ? discounts.lines.map((l) => [l.key, l]) : [],
-    )
-    const lineFacts = recurringItems.map((item) => {
-      const dl = discountLineByKey.get(item.slotKey)
-      const baseCents = dl?.baseCents ?? Math.round((item.incrementalMonthly || 0) * 100)
-      const netCents = dl?.finalCents ?? baseCents
-      return { item, baseCents, netCents }
-    })
-
-    // Order-level discounts (e.g. household spend discount) are computed on the full
-    // account (existing + new). Allocate each new line's share by its base price
-    // relative to that account total — not only across the cart lines.
-    const orderDiscountCents = discounts?.enabled
-      ? discounts.orderDiscounts.reduce((sum, d) => sum + (d.amountCents || 0), 0)
-      : 0
-    const cartAllocBase = lineFacts.reduce((sum, f) => sum + f.baseCents, 0)
-    const shadowAllocBase =
-      discounts?.enabled && Array.isArray(discounts.accountLines)
-        ? discounts.accountLines.reduce(
-            (sum, l) => sum + Math.max(0, Math.round(Number(l.baseCents) || 0)),
-            0,
-          )
-        : 0
-    const accountAllocBase = shadowAllocBase + cartAllocBase
-    const discountAllocBase = accountAllocBase > 0 ? accountAllocBase : cartAllocBase
-    // Only the cart's share of the order discount is due at this checkout.
-    const cartOrderDiscountCents =
-      orderDiscountCents > 0 && discountAllocBase > 0
-        ? Math.min(
-            orderDiscountCents,
-            Math.round(orderDiscountCents * (cartAllocBase / discountAllocBase)),
-          )
-        : 0
-    let remainingOrderDiscount = cartOrderDiscountCents
-    lineFacts.forEach((fact, i) => {
-      let share = 0
-      if (cartOrderDiscountCents > 0 && cartAllocBase > 0) {
-        share =
-          i === lineFacts.length - 1
-            ? remainingOrderDiscount
-            : Math.min(
-                remainingOrderDiscount,
-                Math.round(cartOrderDiscountCents * (fact.baseCents / cartAllocBase)),
-              )
-      }
-      remainingOrderDiscount -= share
-      fact.effectiveNetCents = Math.max(0, fact.netCents - share)
-    })
 
     const items = []
     const servicePeriodStarts = []
@@ -1655,9 +1643,7 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
     let totalCents = 0
     let totalProratedCents = 0
     let totalPrepaidCents = 0
-    for (const fact of lineFacts) {
-      // Pass-covered / free lines carry no first-month charge.
-      if (fact.baseCents <= 0) continue
+    for (const fact of recurringItems) {
       const fromDate = fact.item.enrollmentStartDate || defaultFromDate
       const { monthEnd } = monthBounds(fromDate)
       const proration = prorationForLine(calendarRows, {
@@ -1665,6 +1651,9 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
         timeSlotId: fact.item.timeSlotId ?? null,
         fromDate,
       })
+      if (fact.effectiveNetCents > 0 && proration.remainingClasses === 0) {
+        throw new Error('The selected class has no upcoming sessions for its enrollment start date.')
+      }
       const firstMonthTuitionCents = Math.round(fact.effectiveNetCents * proration.ratio)
       const proratedCents = proration.classStartsFutureMonth ? 0 : firstMonthTuitionCents
       const prepaidFirstMonthCents = proration.classStartsFutureMonth ? firstMonthTuitionCents : 0
@@ -1704,8 +1693,7 @@ export async function computeFirstMonthLayer(pool, { newSignupItems, discounts, 
       totalPrepaidCents,
     }
   } catch (err) {
-    console.warn('[scheduling] first-month proration unavailable:', err?.message ?? err)
-    return empty
+    throw new Error(`First-month tuition could not be priced: ${err.message}`)
   }
 }
 
@@ -1997,6 +1985,7 @@ export async function computeAdditionalFeesLayer(
     newSignupItems,
     discounts = null,
     firstMonth = null,
+    oneTimeTuition = null,
     formRows,
     scopeMeta,
     offeringBySlotGroup,
@@ -2031,7 +2020,7 @@ export async function computeAdditionalFeesLayer(
       loadMemberFeeRedemptionKeys,
     } = await import('./additionalFeesEngine.js')
     fees = await requiredRegistrationFees(pool, { memberId,
-      required: monthlyRegistrationRequiresMembership({ newSignupItems, discounts, firstMonth }),
+      required: registrationRequiresMembership({ newSignupItems, discounts, firstMonth, oneTimeTuition }),
       fees: await loadActiveAdditionalFees(pool, scopedFacilityId) })
     if (!fees.length) return empty
 

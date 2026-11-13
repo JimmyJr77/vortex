@@ -1287,7 +1287,7 @@ export default function MemberDashboard({
 
     if (enrollmentStatus === 'review') {
       setActiveTab('classes')
-      setEnrollmentConfirmMessage('Your account is ready. Review the saved class selections for each athlete and complete checkout to confirm enrollment.')
+      setEnrollmentConfirmMessage('Your account is ready. Review each athlete’s saved classes and pay by credit card. Enrollment is confirmed once tuition and any annual registration fee due are paid.')
     }
     if (enrollmentStatus === 'browse') setActiveTab('classes')
 
@@ -1355,6 +1355,8 @@ export default function MemberDashboard({
     }
 
     if (enrollmentStatus === 'cancelled') {
+      setActiveTab('classes')
+      setEnrollmentConfirmMessage('Checkout was cancelled. Your class selections are saved so you can return to payment.')
       clearPendingEnrollmentId()
       trackEvent('checkout_cancelled', window.location.pathname, {
         properties: { checkout_type: 'enrollment' },
@@ -1366,6 +1368,8 @@ export default function MemberDashboard({
     }
 
     if (enrollmentStatus !== 'paid') return
+
+    setActiveTab('classes')
 
     const checkoutSessionId = params.get('session_id') ?? undefined
     const pendingEnrollmentId = readPendingEnrollmentId() ?? undefined
@@ -1388,13 +1392,20 @@ export default function MemberDashboard({
         })
         if (cancelled) return
 
+        if (result.status === 'quarantined') {
+          clearPendingEnrollmentId()
+          clearEnrollmentReturnParams()
+          setEnrollmentConfirmError('Your payment was received and needs staff review before enrollment can be confirmed. Please contact Vortex before trying another payment.')
+          return
+        }
+        if (result.status !== 'completed' && result.status !== 'already_completed') {
+          setEnrollmentConfirmError('Enrollment is still awaiting payment confirmation. If you completed checkout, refresh this page to check again.')
+          return
+        }
         clearPendingEnrollmentId()
         clearEnrollmentReturnParams()
 
-        // Browser-side conversion signal for the GTM Google Ads purchase tag.
-        // Backend returns firstConfirmation=true exactly once per enrollment, so
-        // refreshing or revisiting the Stripe success URL never re-fires this.
-        // The authoritative GA4 purchase is sent server-side from the webhook.
+        // The backend returns firstConfirmation once per enrollment.
         if (result.firstConfirmation && result.purchase && getActiveConsent().analytics) {
           pushGtmEvent('vortex_purchase', {
             transaction_id: result.purchase.transactionId,
@@ -1405,13 +1416,6 @@ export default function MemberDashboard({
           })
         }
 
-        if (result.status === 'none') {
-          await fetchEnrollments(true)
-          await fetchBillingStatements(true)
-          return
-        }
-
-        setActiveTab('classes')
         setEnrollmentConfirmMessage(
           'Enrollment complete. Your classes and billing have been updated.',
         )
@@ -1419,7 +1423,6 @@ export default function MemberDashboard({
         await fetchBillingStatements(true)
       } catch (err) {
         if (!cancelled) {
-          clearEnrollmentReturnParams()
           setEnrollmentConfirmError(
             err instanceof Error ? err.message : 'Failed to confirm enrollment after payment.',
           )

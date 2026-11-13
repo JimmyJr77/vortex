@@ -26,7 +26,10 @@ export function leadFilters(query, facilityId, statuses) {
   const status = String(query.status || '')
   if (status && !statuses.includes(status)) throw inputError('Invalid lead status.')
   if (status) clauses.push(`(CASE WHEN COALESCE(r.converted_member_id,r.member_id) IS NOT NULL THEN 'converted' ELSE COALESCE(r.lead_status,'new') END)=${bind(status)}`)
-  for (const [key, expression] of [['contacted', 'COALESCE(r.contacted,FALSE)'], ['followUp', 'COALESCE(r.follow_up,FALSE)'], ['converted', '(COALESCE(r.converted_member_id,r.member_id) IS NOT NULL)']]) {
+  const converted = booleanFilter(query.converted, 'converted')
+  if (converted == null && status !== 'converted') clauses.push('COALESCE(r.converted_member_id,r.member_id) IS NULL')
+  if (converted != null) clauses.push(`(COALESCE(r.converted_member_id,r.member_id) IS NOT NULL)=${bind(converted)}`)
+  for (const [key, expression] of [['contacted', 'COALESCE(r.contacted,FALSE)'], ['followUp', 'COALESCE(r.follow_up,FALSE)']]) {
     const value = booleanFilter(query[key], key)
     if (value != null) clauses.push(`${expression}=${bind(value)}`)
   }

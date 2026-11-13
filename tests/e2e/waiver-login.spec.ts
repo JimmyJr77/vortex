@@ -55,7 +55,7 @@ async function login(page: Page, path = '/') {
   } else {
     await page.getByRole('button', { name: 'Account login', exact: true }).click()
   }
-  await page.getByLabel('Email or Username', { exact: true }).fill('jordan')
+  await page.getByLabel('Email, username, or phone number', { exact: true }).fill('jordan')
   await page.getByLabel('Password', { exact: true }).fill('test-password')
   await page.getByRole('button', { name: 'Login', exact: true }).click()
 }

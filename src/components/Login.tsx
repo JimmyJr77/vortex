@@ -41,7 +41,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
         setEmailOrUsername('')
         setPassword('')
       } else {
-        setError(data.message || 'Invalid email/username or password')
+        setError(data.message || 'Invalid login or password')
       }
     } catch (error) {
       console.error('Account login error:', error)
@@ -165,7 +165,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
               ) : null}
               <div>
                 <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
-                  {forgotMode ? 'Account Email' : 'Email or Username'}
+                  {forgotMode ? 'Account Email' : 'Email, username, or phone number'}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -175,7 +175,10 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                     name="emailOrUsername"
                     value={forgotMode ? resetEmail : emailOrUsername}
                     onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setEmailOrUsername(e.target.value))}
-                    placeholder={forgotMode ? 'Enter your account email' : 'Enter your email or username'}
+                    placeholder={forgotMode ? 'Enter your account email' : 'Enter your email, username, or phone number'}
+                    autoComplete={forgotMode ? 'email' : 'username'}
+                    autoCapitalize="none"
+                    spellCheck={false}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                     required
                     autoFocus
@@ -195,6 +198,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
                       id="password"
                       name="password"
                       value={password}
+                      autoComplete="current-password"
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
                       required

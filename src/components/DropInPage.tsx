@@ -1,9 +1,9 @@
 import TextInput from './common/TextInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
-import { fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
+import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered } from '../utils/publicClassesApi'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
@@ -16,7 +16,14 @@ const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday:
 const prettyTime = (time: string) => new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
 export default function DropInPage() {
-  const loggedInAccount = getMemberSessionToken() ? getLoggedInMemberAccount() : null
+  const [params] = useSearchParams()
+  const bookingId = Number(params.get('booking'))
+  const checkoutSessionId = params.get('checkout') === 'paid' ? params.get('session_id') : null
+  const [paymentStatus, setPaymentStatus] = useState<'payment_pending' | 'confirmed'>('payment_pending')
+  const [paymentBusy, setPaymentBusy] = useState(false)
+  const [paymentError, setPaymentError] = useState<string | null>(null)
+  const memberToken = getMemberSessionToken()
+  const loggedInAccount = memberToken ? getLoggedInMemberAccount() : null
   const loggedInName = loggedInAccount?.fullName?.trim() ||
     `${loggedInAccount?.firstName || ''} ${loggedInAccount?.lastName || ''}`.trim()
   const [sessions, setSessions] = useState<DropInSession[]>([])
@@ -43,6 +50,31 @@ export default function DropInPage() {
     useFreeTrial: true,
     promoCode: '',
   })
+
+  useEffect(() => {
+    if (bookingId <= 0 || !checkoutSessionId || !memberToken) return
+    let active = true
+    void checkoutDropIn(bookingId, checkoutSessionId).then((checkout) => {
+      if (active) setPaymentStatus(checkout.status)
+    }).catch((error) => { if (active) setPaymentError(error.message) })
+    return () => { active = false }
+  }, [bookingId, checkoutSessionId, memberToken])
+
+  const payForBooking = async (id: number) => {
+    setPaymentBusy(true)
+    setPaymentError(null)
+    try {
+      const checkout = await checkoutDropIn(id, checkoutSessionId ?? undefined)
+      setPaymentStatus(checkout.status)
+      if (checkout.url) window.location.assign(checkout.url)
+      else if (checkout.status === 'confirmed') setResult((current) => current ? { ...current, status: 'confirmed' } : null)
+      else setPaymentError('Payment is still being confirmed. Check again in a moment.')
+    } catch (error) {
+      setPaymentError(error instanceof Error ? error.message : 'Unable to open checkout.')
+    } finally {
+      setPaymentBusy(false)
+    }
+  }
 
   useEffect(() => {
     Promise.all([fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
@@ -128,6 +160,20 @@ export default function DropInPage() {
     </section>
 
     <section className="container-custom max-w-6xl py-10">
+      {bookingId > 0 && (
+        <div className="mb-8 rounded-xl border bg-white p-5" aria-live="polite">
+          <h2 className="text-lg font-bold">{paymentStatus === 'confirmed' ? 'Drop-in confirmed' : 'Drop-in payment'}</h2>
+          {paymentStatus === 'payment_pending' && <>
+            <p className="mt-1 text-sm text-gray-600">Your drop-in is confirmed once payment is received.</p>
+            {loggedInAccount ? (
+              <button type="button" disabled={paymentBusy} onClick={() => void payForBooking(bookingId)} className="mt-3 rounded-lg bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-60">
+                {paymentBusy ? 'Checking booking…' : checkoutSessionId ? 'Check payment status' : 'Pay by credit card'}
+              </button>
+            ) : <Link className="mt-3 inline-block font-semibold text-vortex-red underline" to={`?${new URLSearchParams({ ...Object.fromEntries(params), login: '1' })}`}>Sign in to pay</Link>}
+            {paymentError && <p className="mt-2 text-sm text-red-700" role="alert">{paymentError}</p>}
+          </>}
+        </div>
+      )}
       {benefits && <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Your rate</div><div className="font-bold">{benefits.annualMember ? `Member pricing${benefits.discountPercent ? ` · ${benefits.discountPercent.toFixed(0)}% discount` : ''}` : 'Non-member pricing'}</div></div>
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Free trial</div><div className="font-bold">{benefits.trialAvailable ? 'Available' : 'Already used'}</div></div>
@@ -208,7 +254,19 @@ export default function DropInPage() {
     </section>
 
     {selected && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={(event) => { if (event.currentTarget === event.target) setSelected(null) }}><div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
-      {result ? <div className="text-center"><CheckCircle2 className="mx-auto h-14 w-14 text-green-600" /><h2 className="mt-4 text-2xl font-bold">{result.accountRequired ? 'Finish creating your family account' : 'Drop-in confirmed'}</h2><p className="mt-2 text-gray-600">{result.accountRequired ? 'Your drop-in is pending. Create your family account and add this athlete to confirm the reservation.' : result.benefitType === 'free_trial' ? 'Your one-time free trial is confirmed.' : result.benefitType === 'annual_credit' ? 'One annual member credit was applied.' : result.benefitType === 'admin_credit' || result.benefitType === 'free_pass' || result.benefitType === 'promo_code' ? 'Your free-day pass was applied.' : 'Your spot is reserved and the one-time charge was added to your family account.'}</p>{result.accountRequired && <Link className="mt-5 inline-flex rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white" to={result.signupUrl ?? '/signup/family'}>Create your family account</Link>}<button className="mt-4 block w-full text-sm font-semibold" onClick={() => setSelected(null)}>Close</button></div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}</p><form onSubmit={submit} className="mt-6 space-y-4">
+      {result ? <div className="text-center">
+        {result.status === 'confirmed' && <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" />}
+        <h2 className="mt-4 text-2xl font-bold">{result.accountRequired ? 'Finish creating your family account' : result.status === 'payment_pending' ? 'Payment required' : 'Drop-in confirmed'}</h2>
+        <p className="mt-2 text-gray-600">{result.accountRequired ? 'Create your family account and add this athlete to continue with your drop-in.'
+          : result.status === 'payment_pending' ? `Pay ${money(result.totalCents)} to confirm this drop-in.`
+          : result.benefitType === 'free_trial' ? 'Your one-time free trial is confirmed.'
+          : result.benefitType === 'annual_credit' ? 'One annual member credit was applied.'
+          : result.benefitType === 'paid' ? 'Your spot is confirmed.' : 'Your free-day pass was applied.'}</p>
+        {result.accountRequired && <Link className="mt-5 inline-flex rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white" to={result.signupUrl ?? '/signup/family'}>Create your family account</Link>}
+        {result.status === 'payment_pending' && <button type="button" disabled={paymentBusy} onClick={() => void payForBooking(result.id)} className="mt-5 rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white disabled:opacity-60">{paymentBusy ? 'Opening checkout…' : 'Pay by credit card'}</button>}
+        {paymentError && <p className="mt-2 text-sm text-red-700" role="alert">{paymentError}</p>}
+        <button type="button" className="mt-4 block w-full text-sm font-semibold" onClick={() => { setSelected(null); setPaymentError(null) }}>Close</button>
+      </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}</p><form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3"><label className="text-sm font-semibold">First name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></label></div>
         {loggedInAccount ? <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><strong>Signed in{loggedInName ? ` as ${loggedInName}` : ''}</strong>{loggedInAccount.email && <span className="block">{loggedInAccount.email}</span>}<span className="mt-1 block text-green-700">This registration will use your logged-in account.</span></div> : <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>}<label className="block text-sm font-semibold">Phone<TextInput type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
         {benefits?.trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={form.useFreeTrial} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}

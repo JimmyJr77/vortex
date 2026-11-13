@@ -66,6 +66,22 @@ export function persistMemberSession(token: string, account: PortalAccount): voi
   localStorage.setItem('vortex_member', JSON.stringify(account))
 }
 
+export async function loginMemberWithCredentials(apiUrl: string, credentials: {
+  emailOrUsername: string
+  password: string
+}): Promise<{ token: string; member: PortalAccount }> {
+  const response = await fetch(`${apiUrl}/api/members/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+  })
+  const data = await response.json()
+  if (!response.ok || !data.success || !data.token || !data.member) {
+    throw new Error(data.message || 'Unable to sign in to the Member Portal.')
+  }
+  return { token: data.token, member: data.member }
+}
+
 export function getMemberSessionToken(): string | null {
   try {
     return localStorage.getItem('vortex_member_token')

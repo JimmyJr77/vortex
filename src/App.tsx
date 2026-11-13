@@ -157,9 +157,8 @@ function App() {
     }
     setMemberToken(token)
     setMember(accountData)
-    // Keep a shopper in the public storefront after account login so their
-    // cart and chosen checkout method remain immediately available.
-    if (location.pathname === '/store') {
+    // Keep public checkout flows open after account login.
+    if (['/store', '/drop-in', '/enroll'].includes(location.pathname)) {
       setActivePortal('website')
       setShowMemberDashboard(false)
     } else {

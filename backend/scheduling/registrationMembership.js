@@ -2,7 +2,8 @@ import { loadActiveAnnualMembership } from './annualMembership.js'
 import { isAnnualMembershipFeeItem, loadActiveAdditionalFees, computeOrderAdditionalFees } from './additionalFeesEngine.js'
 import { assertNoOutstandingAnnualMembershipCharge } from '../billing/annualMembershipChargeGuard.js'
 
-export function monthlyRegistrationRequiresMembership({ newSignupItems = [], discounts = null, firstMonth = null }) {
+export function registrationRequiresMembership({ newSignupItems = [], discounts = null, firstMonth = null, oneTimeTuition = null }) {
+  if (Number(oneTimeTuition?.totalCents) > 0) return true
   if (firstMonth?.enabled) return (firstMonth.items ?? []).some((item) =>
     Number(item.proratedCents) > 0 || Number(item.prepaidFirstMonthCents) > 0)
   if (discounts?.enabled && Number(discounts.totalCents) === 0) return false

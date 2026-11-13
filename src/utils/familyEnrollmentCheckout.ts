@@ -1,6 +1,6 @@
 import { emptyMemberEnrollmentDraft, memberEnrollmentDraftKey, saveMemberEnrollmentDraft,
   type MemberEnrollmentCartItem } from './memberEnrollmentDrafts'
-import { persistMemberSession, type PortalAccount } from './portalSession'
+import { loginMemberWithCredentials, persistMemberSession } from './portalSession'
 
 export interface PendingFamilyEnrollment extends Omit<MemberEnrollmentCartItem, 'cartKey' | 'lineType'> {
   memberId: number
@@ -29,20 +29,16 @@ export function saveFamilyCheckoutSelections(payerMemberId: number, selections: 
 export async function continueFamilyEnrollmentCheckout(apiUrl: string, result: {
   payerMemberId: number
   pendingEnrollments: PendingFamilyEnrollment[]
-}, credentials: { email?: string; username?: string; password: string }): Promise<boolean> {
+}, credentials: { email?: string; username?: string; password: string }, destination = '/?enrollment=review'): Promise<boolean> {
   saveFamilyCheckoutSelections(Number(result.payerMemberId), result.pendingEnrollments)
   try {
-    const response = await fetch(`${apiUrl}/api/members/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ emailOrUsername: credentials.email || credentials.username, password: credentials.password }),
+    const { token, member } = await loginMemberWithCredentials(apiUrl, {
+      emailOrUsername: credentials.email || credentials.username || '',
+      password: credentials.password,
     })
-    const data = await response.json()
-    if (response.ok && data.success && data.token && data.member) {
-      persistMemberSession(data.token, data.member as PortalAccount)
-      window.location.assign('/?enrollment=review')
-      return true
-    }
+    persistMemberSession(token, member)
+    window.location.assign(destination)
+    return true
   } catch {
     // Account creation succeeded; the user can resume with a normal login.
   }

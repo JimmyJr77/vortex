@@ -10,7 +10,15 @@ import {
 } from '../firstMonthProration.js'
 import { computeFirstMonthLayer } from '../orderPricing.js'
 import { persistSignupCharges } from '../persistSignupCharges.js'
+import { buildCheckoutLineItems, computeEnrollmentCheckoutPurchaseCents } from '../../billing/stripeEnrollmentCheckout.js'
 import { pauseCreditForLine, mergeFirstMonthPrepaidIntoCarriedForward } from '../pauseEnrollmentBilling.js'
+
+test('paid tuition pricing errors cannot be converted into a zero-dollar signup', async () => {
+  const db = { async query() { throw new Error('calendar lookup failed') } }
+  await assert.rejects(computeFirstMonthLayer(db, {
+    newSignupItems: [{ lineType: 'slot', billingType: 'recurring', incrementalMonthly: 150, slotGroupId: 2 }],
+  }), /First-month tuition could not be priced: calendar lookup failed/)
+})
 
 /** A weekly time-slot row in the shape loadCalendarRowsForSlotGroups returns. */
 function slotRow(overrides = {}) {
@@ -388,6 +396,29 @@ function fakeBillingPool() {
   }
   return pool
 }
+
+test('one-time class and athlete annual fee match the posted and collected amounts', async () => {
+  const db = fakeBillingPool()
+  const slotKey = '1:2:3'
+  const preview = {
+    newSignups: [{ slotKey, formId: 1, billingType: 'one_time', incrementalMonthly: 50 }],
+    oneTimeTuition: { items: [{ slotKey, formTitle: 'Gymnastics class', amountCents: 4000 }], totalCents: 4000 },
+    discounts: { enabled: true, lines: [], orderDiscounts: [{ amountCents: 1000 }] },
+    additionalFeesOneTime: 85,
+    additionalFees: { enabled: true, items: [{ feeId: 7, amountCents: 8500, applyBasis: 'per_year' }] },
+  }
+  await persistSignupCharges(db, {
+    memberId: 4,
+    signups: [{ signupId: 11, formId: 1, slotGroupId: 2, timeSlotId: 3 }],
+    preview,
+  })
+  assert.deepEqual(db.calls.charges.map((charge) => charge[4]), [4000, 8500])
+  assert.deepEqual(db.calls.orderCredits, [])
+  assert.deepEqual(db.calls.subscriptions, [])
+  const checkoutLines = await buildCheckoutLineItems(db, preview)
+  assert.equal(computeEnrollmentCheckoutPurchaseCents(preview), 12500)
+  assert.deepEqual(checkoutLines.map((line) => line.price_data.unit_amount), [8500, 4000])
+})
 
 test('persistSignupCharges preserves an order promo on each recurring signup', async () => {
   const pool = fakeBillingPool()

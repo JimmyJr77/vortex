@@ -1107,6 +1107,7 @@ async function createBillingChargeCheckoutSession(pool, {
   requireManualCharge = false,
   checkoutType = 'custom_charge',
   eventType = 'custom_charge_checkout_created',
+  paymentMethodTypes = null,
 }) {
   if (!stripeEnabled()) throw new Error('Stripe is not enabled.')
   const stripe = await getStripeClient()
@@ -1163,6 +1164,7 @@ async function createBillingChargeCheckoutSession(pool, {
     const requestParams = {
       mode: 'payment',
       customer: customerId,
+      ...(paymentMethodTypes ? { payment_method_types: paymentMethodTypes } : {}),
       client_reference_id: `billing-charge:${charge.id}`,
       expires_at: checkoutExpirationSeconds(reservation),
       line_items: [{

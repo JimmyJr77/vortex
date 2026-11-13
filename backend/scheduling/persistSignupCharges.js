@@ -272,6 +272,7 @@ export async function persistSignupCharges(pool, {
 
   const firstMonth = preview?.firstMonth?.enabled ? preview.firstMonth : null
   const firstMonthBySlotKey = new Map((firstMonth?.items || []).map((item) => [item.slotKey, item]))
+  const oneTimeTuitionBySlotKey = new Map((preview?.oneTimeTuition?.items ?? []).map((item) => [item.slotKey, item.amountCents]))
   // Track prorated amounts so the order-level discount credit can be prorated too.
   let proratedNetSum = 0
   let proratedEffectiveSum = 0
@@ -300,6 +301,10 @@ export async function persistSignupCharges(pool, {
     let chargeGross = line.grossCents
     let chargeDiscount = line.discountCents
     let chargeNet = line.netCents
+    if (line.billingType === 'one_time' && oneTimeTuitionBySlotKey.has(slotKey)) {
+      chargeNet = oneTimeTuitionBySlotKey.get(slotKey)
+      chargeDiscount = Math.max(0, chargeGross - chargeNet)
+    }
     if (fm) {
       usedProration = true
       const tuitionCents = fm.classStartsFutureMonth
@@ -454,7 +459,7 @@ export async function persistSignupCharges(pool, {
   )
   const orderDiscountCents = usedProration
     ? Math.max(0, Math.min(fullOrderDiscountCents, proratedNetSum - proratedEffectiveSum))
-    : fullOrderDiscountCents
+    : oneTimeTuitionBySlotKey.size > 0 ? 0 : fullOrderDiscountCents
   const sortedSignupIds = signups
     .map((s) => Number(s.signupId))
     .filter((n) => Number.isFinite(n) && n > 0)

@@ -23,6 +23,9 @@ test('signup usernames cannot enter the email namespace', async () => {
     () => validateSignupUsername('parent@example.com'),
     /cannot contain @/,
   )
+  assert.throws(() => validateSignupUsername('family login'), /without spaces/)
+  assert.throws(() => validateSignupUsername('a'.repeat(51)), /up to 50/)
+  assert.throws(() => validateSignupUsername('617-555-0123'), /different from a phone number/)
 
   const source = await fs.readFile(new URL('../familySignup.js', import.meta.url), 'utf8')
   const conflictStart = source.indexOf('const loginConflict = await client.query')
