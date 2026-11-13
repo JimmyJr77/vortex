@@ -134,10 +134,13 @@ test('lead invitations reserve shared class places, require new credentials, and
         await db.query('RELEASE SAVEPOINT drop_in_checkout')
       }
     })
-    await t.test('checkout adopts the held signup instead of creating another enrollment',async()=>{
+    await t.test('checkout adopts the held signup and uses the guardian contact for a child without email',async()=>{
       const hold=(await db.query('SELECT id FROM scheduling_signup WHERE account_invite_id=$1 AND invite_child_index=0',[invitation.id])).rows[0]
-      const admission=await insertSignupForMember(db,{formId:form.id,formRow:form,slotGroupId:group.id,memberId:result.memberIds[1],responses:{first_name:'Casey',last_name:'Invite',email:lead.email},firstOccurrenceId:slot.id,formTitle:form.title,mandateWaiver:false,enrollmentStartDate})
+      const child=(await db.query('SELECT email FROM member WHERE id=$1',[result.memberIds[1]])).rows[0]
+      assert.equal(child.email,null)
+      const admission=await insertSignupForMember(db,{formId:form.id,formRow:form,slotGroupId:group.id,memberId:result.memberIds[1],responses:{first_name:'Casey',last_name:'Invite',email:child.email},firstOccurrenceId:slot.id,formTitle:form.title,mandateWaiver:false,enrollmentStartDate})
       assert.equal(Number(admission.signupId),Number(hold.id));assert.equal(admission.signupStatus,'confirmed')
+      assert.equal(admission.signupRow.email,lead.email)
       assert.equal((await db.query('SELECT count(*)::int AS n FROM scheduling_signup WHERE account_invite_id=$1',[invitation.id])).rows[0].n,2)
       const again=await openLeadRegistration(pool,invitation.id,{token:captured.token,username:lead.email,password:'ReplacementPassword32!'})
       assert.equal(again.result.pendingEnrollments.length,1)
@@ -239,9 +242,10 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(Number(holdAfter.member_id), Number(saved.payerMemberId))
       assert.equal(holdAfter.enrollment_start_date, enrollmentStartDate)
 
-      await insertSignupForMember(db, { formId: form.id, formRow: form, slotGroupId: laterGroup.id, memberId: saved.memberIds[1],
-        responses: { first_name: 'Casey', last_name: 'Invite', email: familyLead.email }, firstOccurrenceId: laterSlot.id,
+      const admission = await insertSignupForMember(db, { formId: form.id, formRow: form, slotGroupId: laterGroup.id, memberId: saved.memberIds[1],
+        responses: { first_name: 'Casey', last_name: 'Invite' }, firstOccurrenceId: laterSlot.id,
         formTitle: form.title, mandateWaiver: false, enrollmentStartDate })
+      assert.equal(admission.signupRow.email, familyLead.email)
       const reopened = await openLeadRegistration(pool, invitation.id, { ...credentials, password: completion.primaryAdult.password })
       assert.deepEqual(reopened.result.pendingEnrollments.map(item => item.memberId), [saved.memberIds[0], saved.memberIds[2]])
     })

@@ -17,6 +17,7 @@ import {
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
+import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.js'
 import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
 import {
   buildDailyRoster,
@@ -251,9 +252,19 @@ export async function insertSignupForMember(
   const signupStatus =
     Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
 
-  const reserved = await client.query(`SELECT id FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
-    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])
-  const reservedId = reserved.rows[0]?.id
+  const reserved = (await client.query(`SELECT id, email FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
+    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])).rows[0]
+  const reservedId = reserved?.id
+  if (!isValidEmail(responses.email)) {
+    const contact = await resolveMemberContactEmail(client, { id: memberId }, { includeBillingPayer: true })
+    const email = contact?.email || reserved?.email
+    if (!isValidEmail(email)) {
+      const error = new Error('Add a contact email for the athlete or their household before registering.')
+      error.statusCode = 400
+      throw error
+    }
+    responses = { ...responses, email }
+  }
   const insert = await client.query(
     reservedId ? `UPDATE scheduling_signup SET
       form_id=$1,time_slot_id=$2,slot_group_id=$3,member_id=$4,first_name=$5,last_name=$6,email=$7,phone=$8,
@@ -274,7 +285,7 @@ export async function insertSignupForMember(
       memberId,
       responses.first_name || null,
       responses.last_name || null,
-      responses.email || null,
+      responses.email,
       responses.phone || null,
       JSON.stringify(responses),
       JSON.stringify(responses),
