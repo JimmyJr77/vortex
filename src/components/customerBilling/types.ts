@@ -184,6 +184,8 @@ export interface CustomerBillingOverview {
     refundsCents: number
     balanceCents: number
     collectibleBalanceCents: number
+    reservedForPaymentAttemptsCents?: number
+    hasResumableBalanceCheckout?: boolean
     outstandingBalanceCents: number
     monthlyRecurringCents: number
     monthlyRecurringDiscountCents: number
@@ -207,13 +209,8 @@ export interface CustomerBillingOverview {
   paymentMethod: {
     available: boolean
     stripeEnabled: boolean
-    paymentMethod: null | {
-      id: string
-      brand: string
-      last4: string | null
-      expMonth: number | null
-      expYear: number | null
-    }
+    paymentMethod: SavedBillingPaymentMethod | null
+    immediatePaymentMethod?: SavedBillingPaymentMethod | null
     error?: string
   }
   alerts: Array<{
@@ -249,6 +246,14 @@ export interface CustomerBillingOverview {
   bundleUsage: CustomerBillingBundleUsage[]
   subscriptions: CustomerBillingSubscription[]
   adjustments: PriceAdjustment[]
+}
+
+interface SavedBillingPaymentMethod {
+  id: string
+  brand: string
+  last4: string | null
+  expMonth: number | null
+  expYear: number | null
 }
 
 export interface BillingTransaction {

@@ -222,7 +222,7 @@ export async function buildClassSetupOverview(pool) {
         pr.pricing_cost_unit AS pricing_cost_unit,
         pr.pricing_cost_amount_cents AS pricing_cost_amount_cents
       FROM program p
-      LEFT JOIN ${programsTable} pr ON pr.id = p.${programFkColumn}
+      LEFT JOIN ${programsTable} pr ON pr.id = p.${programFkColumn} AND pr.facility_id = p.facility_id
       LEFT JOIN discipline_tag primary_dt ON primary_dt.id = pr.primary_discipline_tag_id
       LEFT JOIN scheduling_form sf ON sf.program_id = p.id AND sf.deleted_at IS NULL
       ORDER BY pr.display_name NULLS LAST, p.display_name, p.id

@@ -1389,7 +1389,7 @@ export async function resolveMembershipFeePromo(
  * @param {object} pool
  * @param {{ breakdown: object, keyToSignupId: Record<string, number>, fallbackSignupId: number }} args
  */
-export async function persistDiscountSnapshot(pool, { breakdown, keyToSignupId = {}, fallbackSignupId = null }) {
+export async function persistDiscountSnapshot(pool, { breakdown, keyToSignupId = {}, fallbackSignupId = null, strict = false }) {
   if (!breakdown || !breakdown.enabled) return
   try {
     // Per-line snapshot of the resolved breakdown for audit + display.
@@ -1439,6 +1439,7 @@ export async function persistDiscountSnapshot(pool, { breakdown, keyToSignupId =
       }
     }
   } catch (err) {
+    if (strict) throw err
     console.warn('[scheduling] persistDiscountSnapshot:', err.message)
   }
 }

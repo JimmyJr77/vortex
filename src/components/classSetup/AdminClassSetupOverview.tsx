@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlignLeft, Copy, Loader2, Lock, Unlock, WrapText } from 'lucide-react'
+import ArchiveVisibilityButton from './ArchiveVisibilityButton'
 import AdminClassSetupOverviewTable from './AdminClassSetupOverviewTable'
 import { fetchClassSetupOverview, type ClassSetupOverviewRow } from '../../utils/classSetupOverviewApi'
 import { type ColumnDensity } from './overviewColumns'
@@ -7,8 +8,13 @@ import { loadStoredDensity } from './useSpreadsheetResize'
 
 type TextLayout = 'wrap' | 'straight'
 
-const AdminClassSetupOverview = () => {
+const AdminClassSetupOverview = ({ showArchived, onToggleArchived }: {
+  showArchived: boolean
+  onToggleArchived: () => void
+}) => {
   const [rows, setRows] = useState<ClassSetupOverviewRow[]>([])
+  const visibleRows = useMemo(() => showArchived ? rows : rows.filter(row => !row.classArchived && !row.programArchived), [rows, showArchived])
+  const classCount = new Set(visibleRows.map(row => row.classId)).size
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [unlocked, setUnlocked] = useState(false)
@@ -42,12 +48,13 @@ const AdminClassSetupOverview = () => {
             All classes in one spreadsheet. Unlock to edit cells; drag column or row borders to resize.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {!loading && (
             <span className="text-sm text-gray-500">
-              {rows.length} class{rows.length !== 1 ? 'es' : ''}
+              {classCount} class{classCount !== 1 ? 'es' : ''}
             </span>
           )}
+          <ArchiveVisibilityButton showArchived={showArchived} onToggleArchived={onToggleArchived} disabled={copyMode} />
           {unlocked && (
             <button
               type="button"
@@ -171,15 +178,15 @@ const AdminClassSetupOverview = () => {
         </div>
       )}
 
-      {!loading && !error && rows.length === 0 && (
+      {!loading && !error && visibleRows.length === 0 && (
         <div className="py-12 text-center text-gray-500 border border-dashed rounded-xl">
-          No classes found.
+          {rows.length > 0 ? 'No unarchived classes.' : 'No classes found.'}
         </div>
       )}
 
-      {!loading && !error && rows.length > 0 && (
+      {!loading && !error && visibleRows.length > 0 && (
         <AdminClassSetupOverviewTable
-          rows={rows}
+          rows={visibleRows}
           unlocked={unlocked}
           copyMode={copyMode}
           onCopyModeChange={setCopyMode}

@@ -1078,6 +1078,7 @@ test('carried-balance enrollment creation holds the account lock through reserva
   assert.deepEqual(state.createLockDepths, [1])
   assert.equal(state.lockDepth, 0)
   assert.equal(state.pending.stripe_checkout_session_id, 'cs_enrollment_44')
+  assert.deepEqual(state.sessions[0].params.payment_method_types, ['card', 'link'])
   assert.equal(state.pending.expires_at.toISOString(), '2033-05-18T03:33:20.000Z')
   assert.match(
     state.sessions[0].options.idempotencyKey,

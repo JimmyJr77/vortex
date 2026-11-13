@@ -4,6 +4,7 @@ import { prepareFamilyEnrollmentCheckout } from './familyEnrollmentCheckout.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { loadCanonicalAccessContext } from './accessContext.js'
+import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
 import {
   createAccountInviteTokenRecord,
@@ -73,7 +74,29 @@ export function validateSignupUsername(value) {
   if (username.includes('@')) {
     throw new Error('Usernames cannot contain @. Use an email address only in the email field.')
   }
+  if (username.length > 50 || /\s|\p{C}/u.test(username)) {
+    throw new Error('Use a username of up to 50 characters without spaces or control characters.')
+  }
+  if (normalizeLoginPhone(username)) {
+    throw new Error('Choose a username that is different from a phone number.')
+  }
   return username
+}
+
+function validateSignupPassword(password, confirmPassword, label) {
+  if (typeof password !== 'string' || password.length < 8) {
+    throw new Error(`${label} password must be at least 8 characters.`)
+  }
+  if (Buffer.byteLength(password, 'utf8') > 72) {
+    throw new Error(`${label} password must be 72 bytes or fewer.`)
+  }
+  if (password !== confirmPassword) throw new Error(`${label} passwords do not match.`)
+}
+
+async function assertUsernameIsNotReserved(client, username, leadInvitationId = null) {
+  const reserved = await client.query(`SELECT id FROM account_invite WHERE LOWER(BTRIM(suggested_username))=LOWER($1)
+    AND used_at IS NULL AND expires_at>now() AND id IS DISTINCT FROM $2::bigint LIMIT 1`, [username, leadInvitationId])
+  if (reserved.rows.length) throw new Error('That username is reserved for another registration. Please choose another.')
 }
 
 function memberUsesParentContactEmail(memberInput, payerEmail, asOfDate) {
@@ -860,7 +883,8 @@ async function applyEnrollmentRow(client, {
 async function suggestUsername(client, firstName, lastName) {
   const cleanFirstName = String(firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
   const cleanLastName = String(lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '').substring(0, 2)
-  const baseUsername = cleanFirstName + cleanLastName
+  const name = cleanFirstName + cleanLastName
+  const baseUsername = (/^\d+$/.test(name) ? `member${name}` : name).slice(0, 35)
   if (!baseUsername) return ''
 
   let username = baseUsername
@@ -1115,11 +1139,12 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
   }
 
   const memberId = Number(match.member.id)
+  const status = Number(row.amount_cents) > 0 ? 'payment_pending' : 'confirmed'
   await client.query(
     `UPDATE drop_in_registration
-        SET member_id = $2, status = 'confirmed', updated_at = now()
+        SET member_id = $2, status = $3, expires_at = NULL, updated_at = now()
       WHERE id = $1`,
-    [pendingDropInId, memberId],
+    [pendingDropInId, memberId, status],
   )
 
   if (row.benefit_type === 'paid' && Number(row.amount_cents) > 0) {
@@ -1140,7 +1165,7 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
       [account.rows[0].id, memberId, String(row.id), `${row.title} drop-in — ${formatDateOnly(row.class_date)}`, amountCents, baseCents, Math.max(0, baseCents - amountCents), formatDateOnly(row.class_date)],
     )
   }
-  return { id: Number(row.id), memberId, status: 'confirmed', benefitType: row.benefit_type }
+  return { id: Number(row.id), memberId, status, benefitType: row.benefit_type }
 }
 
 export async function processFamilySignup(client, payload, options = {}) {
@@ -1154,21 +1179,23 @@ export async function processFamilySignup(client, payload, options = {}) {
 
   const facilityId = await resolveFacilityId(client, explicitFacilityId)
   const signupDate = await resolveFacilitySignupDate(client, facilityId)
-  const primaryAdult = payload.primaryAdult
+  const primaryAdultInput = payload.primaryAdult
   const additionalMembers = Array.isArray(payload.additionalMembers) ? payload.additionalMembers : []
   const enrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
   const waivers = payload.waivers || {}
 
-  if (!primaryAdult?.firstName || !primaryAdult?.lastName) {
+  if (!primaryAdultInput?.firstName || !primaryAdultInput?.lastName) {
     throw new Error('Primary adult first and last name are required.')
   }
-  if (!String(primaryAdult.email || '').trim()) {
-    throw new Error('Primary adult email is required.')
-  }
-  const primaryPhoneDigits = String(primaryAdult.phone || '').replace(/\D/g, '')
-  if (primaryPhoneDigits.length !== 10) {
+  const primaryEmail = normalizeSignupEmail(primaryAdultInput.email)
+  if (!primaryEmail) throw new Error('Enter a valid email address for the primary adult.')
+  const primaryPhone = normalizeLoginPhone(primaryAdultInput.phone)
+  if (!primaryPhone) {
     throw new Error('Primary adult phone must be a valid 10-digit number.')
   }
+  const primaryUsername = validateSignupUsername(primaryAdultInput.username)
+  if (!primaryUsername) throw new Error('Primary adult username is required.')
+  const primaryAdult = { ...primaryAdultInput, email: primaryEmail, phone: primaryPhone, username: primaryUsername }
   if (!String(primaryAdult.addressStreet || '').trim()) {
     throw new Error('Primary adult street address is required.')
   }
@@ -1184,22 +1211,11 @@ export async function processFamilySignup(client, payload, options = {}) {
   if (!parseDateOnly(primaryAdult.dateOfBirth) || !isAdultOnDate(primaryAdult.dateOfBirth, signupDate)) {
     throw new Error('Primary account holder must be 18 or older.')
   }
-  if (!validateSignupUsername(primaryAdult.username)) {
-    throw new Error('Primary adult username is required.')
-  }
-  if (!primaryAdult.password || primaryAdult.password.length < 8) {
-    throw new Error('Primary adult password must be at least 8 characters.')
-  }
-  if (primaryAdult.password !== primaryAdult.confirmPassword) {
-    throw new Error('Primary adult passwords do not match.')
-  }
+  validateSignupPassword(primaryAdult.password, primaryAdult.confirmPassword, 'Primary adult')
 
   // Invitation usernames stay available to the family that received them.
   await client.query('SELECT pg_advisory_xact_lock(846001)')
-  const reservedUsername = await client.query(`SELECT id FROM account_invite WHERE LOWER(suggested_username)=LOWER($1)
-    AND used_at IS NULL AND expires_at>now() AND id IS DISTINCT FROM $2::bigint LIMIT 1`, [primaryAdult.username,options.leadInvitationId ?? null])
-  if (reservedUsername.rows.length) throw new Error('That username is reserved for another registration. Please choose another.')
-  const primaryEmail = String(primaryAdult.email || '').trim()
+  await assertUsernameIsNotReserved(client, primaryUsername, options.leadInvitationId)
   await assertMemberEmailAvailable(client, facilityId, primaryEmail)
 
   const signatureName = String(waivers.signatureName || '').trim()
@@ -1294,10 +1310,15 @@ export async function processFamilySignup(client, payload, options = {}) {
       }
       merged.email = null
       merged.emailSource = 'parent'
-    } else if (!merged.email?.trim()) {
-      throw new Error(`Email is required for ${merged.firstName} ${merged.lastName}.`)
     } else {
+      merged.email = normalizeSignupEmail(merged.email)
+      if (!merged.email) throw new Error(`Enter a valid email address for ${merged.firstName} ${merged.lastName}.`)
       await assertMemberEmailAvailable(client, facilityId, merged.email)
+    }
+
+    if (String(merged.phone ?? '').trim()) {
+      merged.phone = normalizeLoginPhone(merged.phone)
+      if (!merged.phone) throw new Error(`Enter a valid 10-digit phone number for ${merged.firstName} ${merged.lastName}.`)
     }
 
     if (merged.useParentPassword === true) {
@@ -1305,15 +1326,12 @@ export async function processFamilySignup(client, payload, options = {}) {
     }
     const portalAccessRequested = merged.portalAccessRequested === true
     if (portalAccessRequested) {
-      if (!merged.username?.trim()) {
+      merged.username = validateSignupUsername(merged.username)
+      if (!merged.username) {
         throw new Error(`Username is required to create Member Portal access for ${merged.firstName} ${merged.lastName}.`)
       }
-      if (!merged.password || merged.password.length < 8) {
-        throw new Error(`Password must be at least 8 characters for ${merged.firstName} ${merged.lastName}.`)
-      }
-      if (merged.password !== merged.confirmPassword) {
-        throw new Error(`Passwords do not match for ${merged.firstName} ${merged.lastName}.`)
-      }
+      validateSignupPassword(merged.password, merged.confirmPassword, `${merged.firstName} ${merged.lastName}'s`)
+      await assertUsernameIsNotReserved(client, merged.username)
     } else {
       merged.username = null
       merged.password = null
@@ -1518,7 +1536,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       }
     }
 
-    if (result.completedDropIn?.id) {
+    if (result.completedDropIn?.status === 'confirmed') {
       try {
         await sendDropInConfirmationNotifications(pool, Number(result.completedDropIn.id))
       } catch (err) {

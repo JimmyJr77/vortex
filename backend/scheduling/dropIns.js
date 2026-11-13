@@ -4,6 +4,8 @@ import { calculateDropInPrice } from '../shared/dropInPricing.js'
 export { calculateDropInPrice } from '../shared/dropInPricing.js'
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
+import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from '../platform/accessContext.js'
+import { canonicalActiveHouseholdMemberPredicate, resolveCanonicalActiveMemberFamilyId } from '../billing/householdMembership.js'
 import { formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
 import { loadActiveAnnualMembership } from './annualMembership.js'
 import { toUtcDateString } from './membershipAnniversary.js'
@@ -195,39 +197,40 @@ export async function resolveDropInFreePass(pool, { member, email = null, promoC
 }
 
 async function resolveMember(pool, req) {
-  let token = req.headers.authorization?.split(' ')[1]
+  const token = req.headers.authorization?.split(' ')[1]
   let decoded = null
   if (token) {
     try { decoded = jwt.verify(token, resolveJwtSecret()) } catch { decoded = null }
   }
-  const identityId = decoded?.userId ?? decoded?.memberId ?? null
-  if (identityId != null) {
-    const result = await pool.query(
-      `SELECT * FROM member WHERE id = $1 OR app_user_id = $1 ORDER BY (id = $1) DESC LIMIT 1`,
-      [identityId],
-    )
-    if (result.rows[0]) return result.rows[0]
-  }
-  return null
+  const userId = await resolveCanonicalTokenUserId(pool, decoded)
+  if (userId == null) return null
+  const access = await loadCanonicalAccessContext(pool, userId)
+  if (!access?.portalAccess.member || !access.memberId) return null
+  return (await pool.query(`SELECT * FROM member WHERE id = $1 AND app_user_id = $2 AND is_active = TRUE`,
+    [access.memberId, userId])).rows[0] ?? null
 }
 
 async function resolveBookingMember(pool, authenticatedMember, { firstName, lastName }) {
   if (!authenticatedMember) return null
+  const familyId = await resolveCanonicalActiveMemberFamilyId(pool, {
+    memberId: authenticatedMember.id, facilityId: authenticatedMember.facility_id,
+  })
   const result = await pool.query(
     `SELECT *
-       FROM member
+       FROM member athlete
       WHERE is_active = TRUE
+        AND facility_id = $5
         AND (
           id = $1
-          OR (family_id IS NOT NULL AND family_id = $2)
+          OR ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'athlete', familyIdReference: '$2' })}
         )
         AND lower(trim(first_name)) = lower(trim($3))
         AND lower(trim(last_name)) = lower(trim($4))
       ORDER BY (id = $1) DESC, id
       LIMIT 1`,
-    [authenticatedMember.id, authenticatedMember.family_id, firstName, lastName],
+    [authenticatedMember.id, familyId, firstName, lastName, authenticatedMember.facility_id],
   )
-  return result.rows[0] ?? null
+  return result.rows[0] ? { ...result.rows[0], bookingFamilyId: familyId } : null
 }
 
 async function memberBenefits(pool, member) {
@@ -701,6 +704,18 @@ export function registerDropInRoutes(app, pool) {
       if (!dateInTwoMonthWindow(classDate)) {
         await client.query('ROLLBACK'); return res.status(400).json({ success: false, message: 'Drop-ins may be booked up to two months in advance.' })
       }
+      if (member) {
+        const existingBooking = (await client.query(`SELECT id, amount_cents, benefit_type, status FROM drop_in_registration
+          WHERE member_id=$1 AND slot_group_id=$2 AND class_date=$3 AND status IN ('payment_pending', 'confirmed', 'attended')`,
+        [member.id, slotGroupId, classDate])).rows[0]
+        if (existingBooking) {
+          await client.query('COMMIT')
+          return res.json({ success: true, data: { id: Number(existingBooking.id),
+            status: existingBooking.status === 'attended' ? 'confirmed' : existingBooking.status,
+            benefitType: existingBooking.benefit_type, enrollmentStartDate: classDate,
+            totalCents: Number(existingBooking.amount_cents), accountRequired: false, signupUrl: null } })
+        }
+      }
       const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, ACTIVE_REGISTRATION_STATUSES])
       if (Number(slot.rows[0].monthly_enrolled) + Number(existing.rows[0].count) >= Number(slot.rows[0].max_participants)) {
         await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'That class is full.' })
@@ -720,9 +735,9 @@ export function registerDropInRoutes(app, pool) {
       }
       const defaultOutcome = resolveDropInOutcome({ member, benefits, useFreeTrial })
       const benefitType = freePass?.benefitType ?? defaultOutcome.benefitType
-      const status = defaultOutcome.status
       const monthlyCents = classDropInMonthlyCents(slot.rows[0])
       const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent, isFree: benefitType !== 'paid' })
+      const status = member && price.totalCents > 0 ? 'payment_pending' : defaultOutcome.status
       if (benefitType === 'paid' && price.baseCents <= 0) {
         throw new Error('Drop-in pricing is unavailable. Contact staff before registering.')
       }
@@ -777,8 +792,8 @@ export function registerDropInRoutes(app, pool) {
       }
       if (benefitType === 'paid' && member && price.totalCents > 0) {
         const account = await client.query(
-          `SELECT id FROM family_billing_account WHERE family_id=$1 LIMIT 1`,
-          [member.family_id],
+          `SELECT id FROM family_billing_account WHERE family_id=$1 AND is_active = TRUE LIMIT 1`,
+          [member.bookingFamilyId],
         )
         if (!account.rows[0]) throw new Error('Member billing account not found')
         await client.query(

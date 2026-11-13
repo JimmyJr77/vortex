@@ -761,9 +761,12 @@ function AthleteEnrollment({
           onEnrolled()
           return
         }
-        if (!checkout.skipCheckout) {
-          throw new Error('Unable to start payment checkout.')
+        if (!checkout.skipCheckout || !checkout.preview?.hasPricing || enrollmentNeedsPayment(checkout.preview)) {
+          throw new Error('Unable to start payment checkout. Your selections are saved.')
         }
+        setPreview(checkout.preview)
+        setSubmitError('The amount due changed. Review the updated price before confirming enrollment.')
+        return
       }
 
       const result = await submitSchedulingSignupBatch(batchPayload)
@@ -896,8 +899,8 @@ function AthleteEnrollment({
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-3 text-sm font-bold text-white disabled:opacity-60 sm:w-auto"
         >
           {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-          {stripeEnabled && preview && enrollmentNeedsPayment(preview)
-            ? 'Confirm & pay'
+          {preview && enrollmentNeedsPayment(preview)
+            ? stripeEnabled ? 'Confirm & pay' : 'Payment unavailable'
             : 'Confirm enrollment'}
         </button>
       </div>

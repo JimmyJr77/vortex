@@ -18,8 +18,12 @@ import {
 } from '../scheduling/membershipAnniversary.js'
 import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
+import { loadPendingMemberBalanceCheckout } from './customerBalanceCheckoutResume.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
-import { selectStripeCustomerPaymentMethod } from './stripePaymentMethodReadiness.js'
+import {
+  classifyStripePaymentMethodReadiness,
+  selectStripeCustomerPaymentMethod,
+} from './stripePaymentMethodReadiness.js'
 
 const INTERNAL_PRICE_SYNC_MESSAGES = new Set([
   'Restored promo assignment requires Stripe expiration-schedule synchronization.',
@@ -440,58 +444,64 @@ async function loadFamilyMembers(pool, familyId) {
 
 export async function loadDefaultPaymentMethodSummary(account, {
   billingMonth = upcomingRecurringPricingMonth(new Date(), account?.facility_timezone),
+  immediatePaymentMonth = null,
+  stripeClient = undefined,
 } = {}) {
-  const enabled = stripeEnabled()
-  if (!account?.stripe_customer_id) {
-    return { available: false, stripeEnabled: enabled, paymentMethod: null }
+  const enabled = stripeClient === undefined ? stripeEnabled() : Boolean(stripeClient)
+  const unavailable = {
+    available: false,
+    stripeEnabled: enabled,
+    paymentMethod: null,
+    immediatePaymentMethod: null,
   }
+  if (!account?.stripe_customer_id) return unavailable
   if (Number(account.stripe_customer_owner_count) !== 1) {
     return {
-      available: false,
-      stripeEnabled: enabled,
-      paymentMethod: null,
+      ...unavailable,
       reconciliationRequired: true,
       error: 'The Stripe customer does not have one unique local billing-account owner.',
     }
   }
-  if (!enabled) {
-    return { available: false, stripeEnabled: false, paymentMethod: null }
-  }
+  if (!enabled) return unavailable
   try {
-    const stripe = await getStripeClient()
-    if (!stripe) return { available: false, stripeEnabled: true, paymentMethod: null }
+    const stripe = stripeClient ?? await getStripeClient()
+    if (!stripe) return unavailable
     const customer = await stripe.customers.retrieve(account.stripe_customer_id, {
       expand: ['invoice_settings.default_payment_method'],
     })
-    if (!customer || customer.deleted) return { available: false, stripeEnabled: true, paymentMethod: null }
+    if (!customer || customer.deleted) return unavailable
     const selection = await selectStripeCustomerPaymentMethod(stripe, customer, {
       expectedCustomerId: account.stripe_customer_id,
       billingMonth,
     })
-    const paymentMethod = selection.paymentMethod
-    const card = paymentMethod?.card
+    const method = selection.paymentMethod
+    const paymentMethod = method?.id
+      ? {
+          id: method.id,
+          type: method.type ?? null,
+          customerId: selection.readiness.customerId ?? null,
+          brand: method.card?.brand ?? method.type ?? 'card',
+          last4: method.card?.last4 ?? null,
+          expMonth: method.card?.exp_month ?? null,
+          expYear: method.card?.exp_year ?? null,
+        }
+      : null
+    const immediateReady = immediatePaymentMonth != null && paymentMethod &&
+      classifyStripePaymentMethodReadiness(method, {
+        expectedCustomerId: account.stripe_customer_id,
+        billingMonth: immediatePaymentMonth,
+      }).ready
     return {
       available: selection.readiness.ready,
       stripeEnabled: true,
       customerId: customer.id,
       readiness: selection.readiness,
-      paymentMethod: paymentMethod?.id
-        ? {
-            id: paymentMethod.id,
-            type: paymentMethod.type ?? null,
-            customerId: selection.readiness.customerId ?? null,
-            brand: card?.brand ?? paymentMethod.type ?? 'card',
-            last4: card?.last4 ?? null,
-            expMonth: card?.exp_month ?? null,
-            expYear: card?.exp_year ?? null,
-          }
-        : null,
+      paymentMethod,
+      immediatePaymentMethod: immediateReady ? paymentMethod : null,
     }
   } catch (error) {
     return {
-      available: false,
-      stripeEnabled: true,
-      paymentMethod: null,
+      ...unavailable,
       error: error?.message ?? 'Unable to load saved payment method.',
     }
   }
@@ -927,7 +937,8 @@ export async function buildCustomerBillingOverview(pool, {
   // Keep the ledger-card classification on the same upcoming month displayed
   // by the recurring-fee card. A charge posted for the current (or past)
   // month is already due and must remain in Outstanding balance.
-  const pricingMonth = upcomingRecurringPricingMonth(new Date(), account.facility_timezone)
+  const asOf = new Date(startedAt)
+  const pricingMonth = upcomingRecurringPricingMonth(asOf, account.facility_timezone)
 
   const rawSubscriptionsPromise = pool.query(
     `SELECT bs.*, TRIM(CONCAT(m.first_name, ' ', m.last_name)) AS member_name,
@@ -1038,7 +1049,11 @@ export async function buildCustomerBillingOverview(pool, {
         familyId: Number(familyId),
         facilityId: Number(account.family_facility_id),
       }),
-      loadDefaultPaymentMethodSummary(account, { billingMonth: pricingMonth }),
+      loadDefaultPaymentMethodSummary(account, {
+        billingMonth: pricingMonth,
+        // Admin saved-card payments use the UTC date of the authorization.
+        immediatePaymentMonth: memberRead ? null : asOf,
+      }),
       listHouseholdMonthlyInvoices(pool, account.id, {
         // Both Billing surfaces present the current household invoice. Line
         // descriptions and amounts are customer-facing ledger facts, while
@@ -1304,6 +1319,9 @@ export async function buildCustomerBillingOverview(pool, {
     enrollments,
     annualMemberships,
   })
+  const hasResumableBalanceCheckout = !memberRead && paymentMethod.stripeEnabled
+    && view.reservedForPaymentAttemptsCents > 0
+    && Boolean(await loadPendingMemberBalanceCheckout(pool, account))
 
   const overview = {
     revision: view.revision,
@@ -1316,6 +1334,10 @@ export async function buildCustomerBillingOverview(pool, {
       refundsCents: view.refundsCents,
       balanceCents: cardPresentation.balanceCents,
       collectibleBalanceCents: view.collectibleBalanceCents,
+      ...(!memberRead ? {
+        reservedForPaymentAttemptsCents: view.reservedForPaymentAttemptsCents,
+        hasResumableBalanceCheckout,
+      } : {}),
       outstandingBalanceCents: view.outstandingBalanceCents,
       // The enrollment resolver evaluates the selected billing period's
       // lifecycle rules, including cancellations effective on its first day.

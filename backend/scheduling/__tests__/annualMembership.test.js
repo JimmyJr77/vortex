@@ -21,7 +21,7 @@ test('loadActiveAnnualMembership redemption query includes $0 waived memberships
         rows: [
           {
             fee_id: 1,
-            created_at: '2026-07-27T16:10:22.674Z',
+            satisfied_at: '2026-07-27T16:10:22.674Z',
             period_key: '2027-07-27',
             amount_cents: 0,
           },
@@ -52,14 +52,14 @@ test('loadActiveAnnualMembership does not grant access from an unpaid renewal sc
   assert.equal(await memberHasActiveAnnualMembership(pool, 62, { asOf: new Date(Date.UTC(2026, 7, 1)) }), false)
 })
 
-test('loadActiveAnnualMembership falls back to anniversary redemption', async () => {
+test('loadActiveAnnualMembership falls back to the proven legacy charge anniversary', async () => {
   const pool = mockPool((sql) => {
     if (sql.includes('FROM additional_fee_redemption')) {
       return {
         rows: [
           {
             fee_id: 1,
-            created_at: '2026-07-27T16:10:22.674Z',
+            legacy_charge_paid_at: '2026-07-27T16:10:22.674Z',
             period_key: '2026',
           },
         ],
@@ -83,7 +83,7 @@ test('loadActiveAnnualMembership is inactive after renews-on', async () => {
         rows: [
           {
             fee_id: 1,
-            created_at: '2026-07-27T16:10:22.674Z',
+            satisfied_at: '2026-07-27T16:10:22.674Z',
             period_key: '2027-07-27',
           },
         ],
@@ -124,13 +124,25 @@ test('loadActiveAnnualMembership uses the paid-through period instead of the pos
   assert.equal(window?.renewsOn.toISOString().slice(0, 10), '2027-09-27')
 })
 
-test('loadActiveAnnualMembershipFeeIds marks paid entitlements active', async () => {
+test('only a satisfied and currently effective athlete membership waives the fee', async () => {
   const pool = mockPool((sql) => {
     if (sql.includes('FROM additional_fee_redemption')) {
+      assert.match(sql, /r\.satisfied_at IS NOT NULL OR/)
+      assert.match(sql, /charge\.collection_status = 'paid'/)
+      assert.match(sql, /charge\.member_id = r\.member_id/)
       return {
         rows: [{
-          fee_id: 1,
+          fee_id: 9,
           created_at: '2026-07-27T16:10:22.674Z',
+          period_key: '2027-07-27',
+        }, {
+          fee_id: 10,
+          satisfied_at: '2026-07-27T16:10:22.674Z',
+          service_period_start: '2026-09-01',
+          period_key: '2027-09-01',
+        }, {
+          fee_id: 1,
+          satisfied_at: '2026-07-27T16:10:22.674Z',
           period_key: '2027-07-27',
           ended_at: null,
         }],
@@ -138,6 +150,8 @@ test('loadActiveAnnualMembershipFeeIds marks paid entitlements active', async ()
     }
     throw new Error(`unexpected: ${sql}`)
   })
-  const ids = await loadActiveAnnualMembershipFeeIds(pool, 62, [1, 9], new Date(Date.UTC(2026, 7, 1)))
+  const asOf = new Date(Date.UTC(2026, 7, 1))
+  const ids = await loadActiveAnnualMembershipFeeIds(pool, 62, [1, 9, 10], asOf)
   assert.deepEqual([...ids], [1])
+  assert.equal((await loadActiveAnnualMembership(pool, 62, { asOf, strict: true })).feeId, 1)
 })

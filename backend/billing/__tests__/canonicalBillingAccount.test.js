@@ -174,7 +174,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
         return { rows: [{ id: 91, amount_cents: 2500, remaining_amount_cents: 1000 }] }
       }
       if (sql.includes('canonical-billing:collectible-balance')) {
-        return { rows: [{ collectible_balance_cents: '7000' }] }
+        return { rows: [{ collectible_balance_cents: '7000', reserved_for_payment_attempts_cents: '10000' }] }
       }
       throw new Error(`Unexpected query: ${sql}`)
     },
@@ -210,6 +210,7 @@ test('canonical overview snapshot reads only lightweight ledger state and perfor
     ],
     recurringCharges: [],
     collectibleBalanceCents: 7000,
+    reservedForPaymentAttemptsCents: 10000,
   })
   assert.equal(calls.length, 4)
   assert.equal(calls.some((sql) => /\b(?:CREATE|ALTER|DROP|INSERT|UPDATE|DELETE)\b/i.test(sql)), false)
@@ -239,6 +240,7 @@ test('collectible balance reserves only invoices that can still collect', async 
   assert.match(capturedSql, /application_kind = 'reversal'/)
   assert.match(capturedSql, /external_status IN \('settled', 'succeeded'\)/)
   assert.match(capturedSql, /invoice\.status = ANY\(\$2::text\[\]\)/)
+  assert.match(capturedSql, /payment_attempt_reservations\.amount_cents AS reserved_for_payment_attempts_cents/)
   assert.deepEqual(capturedParams, [12, HOUSEHOLD_INVOICE_RESERVING_STATUSES])
   assert.equal(householdInvoiceReservesCollection('paid'), false)
   assert.equal(householdInvoiceReservesCollection('open'), true)

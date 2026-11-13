@@ -33,6 +33,9 @@ import {
   toUtcDateString,
 } from '../scheduling/membershipAnniversary.js'
 import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
+import { loadActiveAnnualMembership } from '../scheduling/annualMembership.js'
+import { isAnnualMembershipFeeItem } from '../scheduling/additionalFeesEngine.js'
+import { registrationRequiresMembership } from '../scheduling/registrationMembership.js'
 import { executeSignupBatch } from '../scheduling/handlers.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import {
@@ -236,18 +239,16 @@ async function ensurePendingEnrollmentSchema() {
 }
 
 export function computeEnrollmentDueNowCents(preview) {
-  const fees = Math.round((preview.additionalFeesOneTime ?? 0) * 100)
-  const firstMonth = preview.firstMonth?.totalCents ?? 0
-  const passes = preview.passPurchaseTotalCents ?? 0
   const carriedForward = preview.carriedForward?.totalCents ?? 0
-  return Math.max(0, fees + firstMonth + passes + (carriedForward > 0 ? carriedForward : 0))
+  return computeEnrollmentCheckoutPurchaseCents(preview) + Math.max(0, carriedForward)
 }
 
 export function computeEnrollmentCheckoutPurchaseCents(preview) {
   const fees = Math.round((preview?.additionalFeesOneTime ?? 0) * 100)
   const firstMonth = Math.round(Number(preview?.firstMonth?.totalCents) || 0)
+  const oneTimeTuition = Math.round(Number(preview?.oneTimeTuition?.totalCents) || 0)
   const passes = Math.round(Number(preview?.passPurchaseTotalCents) || 0)
-  return Math.max(0, fees + firstMonth + passes)
+  return Math.max(0, fees + firstMonth + oneTimeTuition + passes)
 }
 
 export function computeEnrollmentCheckoutCarriedBalanceCents(preview) {
@@ -543,7 +544,10 @@ export async function buildCheckoutLineItems(pool, preview) {
     }
   }
 
-  for (const tuition of computeFirstMonthTuitionLineItems(preview)) {
+  const oneTimeTuitionItems = (preview.oneTimeTuition?.items ?? [])
+    .filter((item) => item.amountCents > 0)
+    .map((item) => ({ amountCents: item.amountCents, name: item.displayLine || item.formTitle || 'Class tuition' }))
+  for (const tuition of [...computeFirstMonthTuitionLineItems(preview), ...oneTimeTuitionItems]) {
     lineItems.push({
       quantity: 1,
       price_data: {
@@ -1138,19 +1142,17 @@ export async function createAndBindEnrollmentCheckoutSession(
       ? []
       : storedLineItems ?? await buildCheckoutLineItems(db, preview)
     if (mode === 'payment' && lineItems.length === 0) {
-      if (durable) {
-        throw checkoutIdempotencyConflict(
-          'The durable enrollment Checkout has no immutable payment lines. Keep it reserved for review.',
-        )
-      }
-      return { skipCheckout: true, preview }
+      throw checkoutIdempotencyConflict(
+        'The enrollment Checkout is missing its payment lines. Review the class prices before trying again.',
+      )
     }
     if (!durable) {
       // Stripe treats an idempotency-key retry with different parameters as a
       // conflict. Preserve resolved catalog Price IDs and ad-hoc price_data in
       // the authoritative snapshot before the first remote create so a lost
       // response can be replayed byte-for-byte even if catalog mappings move.
-      preview = { ...preview, stripeCheckoutLineItems: lineItems }
+      preview = { ...preview, stripeCheckoutLineItems: lineItems,
+        stripeCheckoutPaymentMethods: mode === 'setup' ? ['card'] : ['card', 'link'] }
     }
 
     // Customer verification itself uses this same re-entrant session lock.
@@ -1319,6 +1321,9 @@ export async function createAndBindEnrollmentCheckoutSession(
         householdCollection: hasRecurring ? 'true' : 'false',
       },
     }
+    if (preview.stripeCheckoutPaymentMethods) {
+      sessionParams.payment_method_types = preview.stripeCheckoutPaymentMethods
+    }
     if (mode === 'setup') {
       sessionParams.currency = 'usd'
     } else {
@@ -1482,11 +1487,11 @@ export async function createEnrollmentCheckoutSession(
     payerMemberId: memberId,
   })
 
-  const requestKey = normalizeCheckoutRequestKey(
+  let requestKey = normalizeCheckoutRequestKey(
     idempotencyKey,
     'member-enrollment-checkout',
   )
-  const requestFingerprint = checkoutFingerprint({
+  let requestFingerprint = checkoutFingerprint({
     accountId: Number(account.id),
     enrolledMemberId,
     payerMemberId: Number(memberId),
@@ -1510,6 +1515,25 @@ export async function createEnrollmentCheckoutSession(
     )
   ) {
     throw checkoutIdempotencyConflict()
+  }
+  if (!existingRequest) {
+    // Reopening the same cart can obtain a new scheduling token and browser
+    // request key. Recover the existing collector using the verified athlete
+    // and the durable order, without creating a second payment session.
+    const active = await pool.query(
+      `SELECT * FROM stripe_pending_enrollment
+        WHERE family_billing_account_id = $1 AND member_id = $2
+          AND request_key IS NOT NULL AND request_fingerprint IS NOT NULL
+          AND status IN ('pending', 'processing', 'failed')
+        ORDER BY id DESC LIMIT 1`,
+      [account.id, enrolledMemberId],
+    ).then((result) => result.rows[0] ?? null)
+    const order = ({ signups, promoCodes, responses }) => checkoutFingerprint({ signups, promoCodes, responses })
+    if (active && order(parsePendingPayload(active.payload) ?? {}) === order(batchPayload)) {
+      existingRequest = active
+      requestKey = active.request_key
+      requestFingerprint = active.request_fingerprint
+    }
   }
   if (
     existingRequest?.status === 'completed'
@@ -1908,16 +1932,20 @@ export function enrollmentCheckoutSessionCanFinalize(session, pending) {
   if (checkoutSessionHasForbiddenSubscriptionCollector(session)) return false
   const remoteMode = String(session?.mode ?? '')
   const durableMode = String(pending?.checkout_mode ?? '')
-  if (!remoteMode || remoteMode !== durableMode) return false
+  if (!remoteMode || remoteMode !== durableMode || session?.status !== 'complete') return false
   try {
     assertEnrollmentCheckoutSessionBinding(pending, session)
+    if (durableMode === 'setup') {
+      const preview = parsePendingPayload(pending.preview_snapshot)
+      return Number(pending.due_now_cents) === 0
+        && preview != null
+        && preview.hasPricing !== false
+        && resolveEnrollmentCheckoutMode(preview) === 'setup'
+    }
   } catch {
     return false
   }
-  if (durableMode === 'setup') {
-    return session?.status === 'complete'
-  }
-  return session?.payment_status === 'paid'
+  return durableMode === 'payment' && session?.payment_status === 'paid'
 }
 
 function sleep(ms) {
@@ -2270,6 +2298,7 @@ export async function authorizePendingEnrollmentCheckout(pool, {
             pending.checkout_mode,
             pending.stripe_checkout_session_id,
             pending.status,
+            pending.preview_snapshot,
             account.family_id,
             account.payer_member_id,
             account.stripe_customer_id
@@ -2346,8 +2375,8 @@ async function lockPaidEnrollmentAuthorizationScope(db, pendingEnrollmentId) {
 }
 
 /**
- * Claim → signup (no row lock) → ledger repair → completed → Stripe I/O.
- * Concurrent webhook + confirm: one worker claims; the other waits for completed.
+ * Record captured funds durably, then finalize paid signup and exact ledger
+ * allocation in one locked transaction. Notification and Stripe setup follow commit.
  */
 export async function commitPendingEnrollment(pool, {
   pendingEnrollmentId,
@@ -2427,6 +2456,10 @@ export async function commitPendingEnrollment(pool, {
       expectedFamilyId,
       expectedPayerMemberId,
     })
+    if (authorizedPending.status === 'completed') return { status: 'already_completed' }
+    if (!enrollmentCheckoutSessionCanFinalize(stripeSession, authorizedPending)) {
+      return { status: 'unpaid' }
+    }
   } catch (error) {
     if (
       preFulfillmentPayment
@@ -2505,9 +2538,8 @@ export async function commitPendingEnrollment(pool, {
               if (error?.code === 'ENROLLMENT_CHECKOUT_FORBIDDEN') {
                 return { status: 'authorization_drift', error }
               }
-              // Signup/ledger work commits on its own connection.  Preserve a
-              // durable retry owner after rolling back every payment/application
-              // mutation from this transaction.
+              // Preserve a durable retry owner after rolling back enrollment
+              // and every payment application from this transaction.
               await settlementDb.query(
                 `UPDATE stripe_pending_enrollment
                     SET status = 'failed', error_message = $2, updated_at = now()
@@ -2602,7 +2634,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
   preFulfillmentPayment = null,
 }) {
   const stateDb = settlementDb ?? pool
-  // Claim quickly — never hold FOR UPDATE across signup / Stripe network I/O.
+  // A paid claim is part of the settlement transaction. Network calls follow commit.
   const claim = await stateDb.query(
     `
       UPDATE stripe_pending_enrollment
@@ -2634,6 +2666,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
 
   let signupIds = []
   let result = null
+  const afterCommit = []
   const previewSnapshot =
     typeof pending.preview_snapshot === 'string'
       ? JSON.parse(pending.preview_snapshot)
@@ -2654,8 +2687,11 @@ async function tryCommitPendingEnrollmentOnce(pool, {
         'Enrollment authority changed before the signup commit.',
       )
     }
+    await assertEnrollmentMembershipCoverage(stateDb, {
+      memberId: enrolledMemberId, preview: previewSnapshot, checkoutPaid: Boolean(preFulfillmentPayment),
+    })
     const refreshed = await refreshSignupAuthForCommit(
-      pool,
+      stateDb,
       pending.payload,
       enrolledMemberId,
       {
@@ -2674,14 +2710,14 @@ async function tryCommitPendingEnrollmentOnce(pool, {
               ? new Date(stripeSession.created * 1000)
               : new Date(pending.created_at ?? Date.now()),
           }
-        : null)
+        : null, settlementDb ? { client: settlementDb, afterCommit } : null)
       signupIds = (result?.data?.signups ?? [])
         .map((row) => Number(row.id ?? row.signupId))
         .filter(Boolean)
     } catch (signupErr) {
       if (!isAlreadySignedUpError(signupErr)) throw signupErr
       signupIds = await findExistingSignupIdsForEnrollmentPayload(
-        pool,
+        stateDb,
         signupBatchPayload,
         enrolledMemberId,
       )
@@ -2689,8 +2725,8 @@ async function tryCommitPendingEnrollmentOnce(pool, {
       result = { success: true, data: { signups: signupIds.map((id) => ({ id })) }, recovered: true }
     }
 
-    if (signupIds.length > 0 && previewSnapshot) {
-      await ensureEnrollmentLedgerRows(pool, {
+    if (result?.recovered && signupIds.length > 0 && previewSnapshot) {
+      await ensureEnrollmentLedgerRows(stateDb, {
         memberId: enrolledMemberId,
         signupIds,
         preview: previewSnapshot,
@@ -2701,13 +2737,12 @@ async function tryCommitPendingEnrollmentOnce(pool, {
       })
     }
     if (stripeSession?.id && (result?.data?.purchasedPasses ?? []).length > 0) {
-      await ensureEnrollmentPassLedgerRows(pool, {
+      await ensureEnrollmentPassLedgerRows(stateDb, {
         memberId: enrolledMemberId,
         purchasedPasses: result.data.purchasedPasses,
         stripeCheckoutSessionId: stripeSession.id,
       })
     }
-
     if (preFulfillmentPayment) {
       if (!settlementDb) throw new Error('Paid enrollment settlement lock is missing.')
       preFulfillmentPayment = await applyAndSettlePaidCheckoutFulfillment(settlementDb, {
@@ -2759,6 +2794,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
     result,
     ...(preFulfillmentPayment ? { payment: preFulfillmentPayment } : {}),
     postCommit: {
+      afterCommit,
       signupIds,
       previewSnapshot,
       previewHasRecurring,
@@ -2772,7 +2808,20 @@ async function tryCommitPendingEnrollmentOnce(pool, {
   }
 }
 
+export async function assertEnrollmentMembershipCoverage(db, { memberId, preview, checkoutPaid }) {
+  if (!registrationRequiresMembership({ ...preview, newSignupItems: preview?.newSignups })) return
+  const annualFee = preview?.additionalFees?.items?.find(isAnnualMembershipFeeItem)
+  if (checkoutPaid && Number(annualFee?.amountCents) > 0) return
+  if (Number(annualFee?.amountCents) === 0
+    && Number(annualFee?.grossAmountCents) > 0
+    && Number(annualFee?.discountCents) === Number(annualFee?.grossAmountCents)
+    && Number(annualFee?.promoRuleId) > 0) return
+  if (await loadActiveAnnualMembership(db, memberId, { strict: true })) return
+  throw enrollmentCheckoutAuthorizationError('The athlete’s annual membership is no longer active. Review their membership before enrolling.')
+}
+
 async function runEnrollmentPostCommitSideEffects(pool, {
+  afterCommit,
   signupIds,
   previewSnapshot,
   previewHasRecurring,
@@ -2781,6 +2830,13 @@ async function runEnrollmentPostCommitSideEffects(pool, {
   memberId,
   purchasedAt,
 }) {
+  for (const notify of afterCommit) {
+    try {
+      await notify()
+    } catch (error) {
+      console.error('[scheduling] enrollment notification after settlement:', error)
+    }
+  }
   // Stripe network I/O occurs only after the account collection lock is released.
   if (signupIds.length > 0 && previewSnapshot && previewHasRecurring && stripeSession) {
     try {

@@ -5,7 +5,7 @@ import {
   classifyStripePaymentMethodReadiness,
   selectStripeCustomerPaymentMethod,
 } from '../stripePaymentMethodReadiness.js'
-import { loadDefaultPaymentMethodSummary } from '../customerBillingQueries.js'
+import { loadDefaultPaymentMethodSummary, upcomingRecurringPricingMonth } from '../customerBillingQueries.js'
 
 function card(overrides = {}) {
   return {
@@ -90,7 +90,45 @@ test('payment-method reads hide a customer shared with an inactive local account
 
   assert.equal(summary.available, false)
   assert.equal(summary.paymentMethod, null)
+  assert.equal(summary.immediatePaymentMethod, null)
   assert.equal(summary.reconciliationRequired, true)
+})
+
+test('admin summary can use the current-month default for an immediate payment after the recurring month advances', async () => {
+  const now = new Date('2026-10-08T12:00:00Z')
+  const calls = []
+  const stripe = {
+    customers: {
+      async retrieve(id) {
+        calls.push(['customer', id])
+        return { id, invoice_settings: { default_payment_method: 'pm_card' } }
+      },
+    },
+    paymentMethods: {
+      async retrieve(id) {
+        calls.push(['payment method', id])
+        return card()
+      },
+    },
+  }
+  const account = { id: 8, stripe_customer_id: 'cus_household', stripe_customer_owner_count: 1 }
+  const billingMonth = upcomingRecurringPricingMonth(now, 'America/New_York')
+  const summary = await loadDefaultPaymentMethodSummary(account, {
+    billingMonth, immediatePaymentMonth: now, stripeClient: stripe,
+  })
+
+  assert.deepEqual(calls, [['customer', 'cus_household'], ['payment method', 'pm_card']])
+  assert.equal(summary.available, false)
+  assert.equal(summary.readiness.billingMonth, '2026-11')
+  assert.equal(summary.readiness.reason, 'payment_method_card_expired_for_billing_month')
+  assert.equal(summary.paymentMethod.id, 'pm_card')
+  assert.deepEqual(summary.immediatePaymentMethod, summary.paymentMethod)
+
+  const expiredSummary = await loadDefaultPaymentMethodSummary(account, {
+    billingMonth, immediatePaymentMonth: '2026-11-01', stripeClient: stripe,
+  })
+  assert.equal(expiredSummary.paymentMethod.id, 'pm_card')
+  assert.equal(expiredSummary.immediatePaymentMethod, null)
 })
 
 test('selection retrieves and validates an explicitly configured Link default', async () => {

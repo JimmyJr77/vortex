@@ -170,17 +170,16 @@ export function formatOfferingRangeCompact(offering: {
  * Calculate age from date of birth (date-only string)
  * Handles timezone correctly by treating DOB as a calendar date
  */
-export function calculateAge(dateOfBirth: string | null | undefined): number | null {
+export function calculateAge(dateOfBirth: string | null | undefined, asOf = new Date()): number | null {
   if (!dateOfBirth) return null
   
   const birthDate = parseDateOnly(dateOfBirth)
   if (!birthDate) return null
   
-  const today = new Date()
-  let age = today.getFullYear() - birthDate.getFullYear()
-  const monthDiff = today.getMonth() - birthDate.getMonth()
+  let age = asOf.getFullYear() - birthDate.getFullYear()
+  const monthDiff = asOf.getMonth() - birthDate.getMonth()
   
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+  if (monthDiff < 0 || (monthDiff === 0 && asOf.getDate() < birthDate.getDate())) {
     age--
   }
   

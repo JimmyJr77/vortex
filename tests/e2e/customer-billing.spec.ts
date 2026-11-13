@@ -1154,6 +1154,53 @@ for (const choice of [
   })
 }
 
+test('process payment uses current card eligibility and explains a reserved balance', async ({ page }) => {
+  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0, balanceCollections: [] }
+  await openCustomerBilling(page, captured)
+  let reservedForPaymentAttemptsCents = overview.summary.collectibleBalanceCents
+  await page.route('**/api/admin/customer-billing/families/42/overview*', (route) => route.fulfill({ json: {
+    success: true,
+    data: {
+      ...overview,
+      account: { ...overview.account, householdMonthlyBillingEnabled: false },
+      summary: {
+        ...overview.summary,
+        stripeSync: { status: 'warning', message: 'Recurring enrollment is not yet connected to automatic monthly collection.' },
+        reservedForPaymentAttemptsCents,
+        hasResumableBalanceCheckout: reservedForPaymentAttemptsCents > 0,
+        collectibleBalanceCents: overview.summary.collectibleBalanceCents - reservedForPaymentAttemptsCents,
+      },
+      paymentMethod: {
+        ...overview.paymentMethod,
+        available: false,
+        paymentMethod: null,
+        immediatePaymentMethod: overview.paymentMethod.paymentMethod,
+      },
+    },
+  } }))
+  await page.route('**/api/admin/customer-billing/families/42/resume-balance-checkout', (route) => {
+    expect(route.request().method()).toBe('POST')
+    return route.fulfill({ json: { success: true, data: { url: 'https://checkout.stripe.com/pay/test', amountCents: 14500 } } })
+  })
+
+  await findRiveraAccount(page)
+  const processPayment = page.getByRole('button', { name: 'Process Payment' })
+  await expect(page.getByText('Autopay setup required', { exact: true })).toBeVisible()
+  await expect(processPayment).toBeDisabled()
+  await expect(processPayment).toHaveAccessibleDescription(/existing payment attempt is holding \$145\.00/)
+  await page.getByRole('button', { name: 'Open existing checkout' }).click()
+  await expect(page.getByText('The family payer can use this Stripe link to finish the existing $145.00 checkout.')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Open', exact: true })).toHaveAttribute('href', 'https://checkout.stripe.com/pay/test')
+  expect(captured.balanceCollections).toEqual([])
+
+  reservedForPaymentAttemptsCents = 0
+  await page.getByRole('button', { name: 'Refresh account' }).click()
+  await expect(processPayment).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Open existing checkout' })).toHaveCount(0)
+  await processPayment.click()
+  await expect(page.getByRole('dialog', { name: 'Process Payment' })).toContainText('visa •••• 4242')
+})
+
 test('account refresh reassesses allocations and displays the server result', async ({ page }) => {
   const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
   await openCustomerBilling(page, captured)

@@ -67,6 +67,37 @@ test('note deletion rechecks the subject facility before mutating the note', asy
   assert.equal(calls.some(({ sql }) => /UPDATE note/.test(sql)), false)
 })
 
+test('family notes are stored against the household after checking its facility', async () => {
+  const calls = []
+  const pool = {
+    async query(sql, params) {
+      const text = String(sql)
+      calls.push({ text, params })
+      if (text.startsWith('SELECT 1 FROM family')) return { rows: params[1] === 7 ? [{}] : [] }
+      if (text.includes('INSERT INTO note')) {
+        const [subjectType, subjectId, noteType, body] = params
+        return { rows: [{ id: 9, subject_type: subjectType, subject_id: subjectId, note_type: noteType, body }] }
+      }
+      throw new Error(`unexpected query: ${text}`)
+    },
+  }
+  const handlers = createNotesHandlers(pool)
+  const body = { subjectType: 'family', subjectId: 51, noteType: 'staff_note', body: '  Called about trial classes.  ' }
+  const otherFacility = responseRecorder()
+  await handlers.addNote({ body, canonicalAccess: { facilityId: 8 } }, otherFacility)
+  assert.equal(otherFacility.statusCode, 404)
+  assert.equal(calls.length, 1)
+  assert.match(calls[0].text, /id = \$1 AND facility_id = \$2/)
+  assert.deepEqual(calls[0].params, [51, 8])
+
+  const ownFacility = responseRecorder()
+  await handlers.addNote({ body, canonicalAccess: { facilityId: 7 } }, ownFacility)
+  assert.equal(ownFacility.statusCode, 200)
+  assert.equal(ownFacility.payload.data.subjectType, 'family')
+  assert.equal(ownFacility.payload.data.subjectId, 51)
+  assert.equal(ownFacility.payload.data.body, 'Called about trial classes.')
+})
+
 test('note author identity is canonical and facility scoped without a legacy fallback', async () => {
   const calls = []
   const pool = {

@@ -1,10 +1,17 @@
 import { useSearchParams } from 'react-router-dom'
 import FamilySignupWizard from './FamilySignupWizard'
 
+function sameSiteReturn(value: string | null): string | null {
+  if (!value?.startsWith('/') || value.startsWith('//')) return null
+  const target = new URL(value, window.location.origin)
+  if (target.origin !== window.location.origin || target.pathname.startsWith('//')) return null
+  return `${target.pathname}${target.search}${target.hash}`
+}
+
 export default function SignupFamilyPage() {
   const [params] = useSearchParams()
   const mode = params.get('mode')
-  const returnTo = params.get('return')
+  const returnTo = sameSiteReturn(params.get('return'))
   const pendingDropInId = params.get('dropIn')
 
   if (mode === 'minor') {

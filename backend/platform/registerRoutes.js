@@ -25,6 +25,7 @@ import { publicAppUrl } from '../email/publicAppUrl.js'
 import { API_BUILD_ID } from '../buildInfo.js'
 import { loadPortalConfig, savePortalConfig } from './portalSettings.js'
 import { missingRequiredWaiverIds } from './waiverCompletion.js'
+import { checkoutDropIn, confirmPaidDropIns, notifyPaidDropIns } from '../scheduling/dropInCheckout.js'
 import {
   stripeEnabled as isStripeEnabled,
   completePaymentMethodSetupSession,
@@ -3296,6 +3297,29 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
   }
 
   app.post('/api/members/billing/payments/checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), createMemberBalanceCheckout)
+  app.post('/api/members/billing/drop-in-checkout', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
+    const dropInId = Number(req.body?.dropInId)
+    const checkoutSessionId = req.body?.checkoutSessionId ?? null
+    if (!Number.isSafeInteger(dropInId) || dropInId <= 0
+      || (checkoutSessionId != null && (typeof checkoutSessionId !== 'string' || !/^cs_[a-zA-Z0-9_]+$/.test(checkoutSessionId)))) {
+      return res.status(400).json({ success: false, message: 'A valid drop-in booking is required.' })
+    }
+    try {
+      const ctx = req.platformAuth
+      const memberId = linkedPlatformMemberId(ctx)
+      const facilityId = ctx.user.facility_id ?? null
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, { memberId, facilityId })
+      const account = familyId ? await ensureCustomerBillingAccount(pool, familyId, facilityId) : null
+      if (Number(account?.payer_member_id) !== memberId) {
+        return res.status(403).json({ success: false, message: 'Only the family payer can pay for this booking.' })
+      }
+      const result = await checkoutDropIn(pool, { account, dropInId, checkoutSessionId })
+      res.json({ success: true, data: result })
+    } catch (err) {
+      console.error('[stripe] drop-in checkout:', err)
+      res.status(err.statusCode ?? 409).json({ success: false, message: err.message || 'Unable to start drop-in checkout.' })
+    }
+  })
   app.post('/api/members/billing/checkout-session', ...memberBillingAuthMiddleware(pool, jwtSecret), legacyBillingEndpoint, createMemberBalanceCheckout)
 
   const createMemberPaymentMethodSession = async (req, res) => {
@@ -4010,6 +4034,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             accountId: reservedAttempt.family_billing_account_id,
             actorType: 'stripe',
           })
+          await notifyPaidDropIns(pool, await confirmPaidDropIns(pool, reservedAttempt.family_billing_account_id))
           if (isCheckoutFulfillmentEvent && obj.metadata?.balanceAutopayConsent === 'v1') {
             await completeBalanceCheckoutAutopay(pool, { session: obj, stripe: await getStripeClient() })
           }
@@ -4021,6 +4046,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
             stripeObjectId: insertedPayment.stripe_payment_intent_id ?? obj.id,
             actorType: 'stripe',
           })
+          await notifyPaidDropIns(pool, await confirmPaidDropIns(pool, accountId))
         } else if (insertedPayment && accountId) {
           await allocateHouseholdPayments(pool, { accountId, actorType: 'stripe' })
         }

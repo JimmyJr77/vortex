@@ -206,9 +206,9 @@ export default function SignupInvitePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="max-w-lg w-full rounded-2xl bg-white border border-green-200 p-8 text-center space-y-3">
-          <h1 className="text-2xl font-bold text-green-800">Signup complete</h1>
+          <h1 className="text-2xl font-bold text-green-800">Family account ready</h1>
           <p className="text-sm text-gray-600">
-            The family account is active. Log in to review your class selections and complete checkout. Class selections are not confirmed until checkout is complete.
+            Sign in to review your selections and pay by credit card. Class enrollment is confirmed once tuition and any annual registration fee due for the athlete are paid.
           </p>
           <a href="/?enrollment=review" className="inline-block font-semibold text-vortex-red">Continue to member portal</a>
         </div>

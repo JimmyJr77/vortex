@@ -116,6 +116,7 @@ import { startPaymentFactAuditScheduler } from './billing/paymentFactAuditSchedu
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
+import { findActiveMemberLoginCandidates } from './auth/memberLoginIdentifiers.js'
 import {
   MemberPasswordResetDeliveryError,
   resetMemberPasswordByEmail,
@@ -7479,7 +7480,7 @@ app.delete('/api/admin/emergency-contacts/:id', async (req, res) => {
   }
 })
 
-// Member login - supports email or username
+// Member login accepts an email address, username, or unambiguous phone number.
 app.post('/api/members/login', async (req, res) => {
   try {
     const { error, value } = memberLoginSchema.validate(req.body)
@@ -7494,41 +7495,11 @@ app.post('/api/members/login', async (req, res) => {
     // The public login request does not carry a facility selector. Resolve a
     // credential only when the identifier is unique across facilities; never
     // guess by selecting the first facility.
-    const emailOrUsername = value.emailOrUsername.trim()
-    const isEmail = emailOrUsername.includes('@')
-    
-    let query, params
-    if (isEmail) {
-      query = `
-        SELECT u.*
-        FROM app_user u
-        WHERE LOWER(BTRIM(u.email)) = LOWER(BTRIM($1))
-          AND u.is_active = TRUE
-        ORDER BY u.id
-        LIMIT 2
-      `
-      params = [emailOrUsername]
-    } else {
-      const usernameLower = emailOrUsername.toLowerCase()
-      query = `
-        SELECT u.*
-        FROM app_user u
-        WHERE u.username IS NOT NULL
-          AND LOWER(BTRIM(u.username)) = $1
-          AND u.is_active = TRUE
-        ORDER BY u.id
-        LIMIT 2
-      `
-      params = [usernameLower]
-    }
-
-    let result
+    let candidates
     try {
-      result = await pool.query(query, params)
+      candidates = await findActiveMemberLoginCandidates(pool, value.emailOrUsername)
     } catch (queryError) {
       console.error('Database query error:', queryError)
-      console.error('Query:', query)
-      console.error('Params:', params)
       return res.status(500).json({
         success: false,
         message: 'Database error',
@@ -7536,14 +7507,14 @@ app.post('/api/members/login', async (req, res) => {
       })
     }
     
-    if (result.rows.length !== 1) {
+    if (candidates.length !== 1) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email/username or password'
+        message: 'Invalid login or password. If you share a phone number, use your email or username.'
       })
     }
 
-    const user = result.rows[0]
+    const user = candidates[0]
 
     // Check if password_hash exists
     if (!user.password_hash) {
@@ -7569,7 +7540,7 @@ app.post('/api/members/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email/username or password'
+        message: 'Invalid login or password. If you share a phone number, use your email or username.'
       })
     }
 

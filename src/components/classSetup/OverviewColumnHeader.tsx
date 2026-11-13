@@ -67,7 +67,7 @@ function FilterPopover({
                   onFilterChange(next.length ? { kind: 'status', values: next } : undefined)
                 }}
               />
-              {status}
+              {status === 'Legacy' ? 'Archived' : status}
             </label>
           ))}
         </div>

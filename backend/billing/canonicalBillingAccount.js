@@ -103,7 +103,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
   const effectiveRecurringBillingMonth = recurringBillingMonth
     ?? canonicalRecurringBillingMonth(subscriptions, asOf)
   const currentMonth = billingMonthKey(asOf)
-  const [totalsResult, chargeResult, paymentResult, collectibleBalanceCents] = await Promise.all([
+  const [totalsResult, chargeResult, paymentResult, collectibleBalance] = await Promise.all([
     pool.query(
       `/* canonical-billing:financial-totals */
        SELECT
@@ -410,7 +410,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
         ORDER BY payment.paid_at DESC, payment.id DESC`,
       [Number(accountId)],
     ),
-    loadCanonicalCollectibleBalanceCents(pool, accountId),
+    loadCanonicalCollectibleBalance(pool, accountId),
   ])
 
   return {
@@ -426,7 +426,7 @@ export async function loadCanonicalFinancialSnapshot(pool, {
     // lets the presentation layer distinguish them without another read.
     monthlyLedgerCharges: chargeResult.rows,
     recurringCharges: chargeResult.rows.filter((charge) => charge.charge_type === 'recurring'),
-    collectibleBalanceCents,
+    ...collectibleBalance,
   }
 }
 
@@ -435,6 +435,11 @@ export async function loadCanonicalFinancialSnapshot(pool, {
  * lines are reservations and cannot also be paid by a balance checkout.
  */
 export async function loadCanonicalCollectibleBalanceCents(pool, accountId) {
+  const balance = await loadCanonicalCollectibleBalance(pool, accountId)
+  return balance.collectibleBalanceCents
+}
+
+async function loadCanonicalCollectibleBalance(pool, accountId) {
   const result = await pool.query(
     `/* canonical-billing:collectible-balance */
      WITH account_totals AS (
@@ -503,12 +508,15 @@ export async function loadCanonicalCollectibleBalanceCents(pool, accountId) {
                 - invoice_reservations.amount_cents
                 - payment_attempt_reservations.amount_cents
             )::bigint AS collectible_balance_cents,
-            account_totals.balance_cents,
-            invoice_reservations.amount_cents + payment_attempt_reservations.amount_cents AS reserved_balance_cents
+            payment_attempt_reservations.amount_cents AS reserved_for_payment_attempts_cents
        FROM account_totals
        CROSS JOIN invoice_reservations
        CROSS JOIN payment_attempt_reservations`,
     [Number(accountId), HOUSEHOLD_INVOICE_RESERVING_STATUSES],
   )
-  return Number(result.rows[0]?.collectible_balance_cents ?? 0)
+  const row = result.rows[0]
+  return {
+    collectibleBalanceCents: Number(row?.collectible_balance_cents ?? 0),
+    reservedForPaymentAttemptsCents: Number(row?.reserved_for_payment_attempts_cents ?? 0),
+  }
 }

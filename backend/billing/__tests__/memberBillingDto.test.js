@@ -18,6 +18,8 @@ test('member overview is an explicit allowlist without provider or administrator
     members: [{ id: 11, name: 'Jordan Rivera', email: 'private@example.com', phone: '555-0100' }],
     summary: {
       balanceCents: 12000,
+      reservedForPaymentAttemptsCents: 6376,
+      hasResumableBalanceCheckout: true,
       latestPayment: { id: 99, amountCents: 5000, paidAt: '2026-08-01', method: 'card' },
       monthlyLedgerBill: {
         billingMonth: '2026-09-01',
@@ -34,6 +36,7 @@ test('member overview is an explicit allowlist without provider or administrator
       stripeEnabled: true,
       error: 'provider diagnostic',
       paymentMethod: { id: 'pm_secret', brand: 'visa', last4: '4242', expMonth: 12, expYear: 2030 },
+      immediatePaymentMethod: { id: 'pm_immediate_secret', brand: 'visa', last4: '4242' },
     },
     enrollments: [{
       id: 4,
@@ -99,6 +102,10 @@ test('member overview is an explicit allowlist without provider or administrator
   for (const forbidden of [
     'cus_secret',
     'pm_secret',
+    'pm_immediate_secret',
+    'immediatePaymentMethod',
+    'reservedForPaymentAttemptsCents',
+    'hasResumableBalanceCheckout',
     'sub_secret',
     'sub_sched_secret',
     'in_secret',

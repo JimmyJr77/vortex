@@ -45,7 +45,9 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       INSERT INTO billing_payment(id,family_billing_account_id,amount_cents,method) VALUES(1,1,5000,'cash');
       INSERT INTO billing_payment_application(billing_payment_id,billing_charge_id,amount_cents) VALUES(1,1,5000);
       INSERT INTO registrations VALUES(1,'Parent','Fixture',1,'qualified','2020-01-01',NULL,TRUE,FALSE,'Original inquiry','Original follow-up');
-      INSERT INTO note VALUES(1,'member',2,'Staff','Original note',FALSE,'2020-01-01');
+      INSERT INTO note VALUES(1,'member',2,'Staff','Original note',FALSE,'2020-01-01'),
+        (2,'family',1,'Staff','Household correspondence',FALSE,'2020-01-01'),
+        (3,'family',2,'Staff','Other household correspondence',FALSE,'2020-01-01');
       INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,occurred_on,source_data)
         SELECT 1,'fixture','enrollment',i::text,1,2,'2019-01-01','{"Class":"Imported class"}'::jsonb FROM generate_series(1,30) i;
       INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,amount_cents,source_data)
@@ -93,6 +95,8 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       assert.equal(all.filter(r => r.source === 'Jackrabbit').length, 31)
       assert.equal(all.filter(r => r.kind === 'account_activity').length, 1)
       assert.ok(all.some(r => r.summary.includes('Original note')))
+      assert.deepEqual(all.filter(r => r.key === 'note:2').map(r => [r.memberId, r.summary]), [[null, 'Household correspondence']])
+      assert.ok(all.every(r => r.key !== 'note:3'))
       assert.ok(all.some(r => r.summary.includes('Original inquiry')))
       assert.equal(all.at(-1).date, null)
       const restricted = await loadFamilyWorkspace(pool, { facilityId: 1, familyId: 1 })

@@ -10,7 +10,7 @@ async function authenticate(page: Page) {
   })
 }
 
-test('lead filters combine contact, conversion, children and keyword searches and reset together', async ({ page }) => {
+test('lead filters combine contact, children and keyword searches and reset together', async ({ page }) => {
   await authenticate(page)
   const requests: URL[] = []
   await page.route('**/api/**', route => {
@@ -30,7 +30,7 @@ test('lead filters combine contact, conversion, children and keyword searches an
   const filters = page.getByRole('region', { name: 'Lead filters' })
   await expect(page.getByRole('combobox', { name: 'Status', exact: true })).toHaveCount(0)
   await filters.getByRole('button', { name: 'Not contacted', exact: true }).click()
-  await filters.getByRole('button', { name: 'Unconverted', exact: true }).click()
+  await expect(filters.getByRole('button', { name: 'Converted', exact: true })).toHaveCount(0)
   await filters.getByRole('button', { name: 'Follow-up Needed', exact: true }).click()
   await expect(filters.getByRole('button', { name: 'Follow-up Needed', exact: true })).toHaveAttribute('aria-pressed', 'true')
   await expect(filters.getByLabel('Adult Classes', { exact: true })).toHaveCount(0)
@@ -39,14 +39,13 @@ test('lead filters combine contact, conversion, children and keyword searches an
   await filters.getByLabel('Gender (kid)', { exact: true }).selectOption('female')
   await filters.getByLabel('Name, email, phone', { exact: true }).fill('Rivera')
   await filters.getByLabel('Keywords', { exact: true }).fill('trial Tuesday')
-  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: 'false', converted: 'false', followUp: 'true', ageMin: '7', ageMax: '12', gender: 'female', search: 'Rivera', keywords: 'trial Tuesday', page: '1' })
+  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: 'false', followUp: 'true', ageMin: '7', ageMax: '12', gender: 'female', search: 'Rivera', keywords: 'trial Tuesday', page: '1' })
   await filters.getByRole('button', { name: 'Contacted', exact: true }).click()
-  await filters.getByRole('button', { name: 'Converted', exact: true }).click()
-  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: 'true', converted: 'true' })
+  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: 'true' })
   await filters.getByLabel('Min age', { exact: true }).fill('20')
   await expect(page.getByRole('alert')).toContainText('minimum age no greater than maximum age')
   await filters.getByRole('button', { name: 'Reset filters', exact: true }).click()
-  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: '', converted: '', followUp: '', ageMin: '', ageMax: '', gender: '', search: '', keywords: '', page: '1' })
+  await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '', search: '', keywords: '', page: '1' })
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await filters.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
 })

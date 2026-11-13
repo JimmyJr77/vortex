@@ -1,6 +1,7 @@
 import { billRegistrationMembership } from '../scheduling/registrationMembership.js'
 import {
   buildEnrollmentBillingPeriodManifest,
+  classifyEnrollmentBillingPeriod,
   resolveFamilyEnrollmentPricing,
 } from './familyEnrollmentPricing.js'
 import {
@@ -12,6 +13,7 @@ import {
 } from './canonicalBillingMigrationState.js'
 import { BillingMigrationSafetyError } from './canonicalBillingMigrationStripe.js'
 import { recordBillingActivityBestEffort } from './billingActivity.js'
+import { activeLedgerChargePredicate } from './billingLedgerSql.js'
 
 function cents(value) {
   return Math.round(Number(value) || 0)
@@ -215,6 +217,15 @@ async function loadSubscriptions(db, accountId) {
                  AND COALESCE(coverage.metadata->>'provisionalBillingVoided', 'false') <> 'true'
                GROUP BY coverage.service_period_start
               HAVING COUNT(*) = 1
+                 AND (subscription.next_bill_date IS NOT NULL OR BOOL_AND(
+                   coverage.member_id = subscription.member_id
+                   AND coverage.source_id = CONCAT(subscription.id, ':', to_char(coverage.service_period_start, 'YYYY-MM'))
+                   AND coverage.billing_interval = 'month'
+                   AND coverage.amount_cents >= 0
+                   AND coverage.gross_amount_cents - coverage.discount_amount_cents = coverage.amount_cents
+                   AND COALESCE(coverage.metadata->>'customerAuditVisibility', 'visible') <> 'suppressed'
+                   AND ${activeLedgerChargePredicate('coverage')}
+                 ))
             ) AS posted_billing_months,
             signup.id AS signup_id,
             signup.status AS signup_status,
@@ -645,17 +656,26 @@ function scheduleIssues(expectedLines, missingLines, period, {
     if (!targetChargeExists && nextBillDate === period.start) continue
     if (targetChargeExists && nextBillDate === period.next) continue
     if (allowScheduleAdvance && targetChargeExists && nextBillDate === period.start) continue
-    if (targetChargeExists && nextBillDate > period.next) {
-      // Advancing October to November must not invalidate a September replay.
-      // Require continuous posted coverage; a future date alone is not proof.
+    if (targetChargeExists && (nextBillDate == null || nextBillDate > period.next)) {
+      // Historical verification can follow contiguous posted coverage to a
+      // later billing date or to the billable month that closed the schedule.
       const posted = new Set(line.subscription.posted_billing_months ?? [])
       let cursor = period.next
       let covered = 0
-      while (cursor < nextBillDate && posted.has(cursor) && covered < 120) {
+      let postedTerminalMonth = false
+      while ((nextBillDate == null || cursor < nextBillDate) && posted.has(cursor) && covered < 120) {
+        if (nextBillDate == null) {
+          const lifecycle = classifyEnrollmentBillingPeriod(line.subscription, cursor, { requireSubscriptionMapping: true })
+          if (!lifecycle.valid || !lifecycle.billable) break
+          if (lifecycle.allowsNoNextBill) {
+            postedTerminalMonth = true
+            break
+          }
+        }
         cursor = nextBillingMonth(cursor)
         covered += 1
       }
-      if (cursor === nextBillDate) continue
+      if (postedTerminalMonth || cursor === nextBillDate) continue
     }
     if (line.netCents === 0 && nextBillDate && nextBillDate > period.start) continue
 

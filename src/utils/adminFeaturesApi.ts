@@ -31,7 +31,7 @@ export interface SchoolMember {
 
 export interface Note {
   id: number
-  subjectType: 'member' | 'registration'
+  subjectType: 'member' | 'registration' | 'family'
   subjectId: number
   noteType: 'user_comment' | 'staff_note'
   body: string
@@ -187,14 +187,14 @@ export const schoolsApi = {
 // ── Notes ──────────────────────────────────────────────────────────────────
 
 export const notesApi = {
-  async list(subjectType: 'member' | 'registration', subjectId: number, noteType?: 'user_comment' | 'staff_note'): Promise<Note[]> {
+  async list(subjectType: Note['subjectType'], subjectId: number, noteType?: Note['noteType']): Promise<Note[]> {
     const qs = new URLSearchParams({ subjectType, subjectId: String(subjectId) })
     if (noteType) qs.set('noteType', noteType)
     return unwrap<Note[]>(await adminApiRequest(`/api/admin/notes?${qs.toString()}`), {
       deployHint: NOTES_DEPLOY_MESSAGE,
     })
   },
-  async add(body: { subjectType: 'member' | 'registration'; subjectId: number; noteType: 'user_comment' | 'staff_note'; body: string }): Promise<Note> {
+  async add(body: { subjectType: Note['subjectType']; subjectId: number; noteType: Note['noteType']; body: string }): Promise<Note> {
     return unwrap<Note>(
       await adminApiRequest('/api/admin/notes', { method: 'POST', body: JSON.stringify(body) }),
       { deployHint: NOTES_DEPLOY_MESSAGE },

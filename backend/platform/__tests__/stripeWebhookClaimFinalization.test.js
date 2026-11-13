@@ -11,9 +11,32 @@ import { annualMembershipCheckoutSessionIsPaid } from '../../billing/annualMembe
 import { getStripeClient } from '../../billing/stripeBilling.js'
 import { checkoutFingerprint } from '../../billing/checkoutIdempotency.js'
 import {
+  assertEnrollmentMembershipCoverage,
   confirmEnrollmentCheckoutSession,
   enrollmentCheckoutSessionCanFinalize,
 } from '../../billing/stripeEnrollmentCheckout.js'
+
+test('paid class fulfillment rechecks the athlete membership after the quote', async () => {
+  const checked = []
+  const db = { async query(_sql, [memberId]) { checked.push(memberId); return { rows: [] } } }
+  const preview = { firstMonth: { enabled: true, items: [{ proratedCents: 15000 }] } }
+  await assert.rejects(assertEnrollmentMembershipCoverage(db, { memberId: 62, preview, checkoutPaid: true }), {
+    code: 'ENROLLMENT_CHECKOUT_FORBIDDEN',
+    message: /annual membership is no longer active/,
+  })
+  assert.deepEqual(checked, [62])
+  const annualFee = { applyBasis: 'per_year', amountCents: 8500 }
+  await assertEnrollmentMembershipCoverage(db, {
+    memberId: 62, checkoutPaid: true, preview: { ...preview, additionalFees: { items: [annualFee] } },
+  })
+  await assertEnrollmentMembershipCoverage(db, {
+    memberId: 62, checkoutPaid: true, preview: {
+      ...preview,
+      additionalFees: { items: [{ ...annualFee, amountCents: 0, grossAmountCents: 8500, discountCents: 8500, promoRuleId: 3 }] },
+    },
+  })
+  assert.deepEqual(checked, [62])
+})
 
 const JWT_SECRET = 'stripe-webhook-claim-finalization-test-secret'
 
@@ -208,6 +231,11 @@ test('browser enrollment confirmation requires paid Checkout or a mode-matched c
     stripe_checkout_session_id: 'cs_setup',
     checkout_mode: 'setup',
     due_now_cents: 0,
+    preview_snapshot: {
+      hasPricing: true,
+      newSignups: [{ billingType: 'recurring', incrementalMonthly: 100 }],
+      firstMonth: { enabled: true, totalCents: 0 },
+    },
   }
   const setupSession = {
     ...paymentSession,
@@ -236,6 +264,21 @@ test('browser enrollment confirmation requires paid Checkout or a mode-matched c
     ),
     true,
   )
+  for (const preview of [
+    null,
+    { ...setupPending.preview_snapshot, hasPricing: false },
+    { ...setupPending.preview_snapshot, additionalFeesOneTime: 85 },
+    { ...setupPending.preview_snapshot, firstMonth: { enabled: true, totalCents: 10000 } },
+    { ...setupPending.preview_snapshot, oneTimeTuition: { totalCents: 2500 } },
+  ]) {
+    assert.equal(enrollmentCheckoutSessionCanFinalize(
+      { ...setupSession, payment_status: 'no_payment_required' },
+      { ...setupPending, preview_snapshot: preview },
+    ), false)
+  }
+  assert.equal(enrollmentCheckoutSessionCanFinalize(
+    { ...paymentSession, status: 'open', payment_status: 'paid' }, paymentPending,
+  ), false)
   assert.equal(
     enrollmentCheckoutSessionCanFinalize(
       { ...setupSession, status: 'complete', payment_status: 'no_payment_required' },

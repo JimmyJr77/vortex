@@ -182,6 +182,7 @@ export async function readFamilyHistory(db, { familyId, facilityId, memberIds, c
       SELECT 'note:'||n.id,n.created_at,'note',CASE WHEN n.subject_type='member' THEN n.subject_id ELSE NULL END,
         COALESCE(n.author_name,'Account note'),n.body,'Vortex',NULL::bigint
       FROM note n WHERE n.is_deleted=FALSE AND (
+        (n.subject_type='family' AND n.subject_id=$1) OR
         (n.subject_type='member' AND n.subject_id=ANY($3::bigint[])) OR
         (n.subject_type='registration' AND n.subject_id IN (SELECT r.id FROM registrations r
           WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2))) AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id)=ANY($3::bigint[]))))
@@ -234,7 +235,7 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
             brand: paymentMethod.paymentMethod?.brand ?? null, last4: paymentMethod.paymentMethod?.last4 ?? null } }
       }
     }
-    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived) }, people, participation,
+    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived) }, people, participation, today: family.today,
       trials: { rows: trials.rows.map(r => ({ id: Number(r.id), memberId: Number(r.member_id), className: r.title || 'Archived class', date: r.class_date, kind: r.benefit_type, status: r.status })), total: trials.rows[0]?.total ?? 0 },
       leads: { rows: leads.rows.map(r => ({ id: Number(r.id), name: `${r.first_name} ${r.last_name}`, status: r.lead_status,
         createdAt: r.created_at, contactedAt: r.first_contacted_at, followUp: r.follow_up, archived: Boolean(r.archived),

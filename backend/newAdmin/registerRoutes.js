@@ -16,6 +16,7 @@ import { loadBillingDashboard } from './billingDashboard.js'
 import { familyNotes } from './accountNotes.js'
 import { timesheetOptions,listTimesheets,changeTimesheet } from './timesheets.js'
 import { weeklyTimesheets,saveWeeklyHours,assignTime } from './weeklyTimesheets.js'
+import { listCrm, loadCrmDetail } from './crm.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -70,7 +71,8 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   // Retain the old lead screen's full array contract and existing edit handlers,
   // but apply the same facility boundary and permissions used by New Admin.
   app.get('/api/admin/registrations',allow('members.view'),handler(async req=>{
-    const result=await pool.query('SELECT * FROM registrations WHERE facility_id=$1 AND archived IS NOT TRUE ORDER BY created_at DESC,id DESC',[facility(req)])
+    const result=await pool.query(`SELECT * FROM registrations WHERE facility_id=$1 AND archived IS NOT TRUE
+      AND COALESCE(converted_member_id, member_id) IS NULL ORDER BY created_at DESC,id DESC`,[facility(req)])
     return result.rows
   }))
   const legacyLeadGuard=async(req,res,next)=>{
@@ -90,6 +92,8 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     catch(error){await client.query('ROLLBACK');throw error}finally{client.release()}
   }))
   app.get(`${base}/leads`,allow('members.view'),handler(req=>listLeads(pool,facility(req),req.query)))
+  app.get(`${base}/crm`,allow('members.view'),handler(req=>listCrm(pool,facility(req),req.query)))
+  app.get(`${base}/crm/:kind/:id`,allow('members.view'),handler(req=>loadCrmDetail(pool,facility(req),req.params.kind,req.params.id,req.query)))
   app.post(`${base}/leads`,allow('members.edit'),handler(req=>createLead(pool,facility(req),req.body)))
   app.patch(`${base}/leads/:id`,allow('members.edit'),handler(req=>saveLead(pool,facility(req),req.params.id,req.body,req)))
   app.delete(`${base}/leads/:id`,allow('members.edit'),handler(async req=>{
@@ -115,7 +119,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   const invitationLoginLimit=rateLimit({windowMs:15*60*1000,max:20,standardHeaders:true,legacyHeaders:false,message:{success:false,message:'Too many sign-in attempts. Please try again later.'}})
   app.post('/api/signup/lead/:id/session',invitationLoginLimit,handler(req=>openLeadRegistration(pool,req.params.id,req.body)))
   app.post('/api/signup/lead/:id/complete',invitationLoginLimit,handler(req=>completeLeadRegistration(pool,req.params.id,req.body,{ip:req.ip,userAgent:req.get('user-agent')})))
-  app.get(`${base}/classes`,allow('classes.view'),handler(req=>listClasses(pool,facility(req),req.query)))
+  app.get(`${base}/classes`,allow('classes.view'),handler(req=>listClasses(pool,facility(req),req.query,{includeArchived:req.query.includeArchived==='true'})))
   app.get(`${base}/pricing/classes`,allow('pricing.view'),handler(async req=>{
     const result=await listClasses(pool,facility(req),req.query)
     return {...result,rows:result.rows.map(({id,formId,programsId,name,programName,isActive,monthlyPriceCents,costAmountCents,costUnit})=>({id,formId,programsId,name,programName,isActive,monthlyPriceCents,costAmountCents,costUnit}))}

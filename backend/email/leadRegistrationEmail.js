@@ -19,7 +19,7 @@ export async function sendLeadRegistrationEmail({ invite, token, password, send 
   const expires = new Date(invite.expires_at).toLocaleDateString('en-US', { timeZone: 'America/New_York' })
   const intro = 'Open the registration link and sign in with the temporary credentials below. Choose a new password, confirm your family details, and fill in any missing information. You can also change your username.'
   const next = selections.length
-    ? 'During registration, review the class selections below and complete any missing enrollment details. Sign the required forms, then finish checkout to confirm your enrollments.'
+    ? 'Review the class selections below and sign the required forms. Pay by credit card to cover class tuition and any annual registration fee due for each athlete. Enrollment is confirmed after payment.'
     : 'Sign the required forms to finish account setup. You can then browse classes and enroll from your Member Portal.'
   const deadline = `Complete setup by ${expires}.${selections.some(item => item.reserved) ? ' Reserved spots are held until that date.' : ''}`
   return send({

@@ -273,7 +273,7 @@ export interface OrderDiscountBreakdown {
   enabled: boolean
   lines: OrderDiscountLine[]
   orderDiscounts: OrderDiscountSummary[]
-  freeGrants: Array<{ ruleId: number; lineKey: string; unit: string; quantity: number; amountCents: number }>
+  freeGrants: Array<{ ruleId: number; lineKey: string; unit: string; quantity: number; amountCents: number; lifetimeOwnerWaiver?: boolean }>
   subtotalCents: number
   totalDiscountCents: number
   totalCents: number
@@ -400,6 +400,10 @@ export interface SignupOrderPreview {
   freePasses?: FreePassBreakdown
   discounts?: OrderDiscountBreakdown
   firstMonth?: FirstMonthProrationBreakdown
+  oneTimeTuition?: {
+    items: Array<{ slotKey: string; formTitle: string; displayLine?: string; amountCents: number }>
+    totalCents: number
+  }
   additionalFees?: AdditionalFeesBreakdown
   additionalFeesMonthly?: number
   additionalFeesOneTime?: number
@@ -1298,6 +1302,7 @@ export async function createEnrollmentCheckoutSession(
   requiresReview?: boolean
   status?: 'completed' | 'already_completed' | 'quarantined'
   pendingEnrollmentId?: number
+  preview?: SignupOrderPreview
 }> {
   const { idempotencyKey, ...requestPayload } = payload
   const requestKey = idempotencyKey ?? checkoutRequestKey('enrollment', requestPayload)
@@ -1317,6 +1322,7 @@ export async function createEnrollmentCheckoutSession(
     requiresReview?: boolean
     status?: 'completed' | 'already_completed' | 'quarantined'
     pendingEnrollmentId?: number
+    preview?: SignupOrderPreview
   }>(res)
 }
 
@@ -1504,17 +1510,25 @@ export async function confirmEnrollmentCheckoutSession(
 export function enrollmentDueNowCents(preview: SignupOrderPreview): number {
   const fees = Math.round((preview.additionalFeesOneTime ?? 0) * 100)
   const firstMonth = preview.firstMonth?.totalCents ?? 0
+  const oneTimeTuition = preview.oneTimeTuition?.totalCents ?? 0
   const passes = preview.passPurchaseTotalCents ?? 0
   const carriedForward = preview.carriedForward?.totalCents ?? 0
-  return Math.max(0, fees + firstMonth + passes + (carriedForward > 0 ? carriedForward : 0))
+  return Math.max(0, fees + firstMonth + oneTimeTuition + passes + (carriedForward > 0 ? carriedForward : 0))
 }
 
 export function enrollmentNeedsPayment(preview: SignupOrderPreview): boolean {
   const dueNow = enrollmentDueNowCents(preview)
+  const discounts = preview.discounts
+  const lifetimeWaivedKeys = new Set((discounts?.enabled ? discounts.freeGrants : [])
+    .filter((grant) => grant.lifetimeOwnerWaiver === true && grant.amountCents > 0)
+    .filter((grant) => discounts?.lines.some((line) => line.key === grant.lineKey
+      && line.finalCents === 0 && grant.amountCents >= line.baseCents))
+    .map((grant) => grant.lineKey))
   const hasRecurring = (preview.newSignups ?? []).some(
     (line) =>
       line.billingType === 'recurring' &&
       !line.multiClassPassApplied &&
+      !lifetimeWaivedKeys.has(line.slotKey ?? '') &&
       (line.monthlyPrice ?? line.incrementalMonthly ?? 0) > 0,
   )
   const hasPassPurchase = (preview.passPurchases?.length ?? 0) > 0

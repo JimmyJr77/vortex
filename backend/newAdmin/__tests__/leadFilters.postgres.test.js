@@ -32,7 +32,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       CREATE TABLE note(id bigint PRIMARY KEY,subject_type text,subject_id bigint,note_type text DEFAULT 'staff_note',body text,
         author_name text,created_at timestamptz DEFAULT now(),source text,is_deleted boolean DEFAULT FALSE);
       INSERT INTO facility VALUES(1,'America/New_York'),(2,'America/New_York');
-      INSERT INTO family VALUES(1,1),(2,2);
+      INSERT INTO family VALUES(1,1),(2,2),(3,1);
       INSERT INTO member VALUES(1,1,1),(2,1,1),(3,1,1),(4,2,2);
       INSERT INTO family_member VALUES(1,1,TRUE),(1,2,TRUE),(1,3,FALSE),(2,4,TRUE);
       INSERT INTO registrations(id,facility_id,first_name,last_name,email,phone,contacted,follow_up) VALUES
@@ -63,14 +63,15 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     const ids = async query => (await listLeads(db, 1, query)).rows.map(row => row.id).sort((a,b) => a-b)
     await t.test('contact, follow-up and conversion are independent, combinable filters', async () => {
       assert.deepEqual(await ids({contacted:'false'}),[1,3,4,8])
-      assert.deepEqual(await ids({contacted:'true'}),[2,7])
+      assert.deepEqual(await ids({contacted:'true'}),[])
+      assert.deepEqual(await ids({}),[1,3,4,8])
       assert.deepEqual(await ids({followUp:'true',converted:'false'}),[1])
       assert.deepEqual(await ids({converted:'true'}),[2,7])
-      assert.deepEqual(await ids({adultClasses:'true'}),[2])
+      assert.deepEqual(await ids({adultClasses:'true',converted:'true'}),[2])
     })
     await t.test('age and gender must match the same child; legacy age-only forms still match', async () => {
-      assert.deepEqual(await ids({ageMin:'10',ageMax:'10',gender:'female'}),[1,7])
-      assert.deepEqual(await ids({ageMin:'10',ageMax:'10',gender:'male'}),[2])
+      assert.deepEqual(await ids({ageMin:'10',ageMax:'10',gender:'female'}),[1])
+      assert.deepEqual(await ids({ageMin:'10',ageMax:'10',gender:'male',converted:'true'}),[2])
       assert.deepEqual(await ids({ageMin:'8',ageMax:'8'}),[3])
       assert.deepEqual(await ids({ageMin:'12',ageMax:'12'}),[4])
       assert.deepEqual(await ids({ageMin:'0',ageMax:'2'}),[])
@@ -78,9 +79,9 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     await t.test('contact search normalizes phone punctuation; keywords search messages, interests and shared notes', async () => {
       assert.deepEqual(await ids({search:'2025550111'}),[1])
       assert.deepEqual(await ids({search:'Alex Inquiry'}),[1])
-      assert.deepEqual(await ids({search:'robin@example.test'}),[2])
+      assert.deepEqual(await ids({search:'robin@example.test'}),[])
       assert.deepEqual(await ids({keywords:'gymnastics Tuesday Tumbling'}),[1])
-      assert.deepEqual(await ids({keywords:'Sibling milestone'}),[2,7])
+      assert.deepEqual(await ids({keywords:'Sibling milestone',converted:'true'}),[2,7])
       assert.deepEqual(await ids({keywords:'Private foreign'}),[])
       assert.deepEqual(await ids({keywords:'Deleted note'}),[])
       assert.deepEqual(await ids({keywords:'%'}),[])
@@ -94,10 +95,17 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.deepEqual(await leadNotes(db,1,2),await familyNotes(db,1,1))
       assert.deepEqual(await leadNotes(db,1,7),await familyNotes(db,1,1))
       assert.deepEqual((await familyNotes(db,1,1)).map(note=>note.body).sort(),['Former member note','Sibling milestone','Trial correspondence'])
-      await db.query("INSERT INTO note(id,subject_type,subject_id,body) VALUES(7,'member',1,'Added from family'),(8,'registration',2,'Added from lead')")
+      await db.query(`INSERT INTO note(id,subject_type,subject_id,body) VALUES
+        (7,'family',1,'Household scheduling update'),(8,'registration',2,'Added from lead'),
+        (9,'family',2,'Foreign family scheduling update'),(10,'family',3,'New family note without members')`)
       const notes=await familyNotes(db,1,1)
       assert.deepEqual(await leadNotes(db,1,2),notes)
-      assert.ok(notes.some(note=>note.body==='Added from family'));assert.ok(notes.some(note=>note.body==='Added from lead'))
+      assert.deepEqual(await leadNotes(db,1,7),notes)
+      assert.deepEqual(notes.map(note=>note.body).sort(),['Added from lead','Former member note','Household scheduling update','Sibling milestone','Trial correspondence'])
+      assert.equal(notes.find(note=>note.body==='Household scheduling update').subjectType,'family')
+      assert.deepEqual((await familyNotes(db,1,3)).map(note=>note.body),['New family note without members'])
+      assert.deepEqual(await ids({keywords:'Household scheduling update',converted:'true'}),[2,7])
+      assert.deepEqual(await ids({keywords:'Foreign family scheduling update'}),[])
       const unconverted=await leadNotes(db,1,1)
       assert.deepEqual(unconverted.map(note=>note.body).sort(),['Call Tuesday','Gymnastics trial request','Original inquiry note'])
       await assert.rejects(familyNotes(db,2,1),error=>error.statusCode===404)

@@ -195,7 +195,7 @@ test('paid classes cannot fall back to direct signup when Stripe is disabled', a
   await page.goto(fixture)
   await chooseClass(page)
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await page.getByRole('button', { name: 'Confirm enrollment', exact: true }).click()
+  await page.getByRole('button', { name: 'Payment unavailable', exact: true }).click()
   await expect(page.getByText(/Online payments are unavailable/)).toBeVisible()
   expect(requests.batches).toEqual([])
 })

@@ -142,4 +142,38 @@ test('allocation refresh requires billing.manage while overview stays read-only'
   const permission = (suffix) => app._router.stack.find((layer) => layer.route?.path === `/api/admin/customer-billing/families/:familyId/${suffix}`).route.stack[0].handle.permission
   assert.equal(permission('refresh'), 'billing.manage')
   assert.equal(permission('overview'), 'billing.view')
+  assert.equal(permission('resume-balance-checkout'), 'billing.manage')
+})
+
+test('resume checkout cannot look up a family outside the authenticated facility', async () => {
+  const app = express()
+  const queries = []
+  registerCustomerBillingRoutes(app, {
+    async query(_sql, params) {
+      queries.push(params)
+      return { rows: [] }
+    },
+  }, {
+    jwtSecret: 'test',
+    requirePermission: () => [],
+  })
+  const route = app._router.stack.find((layer) => (
+    layer.route?.path === '/api/admin/customer-billing/families/:familyId/resume-balance-checkout'
+  ))
+  const headers = {}
+  const response = {
+    setHeader(name, value) { headers[name] = value },
+    status(code) { this.statusCode = code; return this },
+    json(payload) { this.payload = payload; return this },
+  }
+  await route.route.stack[0].handle({
+    params: { familyId: '51' },
+    body: { facilityId: 999, stripeCheckoutSessionId: 'cs_other' },
+    platformAuth: { user: { facility_id: 42 } },
+  }, response)
+
+  assert.deepEqual(queries, [[51, 42]])
+  assert.equal(headers['Cache-Control'], 'no-store')
+  assert.equal(response.statusCode, 404)
+  assert.deepEqual(response.payload, { success: false, message: 'Family billing account was not found.' })
 })

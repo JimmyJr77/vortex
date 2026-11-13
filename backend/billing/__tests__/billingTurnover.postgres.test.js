@@ -388,6 +388,52 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     assert.equal((await db.query('SELECT count(*)::int AS n FROM billing_charge')).rows[0].n,2)
   })
 
+  await t.test('historical verification follows only contiguous canonical coverage to a later terminal month', async () => {
+    await insert('scheduling_form', { id: 1, title: 'Ending class', end_date: '2026-12-31' })
+    await insert('scheduling_signup', {
+      id: 1, form_id: 1, member_id: 1, status: 'confirmed', enrollment_start_date: '2026-10-01',
+    })
+    await insert('billing_subscription', {
+      id: 1, family_billing_account_id: 1, member_id: 1, source_type: 'scheduling_signup', source_id: '1',
+      description: 'Ending class', status: 'active', monthly_amount_cents: 10_000, net_monthly_cents: 10_000,
+      discount_amount_cents: 0, start_date: '2026-10-01', next_bill_date: null, anchor_day: 1,
+    })
+    const monthlyCharge = {
+      source_type: 'billing_subscription', subscription_id: 1, charge_type: 'recurring', billing_interval: 'month',
+    }
+    await charge(1, 10_000, {
+      ...monthlyCharge, source_id: '1:2026-10', service_period_start: '2026-10-01', service_period_end: '2026-10-31',
+    })
+    await charge(3, 10_000, {
+      ...monthlyCharge, source_id: '1:2026-12', service_period_start: '2026-12-01', service_period_end: '2026-12-31',
+      metadata: { provisionalBilling: true },
+    })
+    const options = {
+      accountId: 1, billingMonth: '2026-10-01', facilityTimeZone: 'America/New_York',
+      now: new Date('2026-11-07T12:00:00Z'), apply: false,
+      pricingResolver: async () => ({
+        lines: [{ signupId: 1, subscriptionId: 1, memberId: 1, grossCents: 10_000, discountCents: 0, netCents: 10_000 }],
+      }),
+    }
+    const verify = () => reconcileCanonicalRecurringChargesForMonth(db, options)
+    const missingSchedule = (error) => error.details?.issues.some((issue) => (
+      issue.code === 'target_month_subscription_schedule_not_advanced'
+    ))
+    await assert.rejects(verify(), missingSchedule)
+
+    await charge(2, 10_000, {
+      ...monthlyCharge, source_id: '1:2026-11', service_period_start: '2026-11-01', service_period_end: '2026-11-30',
+    })
+    assert.equal((await verify()).verified, true)
+    assert.equal((await db.query('SELECT next_bill_date FROM billing_subscription WHERE id = 1')).rows[0].next_bill_date, null)
+
+    await db.query("UPDATE billing_charge SET metadata = metadata || '{\"provisionalBillingVoided\": true}' WHERE id = 3")
+    await assert.rejects(verify(), missingSchedule)
+    await db.query("UPDATE billing_charge SET metadata = metadata - 'provisionalBillingVoided' WHERE id = 3")
+    await db.query('UPDATE scheduling_form SET end_date = NULL WHERE id = 1')
+    await assert.rejects(verify(), missingSchedule)
+  })
+
   await t.test('future preparation retires a scheduled ending bill without changing historical accounting', async () => {
     await insert('scheduling_form',{id:1,title:'Ending class'})
     await insert('scheduling_signup',{id:1,form_id:1,member_id:1,status:'confirmed',enrollment_start_date:'2026-08-01'})

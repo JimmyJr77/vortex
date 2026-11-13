@@ -225,7 +225,7 @@ export function getCellDisplayValue(row: ClassSetupOverviewRow, columnId: Overvi
     case 'skillLevel':
       return formatSkillLevel(row.skillLevel)
     case 'status':
-      return row.status
+      return row.status === 'Legacy' ? 'Archived' : row.status
     case 'costPerMonth':
       return row.costPerMonthSummary || '—'
     default:

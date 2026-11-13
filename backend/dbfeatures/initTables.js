@@ -45,7 +45,7 @@ export async function initDbFeatureTables(pool) {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS note (
         id           BIGSERIAL PRIMARY KEY,
-        subject_type TEXT NOT NULL CHECK (subject_type IN ('member','registration')),
+        subject_type TEXT NOT NULL CHECK (subject_type IN ('family','member','registration')),
         subject_id   BIGINT NOT NULL,
         note_type    TEXT NOT NULL CHECK (note_type IN ('user_comment','staff_note')),
         body         TEXT NOT NULL,

@@ -9,6 +9,7 @@ for (const [label, preview] of [
   ['monthly tuition', recurring],
   ['future start with no immediate tuition', { ...recurring, firstMonth: { totalCents: 0 } }],
   ['one-time fee', { additionalFeesOneTime: 50 }],
+  ['one-time class tuition', { oneTimeTuition: { totalCents: 2500 } }],
   ['pass purchase', { passPurchases: [{ packageId: 'ten' }], passPurchaseTotalCents: 10000 }],
   ['carried balance', { carriedForward: { totalCents: 15000 } }],
 ]) {

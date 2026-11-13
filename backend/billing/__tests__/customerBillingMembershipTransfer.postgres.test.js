@@ -6,6 +6,7 @@ import pg from 'pg'
 import { transferCustomerBillingMembership } from '../customerBillingMembershipTransfer.js'
 import { loadCustomerBillingAnnualMemberships } from '../customerBillingQueries.js'
 import { loadActiveAnnualMembership } from '../../scheduling/annualMembership.js'
+import { loadMemberFeeRedemptionKeys } from '../../scheduling/additionalFeesEngine.js'
 
 // Uses a disposable schema, never existing account records. Opt in explicitly.
 const url = process.env.MEMBERSHIP_TRANSFER_TEST_DATABASE_URL
@@ -71,6 +72,26 @@ async function fixture(t) {
   })
   return { pool, overview, transfer }
 }
+
+test('only a paid athlete term suppresses the annual fee, including a settled legacy term', { skip: !enabled }, async (t) => {
+  const { pool } = await fixture(t)
+  await pool.query(`INSERT INTO additional_fee_redemption (fee_id,member_id,period_key,amount_cents,created_at)
+    VALUES (1,12,$1,6000,$2)`, [renewal, paidAt])
+  await pool.query(`INSERT INTO billing_charge (id,family_billing_account_id,member_id,source_type,source_id,amount_cents,created_at,collection_status)
+    VALUES (32,7,12,'additional_fee',$1,6000,$2,'unpaid')`, [`1:12:${renewal}`, paidAt])
+  assert.equal(await loadActiveAnnualMembership(pool, 12, { strict: true }), null)
+  assert.deepEqual([...await loadMemberFeeRedemptionKeys(pool, 12, [1])], [])
+  assert.deepEqual([...await loadMemberFeeRedemptionKeys(pool, 11, [1])], ['1:active'])
+
+  await pool.query(`UPDATE billing_charge SET collection_status='paid' WHERE id=32`)
+  assert.equal((await loadActiveAnnualMembership(pool, 12, { strict: true })).feeId, 1)
+  assert.deepEqual([...await loadMemberFeeRedemptionKeys(pool, 12, [1])], ['1:active'])
+
+  await pool.query(`INSERT INTO billing_charge (id,family_billing_account_id,member_id,source_type,amount_cents,related_charge_id)
+    VALUES (33,7,12,'refund_offset',-6000,32)`)
+  assert.equal(await loadActiveAnnualMembership(pool, 12, { strict: true }), null)
+  assert.deepEqual([...await loadMemberFeeRedemptionKeys(pool, 12, [1])], [])
+})
 
 test('membership transfer preserves access dates, renewal pricing, payment allocations and can transfer back', { skip: !enabled }, async (t) => {
   const { pool, overview, transfer } = await fixture(t)

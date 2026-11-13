@@ -1,6 +1,6 @@
-// Append-only, dated notes (user comments + staff notes) for members and registrations.
+// Append-only, dated notes for families, members, and registrations.
 
-const SUBJECT_TYPES = ['member', 'registration']
+const SUBJECT_TYPES = ['family', 'member', 'registration']
 const NOTE_TYPES = ['user_comment', 'staff_note']
 
 function mapNoteRow(row) {
@@ -26,9 +26,9 @@ async function subjectBelongsToFacility(pool, subjectType, subjectId, facilityId
     || !Number.isSafeInteger(normalizedFacilityId) || normalizedFacilityId <= 0) {
     return false
   }
-  if (subjectType === 'member') {
+  if (subjectType === 'member' || subjectType === 'family') {
     const result = await pool.query(
-      'SELECT 1 FROM member WHERE id = $1 AND facility_id = $2 LIMIT 1',
+      `SELECT 1 FROM ${subjectType} WHERE id = $1 AND facility_id = $2 LIMIT 1`,
       [normalizedSubjectId, normalizedFacilityId],
     )
     return result.rows.length === 1

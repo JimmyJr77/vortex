@@ -1,6 +1,6 @@
 import AddCreditModal from './customerBilling/AddCreditModal'
 import TextInput from './common/TextInput'
-import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   AlertCircle,
@@ -1096,6 +1096,7 @@ export default function AdminCustomerBilling({
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [lastActionUrl, setLastActionUrl] = useState<string | null>(null)
+  const checkoutLinkRequest = useRef<AbortController | null>(null)
   const [priceEnrollment, setPriceEnrollment] = useState<CustomerBillingEnrollment | null>(null)
   const [swapEnrollment, setSwapEnrollment] = useState<CustomerBillingEnrollment | null>(null)
   const [memberSwapEnrollment, setMemberSwapEnrollment] = useState<CustomerBillingEnrollment | null>(null)
@@ -1218,6 +1219,7 @@ export default function AdminCustomerBilling({
   }, [activityCursor, auditParams, transactionCursor])
 
   const loadFamily = useCallback(async (familyId: number, memberId: number | null) => {
+    checkoutLinkRequest.current?.abort()
     setLoading(true)
     setDismissedAlertIds(new Set())
     setError(null)
@@ -1322,6 +1324,29 @@ export default function AdminCustomerBilling({
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Billing account refresh failed.')
     } finally {
+      setSaving(false)
+    }
+  }
+
+  const openExistingBalanceCheckout = async () => {
+    if (!overview) return
+    const request = new AbortController()
+    checkoutLinkRequest.current = request
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+    setLastActionUrl(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${overview.account.familyId}/resume-balance-checkout`, { method: 'POST', signal: request.signal })
+      const body = await jsonBody(response)
+      if (request.signal.aborted) return
+      if (!response.ok || !body.data?.url) throw new Error(body.message || 'The existing checkout is unavailable. Refresh the account and try again.')
+      setLastActionUrl(body.data.url)
+      setSuccess(`The family payer can use this Stripe link to finish the existing ${money(body.data.amountCents)} checkout.`)
+    } catch (caught) {
+      if (!request.signal.aborted) setError(caught instanceof Error ? caught.message : 'The existing checkout could not be opened.')
+    } finally {
+      checkoutLinkRequest.current = null
       setSaving(false)
     }
   }
@@ -1668,6 +1693,21 @@ export default function AdminCustomerBilling({
   }
 
   const unpaidMonthlyInvoice = overview?.monthlyInvoices.find((invoice) => ['open', 'failed', 'payment_method_required'].includes(invoice.status)) ?? null
+  const paymentMethod = overview?.paymentMethod
+  const immediatePaymentMethod = paymentMethod?.immediatePaymentMethod === undefined
+    ? (paymentMethod?.available ? paymentMethod.paymentMethod : null)
+    : paymentMethod.immediatePaymentMethod
+  const reservedForPaymentAttemptsCents = overview?.summary.reservedForPaymentAttemptsCents ?? 0
+  let processPaymentBlockReason: string | null = null
+  if (overview && !unpaidMonthlyInvoice) {
+    if (overview.summary.collectibleBalanceCents <= 0) {
+      processPaymentBlockReason = reservedForPaymentAttemptsCents > 0
+        ? `An existing payment attempt is holding ${money(reservedForPaymentAttemptsCents)}. Refresh after it completes or expires.`
+        : 'There is no balance available to collect.'
+    } else if (!immediatePaymentMethod) {
+      processPaymentBlockReason = 'A usable default payment method is required.'
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -1699,10 +1739,12 @@ export default function AdminCustomerBilling({
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setAddCreditOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Add credit</button>
                 <button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button>
-                <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || (!unpaidMonthlyInvoice && (overview.summary.collectibleBalanceCents <= 0 || !overview.paymentMethod.available))} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" title={unpaidMonthlyInvoice ? 'Pay the existing monthly invoice.' : !overview.paymentMethod.available ? 'A saved card is required.' : 'Choose an amount and payment method.'}><CreditCard className="h-4 w-4" /> Process Payment</button>
+                <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || Boolean(processPaymentBlockReason)} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" aria-describedby={canManage && processPaymentBlockReason ? 'process-payment-unavailable' : undefined} title={processPaymentBlockReason ?? (unpaidMonthlyInvoice ? 'Pay the existing monthly invoice.' : 'Choose an amount and payment method.')}><CreditCard className="h-4 w-4" /> Process Payment</button>
+                {canManage && overview.summary.hasResumableBalanceCheckout ? <button type="button" onClick={() => void openExistingBalanceCheckout()} disabled={saving || loading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><ExternalLink className="h-4 w-4" /> Open existing checkout</button> : null}
                 <button type="button" onClick={() => setExternalPaymentOpen(true)} disabled={!canManage || saving} title="Record cash, check, bank transfer, or another external payment" className="inline-flex items-center gap-2 rounded-lg border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-40"><Banknote className="h-4 w-4" /> Record External Payment</button>
                 <button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button>
                 <button type="button" onClick={() => void refreshAccountAllocations()} disabled={loading || saving} className="rounded-lg border border-gray-300 p-2 text-gray-600" aria-label="Refresh account" title={canManage ? "Refresh and reassess payment allocations" : "Reload account billing data"}><RefreshCw className={`h-4 w-4 ${(loading || saving) ? 'animate-spin' : ''}`} /></button>
+                {canManage && processPaymentBlockReason ? <p id="process-payment-unavailable" className="w-full text-sm text-gray-600">{processPaymentBlockReason}</p> : null}
               </div>
             </div>
             <div className="grid gap-3 border-t border-gray-200 bg-gray-50 p-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -1710,7 +1752,16 @@ export default function AdminCustomerBilling({
               <MetricCard label={`Monthly recurring fee${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod) ? ` (${billingMonthAbbreviation(overview.summary.monthlyRecurringPeriod)})` : ''}`} value={money(overview.summary.monthlyRecurringCents)} detail={overview.summary.monthlyRecurringDiscountCents < 0 ? `${money(Math.abs(overview.summary.monthlyRecurringDiscountCents))} surcharge` : `${money(overview.summary.monthlyRecurringDiscountCents)} in discounts`} />
               <MetricCard label="Future credits" value={money(overview.summary.futureCreditsCents)} tone={overview.summary.futureCreditsCents > 0 ? 'positive' : 'default'} detail="Applied against the next bill" />
               <MetricCard label="Account balance" value={money(overview.summary.balanceCents)} tone={overview.summary.balanceCents < 0 ? 'positive' : overview.summary.balanceCents > 0 ? 'warning' : 'default'} detail={overview.summary.balanceCents < 0 ? 'Credit balance' : overview.summary.balanceCents > 0 ? `Amount due on ${calendarDate(overview.summary.nextBillDate)}` : 'Paid in full'} />
-              <MetricCard label="Stripe pricing" value={overview.summary.stripeSync.status === 'healthy' ? 'Healthy' : overview.summary.stripeSync.status === 'warning' ? 'Ready for card' : 'Sync required'} tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'} detail={overview.summary.stripeSync.message} />
+              <MetricCard
+                label="Stripe pricing"
+                value={overview.summary.stripeSync.status === 'healthy'
+                  ? 'Healthy'
+                  : overview.summary.stripeSync.status === 'warning'
+                    ? (overview.account.householdMonthlyBillingEnabled ? 'Payment method required' : 'Autopay setup required')
+                    : 'Sync required'}
+                tone={overview.summary.stripeSync.status === 'healthy' ? 'positive' : 'warning'}
+                detail={overview.summary.stripeSync.message}
+              />
               {overview.annualMemberships.map((membership) => <MembershipMetricCard key={membership.memberId} membership={membership} canManage={canManage} saving={saving} onSetAutoRenewal={(item, enabled) => void setAnnualMembershipAutoRenewal(item, enabled)} onBillNow={(item) => void billAnnualMembershipNow(item)} onModifyBill={(item) => void openMembershipBill(item)} onRecallBill={(item) => setBillToRecall({ chargeId: item.outstandingChargeId!, amountCents: item.outstandingAmountCents })} onModifyMembership={(item) => setMembershipToTransfer({ membership: item })} />)}
             </div>
             <MonthlyInvoiceSummary
@@ -1778,10 +1829,10 @@ export default function AdminCustomerBilling({
         const membership = overview.annualMemberships.find((item) => item.memberId === chargeToModify.memberId)!
         setMembershipToTransfer({ membership, chargeId: chargeToModify.refId }); setChargeToModify(null)
       } : undefined} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
-      {balanceCollectionOpen && overview && (unpaidMonthlyInvoice || overview.paymentMethod.paymentMethod) ? <BalanceCollectionModal monthlyInvoiceAmount={unpaidMonthlyInvoice?.totalCents ?? null} familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} outstandingBalanceCents={overview.summary.outstandingBalanceCents} paymentMethod={overview.paymentMethod.paymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
+      {balanceCollectionOpen && overview && (unpaidMonthlyInvoice || immediatePaymentMethod) ? <BalanceCollectionModal monthlyInvoiceAmount={unpaidMonthlyInvoice?.totalCents ?? null} familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} outstandingBalanceCents={overview.summary.outstandingBalanceCents} paymentMethod={immediatePaymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
       {membershipToTransfer && overview ? <MembershipTransferModal familyId={overview.account.familyId} membership={membershipToTransfer.membership} chargeId={membershipToTransfer.chargeId} members={overview.members} memberships={overview.annualMemberships} onClose={() => setMembershipToTransfer(null)} onSaved={(message, memberId) => { setMembershipToTransfer(null); void loadFamily(overview.account.familyId, memberId).then(() => setSuccess(message)) }} /> : null}
       {addCreditOpen && overview ? <AddCreditModal familyId={overview.account.familyId} onClose={() => setAddCreditOpen(false)} onSaved={handleSaved} /> : null}
-      {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={overview.paymentMethod.available} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
+      {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={Boolean(immediatePaymentMethod)} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}
       {externalPaymentOpen && overview ? <ExternalPaymentModal familyId={overview.account.familyId} collectibleBalanceCents={overview.summary.collectibleBalanceCents} onClose={() => setExternalPaymentOpen(false)} onSaved={handleSaved} /> : null}
       {passToAdjust ? <PassAdjustmentModal pass={passToAdjust} onClose={() => setPassToAdjust(null)} onSaved={handleSaved} /> : null}
       {newEnrollmentOpen && overview ? <NewBillingEnrollmentModal members={overview.members} initialMemberId={selectedMemberId ?? overview.account.payerMemberId} onClose={() => setNewEnrollmentOpen(false)} onCreated={(message) => { setNewEnrollmentOpen(false); void refresh(message) }} /> : null}

@@ -2,12 +2,18 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import pg from 'pg'
-import { listClasses } from '../reads.js'
+import { classDetail, listClasses } from '../reads.js'
 
-test('class catalog excludes archived classes and children of archived programs before pagination', {
+test('class catalog includes archived classes and children of archived programs only when requested', {
   skip: process.env.RUN_ARCHIVE_LOCAL_TEST !== 'true',
 }, async () => {
-  const db = new pg.Client({ connectionString: `postgresql://${os.userInfo().username}@127.0.0.1:5432/vortex_new_admin_dev` })
+  const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL
+    || `postgresql://${os.userInfo().username}@127.0.0.1:5432/vortex_new_admin_dev`
+  const url = new URL(connectionString)
+  if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || url.search || url.hash || !/^\/vortex_new_admin_dev(?:_[a-z0-9_]+)?$/.test(url.pathname)) {
+    throw new Error('Isolated local test database required')
+  }
+  const db = new pg.Client({ connectionString })
   await db.connect()
   try {
     await db.query('BEGIN')
@@ -24,8 +30,8 @@ test('class catalog excludes archived classes and children of archived programs 
       [facility, programsId, name, archived, active],
     )).rows[0].id
     // Historical parent-only archives can leave unarchived child rows behind.
-    await klass('A hidden child', archivedProgram, false, false)
-    await klass('B archived class', visibleProgram, true, false)
+    const hiddenChild = await klass('A hidden child', archivedProgram, false, false)
+    const archivedClass = await klass('B archived class', visibleProgram, true, false)
     const visible = await klass('C visible class', visibleProgram, false, true)
     const unassigned = await klass('D unassigned class', null, false, false)
     const first = await listClasses(db, facility, { pageSize: 1 })
@@ -36,6 +42,17 @@ test('class catalog excludes archived classes and children of archived programs 
     const search = await listClasses(db, facility, { search: 'Vortex Ninja regression' })
     assert.equal(search.total, 0)
     assert.deepEqual(search.rows, [])
+    const all = await listClasses(db, facility, {}, { includeArchived: true })
+    assert.equal(all.total, 4)
+    assert.deepEqual(all.rows.map(row => [row.id, row.archived]), [
+      [Number(hiddenChild), true], [Number(archivedClass), true],
+      [Number(visible), false], [Number(unassigned), false],
+    ])
+    const archivedSearch = await listClasses(db, facility, { search: 'Vortex Ninja regression', pageSize: 1 }, { includeArchived: true })
+    assert.deepEqual(archivedSearch.rows.map(row => row.id), [Number(hiddenChild)])
+    assert.equal((await classDetail(db, facility, hiddenChild)).class.archived, true)
+    assert.equal((await classDetail(db, facility, archivedClass)).class.archived, true)
+    assert.equal((await classDetail(db, facility, unassigned)).class.archived, false)
     assert.equal((await db.query('SELECT archived FROM program WHERE programs_id=$1', [archivedProgram])).rows[0].archived, false)
   } finally {
     await db.query('ROLLBACK')

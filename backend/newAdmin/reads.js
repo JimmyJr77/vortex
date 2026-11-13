@@ -6,6 +6,7 @@ import { id, inputError, pagination, pageResult, searchValue, memberRow, date } 
 
 const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display_name AS program_name,
   p.abridged_name,p.skill_level,p.age_min,p.age_max,p.description,p.skill_requirements,p.is_active AS class_active,
+  (p.archived IS TRUE OR pr.archived IS TRUE) AS archived,
   to_jsonb(pr) AS pricing_program,to_jsonb(sf) AS pricing_form,
   p.is_active AND NOT COALESCE(p.archived,FALSE) AS is_active,sf.id AS form_id,
   COALESCE(cap.capacity,0)::int AS capacity,COALESCE(en.enrolled_count,0)::int AS enrolled_count,
@@ -30,15 +31,16 @@ const classRow = row => {
   const pricing = resolveEffectiveFormPricing(hydrateProgramPricingRow(row.pricing_program),row.pricing_form)
   return ({costAmountCents:pricing.costAmountCents,costUnit:pricing.costUnit,
   monthlyPriceCents:pricing.costUnit === 'per_month' ? pricing.costAmountCents : null,id:Number(row.id),programsId:row.programs_id==null?null:Number(row.programs_id),formId:row.form_id == null ? null:Number(row.form_id),name:row.name,
-  programName:row.program_name || '',isActive:row.is_active,
+  programName:row.program_name || '',isActive:row.is_active,archived:row.archived,
   details:{displayName:row.name,abridgedName:row.abridged_name,skillLevel:row.skill_level,ageMin:row.age_min,ageMax:row.age_max,
     description:row.description,skillRequirements:row.skill_requirements,isActive:row.class_active},capacity:Number(row.capacity),enrolledCount:Number(row.enrolled_count),waitlistCount:Number(row.waitlist_count),reservedCount:Number(row.reserved_count || 0)})
 }
 
-export async function listClasses(db,facilityId,query={}) {
+export async function listClasses(db,facilityId,query={}, {includeArchived=false}={}) {
   const paging=pagination(query)
   const values=[id(facilityId),searchValue(query.search)]
-  const where=`p.facility_id=$1 AND p.archived IS NOT TRUE AND pr.archived IS NOT TRUE AND concat_ws(' ',p.display_name,pr.display_name) ILIKE $2 ESCAPE '\\'`
+  const archiveFilter=includeArchived ? '' : 'AND p.archived IS NOT TRUE AND pr.archived IS NOT TRUE'
+  const where=`p.facility_id=$1 ${archiveFilter} AND concat_ws(' ',p.display_name,pr.display_name) ILIKE $2 ESCAPE '\\'`
   // Sort the full matching catalog using the canonical resolved class prices
   // and schedules, then paginate. This also avoids sorting formatted currency.
   sortClasses([],query.sort || 'class',query.direction || 'asc')

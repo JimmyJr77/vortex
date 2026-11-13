@@ -60,6 +60,7 @@ import {
 } from './customerBillingAdminOperations.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { registerAccountingRoutes } from './accountingRoutes.js'
+import { resumeMemberBalanceCheckout } from './customerBalanceCheckoutResume.js'
 
 function facilityId(req) {
   return requireAdminFacilityScope({
@@ -835,6 +836,23 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
           })
         }
         res.status(errorStatus(error)).json({ success: false, message: error?.message ?? 'Prior-month balance could not be collected.' })
+      }
+    },
+  )
+
+  app.post(
+    '/api/admin/customer-billing/families/:familyId/resume-balance-checkout',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      res.setHeader('Cache-Control', 'no-store')
+      try {
+        const account = await ensureCustomerBillingAccount(pool, Number(req.params.familyId), facilityId(req))
+        if (!account) return res.status(404).json({ success: false, message: 'Family billing account was not found.' })
+        const data = await resumeMemberBalanceCheckout(pool, { account })
+        res.json({ success: true, data })
+      } catch (error) {
+        const status = errorStatus(error)
+        res.status(status).json({ success: false, message: status === 500 ? 'The existing checkout could not be reopened.' : error?.message })
       }
     },
   )

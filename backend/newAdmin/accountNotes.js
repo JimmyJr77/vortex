@@ -26,7 +26,8 @@ export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberI
   SELECT n.id,n.subject_type,n.subject_id,n.note_type,n.body,n.author_name,n.created_at,n.source
     FROM note n WHERE n.is_deleted=FALSE AND (
       (n.subject_type='registration' AND n.subject_id IN (SELECT id FROM inquiries))
-      OR (n.subject_type='member' AND n.subject_id IN (SELECT id FROM account_members)))
+      OR (n.subject_type='member' AND n.subject_id IN (SELECT id FROM account_members))
+      OR (n.subject_type='family' AND n.subject_id IN (SELECT id FROM account_family)))
   UNION ALL
   SELECT -inquiry.id::bigint*2,'registration',inquiry.id,'staff_note',inquiry.admin_notes,NULL,inquiry.updated_at,'legacy_inquiry_note'
     FROM inquiries inquiry WHERE NULLIF(TRIM(inquiry.admin_notes),'') IS NOT NULL AND NOT EXISTS (
