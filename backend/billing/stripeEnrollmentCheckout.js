@@ -2466,7 +2466,19 @@ export async function commitPendingEnrollment(pool, {
       expectedFamilyId,
       expectedPayerMemberId,
     })
-    if (authorizedPending.status === 'completed') return { status: 'already_completed' }
+    if (authorizedPending.status === 'completed') {
+      // Another caller can finish between the first read and this authorization.
+      // Reconcile the paid replay just as for a row that was already completed.
+      if (preFulfillmentPayment) {
+        preFulfillmentPayment = await settleCompletedEnrollmentCheckout(pool, {
+          pending: settlementPending,
+          stripeSession,
+          payment: preFulfillmentPayment,
+        })
+        return { status: 'already_completed', payment: preFulfillmentPayment }
+      }
+      return { status: 'already_completed' }
+    }
     if (!enrollmentCheckoutSessionCanFinalize(stripeSession, authorizedPending)) {
       return { status: 'unpaid' }
     }
