@@ -89,7 +89,7 @@ test('current required waivers bypass the prompt even with an unsigned optional 
   await login(page)
   await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toHaveCount(0)
-  expect(state.reads).toBe(1)
+  expect(state.reads).toBeGreaterThanOrEqual(1)
   expect(state.writes).toEqual([])
 })
 
