@@ -179,7 +179,17 @@ export async function convertLead(pool,{facilityId,leadId,userId,body={}}) {
       if (!member.rows[0]) throw inputError('Member not found.',404)
       result={memberId:Number(member.rows[0].id),familyId:member.rows[0].family_id == null ? null : Number(member.rows[0].family_id)}
     } else result=await createScopedMember(client,facilityId,{firstName:lead.first_name,lastName:lead.last_name,email:lead.email,phone:lead.phone,...body})
-    await client.query(`UPDATE registrations SET converted_member_id=$3,converted_at=now(),converted_by_user_id=$4,lead_status='converted',contacted=TRUE,updated_at=now() WHERE id=$1 AND facility_id=$2`,[lead.id,facilityId,result.memberId,userId])
+    const retired = await client.query(`UPDATE account_invite SET expires_at=LEAST(expires_at,now()),
+      temporary_password_hash=NULL,pending_payload=pending_payload-'passwordCiphertext'
+      WHERE registration_id=$1 AND facility_id=$2 AND invite_type='lead_registration' AND used_at IS NULL
+      RETURNING id`, [lead.id,facilityId])
+    if (retired.rows.length > 0) {
+      await client.query(`UPDATE scheduling_signup SET status='cancelled'
+        WHERE account_invite_id=ANY($1::bigint[]) AND status='pending_setup'`, [retired.rows.map(invite => invite.id)])
+    }
+    await client.query(`UPDATE registrations SET converted_member_id=$3,converted_at=now(),converted_by_user_id=$4,
+      lead_status='converted',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
+      WHERE id=$1 AND facility_id=$2`,[lead.id,facilityId,result.memberId,userId])
     await client.query('COMMIT')
     return {...result,alreadyConverted:false}
   } catch(error) { await client.query('ROLLBACK'); throw error } finally { client.release() }

@@ -13,6 +13,7 @@ import {
   membershipRenewsOnFromPurchase,
   toUtcDateString,
 } from './membershipAnniversary.js'
+import { activeLedgerChargePredicate } from '../billing/billingLedgerSql.js'
 
 function parseDbDateOnly(value) {
   if (value == null) return null
@@ -29,20 +30,75 @@ function parseDbDateOnly(value) {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
 }
 
-function redemptionRenewsOn(row) {
+function redemptionRenewsOn(row, satisfiedAt) {
   const periodKey = String(row?.period_key ?? '')
   const explicit = /^\d{4}-\d{2}-\d{2}$/.test(periodKey)
     ? parseDbDateOnly(periodKey)
     : null
   if (explicit) return explicit
-  return membershipRenewsOnFromPurchase(row?.satisfied_at ?? row?.created_at)
+  return membershipRenewsOnFromPurchase(satisfiedAt)
 }
 
-function redemptionIsActive(row, asOfDate) {
-  const renewsOn = redemptionRenewsOn(row)
-  if (!renewsOn || renewsOn.getTime() <= asOfDate.getTime()) return false
+function activeRedemptionWindow(row, asOfDate) {
+  const satisfiedAt = parseDbDateOnly(row.satisfied_at ?? row.legacy_charge_paid_at)
+  if (!satisfiedAt || satisfiedAt > asOfDate) return null
+  const cycleStart = parseDbDateOnly(row.service_period_start) ?? satisfiedAt
+  const renewsOn = redemptionRenewsOn(row, satisfiedAt)
+  if (cycleStart > asOfDate || !renewsOn || renewsOn <= asOfDate) return null
   const endedAt = parseDbDateOnly(row?.ended_at)
-  return !endedAt || endedAt.getTime() > asOfDate.getTime()
+  return !endedAt || endedAt > asOfDate ? { cycleStart, renewsOn } : null
+}
+
+const legacyPaidCharge = `charge.collection_status = 'paid' AND ${activeLedgerChargePredicate('charge')}
+  AND NOT EXISTS (
+    SELECT 1 FROM billing_charge refund_offset WHERE refund_offset.related_charge_id = charge.id
+      AND refund_offset.source_type = 'refund_offset' AND refund_offset.amount_cents < 0
+  )`
+
+const annualRedemptionJoins = `FROM additional_fee_redemption r
+  JOIN additional_fee f ON f.id = r.fee_id
+  LEFT JOIN billing_charge charge ON charge.member_id = r.member_id
+    AND charge.source_type = 'additional_fee'
+    AND (charge.id = r.billing_charge_id OR (r.billing_charge_id IS NULL
+      AND charge.source_id = CONCAT(r.fee_id, ':', r.member_id, ':', r.period_key)))`
+
+const annualRedemptionPredicate = `r.amount_cents >= 0
+  AND (r.satisfied_at IS NOT NULL OR (${legacyPaidCharge}))
+  AND (f.trigger_type = 'once_per_year' OR f.apply_basis = 'per_year'
+    OR lower(f.name) LIKE '%annual%' OR lower(f.name) LIKE '%membership%')`
+
+/** SQL predicate for directory queries that need the same annual membership window for many athletes. */
+export const hasActiveAnnualMembershipSql = (memberId, asOfDate) => `EXISTS (
+  SELECT 1 ${annualRedemptionJoins}
+  CROSS JOIN LATERAL (
+    SELECT (COALESCE(r.satisfied_at, charge.created_at) AT TIME ZONE 'UTC')::date AS satisfied_on
+  ) entitlement
+  WHERE r.member_id = ${memberId} AND ${annualRedemptionPredicate}
+    AND (r.ended_at IS NULL OR (r.ended_at AT TIME ZONE 'UTC')::date > ${asOfDate})
+    AND entitlement.satisfied_on <= ${asOfDate}
+    AND COALESCE(charge.service_period_start, entitlement.satisfied_on) <= ${asOfDate}
+    AND COALESCE(CASE WHEN r.period_key ~ '^\\d{4}-\\d{2}-\\d{2}$' THEN account_source_date(r.period_key) END,
+      (entitlement.satisfied_on + INTERVAL '1 year')::date) > ${asOfDate}
+)`
+
+async function loadMembershipRedemptions(db, { memberId, asOfKey, feeIds = null }) {
+  const result = await db.query(
+    `SELECT r.fee_id, r.satisfied_at, r.period_key, r.ended_at, charge.service_period_start,
+            CASE WHEN r.satisfied_at IS NULL AND charge.collection_status = 'paid'
+              THEN charge.created_at END AS legacy_charge_paid_at,
+            subscription.id AS billing_subscription_id
+     ${annualRedemptionJoins}
+     LEFT JOIN billing_subscription subscription ON subscription.member_id = r.member_id
+       AND subscription.source_type = $3
+       AND subscription.source_id = CONCAT(r.fee_id, ':', r.member_id)
+       AND subscription.status IN ('active', 'paused')
+     WHERE r.member_id = $1 AND ${annualRedemptionPredicate}
+       AND (r.ended_at IS NULL OR r.ended_at > $2::date)
+       AND ($4::bigint[] IS NULL OR r.fee_id = ANY($4::bigint[]))
+     ORDER BY r.created_at DESC`,
+    [memberId, asOfKey, ANNUAL_MEMBERSHIP_SOURCE_TYPE, feeIds],
+  )
+  return result.rows
 }
 
 /**
@@ -75,53 +131,17 @@ export async function loadActiveAnnualMembership(
   if (!asOfKey) return null
 
   try {
-    const redemptionParams = [memberId, asOfKey, ANNUAL_MEMBERSHIP_SOURCE_TYPE]
-    let redemptionFeeFilter = ''
-    if (feeId != null) {
-      redemptionParams.push(Number(feeId))
-      redemptionFeeFilter = ` AND r.fee_id = $${redemptionParams.length}`
-    }
-    const redRes = await pool.query(
-      `
-        SELECT r.fee_id, r.created_at, r.satisfied_at, r.period_key, r.ended_at,
-               charge.service_period_start,
-               subscription.id AS billing_subscription_id
-        FROM additional_fee_redemption r
-        JOIN additional_fee f ON f.id = r.fee_id
-        LEFT JOIN billing_charge charge ON charge.id = r.billing_charge_id
-        LEFT JOIN billing_subscription subscription
-          ON subscription.member_id = r.member_id
-         AND subscription.source_type = $3
-         AND subscription.source_id = CONCAT(r.fee_id, ':', r.member_id)
-         AND subscription.status IN ('active', 'paused')
-        WHERE r.member_id = $1
-          AND r.amount_cents >= 0
-          AND (r.ended_at IS NULL OR r.ended_at > $2::date)
-          AND (
-            f.trigger_type = 'once_per_year'
-            OR f.apply_basis = 'per_year'
-            OR lower(f.name) LIKE '%annual%'
-            OR lower(f.name) LIKE '%membership%'
-          )
-          ${redemptionFeeFilter}
-        ORDER BY r.created_at DESC
-        LIMIT 20
-      `,
-      redemptionParams,
-    )
-    for (const row of redRes.rows) {
-      if (!redemptionIsActive(row, asOfDate)) continue
-      const renewsOn = redemptionRenewsOn(row)
-      const cycleStart = parseDbDateOnly(row.service_period_start)
-        || parseDbDateOnly(row.satisfied_at)
-        || parseDbDateOnly(row.created_at)
-      if (!renewsOn || !cycleStart) continue
+    const rows = await loadMembershipRedemptions(pool, {
+      memberId, asOfKey, feeIds: feeId == null ? null : [Number(feeId)],
+    })
+    for (const row of rows) {
+      const window = activeRedemptionWindow(row, asOfDate)
+      if (!window) continue
       return {
         active: true,
         memberId: Number(memberId),
         feeId: row.fee_id != null ? Number(row.fee_id) : null,
-        cycleStart,
-        renewsOn,
+        ...window,
         source: 'redemption',
         billingSubscriptionId: row.billing_subscription_id == null
           ? null
@@ -156,27 +176,9 @@ export async function loadActiveAnnualMembershipFeeIds(pool, memberId, feeIds = 
   if (!asOfKey || ids.length === 0) return active
 
   try {
-    const redRes = await pool.query(
-      `
-        SELECT r.fee_id, r.created_at, r.satisfied_at, r.period_key, r.ended_at
-        FROM additional_fee_redemption r
-        JOIN additional_fee f ON f.id = r.fee_id
-        WHERE r.member_id = $1
-          AND r.fee_id = ANY($2::bigint[])
-          AND r.amount_cents >= 0
-          AND (r.ended_at IS NULL OR r.ended_at > $3::date)
-          AND (
-            f.trigger_type = 'once_per_year'
-            OR f.apply_basis = 'per_year'
-            OR lower(f.name) LIKE '%annual%'
-            OR lower(f.name) LIKE '%membership%'
-          )
-      `,
-      [memberId, ids, asOfKey],
-    )
-    for (const row of redRes.rows) {
-      if (!redemptionIsActive(row, asOfDate)) continue
-      active.add(Number(row.fee_id))
+    const rows = await loadMembershipRedemptions(pool, { memberId, asOfKey, feeIds: ids })
+    for (const row of rows) {
+      if (activeRedemptionWindow(row, asOfDate)) active.add(Number(row.fee_id))
     }
   } catch {
     // ignore

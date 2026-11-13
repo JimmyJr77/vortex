@@ -93,10 +93,10 @@ export default function SignupLeadPage() {
         {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">{error}</p>}
         {!info ? (
           <form onSubmit={login} className="max-w-lg space-y-4">
-            <p>Use the username and temporary password in your invitation email. If you already completed setup, use your current credentials.</p>
+            <p>Use the username and temporary password in your invitation email. After setup, sign in with your username, email, or phone number and your new password.</p>
             <label className="block font-medium">
               Username
-              <input className="mt-1 w-full rounded-lg border p-3" autoComplete="username" required value={username} onChange={(event) => setUsername(event.target.value)} />
+              <input className="mt-1 w-full rounded-lg border p-3" autoComplete="username" autoCapitalize="none" spellCheck={false} required value={username} onChange={(event) => setUsername(event.target.value)} />
             </label>
             <label className="block font-medium">
               Password
@@ -116,7 +116,9 @@ export default function SignupLeadPage() {
             {result ? (
               <section className="space-y-4">
                 <h2 className="text-xl font-semibold">{pending.length || legacyLinks.length ? 'Next: your classes' : 'Your family account is ready'}</h2>
-                {pending.length > 0 && <p>Review your selected classes and complete checkout in the Member Portal.</p>}
+                {(pending.length > 0 || legacyLinks.length > 0) && (
+                  <p>Your family account is ready. Review each athlete’s classes and pay by credit card. Class enrollment is confirmed once tuition and any annual registration fee due for that athlete are paid.</p>
+                )}
                 {!signedIn && <p className="rounded-lg bg-amber-50 p-4">Sign in with your current credentials to continue to the Member Portal.</p>}
                 {pending.length > 0 && <button className={actionClass} onClick={checkout}>Review classes and complete enrollment</button>}
                 {legacyLinks.length > 0 && (

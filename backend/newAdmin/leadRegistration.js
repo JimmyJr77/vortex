@@ -2,6 +2,7 @@ import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
+import { findActiveMemberLoginCandidates, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
 import { encryptAccountInviteToken, decryptAccountInviteToken } from '../email/accountInviteTokens.js'
 import { sendLeadRegistrationEmail } from '../email/leadRegistrationEmail.js'
 import { generateTemporaryPassword } from '../scheduling/tempPasswordEmail.js'
@@ -13,7 +14,8 @@ import { id, inputError } from './common.js'
 const digest = value => crypto.createHash('sha256').update(String(value)).digest('hex')
 export async function nextLeadUsername(db, firstName, lastName) {
   const clean = text => String(text).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '')
-  const base = (clean(firstName).slice(0, 40) + clean(lastName).slice(0, 1)) || 'member'
+  const name = clean(firstName).slice(0, 40) + clean(lastName).slice(0, 1)
+  const base = !name || /^\d+$/.test(name) ? `member${name}` : name
   await db.query('SELECT pg_advisory_xact_lock(846001)')
   for (let suffix = 0; suffix < 100000; suffix++) {
     const username = base + (suffix || '')
@@ -101,7 +103,9 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     if (lead.converted_member_id || lead.member_id) throw inputError('This lead already has a member account. Open that account to manage registrations.', 409)
     const existing = (await client.query(`SELECT * FROM account_invite WHERE registration_id=$1 AND invite_type='lead_registration' AND used_at IS NULL AND expires_at>now() ORDER BY id DESC LIMIT 1`, [lead.id])).rows[0]
     if (existing) { invite = existing; await client.query('COMMIT'); return invitationSummary(invite) }
-    const emailConflict = await client.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=LOWER(BTRIM($1)) UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=LOWER(BTRIM($1)) LIMIT 1', [lead.email])
+    const email = normalizeSignupEmail(lead.email)
+    if (!email) throw inputError('Update the lead with a valid email address before sending the invitation.')
+    const emailConflict = await client.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
     if (emailConflict.rows.length) throw inputError('This email already has an account. Link the verified existing member instead of creating another login.', 409)
     const children = inquiryInput({ campers: body.children || lead.campers || [] }).campers
     const selections = await validateLeadSelections(client, facilityId, children, body.selections || [])
@@ -111,16 +115,16 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     if (instructions.length > 4000) throw inputError('Instructions must be at most 4,000 characters.')
     const username = await nextLeadUsername(client, lead.first_name, lead.last_name)
     const password = generateTemporaryPassword(16), token = crypto.randomBytes(32).toString('hex')
-    const payload = { guardian: { firstName: lead.first_name, lastName: lead.last_name, email: lead.email, phone: lead.phone || '' }, children, selections, instructions, passwordCiphertext: encryptAccountInviteToken(password) }
+    const payload = { guardian: { firstName: lead.first_name, lastName: lead.last_name, email, phone: lead.phone || '' }, children, selections, instructions, passwordCiphertext: encryptAccountInviteToken(password) }
     invite = (await client.query(`INSERT INTO account_invite(facility_id,registration_id,invite_type,token_hash,token_ciphertext,invitee_email,pending_payload,expires_at,suggested_username,temporary_password_hash,request_key,created_by_user_id)
-      VALUES($1,$2,'lead_registration',$3,$4,$5,$6::jsonb,now()+($7::int*interval '1 day'),$8,$9,$10,$11) RETURNING *`, [facilityId, lead.id, digest(token), encryptAccountInviteToken(token), lead.email, JSON.stringify(payload), holdDays, username, await bcrypt.hash(password, 10), String(body.requestKey || crypto.randomUUID()), userId])).rows[0]
+      VALUES($1,$2,'lead_registration',$3,$4,$5,$6::jsonb,now()+($7::int*interval '1 day'),$8,$9,$10,$11) RETURNING *`, [facilityId, lead.id, digest(token), encryptAccountInviteToken(token), email, JSON.stringify(payload), holdDays, username, await bcrypt.hash(password, 10), String(body.requestKey || crypto.randomUUID()), userId])).rows[0]
     // Stable lock ordering prevents deadlocks for multi-child, multi-class invitations.
     const groups = [...new Set(selections.filter(item => item.kind === 'reserved').map(item => item.slotGroupId))].sort((a,b) => a-b)
     if (groups.length) await client.query('SELECT id FROM scheduling_slot_group WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE', [groups])
     for (const item of selections.filter(item => item.kind === 'reserved')) {
       const child = children[item.childIndex]
       const hold = await client.query(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status,enrollment_start_date,account_invite_id,invite_child_index,reserved_until)
-        VALUES($1,$2,$3,$4,$5,$6,'pending_setup',$7,$8,$9,$10) RETURNING id`, [item.schedulingFormId, item.slotGroupId, item.timeSlotId, child?.firstName || '', child?.lastName || '', lead.email, item.enrollmentStartDate, invite.id, item.childIndex, invite.expires_at])
+        VALUES($1,$2,$3,$4,$5,$6,'pending_setup',$7,$8,$9,$10) RETURNING id`, [item.schedulingFormId, item.slotGroupId, item.timeSlotId, child?.firstName || '', child?.lastName || '', email, item.enrollmentStartDate, invite.id, item.childIndex, invite.expires_at])
       item.holdSignupId = Number(hold.rows[0].id)
     }
     if (groups.length) await client.query("UPDATE account_invite SET pending_payload=jsonb_set(pending_payload,'{selections}',$2::jsonb) WHERE id=$1", [invite.id, JSON.stringify(selections)])
@@ -168,12 +172,19 @@ async function remainingEnrollments(db, result) {
 export async function openLeadRegistration(db, inviteId, body) {
   const invite = await loadInvitation(db, inviteId, body.token)
   if (new Date(invite.expires_at) <= new Date() && !invite.used_at) throw inputError('This registration link has expired. Please ask Vortex to send a new invitation.', 410)
-  let valid = false
+  const identifier = String(body.username ?? '').trim()
+  const password = typeof body.password === 'string' ? body.password : ''
+  let passwordHash = null
   if (invite.used_at) {
-    const account = (await db.query('SELECT u.* FROM app_user u JOIN member m ON m.app_user_id=u.id WHERE m.id=$1 AND u.facility_id=$2 AND u.is_active=TRUE', [invite.pending_payload.result?.payerMemberId, invite.facility_id])).rows[0]
-    valid = account && [account.username, account.email].some(value => String(value).trim().toLowerCase() === String(body.username).trim().toLowerCase()) && await bcrypt.compare(String(body.password || ''), account.password_hash || '')
-  } else valid = String(body.username || '').toLowerCase() === invite.suggested_username.toLowerCase() && await bcrypt.compare(String(body.password || ''), invite.temporary_password_hash)
-  if (!valid) throw inputError('Incorrect username or password.', 401)
+    const candidates = await findActiveMemberLoginCandidates(db, identifier)
+    if (candidates.length === 1 && String(candidates[0].facility_id) === String(invite.facility_id)) {
+      const member = await db.query('SELECT id FROM member WHERE id=$1 AND app_user_id=$2 AND facility_id=$3', [invite.pending_payload.result?.payerMemberId, candidates[0].id, invite.facility_id])
+      if (member.rows.length === 1) passwordHash = candidates[0].password_hash
+    }
+  } else if (identifier.toLowerCase() === invite.suggested_username.toLowerCase()) {
+    passwordHash = invite.temporary_password_hash
+  }
+  if (!passwordHash || !await bcrypt.compare(password, passwordHash)) throw inputError('Incorrect login or password.', 401)
   const waivers = (await db.query(`SELECT id,name,version,body,waiver_type,is_required FROM waiver_template
     WHERE facility_id=$1 AND active_from<=now() AND (active_to IS NULL OR active_to>now()) ORDER BY id`,[invite.facility_id])).rows
   const result = invite.used_at ? await remainingEnrollments(db, invite.pending_payload.result) : undefined
@@ -246,15 +257,23 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
   const db = await pool.connect()
   try {
     await db.query('BEGIN')
+    // Lead conversion and invitation creation both lock the lead before the
+    // invitation so they cannot attach two different accounts to one inquiry.
+    const inviteReference = await loadInvitation(db, inviteId, body.token)
+    const lead = (await db.query(`SELECT id, converted_member_id, member_id, archived FROM registrations
+      WHERE id=$1 AND facility_id=$2 FOR UPDATE`, [inviteReference.registration_id, inviteReference.facility_id])).rows[0]
     const invite = await loadInvitation(db, inviteId, body.token, true)
     if (invite.used_at) {
       const result = await remainingEnrollments(db, invite.pending_payload.result)
       await db.query('COMMIT')
       return result
     }
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) {
+      throw inputError('This lead already has an account or is no longer open. Contact Vortex to continue.', 409)
+    }
     if (new Date(invite.expires_at) <= new Date()) throw inputError('This invitation has expired. Ask Vortex for a new invitation.', 410)
     const primaryAdult = body.primaryAdult || {}
-    if (String(primaryAdult.email).trim().toLowerCase() !== invite.invitee_email.toLowerCase()) throw inputError('Use the email address that received this invitation.')
+    if (normalizeSignupEmail(primaryAdult.email) !== String(invite.invitee_email).trim().toLowerCase()) throw inputError('Use the email address that received this invitation.')
     if (await bcrypt.compare(String(primaryAdult.password || ''), invite.temporary_password_hash)) throw inputError('Choose a new password, different from the temporary password.')
     const children = Array.isArray(body.additionalMembers) ? body.additionalMembers : []
     if (children.length < invite.pending_payload.children.length || children.length > 20) throw inputError('Complete the details for each child on the invitation.')
@@ -266,15 +285,18 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
       if (selection.kind !== 'reserved') continue
       const enrollment = enrollments[index]
       const participant = enrollment.memberIndex === 0 ? primaryAdult : children[enrollment.memberIndex - 1]
-      await db.query(`UPDATE scheduling_signup SET member_id=$3,first_name=$4,last_name=$5,enrollment_start_date=$6
+      const linkedHold = await db.query(`UPDATE scheduling_signup SET member_id=$3,first_name=$4,last_name=$5,enrollment_start_date=$6
         WHERE account_invite_id=$1 AND slot_group_id=$2 AND status='pending_setup'
         AND (CASE WHEN $7::bigint IS NOT NULL THEN id=$7 ELSE invite_child_index=$8 END)`,
       [invite.id, selection.slotGroupId, result.memberIds[enrollment.memberIndex], participant.firstName, participant.lastName,
         enrollment.enrollmentStartDate, selection.holdSignupId ?? null, selection.childIndex])
+      if (linkedHold.rowCount !== 1) throw inputError('A reserved class could not be linked to its athlete. Contact Vortex to update the invitation.', 409)
     }
     const completed = { ...result, enrollmentsPrepared: true }
     await db.query("UPDATE account_invite SET used_at=now(),temporary_password_hash=NULL,pending_payload=(pending_payload-'passwordCiphertext')||jsonb_build_object('result',$2::jsonb) WHERE id=$1", [invite.id, JSON.stringify(completed)])
-    await db.query("UPDATE registrations SET converted_member_id=$2,converted_at=now(),converted_by_user_id=$3,lead_status='converted',updated_at=now() WHERE id=$1 AND facility_id=$4", [invite.registration_id, result.payerMemberId, invite.created_by_user_id, invite.facility_id])
+    await db.query(`UPDATE registrations SET converted_member_id=$2,converted_at=now(),converted_by_user_id=$3,
+      lead_status='converted',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
+      WHERE id=$1 AND facility_id=$4`, [invite.registration_id, result.payerMemberId, invite.created_by_user_id, invite.facility_id])
     await db.query('COMMIT')
     return completed
   } catch (error) { await db.query('ROLLBACK'); if (!error.statusCode) error.statusCode=400; throw error } finally { db.release() }

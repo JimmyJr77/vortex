@@ -17,6 +17,7 @@ import {
   updateMemberPassword,
 } from '../members/createMemberStub.js'
 import { notifyEnrollmentReceipt, notifyWelcomeNewMember } from '../email/memberNotifications.js'
+import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.js'
 import { notifySignupStatusChange, notifyTimeSlotScheduleChange } from '../platform/messageSchedulingThreads.js'
 import {
   buildDailyRoster,
@@ -122,9 +123,10 @@ function enrollmentDueNowCents(preview) {
   if (!preview) return 0
   const fees = Math.round((Number(preview.additionalFeesOneTime) || 0) * 100)
   const firstMonth = Math.round(Number(preview.firstMonth?.totalCents) || 0)
+  const oneTimeTuition = Math.round(Number(preview.oneTimeTuition?.totalCents) || 0)
   const passes = Math.round(Number(preview.passPurchaseTotalCents) || 0)
   const carriedForward = Math.max(0, Math.round(Number(preview.carriedForward?.totalCents) || 0))
-  return Math.max(0, fees + firstMonth + passes + carriedForward)
+  return Math.max(0, fees + firstMonth + oneTimeTuition + passes + carriedForward)
 }
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -250,9 +252,19 @@ export async function insertSignupForMember(
   const signupStatus =
     Number(signup_count) < Number(max_participants) ? 'confirmed' : 'waitlisted'
 
-  const reserved = await client.query(`SELECT id FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
-    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])
-  const reservedId = reserved.rows[0]?.id
+  const reserved = (await client.query(`SELECT id, email FROM scheduling_signup WHERE member_id=$1 AND slot_group_id=$2
+    AND status='pending_setup' ORDER BY reserved_until DESC,id LIMIT 1 FOR UPDATE`, [memberId,slotGroupId])).rows[0]
+  const reservedId = reserved?.id
+  if (!isValidEmail(responses.email)) {
+    const contact = await resolveMemberContactEmail(client, { id: memberId }, { includeBillingPayer: true })
+    const email = contact?.email || reserved?.email
+    if (!isValidEmail(email)) {
+      const error = new Error('Add a contact email for the athlete or their household before registering.')
+      error.statusCode = 400
+      throw error
+    }
+    responses = { ...responses, email }
+  }
   const insert = await client.query(
     reservedId ? `UPDATE scheduling_signup SET
       form_id=$1,time_slot_id=$2,slot_group_id=$3,member_id=$4,first_name=$5,last_name=$6,email=$7,phone=$8,
@@ -273,7 +285,7 @@ export async function insertSignupForMember(
       memberId,
       responses.first_name || null,
       responses.last_name || null,
-      responses.email || null,
+      responses.email,
       responses.phone || null,
       JSON.stringify(responses),
       JSON.stringify(responses),
@@ -2509,6 +2521,25 @@ export function createSchedulingHandlers(pool) {
             })
           }
 
+          if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
+            const lineKey = programSlotSignupKey(value.formId, value.slotGroupId, firstOccurrence.id)
+            await persistFreePassRedemptions(client, {
+              signupId: signupResult.signupId,
+              memberId,
+              redemptions: freePassBreakdown.redemptions.filter((r) => r.lineKey === lineKey || r.lineKey == null),
+            })
+          }
+
+          if (discountBreakdown?.enabled) {
+            const lineKey = programSlotSignupKey(value.formId, value.slotGroupId, firstOccurrence.id)
+            await persistDiscountSnapshot(client, {
+              breakdown: discountBreakdown,
+              keyToSignupId: { [lineKey]: signupResult.signupId },
+              fallbackSignupId: signupResult.signupId,
+              strict: true,
+            })
+          }
+
           await client.query('COMMIT')
           if (signupResult.signupStatus === 'confirmed') {
             const { completeHouseholdEnrollmentSetup } = await import('../billing/householdEnrollmentSetup.js')
@@ -2520,35 +2551,6 @@ export function createSchedulingHandlers(pool) {
           }
 
           const { signupId, signupStatus, positions, pricing } = signupResult
-
-          if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
-            const lineKey = programSlotSignupKey(
-              value.formId,
-              value.slotGroupId,
-              firstOccurrence.id,
-            )
-            const lineRedemptions = freePassBreakdown.redemptions.filter(
-              (r) => r.lineKey === lineKey || r.lineKey == null,
-            )
-            await persistFreePassRedemptions(pool, {
-              signupId,
-              memberId,
-              redemptions: lineRedemptions,
-            })
-          }
-
-          if (discountBreakdown?.enabled) {
-            const lineKey = programSlotSignupKey(
-              value.formId,
-              value.slotGroupId,
-              firstOccurrence.id,
-            )
-            await persistDiscountSnapshot(pool, {
-              breakdown: discountBreakdown,
-              keyToSignupId: { [lineKey]: signupId },
-              fallbackSignupId: signupId,
-            })
-          }
 
           await sendSignupNotificationEmails(pool, {
             signupStatus,
@@ -2604,6 +2606,8 @@ export function createSchedulingHandlers(pool) {
 
     async createSignupBatch(req, res) {
       try {
+        const settlement = req.enrollmentSettlement ?? null
+        const signupDb = settlement?.client ?? pool
         const stripeCheckoutSessionId = String(
           req.billingCheckout?.stripeCheckoutSessionId ?? '',
         ).trim() || null
@@ -2646,7 +2650,7 @@ export function createSchedulingHandlers(pool) {
         const resolvedEntries = []
         for (const entry of slotSignups) {
           try {
-            const resolved = await resolveSignupEntryForInsert(pool, entry)
+            const resolved = await resolveSignupEntryForInsert(signupDb, entry)
             resolvedEntries.push({ entry, ...resolved })
           } catch (resolveErr) {
             if (resolveErr.code === 'FORM_UNAVAILABLE' || resolveErr.code === 'INVALID_ENTRY') {
@@ -2677,7 +2681,7 @@ export function createSchedulingHandlers(pool) {
           })
           memberId = Number(auth.memberId)
           signupAuthority = auth.signupAuthority
-          const member = await findMemberById(pool, memberId)
+          const member = await findMemberById(signupDb, memberId)
           if (!member) {
             return res.status(401).json({ success: false, message: 'Account not found' })
           }
@@ -2714,9 +2718,9 @@ export function createSchedulingHandlers(pool) {
           }
         }
 
-        const client = await pool.connect()
+        const client = settlement?.client ?? await pool.connect()
         try {
-          await client.query('BEGIN')
+          if (!settlement) await client.query('BEGIN')
 
           if (value.password && !memberId) {
             memberId = await createMemberStub(client, {
@@ -2730,7 +2734,7 @@ export function createSchedulingHandlers(pool) {
           }
 
           if (!memberId) {
-            await client.query('ROLLBACK')
+            if (!settlement) await client.query('ROLLBACK')
             return res.status(400).json({ success: false, message: 'Could not resolve member account' })
           }
 
@@ -2892,7 +2896,11 @@ export function createSchedulingHandlers(pool) {
                 memberId,
                 Number(previewLine.programsId),
               )
-              if (!passRow) continue
+              if (!passRow) {
+                const error = new Error('The class pass is no longer available. Review the price and try again.')
+                error.statusCode = 409
+                throw error
+              }
               const redemption = await redeemPassForSignup(client, {
                 memberPassId: Number(passRow.id),
                 signupId,
@@ -2964,16 +2972,6 @@ export function createSchedulingHandlers(pool) {
           }
 
 
-          await client.query('COMMIT')
-          if (!stripeCheckoutSessionId) {
-            const { completeHouseholdEnrollmentSetup } = await import('../billing/householdEnrollmentSetup.js')
-            await completeHouseholdEnrollmentSetup(pool, { memberId })
-          }
-
-          if (createdNewStubMemberId) {
-            void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
-          }
-
           if (freePassBreakdown?.enabled && freePassBreakdown.redemptions?.length) {
             for (let index = 0; index < resolvedEntries.length; index += 1) {
               const resolved = resolvedEntries[index]
@@ -2986,7 +2984,7 @@ export function createSchedulingHandlers(pool) {
               )
               const lineRedemptions = freePassBreakdown.redemptions.filter((r) => r.lineKey === lineKey)
               if (lineRedemptions.length) {
-                await persistFreePassRedemptions(pool, {
+                await persistFreePassRedemptions(client, {
                   signupId,
                   memberId,
                   redemptions: lineRedemptions,
@@ -3006,29 +3004,48 @@ export function createSchedulingHandlers(pool) {
               const signupId = signupResults[index]?.signupId
               if (signupId != null) keyToSignupId[key] = signupId
             })
-            await persistDiscountSnapshot(pool, {
+            await persistDiscountSnapshot(client, {
               breakdown: discountBreakdown,
               keyToSignupId,
               fallbackSignupId: signupResults[0]?.signupId ?? null,
+              strict: true,
             })
+          }
+
+          const sendNotifications = async () => {
+            if (!stripeCheckoutSessionId) {
+              const { completeHouseholdEnrollmentSetup } = await import('../billing/householdEnrollmentSetup.js')
+              await completeHouseholdEnrollmentSetup(pool, { memberId })
+            }
+            if (createdNewStubMemberId) {
+              void notifyWelcomeNewMember(pool, createdNewStubMemberId, { context: 'scheduling_stub' })
+            }
+            for (const signupResult of signupResults) {
+              await sendSignupNotificationEmails(pool, {
+                ...signupResult,
+                memberId,
+              })
+            }
+            try {
+              await sendRegistrationNotification(pool, {
+                signupIds: signupResults.map((result) => result.signupId),
+                paidCents: enrollmentDueNowCents(orderPreviewSnapshot),
+              })
+            } catch (emailErr) {
+              console.error('[scheduling] team registration alert failed:', emailErr.message)
+            }
+          }
+          if (settlement) {
+            settlement.afterCommit.push(sendNotifications)
+          } else {
+            await client.query('COMMIT')
+            await sendNotifications()
           }
 
           const mappedSignups = []
           for (const signupResult of signupResults) {
-            const { signupId, signupStatus, positions, pricing, responses: signupResponses } =
-              signupResult
-            await sendSignupNotificationEmails(pool, {
-              signupStatus,
-              signupId,
-              memberId,
-              responses: signupResponses,
-              formTitle: signupResult.formTitle,
-              slotLabel: signupResult.slotLabel,
-              pricing,
-              mandateWaiver: signupResult.mandateWaiver,
-            })
-
-            const refreshed = await pool.query('SELECT * FROM scheduling_signup WHERE id = $1', [
+            const { signupId, positions } = signupResult
+            const refreshed = await client.query('SELECT * FROM scheduling_signup WHERE id = $1', [
               signupId,
             ])
             mappedSignups.push({
@@ -3037,15 +3054,6 @@ export function createSchedulingHandlers(pool) {
               slotLabel: signupResult.slotLabel,
               pricing: signupResult.pricing,
             })
-          }
-
-          try {
-            await sendRegistrationNotification(pool, {
-              signupIds: signupResults.map((result) => result.signupId),
-              paidCents: enrollmentDueNowCents(orderPreviewSnapshot),
-            })
-          } catch (emailErr) {
-            console.error('[scheduling] team registration alert failed:', emailErr.message)
           }
 
           res.json({
@@ -3066,7 +3074,7 @@ export function createSchedulingHandlers(pool) {
             data: { signups: mappedSignups, purchasedPasses },
           })
         } catch (txErr) {
-          await client.query('ROLLBACK')
+          if (!settlement) await client.query('ROLLBACK')
           if (txErr.code === 'MAX_SLOTS') {
             return res.status(400).json({ success: false, message: txErr.message })
           }
@@ -3081,7 +3089,7 @@ export function createSchedulingHandlers(pool) {
           }
           throw txErr
         } finally {
-          client.release()
+          if (!settlement) client.release()
         }
       } catch (err) {
         console.error('[scheduling] createSignupBatch:', err)
@@ -5381,7 +5389,7 @@ export function createSchedulingHandlers(pool) {
 }
 
 /** Programmatic signup batch (Stripe webhook enrollment commit). */
-export async function executeSignupBatch(pool, body, billingCheckout = null) {
+export async function executeSignupBatch(pool, body, billingCheckout = null, enrollmentSettlement = null) {
   const handlers = createSchedulingHandlers(pool)
   return new Promise((resolve, reject) => {
     let statusCode = 200
@@ -5401,6 +5409,6 @@ export async function executeSignupBatch(pool, body, billingCheckout = null) {
         }
       },
     }
-    handlers.createSignupBatch({ body, billingCheckout }, res).catch(reject)
+    handlers.createSignupBatch({ body, billingCheckout, enrollmentSettlement }, res).catch(reject)
   })
 }

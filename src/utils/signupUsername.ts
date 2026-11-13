@@ -2,7 +2,8 @@
 export function buildSuggestedUsername(firstName: string, lastName: string): string {
   const cleanFirst = String(firstName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
   const cleanLast = String(lastName || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '').slice(0, 2)
-  return cleanFirst + cleanLast
+  const name = cleanFirst + cleanLast
+  return (/^\d+$/.test(name) ? `member${name}` : name).slice(0, 35)
 }
 
 /** True when the username field is empty or still holds a first-name-only auto suggestion. */

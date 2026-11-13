@@ -31,7 +31,8 @@ import {
   type SchedulingSlotGroup,
   type SchedulingTimeSlot,
 } from '../utils/schedulingApi'
-import { getLoggedInMemberEmail, getMemberSessionToken } from '../utils/portalSession'
+import { getApiUrl } from '../utils/api'
+import { getLoggedInMemberEmail, getMemberSessionToken, loginMemberWithCredentials, persistMemberSession, type PortalAccount } from '../utils/portalSession'
 import { trackEvent } from '../utils/analyticsClient'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
@@ -269,6 +270,7 @@ function collectSignedUpSlotKeysFromOptions(options: ProgramClassOption[]): Set<
 
 type IdentityPhase = 'pending' | 'email' | 'login' | 'must_change_password' | 'ready'
 type SignupPhase = 'select' | 'review'
+type CheckoutOutcome = 'completed' | 'review_required'
 
 type SignupCartItem = {
   key: string
@@ -281,6 +283,21 @@ type SignupCartItem = {
 }
 
 type SelectedSlotMap = Record<string, SignupCartItem>
+
+function cartItemForSlot(detail: SchedulingFormDetail, option: SlotPickOption): SignupCartItem {
+  return {
+    key: slotSelectionKey(detail.id, option.slotGroupId, option.timeSlotId),
+    formId: detail.id,
+    formTitle: detail.title,
+    slotGroupId: option.slotGroupId,
+    timeSlotId: option.timeSlotId,
+    slotLabel: formatSchedulingOccurrenceLabel(option.occurrence, {
+      includeWeek: schedulingHasMultipleWeeks(bookableGroupsForForm(detail)),
+      formatTime: formatTimeLabel,
+    }),
+    isFull: option.group.isFull,
+  }
+}
 
 function signedUpSlotSetsEqual(a: Set<string>, b: Set<string>): boolean {
   if (a.size !== b.size) return false
@@ -530,6 +547,7 @@ const SchedulingSignupEmbed = ({
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [checkoutOutcome, setCheckoutOutcome] = useState<CheckoutOutcome | null>(null)
   const [signupPhase, setSignupPhase] = useState<SignupPhase>('select')
   const [cartItems, setCartItems] = useState<SignupCartItem[]>([])
   const [programOptions, setProgramOptions] = useState<ProgramClassOption[]>([])
@@ -544,8 +562,10 @@ const SchedulingSignupEmbed = ({
   const [forcedNewPassword, setForcedNewPassword] = useState('')
   const [forcedConfirmPassword, setForcedConfirmPassword] = useState('')
   const [signupAuthToken, setSignupAuthToken] = useState<string | null>(null)
+  const [checkoutAccount, setCheckoutAccount] = useState<{ token: string; member?: PortalAccount } | null>(null)
   const [orderPreview, setOrderPreview] = useState<SignupOrderPreview | null>(null)
   const [orderPreviewLoading, setOrderPreviewLoading] = useState(false)
+  const [pricingError, setPricingError] = useState<string | null>(null)
   const [confirmedOrderPreview, setConfirmedOrderPreview] = useState<SignupOrderPreview | null>(null)
   const [confirmedOrderPreviewLoading, setConfirmedOrderPreviewLoading] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
@@ -556,6 +576,7 @@ const SchedulingSignupEmbed = ({
   const [enrollmentStartDate, setEnrollmentStartDate] = useState(initialEnrollmentStartDate || '')
   const [startDateError, setStartDateError] = useState<string | null>(null)
   const startDateInputRef = useRef<HTMLInputElement>(null)
+  const initialSelectionRef = useRef<string | null>(null)
   const programOptionsFetchKeyRef = useRef<string | null>(null)
   const signedUpSlotsFetchRef = useRef<{ key: string; promise: Promise<void> } | null>(null)
 
@@ -567,11 +588,13 @@ const SchedulingSignupEmbed = ({
     setTimeSlotId(null)
     setResponses({})
     setSuccess(false)
+    setCheckoutOutcome(null)
     setSignupPhase('select')
     setCartItems([])
     setProgramOptions([])
     setSelectedSlots({})
     setSignedUpSlotKeys(new Set())
+    initialSelectionRef.current = null
     programOptionsFetchKeyRef.current = null
     signedUpSlotsFetchRef.current = null
     setSignupResults([])
@@ -579,8 +602,10 @@ const SchedulingSignupEmbed = ({
     setError(null)
     setIdentityPhase('pending')
     setSignupAuthToken(null)
+    setCheckoutAccount(null)
     setOrderPreview(null)
     setOrderPreviewLoading(false)
+    setPricingError(null)
     setConfirmedOrderPreview(null)
     setConfirmedOrderPreviewLoading(false)
     setIsNewUser(false)
@@ -672,6 +697,7 @@ const SchedulingSignupEmbed = ({
         saveSchedulingMemberEmail(session.email)
         setAccountEmail(session.email)
         setSignupAuthToken(session.signupAuthToken)
+        setCheckoutAccount({ token: memberToken })
         setIsNewUser(false)
         setResponses((prev) => ({ ...prev, email: session.email }))
         if (session.mustChangePassword) {
@@ -726,10 +752,11 @@ const SchedulingSignupEmbed = ({
   }, [accountEmail, initialEmail, identityPhase, loadSignedUpSlots])
 
   useEffect(() => {
-    if (success) return
+    if (success || checkoutOutcome) return
     if (signupPhase !== 'review' || cartItems.length === 0) {
       setOrderPreview(null)
       setOrderPreviewLoading(false)
+      setPricingError(null)
       return
     }
 
@@ -741,6 +768,8 @@ const SchedulingSignupEmbed = ({
     if (!signupAuthToken && !email) return
 
     let cancelled = false
+    setPricingError(null)
+    setOrderPreview(null)
     setOrderPreviewLoading(true)
 
     fetchSignupOrderPreview({
@@ -756,10 +785,14 @@ const SchedulingSignupEmbed = ({
       promoCodes: appliedPromoCodes,
     })
       .then((preview) => {
-        if (!cancelled) setOrderPreview(preview)
+        if (cancelled) return
+        setOrderPreview(preview)
+        if (!preview.hasPricing) setPricingError('Pricing is unavailable for these classes.')
       })
-      .catch(() => {
-        if (!cancelled) setOrderPreview(null)
+      .catch((err) => {
+        if (cancelled) return
+        setOrderPreview(null)
+        setPricingError(err instanceof Error ? err.message : 'Unable to load enrollment pricing.')
       })
       .finally(() => {
         if (!cancelled) setOrderPreviewLoading(false)
@@ -770,6 +803,7 @@ const SchedulingSignupEmbed = ({
     }
   }, [
     success,
+    checkoutOutcome,
     signupPhase,
     cartItems,
     accountEmail,
@@ -857,8 +891,12 @@ const SchedulingSignupEmbed = ({
     )
     if (!match) return
 
+    const item = cartItemForSlot(formDetail, match)
+    if (initialSelectionRef.current === item.key) return
+    initialSelectionRef.current = item.key
     setSlotGroupId(match.slotGroupId)
     setTimeSlotId(match.timeSlotId)
+    setSelectedSlots((previous) => ({ ...previous, [item.key]: item }))
   }, [
     initialSlotGroupId,
     initialTimeSlotId,
@@ -913,26 +951,8 @@ const SchedulingSignupEmbed = ({
     setSlotGroupId(option.slotGroupId)
     setTimeSlotId(option.timeSlotId)
     if (formDetail) {
-      const slotKey = slotSelectionKey(
-        formDetail.id,
-        option.slotGroupId,
-        option.timeSlotId,
-      )
-      setSelectedSlots((prev) => ({
-        ...prev,
-        [slotKey]: {
-          key: slotKey,
-          formId: formDetail.id,
-          formTitle: formDetail.title,
-          slotGroupId: option.slotGroupId,
-          timeSlotId: option.timeSlotId,
-          slotLabel: formatSchedulingOccurrenceLabel(option.occurrence, {
-            includeWeek: schedulingHasMultipleWeeks(bookableGroupsForForm(formDetail)),
-            formatTime: formatTimeLabel,
-          }),
-          isFull: option.group.isFull,
-        },
-      }))
+      const item = cartItemForSlot(formDetail, option)
+      setSelectedSlots((prev) => ({ ...prev, [item.key]: item }))
     }
     if (!signupAuthToken && identityPhase !== 'ready' && !identityLoading) {
       setIdentityPhase('email')
@@ -1002,9 +1022,19 @@ const SchedulingSignupEmbed = ({
     setIdentityLoading(true)
     setError(null)
     try {
-      const session = await loginSchedulingAuth(formId, accountEmail.trim(), accountPassword)
-      saveSchedulingMemberEmail(accountEmail.trim())
+      const email = accountEmail.trim()
+      const login = await loginMemberWithCredentials(getApiUrl(), {
+        emailOrUsername: email,
+        password: accountPassword,
+      }).catch(() => null)
+      const session = login
+        ? await loginSchedulingAuthFromMemberSession(formId, login.token)
+        : await loginSchedulingAuth(formId, email, accountPassword)
+      saveSchedulingMemberEmail(session.email)
+      setAccountEmail(session.email)
       setSignupAuthToken(session.signupAuthToken)
+      setCheckoutAccount(login)
+      setAccountPassword('')
       setIsNewUser(false)
       if (session.mustChangePassword) {
         setForcedNewPassword('')
@@ -1165,6 +1195,7 @@ const SchedulingSignupEmbed = ({
   const showMustChangePasswordStep = slotSelected && identityPhase === 'must_change_password'
   const showSubmit = slotSelected && identityReady && signupPhase === 'select'
   const showReview = signupPhase === 'review'
+  const reviewNeedsPayment = Boolean(orderPreview?.hasPricing && enrollmentNeedsPayment(orderPreview))
   const showAddMoreClasses =
     showSubmit &&
     (allBundles.length > 1 || allBundles.some((b) => b.slots.length > 1))
@@ -1278,7 +1309,8 @@ const SchedulingSignupEmbed = ({
     setSubmitting(true)
     setError(null)
     try {
-      if (!orderPreview || orderPreviewLoading) throw new Error('Wait for pricing before continuing.')
+      if (orderPreviewLoading) throw new Error('Wait for pricing before continuing.')
+      if (!orderPreview?.hasPricing) throw new Error('Pricing is unavailable for these classes.')
       const payload = {
         signups: cartItems
           .filter(
@@ -1299,22 +1331,37 @@ const SchedulingSignupEmbed = ({
         signupAuthToken: signupAuthToken || undefined,
         promoCodes: appliedPromoCodes,
       }
+      if (payload.signups.length === 0) throw new Error('These classes are already on your account.')
       if (enrollmentNeedsPayment(orderPreview)) {
-        const memberToken = getMemberSessionToken()
-        if (!memberToken || !payload.signupAuthToken) {
-          throw new Error('Please sign in to the member portal to review and pay for this enrollment.')
+        if (!checkoutAccount || !payload.signupAuthToken) {
+          setIdentityPhase('login')
+          setSignupPhase('select')
+          setError('Sign in with your account password to continue to card payment.')
+          return
         }
-        const checkout = await createEnrollmentCheckoutSession(memberToken, {
+        const checkout = await createEnrollmentCheckoutSession(checkoutAccount.token, {
           ...payload, signupAuthToken: payload.signupAuthToken,
         })
+        if (checkout.requiresReview || checkout.status === 'quarantined') {
+          setCheckoutOutcome('review_required')
+          return
+        }
+        if (checkout.alreadyCompleted || checkout.status === 'completed' || checkout.status === 'already_completed') {
+          setCheckoutOutcome('completed')
+          return
+        }
         if (checkout.url) {
+          if (checkoutAccount.member) persistMemberSession(checkoutAccount.token, checkoutAccount.member)
           if (checkout.pendingEnrollmentId != null) storePendingEnrollmentId(checkout.pendingEnrollmentId)
           window.location.assign(checkout.url)
           return
         }
-        if (!checkout.skipCheckout) {
-          throw new Error('Checkout requires review in the member portal. Please do not submit another payment.')
+        if (checkout.skipCheckout && checkout.preview?.hasPricing && !enrollmentNeedsPayment(checkout.preview)) {
+          setOrderPreview(checkout.preview)
+          setError('Pricing changed. Review the updated total before continuing.')
+          return
         }
+        throw new Error('Unable to start card payment. Review your enrollment in the Member Portal.')
       }
       const result = await submitSchedulingSignupBatch(payload)
       setSignupResults(result.signups)
@@ -1351,6 +1398,30 @@ const SchedulingSignupEmbed = ({
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="w-8 h-8 animate-spin text-vortex-red" />
+      </div>
+    )
+  }
+
+  if (checkoutOutcome) {
+    return (
+      <div className={`${sectionClass} text-center`} role="status">
+        <h4 className="text-xl font-display font-bold text-black mb-2">
+          {checkoutOutcome === 'completed' ? 'Checkout complete' : 'Enrollment needs staff review'}
+        </h4>
+        <p className="text-sm text-gray-600">
+          {checkoutOutcome === 'completed'
+            ? 'Check your Member Portal for each class’s enrollment status.'
+            : 'We received your payment. Please contact Vortex before trying another payment.'}
+        </p>
+        <a
+          className="mt-4 inline-block text-sm font-semibold text-vortex-red underline"
+          href="/?enrollment=review"
+          onClick={() => {
+            if (checkoutAccount?.member) persistMemberSession(checkoutAccount.token, checkoutAccount.member)
+          }}
+        >
+          Open Member Portal
+        </a>
       </div>
     )
   }
@@ -1547,7 +1618,9 @@ const SchedulingSignupEmbed = ({
               Review your signups
             </h4>
             <p className="text-sm text-gray-600 mb-4">
-              Confirm the classes below, or remove any you do not want before submitting.
+              {reviewNeedsPayment
+                ? 'Review your classes and any annual registration fee due for the athlete. Payment is required to confirm enrollment.'
+                : 'Review the selected classes before confirming your signup.'}
             </p>
             {enrollmentStartDate ? (
               <p className="mb-4 text-sm font-semibold text-gray-800">
@@ -1625,6 +1698,7 @@ const SchedulingSignupEmbed = ({
                 Loading your order and pricing…
               </div>
             )}
+            {pricingError && <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{pricingError}</p>}
             {orderPreview && !orderPreviewLoading ? (
               <OrderPricingSummary
                 preview={orderPreview}
@@ -1639,6 +1713,7 @@ const SchedulingSignupEmbed = ({
               <button
                 type="button"
                 onClick={() => {
+                setError(null)
                   setSelectedSlots(Object.fromEntries(cartItems.map((item) => [item.key, item])))
                   setSignupPhase('select')
                 }}
@@ -1878,8 +1953,9 @@ const SchedulingSignupEmbed = ({
                 Check your email for a sign-in link if you do not know your password.
               </p>
             )}
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <label htmlFor="scheduling-account-password" className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
             <input
+              id="scheduling-account-password"
               type="password"
               value={accountPassword}
               onChange={(e) => setAccountPassword(e.target.value)}
@@ -1910,6 +1986,8 @@ const SchedulingSignupEmbed = ({
                   setIdentityPhase('email')
                   setAccountPassword('')
                   setMagicLinkSent(false)
+                  setSignupAuthToken(null)
+                  setCheckoutAccount(null)
                 }}
                 className="text-sm text-gray-600 hover:underline"
               >
@@ -1981,7 +2059,7 @@ const SchedulingSignupEmbed = ({
 
         {error && (
           <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 px-4 py-3 flex justify-between text-sm">
-            <span>{error}</span>
+            <span role="alert">{error}</span>
             <button type="button" onClick={() => setError(null)}><X className="w-4 h-4" /></button>
           </div>
         )}
@@ -1993,18 +2071,18 @@ const SchedulingSignupEmbed = ({
             className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-60"
           >
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-            {selectedGroup?.isFull ? 'Continue to waitlist signup' : 'Confirm signup'}
+            {selectedGroup?.isFull ? 'Continue to waitlist signup' : 'Review signup'}
           </button>
         )}
 
         {showReview && (
           <button
             type="submit"
-            disabled={submitting || cartItems.length === 0}
+            disabled={submitting || cartItems.length === 0 || orderPreviewLoading || !orderPreview?.hasPricing}
             className="inline-flex items-center justify-center gap-2 bg-vortex-red text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all disabled:opacity-60"
           >
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-            {cartItems.length === 1 ? 'Submit signup' : `Submit ${cartItems.length} signups`}
+            {reviewNeedsPayment ? 'Continue to card payment' : 'Confirm signup'}
           </button>
         )}
       </form>

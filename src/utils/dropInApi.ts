@@ -90,3 +90,17 @@ export async function registerDropIn(input: {
     signupUrl: string | null
   }
 }
+
+export async function checkoutDropIn(dropInId: number, checkoutSessionId?: string): Promise<{
+  status: 'confirmed' | 'payment_pending'
+  url?: string
+}> {
+  const response = await fetch(`${getApiUrl()}/api/members/billing/drop-in-checkout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ dropInId, checkoutSessionId }),
+  })
+  const body = await response.json()
+  if (!response.ok || !body.success) throw new Error(body.message || 'Unable to open drop-in checkout.')
+  return body.data
+}

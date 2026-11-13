@@ -1078,6 +1078,7 @@ test('carried-balance enrollment creation holds the account lock through reserva
   assert.deepEqual(state.createLockDepths, [1])
   assert.equal(state.lockDepth, 0)
   assert.equal(state.pending.stripe_checkout_session_id, 'cs_enrollment_44')
+  assert.deepEqual(state.sessions[0].params.payment_method_types, ['card', 'link'])
   assert.equal(state.pending.expires_at.toISOString(), '2033-05-18T03:33:20.000Z')
   assert.match(
     state.sessions[0].options.idempotencyKey,
@@ -2000,6 +2001,48 @@ test('paid enrollment customer, payer, and member drift cannot hide cash or crea
       assert.equal(calls.some(({ text }) => /SET status = 'processing'/.test(text)), false)
     })
   }
+})
+
+test('paid confirmation reconciles a checkout completed by a competing caller', async () => {
+  const session = {
+    id: 'cs_paid_race', mode: 'payment', status: 'complete', payment_status: 'paid',
+    amount_total: 11700, currency: 'usd', customer: 'cus_race', payment_intent: 'pi_paid_race',
+    metadata: { checkoutType: 'enrollment', pendingEnrollmentId: '46', familyBillingAccountId: '8', memberId: '62', payerMemberId: '13' },
+  }
+  const pending = {
+    id: 46, family_billing_account_id: 8, member_id: 62, due_now_cents: 11700,
+    checkout_mode: 'payment', stripe_checkout_session_id: session.id, status: 'pending',
+    preview_snapshot: { additionalFeesOneTime: 85, firstMonth: { totalCents: 3200 } },
+  }
+  const payment = {
+    id: 503, family_billing_account_id: 8, amount_cents: 11700, external_processor: 'stripe',
+    stripe_customer_id: session.customer, stripe_payment_intent_id: session.payment_intent,
+    stripe_checkout_session_id: session.id, stripe_invoice_id: null,
+  }
+  const pool = {
+    async query(sql, params = []) {
+      const text = String(sql)
+      if (/^\s*(BEGIN|COMMIT|ROLLBACK)\s*$/.test(text) || text.includes('pg_advisory_lock') || text.includes('pg_advisory_xact_lock')) return { rows: [] }
+      if (text.includes('pg_advisory_unlock')) return { rows: [{ pg_advisory_unlock: true }] }
+      if (/FROM stripe_pending_enrollment\s+WHERE id = \$1/.test(text)) return { rows: [pending] }
+      if (text.includes('INSERT INTO billing_payment')) return { rows: [{ ...payment, external_status: params[10], note: params[11] }] }
+      if (text.includes('FROM stripe_pending_enrollment pending') && text.includes('account.payer_member_id')) {
+        return { rows: [{ ...pending, status: 'completed', family_id: 20, payer_member_id: 13, stripe_customer_id: session.customer }] }
+      }
+      if (text.includes('FROM family_billing_account account')) return { rows: [{ id: 62 }] }
+      if (text.includes('WITH purchase AS') || text.includes('credit_applied_elsewhere') || text.includes('FROM billing_refund')) return { rows: [] }
+      if (text.includes('AS tagged_unfunded_cents')) return { rows: [{ tagged_unfunded_cents: 0 }] }
+      if (text.includes('AS net_cents')) return { rows: [{ net_cents: 11700 }] }
+      if (text.includes('AS remaining_cents')) return { rows: [] }
+      if (text.includes('FROM billing_payment_application application')) return { rows: [{ stripe_checkout_session_id: session.id, amount_cents: 11700, application_kind: 'application' }] }
+      if (text.includes('UPDATE billing_payment')) return { rows: [{ ...payment, external_status: 'settled' }] }
+      if (text.includes('WITH active_enrollment_checkout AS')) return { rows: [{ owner_id: 47, owner_kind: 'enrollment' }] }
+      throw new Error(`Unexpected paid enrollment replay query: ${text}`)
+    },
+  }
+  const result = await commitPendingEnrollment(pool, { pendingEnrollmentId: pending.id, stripeSession: session })
+  assert.equal(result.status, 'already_completed')
+  assert.equal(result.payment?.external_status, 'settled')
 })
 
 test('paid enrollment rechecks current authorization after winning the collection lock', async () => {

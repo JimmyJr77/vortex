@@ -4,7 +4,7 @@ import { assertNoOutstandingAnnualMembershipCharge } from '../annualMembershipCh
 import { listCustomerBillingOverviews } from '../customerBillingOverviewList.js'
 import { findFulfilledThenWaivedCheckout } from '../waivedCheckoutReallocation.js'
 import { listPaymentRefundCharges, previewSelectedChargeRefund, createSelectedChargeRefund, correctRefundToPreserveClassCharge } from '../customerBillingRefundSelection.js'
-import { findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
+import { findActiveEnrollmentCheckoutBalanceCollector, findCompletedPaidCheckoutFulfillmentGap } from '../paidCheckoutCollectionGuard.js'
 import { findFullyRefundedWaivedCheckout } from '../refundedCheckoutDischarge.js'
 import { completeEnrollmentAutoBilling } from '../enrollmentAutoBilling.js'
 import { finalizeRefundLedgerTreatment, collectLedgerChargeWithSavedCard, checkoutAmountForBillingCharge } from '../customerBillingPayments.js'
@@ -282,6 +282,28 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
       assert.deepEqual(rows.map(row=>Number(row.billing_charge_id)),[2])
     })
   }
+
+  await t.test('one-time tuition is part of the exact purchase, separate from a household balance', async () => {
+    const sessionId = 'cs_one_time_tuition'
+    const pending = await insert('stripe_pending_enrollment', {
+      family_billing_account_id: 1, member_id: 1, payload: {},
+      preview_snapshot: { additionalFeesOneTime: 85, oneTimeTuition: { totalCents: 2500 } },
+      due_now_cents: 11000, stripe_checkout_session_id: sessionId,
+    })
+    assert.equal(await findActiveEnrollmentCheckoutBalanceCollector(db, 1), null)
+    await db.query('UPDATE stripe_pending_enrollment SET due_now_cents=11500 WHERE id=$1', [pending.id])
+    const balance = await findActiveEnrollmentCheckoutBalanceCollector(db, 1)
+    assert.equal(balance.carried_balance_cents, 500)
+    await db.query("UPDATE stripe_pending_enrollment SET due_now_cents=11000,status='completed' WHERE id=$1", [pending.id])
+    await charge(1, 8500, { source_type: 'additional_fee', stripe_checkout_session_id: sessionId })
+    await charge(2, 2500, { source_type: 'scheduling_signup', stripe_checkout_session_id: sessionId })
+    await insert('billing_payment', { id: 1, family_billing_account_id: 1, amount_cents: 11000, external_status: 'settled',
+      external_processor: 'stripe', stripe_payment_intent_id: 'pi_one_time_tuition', stripe_checkout_session_id: sessionId })
+    await allocation(1, 1, 8500)
+    assert.ok(await findCompletedPaidCheckoutFulfillmentGap(db, 1))
+    await allocation(1, 2, 2500)
+    assert.equal(await findCompletedPaidCheckoutFulfillmentGap(db, 1), null)
+  })
 
   await t.test('paid then waived membership releases cash to other bills without a second payment', async () => {
     await charge(1,8500,{stripe_checkout_session_id:'cs_waived'})

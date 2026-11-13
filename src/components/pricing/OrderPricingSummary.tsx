@@ -146,6 +146,7 @@ export default function OrderPricingSummary({
   )
 
   const firstMonth = preview.firstMonth?.enabled ? preview.firstMonth : null
+  const oneTimeTuition = preview.oneTimeTuition
   const carriedForward = preview.carriedForward ?? {
     enabled: true,
     items: [],
@@ -162,13 +163,14 @@ export default function OrderPricingSummary({
   const hasAnnualMembershipDue = annualMembershipFees.length > 0
   const hasProratedAccounts = Boolean(firstMonth?.items.length)
   const currentCycleDueCents =
-    Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0)
+    Math.round((preview.additionalFeesOneTime ?? 0) * 100) + (firstMonth?.totalCents ?? 0) + (oneTimeTuition?.totalCents ?? 0)
   const additionalFeesOneTime = preview.additionalFeesOneTime ?? 0
   const proratedDueNow = (firstMonth?.totalProratedCents ?? 0) / 100
   const prepaidDueNow = (firstMonth?.totalPrepaidCents ?? 0) / 100
   const dueNowBreakdown = (() => {
     const parts: string[] = []
     if (additionalFeesOneTime > 0) parts.push(`${formatMoney(additionalFeesOneTime)} fees`)
+    if (oneTimeTuition && oneTimeTuition.totalCents > 0) parts.push(`${formatMoney(oneTimeTuition.totalCents / 100)} one-time class tuition`)
     if (prepaidDueNow > 0) parts.push(`${formatMoney(prepaidDueNow)} first month tuition`)
     if (proratedDueNow > 0) parts.push(`${formatMoney(proratedDueNow)} prorated accounts`)
     return parts.join(' + ')
@@ -403,6 +405,22 @@ export default function OrderPricingSummary({
                       </li>
                     )
                   })}
+                </ul>
+              </section>
+            )}
+
+            {oneTimeTuition && oneTimeTuition.items.length > 0 && (
+              <section>
+                <h6 className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-900">
+                  One-time class tuition
+                </h6>
+                <ul className="space-y-1">
+                  {oneTimeTuition.items.map((item) => (
+                    <li key={item.slotKey} className="flex justify-between gap-3 text-amber-950">
+                      <span>{item.displayLine ?? item.formTitle}</span>
+                      <span>{formatMoney(item.amountCents / 100)}</span>
+                    </li>
+                  ))}
                 </ul>
               </section>
             )}

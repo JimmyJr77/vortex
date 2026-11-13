@@ -1,6 +1,6 @@
 import { button, input } from './shared'
 
-export interface LeadFilterValues { contacted: string; followUp: string; converted: string; ageMin: string; ageMax: string; gender: string }
+export interface LeadFilterValues { contacted: string; followUp: string; ageMin: string; ageMax: string; gender: string }
 
 export default function LeadFilters({ value, onChange, search, onSearch, keywords, onKeywords, onReset }: {
   value: LeadFilterValues; onChange: (patch: Partial<LeadFilterValues>) => void
@@ -17,7 +17,6 @@ export default function LeadFilters({ value, onChange, search, onSearch, keyword
         <button type="button" className={`${button} ${value.followUp === 'true' ? '!border-slate-950 !bg-slate-950 !text-white' : ''}`} aria-pressed={value.followUp === 'true'} onClick={() => onChange({ followUp: value.followUp === 'true' ? '' : 'true' })}>Follow-up Needed</button>
         <button type="button" className={`${button} ${value.contacted === 'true' ? '!border-slate-950 !bg-slate-950 !text-white' : ''}`} aria-pressed={value.contacted === 'true'} onClick={() => onChange({ contacted: 'true' })}>Contacted</button>
       </div></fieldset>
-      <fieldset><legend className="mb-2 text-sm font-medium">Conversion</legend><div className="flex flex-wrap gap-1">{[['', 'All'], ['false', 'Unconverted'], ['true', 'Converted']].map(([key, label]) => <button key={key} type="button" className={`${button} ${value.converted === key ? '!border-slate-950 !bg-slate-950 !text-white' : ''}`} aria-pressed={value.converted === key} onClick={() => onChange({ converted: key })}>{label}</button>)}</div></fieldset>
       <div className="flex gap-2"><label className="w-28 text-sm font-medium">Min age<input className={input} type="number" min={0} max={120} step={1} value={value.ageMin} onChange={event => onChange({ ageMin: event.target.value })} placeholder="Any" /></label><label className="w-28 text-sm font-medium">Max age<input className={input} type="number" min={0} max={120} step={1} value={value.ageMax} onChange={event => onChange({ ageMax: event.target.value })} placeholder="Any" /></label></div>
       <label className="min-w-40 text-sm font-medium">Gender (kid)<select aria-label="Gender (kid)" className={input} value={value.gender} onChange={event => onChange({ gender: event.target.value })}><option value="">Any gender</option><option value="female">Female</option><option value="male">Male</option></select></label>
       <button type="button" className={`${button} ml-auto mb-0.5`} onClick={onReset}>Reset filters</button>

@@ -848,6 +848,21 @@ export async function persistFreePassRedemptions(pool, { signupId, memberId, red
   if (!redemptions.length) return []
   const inserted = []
   for (const r of redemptions) {
+    if (r.memberPassId) {
+      const consumed = await pool.query(
+        `UPDATE member_free_pass
+         SET quantity_remaining = quantity_remaining - $1
+         WHERE id = $2 AND member_id = $3 AND quantity_remaining >= $1
+           AND (expires_at IS NULL OR expires_at > now())
+         RETURNING id`,
+        [r.units ?? 1, r.memberPassId, memberId ?? r.memberId ?? null],
+      )
+      if (!consumed.rows[0]) {
+        const error = new Error('The class credit is no longer available. Review the price and try again.')
+        error.statusCode = 409
+        throw error
+      }
+    }
     const res = await pool.query(
       `INSERT INTO free_pass_redemption
          (member_pass_id, pass_template_id, member_id, signup_id, units, amount_cents_credited, context)
@@ -865,14 +880,6 @@ export async function persistFreePassRedemptions(pool, { signupId, memberId, red
     )
     inserted.push(Number(res.rows[0].id))
 
-    if (r.memberPassId) {
-      await pool.query(
-        `UPDATE member_free_pass
-         SET quantity_remaining = GREATEST(0, quantity_remaining - $1)
-         WHERE id = $2`,
-        [r.units ?? 1, r.memberPassId],
-      )
-    }
     if (r.passTemplateId) {
       await pool.query(
         `UPDATE free_pass_template SET redeemed_count = redeemed_count + 1, updated_at = now()
