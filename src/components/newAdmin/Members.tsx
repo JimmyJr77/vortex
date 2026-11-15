@@ -21,8 +21,7 @@ interface MemberDetail {
   enrollmentPagination?: { page: number; total: number; totalPages: number }
   billingAccountId: number | null
 }
-export default function Members({ access, revision, selectedId, selectedFamilyId, onSelectFamily, onSelect, onBilling, onViewArchives }: {
-  onViewArchives?: () => void;
+export default function Members({ access, revision, selectedId, selectedFamilyId, onSelectFamily, onSelect, onBilling }: {
   selectedFamilyId: number | null; onSelectFamily: (id: number | null) => void;
   access: Access; revision: number; selectedId: number | null; onSelect: (id: number | null) => void; onBilling: (target: BillingTarget) => void
 }) {
@@ -39,7 +38,7 @@ export default function Members({ access, revision, selectedId, selectedFamilyId
   return <section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Families & accounts</h2><p className="mt-1 text-sm text-slate-500">People, family relationships, class enrollments, and household billing.</p></div>{(allowed(access, 'members.edit') && allowed(access, 'scheduling.manage')) ? <button className={primary} onClick={() => setWizard('new')}><Plus className="h-4 w-4" />Create family account</button> : null}</div>
     {showWorkspace ? <Suspense fallback={<Loading />}><FamilyWorkspace key={`${selectedFamilyId ?? 'member'}:${selectedId ?? ''}`} familyId={selectedFamilyId} memberId={selectedId} access={access} revision={revision + version} onBack={() => { onSelect(null); onSelectFamily(null); setIndividualProfileFor(null) }} onBilling={onBilling} onEdit={setWizard} onChanged={refresh} onMemberDeleted={deletedId => { if (selectedId === deletedId) onSelect(null); refresh() }} onIndividualProfile={selectedId == null ? undefined : () => setIndividualProfileFor(selectedId)} /></Suspense> : selectedId != null ? <MemberProfile key={selectedId} id={selectedId} access={access} revision={revision + version} onBack={() => onSelect(null)} onSelect={onSelect} onEdit={() => setWizard(selectedId)} onBilling={onBilling} onChanged={refresh} /> : <>
-      <div role="group" aria-label="Directory view" className="mb-4 flex flex-wrap gap-2"><button className={button} aria-pressed={directory === 'families'} onClick={() => setDirectory('families')}>Families</button><button className={button} aria-pressed={directory === 'people'} onClick={() => setDirectory('people')}>People</button>{allowed(access, 'accounts.lifecycle') && onViewArchives && <button type="button" className={button} onClick={onViewArchives}>View Archives</button>}</div>
+      <div role="group" aria-label="Directory view" className="mb-4 flex flex-wrap gap-2"><button className={button} aria-pressed={directory === 'families'} onClick={() => setDirectory('families')}>Families</button><button className={button} aria-pressed={directory === 'people'} onClick={() => setDirectory('people')}>People</button></div>
       {directory === 'families' ? <Suspense fallback={<Loading />}><FamilyDirectory access={access} revision={revision + version} onSelect={onSelectFamily} /></Suspense> : <>
       <div className="mb-4 flex flex-wrap gap-3"><label className="min-w-64 flex-1 text-sm font-medium"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search members</span><input className={input} value={query} onChange={event => { setQuery(event.target.value); setPage(1) }} placeholder="Name, email, phone, or family" /></label></div>
       <ErrorNotice message={data.error} onRetry={refresh} />

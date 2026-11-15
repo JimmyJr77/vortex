@@ -221,13 +221,13 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
   </Dialog>
 }
 
-export default function CRM({ access, revision, onMember, onFamily, onViewArchives }: {
-  onViewArchives?: () => void;
+export default function CRM({ access, revision, onMember, onFamily }: {
   access: Access; revision: number; onMember: (id: number) => void; onFamily: (id: number) => void
 }) {
   const [query, setQuery] = useState('')
   const [classQuery, setClassQuery] = useState('')
   const [familiesOnly, setFamiliesOnly] = useState(false)
+  const [archived, setArchived] = useState(false)
   const [filters, setFilters] = useState(emptyFilters)
   const [sortBy, setSortBy] = useState<SortKey>('name')
   const [sortDir, setSortDir] = useState<Direction>('asc')
@@ -240,7 +240,7 @@ export default function CRM({ access, revision, onMember, onFamily, onViewArchiv
   const { minAge, maxAge } = filters
   const invalidAge = [minAge, maxAge].some(value => value !== '' && (!/^\d{1,3}$/.test(value) || Number(value) > 130))
     || (minAge !== '' && maxAge !== '' && Number(minAge) > Number(maxAge))
-  const params = new URLSearchParams({ search, classSearch, familiesOnly: String(familiesOnly), ...filters, record: 'active', sortBy, sortDir, page: String(page), pageSize })
+  const params = new URLSearchParams({ search, classSearch, familiesOnly: String(familiesOnly), ...filters, record: archived ? 'archived' : 'active', sortBy, sortDir, page: String(page), pageSize })
   const state = useRead<Page<PersonRow>>(invalidAge ? null : `${crmPath}?${params}`, revision + retry)
   const updateFilter = (key: keyof typeof emptyFilters, value: string) => {
     setFilters(current => ({ ...current, [key]: value }))
@@ -251,9 +251,13 @@ export default function CRM({ access, revision, onMember, onFamily, onViewArchiv
     setSortDir(direction ?? (key === sortBy && sortDir === 'asc' ? 'desc' : 'asc'))
     setPage(1)
   }
-  const recordActions = (row: PersonRow) => allowed(access, 'accounts.lifecycle') && row.kind !== 'staff'
-    ? <MemberRecordActions record={{ kind: row.kind, id: row.id, name: row.name, archived: row.archived }} onChanged={() => setRetry(value => value + 1)} />
-    : null
+  const recordActions = (row: PersonRow) => {
+    if (!allowed(access, 'accounts.lifecycle')) return null
+    const refresh = () => { setPage(1); setRetry(value => value + 1) }
+    if (row.kind === 'staff') return row.archived
+      ? <MemberRecordActions record={{ kind: 'login', id: row.id, name: row.name }} onChanged={refresh} /> : null
+    return <MemberRecordActions record={{ kind: row.kind, id: row.id, name: row.name, archived: row.archived }} onChanged={refresh} />
+  }
   const reset = () => {
     setFilters(emptyFilters)
     setQuery('')
@@ -265,16 +269,21 @@ export default function CRM({ access, revision, onMember, onFamily, onViewArchiv
   return <section aria-label="CRM" className="space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="text-2xl font-bold text-slate-950">CRM</h2><p className="mt-1 text-sm text-slate-600">Find members, families, leads, and staff.</p></div>
-      {allowed(access, 'accounts.lifecycle') && onViewArchives && <button type="button" className={button} onClick={onViewArchives}>View Archives</button>}
-      <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900">
-        <input type="checkbox" checked={familiesOnly} onChange={event => {
-          setFamiliesOnly(event.target.checked)
-          setFilters(current => ({ ...current, source: '', leadStatus: '', status: current.status === 'lead' ? '' : current.status }))
-          if (sortBy === 'age') sort('name', 'asc')
-          setPage(1)
-        }} className="h-4 w-4 rounded border-slate-300 accent-vortex-red" />Families only
-      </label>
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900">
+          <input type="checkbox" checked={familiesOnly} onChange={event => {
+            setFamiliesOnly(event.target.checked)
+            setFilters(current => ({ ...current, source: '', leadStatus: '', status: current.status === 'lead' ? '' : current.status }))
+            if (sortBy === 'age') sort('name', 'asc')
+            setPage(1)
+          }} className="h-4 w-4 rounded border-slate-300 accent-vortex-red" />Families only
+        </label>
+        <button type="button" className={button} aria-pressed={archived} onClick={() => { setArchived(value => !value); setPage(1); setSelected(null) }}>
+          {archived ? 'View Current Records' : 'View Archives'}
+        </button>
+      </div>
     </div>
+    {archived && <p role="status" className="text-sm font-medium text-slate-600">Showing archived records</p>}
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="min-w-0 text-sm font-semibold"><span className="inline-flex items-center gap-2"><Search className="h-4 w-4" aria-hidden="true" />Search people and families</span>

@@ -10,8 +10,11 @@ import ConvertLead from './ConvertLead'
 import type { Lead } from './leadTypes'
 import { allowed, request, useRead, useSearch, type Access, type Page } from './api'
 
+const checkboxCell = 'w-px whitespace-nowrap px-2 py-3 text-center align-top'
+const nameCell = 'pl-2 pr-4 py-3 text-left align-top'
+
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
-export default function Leads({ access, revision, onOpenMember, onViewArchives }: { onViewArchives?: () => void; access: Access; revision: number; onOpenMember: (id: number) => void }) {
+export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
   const [query, setQuery] = useState('')
   const search = useSearch(query)
   const [keywords, setKeywords] = useState('')
@@ -37,15 +40,14 @@ export default function Leads({ access, revision, onOpenMember, onViewArchives }
   }
   return <section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Leads</h2><p className="mt-1 text-sm text-slate-500">Follow up on inquiries from prospective families and current members.</p></div>{canManage ? <button className={primary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" />Add lead</button> : null}</div>
-    {allowed(access, 'accounts.lifecycle') && onViewArchives && <button type="button" className={`${button} mb-4`} onClick={onViewArchives}>View Archives</button>}
     <LeadFilters value={filters} onChange={patch => { setFilters(current => ({ ...current, ...patch })); setPage(1) }} search={query} onSearch={value => { setQuery(value); setPage(1) }} keywords={keywords} onKeywords={value => { setKeywords(value); setPage(1) }} onReset={() => { setFilters(emptyFilters); setQuery(''); setKeywords(''); setPage(1) }} />
     <ErrorNotice message={invalidAge ? 'Enter whole child ages from 0 to 120, with minimum age no greater than maximum age.' : null} />
     <ErrorNotice message={saveError} />
     <ErrorNotice message={data.error} onRetry={refresh} />
-    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Contacted', 'Follow-up', 'Name', 'Contact', 'Status', 'Kid details', 'Actions'].map(title => <th key={title} className={cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => <tr key={lead.id}>
-      <td className={cell}><input type="checkbox" aria-label={`Contacted ${lead.firstName} ${lead.lastName}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
-      <td className={cell}><input type="checkbox" aria-label={`Follow up ${lead.firstName} ${lead.lastName}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
-      <td className={cell}>
+    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Contacted', 'Follow-up', 'Name', 'Contact', 'Status', 'Kid details', 'Actions'].map((title, index) => <th key={title} className={index < 2 ? checkboxCell : index === 2 ? nameCell : cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => <tr key={lead.id}>
+      <td className={checkboxCell}><input type="checkbox" aria-label={`Contacted ${lead.firstName} ${lead.lastName}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
+      <td className={checkboxCell}><input type="checkbox" aria-label={`Follow up ${lead.firstName} ${lead.lastName}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
+      <td className={nameCell}>
         <button className="font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => setNotes(lead)}>{lead.firstName} {lead.lastName}</button>
         <p className="mt-1 text-xs text-slate-500">{lead.matchedMemberId ? 'Member inquiry' : 'Lead'} #{lead.id}</p>
       </td>

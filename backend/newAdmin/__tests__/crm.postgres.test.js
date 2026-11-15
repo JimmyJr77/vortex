@@ -24,7 +24,7 @@ test('CRM paginates the facility directory and computes activity from enrollment
     ALTER TABLE scheduling_signup ADD CONSTRAINT scheduling_signup_status_check
       CHECK (status IN ('confirmed','waitlisted','cancelled','paused','completed','pending_setup'));
     ALTER TABLE app_user ADD COLUMN facility_id bigint, ADD COLUMN email text, ADD COLUMN phone text,
-      ADD COLUMN username text, ADD COLUMN updated_at timestamptz DEFAULT now(), ADD COLUMN is_active boolean DEFAULT true;
+      ADD COLUMN username text, ADD COLUMN updated_at timestamptz DEFAULT now(), ADD COLUMN is_active boolean DEFAULT true, ADD COLUMN staff_access_active boolean DEFAULT true, ADD COLUMN member_portal_access_active boolean DEFAULT true;
     CREATE TABLE parent_guardian_authority(parent_member_id bigint, child_member_id bigint, has_legal_authority boolean);
     CREATE TABLE registrations(id bigint PRIMARY KEY, facility_id bigint, first_name text, last_name text,
       email text, phone text, lead_status text, archived boolean, member_id bigint, converted_member_id bigint,
@@ -130,6 +130,13 @@ test('CRM paginates the facility directory and computes activity from enrollment
     assert.deepEqual(search.rows.map(row => [row.kind, row.id]), [['lead',4]])
     await pool.query('UPDATE registrations SET archived=FALSE WHERE id=4')
     assert.equal((await listCrm(pool, 1, { record: 'archived', source: 'lead', search: 'Returning' })).total, 0)
+  })
+
+  await t.test('archive view includes unlinked logins with both portals disabled', async () => {
+    await pool.query('UPDATE app_user SET staff_access_active=FALSE,member_portal_access_active=FALSE WHERE id=21')
+    const archived = await listCrm(pool, 1, { record: 'archived', source: 'staff' })
+    assert.deepEqual(archived.rows.map(row => [row.id, row.archived]), [[21,true]])
+    assert.equal((await listCrm(pool, 1, { record: 'active', source: 'staff' })).rows.some(row => row.id === 21), false)
   })
 
 })

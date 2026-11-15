@@ -190,7 +190,7 @@ function buildListQuery(facilityId, filters, target = null) {
     ${targetId ? `AND r.id = ${targetId}` : ''}`,
     show('staff') && `SELECT u.id, 'staff', split_part(btrim(u.full_name), ' ', 1),
       regexp_replace(btrim(u.full_name), '^[^ ]+ *', ''), u.full_name, u.email, u.phone, NULL::int, NULL::text,
-      NULL::bigint, NULL::text, 'inactive', FALSE, u.is_active IS NOT TRUE, NULL::text, 0, 0,
+      NULL::bigint, NULL::text, 'inactive', FALSE, (u.is_active IS NOT TRUE OR (u.staff_access_active IS FALSE AND u.member_portal_access_active IS FALSE)), NULL::text, 0, 0,
       u.updated_at, FALSE, FALSE, FALSE, FALSE
     FROM app_user u WHERE u.facility_id = $1 AND NOT EXISTS (SELECT 1 FROM member m WHERE m.facility_id = $1 AND m.app_user_id = u.id)
       ${targetId ? `AND u.id = ${targetId}` : ''}`].filter(Boolean)

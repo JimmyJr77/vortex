@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test'
 
-test('lead and member directories share archived CRM with restore and guarded deletion', async ({ page }) => {
+test('CRM archive toggle retains sorting and filtering with restore and guarded deletion', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
+  const queries: URLSearchParams[] = []
   let restored = false
   let deleted = false
   let blocked = true
@@ -26,13 +27,12 @@ test('lead and member directories share archived CRM with restore and guarded de
     }
     if (path === '/api/admin/new-admin/families') data = paged([])
     if (path === '/api/admin/new-admin/crm') {
-      expect(url.searchParams.get('record')).toBe('archived')
-      expect(url.searchParams.get('source')).toBe('member,lead')
+      queries.push(url.searchParams)
       const rows = [
         ...(!restored ? [{ id: 7, kind: 'lead', name: 'Archived Lead', email: 'lead@example.test' }] : []),
         ...(!deleted ? [{ id: 8, kind: 'member', name: 'Archived Member', email: 'member@example.test', familyName: 'Example Family' }] : []),
       ].filter(row => row.name.toLowerCase().includes((url.searchParams.get('search') || '').toLowerCase()))
-      data = paged(rows)
+      data = paged(url.searchParams.get('record') === 'archived' ? rows.map(row => ({ ...row, archived: true })) : [])
     }
     if (path === '/api/admin/new-admin/leads/7/archive') {
       expect(route.request().postDataJSON()).toEqual({ archived: false })
@@ -48,22 +48,35 @@ test('lead and member directories share archived CRM with restore and guarded de
   await page.goto('/')
   await page.getByRole('button', { name: 'Leads', exact: true }).click()
   await expect(page.getByLabel('Show archived leads')).toHaveCount(0)
-  await page.getByRole('button', { name: 'View Archives', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Archived CRM' })).toBeVisible()
-  await expect(page.getByRole('table', { name: 'Archived CRM records' })).toContainText('Archived Lead')
+  await expect(page.getByRole('button', { name: 'View Archives', exact: true })).toHaveCount(0)
+  const navigation = page.getByRole('navigation', { name: 'Admin sections' })
+  await navigation.getByRole('button', { name: 'Members & accounts', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'View Archives', exact: true })).toHaveCount(0)
+  await navigation.getByRole('button', { name: 'CRM', exact: true }).click()
+  const toggle = page.getByRole('button', { name: 'View Archives', exact: true })
+  const families = page.getByLabel('Families only')
+  const labelBox = await families.locator('..').boundingBox()
+  const toggleBox = await toggle.boundingBox()
+  expect(toggleBox!.x).toBeGreaterThan(labelBox!.x + labelBox!.width)
+  await toggle.click()
+  await expect(page.getByRole('heading', { name: 'CRM', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Archived CRM' })).toHaveCount(0)
+  await expect(page.getByRole('table', { name: 'CRM records' })).toContainText('Archived Lead')
   await expect(page.getByRole('table')).toContainText('Archived Member')
-  await page.getByRole('searchbox', { name: 'Search archives' }).fill('Lead')
-  await expect(page.getByText('Archived Member', { exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Name', exact: true }).click()
+  await expect.poll(() => queries.at(-1)?.get('sortDir')).toBe('desc')
+  expect(queries.at(-1)?.get('record')).toBe('archived')
+  await page.getByRole('searchbox', { name: 'Search people and families' }).fill('Lead')
+  await expect(page.getByRole('button', { name: 'Archived Member', exact: true })).toHaveCount(0)
   page.once('dialog', dialog => dialog.accept())
-  await page.getByRole('button', { name: 'Restore Archived Lead', exact: true }).click()
-  await expect(page.getByText('No archived people or leads match your search.')).toBeVisible()
-  await page.getByRole('button', { name: 'Back', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Archived Lead', exact: true })).toBeVisible()
-  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Members & accounts', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Archived logins', exact: true })).toHaveCount(0)
-  await expect(page.getByRole('combobox', { name: 'Records', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Restore Archived Lead', exact: true }).first().click()
+  await expect(page.getByText('No CRM records match these filters.')).toBeVisible()
+  await page.getByRole('button', { name: 'View Current Records', exact: true }).click()
+  await expect.poll(() => queries.at(-1)?.get('record')).toBe('active')
+  expect(queries.at(-1)?.get('search')).toBe('Lead')
   await page.getByRole('button', { name: 'View Archives', exact: true }).click()
-  const remove = page.getByRole('button', { name: 'Permanently delete Archived Member', exact: true })
+  await page.getByRole('searchbox', { name: 'Search people and families' }).clear()
+  const remove = page.getByRole('button', { name: 'Permanently delete Archived Member', exact: true }).first()
   await remove.click()
   const dialog = page.getByRole('dialog', { name: 'Delete permanently', exact: true })
   await dialog.getByRole('button', { name: 'Cancel' }).click()
@@ -75,7 +88,7 @@ test('lead and member directories share archived CRM with restore and guarded de
     await dialog.getByRole('button', { name: 'Delete permanently', exact: true }).click()
     if (!succeeds) await expect(page.getByRole('alert')).toContainText('Billing history prevents deletion.')
   }
-  await expect(page.getByText('No archived people or leads match your search.')).toBeVisible()
+  await expect(page.getByText('No CRM records match these filters.')).toBeVisible()
   expect(deletes).toBe(2)
   expect(errors).toEqual([])
 })

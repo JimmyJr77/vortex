@@ -40,7 +40,7 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
     requests.push(path)
     let data: unknown = []
     if (path === '/api/admin/access/me') data = { isMasterAdmin: billing, permissions, roles: ['ADMIN'], user: { id: 1 } }
-    if (path === '/api/admin/new-admin/crm') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
+    if (path === '/api/admin/new-admin/crm') data = { rows: archivedLogins.map(login => ({ ...login, name: login.fullName, kind: 'staff', archived: true })), total: archivedLogins.length, page: 1, pageSize: 25, totalPages: 1 }
     if (path === '/api/admin/notifications') data = { notifications: [], unreadCount: 0 }
     if (path === '/api/admin/accounting/options') data = { members: [], classes: [] }
     if (path === '/api/admin/accounting/lines') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0, timezone: 'America/New_York', summary: { billedCents: 0, paidCents: 0, creditAppliedCents: 0, openCents: 0, creditCents: 0, openCount: 0 } }
@@ -231,13 +231,13 @@ test('owner archives a person before deleting the record and can remove an archi
   expect(lifecycleWrites).toEqual(['archive member', 'delete member'])
 
   await region.getByRole('button', { name: 'All families and people' }).click()
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'CRM', exact: true }).click()
   await page.getByRole('button', { name: 'View Archives', exact: true }).click()
-  await page.getByRole('button', { name: 'Unlinked logins', exact: true }).click()
-  await page.getByRole('searchbox', { name: 'Search archived logins' }).fill('archived@example.test')
-  await page.getByRole('button', { name: 'Permanently delete Orphaned Login' }).click()
+  await page.getByRole('searchbox', { name: 'Search people and families' }).fill('archived@example.test')
+  await page.getByRole('button', { name: 'Permanently delete Orphaned Login' }).first().click()
   await deleteDialog.getByLabel('Type DELETE to confirm').fill('DELETE')
   await confirmDelete.click()
-  await expect(page.getByText('No archived logins match your search.')).toBeVisible()
+  await expect(page.getByText('No CRM records match these filters.')).toBeVisible()
   expect(lifecycleWrites).toEqual(['archive member', 'delete member', 'delete login'])
 })
 
