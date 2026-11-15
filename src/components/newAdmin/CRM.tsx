@@ -2,7 +2,8 @@ import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useState } from 'react'
 import { ArrowDown, ArrowUp, ChevronsUpDown, Search } from 'lucide-react'
 import { formatDateShort } from '../../utils/dateUtils'
-import { useRead, useSearch, type Page } from './api'
+import MemberRecordActions from '../admin/MemberRecordActions'
+import { allowed, useRead, useSearch, type Access, type Page } from './api'
 import { button, cell, Dialog, Empty, ErrorNotice, input, Loading, Pager, Status } from './shared'
 
 const crmPath = '/api/admin/new-admin/crm'
@@ -220,8 +221,8 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
   </Dialog>
 }
 
-export default function CRM({ revision, onMember, onFamily }: {
-  revision: number; onMember: (id: number) => void; onFamily: (id: number) => void
+export default function CRM({ access, revision, onMember, onFamily }: {
+  access: Access; revision: number; onMember: (id: number) => void; onFamily: (id: number) => void
 }) {
   const [query, setQuery] = useState('')
   const [classQuery, setClassQuery] = useState('')
@@ -249,6 +250,9 @@ export default function CRM({ revision, onMember, onFamily }: {
     setSortDir(direction ?? (key === sortBy && sortDir === 'asc' ? 'desc' : 'asc'))
     setPage(1)
   }
+  const recordActions = (row: PersonRow) => allowed(access, 'accounts.lifecycle') && row.kind !== 'staff'
+    ? <MemberRecordActions record={{ kind: row.kind, id: row.id, name: row.name, archived: row.archived }} onChanged={() => setRetry(value => value + 1)} />
+    : null
   const reset = () => {
     setFilters(emptyFilters)
     setQuery('')
@@ -338,12 +342,13 @@ export default function CRM({ revision, onMember, onFamily }: {
               return <th key={column.key} scope="col" aria-sort={current ? sortDir === 'asc' ? 'ascending' : 'descending' : undefined} className="px-3 py-3 text-left">
                 {familiesOnly && column.key === 'age' ? column.label : <button type="button" className="inline-flex items-center gap-1 whitespace-nowrap font-semibold hover:text-vortex-red" onClick={() => sort(column.key)}>{column.label}<Icon aria-hidden="true" className="h-3.5 w-3.5" /></button>}
               </th>
-            })}</tr></thead>
+            })}<th scope="col" className="px-3 py-3 text-left">Actions</th></tr></thead>
             <tbody className="divide-y divide-slate-100">{state.data.rows.map(row => <tr key={`${row.kind}-${row.id}`}>
               <td className="px-3 py-3 align-top"><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4 hover:text-vortex-red" onClick={() => setSelected(row)}>{row.name}</button><p className="mt-0.5 text-xs text-slate-600">{kinds[row.kind]}</p></td>
               <td className="px-3 py-3 align-top">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'}` : row.familyName || unknown}</td><td className="px-3 py-3 align-top">{displayAge(row.age)}</td>
               <td className="max-w-52 break-all px-3 py-3 align-top">{row.email || unknown}</td><td className="whitespace-nowrap px-3 py-3 align-top">{formatPhoneForDisplay(row.phone) || unknown}</td>
               <td className="px-3 py-3 align-top">{row.childCount ?? 0}</td><td className="px-3 py-3 align-top"><Activity person={row} /></td><td className="px-3 py-3 align-top"><FamilyActivity person={row} /></td><td className="whitespace-nowrap px-3 py-3 align-top">{displayDate(row.updatedAt)}</td>
+              <td className="px-3 py-3 align-top">{recordActions(row)}</td>
             </tr>)}</tbody>
           </table>
         </div>
@@ -352,6 +357,7 @@ export default function CRM({ revision, onMember, onFamily }: {
           <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-700"><span className="break-all">{row.email || 'No email'}</span><span>{formatPhoneForDisplay(row.phone) || 'No phone'}</span></p>
           <p className="text-xs text-slate-600">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'} · ` : row.age != null ? `Age ${row.age} · ` : ''}{row.childCount ?? 0} {(row.childCount ?? 0) === 1 ? 'child' : 'children'}</p>
           <div className="text-xs"><FamilyActivity person={row} /></div>
+          {recordActions(row)}
         </li>)}</ul>
       </> : <Empty>No CRM records match these filters.</Empty>}
       <Pager data={state.data} onPage={setPage} />
