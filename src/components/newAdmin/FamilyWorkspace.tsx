@@ -83,7 +83,7 @@ export default function FamilyWorkspace({ familyId, memberId, access, revision, 
           <p className="mt-3 break-all text-sm text-slate-600">{person.email || 'No email'} · {formatPhoneForDisplay(person.phone) || 'No phone'}</p>
           <p className="mt-1 text-xs text-slate-500">Born {dateLabel(person.dateOfBirth)}</p>
           {person.guardianFor.length ? <p className="mt-2 text-xs text-slate-600">Guardian for {person.guardianFor.map(name).join(', ')}</p> : null}
-          {access.isMasterAdmin && !person.isOwner && (!person.isActive || person.currentHousehold) ? <div className="mt-3">
+          {allowed(access, 'accounts.lifecycle') && !person.isOwner && (!person.isActive || person.currentHousehold) ? <div className="mt-3">
             <MemberRecordActions record={{ kind: 'member', id: person.id, name: person.name, archived: !person.isActive }} onChanged={action => {
               if (action === 'delete') {
                 if (personId === person.id) setPersonId(null)

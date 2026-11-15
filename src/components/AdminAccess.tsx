@@ -96,7 +96,7 @@ function combineFullName(firstName: string, lastName: string): string {
   return `${firstName.trim()} ${lastName.trim()}`.trim()
 }
 
-export default function AdminAccess({ currentUserId = null, isMasterAdmin = false }: { currentUserId?: number | null; isMasterAdmin?: boolean }) {
+export default function AdminAccess({ currentUserId = null, isMasterAdmin = false, canManageRecords = false }: { currentUserId?: number | null; isMasterAdmin?: boolean; canManageRecords?: boolean }) {
   const [users, setUsers] = useState<AccessUser[]>([])
   const [roles, setRoles] = useState<AccessRole[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
@@ -377,7 +377,7 @@ export default function AdminAccess({ currentUserId = null, isMasterAdmin = fals
   }
 
   const updateActiveStatus = async () => {
-    if (!isMasterAdmin || !selectedUser || selectedUserIsOwner) return
+    if (!(isMasterAdmin || canManageRecords) || !selectedUser || selectedUserIsOwner) return
     const nextActive = !selectedUser.isActive
     if (!nextActive && !window.confirm(`Suspend staff access for ${selectedUser.fullName}?`)) return
 
@@ -483,7 +483,7 @@ export default function AdminAccess({ currentUserId = null, isMasterAdmin = fals
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 justify-end">
-                    {isMasterAdmin && !selectedUserIsOwner && (
+                    {(isMasterAdmin || canManageRecords) && !selectedUserIsOwner && (
                       <button
                         type="button"
                         onClick={() => void updateActiveStatus()}

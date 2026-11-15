@@ -1,3 +1,4 @@
+import { changeLeadLifecycle } from './leadLifecycle.js'
 import { classRoster } from './classRoster.js'
 import { saveClass,saveClassPrice } from './classPricing.js'
 import rateLimit from 'express-rate-limit'
@@ -86,7 +87,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     }catch(error){res.status(error.statusCode||500).json({success:false,message:'Unable to verify lead access.'})}
   }
   app.put('/api/admin/registrations/:id',allow('members.edit'),legacyLeadGuard,(_req,_res,next)=>next())
-  app.delete('/api/admin/registrations/:id',allow('members.edit'),legacyLeadGuard,(_req,_res,next)=>next())
+  app.delete('/api/admin/registrations/:id',allow('accounts.lifecycle'),legacyLeadGuard,(_req,_res,next)=>next())
   app.get(`${base}/members`,allow('members.view'),handler(req=>listAccountDirectory(pool,{facilityId:facility(req),query:req.query})))
   app.get(`${base}/members/:id`,allow('members.view'),handler(req=>memberDetail(pool,facility(req),req.params.id,req.query)))
   app.post(`${base}/members`,allow('members.edit'),handler(async req=>{
@@ -99,11 +100,13 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.get(`${base}/crm/:kind/:id`,allow('members.view'),handler(req=>loadCrmDetail(pool,facility(req),req.params.kind,req.params.id,req.query)))
   app.post(`${base}/leads`,allow('members.edit'),handler(req=>createLead(pool,facility(req),req.body)))
   app.patch(`${base}/leads/:id`,allow('members.edit'),handler(req=>saveLead(pool,facility(req),req.params.id,req.body,req)))
-  app.delete(`${base}/leads/:id`,allow('members.edit'),handler(async req=>{
-    const result=await pool.query(`UPDATE registrations SET archived=TRUE,updated_at=now() WHERE id=$1 AND facility_id=$2 RETURNING id`,[id(req.params.id),facility(req)])
-    if(!result.rows[0]) throw inputError('Lead not found.',404)
-    return {id:Number(result.rows[0].id),archived:true}
+  app.patch(`${base}/leads/:id/archive`,allow('accounts.lifecycle'),handler(req=>{
+    if (typeof req.body?.archived !== 'boolean') throw inputError('archived must be a boolean.')
+    return changeLeadLifecycle(pool,facility(req),req.params.id,req.body.archived?'archive':'restore')
   }))
+  // Preserve the old soft-delete contract for existing callers.
+  app.delete(`${base}/leads/:id`,allow('accounts.lifecycle'),handler(req=>changeLeadLifecycle(pool,facility(req),req.params.id,'archive')))
+  app.delete(`${base}/leads/:id/permanent`,allow('accounts.lifecycle'),handler(req=>changeLeadLifecycle(pool,facility(req),req.params.id,'delete')))
   app.get(`${base}/leads/:id/notes`,allow('members.view'),handler(req=>leadNotes(pool,facility(req),req.params.id)))
   app.post(`${base}/leads/:id/convert`,allow('members.edit'),handler(async req=>{
     if (req.body?.mode === 'invite') {

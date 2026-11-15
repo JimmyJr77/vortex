@@ -2582,9 +2582,9 @@ function legacyAdminPermissionFor(req) {
   if (path.startsWith('/admins')) return method === 'GET' && path === '/admins/me' ? null : 'admins.manage'
   if (path.startsWith('/members') || path.startsWith('/families') || path.startsWith('/users')) {
     if (method === 'GET') return 'members.view'
-    if (path.includes('/archive')) return 'members.archive'
-    // Member archive and deletion also require the canonical facility Owner.
-    if (method === 'DELETE' && path.startsWith('/members')) return 'members.delete'
+    if (path.includes('/archive')) return 'accounts.lifecycle'
+    // Lifecycle operations require explicitly delegated destructive access.
+    if (method === 'DELETE' && path.startsWith('/members')) return 'accounts.lifecycle'
     return 'members.edit'
   }
   if (path.startsWith('/notes')) return method === 'GET' ? 'members.view' : 'members.edit'
@@ -2645,11 +2645,13 @@ app.use('/api/admin', async (req, res, next) => {
   })
 })
 
-function requireMemberLifecycleOwner(req, res, next) {
-  if (req.canonicalAccess?.isOwner !== true) {
-    return res.status(403).json({ success: false, message: 'Only the facility Owner can archive or permanently delete members.' })
-  }
-  return next()
+async function requireMemberLifecycleOwner(req, res, next) {
+  try {
+    if (req.canonicalAccess?.isOwner !== true && !await hasAdminPermission(req.adminId, 'accounts.lifecycle')) {
+      return res.status(403).json({ success: false, message: 'Missing permission: accounts.lifecycle' })
+    }
+    return next()
+  } catch (error) { return next(error) }
 }
 
 // Analytics & consent (public + admin)

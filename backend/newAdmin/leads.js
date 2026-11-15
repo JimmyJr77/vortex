@@ -9,7 +9,7 @@ import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
-  return { id: Number(row.id), firstName: row.first_name, lastName: row.last_name,
+  return { id: Number(row.id), archived: row.archived === true, firstName: row.first_name, lastName: row.last_name,
     email: row.email, phone: row.phone, status: (row.converted_member_id || row.member_id) ? 'converted' : row.lead_status || 'new',
     contacted: Boolean(row.contacted), followUp: Boolean(row.follow_up), firstContactedAt: row.first_contacted_at ?? null,
     inquiry: { athleteAge: row.athlete_age, interests: row.interests_array ?? row.interests, interest: row.interest, classTypes: row.class_types, childAges: row.child_ages, campers: row.campers, submitterRole: row.submitter_role, source: row.inquiry_source },

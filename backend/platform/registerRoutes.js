@@ -763,18 +763,6 @@ export function requireCoachPermissions(pool, jwtSecret, permissions) {
   ]
 }
 
-function requireFacilityOwner(pool, jwtSecret) {
-  return [
-    ...adminPortalAuthMiddleware(pool, jwtSecret),
-    (req, res, next) => {
-      if (req.platformAuth?.isMasterAdmin !== true) {
-        return res.status(403).json({ success: false, message: 'Only the facility Owner can perform this action.' })
-      }
-      next()
-    },
-  ]
-}
-
 async function deleteAppUserCompletely(client, userId, facilityId) {
   const target = await client.query(
     `SELECT id, is_active, staff_access_active, member_portal_access_active, EXISTS (
@@ -1279,11 +1267,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     })
   })
 
-  app.get('/api/admin/access/users', ...requirePermission(pool, jwtSecret, 'admin_access.manage'), async (req, res) => {
+  app.get('/api/admin/access/users', ...adminPortalAuthMiddleware(pool, jwtSecret), async (req, res) => {
     const scope = String(req.query?.scope || '').toLowerCase()
     const archivedLogins = scope === 'archived-logins'
-    if (archivedLogins && req.platformAuth.isMasterAdmin !== true) {
-      return res.status(403).json({ success: false, message: 'Only the facility Owner can view archived login accounts.' })
+    const permission = archivedLogins ? 'accounts.lifecycle' : 'admin_access.manage'
+    if (!hasPermission(req.platformAuth, permission)) {
+      return res.status(403).json({ success: false, message: `Missing permission: ${permission}` })
     }
     const users = await pool.query(
       `
@@ -1562,7 +1551,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
-  app.patch('/api/admin/access/users/:userId/active', ...requireFacilityOwner(pool, jwtSecret), async (req, res) => {
+  app.patch('/api/admin/access/users/:userId/active', ...requirePermission(pool, jwtSecret, 'accounts.lifecycle'), async (req, res) => {
     const userId = Number(req.params.userId)
     const isActive = req.body?.isActive
     if (!Number.isSafeInteger(userId) || userId <= 0) return res.status(400).json({ success: false, message: 'Invalid user id.' })
@@ -1849,7 +1838,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     res.json({ success: true })
   })
 
-  app.delete('/api/admin/access/users/:userId', ...requireFacilityOwner(pool, jwtSecret), async (req, res) => {
+  app.delete('/api/admin/access/users/:userId', ...requirePermission(pool, jwtSecret, 'accounts.lifecycle'), async (req, res) => {
     const userId = Number(req.params.userId)
     if (!Number.isSafeInteger(userId) || userId <= 0) return res.status(400).json({ success: false, message: 'Invalid user id.' })
     if (userId === Number(req.platformAuth.user.id)) {

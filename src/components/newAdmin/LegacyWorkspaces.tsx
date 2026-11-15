@@ -76,7 +76,7 @@ export default function LegacyWorkspaces({ section, access, threadId, onThreadOp
       case 'insurance': return <Insurance />
       case 'staffLegal': return <StaffLegal />
       case 'preferences': return <Preferences role="admin" fetcher={adminFetch} />
-      case 'staffAccess': return <StaffAccess currentUserId={access.user?.id ?? null} isMasterAdmin={access.isMasterAdmin} />
+      case 'staffAccess': return <StaffAccess currentUserId={access.user?.id ?? null} isMasterAdmin={access.isMasterAdmin} canManageRecords={allowed(access, 'accounts.lifecycle')} />
       case 'email': return <AdminSettings />
     }
   }

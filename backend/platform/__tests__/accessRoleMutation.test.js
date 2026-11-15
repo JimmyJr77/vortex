@@ -22,7 +22,7 @@ function ownerProfilePool({
   const query = async (sql, params = []) => {
     const text = String(sql)
     calls.push({ text, params })
-    if (text === 'BEGIN' || text === 'COMMIT' || text === 'ROLLBACK') {
+    if (text === 'BEGIN' || text === 'COMMIT' || text === 'ROLLBACK' || text.includes('pg_advisory_xact_lock')) {
       return { rows: [], rowCount: 0 }
     }
     if (text.includes('FROM v_app_user_access_context')) {
@@ -45,6 +45,7 @@ function ownerProfilePool({
         }],
       }
     }
+    if (text.includes('FROM account_invite') && text.includes('suggested_username')) return { rows: [] }
     if (text.includes('FROM app_user_role')) return { rows: [] }
     if (text.includes('SELECT key FROM permission ORDER BY key')) {
       return { rows: [{ key: 'admin_access.manage' }] }
@@ -277,7 +278,7 @@ test('staff profile updates atomically synchronize the explicitly linked member 
     body: {
       fullName: '  Morgan   Lee Rivera  ',
       email: 'morgan@example.test',
-      phone: '555-0112',
+      phone: '202-555-0112',
       username: 'morgan-rivera',
       address: '12 Canonical Lane',
     },
@@ -293,11 +294,12 @@ test('staff profile updates atomically synchronize the explicitly linked member 
     'Morgan',
     'Lee Rivera',
     'morgan@example.test',
-    '555-0112',
+    '202-555-0112',
     'morgan-rivera',
     '12 Canonical Lane',
     12,
     7,
+    false,
   ])
   assert.equal(fixture.calls.some(({ text }) => text === 'COMMIT'), true)
   assert.equal(fixture.calls.some(({ text }) => text === 'ROLLBACK'), false)
@@ -380,6 +382,7 @@ test('permission and suspension routes are facility-scoped while profile identit
   assert.match(deleteHelper, /linked to a member.*Member Portal login are preserved/s)
   assert.doesNotMatch(deleteHelper, /DELETE FROM member/)
   assert.doesNotMatch(source, /['"][^'"\n]*(?:master admin|master administrator)[^'"\n]*['"]/i)
-  assert.match(source, /Only the facility Owner can perform this action\./)
+  assert.match(activeBlock, /requirePermission\(pool, jwtSecret, 'accounts.lifecycle'\)/)
+  assert.match(deleteBlock, /requirePermission\(pool, jwtSecret, 'accounts.lifecycle'\)/)
   assert.match(source, /Administrator role for other staff/)
 })

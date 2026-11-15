@@ -1,3 +1,4 @@
+import MemberRecordActions from '../admin/MemberRecordActions'
 import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
@@ -12,6 +13,7 @@ import { allowed, request, useRead, useSearch, type Access, type Page } from './
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
   const [query, setQuery] = useState('')
+  const [archived, setArchived] = useState(false)
   const search = useSearch(query)
   const [keywords, setKeywords] = useState('')
   const keywordSearch = useSearch(keywords)
@@ -26,7 +28,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   const canManage = allowed(access, 'members.edit')
   const invalidAge = (filters.ageMin !== '' && filters.ageMax !== '' && Number(filters.ageMin) > Number(filters.ageMax))
     || [filters.ageMin, filters.ageMax].some(value => value !== '' && (!Number.isInteger(Number(value)) || Number(value) < 0 || Number(value) > 120))
-  const data = useRead<Page<Lead>>(invalidAge ? null : `/api/admin/new-admin/leads?${new URLSearchParams({ search, keywords: keywordSearch, ...filters, page: String(page), pageSize: '25' })}`, revision + version)
+  const data = useRead<Page<Lead>>(invalidAge ? null : `/api/admin/new-admin/leads?${new URLSearchParams({ search, archived: String(archived), keywords: keywordSearch, ...filters, page: String(page), pageSize: '25' })}`, revision + version)
   const refresh = () => setVersion(value => value + 1)
   const flag = async (lead: Lead, body: { contacted?: boolean; followUp?: boolean }) => {
     setSaving(lead.id); setSaveError(null)
@@ -36,6 +38,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   }
   return <section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Leads</h2><p className="mt-1 text-sm text-slate-500">Follow up on inquiries from prospective families and current members.</p></div>{canManage ? <button className={primary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" />Add lead</button> : null}</div>
+    {allowed(access, 'accounts.lifecycle') && <label className="mb-4 flex items-center gap-2 text-sm"><input type="checkbox" checked={archived} onChange={event => { setArchived(event.target.checked); setPage(1) }} />Show archived leads</label>}
     <LeadFilters value={filters} onChange={patch => { setFilters(current => ({ ...current, ...patch })); setPage(1) }} search={query} onSearch={value => { setQuery(value); setPage(1) }} keywords={keywords} onKeywords={value => { setKeywords(value); setPage(1) }} onReset={() => { setFilters(emptyFilters); setQuery(''); setKeywords(''); setPage(1) }} />
     <ErrorNotice message={invalidAge ? 'Enter whole child ages from 0 to 120, with minimum age no greater than maximum age.' : null} />
     <ErrorNotice message={saveError} />
@@ -53,7 +56,8 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
       <td className={cell}><div className="flex flex-wrap gap-2">
         <button className={button} onClick={() => setNotes(lead)}>Notes</button>
         {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
-        {canManage && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
+        {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
+        {allowed(access, 'accounts.lifecycle') && <MemberRecordActions record={{ kind: 'lead', id: lead.id, name: `${lead.firstName} ${lead.lastName}`, archived: lead.archived === true }} onChanged={refresh} />}
       </div></td></tr>)}</tbody></table> : <Empty>No inquiries match these filters.</Empty>}<Pager data={data.data} onPage={setPage} /></div> : null}
     {adding ? <Dialog title="Add lead" onClose={() => setAdding(false)}><LeadFields lead={null} onCancel={() => setAdding(false)} onSaved={() => { setAdding(false); refresh() }} /></Dialog> : null}
     {notes ? <LeadNotesDialog lead={notes} revision={revision + version} canManage={canManage} onClose={() => setNotes(null)} onSaved={lead => { setNotes(lead); refresh() }} /> : null}

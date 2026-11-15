@@ -340,7 +340,7 @@ interface AdminMembersProps {
   canCreateAccounts?: boolean
   canViewBilling?: boolean
   canEditMembers?: boolean
-  isMasterAdmin?: boolean
+  canManageRecords?: boolean
   canManageClasses?: boolean
 }
 
@@ -348,7 +348,7 @@ export default function AdminMembers({
   canCreateAccounts = false,
   canViewBilling = false,
   canEditMembers = false,
-  isMasterAdmin = false,
+  canManageRecords = false,
   canManageClasses = false,
 }: AdminMembersProps) {
   const [directory, setDirectory] = useState<DirectoryPage>(EMPTY_DIRECTORY_PAGE)
@@ -366,7 +366,7 @@ export default function AdminMembers({
   const [accountEditMemberId, setAccountEditMemberId] = useState<number | null>(null)
   const [expandedMemberId, setExpandedMemberId] = useState<number | null>(null)
   const [expandedTab, setExpandedTab] = useState<MemberAccountTab>('details')
-  const showActions = canViewBilling || canEditMembers || isMasterAdmin
+  const showActions = canViewBilling || canEditMembers || canManageRecords
 
   const fetchMembers = useCallback(async () => {
     const requestId = ++requestSequence.current
@@ -726,7 +726,7 @@ export default function AdminMembers({
                               >
                                 <Edit2 className="h-4 w-4" />
                               </button> : null}
-                              {isMasterAdmin && !member.staffAccess.roles.includes('OWNER') ? <MemberRecordActions
+                              {canManageRecords && !member.staffAccess.roles.includes('OWNER') ? <MemberRecordActions
                                 record={{ kind: 'member', id: member.id, name: `${member.firstName} ${member.lastName}`, archived: !isActive }}
                                 onChanged={() => { if (isExpanded) setExpandedMemberId(null); void fetchMembers() }}
                               /> : null}

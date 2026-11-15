@@ -17,7 +17,8 @@ const ageFilter = value => {
 export function leadFilters(query, facilityId, statuses) {
   const values = [facilityId]
   const bind = value => { values.push(value); return `$${values.length}` }
-  const clauses = ['r.facility_id=$1', 'r.archived IS NOT TRUE']
+  const archived = booleanFilter(query.archived, 'archived') === true
+  const clauses = ['r.facility_id=$1', archived ? 'r.archived IS TRUE' : 'r.archived IS NOT TRUE']
   const search = String(query.search ?? '').trim()
   if (search) {
     const text = bind(searchValue(search))

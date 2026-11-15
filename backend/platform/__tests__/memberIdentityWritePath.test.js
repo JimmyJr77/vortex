@@ -236,10 +236,11 @@ test('member archive changes lifecycle without rewriting portal or derived statu
   assert.doesNotMatch(mutation, /status\s*=/)
 })
 
-test('member archive and permanent deletion require the canonical facility Owner', async () => {
+test('member archive and permanent deletion require Owner or explicit lifecycle permission', async () => {
   const source = await fs.readFile(serverSourceUrl, 'utf8')
   const guard = block(source, 'function requireMemberLifecycleOwner', '// Analytics & consent')
   assert.match(guard, /req\.canonicalAccess\?\.isOwner !== true/)
+  assert.match(guard, /hasAdminPermission\(req.adminId, 'accounts.lifecycle'\)/)
   assert.match(guard, /status\(403\)/)
   for (const route of [
     "app.get('/api/admin/members/:id/archive-check'",

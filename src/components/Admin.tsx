@@ -287,7 +287,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             canEditMembers={Boolean(
               accessContext?.isMasterAdmin || accessContext?.permissions.includes('members.edit')
             )}
-            isMasterAdmin={accessContext?.isMasterAdmin === true}
+            canManageRecords={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('accounts.lifecycle'))}
             canManageClasses={Boolean(
               accessContext?.isMasterAdmin || accessContext?.permissions.includes('classes.manage')
             )}
