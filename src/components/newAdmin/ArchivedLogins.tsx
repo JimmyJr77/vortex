@@ -17,7 +17,7 @@ export default function ArchivedLogins({ revision, onChanged }: { revision: numb
   const matches = state.data?.filter(login => [login.fullName, login.email, login.username].some(value => value?.toLowerCase().includes(query))) ?? []
 
   return <div className="space-y-4">
-    <p className="text-sm text-slate-600">Inactive logins with no linked member record.</p>
+    <p className="text-sm text-slate-600">Inactive logins with no linked member record. These can be deleted; restore an archived person or family from the other lists to recover an existing member account.</p>
     <label className="block max-w-md text-sm font-medium">Search archived logins
       <input className={input} type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Name, email, or username" />
     </label>

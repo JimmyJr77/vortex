@@ -186,7 +186,7 @@ function buildListQuery(facilityId, filters, target = null) {
         COALESCE(cardinality(r.child_ages), 0), CASE WHEN r.athlete_age BETWEEN 0 AND 17 AND lower(r.submitter_role) IS DISTINCT FROM 'athlete' THEN 1 ELSE 0 END), 0,
       COALESCE(r.updated_at, r.created_at) AT TIME ZONE 'UTC', FALSE, FALSE, FALSE, FALSE
     FROM registrations r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
-    WHERE r.facility_id = $1 AND COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NULL
+    WHERE r.facility_id = $1 AND (r.archived IS TRUE OR COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NULL)
     ${targetId ? `AND r.id = ${targetId}` : ''}`,
     show('staff') && `SELECT u.id, 'staff', split_part(btrim(u.full_name), ' ', 1),
       regexp_replace(btrim(u.full_name), '^[^ ]+ *', ''), u.full_name, u.email, u.phone, NULL::int, NULL::text,

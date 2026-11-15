@@ -96,7 +96,7 @@ const sortColumns: { key: SortKey; label: string }[] = [
   { key: 'status', label: 'Activity' }, { key: 'familyActive', label: 'Family activity' }, { key: 'recent', label: 'Last updated' },
 ]
 
-const emptyFilters = { source: '', status: '', familyActive: '', record: '', leadStatus: '', ageGroup: '', minAge: '', maxAge: '', participation: '', contact: '', hasChildren: '' }
+const emptyFilters = { source: '', status: '', familyActive: '', leadStatus: '', ageGroup: '', minAge: '', maxAge: '', participation: '', contact: '', hasChildren: '' }
 
 function displayAge(age: number | null) {
   return age == null ? unknown : String(age)
@@ -221,7 +221,8 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
   </Dialog>
 }
 
-export default function CRM({ access, revision, onMember, onFamily }: {
+export default function CRM({ access, revision, onMember, onFamily, onViewArchives }: {
+  onViewArchives?: () => void;
   access: Access; revision: number; onMember: (id: number) => void; onFamily: (id: number) => void
 }) {
   const [query, setQuery] = useState('')
@@ -239,7 +240,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
   const { minAge, maxAge } = filters
   const invalidAge = [minAge, maxAge].some(value => value !== '' && (!/^\d{1,3}$/.test(value) || Number(value) > 130))
     || (minAge !== '' && maxAge !== '' && Number(minAge) > Number(maxAge))
-  const params = new URLSearchParams({ search, classSearch, familiesOnly: String(familiesOnly), ...filters, sortBy, sortDir, page: String(page), pageSize })
+  const params = new URLSearchParams({ search, classSearch, familiesOnly: String(familiesOnly), ...filters, record: 'active', sortBy, sortDir, page: String(page), pageSize })
   const state = useRead<Page<PersonRow>>(invalidAge ? null : `${crmPath}?${params}`, revision + retry)
   const updateFilter = (key: keyof typeof emptyFilters, value: string) => {
     setFilters(current => ({ ...current, [key]: value }))
@@ -264,6 +265,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
   return <section aria-label="CRM" className="space-y-4">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="text-2xl font-bold text-slate-950">CRM</h2><p className="mt-1 text-sm text-slate-600">Find members, families, leads, and staff.</p></div>
+      {allowed(access, 'accounts.lifecycle') && onViewArchives && <button type="button" className={button} onClick={onViewArchives}>View Archives</button>}
       <label className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900">
         <input type="checkbox" checked={familiesOnly} onChange={event => {
           setFamiliesOnly(event.target.checked)
@@ -294,9 +296,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
           <label className="min-w-0 text-sm font-medium">Family activity<select className={input} value={filters.familyActive} onChange={event => updateFilter('familyActive', event.target.value)}>
             <option value="">Any family activity</option><option value="true">Family active</option><option value="false">Family inactive</option>
           </select></label>
-          <label className="min-w-0 text-sm font-medium">Record state<select className={input} value={filters.record} onChange={event => updateFilter('record', event.target.value)}>
-            <option value="">All records</option><option value="active">Current records</option><option value="archived">Archived records</option>
-          </select></label>
+
           {!familiesOnly ? <label className="min-w-0 text-sm font-medium">Lead stage<select className={input} value={filters.leadStatus} onChange={event => updateFilter('leadStatus', event.target.value)}>
             <option value="">Any lead stage</option><option value="new">New</option><option value="contacted">Contacted</option><option value="qualified">Qualified</option><option value="closed">Closed</option>
           </select></label> : null}

@@ -120,4 +120,16 @@ test('CRM paginates the facility directory and computes activity from enrollment
     const member = await loadCrmDetail(pool, 1, 'member', 1)
     assert.deepEqual(member.inquiries.map(inquiry => [inquiry.id, inquiry.memberInquiry]), [[4,true],[1,true]])
   })
+  await t.test('archives retain converted and email-matched inquiries alongside archived people', async () => {
+    await pool.query('UPDATE registrations SET archived=TRUE WHERE id IN (1,4,5)')
+    const archived = await listCrm(pool, 1, { record: 'archived', source: 'member,lead' })
+    assert.deepEqual(archived.rows.filter(row => row.kind === 'lead').map(row => row.id).sort(), [1,4])
+    assert.ok(archived.rows.some(row => row.kind === 'member' && row.id === 6))
+    assert.ok(archived.rows.every(row => row.archived))
+    const search = await listCrm(pool, 1, { record: 'archived', source: 'member,lead', search: 'Returning' })
+    assert.deepEqual(search.rows.map(row => [row.kind, row.id]), [['lead',4]])
+    await pool.query('UPDATE registrations SET archived=FALSE WHERE id=4')
+    assert.equal((await listCrm(pool, 1, { record: 'archived', source: 'lead', search: 'Returning' })).total, 0)
+  })
+
 })

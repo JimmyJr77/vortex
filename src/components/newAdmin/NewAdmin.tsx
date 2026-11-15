@@ -14,6 +14,7 @@ import type { AccountingWorkspaceState } from './accounting/Accounting'
 const Dashboard = lazyWithRetry(() => import('./EnrollmentDashboard'))
 const Members = lazyWithRetry(() => import('./Members'))
 const Leads = lazyWithRetry(() => import('./Leads'))
+const ArchivedCRM = lazyWithRetry(() => import('./ArchivedCRM'))
 const CRM = lazyWithRetry(() => import('./CRM'))
 const Classes = lazyWithRetry(() => import('./Classes'))
 const Billing = lazyWithRetry(() => import('./BillingWorkspace'))
@@ -72,6 +73,7 @@ const navigationGroups: { label: string | null; sections: Section[] }[] = [
 export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-admin'], onSwitchPortal }: {
   onLogout: () => void; availablePortals?: PortalId[]; onSwitchPortal?: (portal: PortalId) => void
 }) {
+  const [archivesOpen, setArchivesOpen] = useState(false)
   const [section, setSection] = useState<Section>('home')
   const [navOpen, setNavOpen] = useState(false)
   const [cancellationReviewOpen, setCancellationReviewOpen] = useState(false)
@@ -85,9 +87,9 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const access = useRead<Access & { user?: { id?: number } }>('/api/admin/access/me')
   const refresh = () => setRevision(value => value + 1)
   const consumeBillingTarget = useCallback(() => setBillingTarget(null), [])
-  const openMember = (id: number) => { setFamilyId(null); setMemberId(id); setSection('members') }
-  const openFamily = (id: number) => { setMemberId(null); setFamilyId(id); setSection('members') }
-  const openBilling = (target: BillingTarget) => { setBillingTarget(target); setSection('billing') }
+  const openMember = (id: number) => { setArchivesOpen(false); setFamilyId(null); setMemberId(id); setSection('members') }
+  const openFamily = (id: number) => { setArchivesOpen(false); setMemberId(null); setFamilyId(id); setSection('members') }
+  const openBilling = (target: BillingTarget) => { setArchivesOpen(false); setBillingTarget(target); setSection('billing') }
   const accessible = access.data ? [...sections.filter(item => item.permission === null || allowed(access.data!, item.permission)), ...legacySections.filter(item => item.tabs.some(tab => tab.permission === null || allowed(access.data!, tab.permission)))] : []
   const visibleGroups = navigationGroups.map(group => ({
     label: group.label,
@@ -96,6 +98,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const visible = visibleGroups.flatMap(group => group.items)
   const current = visible.find(item => item.id === section) ?? visible.find(item => item.id === 'members') ?? visible[0]
   const navigate = (id: Section) => {
+    setArchivesOpen(false)
     setMessagesMaximized(false)
     setSection(id)
     setMemberId(null)
@@ -107,6 +110,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
     const onNotification = (event: Event) => {
       const detail = (event as CustomEvent<NotificationNavigateDetail>).detail
       if (detail?.portal !== 'admin') return
+      setArchivesOpen(false)
       if (detail.section === 'messages' || detail.group === 'messaging') {
         setMessagesMaximized(false)
         setSection('messaging')
@@ -181,9 +185,10 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
         {access.data && legacy ? <LegacyWorkspaces key={`${legacy.id}-${revision}`} section={legacy.id} access={access.data} threadId={threadId} onThreadOpened={() => setThreadId(null)} maximized={fullscreen} onMaximizedChange={setMessagesMaximized} /> : null}
         {access.data && current?.id === 'dashboard' ? <Dashboard revision={revision} canViewBilling={allowed(access.data, 'billing.view')} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
-        {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
-        {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onOpenMember={openMember} /> : null}
-        {access.data && current?.id === 'crm' ? <CRM access={access.data} revision={revision} onMember={openMember} onFamily={openFamily} /> : null}
+        {access.data && archivesOpen && allowed(access.data, 'accounts.lifecycle') ? <ArchivedCRM revision={revision} onBack={() => { setArchivesOpen(false); refresh() }} /> : null}
+        {access.data && !archivesOpen && current?.id === 'members' ? <Members onViewArchives={() => setArchivesOpen(true)} access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
+        {access.data && !archivesOpen && current?.id === 'leads' ? <Leads onViewArchives={() => setArchivesOpen(true)} access={access.data} revision={revision} onOpenMember={openMember} /> : null}
+        {access.data && !archivesOpen && current?.id === 'crm' ? <CRM onViewArchives={() => setArchivesOpen(true)} access={access.data} revision={revision} onMember={openMember} onFamily={openFamily} /> : null}
         {access.data && current?.id === 'classes' ? <Classes access={access.data} revision={revision} onMember={openMember} /> : null}
         {access.data && current?.id === 'timesheets' ? <Timesheets revision={revision} access={access.data} /> : null}
         {access.data && current?.id === 'pricing' ? <Pricing access={access.data} revision={revision} /> : null}
