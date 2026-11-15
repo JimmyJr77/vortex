@@ -354,14 +354,21 @@ export async function loadCrmDetail(pool, facilityId, kind, recordId, query = {}
   const householdIds = kind === 'family' ? currentHousehold.map(row => Number(row.id)) : []
   const inquiryMemberIds = memberId ? [memberId] : people.map(row => Number(row.id))
   const paging = pagination(query)
-  const [classes, inquiries, staff] = await Promise.all([
+  const [classes, inquiries, staff, linked] = await Promise.all([
     kind === 'family' || memberId ? readClasses(pool, facilityId, kind === 'family' ? target : null, memberId,
       { ...paging, householdIds }) : pageResult([], 0, paging),
     kind === 'staff' ? [] : readInquiries(pool, facilityId, leadId, inquiryMemberIds),
     kind === 'staff' ? pool.query('SELECT username FROM app_user WHERE id = $1 AND facility_id = $2', [target, facilityId]) : null,
+    leadId ? pool.query(`SELECT m.id, concat_ws(' ', m.first_name, m.last_name) AS name,
+      m.is_active IS NOT TRUE AS archived
+      FROM registrations r JOIN member m ON m.id = COALESCE(r.converted_member_id, r.member_id)
+        AND m.facility_id = r.facility_id
+      WHERE r.id = $1 AND r.facility_id = $2`, [target, facilityId]) : null,
   ])
   const individual = people.find(row => Number(row.id) === memberId)
+  const linkedMember = linked?.rows[0]
   return { person, people: people.map(personDetails), classes,
+    linkedMember: linkedMember ? { id: Number(linkedMember.id), name: linkedMember.name, archived: linkedMember.archived } : null,
     children: leadId ? leadChildren(inquiries[0]) : currentHousehold
       .filter(row => row.age == null ? row.dependent : row.age < 18).map(personDetails),
     inquiries: inquiries.map(row => ({ id: Number(row.id), firstName: row.first_name, lastName: row.last_name,

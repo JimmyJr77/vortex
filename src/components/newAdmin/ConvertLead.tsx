@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { allowed, request, useRead, type Access } from './api'
 import { button, Dialog, ErrorNotice, input, Loading, primary } from './shared'
-import type { Lead, LeadChild } from './leadTypes'
+import { leadDisplayName, type Lead, type LeadChild } from './leadTypes'
 
 type Selection = {
   kind: 'program' | 'class' | 'reserved'
@@ -92,7 +92,7 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
   }
 
   return (
-    <Dialog title={`Convert ${lead.firstName} ${lead.lastName}`} onClose={onClose}>
+    <Dialog title={`Convert ${leadDisplayName(lead)}`} onClose={onClose}>
       <ErrorNotice message={error || catalog.error || existing.error} />
       {existing.loading ? <Loading /> : invitation ? (
         <section className="max-w-3xl space-y-4">

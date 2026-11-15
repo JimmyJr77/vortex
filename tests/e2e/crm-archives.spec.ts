@@ -92,3 +92,56 @@ test('CRM archive toggle retains sorting and filtering with restore and guarded 
   expect(deletes).toBe(2)
   expect(errors).toEqual([])
 })
+
+test('an archived lead explains its separate member account and opens that account', async ({ page }) => {
+  const errors: string[] = []
+  const workspaceRequests: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  const lead = { id: 7, kind: 'lead', name: 'Archived Lead', email: 'lead@example.test', phone: null,
+    familyId: null, familyName: null, status: 'lead', familyActive: false, archived: true,
+    leadStatus: 'closed', childCount: 0, memberCount: 0, age: null, dateOfBirth: null, updatedAt: null }
+  const paged = (rows: unknown[]) => ({ rows, total: rows.length, page: 1, pageSize: 25, totalPages: rows.length ? 1 : 0 })
+  await page.addInitScript(() => {
+    localStorage.setItem('vortex_admin', 'true')
+    localStorage.setItem('adminToken', 'fixture')
+    localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, isMaster: false }))
+    localStorage.setItem('vortex_admin_portal', 'new-admin')
+  })
+  await page.route('**/api/**', async route => {
+    const url = new URL(route.request().url())
+    const path = url.pathname
+    let data: unknown = []
+    if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: ['members.view'], user: { id: 1 } }
+    if (path === '/api/admin/notifications') data = { notifications: [], unreadCount: 0 }
+    if (path === '/api/admin/new-admin/crm') data = paged(url.searchParams.get('record') === 'archived' ? [lead] : [])
+    if (path === '/api/admin/new-admin/crm/lead/7') data = {
+      person: lead, people: [], children: [], classes: paged([]), inquiries: [],
+      linkedMember: { id: 62, name: 'Current Member', archived: false },
+    }
+    if (path === '/api/admin/new-admin/members/62/workspace') {
+      workspaceRequests.push(path)
+      data = {
+        family: { id: 42, name: 'Preserved Family', archived: false },
+        people: [{ id: 62, name: 'Current Member', isActive: true, currentHousehold: true, guardianFor: [], dateOfBirth: null }],
+        participation: [], trials: { rows: [], total: 0 }, leads: { rows: [], total: 0 }, financial: null,
+        permissions: { canViewBilling: false }, history: { rows: [], nextCursor: null },
+      }
+    }
+    return route.fulfill({ json: { success: true, data } })
+  })
+  await page.goto('/')
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'CRM', exact: true }).click()
+  await page.getByRole('button', { name: 'View Archives', exact: true }).click()
+  await expect(page.getByText('Archived members are the original accounts, not separate copies.', { exact: false })).toBeVisible()
+  await page.getByRole('table', { name: 'CRM records' }).getByRole('button', { name: 'Archived Lead', exact: true }).click()
+  const detail = page.getByRole('dialog', { name: 'Archived Lead', exact: true })
+  await expect(detail).toContainText('Archiving or deleting this lead does not archive or delete the member account or its class history.')
+  await expect(detail).toContainText('The linked member account is not archived.')
+  await detail.getByRole('button', { name: 'Open linked member account', exact: true }).click()
+  const workspace = page.getByRole('region', { name: 'Unified family workspace', exact: true })
+  await expect(workspace.getByRole('heading', { name: 'Preserved Family', exact: true })).toBeVisible()
+  await expect(workspace).toContainText('Current Member')
+  expect(workspaceRequests).toEqual(['/api/admin/new-admin/members/62/workspace'])
+  await expect(detail).toHaveCount(0)
+  expect(errors).toEqual([])
+})

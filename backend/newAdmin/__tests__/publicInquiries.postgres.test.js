@@ -31,6 +31,7 @@ test('public inquiry intake accepts repeat addresses and preserves archived inqu
     `)
     await db.query(await readFile(new URL('../../migrations/841_new_admin.sql', import.meta.url), 'utf8'))
     await db.query(await readFile(new URL('../../migrations/855_repeat_public_inquiries.sql', import.meta.url), 'utf8'))
+    await db.query(await readFile(new URL('../../migrations/857_admin_lead_submission.sql', import.meta.url), 'utf8'))
     await db.query('INSERT INTO new_admin_public_lead_facility(facility_id) VALUES(1)')
 
     let handle
@@ -44,12 +45,15 @@ test('public inquiry intake accepts repeat addresses and preserves archived inqu
 
     const returning = { firstName: 'Returning', lastName: 'Parent', email: 'returning@example.com' }
     const first = await submit({ ...returning, phone: '+1 (202) 555-0101', classTypes: ['Camps'], message: 'First follow-up',
-      campers: [{ firstName: 'Camper', dateOfBirth: '2014-01-22' }], interests: ['Tumbling'], facilityId: 2, memberId: 1 })
+      campers: [{ firstName: 'Camper', dateOfBirth: '2014-01-22', gender: 'female' }], interests: ['Tumbling'], facilityId: 2, memberId: 1 })
     const second = await submit({ ...returning, message: 'Second follow-up' })
     assert.deepEqual([first.statusCode, second.statusCode], [200, 200])
     assert.deepEqual(Object.keys(first.data).sort(), ['id', 'message', 'success'])
     assert.notEqual(first.data.id, second.data.id)
     assert.deepEqual(attributionIds, [first.data.id, second.data.id])
+    assert.equal((await submit({ ...returning, campers: [{ dateOfBirth: '2014-01-22', gender: 'female' }] })).statusCode, 400)
+    assert.equal((await submit({ ...returning, phone: '2025550101', campers: [{ dateOfBirth: '2014-01-22' }] })).statusCode, 400)
+    assert.equal((await submit({ ...returning, phone: '2025550101', campers: [{ gender: 'male' }] })).statusCode, 400)
     const invalid = await submit({ ...returning, email: 'invalid' })
     assert.equal(invalid.statusCode, 400)
     const invalidPhone = await submit({ ...returning, phone: '202-555-010' })
@@ -60,7 +64,7 @@ test('public inquiry intake accepts repeat addresses and preserves archived inqu
     assert.deepEqual(rows.map(row => [row.archived,row.facility_id,row.message,row.submitter_role,row.converted_member_id]), [
       [true,null,null,null,null], [false,'1','First follow-up','Parent/Guardian',null], [false,'1','Second follow-up',null,null],
     ])
-    assert.deepEqual(rows[1].campers, [{ firstName: 'Camper', dateOfBirth: '2014-01-22' }])
+    assert.deepEqual(rows[1].campers, [{ firstName: 'Camper', dateOfBirth: '2014-01-22', gender: 'female' }])
     assert.deepEqual(rows[1].interests_array, ['Tumbling'])
     assert.equal(rows[1].phone, '202-555-0101')
     assert.equal(rows[2].phone, null)

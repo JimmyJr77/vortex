@@ -66,11 +66,25 @@ test('family deletion is scoped, guarded, atomic, and removes unused logins', { 
 
     const form = (await db.query("INSERT INTO scheduling_form(title) VALUES('Unpaid fixture') RETURNING id")).rows[0]
     const signup = (await db.query("INSERT INTO scheduling_signup(form_id,member_id,first_name,last_name,email,status) VALUES($1,$2,'Unpaid','Fixture','fixture@example.test','pending_setup') RETURNING id", [form.id,second.id])).rows[0]
+    // A lack of payments does not make genuine class history disposable.
+    for (const status of ['confirmed', 'paused', 'waitlisted', 'cancelled', 'completed']) {
+      await db.query('SAVEPOINT meaningful_class')
+      await db.query('UPDATE scheduling_signup SET status=$1 WHERE id=$2', [status,signup.id])
+      await assert.rejects(deleteArchivedFamily(pool, target), { code: 'ACCOUNT_HISTORY_PROTECTED' })
+      assert.equal(await count('member', second.id), 1)
+      assert.equal(await count('scheduling_signup', signup.id), 1)
+      await db.query('ROLLBACK TO SAVEPOINT meaningful_class')
+    }
+    await db.query('SAVEPOINT imported_class')
+    await db.query(`INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,source_data)
+      VALUES($1,'fixture','enrollment','past-class',$2,$3,'{}')`, [facility.id,familyId,second.id])
+    await assert.rejects(deleteArchivedFamily(pool, target), { code: 'ACCOUNT_HISTORY_PROTECTED' })
+    await db.query('ROLLBACK TO SAVEPOINT imported_class')
     const waiver = (await db.query("INSERT INTO waiver_template(facility_id,name,version,body) VALUES($1,'Fixture','1','Fixture') RETURNING id", [facility.id])).rows[0]
     await db.query('INSERT INTO member_waiver_acceptance(member_id,waiver_template_id,accepted_by_member_id) VALUES($1,$2,$3)', [second.id,waiver.id,first.id])
     const inquiry = (await db.query("INSERT INTO registrations(facility_id,first_name,last_name,email,converted_member_id) VALUES($1,'Fixture','Lead','fixture@example.test',$2) RETURNING id", [facility.id,first.id])).rows[0]
     await db.query(`INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,source_data)
-      VALUES($1,'fixture','enrollment','unpaid',$2,$3,'{}')`, [facility.id,familyId,second.id])
+      VALUES($1,'fixture','person','unpaid',$2,$3,'{}')`, [facility.id,familyId,second.id])
     const charge = (await db.query("INSERT INTO billing_charge(family_billing_account_id,member_id,description,amount_cents,collection_status) VALUES($1,$2,'Unpaid class',15000,'checkout_pending') RETURNING id", [account.id,second.id])).rows[0]
     await db.query("INSERT INTO billing_payment(family_billing_account_id,amount_cents,method,external_status) VALUES($1,15000,'card','pending')", [account.id])
 

@@ -79,6 +79,7 @@ interface Inquiry {
 }
 
 interface CRMDetail {
+  linkedMember?: { id: number; name: string; archived: boolean } | null
   person: PersonRow
   people: RelatedPerson[]
   children: Child[]
@@ -149,6 +150,11 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
       <ErrorNotice message={detail.error} onRetry={() => setRetry(value => value + 1)} />
       {detail.loading ? <Loading label="Loading record…" /> : null}
       {data ? <>
+        {data.linkedMember ? <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-800">
+          <p>This is a lead record linked to {data.linkedMember.name}’s member account. Archiving or deleting this lead does not archive or delete the member account or its class history.</p>
+          <p className="mt-1">The linked member account is {data.linkedMember.archived ? 'archived' : 'not archived'}.</p>
+          <button type="button" className={`${button} mt-3`} onClick={() => onMember(data.linkedMember!.id)}>Open linked member account</button>
+        </div> : null}
         <section aria-label="Contact and profile" className="rounded-xl border border-slate-200 p-4">
           <h3 className="font-semibold text-slate-950">Contact and profile</h3>
           <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -283,7 +289,11 @@ export default function CRM({ access, revision, onMember, onFamily }: {
         </button>
       </div>
     </div>
-    {archived && <p role="status" className="text-sm font-medium text-slate-600">Showing archived records</p>}
+    {archived && <div className="space-y-1 text-sm text-slate-600">
+      <p role="status" className="font-medium">Showing archived records</p>
+      <p>Archived members are the original accounts, not separate copies. Restore a member to keep their account and class history. Inactive describes current participation; it does not mean an account is archived.</p>
+      <p>Archived leads can be linked to member accounts that are still in use. Open the lead to check its linked account before deleting.</p>
+    </div>}
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="min-w-0 text-sm font-semibold"><span className="inline-flex items-center gap-2"><Search className="h-4 w-4" aria-hidden="true" />Search people and families</span>

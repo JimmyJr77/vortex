@@ -30,6 +30,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '853_registration_hold_start_dates.sql',
   '854_family_notes.sql',
   '855_repeat_public_inquiries.sql',
+  '857_admin_lead_submission.sql',
   '819_coaching_exercise_difficulty_complexity_compatibility.sql',
   '820_coaching_exercise_difficulty_complexity_nullable.sql',
   '818_coaching_athleticism_accelerator_library.sql',

@@ -98,7 +98,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.get(`${base}/leads`,allow('members.view'),handler(req=>listLeads(pool,facility(req),req.query)))
   app.get(`${base}/crm`,allow('members.view'),handler(req=>listCrm(pool,facility(req),req.query)))
   app.get(`${base}/crm/:kind/:id`,allow('members.view'),handler(req=>loadCrmDetail(pool,facility(req),req.params.kind,req.params.id,req.query)))
-  app.post(`${base}/leads`,allow('members.edit'),handler(req=>createLead(pool,facility(req),req.body)))
+  app.post(`${base}/leads`,allow('members.edit'),handler(req=>createLead(pool,facility(req),req.body,{userId:req.canonicalAccess.userId})))
   app.patch(`${base}/leads/:id`,allow('members.edit'),handler(req=>saveLead(pool,facility(req),req.params.id,req.body,req)))
   app.patch(`${base}/leads/:id/archive`,allow('accounts.lifecycle'),handler(req=>{
     if (typeof req.body?.archived !== 'boolean') throw inputError('archived must be a boolean.')

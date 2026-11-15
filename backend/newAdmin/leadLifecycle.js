@@ -1,3 +1,4 @@
+import { hasFamilyPayments } from '../members/unpaidHistoryDeletion.js'
 import { id, inputError } from './common.js'
 
 // Keep this separate from ordinary lead editing: destructive actions require
@@ -15,9 +16,21 @@ export async function changeLeadLifecycle(pool, facilityId, leadId, action) {
     if (!lead) throw inputError('Lead not found.', 404)
     if (action === 'delete') {
       if (lead.archived !== true) throw inputError('Archive this lead before permanently deleting it.', 409)
-      if (lead.member_id != null || lead.converted_member_id != null) throw inputError('Converted leads must be retained with their member history.', 409)
-      const invites = await client.query('SELECT 1 FROM account_invite WHERE registration_id=$1 LIMIT 1', [target])
-      if (invites.rows.length) throw inputError('This lead has registration invitation history and must remain archived.', 409)
+      const memberIds = [lead.member_id, lead.converted_member_id].filter(value => value != null)
+      const { rows: accounts } = await client.query(
+        `SELECT id FROM family_billing_account WHERE payer_member_id=ANY($1::bigint[]) OR family_id IN (
+           SELECT family_id FROM member WHERE id=ANY($1::bigint[])
+           UNION SELECT family_id FROM family_member WHERE member_id=ANY($1::bigint[])
+           UNION SELECT pending_family_id FROM account_invite WHERE registration_id=$2
+         ) ORDER BY id FOR UPDATE`, [memberIds, target],
+      )
+      if (await hasFamilyPayments(client, { familyId: -1, accountIds: accounts.map(row => row.id), memberIds })) {
+        throw inputError('Payments have been made for this lead’s member or family. Keep the lead archived to preserve payment history.', 409)
+      }
+      // Keep linked members and enrollments; remove only the lead and its invitations.
+      await client.query('UPDATE scheduling_signup SET account_invite_id=NULL WHERE account_invite_id IN (SELECT id FROM account_invite WHERE registration_id=$1)', [target])
+      await client.query('DELETE FROM account_invite WHERE registration_id=$1', [target])
+      await client.query('DELETE FROM new_admin_lead_ownership_audit WHERE registration_id=$1', [target])
       await client.query('DELETE FROM registrations WHERE id=$1 AND facility_id=$2', [target, facility])
       await client.query("DELETE FROM note WHERE subject_type='registration' AND subject_id=$1", [target])
     } else {

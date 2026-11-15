@@ -82,6 +82,7 @@ import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { getMemberArchivePreflight, setMemberArchived } from './members/memberArchive.js'
 import { deleteArchivedMember } from './members/memberDeletion.js'
 import { deleteArchivedFamily } from './members/familyDeletion.js'
+import { setFamilyArchived } from './members/familyArchive.js'
 import {
   canEditHouseholdMember,
   canRequestHouseholdMemberRemoval,
@@ -5282,97 +5283,30 @@ app.put('/api/admin/families/:id', async (req, res) => {
 // Archive/unarchive family (admin endpoint)
 app.patch('/api/admin/families/:id/archive', requireMemberLifecycleOwner, async (req, res) => {
   try {
-    const { id } = req.params
+    const familyId = Number(req.params.id)
     const { archived } = req.body
+    if (!Number.isSafeInteger(familyId) || familyId <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid family id.' })
+    }
     if (typeof archived !== 'boolean') {
       return res.status(400).json({ success: false, message: 'archived must be a boolean value' })
     }
-    
-    const facilityId = req.canonicalAccess.facilityId
-    
-    // Start a transaction
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-      
-      // Update family archived status
-      const updatedFamily = await client.query(
-        `UPDATE family
-            SET archived = $1, updated_at = now()
-          WHERE id = $2 AND facility_id = $3
-          RETURNING id`,
-        [archived, id, facilityId],
-      )
-      if (updatedFamily.rows.length === 0) {
-        await client.query('ROLLBACK')
-        return res.status(404).json({ success: false, message: 'Family not found' })
-      }
-
-      if (archived) {
-        const { rows } = await client.query(
-          `SELECT 1 FROM family_member membership
-           JOIN member ON member.id = membership.member_id AND member.facility_id = $2
-           JOIN facility ON facility.owner_user_id = member.app_user_id
-           WHERE membership.family_id = $1 AND membership.is_active = TRUE
-           LIMIT 1`,
-          [id, facilityId],
-        )
-        if (rows.length > 0) {
-          await client.query('ROLLBACK')
-          return res.status(409).json({ success: false, message: 'The facility Owner account cannot be archived.' })
-        }
-      }
-      
-      // Update member status for all members in this family
-      // When family is archived, archive all members
-      // When family is unarchived, restore members (but keep their individual status)
-      if (archived) {
-        // Set all family members to archived
-        await client.query(`
-          UPDATE member 
-          SET is_active = FALSE, updated_at = NOW()
-          WHERE facility_id = $2
-            AND EXISTS (
-              SELECT 1 FROM family_member membership
-              WHERE membership.family_id = $1
-                AND membership.member_id = member.id
-                AND membership.is_active = TRUE
-            )
-        `, [id, facilityId])
-      } else {
-        // Restore the member records. Participation and waiver state are
-        // derived independently and need no status recalculation.
-        await client.query(`
-          UPDATE member 
-          SET is_active = TRUE, updated_at = NOW()
-          WHERE facility_id = $2
-            AND EXISTS (
-              SELECT 1 FROM family_member membership
-              WHERE membership.family_id = $1
-                AND membership.member_id = member.id
-                AND membership.is_active = TRUE
-            )
-        `, [id, facilityId])
-      }
-      
-      await client.query('COMMIT')
-      
-      res.json({
-        success: true,
-        message: archived ? 'Family archived successfully' : 'Family unarchived successfully'
+    const result = await setFamilyArchived(pool, familyId, archived, { facilityId: req.canonicalAccess.facilityId })
+    if (!result.found) return res.status(404).json({ success: false, message: 'Family not found' })
+    if (!result.canArchive) {
+      return res.status(409).json({
+        success: false,
+        message: result.blockers.map(blocker => blocker.message).join(' '),
+        blockers: result.blockers,
       })
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
     }
+    res.json({ success: true, message: archived ? 'Family archived successfully' : 'Family unarchived successfully' })
   } catch (error) {
     console.error('Archive family error:', error)
     res.status(500).json({
       success: false,
       message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     })
   }
 })

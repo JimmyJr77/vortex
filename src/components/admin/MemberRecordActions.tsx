@@ -31,7 +31,14 @@ export default function MemberRecordActions({ record, onChanged }: { record: Acc
     setError(null)
     try {
       if (action === 'delete') {
-        if (!await confirmPermanentDelete(record.name, record.kind === 'family' ? 'This permanently deletes the family, its members, and their unused member logins. This cannot be undone. Unpaid enrollments, waivers, and signup history will also be deleted. Families with actual payments or shared family memberships cannot be deleted.' : undefined)) return
+        const warning = record.kind === 'family'
+          ? 'This permanently deletes the original family account, its members, unused logins, and unfinished signup records. It cannot be undone. Accounts with payments or class, attendance, or coaching history are protected. Restore the family to keep using it.'
+          : record.kind === 'member'
+            ? 'This permanently deletes the original member account, not an archived copy. It cannot be undone. Accounts with payments or class, attendance, or coaching history are protected. Restore this member to keep using the account.'
+            : record.kind === 'lead'
+              ? 'This permanently deletes only the lead inquiry and its invitations. A linked member account, its enrollments, and its history will remain. This cannot be undone.'
+              : undefined
+        if (!await confirmPermanentDelete(record.name, warning)) return
         setBusy(true)
         const path = record.kind === 'login' ? `/api/admin/access/users/${record.id}` : record.kind === 'lead' ? `${memberPath}/permanent` : memberPath
         await checkResponse(await adminApiRequest(path, { method: 'DELETE' }), 'Unable to permanently delete this record.')

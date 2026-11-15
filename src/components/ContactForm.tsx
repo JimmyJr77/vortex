@@ -17,9 +17,7 @@ import { Link } from 'react-router-dom'
 import { getSiteEnrollHref } from '../utils/enrollSite'
 import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../utils/phoneUtils'
 import {
-  ATHLETICS_SPORT_INTERESTS,
-  ATHLETICS_TRAINING_INTERESTS,
-  GYMNASTICS_INTERESTS,
+  INQUIRY_INTERESTS,
   INQUIRY_CLASS_TYPES,
   SUBMITTER_ROLES,
   type InquiryCamper,
@@ -39,9 +37,9 @@ interface ContactFormProps {
   embedded?: boolean
 }
 
-type AthleteRow = { dateOfBirth: string; gender: string }
+type AthleteRow = { firstName: string; lastName: string; dateOfBirth: string; gender: string }
 
-const emptyAthlete = (): AthleteRow => ({ dateOfBirth: '', gender: '' })
+const emptyAthlete = (): AthleteRow => ({ firstName: '', lastName: '', dateOfBirth: '', gender: '' })
 
 const ContactForm = ({
   isOpen = false,
@@ -61,7 +59,6 @@ const ContactForm = ({
   const [submitterRole, setSubmitterRole] = useState<SubmitterRole | ''>('')
   const [athletes, setAthletes] = useState<AthleteRow[]>([])
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
-  const [sportOtherText, setSportOtherText] = useState('')
   const [selectedClassTypes, setSelectedClassTypes] = useState<string[]>([])
   const [newsletter, setNewsletter] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -139,7 +136,7 @@ const ContactForm = ({
     }
 
     const phone = formData.phone
-    if (phone && !isCompletePhoneNumber(phone)) {
+    if ((athletes.length > 0 || phone) && !isCompletePhoneNumber(phone)) {
       alert(PHONE_FORMAT_ERROR)
       setIsSubmitting(false)
       return
@@ -148,17 +145,12 @@ const ContactForm = ({
     const completedAthletes: InquiryCamper[] = []
     for (let i = 0; i < athletes.length; i++) {
       const dob = athletes[i].dateOfBirth.trim()
-      if (!dob) continue
-      completedAthletes.push({ dateOfBirth: dob, gender: athletes[i].gender || undefined })
-    }
-
-    let interestsToSubmit = [...selectedInterests]
-    if (inquiryVariant === 'athletics' && selectedInterests.includes('Other')) {
-      const otherLabel = sportOtherText.trim()
-        ? `Other: ${sportOtherText.trim()}`
-        : 'Other'
-      interestsToSubmit = interestsToSubmit.filter((i) => i !== 'Other')
-      interestsToSubmit.push(otherLabel)
+      if (!dob || !athletes[i].gender) {
+        alert(`Enter a date of birth and gender for athlete ${i + 1}.`)
+        setIsSubmitting(false)
+        return
+      }
+      completedAthletes.push({ firstName: athletes[i].firstName.trim() || undefined, lastName: athletes[i].lastName.trim() || undefined, dateOfBirth: dob, gender: athletes[i].gender })
     }
 
     try {
@@ -173,7 +165,7 @@ const ContactForm = ({
       }
 
       if (phone) payload.phone = phone
-      if (interestsToSubmit.length > 0) payload.interests = interestsToSubmit
+      if (selectedInterests.length > 0) payload.interests = selectedInterests
       if (selectedClassTypes.length > 0) payload.classTypes = selectedClassTypes
       if (completedAthletes.length > 0) payload.campers = completedAthletes
       if (formData.message) payload.message = formData.message
@@ -233,7 +225,6 @@ const ContactForm = ({
     setSubmitterRole('')
     setAthletes([])
     setSelectedInterests([])
-    setSportOtherText('')
     setSelectedClassTypes([])
     setNewsletter(true)
   }
@@ -258,9 +249,6 @@ const ContactForm = ({
     setSelectedInterests((prev) =>
       prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest],
     )
-    if (interest === 'Other' && selectedInterests.includes('Other')) {
-      setSportOtherText('')
-    }
   }
 
   const handleClassTypeToggle = (classType: string) => {
@@ -409,10 +397,11 @@ const ContactForm = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number{athletes.length > 0 ? ' *' : ''}</label>
                 <TextInput
                   type="tel"
                   name="phone"
+                  required={athletes.length > 0}
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
@@ -432,7 +421,7 @@ const ContactForm = ({
                   Add athlete
                 </button>
               </div>
-              <p className="text-sm text-gray-500 mb-3">Optional — add each athlete&apos;s date of birth.</p>
+              <p className="text-sm text-gray-500 mb-3">Adding an athlete requires a contact phone number, date of birth, and gender. Athlete names are optional.</p>
               {athletes.length === 0 ? (
                 <p className="text-sm text-gray-400 italic">No athletes added yet.</p>
               ) : (
@@ -442,15 +431,17 @@ const ContactForm = ({
                       key={index}
                       className="flex flex-wrap items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
                     >
-                      <label className="text-sm text-gray-600 shrink-0">DOB</label>
+                      {(['firstName', 'lastName'] as const).map(key => <label key={key} className="text-sm text-gray-600">{key === 'firstName' ? 'First name (optional)' : 'Last name (optional)'}<input type="text" value={athlete[key]} aria-label={`Athlete ${index + 1} ${key === 'firstName' ? 'first name' : 'last name'}`} onChange={event => setAthletes(rows => rows.map((row, i) => i === index ? { ...row, [key]: event.target.value } : row))} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" /></label>)}
+                      <label className="text-sm text-gray-600 shrink-0">DOB *</label>
                       <input
                         type="date"
+                        required
                         value={athlete.dateOfBirth}
                         onChange={(e) => updateAthlete(index, e.target.value)}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                         aria-label={`Athlete ${index + 1} date of birth`}
                       />
-                      <select aria-label={`Athlete ${index + 1} gender`} value={athlete.gender} onChange={event => setAthletes(rows => rows.map((row,i) => i === index ? {...row,gender:event.target.value} : row))} className="min-w-0 rounded-lg border border-gray-300 p-2 text-sm"><option value="">Gender</option><option value="male">Male</option><option value="female">Female</option></select>
+                      <select required aria-label={`Athlete ${index + 1} gender`} value={athlete.gender} onChange={event => setAthletes(rows => rows.map((row,i) => i === index ? {...row,gender:event.target.value} : row))} className="min-w-0 rounded-lg border border-gray-300 p-2 text-sm"><option value="">Gender</option><option value="male">Male</option><option value="female">Female</option></select>
                       <button
                         type="button"
                         onClick={() => removeAthlete(index)}
@@ -465,39 +456,12 @@ const ContactForm = ({
               )}
             </div>
 
-            {inquiryVariant === 'athletics' ? (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Training Interests</label>
-                  <div className="space-y-2">
-                    {ATHLETICS_TRAINING_INTERESTS.map((interest) => renderInterestCheckbox(interest))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">Sport Interests</label>
-                  <div className="space-y-2">
-                    {ATHLETICS_SPORT_INTERESTS.map((interest) => renderInterestCheckbox(interest))}
-                  </div>
-                  {selectedInterests.includes('Other') && (
-                    <input
-                      type="text"
-                      value={sportOtherText}
-                      onChange={(e) => setSportOtherText(e.target.value)}
-                      placeholder="Please specify"
-                      className="mt-3 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent"
-                      aria-label="Other sport interest"
-                    />
-                  )}
-                </div>
-              </>
-            ) : (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Interests</label>
-                <div className="space-y-2">
-                  {GYMNASTICS_INTERESTS.map((interest) => renderInterestCheckbox(interest))}
-                </div>
+            <fieldset>
+              <legend className="block text-sm font-semibold text-gray-700 mb-3">Interests</legend>
+              <div className="space-y-2">
+                {INQUIRY_INTERESTS.map((interest) => renderInterestCheckbox(interest))}
               </div>
-            )}
+            </fieldset>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-3">Class Type Interests</label>

@@ -1,9 +1,13 @@
 import { isValidCalendarDate } from '../members/dateOnlyAge.js'
 import { inputError } from './common.js'
 
-export function inquiryInput(value) {
+export function inquiryInput(value, { requireAthleteDetails = false } = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw inputError('Invalid inquiry details.')
   const result = {}
+  if (Object.hasOwn(value, 'newsletter')) {
+    if (typeof value.newsletter !== 'boolean') throw inputError('Newsletter preference must be a boolean.')
+    result.newsletter = value.newsletter
+  }
   if (Object.hasOwn(value, 'athleteAge')) {
     const age = value.athleteAge == null || value.athleteAge === '' ? null : Number(value.athleteAge)
     if (age != null && (!Number.isInteger(age) || age < 0 || age > 120)) throw inputError('Enter a valid originally reported age.')
@@ -34,6 +38,8 @@ export function inquiryInput(value) {
         if (text.length > 100) throw inputError('Child details are too long.')
         normalized[key] = text
       }
+      if (requireAthleteDetails && !normalized.dateOfBirth) throw inputError('Each athlete needs a date of birth.')
+      if (requireAthleteDetails && !normalized.gender) throw inputError('Each athlete needs a gender.')
       if (normalized.dateOfBirth && (!/^\d{4}-\d{2}-\d{2}$/.test(normalized.dateOfBirth) || !isValidCalendarDate(normalized.dateOfBirth) || normalized.dateOfBirth > new Date().toISOString().slice(0, 10))) throw inputError('Enter a valid birthday that is not in the future.')
       if (!['', 'male', 'female'].includes(normalized.gender)) throw inputError('Select male or female, or leave gender blank.')
       return normalized

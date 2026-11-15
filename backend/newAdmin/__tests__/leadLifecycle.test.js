@@ -4,13 +4,13 @@ import { changeLeadLifecycle } from '../leadLifecycle.js'
 import { permissionMiddleware } from '../registerRoutes.js'
 import { leadFilters } from '../leadFilters.js'
 
-function fixture(lead, { invite = false, foreignKey = false } = {}) {
+function fixture(lead, { paid = false, foreignKey = false } = {}) {
   const calls = []
   const client = {
     async query(sql, values) {
       calls.push({ sql, values })
       if (sql.startsWith('SELECT id, archived')) return { rows: lead ? [lead] : [] }
-      if (sql.startsWith('SELECT 1 FROM account_invite')) return { rows: invite ? [{}] : [] }
+      if (sql.includes('AS retained')) return { rows: [{ retained: paid }] }
       if (sql.startsWith('DELETE FROM registrations') && foreignKey) throw Object.assign(new Error('linked'), { code: '23503' })
       return { rows: [] }
     },
@@ -31,8 +31,7 @@ for (const action of ['archive', 'restore']) test(`${action} is facility scoped 
 for (const [label, lead, options, message] of [
   ['missing/foreign facility', null, {}, /not found/],
   ['active', { archived: false }, {}, /Archive this lead/],
-  ['converted', { archived: true, converted_member_id: 7 }, {}, /Converted leads/],
-  ['invited', { archived: true }, { invite: true }, /invitation history/],
+  ['paid converted', { archived: true, converted_member_id: 7 }, { paid: true }, /Payments have been made/],
   ['referenced', { archived: true }, { foreignKey: true }, /linked records/],
 ]) test(`delete protects ${label} leads and rolls back`, async () => {
   const pool = fixture(lead, options)
@@ -42,12 +41,14 @@ for (const [label, lead, options, message] of [
   assert.ok(!pool.calls.some(c => c.sql.startsWith('DELETE FROM note')))
 })
 
-test('delete removes only the archived scoped lead and its notes', async () => {
-  const pool = fixture({ archived: true })
+test('delete removes an unpaid converted lead and invitations without deleting its member', async () => {
+  const pool = fixture({ archived: true, converted_member_id: 7 })
   await changeLeadLifecycle(pool, 2, 5, 'delete')
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('DELETE FROM registrations')).values, [5, 2])
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('DELETE FROM note')).values, [5])
   assert.ok(pool.calls.some(c => c.sql === 'COMMIT'))
+  assert.ok(pool.calls.some(c => c.sql.startsWith('DELETE FROM account_invite')))
+  assert.ok(!pool.calls.some(c => c.sql.startsWith('DELETE FROM member')))
 })
 
 test('archived lead filter is explicit and validates input', () => {

@@ -29,7 +29,7 @@ const registrationSchema = Joi.object({
     firstName: Joi.string().min(1).max(50).optional().allow('', null),
     lastName: Joi.string().min(1).max(50).optional().allow('', null),
     dateOfBirth: Joi.string().isoDate().required(),
-    gender: Joi.string().valid('male', 'female').optional().allow('', null),
+    gender: Joi.string().valid('male', 'female').required(),
   })).optional().allow(null),
   submitterRole: Joi.string().valid('Athlete', 'Parent/Guardian', 'Other').optional().allow('', null),
   inquirySource: Joi.string().max(500).optional().allow('', null),
@@ -61,6 +61,10 @@ export function registerPublicInquiryRoutes(app, pool, { applyAttribution = appl
       })
     }
 
+    if (value.campers?.length && !value.phone) {
+      return res.status(400).json({ success: false, message: 'Validation error', errors: ['Phone number is required when adding an athlete.'] })
+    }
+
     const interests = Array.isArray(value.interests) ? value.interests : null
     const interestsText = interests ? interests.join(', ') : value.interests ?? null
     const campers = value.campers?.map(camper => ({
@@ -77,14 +81,14 @@ export function registerPublicInquiryRoutes(app, pool, { applyAttribution = appl
       const { rows: [inquiry] } = await pool.query(`
         INSERT INTO registrations
           (first_name, last_name, email, phone, athlete_age, interests, interests_array, interest,
-           class_types, child_ages, campers, message, submitter_role, inquiry_source)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14)
+           class_types, child_ages, campers, message, submitter_role, inquiry_source, newsletter_opt_in)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb, $12, $13, $14, $15)
         RETURNING id
       `, [
         value.firstName, value.lastName, value.email, value.phone || null, value.athleteAge || null,
         interestsText, interests, value.interest || null, value.classTypes?.length ? value.classTypes : null,
         value.childAges?.length ? value.childAges : null, campers?.length ? JSON.stringify(campers) : null,
-        value.message || null, submitterRole, value.inquirySource || null,
+        value.message || null, submitterRole, value.inquirySource || null, value.newsletter === true,
       ])
       try {
         await applyAttribution(pool, inquiry.id, value)

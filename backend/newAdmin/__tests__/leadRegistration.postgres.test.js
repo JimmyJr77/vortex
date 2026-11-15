@@ -39,7 +39,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
       LEFT JOIN facility f ON f.owner_user_id=u.id
       WHERE u.username='admin2' OR f.id IS NOT NULL
@@ -287,7 +287,7 @@ test('lead invitations reserve shared class places, require new credentials, and
       const saved=(await listLeads(pool,facilityId,{search:lead.email,converted:'true'})).rows[0]
       assert.equal(saved.inquiry.campers[0].dateOfBirth,'2015-06-15')
       assert.equal(saved.inquiry.athleteAge,8);assert.deepEqual(saved.inquiry.childAges,[8,6])
-      await assert.rejects(()=>saveLead(pool,facilityId,lead.id,{inquiry:{campers:[{dateOfBirth:'2025-02-30'}]}},{}),/valid birthday/)
+      await assert.rejects(()=>saveLead(pool,facilityId,lead.id,{inquiry:{campers:[{dateOfBirth:'2025-02-30',gender:'female'}]}},{}),/valid birthday/)
     })
     await t.test('linking a lead to an existing member retires its invite and keeps its history', async () => {
       const prospect = await createLead(pool,facilityId,{firstName:'Existing',lastName:'Member',email:`existing-${nonce}@example.test`})

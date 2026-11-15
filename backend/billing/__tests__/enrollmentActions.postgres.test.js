@@ -37,6 +37,7 @@ test('local enrollment actions preserve history, expire discounts, and credit a 
     await db.query('BEGIN')
     await db.query(await fs.readFile(new URL('../../migrations/845_dated_enrollment_actions.sql', import.meta.url), 'utf8'))
     await db.query(await fs.readFile(new URL('../../migrations/846_lead_registration_invitations.sql', import.meta.url), 'utf8'))
+    await db.query(await fs.readFile(new URL('../../migrations/857_admin_lead_submission.sql', import.meta.url), 'utf8'))
     const admin = (await db.query("SELECT id FROM app_user WHERE username='admin2'")).rows[0]
     assert.ok(admin, 'Run the fictional local New Admin seed first')
     const context = (await db.query(`SELECT s.id, s.member_id, b.id AS subscription_id, b.family_billing_account_id, b.stripe_subscription_id, f.facility_id, f.id AS family_id

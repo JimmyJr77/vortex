@@ -21,9 +21,9 @@ import { getVisitorId, getSessionId } from '../../../utils/visitorId'
 import { getAttributionPayload } from '../../../utils/utmCapture'
 import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../../utils/phoneUtils'
 
-type CamperRow = { dateOfBirth: string; gender: string }
+type CamperRow = { firstName: string; lastName: string; dateOfBirth: string; gender: string }
 
-const emptyCamper = (): CamperRow => ({ dateOfBirth: '', gender: '' })
+const emptyCamper = (): CamperRow => ({ firstName: '', lastName: '', dateOfBirth: '', gender: '' })
 
 const SummerCampInquiryForm = () => {
   const navigate = useNavigate()
@@ -128,10 +128,15 @@ const SummerCampInquiryForm = () => {
     }
 
     const completedCampers: InquiryCamper[] = []
-    for (const row of campers) {
+    for (let index = 0; index < campers.length; index++) {
+      const row = campers[index]
       const dob = row.dateOfBirth.trim()
-      if (!dob) continue
-      completedCampers.push({ dateOfBirth: dob, gender: row.gender || undefined })
+      if (!dob || !row.gender) {
+        alert(`Enter a date of birth and gender for camper ${index + 1}.`)
+        setIsSubmitting(false)
+        return
+      }
+      completedCampers.push({ firstName: row.firstName.trim() || undefined, lastName: row.lastName.trim() || undefined, dateOfBirth: dob, gender: row.gender })
     }
 
     const classTypes = [CAMP_INQUIRY_AUTO_CLASS, ...selectedOtherClassTypes]
@@ -268,7 +273,7 @@ const SummerCampInquiryForm = () => {
               </button>
             </div>
             <p className="text-sm text-gray-500 mb-3">
-              Optional — add each camper&apos;s date of birth.
+              Adding campers is optional. Each camper added requires a date of birth and gender. First and last names are optional.
             </p>
             {campers.length === 0 ? (
               <p className="text-sm text-gray-400 italic">No campers added yet.</p>
@@ -279,15 +284,22 @@ const SummerCampInquiryForm = () => {
                     key={index}
                     className="flex flex-wrap items-center gap-3 p-3 border border-gray-200 rounded-lg bg-gray-50"
                   >
-                    <label className="text-sm text-gray-600 shrink-0">DOB</label>
+                    {(['firstName', 'lastName'] as const).map(field => <label key={field} className="text-sm text-gray-600">
+                      {field === 'firstName' ? 'First name (optional)' : 'Last name (optional)'}
+                      <input type="text" value={camper[field]} aria-label={`Camper ${index + 1} ${field === 'firstName' ? 'first name' : 'last name'}`}
+                        onChange={event => setCampers(rows => rows.map((row, i) => i === index ? { ...row, [field]: event.target.value } : row))}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+                    </label>)}
+                    <label className="text-sm text-gray-600 shrink-0">DOB *</label>
                     <input
                       type="date"
+                      required
                       value={camper.dateOfBirth}
                       onChange={(e) => updateCamper(index, e.target.value)}
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       aria-label={`Camper ${index + 1} date of birth`}
                     />
-                    <select aria-label={`Camper ${index + 1} gender`} value={camper.gender} onChange={event => setCampers(rows => rows.map((row,i) => i === index ? {...row,gender:event.target.value} : row))} className="min-w-0 rounded-lg border border-gray-300 p-2 text-sm"><option value="">Gender</option><option value="male">Male</option><option value="female">Female</option></select>
+                    <select required aria-label={`Camper ${index + 1} gender`} value={camper.gender} onChange={event => setCampers(rows => rows.map((row,i) => i === index ? {...row,gender:event.target.value} : row))} className="min-w-0 rounded-lg border border-gray-300 p-2 text-sm"><option value="">Gender *</option><option value="male">Male</option><option value="female">Female</option></select>
                     <button
                       type="button"
                       onClick={() => removeCamper(index)}

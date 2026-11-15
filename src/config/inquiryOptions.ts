@@ -35,8 +35,13 @@ export const GYMNASTICS_INTERESTS = [
   'Fitness',
 ] as const
 
-/** @deprecated Use GYMNASTICS_INTERESTS or variant-specific lists */
-export const INQUIRY_INTERESTS = GYMNASTICS_INTERESTS
+/** Shared by the public inquiry popup and admin lead entry. */
+export const INQUIRY_INTERESTS = [
+  'Strength & Explosiveness',
+  'Tumbling & Trampoline',
+  'Gymnastics',
+  'Mutli-Sport Athleticism Training',
+] as const
 
 export const INQUIRY_CLASS_TYPES = [
   'Adult Classes',
@@ -65,6 +70,7 @@ export const CAMP_INQUIRY_AUTO_CLASS = 'Camps' as const
 export const GYMNASTICS_SUMMER_CAMP_CLASS_TYPE = CAMP_INQUIRY_AUTO_CLASS
 
 export type InquiryInterest =
+  | (typeof INQUIRY_INTERESTS)[number]
   | (typeof ATHLETICS_TRAINING_INTERESTS)[number]
   | (typeof ATHLETICS_SPORT_INTERESTS)[number]
   | (typeof GYMNASTICS_INTERESTS)[number]
