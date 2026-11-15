@@ -809,6 +809,9 @@ export async function buildSignupOrderPreview(
     pricingDate = Date.now(),
     ensureSchema = true,
     excludeSignupIds = [],
+    discountContextSink = null,
+    discountOverride = null,
+    pendingMembershipRedemptions = {},
   },
 ) {
   const slotSignups = []
@@ -1254,7 +1257,8 @@ export async function buildSignupOrderPreview(
     }
   }
 
-  const discounts = await computeDiscountLayer(pool, {
+  const discounts = discountOverride ?? await computeDiscountLayer(pool, {
+    contextSink: discountContextSink,
     facilityId: pricingFacilityId,
     facilityScopeValidated: true,
     familyScopeValidated: canonicalFamilyValidated,
@@ -1346,6 +1350,7 @@ export async function buildSignupOrderPreview(
   const firstMonth = await computeFirstMonthLayer(pool, { tuitionLines })
 
   const additionalFees = await computeAdditionalFeesLayer(pool, {
+    pendingMembershipRedemptions,
     facilityId: pricingFacilityId,
     memberId,
     newSignupItems: newSignupsWithDisplay,
@@ -1704,6 +1709,7 @@ export async function computeFirstMonthLayer(pool, {
 export async function computeDiscountLayer(
   pool,
   {
+    contextSink = null,
     facilityId: requestedFacilityId = null,
     facilityScopeValidated = false,
     familyScopeValidated = false,
@@ -1950,6 +1956,7 @@ export async function computeDiscountLayer(
     }
   }
 
+  contextSink?.({ lines, rules, caps })
   const { computeOrderDiscounts } = await import('./discountEngine.js')
   const result = computeOrderDiscounts({
     lines,
@@ -1993,6 +2000,7 @@ export async function computeAdditionalFeesLayer(
     existingCount = 0,
     promoCodes = [],
     familyId = null,
+    pendingMembershipRedemptions = {},
   },
 ) {
   const empty = {
@@ -2038,6 +2046,7 @@ export async function computeAdditionalFeesLayer(
           promoCodes,
           memberId,
           familyId,
+          pendingRedemptions: pendingMembershipRedemptions,
         })
       } catch {
         membershipPromo = null

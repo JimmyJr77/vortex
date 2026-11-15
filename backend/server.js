@@ -81,6 +81,7 @@ import { registerDevMemberRoutes } from './members/devMemberRoutes.js'
 import { DEV_TEST_FLAG } from './members/seedDevTestMembers.js'
 import { getMemberArchivePreflight, setMemberArchived } from './members/memberArchive.js'
 import { deleteArchivedMember } from './members/memberDeletion.js'
+import { deleteArchivedFamily } from './members/familyDeletion.js'
 import {
   canEditHouseholdMember,
   canRequestHouseholdMemberRemoval,
@@ -5377,122 +5378,21 @@ app.patch('/api/admin/families/:id/archive', requireMemberLifecycleOwner, async 
 })
 
 // Delete family (admin endpoint)
-app.delete('/api/admin/families/:id', async (req, res) => {
-  return res.status(410).json({
-    success: false,
-    code: 'FAMILY_DELETION_RETIRED',
-    message: 'Permanent family deletion is retired. Archive the family while retaining billing and enrollment history.',
-  })
-
-  /* c8 ignore start -- unreachable compatibility implementation retained for one release */
-  try {
-    const { id } = req.params
-    
-    // Get facility ID
-    const facilityResult = await pool.query('SELECT id FROM facility LIMIT 1')
-    if (facilityResult.rows.length === 0) {
-      return res.status(500).json({
-        success: false,
-        message: 'No facility found'
-      })
-    }
-    const facilityId = facilityResult.rows[0].id
-    
-    // Get all app users linked to active members in this family.
-    const familyUsersResult = await pool.query(`
-      SELECT DISTINCT m.app_user_id as user_id
-      FROM family_member fm
-      JOIN member m ON m.id = fm.member_id
-      WHERE fm.family_id = $1
-        AND m.app_user_id IS NOT NULL
-    `, [id])
-    
-    const userIds = familyUsersResult.rows.map(row => row.user_id).filter(id => id !== null)
-    
-    // Get all member IDs associated with this family
-    const membersResult = await pool.query(`
-      SELECT DISTINCT m.id
-      FROM family_member fm
-      JOIN member m ON m.id = fm.member_id
-      WHERE fm.family_id = $1
-        AND m.facility_id = $2
-    `, [id, facilityId])
-    const memberIds = membersResult.rows.map(row => row.id)
-    
-    // Start a transaction to ensure all deletions succeed or fail together
-    const client = await pool.connect()
-    try {
-      await client.query('BEGIN')
-      
-      // Delete members first (they have foreign key references)
-      if (memberIds.length > 0) {
-        await client.query(`
-          DELETE FROM member WHERE id = ANY($1::bigint[])
-        `, [memberIds])
-      }
-      
-      // Delete the family (this cascades canonical family_member/billing records).
-      await client.query('DELETE FROM family WHERE id = $1', [id])
-      
-      // Delete associated app users only when they are family-only accounts.
-      const deletedUserEmails = []
-      for (const userId of userIds) {
-        const otherFamiliesResult = await client.query(`
-          SELECT COUNT(*) as count
-          FROM family_member fm
-          JOIN member m ON m.id = fm.member_id
-          WHERE m.app_user_id = $1
-            AND fm.is_active = TRUE
-            AND fm.family_id <> $2
-        `, [userId, id])
-        
-        const otherFamiliesCount = parseInt(otherFamiliesResult.rows[0].count)
-        const rolesResult = await client.query(`
-          SELECT role_key
-          FROM (
-            SELECT role::text as role_key FROM app_user WHERE id = $1
-            UNION
-            SELECT role::text as role_key FROM app_user_role WHERE user_id = $1
-          ) roles
-        `, [userId])
-        const roles = rolesResult.rows.map((row) => row.role_key)
-        const familyOnlyRoles = roles.every((role) =>
-          ['MEMBER_ATHLETE'].includes(role),
-        )
-        
-        if (otherFamiliesCount === 0 && familyOnlyRoles) {
-          // Get user email before deleting
-          const userEmailResult = await client.query('SELECT email FROM app_user WHERE id = $1', [userId])
-          if (userEmailResult.rows.length > 0) {
-            deletedUserEmails.push(userEmailResult.rows[0].email)
-          }
-          await client.query('DELETE FROM app_user WHERE id = $1', [userId])
-        }
-      }
-      
-      // Legacy members table cleanup removed - table is deprecated
-      
-      await client.query('COMMIT')
-      
-      res.json({
-        success: true,
-        message: 'Family and associated members deleted successfully'
-      })
-    } catch (error) {
-      await client.query('ROLLBACK')
-      throw error
-    } finally {
-      client.release()
-    }
-  } catch (error) {
-    console.error('Delete family error:', error)
-    res.status(500).json({
-      success: false,
-      message: 'Internal server error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    })
+app.delete('/api/admin/families/:id', requireMemberLifecycleOwner, async (req, res) => {
+  const familyId = Number(req.params.id)
+  if (!Number.isSafeInteger(familyId) || familyId <= 0) {
+    return res.status(400).json({ success: false, message: 'Invalid family id.' })
   }
-  /* c8 ignore stop */
+  try {
+    await deleteArchivedFamily(pool, { familyId, facilityId: req.canonicalAccess.facilityId })
+    res.json({ success: true, message: 'Family and associated members deleted permanently.' })
+  } catch (error) {
+    if (error.statusCode === 404 || error.statusCode === 409) {
+      return res.status(error.statusCode).json({ success: false, code: error.code, message: error.message, blockers: error.blockers })
+    }
+    console.error('Delete family error:', error)
+    res.status(500).json({ success: false, message: 'Unable to permanently delete this family.' })
+  }
 })
 
 // Temporary cleanup endpoint: Delete user by email (admin only - remove after cleanup)

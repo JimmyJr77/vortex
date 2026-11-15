@@ -220,6 +220,7 @@ function statusBadge(row: MemberEnrollmentRow) {
   }
 
   const normalized = row.status.toLowerCase()
+  if (normalized === 'pending_setup') return <span className="text-xs font-medium text-amber-800">Reserved — awaiting payment</span>
   if (row.source === 'drop_in' && normalized === 'payment_pending') {
     return (
       <a className="text-xs font-semibold text-vortex-red underline" href={`/drop-in?booking=${row.id}`}>

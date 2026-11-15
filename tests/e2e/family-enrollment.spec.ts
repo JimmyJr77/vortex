@@ -10,7 +10,7 @@ const preview = { hasPricing: true, memberId: 101, existingClasses: [], newSignu
   estimatedMonthlyTotal: 150, totalDiscountMonthly: 0, disclaimer: '' }
 const json = (route: Route, data: unknown) => route.fulfill({ json: { success: true, data } })
 
-type SignupRequest = { signupAuthToken: string; promoCodes: string[]; signups: Array<Record<string, unknown>> }
+type SignupRequest = { familyBatches?: Array<{ signupAuthToken: string; signups: Array<Record<string, unknown>> }>; signupAuthToken: string; promoCodes: string[]; signups: Array<Record<string, unknown>> }
 type Capture = { batches: SignupRequest[]; previews: SignupRequest[] }
 async function setup(page: Page, options: { stripe?: boolean; delayFirst?: boolean; failPreview?: boolean; paid?: boolean; checkoutFails?: boolean } = {}): Promise<Capture> {
   const captured: Capture = { batches: [], previews: [] }
@@ -20,6 +20,11 @@ async function setup(page: Page, options: { stripe?: boolean; delayFirst?: boole
     if (path.endsWith('/offerings')) return json(route, catalog)
     if (path.endsWith('/annual-membership')) return json(route, { available: false, active: false })
     if (path.endsWith('/auth/member-session')) return json(route, { signupAuthToken: `athlete-${body.targetMemberId}` })
+    if (path.endsWith('/family-enrollment-preview')) {
+      if (options.failPreview) return route.fulfill({ status: 503, json: { success: false, message: 'Pricing unavailable for test' } })
+      return json(route, { ...preview, newSignupMonthlyTotal: body.familyBatches.length * 150, estimatedMonthlyTotal: body.familyBatches.length * 150,
+        discounts: { enabled: false, lines: [], orderDiscounts: [], totalDiscountCents: 0 } })
+    }
     if (path.endsWith('/order-preview')) {
       captured.previews.push(body)
       if (options.delayFirst && body.signupAuthToken === 'athlete-101') {
@@ -53,37 +58,25 @@ async function chooseClass(page: Page, date = '2027-01-04') {
   await page.getByRole('checkbox', { name: /Monday/ }).check()
 }
 
-test('siblings keep separate selections, dates and discounts; each submit targets its own athlete', async ({ page }) => {
-  const requests = await setup(page)
-  await page.goto(fixture)
+test('siblings keep their own dates and classes in one family checkout', async ({ page }) => {
+  const requests = await setup(page, { stripe: true })
+  await page.goto(fixture + '?stripe=1')
   await chooseClass(page)
-  await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await expect(page.getByRole('button', { name: 'Confirm enrollment', exact: true })).toBeEnabled()
-  await page.getByPlaceholder('Enter discount code').fill('FIRST')
-  await page.getByRole('button', { name: 'Apply', exact: true }).click()
-  await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:101:101') || '{}').promoCodes)).toEqual(['FIRST'])
-  await page.getByRole('button', { name: 'Back to class selection' }).click()
   await page.getByLabel('Enroll athlete', { exact: true }).selectOption('102')
   await expect(page.getByRole('checkbox', { name: /Monday/ })).not.toBeChecked()
-  await expect(page.getByLabel('Enrollment start date')).toHaveValue('')
   await chooseClass(page, '2027-01-11')
-  await expect(page.getByRole('button', { name: /Athlete One — review/ })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Athlete Two — review/ })).toBeVisible()
-  await page.getByRole('button', { name: /Athlete One — review/ }).click()
-  await expect(page.getByLabel('Enrollment start date')).toHaveValue('2027-01-04')
-  await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await page.getByRole('button', { name: 'Confirm enrollment', exact: true }).click()
-  await expect(page.getByText('Enrollment complete', { exact: true })).toBeVisible()
-  expect(requests.batches[0]).toMatchObject({ signupAuthToken: 'athlete-101', promoCodes: ['FIRST'], signups: [{ enrollmentStartDate: '2027-01-04', timeSlotId: 5 }] })
-  await page.getByRole('button', { name: 'Enroll another athlete' }).click()
-  await expect(page.getByLabel('Enroll athlete', { exact: true })).toHaveValue('102')
-  await expect(page.getByLabel('Enrollment start date')).toHaveValue('2027-01-11')
-  await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
-  await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await page.getByRole('button', { name: 'Confirm enrollment', exact: true }).click()
-  await expect(page.getByText('Enrollment complete', { exact: true })).toBeVisible()
-  expect(requests.batches[1]).toMatchObject({ signupAuthToken: 'athlete-102', promoCodes: [], signups: [{ enrollmentStartDate: '2027-01-11', timeSlotId: 5 }] })
+  await expect(page.getByRole('region', { name: 'Family checkout' })).toContainText('Athlete One')
+  await expect(page.getByRole('region', { name: 'Family checkout' })).toContainText('Athlete Two')
+  await page.getByLabel('Discount / promo code').fill('FAMILY')
+  await page.getByRole('button', { name: 'Apply', exact: true }).click()
+  await page.getByRole('button', { name: 'Confirm & pay' }).click()
+  await page.waitForURL('**?returned=1')
+  expect(requests.batches).toHaveLength(1)
+  expect(requests.batches[0]).toMatchObject({ promoCodes: ['FAMILY'], familyBatches: [
+    { signupAuthToken: 'athlete-101', signups: [{ enrollmentStartDate: '2027-01-04', timeSlotId: 5 }] },
+    { signupAuthToken: 'athlete-102', signups: [{ enrollmentStartDate: '2027-01-11', timeSlotId: 5 }] },
+  ] })
 })
 
 test('an existing enrollment for one sibling does not remove the other sibling draft', async ({ page }) => {
@@ -106,7 +99,7 @@ test('cancelled payment navigation retains both sibling drafts, and logout clear
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
   await page.getByRole('button', { name: 'Confirm & pay' }).click()
   await page.waitForURL('**?returned=1')
-  expect(requests.batches[0].signupAuthToken).toBe('athlete-101')
+  expect(requests.batches[0].familyBatches?.map(batch => batch.signupAuthToken)).toEqual(['athlete-101', 'athlete-102'])
   await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
   await page.getByLabel('Enroll athlete', { exact: true }).selectOption('102')
   await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
@@ -134,8 +127,8 @@ test('failed pricing cannot submit an unpriced enrollment', async ({ page }) => 
   await page.goto(fixture)
   await chooseClass(page)
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await expect(page.getByText('Pricing unavailable for test', { exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Confirm enrollment', exact: true })).toBeDisabled()
+  await expect(page.getByRole('alert')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Confirm & pay', exact: true })).toBeDisabled()
   expect(requests.batches).toEqual([])
 })
 
@@ -148,6 +141,7 @@ test('family signup copies a class into a separate enrollment without replacing 
     await page.getByPlaceholder('First name *', { exact: true }).nth(index).fill(name)
     await page.getByPlaceholder('Last name *', { exact: true }).nth(index).fill('Example')
     await page.getByLabel('Date of Birth', { exact: false }).nth(index).fill('2018-01-01')
+    await page.getByLabel('Gender', { exact: false }).nth(index).selectOption('female')
   }
   await page.getByRole('button', { name: 'Continue', exact: true }).click()
   await page.getByRole('button', { name: 'Add enrollment', exact: true }).click()
@@ -184,6 +178,7 @@ async function fillPrimaryAdult(page: Page, username = 'fixture-parent', onUsern
   await page.locator('select').filter({ has: page.locator('option[value="MD"]') }).selectOption('MD')
   await page.getByPlaceholder('ZIP *').fill('20715')
   await page.getByLabel('Date of Birth', { exact: false }).fill('1980-01-01')
+  await page.getByLabel('Gender', { exact: false }).selectOption('female')
   await page.getByPlaceholder('Username *').fill(username)
   await onUsernameEntered?.()
   await page.getByPlaceholder('Password *', { exact: true }).fill('FixtureOnly123!')
@@ -196,8 +191,8 @@ test('paid classes cannot fall back to direct signup when Stripe is disabled', a
   await page.goto(fixture)
   await chooseClass(page)
   await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
-  await page.getByRole('button', { name: 'Payment unavailable', exact: true }).click()
-  await expect(page.getByText(/Online payments are unavailable/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Confirm & pay', exact: true })).toBeDisabled()
+  await expect(page.getByText(/Online checkout is currently unavailable/)).toBeVisible()
   expect(requests.batches).toEqual([])
 })
 
@@ -238,7 +233,7 @@ for (const loginFails of [false, true]) test(`family account creation hands clas
       : route.fulfill({ json: { success: true, token: 'fixture-token', member: { id: 101 } } })
   })
   // Render the member checkout fixture at the real handoff destination.
-  await page.route('**/?enrollment=review', async (route) => {
+  await page.route('**/?enrollment=checkout', async (route) => {
     const response = await route.fetch({ url: new URL(fixture, route.request().url()).href })
     await route.fulfill({ response, body: (await response.text()).replace('./family-enrollment.tsx', '/tests/e2e/fixtures/family-enrollment.tsx') })
   })
@@ -261,12 +256,11 @@ for (const loginFails of [false, true]) test(`family account creation hands clas
   await page.getByRole('button', { name: 'Create account', exact: true }).click()
   if (loginFails) {
     await expect(page.getByText(/Account created. Your class selections are awaiting checkout/)).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Continue to member portal' })).toHaveAttribute('href', '/?enrollment=review')
+    await expect(page.getByRole('link', { name: 'Continue to member portal' })).toHaveAttribute('href', '/?enrollment=checkout')
     await expect(page.getByRole('button', { name: 'Create account', exact: true })).toHaveCount(0)
   } else {
-    await page.waitForURL('**/?enrollment=review')
-    await expect(page.getByRole('checkbox', { name: /Monday/ })).toBeChecked()
-    await expect(page.getByLabel('Enrollment start date')).toHaveValue('2027-01-04')
+    await page.waitForURL('**/?enrollment=checkout')
+    await expect(page.getByRole('region', { name: 'Family checkout' })).toContainText('2027-01-04')
   }
   expect(requests.batches).toEqual([])
   const draft = await page.evaluate(() => JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:101:101') || '{}'))
@@ -277,12 +271,11 @@ for (const loginFails of [false, true]) test(`family account creation hands clas
       directSignups += 1
       return json(route, { signups: [] })
     })
-    await page.getByRole('button', { name: 'Enroll (1)', exact: true }).click()
     await page.getByRole('button', { name: 'Confirm & pay' }).click()
     await page.waitForURL('**?returned=1')
     expect(directSignups).toBe(0)
     expect(requests.batches).toHaveLength(1)
-    expect(requests.batches[0]).toMatchObject({ signupAuthToken: 'athlete-101',
-      signups: [{ formId: 3, slotGroupId: 4, timeSlotId: 5, enrollmentStartDate: '2027-01-04' }] })
+    expect(requests.batches[0]).toMatchObject({ familyBatches: [{ signupAuthToken: 'athlete-101',
+      signups: [{ formId: 3, slotGroupId: 4, timeSlotId: 5, enrollmentStartDate: '2027-01-04' }] }] })
   }
 })

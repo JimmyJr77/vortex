@@ -9,6 +9,7 @@ const months = [
 const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 interface SignupBirthdayFieldProps {
+  invalid?: boolean
   id: string
   value: string
   onChange: (value: string) => void
@@ -33,7 +34,7 @@ function isoBirthday(text: string, today: string) {
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === iso ? iso : ''
 }
 
-export default function SignupBirthdayField({ id, value, onChange }: SignupBirthdayFieldProps) {
+export default function SignupBirthdayField({ id, value, onChange, invalid: fieldInvalid }: SignupBirthdayFieldProps) {
   const [draft, setDraft] = useState<{ value: string; text: string }>()
   const [blurred, setBlurred] = useState(false)
   const [calendar, setCalendar] = useState<CalendarMonth | null>(null)
@@ -102,8 +103,8 @@ export default function SignupBirthdayField({ id, value, onChange }: SignupBirth
           required
           placeholder="MM/DD/YYYY"
           className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-3 pr-11 text-base md:text-sm"
-          aria-invalid={invalid || undefined}
-          aria-describedby={invalid ? `${id}-error` : undefined}
+          aria-invalid={fieldInvalid || invalid || undefined}
+          aria-describedby={invalid ? `${id}-error` : fieldInvalid ? 'signup-error' : undefined}
           aria-controls={open ? `${id}-calendar` : undefined}
           value={text}
           onClick={() => { if (!open) openCalendar() }}

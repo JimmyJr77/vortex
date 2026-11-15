@@ -101,7 +101,6 @@ test('legacy identity and waiver writes fail closed', async () => {
   assert.match(source, /app\.post\('\/api\/admin\/athletes'.*?LEGACY_MEMBER_WRITE_RETIRED/s)
   assert.match(source, /app\.put\('\/api\/admin\/athletes\/:id'.*?LEGACY_MEMBER_WRITE_RETIRED/s)
   assert.match(source, /app\.post\('\/api\/admin\/members\/fix-missing-app-users'.*?LEGACY_IDENTITY_REPAIR_RETIRED/s)
-  assert.match(source, /app\.delete\('\/api\/admin\/families\/:id'.*?FAMILY_DELETION_RETIRED/s)
   assert.match(source, /app\.patch\('\/api\/admin\/members\/:id\/waivers'.*?WAIVER_EVIDENCE_REQUIRED/s)
   assert.match(source, /app\.post\('\/api\/admin\/members\/:memberId\/join-family'.*?LEGACY_FAMILY_PASSWORD_JOIN_RETIRED/s)
   assert.match(source, /app\.post\('\/api\/admin\/families\/verify'.*?LEGACY_FAMILY_PASSWORD_VERIFY_RETIRED/s)
@@ -247,6 +246,7 @@ test('member archive and permanent deletion require Owner or explicit lifecycle 
     "app.patch('/api/admin/members/:id/archive'",
     "app.patch('/api/admin/families/:id/archive'",
     "app.delete('/api/admin/members/:id'",
+    "app.delete('/api/admin/families/:id'",
   ]) {
     assert.ok(source.includes(`${route}, requireMemberLifecycleOwner,`), route)
   }

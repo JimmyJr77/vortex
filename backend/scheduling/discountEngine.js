@@ -346,7 +346,7 @@ function makeCapTracker(caps) {
       // DB counts are loaded for the order's member/family context.
       const perMember = perRuleLimit(rule, 'max_redemptions_per_member')
       if (perMember != null) {
-        const total = Number(caps.ruleMemberRedeemed?.[rule.id] ?? 0) + get(used.byRuleMember, rule.id)
+        const total = Number((caps.ruleMemberRedeemedByMember?.[line.memberId] ?? caps.ruleMemberRedeemed)?.[rule.id] ?? 0) + (used.byRuleMember.get(`${line.memberId}:${rule.id}`) || 0)
         if (total + 1 > perMember) return false
       }
       const perFamily = perRuleLimit(rule, 'max_redemptions_per_family')
@@ -389,7 +389,7 @@ function makeCapTracker(caps) {
         used.byClassDiscount.set(Number(line.formId), get(used.byClassDiscount, line.formId) + 1)
       }
       used.byRule.set(Number(rule.id), get(used.byRule, rule.id) + 1)
-      used.byRuleMember.set(Number(rule.id), get(used.byRuleMember, rule.id) + 1)
+      used.byRuleMember.set(`${line.memberId}:${rule.id}`, (used.byRuleMember.get(`${line.memberId}:${rule.id}`) || 0) + 1)
       used.byRuleFamily.set(Number(rule.id), get(used.byRuleFamily, rule.id) + 1)
     },
   }
@@ -1341,7 +1341,7 @@ export async function loadRedemptionCaps(pool, facilityId, { memberId = null, fa
  */
 export async function resolveMembershipFeePromo(
   pool,
-  { facilityId, promoCodes = [], memberId = null, familyId = null, now = Date.now() },
+  { facilityId, promoCodes = [], memberId = null, familyId = null, now = Date.now(), pendingRedemptions = {} },
 ) {
   const codes = new Set(
     (Array.isArray(promoCodes) ? promoCodes : [promoCodes])
@@ -1359,6 +1359,11 @@ export async function resolveMembershipFeePromo(
   if (candidates.length === 0) return null
 
   const caps = await loadRedemptionCaps(pool, facilityId, { memberId, familyId })
+  for (const [ruleId, count] of Object.entries(pendingRedemptions)) {
+    caps.ruleRedeemed[ruleId] = Number(caps.ruleRedeemed[ruleId] || 0) + count
+    caps.ruleFamilyRedeemed[ruleId] = Number(caps.ruleFamilyRedeemed[ruleId] || 0) + count
+    caps.discountRedemptionsFacilityUsed += count
+  }
   if (
     caps.maxDiscountRedemptionsTotal != null &&
     Number(caps.discountRedemptionsFacilityUsed ?? 0) >= Number(caps.maxDiscountRedemptionsTotal)

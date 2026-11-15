@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { adminApiRequest } from '../../utils/api'
+import { button } from '../newAdmin/shared'
 import { confirmArchive, confirmPermanentDelete } from '../../utils/confirmArchive'
 
 type RecordAction = 'archive' | 'restore' | 'delete'
@@ -7,7 +8,7 @@ type AccountRecord = { id: number; name: string } & (
   { kind: 'member' | 'lead' | 'family'; archived: boolean } | { kind: 'login' }
 )
 
-const actionClass = 'rounded-md border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50'
+const actionClass = button
 
 async function checkResponse(response: Response, fallback: string, requireArchiveApproval = false) {
   const data = await response.json().catch(() => null)
@@ -30,7 +31,7 @@ export default function MemberRecordActions({ record, onChanged }: { record: Acc
     setError(null)
     try {
       if (action === 'delete') {
-        if (!await confirmPermanentDelete(record.name)) return
+        if (!await confirmPermanentDelete(record.name, record.kind === 'family' ? 'This permanently deletes the family, its members, and their unused member logins. This cannot be undone. Linked history or other family memberships may prevent deletion.' : undefined)) return
         setBusy(true)
         const path = record.kind === 'login' ? `/api/admin/access/users/${record.id}` : record.kind === 'lead' ? `${memberPath}/permanent` : memberPath
         await checkResponse(await adminApiRequest(path, { method: 'DELETE' }), 'Unable to permanently delete this record.')
@@ -58,7 +59,7 @@ export default function MemberRecordActions({ record, onChanged }: { record: Acc
       {record.kind !== 'login' && <button type="button" className={actionClass} disabled={busy}
         aria-label={`${record.archived ? 'Restore' : 'Archive'} ${record.name}`}
         onClick={() => void update(record.archived ? 'restore' : 'archive')}>{record.archived ? 'Restore' : 'Archive'}</button>}
-      {record.kind !== 'family' && (record.kind === 'login' || record.archived) && <button type="button" className={`${actionClass} text-red-700`} disabled={busy}
+      {(record.kind === 'login' || record.archived) && <button type="button" className={`${actionClass} !text-red-700`} disabled={busy}
         aria-label={`Permanently delete ${record.name}`} onClick={() => void update('delete')}>Delete permanently</button>}
     </div>
     {error && <p role="alert" className="mt-2 max-w-80 whitespace-normal text-sm text-red-700">{error}</p>}

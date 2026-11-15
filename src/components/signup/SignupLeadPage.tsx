@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import SignupPasswordInput from './SignupPasswordInput'
 import FamilySignupWizard, { type LeadRegistrationSetup } from './FamilySignupWizard'
 import { getApiUrl } from '../../utils/api'
 import { loginMemberWithCredentials, persistMemberSession, type PortalAccount } from '../../utils/portalSession'
@@ -22,7 +23,7 @@ type Invitation = Omit<LeadRegistrationSetup, 'inviteId' | 'token'> & {
 }
 
 const actionClass = 'rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white disabled:opacity-50'
-const memberPortalReview = '/?enrollment=review'
+const memberPortalReview = '/?enrollment=checkout'
 
 export default function SignupLeadPage() {
   const [params] = useSearchParams()
@@ -43,6 +44,8 @@ export default function SignupLeadPage() {
     if (saved.token && saved.member) {
       persistMemberSession(saved.token, saved.member)
       setSignedIn(true)
+      saveFamilyCheckoutSelections(saved.payerMemberId, saved.pendingEnrollments)
+      if (saved.pendingEnrollments.length) window.location.assign(memberPortalReview)
     }
     setResult(saved)
   }
@@ -99,7 +102,7 @@ export default function SignupLeadPage() {
             </label>
             <label className="block font-medium">
               Password
-              <input className="mt-1 w-full rounded-lg border p-3" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
+              <SignupPasswordInput aria-label="Password" className="mt-1 w-full rounded-lg border p-3" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} />
             </label>
             {(!token || !inviteId) && <p className="text-sm text-red-700">Open the complete registration link from your invitation email.</p>}
             <button className={actionClass} disabled={busy || !token || !inviteId}>
@@ -116,7 +119,7 @@ export default function SignupLeadPage() {
               <section className="space-y-4">
                 <h2 className="text-xl font-semibold">{pending.length || legacyLinks.length ? 'Next: your classes' : 'Your family account is ready'}</h2>
                 {(pending.length > 0 || legacyLinks.length > 0) && (
-                  <p>Your family account is ready. Review each athlete’s classes and pay by credit card. Class enrollment is confirmed once tuition and any annual registration fee due for that athlete are paid.</p>
+                  <p>Your family account is ready. Review your family’s combined order and pay by credit card. Class enrollment is confirmed once tuition and any annual registration fee due for that athlete are paid.</p>
                 )}
                 {!signedIn && <p className="rounded-lg bg-amber-50 p-4">Sign in with your current credentials to continue to the Member Portal.</p>}
                 {pending.length > 0 && <button className={actionClass} onClick={checkout}>Review classes and complete enrollment</button>}

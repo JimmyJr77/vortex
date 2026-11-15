@@ -1,3 +1,4 @@
+import { buildFamilyEnrollmentOrderPreview } from './familyEnrollmentOrder.js'
 import { assertNoOutstandingAnnualMembershipCharge } from './annualMembershipChargeGuard.js'
 import { recordBillingActivity } from './billingActivity.js'
 /**
@@ -36,7 +37,7 @@ import { buildSignupOrderPreview } from '../scheduling/orderPricing.js'
 import { loadActiveAnnualMembership } from '../scheduling/annualMembership.js'
 import { isAnnualMembershipFeeItem } from '../scheduling/additionalFeesEngine.js'
 import { registrationRequiresMembership } from '../scheduling/registrationMembership.js'
-import { executeSignupBatch } from '../scheduling/handlers.js'
+import { executeSignupBatch, batchSignupSchema } from '../scheduling/handlers.js'
 import { firstOfNextMonth, todayDateOnly } from '../scheduling/firstMonthProration.js'
 import {
   issueSignupAuthToken,
@@ -1132,7 +1133,35 @@ export async function createAndBindEnrollmentCheckoutSession(
     }
 
     if (!enrollmentNeedsStripeCheckout(preview)) {
-      return { skipCheckout: true, preview }
+      if (!batchPayload.familyBatches) return { skipCheckout: true, preview }
+      const afterCommit = []
+      await db.query('BEGIN')
+      try {
+        await db.query('LOCK TABLE family_member IN SHARE MODE')
+        await db.query('SELECT id FROM family_billing_account WHERE id=$1 FOR SHARE', [accountId])
+        await db.query('SELECT id FROM member WHERE id=ANY($1::bigint[]) ORDER BY id FOR SHARE',
+          [[payerId, ...batchPayload.familyBatches.map(batch => batch.memberId)]])
+        for (const batch of batchPayload.familyBatches) {
+          await assertEnrollmentCheckoutMemberScope(db, { familyBillingAccountId: accountId, memberId: batch.memberId, payerMemberId: payerId })
+        }
+        const active = await findActivePurchaseCheckoutOwner(db, accountId)
+        if (active) throw enrollmentCheckoutCollectionConflict(active)
+        // Reprice inside the transaction and fulfill every athlete together.
+        preview = await loadPreview(db)
+        if (enrollmentNeedsStripeCheckout(preview)) throw checkoutIdempotencyConflict('The amount due changed. Review your family order again.')
+        for (const batch of batchPayload.familyBatches) {
+          const childPreview = preview.familyOrders.find(order => order.memberId === batch.memberId).preview
+          await assertEnrollmentMembershipCoverage(db, { memberId: batch.memberId, preview: childPreview, checkoutPaid: false })
+          await executeSignupBatch(pool, stripSignupBatchPayload(batch.payload), { preview: childPreview }, { client: db, afterCommit })
+        }
+        await db.query(`INSERT INTO stripe_pending_enrollment
+          (family_billing_account_id, member_id, payload, preview_snapshot, due_now_cents, checkout_mode, status, request_key, request_fingerprint)
+          VALUES ($1,$2,$3,$4,0,'payment','completed',$5,$6)`,
+          [accountId, athleteId, JSON.stringify(batchPayload), JSON.stringify(preview), requestKey, requestFingerprint])
+        await db.query('COMMIT')
+      } catch (error) { await db.query('ROLLBACK'); throw error }
+      for (const notify of afterCommit) { try { await notify() } catch (error) { console.error('[enrollment] notification:', error) } }
+      return { skipCheckout: true, alreadyCompleted: true, status: 'completed', preview }
     }
 
     const hasRecurring = enrollmentHasRecurringMembership(preview)
@@ -1203,10 +1232,13 @@ export async function createAndBindEnrollmentCheckoutSession(
         payerMemberId: payerId,
       })
 
+      for (const batch of batchPayload.familyBatches || []) {
+        await assertEnrollmentCheckoutMemberScope(db, { familyBillingAccountId: accountId, memberId: batch.memberId, payerMemberId: payerId })
+      }
       for (const fee of preview.additionalFees?.items ?? []) {
         if (fee.triggerType === 'once_per_year' || fee.applyBasis === 'per_year') {
           await assertNoOutstandingAnnualMembershipCharge(db, {
-            accountId, memberId: athleteId, feeId: fee.feeId,
+            accountId, memberId: fee.memberId ?? athleteId, feeId: fee.feeId,
           })
         }
       }
@@ -1455,6 +1487,43 @@ export async function createAndBindEnrollmentCheckoutSession(
   })
 }
 
+export async function normalizeFamilyEnrollmentBatches(pool, { account, memberId, batches, promoCodes = [] }) {
+  if (!Array.isArray(batches) || !batches.length || batches.length > 20) throw new Error('Choose between 1 and 20 family members.')
+  const seen = new Set(), result = []
+  let count = 0
+  for (const batch of batches) {
+    if (!batch?.signupAuthToken || !Array.isArray(batch.signups) || !batch.signups.length) throw enrollmentCheckoutTokenError()
+    count += batch.signups.length
+    if (count > 40) throw new Error('Choose at most 40 enrollment items.')
+    const validated = batchSignupSchema.validate({ signupAuthToken: batch.signupAuthToken, signups: batch.signups, responses: batch.responses || {}, promoCodes }, { stripUnknown: true })
+    if (validated.error) { const error = new Error(validated.error.message); error.statusCode = 400; throw error }
+    const payload = validated.value
+    const keys = payload.signups.map(signup => signup.lineType === 'multi_class_pass' ? `pass:${signup.programsId}:${signup.packageId}` : `${signup.formId}:${signup.slotGroupId}:${signup.timeSlotId}`)
+    if (new Set(keys).size !== keys.length) throw new Error('Remove duplicate enrollment items before paying.')
+    const athleteId = await resolveVerifiedEnrollmentMemberId(pool, payload, memberId, { familyBillingAccountId: account.id })
+    await assertEnrollmentCheckoutMemberScope(pool, { familyBillingAccountId: account.id, memberId: athleteId, payerMemberId: memberId })
+    if (seen.has(athleteId)) throw new Error('Combine each athlete’s classes into one cart group.')
+    seen.add(athleteId)
+    for (const signup of payload.signups) {
+      if (signup.lineType !== 'multi_class_pass') {
+        if (![signup.formId,signup.slotGroupId,signup.timeSlotId].every(value => Number.isSafeInteger(Number(value)) && Number(value) > 0)) throw new Error('Select a valid class and time.')
+        signup.enrollmentStartDate = requireEnrollmentStartDate(signup.enrollmentStartDate)
+      }
+    }
+    if (payload.signups.some(signup => signup.lineType !== 'multi_class_pass') && !isValidEmail(payload.responses.email)) {
+      const contact = await resolveMemberContactEmail(pool, { id: athleteId }, { includeBillingPayer: true })
+      if (!contact) throw new Error('Add a contact email for the athlete or their household before paying.')
+    }
+    result.push({ memberId: athleteId, payload })
+  }
+  return result.sort((a,b) => a.memberId - b.memberId)
+}
+
+export async function previewFamilyEnrollmentOrder(pool, options) {
+  const batches = await normalizeFamilyEnrollmentBatches(pool, options)
+  return buildFamilyEnrollmentOrderPreview(pool, batches, options.promoCodes || [])
+}
+
 export async function createEnrollmentCheckoutSession(
   pool,
   { account, memberId, batchPayload, successUrl, cancelUrl, idempotencyKey },
@@ -1467,6 +1536,11 @@ export async function createEnrollmentCheckoutSession(
   const stripe = await getStripeClient()
   if (!stripe) return null
 
+  if (batchPayload.familyBatches) {
+    const familyBatches = await normalizeFamilyEnrollmentBatches(pool, { account, memberId,
+      batches: batchPayload.familyBatches, promoCodes: batchPayload.promoCodes || [] })
+    batchPayload = { ...batchPayload, ...familyBatches[0].payload, familyBatches }
+  }
   const slotSignups = (batchPayload.signups ?? []).filter((s) => s.lineType !== 'multi_class_pass')
   const passSignups = (batchPayload.signups ?? []).filter((s) => s.lineType === 'multi_class_pass')
   for (const signup of slotSignups) {
@@ -1529,7 +1603,8 @@ export async function createEnrollmentCheckoutSession(
         ORDER BY id DESC LIMIT 1`,
       [account.id, enrolledMemberId],
     ).then((result) => result.rows[0] ?? null)
-    const order = ({ signups, promoCodes, responses }) => checkoutFingerprint({ signups, promoCodes, responses })
+    const order = ({ signups, promoCodes, responses, familyBatches }) => checkoutFingerprint({ signups, promoCodes, responses,
+      familyBatches: familyBatches?.map(batch => ({ memberId: batch.memberId, signups: batch.payload.signups, responses: batch.payload.responses })) })
     if (active && order(parsePendingPayload(active.payload) ?? {}) === order(batchPayload)) {
       existingRequest = active
       requestKey = active.request_key
@@ -1719,6 +1794,7 @@ export async function createEnrollmentCheckoutSession(
     requestKey,
     requestFingerprint,
     previewRequest,
+    loadPreview: batchPayload.familyBatches ? db => buildFamilyEnrollmentOrderPreview(db, batchPayload.familyBatches, batchPayload.promoCodes) : null,
   })
   if (creation.skipCheckout) return creation
 
@@ -2241,22 +2317,25 @@ async function settleCompletedEnrollmentCheckout(pool, {
     })
     if (discharged) return discharged
   }
-  const payload = parsePendingPayload(pending.payload)
-  const signupIds = await findExistingSignupIdsForEnrollmentPayload(
-    pool,
-    payload,
-    Number(pending.member_id),
-  )
-  if (signupIds.length > 0 && preview) {
-    await ensureEnrollmentLedgerRows(pool, {
-      memberId: Number(pending.member_id),
-      signupIds,
-      preview,
-      stripeCheckoutSessionId: stripeSession.id,
-      purchasedAt: stripeSession.created
-        ? new Date(stripeSession.created * 1000)
-        : new Date(pending.created_at ?? Date.now()),
-    })
+  const payload = parsePendingPayload(pending.payload) ?? {}
+  for (const batch of payload.familyBatches || [{ memberId: pending.member_id, payload }]) {
+    const batchPreview = payload.familyBatches ? preview.familyOrders.find(order => order.memberId === batch.memberId)?.preview : preview
+    const signupIds = await findExistingSignupIdsForEnrollmentPayload(
+      pool,
+      batch.payload,
+      Number(batch.memberId),
+    )
+    if (signupIds.length > 0 && batchPreview) {
+      await ensureEnrollmentLedgerRows(pool, {
+        memberId: Number(batch.memberId),
+        signupIds,
+        preview: batchPreview,
+        stripeCheckoutSessionId: stripeSession.id,
+        purchasedAt: stripeSession.created
+          ? new Date(stripeSession.created * 1000)
+          : new Date(pending.created_at ?? Date.now()),
+      })
+    }
   }
   const settledPayment = await withBillingAccountCollectionLock(
     pool,
@@ -2309,6 +2388,7 @@ export async function authorizePendingEnrollmentCheckout(pool, {
             pending.stripe_checkout_session_id,
             pending.status,
             pending.preview_snapshot,
+            pending.payload,
             account.family_id,
             account.payer_member_id,
             account.stripe_customer_id
@@ -2347,6 +2427,15 @@ export async function authorizePendingEnrollmentCheckout(pool, {
     memberId: pending.member_id,
     payerMemberId: currentPayerMemberId,
   })
+  const familyBatches = parsePendingPayload(pending.payload)?.familyBatches
+  if (familyBatches) {
+    const orders = parsePendingPayload(pending.preview_snapshot)?.familyOrders
+    if (!Array.isArray(orders) || orders.length !== familyBatches.length
+      || familyBatches.some((batch,index) => batch.memberId !== orders[index]?.memberId)) throw enrollmentCheckoutAuthorizationError('Family checkout snapshot does not match its athletes.')
+    for (const batch of familyBatches) await assertEnrollmentCheckoutMemberScope(pool, {
+      familyBillingAccountId: pending.family_billing_account_id, memberId: batch.memberId, payerMemberId: currentPayerMemberId,
+    })
+  }
   assertEnrollmentCheckoutSessionBinding(pending, stripeSession)
   return pending
 }
@@ -2363,7 +2452,7 @@ export async function authorizePendingEnrollmentCheckout(pool, {
 async function lockPaidEnrollmentAuthorizationScope(db, pendingEnrollmentId) {
   await db.query('LOCK TABLE family_member IN SHARE MODE')
   const locked = await db.query(
-    `SELECT pending.id
+    `SELECT pending.id, pending.payload
        FROM stripe_pending_enrollment pending
        JOIN family_billing_account account
          ON account.id = pending.family_billing_account_id
@@ -2379,6 +2468,9 @@ async function lockPaidEnrollmentAuthorizationScope(db, pendingEnrollmentId) {
       FOR SHARE OF account, enrolled_member, payer_member`,
     [Number(pendingEnrollmentId)],
   )
+  if (parsePendingPayload(locked.rows[0]?.payload)?.familyBatches) await db.query(`SELECT m.id FROM member m JOIN stripe_pending_enrollment pending ON pending.id=$1
+    WHERE m.id IN (SELECT (item->>'memberId')::bigint FROM jsonb_array_elements(COALESCE(pending.payload->'familyBatches','[]'::jsonb)) item)
+    ORDER BY m.id FOR SHARE OF m`, [Number(pendingEnrollmentId)])
   if (locked.rows.length !== 1) {
     throw enrollmentCheckoutAuthorizationError('Enrollment checkout authorization is no longer active.')
   }
@@ -2519,10 +2611,10 @@ export async function commitPendingEnrollment(pool, {
   await ensurePendingEnrollmentSchema(pool)
 
   for (let attempt = 0; attempt < 16; attempt++) {
-    const outcome = preFulfillmentPayment
+    const outcome = (preFulfillmentPayment || parsePendingPayload(authorizedPending.payload)?.familyBatches)
       ? await withBillingAccountCollectionLock(
           pool,
-          Number(settlementPending.family_billing_account_id),
+          Number((settlementPending ?? authorizedPending).family_billing_account_id),
           async (settlementDb) => {
             let transactionOpen = false
             try {
@@ -2557,7 +2649,7 @@ export async function commitPendingEnrollment(pool, {
                 await settlementDb.query('ROLLBACK').catch(() => {})
                 transactionOpen = false
               }
-              if (error?.code === 'ENROLLMENT_CHECKOUT_FORBIDDEN') {
+              if (preFulfillmentPayment && error?.code === 'ENROLLMENT_CHECKOUT_FORBIDDEN') {
                 return { status: 'authorization_drift', error }
               }
               // Preserve a durable retry owner after rolling back enrollment
@@ -2689,6 +2781,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
   let signupIds = []
   let result = null
   const afterCommit = []
+  const familyPostCommit = []
   const previewSnapshot =
     typeof pending.preview_snapshot === 'string'
       ? JSON.parse(pending.preview_snapshot)
@@ -2709,62 +2802,76 @@ async function tryCommitPendingEnrollmentOnce(pool, {
         'Enrollment authority changed before the signup commit.',
       )
     }
-    await assertEnrollmentMembershipCoverage(stateDb, {
-      memberId: enrolledMemberId, preview: previewSnapshot, checkoutPaid: Boolean(preFulfillmentPayment),
-    })
-    const refreshed = await refreshSignupAuthForCommit(
-      stateDb,
-      pending.payload,
-      enrolledMemberId,
-      {
-        actorMemberId: Number(authorizedPending.payer_member_id),
-        familyBillingAccountId: Number(authorizedPending.family_billing_account_id),
-      },
-    )
-    const signupBatchPayload = stripSignupBatchPayload(refreshed)
-
-    try {
-      result = await executeSignupBatch(pool, signupBatchPayload, stripeSession?.id
-        ? {
-            stripeCheckoutSessionId: stripeSession.id,
-            preview: previewSnapshot,
-            purchasedAt: stripeSession.created
-              ? new Date(stripeSession.created * 1000)
-              : new Date(pending.created_at ?? Date.now()),
-          }
-        : null, settlementDb ? { client: settlementDb, afterCommit } : null)
-      signupIds = (result?.data?.signups ?? [])
-        .map((row) => Number(row.id ?? row.signupId))
-        .filter(Boolean)
-    } catch (signupErr) {
-      if (!isAlreadySignedUpError(signupErr)) throw signupErr
-      signupIds = await findExistingSignupIdsForEnrollmentPayload(
+    const familyBatches = parsePendingPayload(pending.payload)?.familyBatches
+    const batches = familyBatches || [{ memberId: enrolledMemberId, payload: pending.payload }]
+    const results = []
+    for (const batch of batches) {
+      const batchMemberId = Number(batch.memberId)
+      const batchPayload = batch.payload
+      const batchPreview = familyBatches ? previewSnapshot.familyOrders.find(order => order.memberId === batchMemberId)?.preview : previewSnapshot
+      if (!batchPreview) throw new Error('Missing athlete pricing snapshot.')
+      let batchSignupIds = [], batchResult
+      await assertEnrollmentMembershipCoverage(stateDb, {
+        memberId: batchMemberId, preview: batchPreview, checkoutPaid: Boolean(preFulfillmentPayment),
+      })
+      const refreshed = await refreshSignupAuthForCommit(
         stateDb,
-        signupBatchPayload,
-        enrolledMemberId,
+        batchPayload,
+        batchMemberId,
+        {
+          actorMemberId: Number(authorizedPending.payer_member_id),
+          familyBillingAccountId: Number(authorizedPending.family_billing_account_id),
+        },
       )
-      if (signupIds.length === 0) throw signupErr
-      result = { success: true, data: { signups: signupIds.map((id) => ({ id })) }, recovered: true }
-    }
+      const signupBatchPayload = stripSignupBatchPayload(refreshed)
 
-    if (result?.recovered && signupIds.length > 0 && previewSnapshot) {
-      await ensureEnrollmentLedgerRows(stateDb, {
-        memberId: enrolledMemberId,
-        signupIds,
-        preview: previewSnapshot,
-        stripeCheckoutSessionId: stripeSession?.id ?? null,
-        purchasedAt: stripeSession?.created
-          ? new Date(stripeSession.created * 1000)
-          : new Date(pending.created_at ?? Date.now()),
-      })
+      try {
+        batchResult = await executeSignupBatch(pool, signupBatchPayload, stripeSession?.id
+          ? {
+              stripeCheckoutSessionId: stripeSession.id,
+              preview: batchPreview,
+              purchasedAt: stripeSession.created
+                ? new Date(stripeSession.created * 1000)
+                : new Date(pending.created_at ?? Date.now()),
+            }
+          : null, settlementDb ? { client: settlementDb, afterCommit } : null)
+        batchSignupIds = (batchResult?.data?.signups ?? [])
+          .map((row) => Number(row.id ?? row.signupId))
+          .filter(Boolean)
+      } catch (signupErr) {
+        if (!isAlreadySignedUpError(signupErr)) throw signupErr
+        batchSignupIds = await findExistingSignupIdsForEnrollmentPayload(
+          stateDb,
+          signupBatchPayload,
+          batchMemberId,
+        )
+        if (batchSignupIds.length === 0) throw signupErr
+        batchResult = { success: true, data: { signups: batchSignupIds.map((id) => ({ id })) }, recovered: true }
+      }
+
+      if (batchResult?.recovered && batchSignupIds.length > 0 && batchPreview) {
+        await ensureEnrollmentLedgerRows(stateDb, {
+          memberId: batchMemberId,
+          signupIds: batchSignupIds,
+          preview: batchPreview,
+          stripeCheckoutSessionId: stripeSession?.id ?? null,
+          purchasedAt: stripeSession?.created
+            ? new Date(stripeSession.created * 1000)
+            : new Date(pending.created_at ?? Date.now()),
+        })
+      }
+      if (stripeSession?.id && (batchResult?.data?.purchasedPasses ?? []).length > 0) {
+        await ensureEnrollmentPassLedgerRows(stateDb, {
+          memberId: batchMemberId,
+          purchasedPasses: batchResult.data.purchasedPasses,
+          stripeCheckoutSessionId: stripeSession.id,
+        })
+      }
+      signupIds.push(...batchSignupIds)
+      results.push(batchResult)
+      if (familyBatches) familyPostCommit.push({ memberId: batchMemberId, signupIds: batchSignupIds, previewSnapshot: batchPreview })
     }
-    if (stripeSession?.id && (result?.data?.purchasedPasses ?? []).length > 0) {
-      await ensureEnrollmentPassLedgerRows(stateDb, {
-        memberId: enrolledMemberId,
-        purchasedPasses: result.data.purchasedPasses,
-        stripeCheckoutSessionId: stripeSession.id,
-      })
-    }
+    result = { success: true, data: { signups: results.flatMap(item => item?.data?.signups || []), purchasedPasses: results.flatMap(item => item?.data?.purchasedPasses || []) } }
     if (preFulfillmentPayment) {
       if (!settlementDb) throw new Error('Paid enrollment settlement lock is missing.')
       preFulfillmentPayment = await applyAndSettlePaidCheckoutFulfillment(settlementDb, {
@@ -2817,6 +2924,7 @@ async function tryCommitPendingEnrollmentOnce(pool, {
     ...(preFulfillmentPayment ? { payment: preFulfillmentPayment } : {}),
     postCommit: {
       afterCommit,
+      familyOrders: familyPostCommit,
       signupIds,
       previewSnapshot,
       previewHasRecurring,
@@ -2843,6 +2951,7 @@ export async function assertEnrollmentMembershipCoverage(db, { memberId, preview
 }
 
 async function runEnrollmentPostCommitSideEffects(pool, {
+  familyOrders = [],
   afterCommit,
   signupIds,
   previewSnapshot,
@@ -2858,6 +2967,11 @@ async function runEnrollmentPostCommitSideEffects(pool, {
     } catch (error) {
       console.error('[scheduling] enrollment notification after settlement:', error)
     }
+  }
+  if (familyOrders.length) {
+    for (const order of familyOrders) await runEnrollmentPostCommitSideEffects(pool, { ...order, afterCommit: [],
+      previewHasRecurring: enrollmentHasRecurringMembership(order.previewSnapshot), stripeSession, familyBillingAccountId, purchasedAt })
+    return
   }
   // Stripe network I/O occurs only after the account collection lock is released.
   if (signupIds.length > 0 && previewSnapshot && previewHasRecurring && stripeSession) {

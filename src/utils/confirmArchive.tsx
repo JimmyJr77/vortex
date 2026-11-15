@@ -8,8 +8,8 @@ export function confirmArchive(itemName: string, warning?: string): Promise<bool
   return confirmRecordAction(itemName, 'archive', warning)
 }
 
-export function confirmPermanentDelete(itemName: string): Promise<boolean> {
-  return confirmRecordAction(itemName, 'delete', 'This permanently deletes the record and cannot be undone.')
+export function confirmPermanentDelete(itemName: string, warning = 'This permanently deletes the record and cannot be undone.'): Promise<boolean> {
+  return confirmRecordAction(itemName, 'delete', warning)
 }
 
 function confirmRecordAction(itemName: string, action: 'archive' | 'delete', warning?: string): Promise<boolean> {

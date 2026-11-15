@@ -1,3 +1,6 @@
+import { buildFamilyEnrollmentOrderPreview } from '../../billing/familyEnrollmentOrder.js'
+import { previewFamilyEnrollmentOrder, normalizeFamilyEnrollmentBatches, createAndBindEnrollmentCheckoutSession } from '../../billing/stripeEnrollmentCheckout.js'
+import { issueSignupAuthToken } from '../../scheduling/signupAuth.js'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
@@ -18,6 +21,8 @@ import { validateRehearsalDatabaseUrl } from '../migrationAudit.js'
 // Fictional local data only. SMTP is injected and all database writes roll back.
 test('lead invitations reserve shared class places, require new credentials, and hand off without billing', {skip:process.env.RUN_LEAD_REGISTRATION_LOCAL_TEST !== 'true'}, async t=>{
   process.env.STRIPE_ENABLED='false'
+  process.env.SMTP_USER=''
+  process.env.SMTP_PASS=''
   process.env.BILLING_HOUSEHOLD_AUTO_ACTIVATE_ENABLED='false'
   const connectionString = validateRehearsalDatabaseUrl(process.env.NEW_ADMIN_TEST_DATABASE_URL
     || `postgresql://${os.userInfo().username}@127.0.0.1:5432/vortex_new_admin_dev`, { nodeEnv: process.env.NODE_ENV })
@@ -34,7 +39,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','853_registration_hold_start_dates.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
       LEFT JOIN facility f ON f.owner_user_id=u.id
       WHERE u.username='admin2' OR f.id IS NOT NULL
@@ -123,11 +128,11 @@ test('lead invitations reserve shared class places, require new credentials, and
       let email
       await sendLeadRegistrationEmail({...captured,send:async args=>{email=args;return{sent:true}}})
       assert.equal(email.category,'parent_account_invitation')
-      assert.match(email.text,/1\. Finish your family account/);assert.match(email.text,/2\. Choose or complete your classes/)
+      assert.match(email.text,/Finish your family account/);assert.match(email.text,/Coach suggested enrollment\(s\)/)
       assert.match(email.html,/selection=0/);assert.match(email.html,/selection=1/)
       assert.ok(!Object.hasOwn(session,'temporary_password_hash'))
     })
-    const payload=()=>({token:captured.token,session:session.session,primaryAdult:{firstName:'Testparent',lastName:'Invite',dateOfBirth:'1988-01-01',email:lead.email,phone:'2025550101',addressStreet:'100 Test Street',addressCity:'Albany',addressState:'NY',addressZip:'12207',username:invitation.username,password:'ReplacementPassword32!',confirmPassword:'ReplacementPassword32!'},additionalMembers:children.map(child=>({...child,emailSource:'parent',portalAccessRequested:false})),waivers:{signatureName:'Testparent Invite',acceptedTemplateIds:session.waivers.map(item=>Number(item.id)),paymentPolicyAcknowledged:true}})
+    const payload=()=>({token:captured.token,session:session.session,primaryAdult:{firstName:'Testparent',lastName:'Invite',dateOfBirth:'1988-01-01',gender:'male',email:lead.email,phone:'2025550101',addressStreet:'100 Test Street',addressCity:'Albany',addressState:'NY',addressZip:'12207',username:invitation.username,password:'ReplacementPassword32!',confirmPassword:'ReplacementPassword32!'},additionalMembers:children.map(child=>({...child,emailSource:'parent',portalAccessRequested:false})),waivers:{signatureName:'Testparent Invite',acceptedTemplateIds:session.waivers.map(item=>Number(item.id)),paymentPolicyAcknowledged:true}})
     await t.test('setup requires replacing the temporary password and is idempotent',async()=>{
       const same=payload();same.primaryAdult.password=captured.password;same.primaryAdult.confirmPassword=captured.password
       await assert.rejects(()=>completeLeadRegistration(pool,invitation.id,same),/new password/)
@@ -173,6 +178,61 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.ok(holds.every(row=>row.status==='pending_setup'))
       const after=(await db.query('SELECT (SELECT count(*) FROM billing_charge) AS charges,(SELECT count(*) FROM billing_payment) AS payments,(SELECT count(*) FROM billing_subscription) AS subscriptions')).rows[0]
       assert.deepEqual(after,beforeBilling)
+    })
+    await t.test('family preview prices both children together and rejects the wrong payer', async () => {
+      await db.query('SAVEPOINT family_preview')
+      try {
+        await db.query('UPDATE scheduling_form SET class_monthly_price_cents=15000 WHERE id=$1', [form.id])
+        const account = (await db.query('SELECT * FROM family_billing_account WHERE payer_member_id=$1', [result.payerMemberId])).rows[0]
+        const batches = result.pendingEnrollments.map(item => ({
+          signupAuthToken: issueSignupAuthToken({ formId: form.id, memberId: item.memberId, email: lead.email,
+            actorMemberId: result.payerMemberId, familyBillingAccountId: Number(account.id), programsId: program.id }),
+          signups: [{ lineType: 'slot', formId: Number(form.id), slotGroupId: Number(group.id), timeSlotId: Number(slot.id), enrollmentStartDate }],
+          responses: {},
+        }))
+        const combined = await previewFamilyEnrollmentOrder(pool, { account, memberId: result.payerMemberId, batches })
+        assert.equal(combined.newSignups.length, 2)
+        assert.equal(combined.newSignupMonthlyTotal, 300)
+        assert.deepEqual(combined.familyOrders.map(order => order.memberId), result.memberIds.slice(1))
+        assert.equal(new Set(combined.newSignups.map(item => item.slotKey)).size, 2)
+        assert.equal(combined.firstMonth.totalCents, combined.familyOrders.reduce((total, order) => total + order.preview.firstMonth.totalCents, 0))
+        assert.equal(combined.additionalFees.totalOneTimeCents, combined.familyOrders.reduce((total, order) => total + order.preview.additionalFees.totalOneTimeCents, 0))
+        await assert.rejects(() => previewFamilyEnrollmentOrder(pool, { account, memberId: result.memberIds[1], batches }), /session|payer|household|authority/i)
+      } finally { await db.query('ROLLBACK TO SAVEPOINT family_preview'); await db.query('RELEASE SAVEPOINT family_preview') }
+    })
+    await t.test('free family checkout rolls back every child on failure and completes once on retry', async () => {
+      await db.query('SAVEPOINT family_atomic_checkout')
+      try {
+        await db.query('UPDATE scheduling_form SET class_monthly_price_cents=15000 WHERE id=$1', [form.id])
+        await db.query('UPDATE additional_fee SET active=FALSE WHERE facility_id=$1 OR facility_id IS NULL', [facilityId])
+        const account = (await db.query('SELECT * FROM family_billing_account WHERE payer_member_id=$1', [result.payerMemberId])).rows[0]
+        await db.query(`INSERT INTO discount_rule(facility_id,name,type,amount_type,amount_value,config)
+          VALUES($1,'Local free family fixture','free_classes','percent',10000,$2)`,
+          [facilityId, JSON.stringify({ benefit_type: 'class_offering', lifetime_owner_waiver: true,
+            eligibility_rules: [{ field: 'family_id', operator: 'in', value: [Number(account.family_id)] }] })])
+        const batches = await normalizeFamilyEnrollmentBatches(pool, { account, memberId: result.payerMemberId,
+          batches: result.pendingEnrollments.map(item => ({
+            signupAuthToken: issueSignupAuthToken({ formId: form.id, memberId: item.memberId, email: lead.email,
+              actorMemberId: result.payerMemberId, familyBillingAccountId: Number(account.id), programsId: program.id }),
+            signups: [{ lineType: 'slot', formId: Number(form.id), slotGroupId: Number(group.id), timeSlotId: Number(slot.id), enrollmentStartDate }], responses: {},
+          })) })
+        const preview = await buildFamilyEnrollmentOrderPreview(pool, batches)
+        const options = { account, enrolledMemberId: batches[0].memberId, payerMemberId: result.payerMemberId,
+          batchPayload: { ...batches[0].payload, familyBatches: batches }, requestKey: `family-test-${nonce}`, requestFingerprint: 'a'.repeat(64),
+          loadPreview: async () => preview }
+        const invalidBatches = structuredClone(batches)
+        invalidBatches[1].payload.signups[0].timeSlotId = 2147483647
+        await assert.rejects(() => createAndBindEnrollmentCheckoutSession(pool, {}, { ...options,
+          batchPayload: { ...options.batchPayload, familyBatches: invalidBatches } }))
+        const statuses = async () => (await db.query('SELECT status FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows.map(row => row.status)
+        assert.deepEqual(await statuses(), ['pending_setup', 'pending_setup'])
+        const saved = await createAndBindEnrollmentCheckoutSession(pool, {}, options)
+        assert.equal(saved.alreadyCompleted, true)
+        assert.deepEqual(await statuses(), ['confirmed', 'confirmed'])
+        const replay = await createAndBindEnrollmentCheckoutSession(pool, {}, options)
+        assert.equal(replay.alreadyCompleted, true)
+        assert.deepEqual(await statuses(), ['confirmed', 'confirmed'])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT family_atomic_checkout'); await db.query('RELEASE SAVEPOINT family_atomic_checkout') }
     })
     await t.test('drop-in registration requires a settled allocation to its own tuition charge', async () => {
       await db.query('SAVEPOINT drop_in_checkout')
@@ -291,7 +351,7 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(opened.selections[0].childIndex, null)
       assert.equal(opened.selections[1].enrollmentStartDate, enrollmentStartDate)
 
-      const enrollment = { classEventId: klass.id, schedulingFormId: form.id, slotGroupId: laterGroup.id, timeSlotId: laterSlot.id, enrollmentStartDate }
+      const enrollment = { programsId: program.id, classEventId: klass.id, schedulingFormId: form.id, slotGroupId: laterGroup.id, timeSlotId: laterSlot.id, enrollmentStartDate }
       const completion = {
         ...payload(), session: opened.session, primaryAdult: { ...payload().primaryAdult, firstName: 'Parent', lastName: 'Partial', email: familyLead.email, username: invitation.username },
         additionalMembers: payload().additionalMembers.map(child => ({ ...child, gender: 'prefer-not-to-say' })),
@@ -302,7 +362,31 @@ test('lead invitations reserve shared class places, require new credentials, and
       }), /Enter an enrollment start date/)
       await assert.rejects(() => completeLeadRegistration(pool, invitation.id, {
         ...completion, enrollments: [{ ...enrollment, memberIndex: 0, timeSlotId: slot.id }, ...completion.enrollments.slice(1)],
-      }), /Use the class or time selected/)
+      }), /unavailable for the selected start date/)
+      for (const memberIndex of [0, 1]) {
+        const missingGender = structuredClone(completion)
+        if (memberIndex === 0) missingGender.primaryAdult.gender = ''
+        else missingGender.additionalMembers[0].gender = ''
+        await assert.rejects(() => completeLeadRegistration(pool, invitation.id, missingGender), /Gender is required/)
+      }
+      for (const scenario of ['remove-all', 'change-time', 'retain-after-removal']) {
+        await db.query('SAVEPOINT edit_invited_classes')
+        try {
+          const changed = scenario === 'remove-all' ? [] : scenario === 'change-time'
+            ? [{ ...enrollment, memberIndex: 0, slotGroupId: group.id, timeSlotId: slot.id }]
+            : [{ ...enrollment, memberIndex: 2 }]
+          const edited = await completeLeadRegistration(pool, invitation.id, { ...completion, enrollments: changed })
+          assert.equal(edited.pendingEnrollments.length, changed.length)
+          const holds = (await db.query('SELECT status,member_id FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows
+          if (scenario === 'retain-after-removal') {
+            assert.equal(holds.filter(row => row.status === 'pending_setup').length, 1)
+            assert.equal(Number(holds.find(row => row.status === 'pending_setup').member_id), edited.memberIds[2])
+          } else assert.ok(holds.every(row => row.status === 'cancelled'))
+        } finally {
+          await db.query('ROLLBACK TO SAVEPOINT edit_invited_classes')
+          await db.query('RELEASE SAVEPOINT edit_invited_classes')
+        }
+      }
       const saved = await completeLeadRegistration(pool, invitation.id, completion)
       assert.equal(saved.enrollmentsPrepared, true)
       assert.deepEqual(saved.pendingEnrollments.map(item => item.memberId), saved.memberIds)

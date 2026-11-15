@@ -1273,10 +1273,25 @@ export async function submitSchedulingSignupBatch(payload: {
 }
 
 /** Start Stripe Checkout for enrollment (pay-then-commit). Requires member JWT. */
+export interface FamilyEnrollmentBatch {
+  signupAuthToken: string
+  signups: Parameters<typeof fetchSignupOrderPreview>[0]['signups']
+  responses?: Record<string, string | boolean | number | string[]>
+}
+
+export async function fetchFamilyEnrollmentPreview(memberToken: string, familyBatches: FamilyEnrollmentBatch[], promoCodes: string[]): Promise<SignupOrderPreview> {
+  const response = await fetch(`${getApiUrl()}/api/members/billing/family-enrollment-preview`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${memberToken}` },
+    body: JSON.stringify({ familyBatches, promoCodes }),
+  })
+  return parseJson<SignupOrderPreview>(response)
+}
+
 export async function createEnrollmentCheckoutSession(
   memberToken: string,
   payload: {
-    signups: Array<{
+    familyBatches?: FamilyEnrollmentBatch[]
+    signups?: Array<{
       lineType?: 'slot' | 'multi_class_pass'
       formId?: number
       slotGroupId?: number
@@ -1287,7 +1302,7 @@ export async function createEnrollmentCheckoutSession(
       programsId?: number
       packageId?: string
     }>
-    signupAuthToken: string
+    signupAuthToken?: string
     promoCodes?: string[]
     responses?: Record<string, string | boolean | number | string[]>
     /** GA4 ids captured at checkout start so the webhook-side purchase event keeps attribution. */

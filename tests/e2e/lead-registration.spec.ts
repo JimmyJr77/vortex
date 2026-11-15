@@ -64,7 +64,8 @@ test('conversion supports partial child details and optional dates for every lin
   })
 })
 
-test('invited parent fills missing family and class details before continuing to checkout',async({page})=>{
+for (const removeSuggested of [false, true]) {
+test(`invited parent completes registration with ${removeSuggested ? 'removed' : 'original'} coach suggestions`,async({page})=>{
   let completion:Record<string,unknown>|null=null
   const memberLogins: unknown[] = []
   const waivers=[{id:1,name:'Test waiver',body:'Fixture waiver',version:'1',is_required:true}]
@@ -72,9 +73,9 @@ test('invited parent fills missing family and class details before continuing to
     {memberId:9,programsId:1,classEventId:2,formId:3,slotGroupId:4,timeSlotId:5,classLabel:'Gymnastics Basics',enrollmentStartDate:'2027-01-12'},
     {memberId:10,programsId:1,classEventId:6,formId:7,slotGroupId:8,timeSlotId:9,classLabel:'Foundations',enrollmentStartDate:'2027-01-10'},
   ]
-  const result={payerMemberId:9,memberIds:[9,10],pendingEnrollments,enrollmentsPrepared:true}
+  const result={payerMemberId:9,memberIds:[9,10],pendingEnrollments: removeSuggested ? pendingEnrollments.slice(1) : pendingEnrollments,enrollmentsPrepared:true}
   await page.addInitScript(()=>{localStorage.setItem('vortex_admin','true');localStorage.setItem('adminToken','fixture');localStorage.setItem('vortex-admin-info',JSON.stringify({id:1,isMaster:false}));localStorage.setItem('vortex_admin_portal','new-admin')})
-  await page.route('**/?enrollment=review',route=>route.fulfill({contentType:'text/html',body:'<h1>Member checkout</h1>'}))
+  await page.route('**/?enrollment=checkout',route=>route.fulfill({contentType:'text/html',body:'<h1>Member checkout</h1>'}))
   await page.route('**/api/**',async route=>{
     const path=new URL(route.request().url()).pathname
     let data:unknown=[]
@@ -87,6 +88,9 @@ test('invited parent fills missing family and class details before continuing to
         {kind:'reserved',programsId:1,classEventId:6,schedulingFormId:7,slotGroupId:8,timeSlotId:9,childIndex:0,label:'Gymnastics / Foundations · Monday 16:00–17:00',scheduleLabel:'Monday 16:00–17:00',enrollmentStartDate:'2027-01-10'},
       ],
     }
+    if(path.endsWith('/catalog/programs')) data=[{id:1,name:'Gymnastics'},{id:11,name:'Trampoline'}]
+    if(path.endsWith('/catalog/programs/11/classes')) data=[{id:12,name:'Trampoline Basics',schedulingFormId:13}]
+    if(path.endsWith('/catalog/classes/12/offerings')) data={formId:13,offerings:[],scheduleOptions:[{slotGroupId:14,timeSlotId:15,scheduleLabel:'Friday 16:00–17:00'}]}
     if(path.endsWith('/catalog/programs/1/classes')) data=[{id:2,name:'Gymnastics Basics',schedulingFormId:3}]
     if(path.endsWith('/catalog/classes/2/offerings')) data={formId:3,offerings:[],scheduleOptions:[{slotGroupId:4,timeSlotId:5,scheduleLabel:'Thursday 16:00–17:00'}]}
     if(path.endsWith('/lead/8/complete')) {completion=route.request().postDataJSON();data=result}
@@ -116,9 +120,19 @@ test('invited parent fills missing family and class details before continuing to
   await birthday.fill('01011988')
   await birthday.press('Tab')
   await expect(birthday).toHaveValue('01/01/1988')
+  await expect(page.getByRole('button',{name:'Verify address'})).toHaveCount(0)
+  await expect(page.getByPlaceholder('Street address *')).toHaveAttribute('autocomplete','address-line1')
   await page.getByPlaceholder('Username *',{exact:true}).fill('jordan')
   await page.getByPlaceholder('Password *',{exact:true}).fill('NewPassword123!')
   await page.getByPlaceholder('Confirm password *',{exact:true}).fill('NewPassword123!')
+  await page.getByRole('button',{name:'Show password',exact:true}).click()
+  await expect(page.getByPlaceholder('Password *',{exact:true})).toHaveAttribute('type','text')
+  await page.getByRole('button',{name:'Hide password',exact:true}).click()
+  await page.getByRole('button',{name:'Continue',exact:true}).click()
+  await expect(page.getByRole('alert')).toContainText('Gender is required.')
+  await expect(page.getByRole('combobox',{name:'Gender',exact:true})).toHaveAttribute('aria-invalid','true')
+  await expect(page.getByRole('alert')).toBeInViewport()
+  await page.getByRole('combobox',{name:'Gender',exact:true}).selectOption('male')
   await page.getByRole('button',{name:'Continue',exact:true}).click()
   await expect(page.getByRole('heading',{name:/^Family member [12] · /})).toHaveText([
     'Family member 1 · Primary account holder',
@@ -139,6 +153,7 @@ test('invited parent fills missing family and class details before continuing to
   await expect(page.getByPlaceholder('Email address *',{exact:true})).toBeVisible()
   await page.getByRole('button',{name:'Remove family member 3',exact:true}).click()
   await page.getByPlaceholder('Last name *',{exact:true}).fill('Rivera')
+  await page.getByRole('combobox',{name:'Gender',exact:true}).selectOption('female')
   await birthday.fill('02/30/2016')
   await page.getByRole('button',{name:'Continue',exact:true}).click()
   await expect(page.getByText('Enter a valid date of birth in MM/DD/YYYY format.')).toBeVisible()
@@ -160,41 +175,71 @@ test('invited parent fills missing family and class details before continuing to
   await expect(page.getByLabel('Program',{exact:true}).first().locator('option:checked')).toHaveText('Gymnastics')
   await expect(page.getByLabel('Family member',{exact:true}).nth(1).locator('option:checked')).toHaveText('Casey Rivera')
   await expect(page.getByLabel('Class',{exact:true}).nth(1).locator('option:checked')).toHaveText('Foundations')
-  await expect(page.getByText('Monday 16:00–17:00',{exact:true})).toBeVisible()
+  await expect(page.getByLabel('Class time',{exact:true}).last().locator('option:checked')).toHaveText('Monday 16:00–17:00')
   await expect(page.getByLabel('Enrollment start date').nth(1)).toHaveValue('2027-01-10')
+  page.once('dialog',dialog=>dialog.dismiss())
+  await page.getByLabel('Program',{exact:true}).nth(1).selectOption('')
+  await expect(page.getByLabel('Program',{exact:true}).nth(1)).toHaveValue('1')
+  page.once('dialog',dialog=>dialog.accept())
+  await page.getByLabel('Program',{exact:true}).nth(1).selectOption('')
+  await expect(page.getByLabel('Class',{exact:true}).nth(1)).toHaveValue('')
+  await page.getByRole('button',{name:'Reset to coach suggested class'}).click()
+  await expect(page.getByLabel('Class',{exact:true}).nth(1)).toHaveValue('6')
+  await expect(page.getByLabel('Class time',{exact:true}).last()).toHaveValue('8:9')
+  page.once('dialog',dialog=>dialog.accept())
+  await page.getByLabel('Program',{exact:true}).nth(1).selectOption('11')
+  page.once('dialog',dialog=>dialog.accept())
+  await page.getByLabel('Class',{exact:true}).nth(1).selectOption('12')
+  page.once('dialog',dialog=>dialog.accept())
+  await page.getByLabel('Class time',{exact:true}).last().selectOption('14:15')
+  await expect(page.getByLabel('Class time',{exact:true}).last()).toHaveValue('14:15')
+  await page.getByRole('button',{name:'Reset to coach suggested class'}).click()
+  await expect(page.getByLabel('Program',{exact:true}).nth(1)).toHaveValue('1')
+  await expect(page.getByLabel('Class time',{exact:true}).last()).toHaveValue('8:9')
+
   await page.getByLabel('Family member',{exact:true}).first().selectOption({label:'Jordan Rivera'})
   await page.getByLabel('Class',{exact:true}).first().selectOption('2')
-  await page.getByLabel('Class time',{exact:true}).selectOption('4:5')
+  await page.getByLabel('Class time',{exact:true}).first().selectOption('4:5')
   await page.getByRole('button',{name:'Continue',exact:true}).click()
   await expect(page.getByText('Select an enrollment start date for enrollment 1.')).toBeVisible()
   await page.getByLabel('Enrollment start date').first().fill('2027-01-12')
+  if (removeSuggested) {
+    page.once('dialog',dialog=>dialog.accept())
+    await page.getByRole('button',{name:'Remove class',exact:true}).first().click()
+    await expect(page.getByLabel('Class',{exact:true})).toHaveCount(1)
+    await expect(page.getByLabel('Class',{exact:true})).toHaveValue('6')
+    await expect(page.getByLabel('Class time',{exact:true})).toHaveValue('8:9')
+  }
   await page.getByRole('button',{name:'Continue',exact:true}).click()
+  await page.getByRole('button',{name:/Create account/i}).click()
+  await expect(page.getByRole('alert')).toContainText('Please agree')
+  await expect(page.getByRole('checkbox').first()).toHaveAttribute('aria-invalid','true')
   await page.getByRole('checkbox').first().check()
   await page.getByRole('checkbox',{name:'I AGREE TO THE SELECTED WAIVERS ABOVE'}).check()
   await page.getByPlaceholder('Legal name').fill('Jordan Rivera')
   await page.getByRole('button',{name:/Create account|Complete signup|Finish|Submit/i}).click()
-  await expect(page.getByRole('heading',{name:'Next: your classes'})).toBeVisible()
-  await expect(page.getByText(/Class enrollment is confirmed once tuition and any annual registration fee due/)).toBeVisible()
+  await expect(page).toHaveURL('/?enrollment=checkout')
   expect(completion).toMatchObject({
     token:'fixture-token',session:'proof',primaryAdult:{username:'jordan',password:'NewPassword123!',email:'parent@example.test',dateOfBirth:'1988-01-01'},
     additionalMembers:[{firstName:'Casey',lastName:'Rivera',dateOfBirth:'2016-01-01'}],
     enrollments:[
-      {memberIndex:0,classEventId:2,schedulingFormId:3,slotGroupId:4,timeSlotId:5,enrollmentStartDate:'2027-01-12'},
+      ...(!removeSuggested ? [{memberIndex:0,classEventId:2,schedulingFormId:3,slotGroupId:4,timeSlotId:5,enrollmentStartDate:'2027-01-12'}] : []),
       {memberIndex:1,classEventId:6,schedulingFormId:7,slotGroupId:8,timeSlotId:9,enrollmentStartDate:'2027-01-10'},
     ],
   })
-  await page.reload()
+  await page.goto('/signup/lead?invite=8&token=fixture-token')
   await page.getByLabel('Username',{exact:true}).fill('jordan')
   await page.getByLabel('Password',{exact:true}).fill('NewPassword123!')
   await page.getByRole('button',{name:'Sign in to finish registration'}).click()
-  await page.getByRole('button',{name:'Review classes and complete enrollment'}).click()
-  await expect(page).toHaveURL('/?enrollment=review')
+  await expect(page).toHaveURL('/?enrollment=checkout')
   expect(memberLogins).toEqual([
     {emailOrUsername:'jordan',password:'NewPassword123!'},
     {emailOrUsername:'jordan',password:'NewPassword123!'},
   ])
   await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:9:10') || 'null'))).toMatchObject({cart:[{classEventId:6,enrollmentStartDate:'2027-01-10'}]})
 })
+
+}
 
 test('class and program archives use their actions and display the active-class guard',async({page})=>{
   let archivedClass=false

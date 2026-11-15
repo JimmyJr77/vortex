@@ -1,3 +1,4 @@
+import { clearConfirmedFamilyEnrollmentSubmission } from '../utils/memberEnrollmentDrafts'
 import TextInput from './common/TextInput'
 import StaffLegalPolicies from './legal/StaffLegalPolicies'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
@@ -1297,9 +1298,9 @@ export default function MemberDashboard({
     const enrollmentStatus = params.get('enrollment')
     const billingStatus = params.get('billing')
 
-    if (enrollmentStatus === 'review') {
+    if (enrollmentStatus === 'review' || enrollmentStatus === 'checkout') {
       setActiveTab('classes')
-      setEnrollmentConfirmMessage('Your account is ready. Review each athlete’s saved classes and pay by credit card. Enrollment is confirmed once tuition and any annual registration fee due are paid.')
+      setEnrollmentConfirmMessage('Your account is ready. Review your family’s combined order and pay by credit card. Enrollment is confirmed once tuition and any annual registration fee due are paid.')
     }
     if (enrollmentStatus === 'browse') setActiveTab('classes')
 
@@ -1414,6 +1415,7 @@ export default function MemberDashboard({
           setEnrollmentConfirmError('Enrollment is still awaiting payment confirmation. If you completed checkout, refresh this page to check again.')
           return
         }
+        clearConfirmedFamilyEnrollmentSubmission(pendingEnrollmentId)
         clearPendingEnrollmentId()
         clearEnrollmentReturnParams()
 
@@ -2529,8 +2531,9 @@ export default function MemberDashboard({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-6"
+                className="flex flex-col gap-6"
               >
+                <div className="order-last">
                 <MemberEnrollmentsPanel
                   enrollments={enrollments}
                   loading={enrollmentsLoading}
@@ -2563,6 +2566,7 @@ export default function MemberDashboard({
                   }))}
                 />
 
+                </div>
                 {/* Classes Offered */}
                 <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   {classesOfferedLoading && (

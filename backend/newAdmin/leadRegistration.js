@@ -229,7 +229,7 @@ export async function openLeadRegistration(db, inviteId, body) {
 async function resolveInvitationEnrollments(db, invite, enrollments, additionalMemberCount) {
   const { selections } = invite.pending_payload
   // Older clients omitted enrollments when the invitation already supplied every detail.
-  if (enrollments == null || (Array.isArray(enrollments) && enrollments.length === 0)) {
+  if (enrollments == null) {
     enrollments = selections.map(selection => {
       if (selection.kind !== 'reserved' || selection.childIndex == null || !selection.enrollmentStartDate) {
         throw inputError('Complete the athlete, class time, and start date for each invitation selection.')
@@ -237,48 +237,40 @@ async function resolveInvitationEnrollments(db, invite, enrollments, additionalM
       return { ...selection, memberIndex: selection.childIndex + 1 }
     })
   }
-  if (!Array.isArray(enrollments) || enrollments.length !== selections.length) {
-    throw inputError('Complete every class selection on the invitation.')
+  if (!Array.isArray(enrollments) || enrollments.length > 40) {
+    throw inputError('Choose at most 40 class selections.')
   }
 
   const resolved = []
   const seen = new Set()
-  for (const [index, selection] of selections.entries()) {
-    const enrollment = enrollments[index]
+  for (const [index, enrollment] of enrollments.entries()) {
+    const label = `enrollment ${index + 1}`
     const memberIndex = Number(enrollment?.memberIndex)
     if (enrollment?.memberIndex == null || enrollment.memberIndex === '' ||
-        !Number.isInteger(memberIndex) || memberIndex < 0 || memberIndex > additionalMemberCount ||
-        (selection.childIndex != null && memberIndex !== selection.childIndex + 1)) {
-      throw inputError(`Select a family member for ${selection.label}.`)
+        !Number.isInteger(memberIndex) || memberIndex < 0 || memberIndex > additionalMemberCount) {
+      throw inputError(`Select a family member for ${label}.`)
     }
     const classEventId = id(enrollment.classEventId, 'class')
+    const programsId = id(enrollment.programsId, 'program')
     const schedulingFormId = id(enrollment.schedulingFormId, 'class schedule')
     const timeSlotId = id(enrollment.timeSlotId, 'class time')
     const slotGroupId = id(enrollment.slotGroupId, 'class time group')
-    if ((selection.classEventId && classEventId !== selection.classEventId) ||
-        (selection.kind === 'reserved' && (
-          schedulingFormId !== selection.schedulingFormId ||
-          timeSlotId !== selection.timeSlotId ||
-          slotGroupId !== selection.slotGroupId
-        ))) {
-      throw inputError(`Use the class or time selected on the invitation for ${selection.label}.`)
-    }
     const startDate = normalizeEnrollmentStartDate(enrollment.enrollmentStartDate)
-    if (!startDate) throw inputError(`Enter an enrollment start date for ${selection.label}.`)
+    if (!startDate) throw inputError(`Enter an enrollment start date for ${label}.`)
     const klass = await db.query(`SELECT 1 FROM scheduling_form sf JOIN program p ON p.id=sf.program_id
       JOIN programs pr ON pr.id=p.programs_id AND pr.facility_id=p.facility_id
       WHERE sf.id=$1 AND p.id=$2 AND p.programs_id=$3 AND p.facility_id=$4
       AND p.is_active=TRUE AND p.archived IS NOT TRUE AND pr.is_active=TRUE AND pr.archived IS NOT TRUE
-      AND sf.is_active=TRUE AND sf.deleted_at IS NULL`, [schedulingFormId, classEventId, selection.programsId, invite.facility_id])
-    const slot = klass.rows.length && await loadClassTime(db, { formId: schedulingFormId, timeSlotId, startDate })
+      AND sf.is_active=TRUE AND sf.deleted_at IS NULL`, [schedulingFormId, classEventId, programsId, invite.facility_id])
+    const slot = klass.rows.length && await loadClassTime(db, { formId: schedulingFormId, timeSlotId, startDate, selectedOfferingOnly: true })
     if (!slot || Number(slot.slot_group_id) !== slotGroupId) {
-      throw inputError(`This class time is unavailable for the selected start date for ${selection.label}.`)
+      throw inputError(`This class time is unavailable for the selected start date for ${label}.`)
     }
     const key = `${memberIndex}:${slotGroupId}`
     if (seen.has(key)) throw inputError('This family member already has that class time selected.')
     seen.add(key)
     resolved.push({
-      memberIndex, classEventId, schedulingFormId, slotGroupId, timeSlotId, enrollmentStartDate: startDate,
+      memberIndex, programsId, classEventId, schedulingFormId, slotGroupId, timeSlotId, enrollmentStartDate: startDate,
       scheduleLabel: classTimeLabel(slot), selectedPricingOptionKey: enrollment.selectedPricingOptionKey,
     })
   }
@@ -320,17 +312,37 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
     if (await bcrypt.compare(String(primaryAdult.password || ''), invite.temporary_password_hash)) throw inputError('Choose a new password, different from the temporary password.')
     const children = Array.isArray(body.additionalMembers) ? body.additionalMembers : []
     if (children.length < invite.pending_payload.children.length || children.length > 20) throw inputError('Complete the details for each child on the invitation.')
+    const genders = new Set(['female', 'male', 'non-binary', 'prefer-not-to-say'])
+    for (const [index, member] of [primaryAdult, ...children].entries()) {
+      if (!String(member?.firstName || '').trim() || !String(member?.lastName || '').trim()) throw inputError('First and last name are required for every family member.')
+      if (!genders.has(member?.gender)) throw inputError(`Gender is required for ${index === 0 ? 'the primary account holder' : member.firstName || 'each family member'}.`)
+    }
     inquiryInput({ campers: children.map(child => ({ dateOfBirth: child?.dateOfBirth })) })
     const enrollments = await resolveInvitationEnrollments(db, invite, body.enrollments, children.length)
     // Enrollment billing is owned exclusively by the existing authenticated checkout.
     const result = await processFamilySignup(db, { primaryAdult, additionalMembers: children, enrollments, waivers: body.waivers, familyName: `${primaryAdult.lastName} Family` }, { facilityId: invite.facility_id, leadInvitationId: invite.id, ipAddress: request.ip, userAgent: request.userAgent })
-    for (const [index, selection] of invite.pending_payload.selections.entries()) {
-      if (selection.kind !== 'reserved') continue
-      const enrollment = enrollments[index]
+    // Preserve only holds still selected by the family. Match the actual schedule,
+    // not array position: removing/reordering a suggestion must not attach another hold.
+    const available = [...enrollments]
+    const reservedSelections = invite.pending_payload.selections.filter(item => item.kind === 'reserved')
+      .sort((a, b) => Number(a.childIndex == null) - Number(b.childIndex == null))
+    for (const selection of reservedSelections) {
+      const match = available.findIndex(item => item.classEventId === selection.classEventId
+        && item.schedulingFormId === selection.schedulingFormId && item.slotGroupId === selection.slotGroupId
+        && item.timeSlotId === selection.timeSlotId
+        && (selection.childIndex == null || item.memberIndex === selection.childIndex + 1))
+      const enrollment = match < 0 ? null : available.splice(match, 1)[0]
+      if (!enrollment) {
+        await db.query(`UPDATE scheduling_signup SET status='cancelled',reserved_until=NULL
+          WHERE account_invite_id=$1 AND slot_group_id=$2 AND status='pending_setup'
+          AND (CASE WHEN $3::bigint IS NOT NULL THEN id=$3 ELSE invite_child_index IS NOT DISTINCT FROM $4::integer END)`,
+        [invite.id, selection.slotGroupId, selection.holdSignupId ?? null, selection.childIndex])
+        continue
+      }
       const participant = enrollment.memberIndex === 0 ? primaryAdult : children[enrollment.memberIndex - 1]
       const linkedHold = await db.query(`UPDATE scheduling_signup SET member_id=$3,first_name=$4,last_name=$5,enrollment_start_date=$6
         WHERE account_invite_id=$1 AND slot_group_id=$2 AND status='pending_setup'
-        AND (CASE WHEN $7::bigint IS NOT NULL THEN id=$7 ELSE invite_child_index=$8 END)`,
+        AND (CASE WHEN $7::bigint IS NOT NULL THEN id=$7 ELSE invite_child_index IS NOT DISTINCT FROM $8::integer END)`,
       [invite.id, selection.slotGroupId, result.memberIds[enrollment.memberIndex], participant.firstName, participant.lastName,
         enrollment.enrollmentStartDate, selection.holdSignupId ?? null, selection.childIndex])
       if (linkedHold.rowCount !== 1) throw inputError('A reserved class could not be linked to its athlete. Contact Vortex to update the invitation.', 409)

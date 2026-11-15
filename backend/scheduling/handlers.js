@@ -1344,7 +1344,7 @@ const passSignupItemSchema = Joi.object({
 
 const signupItemSchema = Joi.alternatives().try(passSignupItemSchema, slotSignupItemSchema)
 
-const batchSignupSchema = Joi.object({
+export const batchSignupSchema = Joi.object({
   signups: Joi.array().items(signupItemSchema).min(1).max(20).required(),
   responses: Joi.object().default({}),
   signupAuthToken: Joi.string().trim().optional(),

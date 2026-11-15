@@ -65,6 +65,7 @@ import {
 } from '../billing/customerBillingPayments.js'
 import {
   createEnrollmentCheckoutSession,
+  previewFamilyEnrollmentOrder,
   commitPendingEnrollment,
   confirmEnrollmentCheckoutSession,
 } from '../billing/stripeEnrollmentCheckout.js'
@@ -3664,6 +3665,20 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     }
   })
 
+  app.post('/api/members/billing/family-enrollment-preview', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
+    try {
+      const ctx = req.platformAuth
+      const memberId = linkedPlatformMemberId(ctx)
+      const familyId = await resolveActiveMemberBillingFamilyId(pool, { memberId, facilityId: ctx.user.facility_id ?? null })
+      const account = familyId && await ensureCustomerBillingAccount(pool, familyId, ctx.user.facility_id ?? null)
+      if (!account || Number(account.payer_member_id) !== memberId) return res.status(403).json({ success: false, message: 'Only the family payer can review enrollment checkout.' })
+      const data = await previewFamilyEnrollmentOrder(pool, { account, memberId, batches: req.body?.familyBatches, promoCodes: req.body?.promoCodes ?? [] })
+      res.json({ success: true, data })
+    } catch (error) {
+      res.status(error.statusCode ?? 400).json({ success: false, message: error.message || 'Unable to price family enrollments.' })
+    }
+  })
+
   app.post('/api/members/billing/enrollment-checkout-session', ...memberBillingAuthMiddleware(pool, jwtSecret), async (req, res) => {
     if (!isStripeEnabled()) {
       return res.status(503).json({ success: false, message: 'Online payments are not enabled yet.', stripeEnabled: false })
@@ -3682,11 +3697,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(403).json({ success: false, message: 'Only the family payer can complete enrollment checkout.' })
     }
 
-    const { signups, promoCodes, signupAuthToken, responses, analytics } = req.body ?? {}
-    if (!Array.isArray(signups) || signups.length === 0) {
+    const { signups, promoCodes, signupAuthToken, responses, analytics, familyBatches } = req.body ?? {}
+    if (!familyBatches && (!Array.isArray(signups) || signups.length === 0)) {
       return res.status(400).json({ success: false, message: 'No enrollment items provided.' })
     }
-    if (!signupAuthToken) {
+    if (!familyBatches && !signupAuthToken) {
       return res.status(400).json({ success: false, message: 'Enrollment session expired. Please try again.' })
     }
 
@@ -3696,10 +3711,12 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       // Reject invalid phone responses before collecting payment. Keep the
       // original payload for request idempotency; signup normalizes on write.
       normalizeSignupResponsePhones(responses)
+      if (Array.isArray(familyBatches)) for (const batch of familyBatches) normalizeSignupResponsePhones(batch?.responses)
       const result = await createEnrollmentCheckoutSession(pool, {
         account,
         memberId,
         batchPayload: {
+          ...(familyBatches ? { familyBatches } : {}),
           signups,
           promoCodes: promoCodes ?? [],
           signupAuthToken,

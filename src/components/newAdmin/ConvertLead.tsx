@@ -65,8 +65,10 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
     setBusy(true)
     setError(null)
     try {
-      setResult(await request<Invitation>(`/api/admin/new-admin/lead-registration/${invitation.id}/send`, { method: 'POST' }))
+      const saved = await request<Invitation>(`/api/admin/new-admin/lead-registration/${invitation.id}/send`, { method: 'POST' })
+      setResult(saved)
       onSent()
+      if (saved.status === 'sent') onClose()
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to send invitation.')
     } finally {

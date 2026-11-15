@@ -68,3 +68,27 @@ export function saveMemberEnrollmentDraft(key: string, draft: MemberEnrollmentDr
     // Enrollment remains usable when browser storage is unavailable.
   }
 }
+
+// Preserve the exact submitted rows until payment confirmation, so pass purchases
+// are cleared too and selections added after opening Checkout remain untouched.
+export function storeFamilyEnrollmentSubmission(pendingId: number, accountMemberId: number, orders: Array<{ member: { id: number }; draft: MemberEnrollmentDraft }>): void {
+  try {
+    sessionStorage.setItem(`${MEMBER_ENROLLMENT_DRAFT_PREFIX}submitted:${pendingId}`, JSON.stringify(orders.map(order => ({
+      key: memberEnrollmentDraftKey(accountMemberId, order.member.id), cart: order.draft.cart,
+    }))))
+  } catch { /* Drafts remain available when storage is unavailable. */ }
+}
+
+export function clearConfirmedFamilyEnrollmentSubmission(pendingId: number | undefined): void {
+  if (!pendingId) return
+  const key = `${MEMBER_ENROLLMENT_DRAFT_PREFIX}submitted:${pendingId}`
+  try {
+    const submitted = JSON.parse(sessionStorage.getItem(key) || '[]') as Array<{ key: string; cart: MemberEnrollmentCartItem[] }>
+    for (const order of submitted) {
+      const draft = loadMemberEnrollmentDraft(order.key)
+      const rows = new Set(order.cart.map(item => JSON.stringify(item)))
+      saveMemberEnrollmentDraft(order.key, { ...draft, cart: draft.cart.filter(item => !rows.has(JSON.stringify(item))) })
+    }
+    sessionStorage.removeItem(key)
+  } catch { /* Confirmed class rows are also pruned against refreshed enrollments. */ }
+}

@@ -2,6 +2,7 @@ import { useId } from 'react'
 import type { PublicWaiverTemplate } from './waiverSigningUtils'
 
 interface WaiverSigningBlockProps {
+  invalidField?: string | null
   waivers: PublicWaiverTemplate[]
   checkedTemplateIds: number[]
   onToggleTemplate: (templateId: number, checked: boolean) => void
@@ -29,6 +30,7 @@ export default function WaiverSigningBlock({
   comments,
   onCommentsChange,
   readOnly = false,
+  invalidField,
 }: WaiverSigningBlockProps) {
   const today = new Date().toLocaleDateString()
   const formId = useId()
@@ -81,6 +83,7 @@ export default function WaiverSigningBlock({
                     type="checkbox"
                     className="mt-1"
                     checked={checked}
+                    aria-invalid={invalidField === `waiver-${waiver.id}` || undefined}
                     onChange={(e) => onToggleTemplate(waiver.id, e.target.checked)}
                   />
                   <span>I&apos;ve read the above and agree to {waiver.name}</span>
@@ -98,6 +101,7 @@ export default function WaiverSigningBlock({
               type="checkbox"
               className="mt-1"
               checked={agreeAll}
+              aria-invalid={invalidField === 'waiver-agreement' || undefined}
               onChange={(e) => onAgreeAllChange(e.target.checked)}
             />
             <span>I AGREE TO THE SELECTED WAIVERS ABOVE</span>
@@ -110,6 +114,7 @@ export default function WaiverSigningBlock({
                 id={`${formId}-signature`}
                 className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white"
                 value={signatureName}
+                aria-invalid={invalidField === 'waiver-signature' || undefined}
                 onChange={(e) => onSignatureNameChange(e.target.value)}
                 placeholder="Legal name"
               />

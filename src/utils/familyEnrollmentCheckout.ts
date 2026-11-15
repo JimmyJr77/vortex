@@ -29,7 +29,7 @@ export function saveFamilyCheckoutSelections(payerMemberId: number, selections: 
 export async function continueFamilyEnrollmentCheckout(apiUrl: string, result: {
   payerMemberId: number
   pendingEnrollments: PendingFamilyEnrollment[]
-}, credentials: { email?: string; username?: string; password: string }, destination = '/?enrollment=review'): Promise<boolean> {
+}, credentials: { email?: string; username?: string; password: string }, destination = '/?enrollment=checkout'): Promise<boolean> {
   saveFamilyCheckoutSelections(Number(result.payerMemberId), result.pendingEnrollments)
   try {
     const { token, member } = await loginMemberWithCredentials(apiUrl, {

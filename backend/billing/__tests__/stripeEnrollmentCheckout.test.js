@@ -2181,3 +2181,46 @@ test('re-enrollment preserves an existing annual renewal opt-out', async () => {
   assert.equal(writes.length,1)
   assert.doesNotMatch(writes[0],/auto_renewal\s*=\s*TRUE/)
 })
+
+test('family checkout rechecks every sibling before fulfillment, including non-anchor members', async () => {
+  const checked = []
+  const pending = { id:44, family_billing_account_id:8, member_id:62, payer_member_id:13, family_id:20,
+    payload:{ familyBatches:[{memberId:62},{memberId:63}] },
+    preview_snapshot:{ familyOrders:[{memberId:62},{memberId:63}] } }
+  const pool = { async query(sql, params) {
+    if (/FROM stripe_pending_enrollment pending/.test(sql)) return { rows:[pending] }
+    checked.push(params[1])
+    return { rows: params[1] === 63 ? [] : [{id:params[1]}] }
+  } }
+  await assert.rejects(() => authorizePendingEnrollmentCheckout(pool, {pendingEnrollmentId:44}),
+    error => error.code === 'ENROLLMENT_CHECKOUT_FORBIDDEN')
+  assert.deepEqual(checked,[62,62,63])
+})
+
+test('family checkout rejects an incomplete per-child pricing snapshot', async () => {
+  const pool = { async query(sql) {
+    if (/FROM stripe_pending_enrollment pending/.test(sql)) return { rows:[{
+      id:44, family_billing_account_id:8, member_id:62, payer_member_id:13, family_id:20,
+      payload:{familyBatches:[{memberId:62},{memberId:63}]}, preview_snapshot:{familyOrders:[{memberId:62}]},
+    }] }
+    return {rows:[{id:62}]}
+  } }
+  await assert.rejects(() => authorizePendingEnrollmentCheckout(pool,{pendingEnrollmentId:44}), /snapshot does not match/)
+})
+
+test('a multi-child order creates one Stripe session and replays that same payment', async () => {
+  const { pool, stripe, state, options, preview } = enrollmentCheckoutCreationHarness()
+  options.batchPayload.familyBatches = [62,63].map(memberId => ({memberId,payload:{signups:[]}}))
+  preview.familyOrders = [62,63].map(memberId => ({memberId,preview:{}}))
+  preview.firstMonth.items = [
+    {...preview.firstMonth.items[0],displayLine:'First child · Gymnastics',proratedCents:400},
+    {...preview.firstMonth.items[0],displayLine:'Second child · Gymnastics',proratedCents:600},
+  ]
+  const first = await createAndBindEnrollmentCheckoutSession(pool,stripe,options)
+  const replay = await createAndBindEnrollmentCheckoutSession(pool,stripe,options)
+  assert.equal(first.session.id,replay.session.id)
+  assert.equal(state.createCalls,1)
+  assert.equal(state.pending.payload.familyBatches.length,2)
+  assert.equal(state.pending.due_now_cents,6000)
+  assert.deepEqual(state.sessions[0].params.line_items.map(line=>line.price_data.unit_amount),[400,600,5000])
+})

@@ -1,3 +1,4 @@
+import FamilyEnrollmentCheckout from './FamilyEnrollmentCheckout'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, CheckCircle, LayoutGrid, Loader2, Search, ShoppingCart } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
@@ -107,6 +108,8 @@ export default function MemberClassesOfferedEnroll(props: Props) {
       loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id)).cart.length > 0,
     )?.id
     || Number(props.defaultMemberId))
+  const [familyCheckout, setFamilyCheckout] = useState(() => ['checkout', 'cancelled'].includes(new URLSearchParams(window.location.search).get('enrollment') || ''))
+  const [familyDone, setFamilyDone] = useState(false)
   const [drafts, setDrafts] = useState<Record<number, MemberEnrollmentDraft>>({})
   const rememberDraft = useCallback((memberId: number, draft: MemberEnrollmentDraft) => {
     setDrafts((current) => ({ ...current, [memberId]: draft }))
@@ -118,6 +121,20 @@ export default function MemberClassesOfferedEnroll(props: Props) {
     drafts[member.id] ?? loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id))
   ).cart.length > 0)
 
+  const familyOrders = useMemo(() => props.members.map(member => ({ member,
+    draft: drafts[member.id] ?? loadMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, member.id)),
+  })).map(order => ({ ...order, draft: { ...order.draft, cart: order.draft.cart.filter(item => !props.enrollments.some(row =>
+    row.status === 'confirmed' && Number(row.member_id) === order.member.id && Number(row.form_id) === item.formId
+      && Number(row.slot_group_id) === item.slotGroupId && Number(row.time_slot_id) === item.timeSlotId)) } }))
+    .filter(order => order.draft.cart.length), [props.members, props.defaultMemberId, props.enrollments, drafts])
+  if (familyDone) return <div role="status" className="py-8 text-center">Your family’s enrollment is confirmed.</div>
+  if (familyCheckout && familyOrders.length) return <FamilyEnrollmentCheckout
+    accountMemberId={props.defaultMemberId} memberToken={props.memberToken} stripeEnabled={props.stripeEnabled ?? false} programs={props.programs} orders={familyOrders}
+    onEdit={id => { setSelectedMemberId(id); setFamilyCheckout(false) }}
+    onComplete={() => {
+      for (const order of familyOrders) saveMemberEnrollmentDraft(memberEnrollmentDraftKey(props.defaultMemberId, order.member.id), { ...order.draft, cart: [] })
+      setDrafts({}); setFamilyDone(true); props.onEnrolled()
+    }} />
   return (
     <AthleteEnrollment
       key={`${props.defaultMemberId}:${memberId}`}
@@ -127,11 +144,13 @@ export default function MemberClassesOfferedEnroll(props: Props) {
       onSelectMember={setSelectedMemberId}
       onDraftChange={rememberDraft}
       pendingMembers={pendingMembers}
+      onFamilyCheckout={() => setFamilyCheckout(true)}
     />
   )
 }
 
 interface AthleteEnrollmentProps extends Props {
+  onFamilyCheckout: () => void
   selectedMemberId: number
   initialDraft?: MemberEnrollmentDraft
   onSelectMember: (memberId: number) => void
@@ -154,6 +173,7 @@ function AthleteEnrollment({
   onSelectMember,
   onDraftChange,
   pendingMembers,
+  onFamilyCheckout,
 }: AthleteEnrollmentProps) {
   // Remounting this panel on athlete changes isolates all state and in-flight
   // requests. Drafts remain owned by their athlete, including across checkout.
@@ -591,7 +611,7 @@ function AthleteEnrollment({
       startDateInputRef.current?.focus()
       return
     }
-    setView('checkout')
+    onFamilyCheckout()
   }
 
   // Any change invalidates the old quote. Only the latest request can publish
