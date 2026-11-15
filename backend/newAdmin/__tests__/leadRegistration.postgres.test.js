@@ -85,6 +85,31 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.deepEqual(await matchingRegistrations(), beforeRows)
       assert.deepEqual(await matchingInquiries(), before)
     })
+    await t.test('corrected email retries preserve holds and revoke the original credentials', async () => {
+      await db.query('SAVEPOINT corrected_email')
+      const original = captured
+      try {
+        const email = `corrected-${nonce}@example.test`
+        const holds = (await db.query('SELECT id FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows
+        await saveLead(pool, facilityId, lead.id, { email }, { canonicalAccess: { userId: owner.id } })
+        let corrected
+        const resent = await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id, resend: true }, {
+          sendInvitation: async args => { corrected = args; return { sent: true } },
+        })
+        assert.equal(resent.email, email)
+        assert.equal(corrected.invite.pending_payload.guardian.email, email)
+        assert.notEqual(corrected.token, original.token)
+        assert.notEqual(corrected.password, original.password)
+        await assert.rejects(() => openLeadRegistration(pool, invitation.id, { token: original.token, username: invitation.username, password: original.password }), /Invalid/)
+        const opened = await openLeadRegistration(pool, invitation.id, { token: corrected.token, username: invitation.username, password: corrected.password })
+        assert.equal(opened.guardian.email, email)
+        assert.deepEqual((await db.query('SELECT id FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows, holds)
+        assert.ok((await db.query('SELECT email FROM scheduling_signup WHERE account_invite_id=$1', [invitation.id])).rows.every(row => row.email === email))
+      } finally {
+        await db.query('ROLLBACK TO SAVEPOINT corrected_email')
+        await db.query('RELEASE SAVEPOINT corrected_email')
+      }
+    })
     await t.test('pending seats cannot be taken by another admission path',async()=>{
       await rejectSql("INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status) VALUES($1,$2,$3,'Other','Child','other@example.test','confirmed')",[form.id,group.id,slot.id],/reserved/)
       const invalidLead=await createLead(pool,facilityId,{firstName:'Other',lastName:'Family',email:`other-${nonce}@example.test`})
@@ -190,7 +215,9 @@ test('lead invitations reserve shared class places, require new credentials, and
       const second=await createLead(pool,facilityId,{firstName:'Testparent',lastName:'Invite',email:`retry-${nonce}@example.test`})
       const failed=await createLeadInvitation(pool,{facilityId,leadId:second.id,userId:owner.id,body:{}},{sendInvitation:async()=>({sent:false})})
       assert.equal(failed.status,'failed');assert.notEqual(failed.username,`testparent${nonce}`)
-      const retried=await deliverLeadInvitation(pool,{facilityId,inviteId:failed.id},{sendInvitation:async()=>({sent:true})})
+      const correctedEmail = `retry-corrected-${nonce}@example.test`
+      await saveLead(pool,facilityId,second.id,{email:correctedEmail},{canonicalAccess:{userId:owner.id}})
+      const retried=await createLeadInvitation(pool,{facilityId,leadId:second.id,userId:owner.id,body:{}},{sendInvitation:async({invite})=>{assert.equal(invite.invitee_email,correctedEmail);return {sent:true}}})
       assert.equal(retried.id,failed.id);assert.equal(retried.status,'sent')
       await db.query("UPDATE scheduling_signup SET reserved_until=now()-interval '1 minute' WHERE account_invite_id=$1 AND status='pending_setup'",[invitation.id])
       assert.equal((await db.query('SELECT pending_registration_holds($1) AS n',[group.id])).rows[0].n,0)

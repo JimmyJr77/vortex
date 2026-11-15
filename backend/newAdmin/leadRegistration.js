@@ -102,7 +102,10 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     if (!lead) throw inputError('Lead not found.', 404)
     if (lead.converted_member_id || lead.member_id) throw inputError('This lead already has a member account. Open that account to manage registrations.', 409)
     const existing = (await client.query(`SELECT * FROM account_invite WHERE registration_id=$1 AND invite_type='lead_registration' AND used_at IS NULL AND expires_at>now() ORDER BY id DESC LIMIT 1`, [lead.id])).rows[0]
-    if (existing) { invite = existing; await client.query('COMMIT'); return invitationSummary(invite) }
+    if (existing) {
+      await client.query('COMMIT')
+      return deliverLeadInvitation(pool, { facilityId, inviteId: existing.id }, dependencies)
+    }
     const email = normalizeSignupEmail(lead.email)
     if (!email) throw inputError('Update the lead with a valid email address before sending the invitation.')
     const emailConflict = await client.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
@@ -138,9 +141,32 @@ export async function deliverLeadInvitation(pool, { facilityId, inviteId, resend
   const db = await pool.connect()
   try {
     await db.query('BEGIN')
+    const reference = (await db.query("SELECT registration_id FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration'", [id(inviteId), facilityId])).rows[0]
+    if (!reference) throw inputError('Invitation not found.', 404)
+    // Match conversion/completion lock order and serialize against lead edits.
+    const lead = (await db.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE', [reference.registration_id, facilityId])).rows[0]
     const invite = (await db.query("SELECT * FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration' FOR UPDATE", [id(inviteId), facilityId])).rows[0]
     if (!invite) throw inputError('Invitation not found.', 404)
     if (invite.used_at || new Date(invite.expires_at) <= new Date()) throw inputError('This invitation is completed or expired.', 409)
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) throw inputError('This lead already has an account or is no longer open.', 409)
+    const email = normalizeSignupEmail(lead.email)
+    if (!email) throw inputError('Update the lead with a valid email address before sending the invitation.')
+    if (email !== invite.invitee_email) {
+      const conflict = await db.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
+      if (conflict.rows.length) throw inputError('This email already has an account. Link the verified existing member instead of creating another login.', 409)
+      const token = crypto.randomBytes(32).toString('hex'), password = generateTemporaryPassword(16)
+      invite.invitee_email = email
+      invite.token_hash = digest(token)
+      invite.token_ciphertext = encryptAccountInviteToken(token)
+      invite.temporary_password_hash = await bcrypt.hash(password, 10)
+      invite.pending_payload.guardian.email = email
+      invite.pending_payload.passwordCiphertext = encryptAccountInviteToken(password)
+      invite.delivery_status = 'pending'
+      await db.query(`UPDATE account_invite SET invitee_email=$2,token_hash=$3,token_ciphertext=$4,
+        temporary_password_hash=$5,pending_payload=$6::jsonb,delivery_status='pending' WHERE id=$1`,
+      [invite.id, email, invite.token_hash, invite.token_ciphertext, invite.temporary_password_hash, JSON.stringify(invite.pending_payload)])
+      await db.query("UPDATE scheduling_signup SET email=$2 WHERE account_invite_id=$1 AND status='pending_setup'", [invite.id, email])
+    }
     if (invite.delivery_status === 'sent' && !resend) { await db.query('COMMIT'); return invitationSummary(invite) }
     let sent=false
     try { sent = (await sendInvitation({ invite, token: decryptAccountInviteToken(invite.token_ciphertext), password: decryptAccountInviteToken(invite.pending_payload.passwordCiphertext) }))?.sent === true } catch { /* Keep the invitation and its holds available for an explicit retry. */ }
