@@ -1786,7 +1786,7 @@ export async function computeDiscountLayer(
   let caps = {}
   try {
     const { loadActiveDiscountRules } = await import('./discountEngine.js')
-    rules = await loadActiveDiscountRules(pool, facilityId)
+    rules = await loadActiveDiscountRules(pool, facilityId, { throwOnError: true })
   } catch {
     return empty
   }

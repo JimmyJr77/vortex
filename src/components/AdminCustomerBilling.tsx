@@ -1,4 +1,6 @@
 import { formatPhoneForDisplay, isCompletePhoneNumber } from '../utils/phoneUtils'
+import SavedPaymentMethod from './customerBilling/SavedPaymentMethod'
+import { paymentMethodIsMissing } from './customerBilling/paymentMethodStatus'
 import AddCreditModal from './customerBilling/AddCreditModal'
 import TextInput from './common/TextInput'
 import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
@@ -1774,7 +1776,7 @@ export default function AdminCustomerBilling({
               invoices={overview.monthlyInvoices}
               billingMonth={overview.summary.monthlyRecurringPeriod}
               localBillCents={overview.summary.monthlyRecurringCents}
-              paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && !overview.paymentMethod.available}
+              paymentMethodRequired={overview.account.householdMonthlyBillingEnabled && paymentMethodIsMissing(overview.paymentMethod)}
               monthlyLedgerBill={overview.summary.monthlyLedgerBill}
             />
             {overview.summary.stripeSync.status === 'failed' ? (
@@ -1809,7 +1811,7 @@ export default function AdminCustomerBilling({
                   {canManageContact && editingContact ? <div className="flex gap-2 sm:col-span-2 lg:col-span-4 2xl:col-span-7"><button type="button" onClick={() => void saveContact()} disabled={saving || loading} className="portal-primary rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Save billing contact</button><button type="button" onClick={() => { setContactDraft(billingContactDraft(overview.account)); setEditingContact(false) }} disabled={saving || loading} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button></div> : null}
                 </div>
               </details>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div>{overview.paymentMethod.paymentMethod ? <p className="mt-2 text-sm text-gray-700"><span className="capitalize">{overview.paymentMethod.paymentMethod.brand}</span> •••• {overview.paymentMethod.paymentMethod.last4}<span className="text-gray-400"> · expires {overview.paymentMethod.paymentMethod.expMonth}/{overview.paymentMethod.paymentMethod.expYear}</span></p> : <p className="mt-2 text-sm text-gray-500">No reusable default card found.</p>}</div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 text-sm font-bold text-gray-900"><CreditCard className="h-4 w-4" /> Saved payment method</div><SavedPaymentMethod value={overview.paymentMethod} /></div><Badge value={overview.paymentMethod.available ? 'available' : 'unavailable'} /></div>{overview.paymentMethod.error ? <p className="mt-2 text-xs text-amber-700">{overview.paymentMethod.error}</p> : null}</div>
             </div>
             {overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length > 0 ? <div className="border-t border-amber-200 bg-amber-50 p-4"><div className="mb-2 flex items-center gap-2 text-sm font-bold text-amber-900"><AlertTriangle className="h-4 w-4" /> Open account alerts ({overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).length})</div><div className="space-y-1">{overview.alerts.filter((alert) => !dismissedAlertIds.has(alert.id)).map((alert) => <div key={alert.id} className="flex items-start justify-between gap-3 text-sm text-amber-800"><span>{alert.message}</span><span className="ml-auto shrink-0 text-xs">{localDate(alert.createdAt)}</span>{canManage ? <button type="button" onClick={() => void dismissAlert(alert.id)} className="shrink-0 rounded border border-amber-300 px-2 py-0.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">Dismiss</button> : null}</div>)}</div></div> : null}
           </section>

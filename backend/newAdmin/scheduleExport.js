@@ -1,9 +1,10 @@
 import PDFDocument from 'pdfkit'
 import { fileURLToPath } from 'node:url'
 import { id, inputError } from './common.js'
+import { resolveSlotActiveDates } from '../scheduling/slotActiveDates.js'
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-const dayIndex = row => (Number(row.dayOfWeek) + 6) % 7
+const dayIndex = row => row.datesTbd || row.dayOfWeek == null ? 7 : (Number(row.dayOfWeek) + 6) % 7
 const byTime = (a, b) => a.startTime.localeCompare(b.startTime) || a.endTime.localeCompare(b.endTime)
   || a.className.localeCompare(b.className) || a.programName.localeCompare(b.programName) || a.slotId - b.slotId
 
@@ -18,8 +19,10 @@ export async function loadScheduleExport(db, facilityId, now = new Date()) {
     COALESCE(EXTRACT(DOW FROM ts.specific_date)::int,ts.day_of_week) AS "dayOfWeek",
     ts.specific_date::text AS "specificDate",ts.week_letter AS "weekLetter",ts.schedule_mode AS "scheduleMode",
     ts.start_time::text AS "startTime",ts.end_time::text AS "endTime",
-    COALESCE(o.start_date,g.active_start,f.start_date)::text AS "activeStart",
-    COALESCE(o.end_date,g.active_end,f.end_date)::text AS "activeEnd",g.max_participants AS capacity,
+    ts.active_start::text AS slot_start,ts.active_end::text AS slot_end,ts.dates_tbd AS slot_tbd,
+    g.active_start::text AS group_start,g.active_end::text AS group_end,g.dates_tbd AS group_tbd,
+    g.offering_id,g.inherits_offering_dates,o.start_date::text AS offering_start,o.end_date::text AS offering_end,
+    f.start_date::text AS form_start,f.end_date::text AS form_end,g.max_participants AS capacity,
     (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.slot_group_id=g.id AND s.status='confirmed') AS enrolled,
     pending_registration_holds(g.id) AS reserved
     FROM program p JOIN facility loc ON loc.id=p.facility_id
@@ -31,13 +34,24 @@ export async function loadScheduleExport(db, facilityId, now = new Date()) {
     WHERE p.facility_id=$1 AND p.is_active AND p.archived IS NOT TRUE
       AND pr.archived IS NOT TRUE AND (pr.id IS NULL OR pr.is_active)
       AND (g.offering_id IS NULL OR o.is_selected)
-      AND COALESCE(o.end_date,g.active_end,f.end_date,'infinity'::date)>=$2::date
-      AND (ts.specific_date IS NULL OR (ts.specific_date >= $2::date
-        AND ts.specific_date BETWEEN COALESCE(o.start_date,g.active_start,f.start_date,'-infinity'::date)
-          AND COALESCE(o.end_date,g.active_end,f.end_date,'infinity'::date)))
-    ORDER BY p.id,g.id,ts.id`, [facilityId, facility.today])
+    ORDER BY p.id,g.id,ts.id`, [facilityId])
+  const schedules = rows.map(({ slot_start, slot_end, slot_tbd, group_start, group_end, group_tbd,
+    offering_id, inherits_offering_dates, offering_start, offering_end, form_start, form_end, ...row }) => {
+    const dates = resolveSlotActiveDates({
+      active_start: slot_start ?? group_start,
+      active_end: slot_end ?? group_end,
+      dates_tbd: slot_tbd || group_tbd,
+      offering_id, inherits_offering_dates,
+    }, { start_date: form_start, end_date: form_end }, new Map([
+      [Number(offering_id), { start_date: offering_start, end_date: offering_end }],
+    ]))
+    return { ...row, activeStart: dates.activeStart, activeEnd: dates.activeEnd, datesTbd: dates.datesTbd }
+  }).filter(row => row.datesTbd || ((!row.activeEnd || row.activeEnd >= facility.today)
+    && (!row.specificDate || (row.specificDate >= facility.today
+      && (!row.activeStart || row.specificDate >= row.activeStart)
+      && (!row.activeEnd || row.specificDate <= row.activeEnd)))))
   return { facilityName: facility.name, timezone: facility.timezone, asOf: facility.today,
-    rows: rows.map(row => ({ ...row, classId: Number(row.classId), groupId: Number(row.groupId), slotId: Number(row.slotId),
+    rows: schedules.map(row => ({ ...row, classId: Number(row.classId), groupId: Number(row.groupId), slotId: Number(row.slotId),
       capacity: Number(row.capacity), enrolled: Number(row.enrolled), reserved: Number(row.reserved),
       available: Math.max(0, Number(row.capacity) - Number(row.enrolled) - Number(row.reserved)) })) }
 }
@@ -48,13 +62,15 @@ const time = value => {
 }
 const clean = value => String(value ?? '').replace(/[\u0000-\u001f]/g, ' ').replace(/[\u2010-\u2015]/g, '-')
 const schedule = row => [
-  row.specificDate || (row.weekLetter ? `Week ${row.weekLetter}` : 'Weekly'),
-  ...(!row.specificDate && (row.activeStart || row.activeEnd) ? [`${row.activeStart || 'Open start'} to ${row.activeEnd || 'Ongoing'}`] : []),
+  row.datesTbd ? 'Dates to be determined' : row.specificDate || (row.weekLetter ? `Week ${row.weekLetter}` : 'Weekly'),
+  ...(!row.datesTbd && !row.specificDate && (row.activeStart || row.activeEnd) ? [`${row.activeStart || 'Open start'} to ${row.activeEnd || 'Ongoing'}`] : []),
   `Schedule #${row.groupId}`,
 ].join('\n')
 
 export function scheduleExportSections(rows) {
   const byDay = days.map((name, index) => ({ name, rows: rows.filter(row => dayIndex(row) === index).sort(byTime) }))
+  const undated = rows.filter(row => dayIndex(row) === 7).sort(byTime)
+  if (undated.length) byDay.push({ name: 'Dates to be determined', rows: undated })
   const classes = new Map()
   for (const row of rows) {
     if (!classes.has(row.classId)) classes.set(row.classId, { name: row.className, programName: row.programName, rows: [] })
@@ -125,7 +141,7 @@ export async function scheduleExportPdf(data) {
   if (!byClass.length) text('No active class schedules are available.', left, y, width, 11, '#64748b')
   for (const group of byClass) table(`${group.name} / ${group.programName}`, group.rows,
     [{ label: 'Day', width: 110 }, { label: 'Time', width: 140 }, { label: 'Schedule', width: 182 }, { label: 'Available', width: 108 }],
-    row => [days[dayIndex(row)], `${time(row.startTime)} - ${time(row.endTime)}`, schedule(row), availability(row)])
+    row => [days[dayIndex(row)] || 'To be determined', `${time(row.startTime)} - ${time(row.endTime)}`, schedule(row), availability(row)])
   const range = doc.bufferedPageRange()
   for (let i = 0; i < range.count; i++) {
     doc.switchToPage(i)

@@ -1,0 +1,117 @@
+{
+  "verifiedAt": "2026-11-01T23:27:10.125Z",
+  "environment": {
+    "frontend": "localhost:5173 Vite development source",
+    "backend": "localhost:3101 Express with dedicated fictional PostgreSQL seed",
+    "browser": "Chromium via Playwright, 1440 x 1000",
+    "externalNetwork": "blocked by browser route; Stripe disabled; email kill switch enabled",
+    "authentication": "Normal username/password UI login verified; subsequent checks obtained normal login token through local API"
+  },
+  "status": "passed",
+  "checks": [
+    "Normal admin2 username/password UI login",
+    "Authorized dropdown and paginated member directory",
+    "Member pagination",
+    "Member detail and family relationship aggregate",
+    "Embedded household billing, ledger history and payment sync display",
+    "Class schedule/roster display and capacity update/restore through shared handler",
+    "Lead search/edit and list invalidation",
+    "Lead conversion to canonical member/household and linked member view",
+    "Return to existing Admin remains functional",
+    "Shared enrollment create and refreshed member enrollments",
+    "Shared schedule-pause and cancel-scheduled-pause lifecycle actions",
+    "Enrollment visible consistently in class roster",
+    "Shared profile editor loads with authenticated scoped catalog and waivers",
+    "Immediate prorated pause and reactivation through shared enrollment actions",
+    "Fictional cash payment recorded through existing billing action and account refreshed",
+    "Non-Stripe cash records have no card-refund action",
+    "Existing simulated refund is visible in household transaction history",
+    "Focused schedule editor and shared slot builder load for selected class",
+    "Shared class creation, refreshed list, and new-class schedule initialization",
+    "New class first schedule created through shared slot-batches handler",
+    "Schedule dates, time, and capacity refreshed on class detail",
+    "Family1 billing refresh shows resolved pricing and turnover warnings absent",
+    "Family1 monthly recurring amount displays $300.00 after reconciliation"
+  ],
+  "finalRun": {
+    "browserErrors": [],
+    "apiFailures": []
+  },
+  "localMutations": [
+    {
+      "kind": "lead-edit-and-convert",
+      "leadId": 180,
+      "description": "Fictional adult converted to new canonical member and household, explicit DOB provided"
+    },
+    {
+      "kind": "enrollment-created",
+      "enrollmentId": 248,
+      "memberId": 2,
+      "classId": 24,
+      "finalStatus": "confirmed",
+      "lifecycleChecks": [
+        "scheduled pause",
+        "cancel scheduled pause",
+        "immediate prorated pause",
+        "reactivation"
+      ]
+    },
+    {
+      "kind": "capacity",
+      "groupId": 24,
+      "change": "18 to 19 then restored to 18"
+    },
+    {
+      "kind": "local-cash-payment",
+      "familyId": 1,
+      "amountCents": 100,
+      "result": 81
+    },
+    {
+      "kind": "class-created",
+      "id": "49",
+      "name": "[DEV] Browser Schedule QA"
+    },
+    {
+      "kind": "schedule-created",
+      "classId": 49,
+      "groupId": 61,
+      "day": "Monday",
+      "week": "A",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "activeStart": "2026-11-02",
+      "activeEnd": null,
+      "capacity": 10
+    }
+  ],
+  "resolvedDuringVerification": [
+    "Local seed was missing the required annual membership fee; seed and practice database corrected before retry.",
+    "Shared enrollment handler needed canonical guardian/payer notification contact for youth without personal email; backend fixed and retested successfully.",
+    "Narrowed schedule editor to the selected form and shared slot builder; new-class form initialization uses existing canonical service.",
+    "Harness selectors corrected for collapsed slot builder and CSS-capitalized status text; these were test selector errors, not API failures.",
+    "Schedule verification selectors corrected for shared M abbreviation and Week A label; POST slot-batches succeeded and refreshed aggregate was verified.",
+    "Backend no-discount strict-pricing fix and audited reconciliation resolved the historical family1 alerts; final browser refresh confirms the warnings are absent and monthly recurring amount is $300.00. See new-admin-billing-rehearsal.json."
+  ],
+  "visualReview": [
+    "Completed member profile",
+    "Completed class roster and schedule/capacity",
+    "Focused shared schedule editor",
+    "Embedded billing and transaction history"
+  ],
+  "limitations": [
+    "No live Stripe API, charge, refund, webhook delivery, or real email delivery was exercised in the browser.",
+    "Cash payment was a fictional local ledger record; UI correctly provides no card-refund action for it. Existing seeded refund history was verified read-only.",
+    "Profile editor and authenticated catalog loading verified; full family creation via wizard was not submitted. Adult lead conversion and class creation were submitted.",
+    "Permission isolation is covered by backend tests separately; browser workflows used local master administrator.",
+    "Mobile screen sizes and assistive-technology behavior were not separately certified."
+  ],
+  "finalBillingRecheck": {
+    "at": "2026-11-01T23:27:10.125Z",
+    "mode": "Read-only local browser refresh; no actions submitted",
+    "browserErrors": [],
+    "apiFailures": [],
+    "monthlyRecurringCents": 30000,
+    "priorPricingAndTurnoverWarningsVisible": false
+  }
+}

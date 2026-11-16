@@ -44,6 +44,8 @@ function routeFixture({ authorized = true, signed = true, annualMember = false, 
       }] }
       if (sql.includes('FROM scheduling_slot_group sg') && sql.includes('FOR UPDATE OF sg')) return { rows: [{
         id: 20, form_id: 4, max_participants: 10, title: 'Gymnastics',
+        calendar_slot_id: 21, calendar_group_id: 20, calendar_schedule_mode: 'date', calendar_slot_active: true,
+        start_time: '16:00:00', end_time: '17:00:00',
         specific_date: tomorrow, monthly_enrolled: 0, fallback_monthly_cents: 12000,
       }] }
       if (sql.includes('SELECT COUNT(*)::int AS count FROM drop_in_registration')) return { rows: [{ count: 0 }] }

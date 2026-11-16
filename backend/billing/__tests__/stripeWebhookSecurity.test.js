@@ -78,3 +78,24 @@ test('live mode accepts a sandbox event signed by STRIPE_WEBHOOK_SECRET_TEST', a
     },
   )
 })
+
+test('test mode requires both an endpoint secret and a valid signature', async () => {
+  await withStripeEnv({ STRIPE_ENABLED: 'true', STRIPE_SECRET_KEY: 'sk_test_placeholder' }, async () => {
+    await assert.rejects(parseWebhookEvent(Buffer.from('{}'), null), /signing secret is required in test mode/)
+    process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_fixture'
+    await assert.rejects(parseWebhookEvent(Buffer.from('{}'), null), /signature is required in test mode/)
+    await assert.rejects(parseWebhookEvent(Buffer.from('{}'), 't=1,v1=bad'))
+  })
+})
+
+test('signed test events accept exact raw bytes and reject tampered bodies and expired signatures', async () => {
+  const payload = JSON.stringify({ id: 'evt_signed_test', type: 'customer.updated', data: { object: { id: 'cus_test' } } })
+  const secret = 'whsec_test_fixture'
+  const signature = (timestamp) => `t=${timestamp},v1=${createHmac('sha256', secret).update(`${timestamp}.${payload}`).digest('hex')}`
+  await withStripeEnv({ STRIPE_ENABLED: 'true', STRIPE_SECRET_KEY: 'sk_test_placeholder', STRIPE_WEBHOOK_SECRET: secret }, async () => {
+    const now = Math.floor(Date.now() / 1000)
+    assert.equal((await parseWebhookEvent(Buffer.from(payload), signature(now))).id, 'evt_signed_test')
+    await assert.rejects(parseWebhookEvent(Buffer.from(payload.replace('cus_test', 'cus_other')), signature(now)))
+    await assert.rejects(parseWebhookEvent(Buffer.from(payload), signature(now - 3600)))
+  })
+})

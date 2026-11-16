@@ -6,6 +6,7 @@ import {
   customerBillingAccountStatus,
   buildMonthlyLedgerBill,
   billingMonthDueDate,
+  billingPaymentMethodAlertPolicy,
   customerBillingCardPresentation,
   customerFacingPriceSyncError,
   effectiveEnrollmentNextBillDate,
@@ -319,6 +320,28 @@ test('household billing resolves stale per-enrollment alerts before a card is sa
   ])
   assert.match(queries[0].sql, /household billing now owns automatic collection readiness/)
   assert.match(queries[0].sql, /alert_type = ANY\(\$2::text\[\]\)/)
+})
+
+test('an uncertain retained card cannot resolve or hide a payment-method alert', async () => {
+  for (const paymentMethodSyncStatus of ['pending', 'stale', 'failed']) {
+    const input = {
+      accountId: 19,
+      paymentMethodAvailable: true,
+      paymentMethodSyncStatus,
+      // The visible enrollment can retain its historical household mode.
+      householdCardRequired: false,
+      householdMonthlyBillingEnabled: true,
+    }
+    const policy = billingPaymentMethodAlertPolicy(input)
+    assert.equal(policy.available, false)
+    assert.equal(policy.resolveMonthlyInvoicePaymentMethodAlerts, false)
+    assert.equal(policy.resolveEnrollmentAutopayAlerts, true)
+    const queries = []
+    await resolveAddressedBillingAlerts({
+      async query(sql, params) { queries.push({ sql: String(sql), params }); return { rows: [] } },
+    }, input)
+    assert.deepEqual(queries[0].params, [19, ['enrollment_autopay_setup_required'], false, true])
+  }
 })
 
 test('reconciled payment facts close only the matching stale webhook alert', async () => {

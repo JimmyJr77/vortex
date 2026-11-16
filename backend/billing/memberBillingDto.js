@@ -213,6 +213,8 @@ export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments
     paymentMethod: {
       available: overview.paymentMethod?.available === true,
       stripeEnabled: overview.paymentMethod?.stripeEnabled === true,
+      syncStatus: overview.paymentMethod?.syncStatus ?? 'pending',
+      syncedAt: overview.paymentMethod?.syncedAt ?? null,
       paymentMethod: paymentMethod
         ? {
             brand: paymentMethod.brand ?? 'card',

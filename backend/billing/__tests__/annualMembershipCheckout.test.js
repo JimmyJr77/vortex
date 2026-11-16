@@ -813,3 +813,46 @@ test('annual Checkout rejects a previously posted unpaid annual bill before crea
   assert.equal(calls.some(sql => sql.includes('INSERT INTO billing_charge')), false)
   assert.ok(calls.includes('ROLLBACK'))
 })
+
+function sharedWaiverPricingDb({ activeMembers = [], validCode = 'FAMILYWAIVER' } = {}) {
+  return { async query(sql, params) {
+    if (sql.includes('FROM family') && sql.includes('JOIN member ON member.id = $2')) {
+      return { rows: [{ id: params[1], family_id: 42, facility_id: 9, first_name: `Athlete ${params[1]}` }] }
+    }
+    if (sql.includes('FROM additional_fee_redemption')) return { rows: activeMembers.includes(Number(params[0]))
+      ? [{ fee_id: 1, period_key: '2099-01-01', satisfied_at: '2026-01-01', created_at: '2026-01-01' }] : [] }
+    if (sql.includes('SELECT * FROM additional_fee')) return { rows: [{ id: 1, amount_cents: 8500, name: 'Annual Fee', active: true, apply_basis: 'per_year', trigger_type: 'once_per_year' }] }
+    if (sql.includes('SELECT * FROM discount_rule\n')) return { rows: [{ id: 8, type: 'promo_code', active: true, config: { code: validCode, benefit_type: 'annual_membership', discountKind: 'free_access' } }] }
+    if (sql.includes('discount_')) return { rows: [] }
+    throw new Error(`Unexpected pricing query: ${sql}`)
+  } }
+}
+const sharedWaiverCheckout = {
+  account: { id: 5, family_id: 42, family_facility_id: 9, payer_member_id: 74, is_active: true },
+  payerMemberId: 74, memberIds: [75, 76, 77], promoCode: 'FAMILYWAIVER',
+}
+
+test('one checkout waiver prices every selected participant needing membership at zero', async () => {
+  const { previewAnnualMembershipCheckout } = await import('../annualMembershipCheckout.js')
+  const db = sharedWaiverPricingDb({ activeMembers: [77] })
+  const preview = await previewAnnualMembershipCheckout(db, sharedWaiverCheckout)
+  assert.equal(preview.totalGrossCents, 17000)
+  assert.equal(preview.totalDiscountCents, 17000)
+  assert.equal(preview.totalNetCents, 0)
+  assert.equal(preview.allWaived, true)
+  assert.deepEqual(preview.athletes.filter(row => row.waived).map(row => row.memberId), [75, 76])
+  const priced = await priceAnnualMembershipSelections(db, sharedWaiverCheckout)
+  assert.deepEqual(priced.pricedMembers.map(row => [row.memberId, row.netCents, row.promo.code]), [[75, 0, 'familywaiver'], [76, 0, 'familywaiver']])
+})
+
+test('checkout waiver covers added participants, skips deselected participants, and removal restores fees', async () => {
+  const db = sharedWaiverPricingDb()
+  for (const memberIds of [[75], [75, 76], [76]]) {
+    const priced = await priceAnnualMembershipSelections(db, { ...sharedWaiverCheckout, memberIds })
+    assert.deepEqual(priced.pricedMembers.map(row => row.memberId), memberIds)
+    assert.ok(priced.pricedMembers.every(row => row.netCents === 0 && row.discountCents === 8500))
+  }
+  const priced = await priceAnnualMembershipSelections(db, { ...sharedWaiverCheckout, promoCode: null })
+  assert.ok(priced.pricedMembers.every(row => row.netCents === 8500 && row.discountCents === 0))
+  await assert.rejects(priceAnnualMembershipSelections(db, { ...sharedWaiverCheckout, promoCode: 'INVALID' }), /not valid/)
+})

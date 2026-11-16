@@ -295,8 +295,8 @@ async function openMemberPortal(
   })
 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
-  await expect(page.getByRole('heading', { name: /VORTEX MEMBER PORTAL/ })).toBeVisible()
+  await page.getByRole('button', { name: 'My portal', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
   return captured
 }
 

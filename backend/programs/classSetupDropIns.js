@@ -77,13 +77,16 @@ export async function saveClassSetupDropIns(pool, facilityId, classId, body) {
     )
     if (selectedSlot) {
       const lockedSlot = (await client.query(
-        `SELECT slot.id FROM scheduling_time_slot slot
+        `SELECT slot.id, slot.slot_group_id FROM scheduling_time_slot slot
          JOIN scheduling_form form ON form.id=slot.form_id
          WHERE slot.id=$1 AND form.program_id=$2 AND form.deleted_at IS NULL
          FOR UPDATE OF slot`,
         [value.timeSlotId, sourceId],
       )).rows[0]
       if (!lockedSlot) throw inputError('Schedule line not found for this class.', 404)
+      if (String(lockedSlot.slot_group_id) !== String(selectedSlot.slot_group_id)) {
+        throw inputError('This schedule line moved to another group. Refresh Class Master and try again.', 409)
+      }
     }
     let slots
     if (value.scope === 'class' && value.timeSlotId != null) {

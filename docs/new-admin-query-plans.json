@@ -1,0 +1,2395 @@
+{
+  "measuredAt": "2026-11-01T23:19:37.691Z",
+  "environment": "Loopback PostgreSQL, fictional development database, repeatable-read read-only transaction. Existing statistics; no planner overrides. One list warmup and five EXPLAIN ANALYZE runs per actual application SQL statement. SQL execution excludes API authentication, transport, and rendering.",
+  "counts": {
+    "members": 361,
+    "leads": 180,
+    "classes": 31,
+    "enrollments": 241
+  },
+  "results": [
+    {
+      "name": "directory page",
+      "parameters": [
+        1,
+        25,
+        0
+      ],
+      "planningMedianMs": 7.761,
+      "executionMedianMs": 24.101,
+      "samples": [
+        {
+          "planningMs": 7.761,
+          "executionMs": 18.271
+        },
+        {
+          "planningMs": 6.559,
+          "executionMs": 17.956
+        },
+        {
+          "planningMs": 7.128,
+          "executionMs": 24.718
+        },
+        {
+          "planningMs": 14.505,
+          "executionMs": 31.158
+        },
+        {
+          "planningMs": 8.479,
+          "executionMs": 24.101
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Limit",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 1919,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "facility",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 731,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 731,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 11,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 7,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "parent_guardian_authority",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "member",
+          "index": "member_pkey",
+          "rows": 1,
+          "loops": 240,
+          "sharedHitBlocks": 720,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "member",
+          "index": "member_pkey",
+          "rows": 1,
+          "loops": 240,
+          "sharedHitBlocks": 720,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 1919,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 1915,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1915,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1907,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "waiver_template",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1902,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1875,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1875,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 424,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 410,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 408,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 406,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 402,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 402,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 388,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 9,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "facility",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_billing_account",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Materialize",
+          "rows": 100,
+          "loops": 361,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Materialize",
+          "rows": 161,
+          "loops": 361,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 26,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 25,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 22,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 22,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_signup",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_form",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_slot_group",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_offering",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "waiver_template",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 4,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Bitmap Heap Scan",
+          "relation": "member_waiver_acceptance",
+          "rows": 0,
+          "loops": 4,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Bitmap Index Scan",
+          "index": "member_waiver_acceptance_member_id_waiver_template_id_key",
+          "rows": 0,
+          "loops": 4,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        }
+      ]
+    },
+    {
+      "name": "directory count/facets",
+      "parameters": [
+        1
+      ],
+      "planningMedianMs": 6.027,
+      "executionMedianMs": 9.145,
+      "samples": [
+        {
+          "planningMs": 6.156,
+          "executionMs": 10.868
+        },
+        {
+          "planningMs": 6.027,
+          "executionMs": 9.1
+        },
+        {
+          "planningMs": 5.378,
+          "executionMs": 9.145
+        },
+        {
+          "planningMs": 6.04,
+          "executionMs": 9.504
+        },
+        {
+          "planningMs": 5.349,
+          "executionMs": 8.999
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 3359,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "facility",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 731,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 731,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 11,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 7,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "parent_guardian_authority",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "member",
+          "index": "member_pkey",
+          "rows": 1,
+          "loops": 240,
+          "sharedHitBlocks": 720,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "member",
+          "index": "member_pkey",
+          "rows": 1,
+          "loops": 240,
+          "sharedHitBlocks": 720,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1915,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1907,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "waiver_template",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1902,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1875,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 1875,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 424,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 410,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 408,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 406,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 402,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 402,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 388,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 9,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 5,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "facility",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 18,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 120,
+          "sharedHitBlocks": 120,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Unique",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 2,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Append",
+          "rows": 2,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "app_user_role",
+          "rows": 1,
+          "loops": 121,
+          "sharedHitBlocks": 121,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "family_billing_account",
+          "rows": 121,
+          "loops": 1,
+          "sharedHitBlocks": 2,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 120,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 1451,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 240,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 27,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 26,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 25,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 22,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 22,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_signup",
+          "rows": 241,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "member",
+          "rows": 361,
+          "loops": 1,
+          "sharedHitBlocks": 14,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_form",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_slot_group",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_offering",
+          "rows": 24,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Subquery Scan",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 0,
+          "loops": 1,
+          "sharedHitBlocks": 8,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "waiver_template",
+          "rows": 4,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "CTE Scan",
+          "rows": 1,
+          "loops": 4,
+          "sharedHitBlocks": 0,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Bitmap Heap Scan",
+          "relation": "member_waiver_acceptance",
+          "rows": 0,
+          "loops": 4,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Bitmap Index Scan",
+          "index": "member_waiver_acceptance_member_id_waiver_template_id_key",
+          "rows": 0,
+          "loops": 4,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "family_member",
+          "index": "uq_family_member_one_active_per_member",
+          "rows": 1,
+          "loops": 361,
+          "sharedHitBlocks": 722,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "family_member",
+          "index": "uq_family_member_one_active_per_member",
+          "rows": 1,
+          "loops": 361,
+          "sharedHitBlocks": 722,
+          "sharedReadBlocks": 0
+        }
+      ]
+    },
+    {
+      "name": "leads page",
+      "parameters": [
+        1,
+        "%%",
+        "",
+        25,
+        0
+      ],
+      "planningMedianMs": 0.036,
+      "executionMedianMs": 0.045,
+      "samples": [
+        {
+          "planningMs": 0.046,
+          "executionMs": 0.048
+        },
+        {
+          "planningMs": 0.061,
+          "executionMs": 0.049
+        },
+        {
+          "planningMs": 0.036,
+          "executionMs": 0.045
+        },
+        {
+          "planningMs": 0.029,
+          "executionMs": 0.037
+        },
+        {
+          "planningMs": 0.028,
+          "executionMs": 0.034
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Limit",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Incremental Sort",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "registrations",
+          "index": "idx_registrations_created_at",
+          "rows": 26,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        }
+      ]
+    },
+    {
+      "name": "leads count/facets",
+      "parameters": [
+        1,
+        "%%",
+        ""
+      ],
+      "planningMedianMs": 0.025,
+      "executionMedianMs": 0.129,
+      "samples": [
+        {
+          "planningMs": 0.025,
+          "executionMs": 0.128
+        },
+        {
+          "planningMs": 0.022,
+          "executionMs": 0.129
+        },
+        {
+          "planningMs": 0.021,
+          "executionMs": 0.127
+        },
+        {
+          "planningMs": 0.026,
+          "executionMs": 0.13
+        },
+        {
+          "planningMs": 0.029,
+          "executionMs": 0.131
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 12,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "registrations",
+          "rows": 180,
+          "loops": 1,
+          "sharedHitBlocks": 12,
+          "sharedReadBlocks": 0
+        }
+      ]
+    },
+    {
+      "name": "classes page",
+      "parameters": [
+        1,
+        "%%",
+        25,
+        0
+      ],
+      "planningMedianMs": 0.547,
+      "executionMedianMs": 1.26,
+      "samples": [
+        {
+          "planningMs": 0.547,
+          "executionMs": 1.347
+        },
+        {
+          "planningMs": 0.448,
+          "executionMs": 1.26
+        },
+        {
+          "planningMs": 0.408,
+          "executionMs": 1.232
+        },
+        {
+          "planningMs": 0.561,
+          "executionMs": 1.191
+        },
+        {
+          "planningMs": 0.605,
+          "executionMs": 1.389
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Limit",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 1155,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 25,
+          "loops": 1,
+          "sharedHitBlocks": 1155,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 1155,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 183,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 128,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 35,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "program",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 10,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "programs",
+          "rows": 10,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "facility",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 31,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Limit",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 93,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Sort",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 93,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_form",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 93,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 55,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 55,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 55,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_offering",
+          "rows": 24,
+          "loops": 24,
+          "sharedHitBlocks": 24,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 31,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_slot_group",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 31,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 972,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Result",
+          "rows": 8,
+          "loops": 31,
+          "sharedHitBlocks": 972,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 8,
+          "loops": 31,
+          "sharedHitBlocks": 972,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Nested Loop",
+          "rows": 8,
+          "loops": 31,
+          "sharedHitBlocks": 249,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 55,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_offering",
+          "rows": 24,
+          "loops": 24,
+          "sharedHitBlocks": 24,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 31,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "scheduling_slot_group",
+          "rows": 1,
+          "loops": 31,
+          "sharedHitBlocks": 31,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "scheduling_signup",
+          "index": "idx_scheduling_signup_active_form_slot_status",
+          "rows": 10,
+          "loops": 24,
+          "sharedHitBlocks": 194,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Index Scan",
+          "relation": "member",
+          "index": "member_pkey",
+          "rows": 1,
+          "loops": 241,
+          "sharedHitBlocks": 723,
+          "sharedReadBlocks": 0
+        }
+      ]
+    },
+    {
+      "name": "classes count/facets",
+      "parameters": [
+        1,
+        "%%"
+      ],
+      "planningMedianMs": 0.048,
+      "executionMedianMs": 0.035,
+      "samples": [
+        {
+          "planningMs": 0.072,
+          "executionMs": 0.051
+        },
+        {
+          "planningMs": 0.048,
+          "executionMs": 0.035
+        },
+        {
+          "planningMs": 0.042,
+          "executionMs": 0.033
+        },
+        {
+          "planningMs": 0.052,
+          "executionMs": 0.037
+        },
+        {
+          "planningMs": 0.042,
+          "executionMs": 0.033
+        }
+      ],
+      "nodes": [
+        {
+          "type": "Aggregate",
+          "rows": 1,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash Join",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 4,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "program",
+          "rows": 31,
+          "loops": 1,
+          "sharedHitBlocks": 3,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Hash",
+          "rows": 10,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        },
+        {
+          "type": "Seq Scan",
+          "relation": "programs",
+          "rows": 10,
+          "loops": 1,
+          "sharedHitBlocks": 1,
+          "sharedReadBlocks": 0
+        }
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "family_member",
+      "indexname": "family_member_pkey",
+      "indexdef": "CREATE UNIQUE INDEX family_member_pkey ON public.family_member USING btree (family_id, member_id)"
+    },
+    {
+      "tablename": "family_member",
+      "indexname": "idx_family_member_family_active",
+      "indexdef": "CREATE INDEX idx_family_member_family_active ON public.family_member USING btree (family_id, is_active)"
+    },
+    {
+      "tablename": "family_member",
+      "indexname": "idx_family_member_member",
+      "indexdef": "CREATE INDEX idx_family_member_member ON public.family_member USING btree (member_id)"
+    },
+    {
+      "tablename": "family_member",
+      "indexname": "uq_family_member_one_active_per_member",
+      "indexdef": "CREATE UNIQUE INDEX uq_family_member_one_active_per_member ON public.family_member USING btree (member_id) WHERE (is_active = true)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_active",
+      "indexdef": "CREATE INDEX idx_member_active ON public.member USING btree (is_active)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_app_user",
+      "indexdef": "CREATE INDEX idx_member_app_user ON public.member USING btree (app_user_id) WHERE (app_user_id IS NOT NULL)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_email",
+      "indexdef": "CREATE INDEX idx_member_email ON public.member USING btree (email) WHERE (email IS NOT NULL)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_facility",
+      "indexdef": "CREATE INDEX idx_member_facility ON public.member USING btree (facility_id)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_family",
+      "indexdef": "CREATE INDEX idx_member_family ON public.member USING btree (family_id)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_family_active",
+      "indexdef": "CREATE INDEX idx_member_family_active ON public.member USING btree (family_is_active)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_name",
+      "indexdef": "CREATE INDEX idx_member_name ON public.member USING btree (last_name, first_name)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_parent_guardian_ids",
+      "indexdef": "CREATE INDEX idx_member_parent_guardian_ids ON public.member USING gin (parent_guardian_ids)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_status",
+      "indexdef": "CREATE INDEX idx_member_status ON public.member USING btree (status)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "idx_member_waivers",
+      "indexdef": "CREATE INDEX idx_member_waivers ON public.member USING btree (has_completed_waivers)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "member_app_user_unique",
+      "indexdef": "CREATE UNIQUE INDEX member_app_user_unique ON public.member USING btree (app_user_id) WHERE (app_user_id IS NOT NULL)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "member_facility_email_unique",
+      "indexdef": "CREATE UNIQUE INDEX member_facility_email_unique ON public.member USING btree (facility_id, email) WHERE (email IS NOT NULL)"
+    },
+    {
+      "tablename": "member",
+      "indexname": "member_pkey",
+      "indexdef": "CREATE UNIQUE INDEX member_pkey ON public.member USING btree (id)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_created_at",
+      "indexdef": "CREATE INDEX idx_registrations_created_at ON public.registrations USING btree (created_at)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_email",
+      "indexdef": "CREATE INDEX idx_registrations_email ON public.registrations USING btree (email)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_facility_created",
+      "indexdef": "CREATE INDEX idx_registrations_facility_created ON public.registrations USING btree (facility_id, created_at DESC, id DESC) WHERE (archived IS NOT TRUE)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_lead_status",
+      "indexdef": "CREATE INDEX idx_registrations_lead_status ON public.registrations USING btree (lead_status)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_member",
+      "indexdef": "CREATE INDEX idx_registrations_member ON public.registrations USING btree (member_id)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_utm_source",
+      "indexdef": "CREATE INDEX idx_registrations_utm_source ON public.registrations USING btree (utm_source)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "idx_registrations_visitor_id",
+      "indexdef": "CREATE INDEX idx_registrations_visitor_id ON public.registrations USING btree (visitor_id)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "registrations_email_key",
+      "indexdef": "CREATE UNIQUE INDEX registrations_email_key ON public.registrations USING btree (email)"
+    },
+    {
+      "tablename": "registrations",
+      "indexname": "registrations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registrations_pkey ON public.registrations USING btree (id)"
+    },
+    {
+      "tablename": "scheduling_form",
+      "indexname": "idx_scheduling_form_active_dates",
+      "indexdef": "CREATE INDEX idx_scheduling_form_active_dates ON public.scheduling_form USING btree (start_date, end_date) WHERE (deleted_at IS NULL)"
+    },
+    {
+      "tablename": "scheduling_form",
+      "indexname": "idx_scheduling_form_program_id",
+      "indexdef": "CREATE UNIQUE INDEX idx_scheduling_form_program_id ON public.scheduling_form USING btree (program_id) WHERE (program_id IS NOT NULL)"
+    },
+    {
+      "tablename": "scheduling_form",
+      "indexname": "idx_scheduling_form_programs_id",
+      "indexdef": "CREATE INDEX idx_scheduling_form_programs_id ON public.scheduling_form USING btree (programs_id)"
+    },
+    {
+      "tablename": "scheduling_form",
+      "indexname": "scheduling_form_pkey",
+      "indexdef": "CREATE UNIQUE INDEX scheduling_form_pkey ON public.scheduling_form USING btree (id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_active_form_slot_status",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_active_form_slot_status ON public.scheduling_signup USING btree (form_id, slot_group_id, status) WHERE ((orphaned_at IS NULL) AND (archived_at IS NULL))"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_active_slot_group_status",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_active_slot_group_status ON public.scheduling_signup USING btree (slot_group_id, status, created_at, id) WHERE ((orphaned_at IS NULL) AND (archived_at IS NULL))"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_archived",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_archived ON public.scheduling_signup USING btree (form_id, archived_at) WHERE (archived_at IS NOT NULL)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_cancel_effective_due",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_cancel_effective_due ON public.scheduling_signup USING btree (cancel_effective_date) WHERE ((cancel_effective_date IS NOT NULL) AND (orphaned_at IS NULL) AND ((status)::text = ANY ((ARRAY['confirmed'::character varying, 'waitlisted'::character varying, 'paused'::character varying])::text[])))"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_enrollment_start_date",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_enrollment_start_date ON public.scheduling_signup USING btree (enrollment_start_date)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_form",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_form ON public.scheduling_signup USING btree (form_id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_form_member",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_form_member ON public.scheduling_signup USING btree (form_id, member_id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_group",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_group ON public.scheduling_signup USING btree (slot_group_id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_member",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_member ON public.scheduling_signup USING btree (member_id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_orphaned",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_orphaned ON public.scheduling_signup USING btree (form_id, orphaned_at) WHERE ((orphaned_at IS NOT NULL) AND (re_enrolled_at IS NULL))"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_slot",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_slot ON public.scheduling_signup USING btree (time_slot_id)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "idx_scheduling_signup_status",
+      "indexdef": "CREATE INDEX idx_scheduling_signup_status ON public.scheduling_signup USING btree (status)"
+    },
+    {
+      "tablename": "scheduling_signup",
+      "indexname": "scheduling_signup_pkey",
+      "indexdef": "CREATE UNIQUE INDEX scheduling_signup_pkey ON public.scheduling_signup USING btree (id)"
+    },
+    {
+      "tablename": "scheduling_slot_group",
+      "indexname": "idx_scheduling_slot_group_active_dates",
+      "indexdef": "CREATE INDEX idx_scheduling_slot_group_active_dates ON public.scheduling_slot_group USING btree (form_id, active_start, active_end)"
+    },
+    {
+      "tablename": "scheduling_slot_group",
+      "indexname": "idx_scheduling_slot_group_capacity",
+      "indexdef": "CREATE INDEX idx_scheduling_slot_group_capacity ON public.scheduling_slot_group USING btree (form_id, max_participants)"
+    },
+    {
+      "tablename": "scheduling_slot_group",
+      "indexname": "idx_scheduling_slot_group_form",
+      "indexdef": "CREATE INDEX idx_scheduling_slot_group_form ON public.scheduling_slot_group USING btree (form_id)"
+    },
+    {
+      "tablename": "scheduling_slot_group",
+      "indexname": "idx_scheduling_slot_group_offering",
+      "indexdef": "CREATE INDEX idx_scheduling_slot_group_offering ON public.scheduling_slot_group USING btree (offering_id)"
+    },
+    {
+      "tablename": "scheduling_slot_group",
+      "indexname": "scheduling_slot_group_pkey",
+      "indexdef": "CREATE UNIQUE INDEX scheduling_slot_group_pkey ON public.scheduling_slot_group USING btree (id)"
+    }
+  ]
+}

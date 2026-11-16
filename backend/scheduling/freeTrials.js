@@ -3,6 +3,7 @@ import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
 import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
 import { calculateDropInPrice } from '../shared/dropInPricing.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
+import { DROP_IN_CALENDAR_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
 const TRIAL_PROGRAMS = new Set(['gymnastics', 'fit-flip'])
@@ -174,7 +175,8 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
     JOIN program p ON p.id=sf.program_id
     WHERE sg.id=$1 AND p.facility_id=$2 FOR UPDATE OF sg`, [selection.slotGroupId, facilityId])
   const rows = (await client.query(
-    `SELECT sg.id AS slot_group_id, sg.form_id, sg.max_participants, sg.dates_tbd,
+    `SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id AS slot_group_id, sg.form_id, sg.max_participants, sg.dates_tbd,
+            COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
             ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
             p.display_name AS class_name, p.age_min, p.age_max, p.is_trial_assessment,
             top.display_name AS program_name, primary_dt.name AS sport_name,
@@ -189,7 +191,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
               AND ts.start_time <= (now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::time) AS has_started
        FROM scheduling_slot_group sg
        JOIN scheduling_form sf ON sf.id = sg.form_id AND sf.deleted_at IS NULL
-       JOIN scheduling_time_slot ts ON ts.slot_group_id = sg.id AND ts.is_active = TRUE
+       JOIN scheduling_time_slot ts ON ts.slot_group_id = sg.id
        JOIN program p ON p.id = sf.program_id
        JOIN programs top ON top.id = COALESCE(sf.programs_id, p.programs_id)
        JOIN facility ON facility.id = top.facility_id
@@ -198,19 +200,13 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
       WHERE sg.id = $1 AND top.facility_id = $3 AND p.facility_id = $3 AND sg.is_active = TRUE
         AND COALESCE(p.is_active, TRUE) = TRUE AND COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(top.is_active, TRUE) = TRUE AND COALESCE(top.archived, FALSE) = FALSE
-        AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) = FALSE
       FOR UPDATE OF sg`,
     [selection.slotGroupId, selection.classDate, facilityId],
   )).rows
-  const occurrences = rows.filter(row => {
-    if (row.dates_tbd || row.has_started) return false
-    if (selection.classDate < row.facility_date || selection.classDate > row.booking_end_date) return false
-    if (row.active_start && selection.classDate < formatDateOnly(row.active_start)) return false
-    if (row.active_end && selection.classDate > formatDateOnly(row.active_end)) return false
-    const specificDate = formatDateOnly(row.specific_date)
-    return specificDate ? specificDate === selection.classDate
-      : row.day_of_week != null && new Date(`${selection.classDate}T12:00:00Z`).getUTCDay() === Number(row.day_of_week)
-  })
+  const occurrences = dropInOccurrences(rows, selection.classDate)
+    .filter(({ row, excludedFromDropIns }) => !excludedFromDropIns && !row.has_started
+      && selection.classDate >= row.facility_date && selection.classDate <= row.booking_end_date)
+    .map(occurrence => occurrence.row)
   if (new Set(occurrences.map(row => `${row.start_time}:${row.end_time}`)).size > 1) {
     throw trialError('This class has multiple times attached to the same reservation. Please contact the team to choose the correct time.', 409)
   }

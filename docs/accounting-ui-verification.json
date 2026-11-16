@@ -1,0 +1,26 @@
+{
+  "verifiedOn": "2026-11-01",
+  "environment": "Codex in-app browser at localhost:5173; normal admin2 login; isolated fictional database through localhost:3101",
+  "method": "Real browser UI interactions and visible DOM/screenshot observations using cua_repl",
+  "status": "passed",
+  "checks": [
+    { "name": "Accounting navigation and initial report", "observed": "New Admin opens Accounting with All dates and 162 bill lines. Summary: $16,185 billed, $8,001 paid, $0 credit applied, $8,184 open." },
+    { "name": "Open bills and balance sorting", "observed": "Open bills selects 82 lines including the $84 partially paid line; ascending Open sort places it before $100 open lines." },
+    { "name": "Bill history", "observed": "Bill line 162 displays $85 billed, $1 paid, $84 open, and cash receipt/application timestamps for payment 81." },
+    { "name": "Combined person/class filtering", "observed": "Casey Rivera member 2 plus class 37 returns one matching $100 bill line, line 161." },
+    { "name": "Search picker loading", "observed": "All people label is correct and stale search options are hidden behind Searching status before updated results arrive." },
+    { "name": "Date presets and empty state", "observed": "Last month resolves to October 1–31 in America/New_York and shows zero matching bills with a clear-filters action." },
+    { "name": "Custom date validation", "observed": "Native keyboard editing sets From to December 1 and Through to November 30; an alert explains that From must be on or before Through and report/export are unavailable." },
+    { "name": "Payment-date selection", "observed": "Payment received date plus This month selects 81 lines; copy explains that current lifetime balances include later reversals." },
+    { "name": "CSV export", "observed": "Exporting that filtered report displays Filtered CSV exported. Response headers, formatting, filters, safety, and limits are verified separately by API and automated tests." },
+    { "name": "Payment overview", "observed": "101 events show $9,001 receipts, $500 refunds, $8,501 net cash, $8,001 applied, and $500 unapplied." },
+    { "name": "Receipt allocation and refund detail", "observed": "Payment 80 displays a $125 receipt, its $100 class allocation with timestamps, and a $25 succeeded refund with recorded date." },
+    { "name": "Refund-only view", "observed": "20 refund events show $0 receipts, $500 refunds, and -$500 net cash." },
+    { "name": "Person attribution", "observed": "Casey Rivera member 2 displays $201 whole household receipts separately from $101 applied to matching bills, across two events." },
+    { "name": "Account drilldown and return", "observed": "Payment 1 opens Rivera Family 001 in Billing. Returning to Accounting retains Payments view and Casey Rivera selection, with freshly loaded values." },
+    { "name": "Pagination", "observed": "Next shows page 2 of 7 with 162 total records; reset returns the all-dates first page." },
+    { "name": "Responsive visual review", "observed": "Reviewed desktop filters, four summary cards, readable table, and narrow stacked layout. DOM viewport/document widths matched at 1440 and 390 pixels; no document horizontal overflow. Temporary viewport override reset." }
+  ],
+  "console": "No captured browser errors. One earlier framer-motion position warning predates the accounting verification.",
+  "finalState": "Accounting / Bills & line items, all dates and reset filters; existing browser tab retained. No financial actions performed."
+}

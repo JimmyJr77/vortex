@@ -541,3 +541,9 @@ test('deploy migration runner fails closed when an allowlisted file is missing',
     (error) => error.code === 'DEPLOY_MIGRATION_MISSING',
   )
 })
+
+
+test('Stripe customer display projection is part of the deployment contract', () => {
+  assert.equal(DEPLOY_MIGRATION_FILES.filter(file => file === '840_stripe_customer_projection.sql').length, 1)
+  assert.equal(DEPLOY_RELEASE_MIGRATION_FILES.filter(file => file === '840_stripe_customer_projection.sql').length, 1)
+})

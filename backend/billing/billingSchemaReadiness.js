@@ -37,6 +37,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
   '839_recurring_billing_progress.sql',
+  '840_stripe_customer_projection.sql',
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
 ])
@@ -99,11 +100,15 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
   '839_recurring_billing_progress.sql',
+  '840_stripe_customer_projection.sql',
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
+  'stripe_customer_projection',
+  'idx_stripe_customer_projection_method',
+  'idx_stripe_customer_projection_attempt',
   'enrollment_action',
   'enrollment_action_one_pending',
   'enrollment_action_due',
@@ -170,6 +175,9 @@ export const DEPLOY_BILLING_RELATIONS = Object.freeze([
 ])
 
 export const REQUIRED_BILLING_RELATIONS = Object.freeze([
+  'stripe_customer_projection',
+  'idx_stripe_customer_projection_method',
+  'idx_stripe_customer_projection_attempt',
   'uq_billing_charge_source',
   'uq_billing_payment_stripe_pi',
   'billing_subscription',

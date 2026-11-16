@@ -44,6 +44,22 @@ test('a concurrent program move cannot broaden a scoped edit', async () => {
   assert.ok(calls.every(sql => !/^UPDATE/.test(sql)))
 })
 
+test('a schedule moved after selection cannot be edited under its former group lock', async () => {
+  const calls = []
+  const pool = { connect: async () => ({
+    query: async sql => {
+      calls.push(sql)
+      if (sql.includes('SELECT id, programs_id')) return { rows: [{ id: 10, programs_id: 1, display_name: 'Class' }] }
+      if (sql.includes('SELECT slot.id, slot.slot_group_id')) return { rows: [{ id: 101, slot_group_id: sql.includes('FOR UPDATE OF slot') ? 11 : 10 }] }
+      return { rows: [{ id: 1 }] }
+    }, release() {},
+  }) }
+  await assert.rejects(saveClassSetupDropIns(pool, 1, 10, { allowDropIns: false, scope: 'class', timeSlotId: 101 }),
+    error => error.statusCode === 409 && /moved to another group/.test(error.message))
+  assert.equal(calls.at(-1), 'ROLLBACK')
+  assert.ok(calls.every(sql => !/^UPDATE/.test(sql)))
+})
+
 test('drop-in scope endpoint requires class management permission', async () => {
   let chain
   const app = { use() {}, get() {}, post() {}, put() {}, delete() {}, patch(path, ...handlers) {

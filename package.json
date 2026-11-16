@@ -35,7 +35,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "vercel-build": "npm run prebuild && tsc -b && vite build && PRERENDER=true PRERENDER_STRICT=true npm run postbuild && npm run test:seo-release",
-    "test:e2e:payroll": "PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --config=playwright.payroll.config.ts"
+    "test:e2e:payroll": "PLAYWRIGHT_FORCE_ASYNC_LOADER=1 playwright test --config=playwright.payroll.config.ts",
+    "new-admin:setup": "LOCAL_DEV_SEED=true NODE_ENV=development node backend/scripts/new-admin-local.mjs setup",
+    "new-admin:reset": "LOCAL_DEV_SEED=true NODE_ENV=development node backend/scripts/new-admin-local.mjs reset",
+    "new-admin:serve": "LOCAL_DEV_SEED=true NODE_ENV=development NEW_ADMIN_PORT=3101 node backend/scripts/new-admin-local.mjs serve",
+    "new-admin:ui": "VITE_API_URL=http://localhost:3101 vite --host localhost --port 5173 --strictPort",
+    "new-admin:benchmark": "node scripts/new-admin-api-benchmark.mjs",
+    "test:new-admin": "node --test backend/newAdmin/__tests__/*.test.js"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

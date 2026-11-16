@@ -1,4 +1,5 @@
 import { prepareDatedEnrollmentAction, processDueEnrollmentActions } from './datedEnrollmentActions.js'
+import { resolveAdminSignupResponses } from './adminSignupContact.js'
 import { recordBillingActivity } from '../billing/billingActivity.js'
 import { createEnrollmentPriceAdjustment } from '../billing/customerBillingAdjustments.js'
 import { requireAdminFacilityScope } from '../billing/adminFacilityScope.js'
@@ -4141,6 +4142,10 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
 
     async adminCreateSignup(req, res) {
       try {
+        const facilityId = Number(req.canonicalAccess?.facilityId)
+        if (!Number.isSafeInteger(facilityId) || facilityId <= 0) {
+          return res.status(403).json({ success: false, message: 'An authenticated facility is required.' })
+        }
         const { error, value } = adminSignupSchema.validate(req.body, { abortEarly: false })
         if (error) {
           const msg = error.details[0]?.message || 'Validation error'
@@ -4204,14 +4209,14 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
           let createdNewStubMemberId = null
 
           if (memberId) {
-            member = await findMemberById(client, memberId)
+            member = await findMemberById(client, memberId, { facilityId })
             if (!member) {
               await client.query('ROLLBACK')
               return res.status(404).json({ success: false, message: 'Member not found' })
             }
           } else {
             const email = String(value.email || '').trim()
-            member = await findMemberByEmail(client, email)
+            member = await findMemberByEmail(client, email, { facilityId })
             if (member) {
               memberId = Number(member.id)
             } else {
@@ -4231,22 +4236,15 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
                 email,
                 password: generatedPassword,
                 phone: phone ?? submittedResponses.phone ?? null,
+                facilityId,
               })
               createdNewStubMemberId = memberId
-              member = await findMemberById(client, memberId)
+              member = await findMemberById(client, memberId, { facilityId })
             }
           }
 
-          const billingContact = member.email ? null : (await client.query(`SELECT COALESCE(NULLIF(a.billing_email,''),payer.email) AS email
-            FROM family_billing_account a LEFT JOIN member payer ON payer.id=a.payer_member_id
-            WHERE a.family_id=$1 AND a.is_active=TRUE ORDER BY a.id LIMIT 1`,[member.family_id])).rows[0]
-          const responses = {
-            first_name: member.first_name,
-            last_name: member.last_name,
-            email: member.email || reenrollSource?.email || value.email || billingContact?.email || '',
-            phone: normalizePhoneNumber(member.phone) ?? (member.phone || phone),
-            ...submittedResponses,
-          }
+          const responses = await resolveAdminSignupResponses(client, member, { responses: submittedResponses, phone })
+          responses.phone = normalizePhoneNumber(responses.phone) ?? responses.phone
 
           const profileComplete =
             member.profile_complete != null ? Boolean(member.profile_complete) : false

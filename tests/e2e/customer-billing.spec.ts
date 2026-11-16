@@ -696,7 +696,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
   })
 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { name: /VORTEX LEGACY ADMIN/i })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('heading', { name: 'Legacy admin', exact: true })).toBeVisible({ timeout: 30_000 })
   await page.getByRole('button', { name: 'Switch portal account' }).click()
   await page.getByRole('option', { name: 'Admin', exact: true }).click()
   await page.getByRole('navigation', { name: 'Admin sections', exact: true }).getByRole('button', { name: 'Billing', exact: true }).click()
@@ -824,7 +824,7 @@ test.describe('Account Billing & Enrollments administration', () => {
 
     await page.getByLabel('Find a customer or family').fill('42')
     await expect(page.getByRole('heading', { name: 'Rivera Household' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'All family' })).toHaveClass(/bg-gray-950/)
+    await expect(page.getByRole('button', { name: 'All family' })).toHaveClass(/bg-red-50/)
     expect(captured.searchQueries).toContain('42')
   })
 

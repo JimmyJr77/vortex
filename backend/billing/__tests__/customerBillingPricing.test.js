@@ -10,6 +10,7 @@ import {
   promoExpirationDate,
 } from '../customerBillingPricing.js'
 import { collectRecurringPricingBoundaries, priceRecurringPeriod } from '../recurringPeriodPricing.js'
+import { computeExistingEnrollmentDiscounts } from '../../scheduling/orderPricing.js'
 
 test('billing month helpers normalize month boundaries and enumerate inclusively', () => {
   assert.equal(normalizeBillingMonth('2026-08'), '2026-08-01')
@@ -277,6 +278,56 @@ test('strict period pricing never falls back to persisted subscription discounts
   } finally {
     console.warn = originalWarn
   }
+})
+
+test('a facility without discount rules retains enrollment lines and passes strict recurring pricing at list price', async () => {
+  const pool = {
+    async query(sql) {
+      const text = String(sql)
+      if (/WITH viewer AS/.test(text)) return { rows: [{ family_id: 77 }] }
+      if (/FROM member\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+      if (/FROM family\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+      return { rows: [] }
+    },
+  }
+  const result = await computeExistingEnrollmentDiscounts(pool, {
+    memberId: 900,
+    memberContext: { familyId: 77 },
+    formRows: new Map(), scopeMeta: new Map(), replaceDbLines: true,
+    previewExistingLines: [{ key: 'existing-501', signupId: 501, memberId: 900,
+      familyId: 77, baseCents: 10000, shadowOnly: true, includeInSubtotal: false }],
+  })
+  assert.equal(result.enabled, true)
+  assert.deepEqual(result.accountLines.map(({ signupId, baseCents, finalCents, discountCents }) =>
+    ({ signupId, baseCents, finalCents, discountCents })),
+  [{ signupId: 501, baseCents: 10000, finalCents: 10000, discountCents: 0 }])
+  const priced = await priceRecurringPeriod(pool, {
+    familyId: 77, periodKey: '2026-11', strictPricing: true,
+    subscriptions: [{ id: 88, status: 'active', source_type: 'scheduling_signup', source_id: '501',
+      member_id: 900, monthly_amount_cents: 10000, discount_amount_cents: 2500,
+      net_monthly_cents: 7500, start_date: '2026-10-01' }],
+  })
+  assert.equal(priced.netCents, 10000, 'old subscription discounts are not substituted for the current rule set')
+  assert.equal(priced.discountCents, 0)
+  assert.equal(priced.lines[0].signupId, 501)
+})
+
+test('failed rule reads are not treated as a successful empty rule set by strict pricing', async () => {
+  let failedReads = 0
+  const pool = { async query(sql) {
+    const text = String(sql)
+    if (/WITH viewer AS/.test(text)) return { rows: [{ family_id: 77 }] }
+    if (/FROM member\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+    if (/FROM family\s+WHERE id = \$1/.test(text)) return { rows: [{ facility_id: 1 }] }
+    if (/FROM discount_rule/.test(text)) { failedReads++; throw new Error('temporary rule database failure') }
+    return { rows: [] }
+  } }
+  await assert.rejects(priceRecurringPeriod(pool, {
+    familyId: 77, periodKey: '2026-11', strictPricing: true,
+    subscriptions: [{ id: 88, status: 'active', source_type: 'scheduling_signup', source_id: '501',
+      member_id: 900, monthly_amount_cents: 10000, net_monthly_cents: 10000, start_date: '2026-10-01' }],
+  }), error => error.code === 'recurring_pricing_line_missing')
+  assert.equal(failedReads, 1)
 })
 
 test('recurring pricing boundaries include future starts and adjustment reversion months', () => {

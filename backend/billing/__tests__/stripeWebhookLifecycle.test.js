@@ -1131,6 +1131,7 @@ test('subscription deletion cancels matching local subscriptions', async () => {
     pool,
     { id: 'sub_ended', customer: 'cus_family', status: 'canceled', ended_at: 1_800_000_000 },
     'customer.subscription.deleted',
+    { stripe: { subscriptions: { retrieve: async () => ({ id: 'sub_ended', customer: 'cus_family', status: 'canceled', ended_at: 1_800_000_000 }) } } },
   )
   assert.deepEqual(result, { updated: 2, status: 'cancelled' })
   const update = calls.find((call) => call.sql.includes('auto_renewal = $4'))
@@ -1164,6 +1165,7 @@ test('scheduled cancellation disables renewal without ending paid-through access
       current_period_end: 1_830_297_600,
     },
     'customer.subscription.updated',
+    { stripe: { subscriptions: { retrieve: async () => ({ id: 'sub_ending_later', customer: 'cus_family', status: 'active', cancel_at_period_end: true, cancel_at: 1_830_297_600, current_period_end: 1_830_297_600 }) } } },
   )
 
   assert.deepEqual(result, { updated: 1, status: 'active' })
@@ -1427,6 +1429,7 @@ test('annual memberships remain on the existing Stripe lifecycle path', async ()
     pool,
     { id: 'sub_annual', customer: 'cus_family', status: 'active', current_period_end: 1_830_297_600 },
     'customer.subscription.updated',
+    { stripe: { subscriptions: { retrieve: async () => ({ id: 'sub_annual', customer: 'cus_family', status: 'active', current_period_end: 1_830_297_600 }) } } },
   )
 
   assert.deepEqual(result, { updated: 1, status: 'active' })
@@ -1434,6 +1437,50 @@ test('annual memberships remain on the existing Stripe lifecycle path', async ()
   assert.match(guard.sql, /account\.household_monthly_billing_enabled = TRUE/)
   const update = calls.find((call) => call.sql.includes('SET status = $2'))
   assert.ok(update)
+})
+
+test('delayed legacy active or deleted events cannot overwrite the current Stripe lifecycle', async () => {
+  for (const [oldStatus, currentStatus, expectedStatus] of [
+    ['active', 'canceled', 'cancelled'], ['canceled', 'active', 'active'], ['active', 'paused', 'paused'],
+  ]) {
+    let locked = false
+    const updates = []
+    const pool = { async query(sql, params) {
+      const text = String(sql)
+      if (text.includes('pg_advisory_unlock')) { locked = false; return { rows: [{ pg_advisory_unlock: true }] } }
+      if (text.includes('pg_advisory_lock')) { locked = true; return { rows: [] } }
+      if (text.includes('stripe-subscription:ownership')) return { rows: [legacyOwnershipRow()] }
+      if (text.includes('SET status = $2')) { updates.push(params); return { rows: [], rowCount: 1 } }
+      return { rows: [] }
+    } }
+    const stripe = { subscriptions: { retrieve: async (id) => {
+      assert.equal(locked, true)
+      return { id, customer: 'cus_family', status: currentStatus, current_period_end: 1_830_297_600 }
+    } } }
+    const result = await syncStripeSubscriptionStatus(pool,
+      { id: 'sub_current', customer: 'cus_family', status: oldStatus },
+      oldStatus === 'canceled' ? 'customer.subscription.deleted' : 'customer.subscription.updated', { stripe })
+    assert.equal(result.status, expectedStatus)
+    assert.equal(updates[0][1], expectedStatus)
+  }
+})
+
+test('subscription fetch failures and mismatched remote identities preserve local lifecycle for retry', async () => {
+  for (const retrieve of [
+    async () => { throw new Error('Stripe temporarily unavailable') },
+    async () => ({ id: 'sub_foreign', customer: 'cus_family', status: 'canceled' }),
+    async () => ({ id: 'sub_current', customer: 'cus_foreign', status: 'canceled' }),
+  ]) {
+    const pool = { async query(sql) {
+      const text = String(sql)
+      assert.equal(text.includes('SET status = $2'), false, 'failed verification must not update local lifecycle')
+      if (text.includes('stripe-subscription:ownership')) return { rows: [legacyOwnershipRow()] }
+      return { rows: [] }
+    } }
+    await assert.rejects(syncStripeSubscriptionStatus(pool,
+      { id: 'sub_current', customer: 'cus_family', status: 'active' },
+      'customer.subscription.updated', { stripe: { subscriptions: { retrieve } } }))
+  }
 })
 
 test('cutover guard fails closed before clearing local linkage when lifecycle audit fails', async () => {

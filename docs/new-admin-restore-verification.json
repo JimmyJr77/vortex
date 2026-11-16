@@ -1,0 +1,91 @@
+{
+  "measuredAt": "2026-11-01T23:27:24.672Z",
+  "source": "final corrected fictional local seed",
+  "restoredDatabase": "vortex_new_admin_dev_restore",
+  "matches": true,
+  "differences": [],
+  "tableCount": 38,
+  "missingTables": [],
+  "anomalies": [],
+  "counts": {
+    "member": "360",
+    "app_user": "121",
+    "app_user_role": "121",
+    "family": "120",
+    "family_member": "360",
+    "parent_guardian_authority": "240",
+    "family_billing_account": "120",
+    "programs": "10",
+    "program": "31",
+    "scheduling_form": "31",
+    "scheduling_offering": "24",
+    "scheduling_slot_group": "24",
+    "scheduling_time_slot": "24",
+    "scheduling_signup": "240",
+    "drop_in_registration": "0",
+    "registrations": "180",
+    "billing_charge": "160",
+    "billing_subscription": "160",
+    "billing_monthly_invoice": "100",
+    "billing_monthly_invoice_line": "160",
+    "billing_statement": "0",
+    "billing_statement_line": "0",
+    "billing_payment": "80",
+    "billing_payment_application": "80",
+    "billing_payment_attempt": "0",
+    "billing_payment_attempt_charge": "0",
+    "billing_refund": "20",
+    "billing_pause_credit": "0",
+    "billing_charge_credit_application": "0",
+    "enrollment_price_adjustment": "0",
+    "drop_in_credit_adjustment": "0",
+    "billing_account_activity": "120",
+    "billing_enrollment_deletion": "0",
+    "stripe_webhook_event": "0",
+    "stripe_pending_enrollment": "0",
+    "stripe_customer_projection": "0",
+    "stripe_catalog_item": "0",
+    "stripe_dispute_case": "0"
+  },
+  "financialTotals": {
+    "programs": {
+      "pricing_slot_cost_monthly_cents": "40000",
+      "pricing_cost_amount_cents": "40000"
+    },
+    "scheduling_form": {
+      "slot_cost_monthly_cents": "240000",
+      "cost_amount_cents": "240000"
+    },
+    "scheduling_signup": {
+      "manual_discount_cents": "0"
+    },
+    "billing_charge": {
+      "amount_cents": "1600000",
+      "gross_amount_cents": "1600000",
+      "discount_amount_cents": "0"
+    },
+    "billing_subscription": {
+      "monthly_amount_cents": "1600000",
+      "discount_amount_cents": "0",
+      "net_monthly_cents": "1600000"
+    },
+    "billing_monthly_invoice": {
+      "subtotal_cents": "1600000",
+      "credit_cents": "0",
+      "total_cents": "1600000"
+    },
+    "billing_monthly_invoice_line": {
+      "amount_cents": "1600000"
+    },
+    "billing_payment": {
+      "amount_cents": "900000"
+    },
+    "billing_payment_application": {
+      "amount_cents": "800000"
+    },
+    "billing_refund": {
+      "amount_cents": "50000"
+    }
+  },
+  "notes": "PostgreSQL15 custom-format backup restored to separate database after final seed correction. Comparison covers counts, selected identity/relationship/status/processor-reference fingerprints and account/currency financial totals. Amounts are raw-table aggregates, not a balance formula."
+}

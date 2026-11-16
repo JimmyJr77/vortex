@@ -108,6 +108,7 @@ test('family signup attaches and confirms a pending free-trial drop-in without c
           amount_cents: 0,
           base_price_cents: 4000,
           class_date: '2026-07-18',
+          class_facility_id: 1,
           title: 'Gymnastics',
         }] }
       }
@@ -146,6 +147,7 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
             amount_cents: benefitType === 'paid' ? 3500 : 0,
             base_price_cents: 4000,
             class_date: '2026-07-21',
+            class_facility_id: 1,
             title: 'Ninja',
           }] }
         }
@@ -171,6 +173,7 @@ test('pending drop-in cannot be confirmed for an adult whose own waivers were no
     calls.push({ sql, params })
     if (sql.includes('FROM drop_in_registration d')) return { rows: [{
       id: 60, first_name: 'Other', last_name: 'Adult', email: 'payer@example.com',
+      class_facility_id: 1,
       benefit_type: 'free_trial', amount_cents: 0, base_price_cents: 4000,
     }] }
     if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: null, signature_name: null }] }

@@ -1,4 +1,6 @@
 import { reconcileDeletedEnrollmentInvoices } from './customerBillingEnrollmentDeletion.js'
+import { reconcileStripeCustomerProjections } from './stripeCustomerProjection.js'
+import { retryStripeStateWebhooks } from './stripeStateWebhookRetry.js'
 import { createHash } from 'crypto'
 import { completeBalanceCheckoutAutopay } from './balanceCheckoutAutopay.js'
 import {
@@ -2553,6 +2555,16 @@ export async function runStripeReconciliation(pool, { lookbackHours = 168 } = {}
     summary.canonicalCollectorAccountsChecked = collectorInventory.accountsChecked
     summary.canonicalCollectorDriftsFound = collectorInventory.collectorDriftsFound
     summary.mismatchesFound += collectorInventory.collectorDriftsFound
+
+    const projectionSummary = await reconcileStripeCustomerProjections(pool, stripe)
+    summary.customerProjectionsChecked = projectionSummary.checked
+    summary.customerProjectionsFailed = projectionSummary.failed
+    summary.mismatchesFound += projectionSummary.failed
+    const stateRetrySummary = await retryStripeStateWebhooks(pool, stripe)
+    summary.stateWebhooksRetried = stateRetrySummary.checked
+    summary.stateWebhooksRecovered = stateRetrySummary.completed
+    summary.stateWebhooksFailed = stateRetrySummary.failed
+    summary.mismatchesFound += stateRetrySummary.failed
 
     const staleWebhooks = await pool.query(
       `SELECT event_id, event_type, status, last_error FROM stripe_webhook_event
