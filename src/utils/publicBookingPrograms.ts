@@ -1,7 +1,7 @@
 const PUBLIC_BOOKING_PROGRAMS = [
   { name: 'Developmental Gymnastics', aliases: ['Development Gymnastics', 'Developmental Gymnastics'] },
   { name: 'Vortex Gymnastics Team', aliases: ['Vortex Gymnastics Team'] },
-  { name: 'Flip & Fun', aliases: ['Fit & Flip', 'Flip & Fun'] },
+  { name: 'Fit & Flip', aliases: ['Fit & Flip'] },
 ] as const
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
