@@ -120,6 +120,8 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
   useEffect(() => {
     if (!posterReady || backgroundCanPlay) return
+    // Small touch screens keep the poster until the visitor presses Play.
+    if (window.matchMedia('(max-width: 620px) and (pointer: coarse)').matches) return
     // Give the poster a paint before the video can compete for bandwidth.
     let afterPaint = 0
     const beforePaint = requestAnimationFrame(() => {
