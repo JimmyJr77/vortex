@@ -3,7 +3,7 @@ const paths = new Set([
   '/support', '/privacy-policy', '/terms-of-service', '/camp_interest',
   '/camp_interest/thank-you', '/signup/family', '/signup/lead', '/signup/invite',
   '/verify-email', '/registration/receipt', '/waivers-memberships', '/copy',
-  '/gymnastics', '/vortex-athletics', '/summer-athletic-training', '/fit-and-flip',
+  '/gymnastics', '/adult-gymnastics', '/fit-and-flip', '/vortex-athletics', '/summer-athletic-training',
   '/artistic-gymnastics', '/artistic-gymnastics-early', '/artistic-gymnastics-6-12',
   '/artistic-gymnastics-13-18', '/beginner-gymnastics', '/homeschool-gymnastics',
   '/summer-camp-26', '/acro-gymnastics', '/rhythmic-gymnastics', '/trampoline-tumbling',

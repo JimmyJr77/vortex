@@ -70,11 +70,14 @@ export const ensureConsentId = (): string => {
  * can load the same preference from the API.
  */
 export const appendCrossDomainConsentId = (url: string): string => {
+  if (typeof window === 'undefined') return url
   const consentId = getConsentId()
   if (!consentId) return url
 
   try {
-    const parsed = new URL(url, typeof window !== 'undefined' ? window.location.origin : undefined)
+    const { origin } = window.location
+    const parsed = new URL(url, origin)
+    if (parsed.origin === origin) return url
     if (!isVortexConsentHost(parsed.hostname)) return url
     parsed.searchParams.set(CONSENT_ID_QUERY_PARAM, consentId)
     return parsed.toString()

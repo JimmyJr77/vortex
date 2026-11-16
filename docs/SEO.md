@@ -18,10 +18,23 @@ internal links, GBP links, Search Console submissions, or citations.
 
 ## Search ownership
 
-- `vortexathletics.com` owns Vortex brand, gymnastics, Fit & Flip, youth athletic
-  development, enrollment, classes, events, the storefront, and contact intent.
-- `/gymnastics`, retired campaign routes, and legacy program slugs redirect
-  permanently to the relevant section of the unified homepage.
+- `vortexathletics.com` owns Vortex brand, both youth and adult gymnastics, Fit
+  & Flip, enrollment, classes, events, the storefront, and contact intent.
+- Use one page for each program and link directly to it in public navigation,
+  the class board, and any external profiles where the destination is relevant:
+
+  | Canonical page | Search intent |
+  |---|---|
+  | `/gymnastics` | Youth gymnastics in Bowie: beginner, developmental, team, and discipline options |
+  | `/fit-and-flip` | Youth athleticism development, sports performance training, and youth fitness in Bowie |
+  | `/adult-gymnastics` | Adult gymnastics, fitness, and introductory acrobatics in Bowie |
+
+- Legacy gymnastics slugs and retired campaigns redirect permanently to the
+  relevant youth gymnastics section. Legacy sports performance and conditioning
+  slugs redirect to Fit & Flip. The retired gymnastics host transfers equivalent
+  paths to the athletics domain.
+- The adult program page links to the Vortex team to confirm current openings;
+  the main public trial flow serves children and teens.
 - Placeholder sport domains remain `noindex, follow` until they have a real
   program, substantive content, and their own search strategy.
 - `/ninja` is `noindex, follow` while the program is on hold.
@@ -157,10 +170,10 @@ These actions require access to Google and cannot be completed by a code build.
 2. Submit `https://vortexathletics.com/sitemap.xml` and remove retired sitemap
    submissions.
 3. Inspect and request indexing for:
+   - `https://vortexathletics.com/gymnastics`
+   - `https://vortexathletics.com/fit-and-flip`
+   - `https://vortexathletics.com/adult-gymnastics`
    - `https://vortexathletics.com/`
-   - `https://vortexathletics.com/enroll`
-   - `https://vortexathletics.com/drop-in`
-   - `https://vortexathletics.com/contact`
 4. Confirm Google-selected canonical equals the declared canonical after the
    next crawl. Monitor Page Indexing, Core Web Vitals, and non-brand queries.
 
@@ -194,8 +207,20 @@ These actions require access to Google and cannot be completed by a code build.
   Bowie/Prince George's/Anne Arundel listings.
 - Connect GA4 and Search Console. Report calls, directions, inquiries, trials,
   and enrollments—not rankings alone.
-- Review Search Console queries monthly. Improve pages based on real impressions
-  and conversions instead of creating thin city or keyword-variant pages.
+- Record a 28-day Search Console baseline before release or as soon as possible
+  after release. Save clicks, impressions, click-through rate, and average
+  position for non-brand queries. Track the six intent groups separately: youth
+  athletics, youth gymnastics, athleticism development, youth sports, youth
+  fitness, and adult gymnastics. Group local variants (Bowie, central Maryland,
+  or near me) with the relevant intent and compare each group with its program
+  page above. Include redirected URLs in the historical comparison.
+- Compare with the next full 28-day period after the new pages are indexed.
+  Pair search visibility with organic program-page visits and useful actions
+  (adult contact clicks and youth class or trial starts). Improve pages based on
+  those outcomes and the queries that show up in Search Console.
+- Link to the clean URL for public navigation. Keep campaign parameters for
+  external campaigns and transfer consent identifiers only across supported
+  Vortex domains when needed.
 
 ## Expectations
 

@@ -29,7 +29,7 @@ const programs = {
     detail: 'A traditional gymnastics program with a complete approach to development. Athletes learn the foundations shared across gymnastics disciplines, with the strength, explosiveness, and body control to put those skills into practice.',
     points: ['Foundations across artistic, rhythmic, acrobatic, aerobic, and trampoline & tumbling gymnastics.', 'Progressive skill development supported by purposeful physical preparation.', 'Developmental and team pathways with the same commitment to growth. Only team athletes compete.'],
     audience: 'For athletes learning and progressing in gymnastics.',
-    tags: ['Foundational skills', 'Developmental & team'], href: '/enroll?sportFilter=all',
+    tags: ['Foundational skills', 'Developmental & team'], page: '/gymnastics', linkText: 'Explore youth gymnastics', href: '/enroll?sportFilter=all',
   },
   'fit-flip': {
     name: 'Fit & Flip', eyebrow: 'ATHLETIC DEVELOPMENT. WITH AN EDGE.',
@@ -38,7 +38,7 @@ const programs = {
     detail: 'Athletic development built around the Triad of Athleticism: Strength, Explosiveness, and Body Control. Purposeful strength and power training meets gymnastics-inspired tumbling and movement for athletes across sports.',
     points: ['Strength and explosiveness to support more powerful movement and tumbling.', 'Gymnastics-inspired body control, coordination, aerial awareness, and landing mechanics.', 'For cheer, acro, dance, gymnasts seeking extra physical development, and athletes in every sport.'],
     audience: 'For cheer, acro, dance, gymnasts, and all-sport athletes.',
-    tags: ['Strength & explosiveness', 'Tumbling & body control'], href: '/enroll?sportFilter=all',
+    tags: ['Strength & explosiveness', 'Tumbling & body control'], page: '/fit-and-flip', linkText: 'Explore Fit & Flip youth training', href: '/enroll?sportFilter=all',
   },
 } as const
 
@@ -206,7 +206,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               <p className="np-eyebrow"><span className="np-red-dash" /> GYMNASTICS + ATHLETIC DEVELOPMENT</p>
               <h1>Built for<br /><span>more.</span></h1>
               <p className="np-hero-intro">Stronger athletes.<br />Greater possibilities.</p>
-              <p className="np-hero-description">From their first handstand to their next competitive edge. Purposeful gymnastics and athletic development that build strength, explosiveness, and body control.</p>
+              <p className="np-hero-description">From a first handstand to a stronger season in youth sports. Gymnastics and athletic development in Bowie, MD, build strength, explosiveness, and body control.</p>
               <div className="np-hero-buttons"><a href="#programs" className="np-button" data-analytics-cta="explore_programs" data-analytics-section="hero">Explore programs <ArrowRight size={18} /></a><button className="np-text-button" onClick={() => openMedia('training_film')}><span className="np-play-outline"><Play size={13} fill="currentColor" /></span>See us in motion</button></div>
               <div className="np-hero-location"><span className="np-location-dot" /><span>BOWIE, MARYLAND · BUILT FOR EVERY ATHLETE.</span></div>
             </div>
@@ -229,9 +229,10 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <div className="np-section-heading"><div><p className="np-eyebrow">01 / FIND YOUR PATH</p><h2>Two programs.<br /><span>One higher standard.</span></h2></div><p>Different goals. The same belief: every athlete deserves purposeful coaching and the opportunity to grow.</p></div>
           <div className="np-program-grid">{(Object.entries(programs) as [Program, typeof programs[Program]][]).map(([id, program], index) => <article className="np-program" id={id} key={id}>
             <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img src={program.image} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
-            <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><button className="np-program-link" onClick={() => openProgram(id, 'program_cards')}>Explore {program.name}<ArrowUpRight size={21} /></button></div>
+            <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><Link className="np-program-link" to={program.page} data-analytics-cta={`explore_${id}`} data-analytics-section="program_cards">{program.linkText}<ArrowUpRight size={21} aria-hidden="true" /></Link></div>
           </article>)}</div>
           <div className="np-path-help"><span>Not sure where to begin? Start with your athlete’s goals.</span><button className="np-text-button" data-analytics-cta="program_finder" data-analytics-section="programs" onClick={() => setOverlay('finder')}>Find your fit <ArrowRight size={18} /></button></div>
+          <div className="np-path-help"><span>Training for yourself? We offer coached classes for ages 18 and up.</span><Link className="np-text-button" to="/adult-gymnastics" data-analytics-cta="explore_adult_gymnastics" data-analytics-section="programs">Explore adult gymnastics <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
         </section>
 
         <section className="np-container np-trial-section" id="free-trial" aria-labelledby="np-free-trial-heading">
@@ -263,7 +264,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <div className="np-principles"><article><span>01</span><div><h3>Skills with a strong foundation.</h3><p>Gymnastics technique and physical development work together. Athletes build the strength and power to support the skills they are learning.</p></div></article><article><span>02</span><div><h3>Purpose in every progression.</h3><p>Start where the athlete is. Develop movement quality, reinforce the fundamentals, and work toward the next challenge with intention.</p></div></article><article><span>03</span><div><h3>Development for everyone.</h3><p>Team or developmental, the focus is real growth. Competition belongs to the team pathway. High-quality coaching belongs to every athlete.</p></div></article></div>
         </section>
 
-        <section className="np-difference"><div className="np-container np-difference-grid"><div><p className="np-eyebrow">THE VORTEX DIFFERENCE</p><h2>Power is only<br />part of the picture.</h2><p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p><button className="np-button np-button-white" onClick={() => openProgram('fit-flip', 'training_approach')}>Discover Fit & Flip <ArrowUpRight size={18} /></button></div><div className="np-difference-image"><img src="/calisthenics-card.jpg" alt="An athlete practicing a controlled handstand at Vortex" width="1536" height="1024" loading="lazy" /><span>CONTROL CHANGES EVERYTHING.</span></div></div></section>
+        <section className="np-difference"><div className="np-container np-difference-grid"><div><p className="np-eyebrow">THE VORTEX DIFFERENCE</p><h2>Power is only<br />part of the picture.</h2><p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p><Link className="np-button np-button-white" to="/fit-and-flip#athleticism-development" data-analytics-cta="explore_athleticism_development" data-analytics-section="training_approach">Discover Fit &amp; Flip <ArrowUpRight size={18} aria-hidden="true" /></Link></div><div className="np-difference-image"><img src="/calisthenics-card.jpg" alt="An athlete practicing a controlled handstand at Vortex" width="1536" height="1024" loading="lazy" /><span>CONTROL CHANGES EVERYTHING.</span></div></div></section>
 
         <section className="np-container np-section np-faq" id="faq"><div><p className="np-eyebrow">A LITTLE CLARITY</p><h2>Good questions.<br /><span>Clear answers.</span></h2><p>Choosing a program should feel simple.<br />We’re here to help you find the right fit.</p><button className="np-text-button" onClick={() => openInquiry()}>Talk to our team <ArrowUpRight size={18} /></button></div><div className="np-faq-list">{faqs.map(([question, answer], index) => <details key={question}><summary data-analytics-cta={`faq_${index + 1}`} data-analytics-section="faq">{question}<Plus size={20} /></summary><p>{answer}</p></details>)}</div></section>
 

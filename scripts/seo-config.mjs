@@ -7,8 +7,11 @@ export const SEO_CONTENT_LASTMOD = '2026-11-16'
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
+export const HUB_PROGRAM_PATHS = ['/gymnastics', '/fit-and-flip', '/adult-gymnastics']
+
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  ...HUB_PROGRAM_PATHS.map((path) => ({ path, priority: '0.8', changefreq: 'monthly' })),
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
