@@ -33,7 +33,6 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'sportTags',
   'program',
   'programDescription',
-  'excludeFromDropIns',
   'className',
   'classDescription',
   'classNotes',
@@ -42,7 +41,7 @@ export const COPYABLE_COLUMN_IDS: ReadonlySet<OverviewColumnId> = new Set([
   'days',
   'times',
   'capacity',
-  // Status is schedule-line scoped; the class-wide copy engine cannot copy it safely.
+  // Status and drop-in eligibility are schedule-line scoped; class-wide copies lose that identity.
   'costPerMonth',
 ])
 
@@ -99,7 +98,6 @@ const PROGRAM_LEVEL_COLUMNS: ReadonlySet<OverviewColumnId> = new Set([
   'primarySport',
   'sportTags',
   'programDescription',
-  'excludeFromDropIns',
   'costPerMonth',
 ])
 
@@ -357,9 +355,7 @@ export async function applyCopyToTarget(
       })
       break
     case 'excludeFromDropIns':
-      if (target.programsId == null) throw new Error(`“${target.className}” has no parent program`)
-      await updateTopProgram(target.programsId, { excludeFromDropIns: source.excludeFromDropIns })
-      break
+      throw new Error('Use the Allow Drop-ins editor to choose which scheduled classes to update.')
     case 'className':
       await updateClassEvent(target.classId, { displayName: source.className })
       break

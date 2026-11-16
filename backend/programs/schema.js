@@ -177,6 +177,8 @@ export async function ensureProgramDropInColumns(pool) {
   const migrationPath = path.join(__dirname, '../migrations/240_program_drop_in_exclusion.sql')
   if (!fs.existsSync(migrationPath)) return
   await pool.query(fs.readFileSync(migrationPath, 'utf8'))
+  const classOverridesPath = path.join(__dirname, '../migrations/863_class_schedule_drop_in_overrides.sql')
+  await pool.query(fs.readFileSync(classOverridesPath, 'utf8'))
   programDropInColumnsReady = true
 }
 

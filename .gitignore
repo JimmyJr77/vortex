@@ -58,5 +58,11 @@ outputs/monthly-billing-remediation-2026-11-01/
 outputs/nkaa-2026-10-17/
 outputs/roberts-2026-10-17/
 
+# Private production account-cleanup audits and daily-report previews
+outputs/archive-cleanup-2026-11-15/
+outputs/archive-flow-safety-2026-11-15/
+outputs/test-archive-cleanup-2026-11-15/
+outputs/daily-report-2026-11-16/
+
 # Microsoft Office temporary lock files
 ~$*

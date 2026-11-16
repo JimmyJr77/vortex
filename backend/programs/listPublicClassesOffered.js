@@ -85,7 +85,14 @@ export async function listPublicClassesOffered(pool) {
       p.age_min AS "ageMin",
       p.age_max AS "ageMax",
       p.skill_requirements AS "skillRequirements",
-      sf.id AS "formId"
+      sf.id AS "formId",
+      COALESCE((
+        SELECT BOOL_AND(COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, pr.exclude_from_drop_ins, FALSE))
+        FROM scheduling_form form
+        JOIN scheduling_slot_group sg ON sg.form_id = form.id AND sg.is_active = TRUE
+        JOIN scheduling_time_slot ts ON ts.slot_group_id = sg.id AND ts.is_active = TRUE
+        WHERE form.program_id = p.id AND form.deleted_at IS NULL
+      ), p.exclude_from_drop_ins, pr.exclude_from_drop_ins, FALSE) AS "excludeFromDropIns"
     FROM program p
     LEFT JOIN LATERAL (
       SELECT candidate.id
@@ -137,6 +144,7 @@ export async function listPublicClassesOffered(pool) {
       skillRequirements: row.skillRequirements ?? null,
       formId,
       enrollVisible,
+      excludeFromDropIns: Boolean(row.excludeFromDropIns),
       signupUrl: enrollVisible && formId != null ? `/enroll?form=${formId}` : null,
     })
   }

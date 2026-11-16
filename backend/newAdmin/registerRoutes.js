@@ -1,9 +1,11 @@
 import { loadEnrollmentOrder, saveEnrollmentOrder } from '../programs/enrollmentOrder.js'
+import { saveClassSetupDropIns } from '../programs/classSetupDropIns.js'
+import { loadScheduleExport, scheduleExportPdf } from './scheduleExport.js'
 import { changeLeadLifecycle } from './leadLifecycle.js'
 import { classRoster } from './classRoster.js'
 import { saveClass,saveClassPrice } from './classPricing.js'
 import rateLimit from 'express-rate-limit'
-import { createLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, leadRegistrationCatalog, invitationSummary } from './leadRegistration.js'
+import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, leadRegistrationCatalog, invitationSummary } from './leadRegistration.js'
 import { createCanonicalAdminAuth,canonicalAdminPermission } from '../platform/canonicalAdminAuth.js'
 import { listAccountDirectory } from '../accounts/accountDirectory.js'
 import { createSchedulingHandlers } from '../scheduling/handlers.js'
@@ -125,9 +127,18 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     return invitationSummary(row)
   }))
   app.post(`${base}/lead-registration/:id/send`,allow('members.edit'),handler(req=>deliverLeadInvitation(pool,{facilityId:facility(req),inviteId:req.params.id,resend:true})))
+  app.patch(`${base}/lead-registration/:id`,allow('members.edit'),handler(async req=>updateLeadInvitation(pool,{
+    facilityId:facility(req),inviteId:req.params.id,body:req.body,
+    canReserve:await canonicalAdminPermission(pool,req.canonicalAccess.userId,'scheduling.manage'),
+  })))
   const invitationLoginLimit=rateLimit({windowMs:15*60*1000,max:20,standardHeaders:true,legacyHeaders:false,message:{success:false,message:'Too many sign-in attempts. Please try again later.'}})
   app.post('/api/signup/lead/:id/session',invitationLoginLimit,handler(req=>openLeadRegistration(pool,req.params.id,req.body)))
   app.post('/api/signup/lead/:id/complete',invitationLoginLimit,handler(req=>completeLeadRegistration(pool,req.params.id,req.body,{ip:req.ip,userAgent:req.get('user-agent')})))
+  app.get(`${base}/classes/schedule.pdf`,allow('classes.view'),handler(async (req,res)=>{
+    const data=await loadScheduleExport(pool,facility(req))
+    const pdf=await scheduleExportPdf(data)
+    res.set({'Content-Type':'application/pdf','Content-Disposition':`attachment; filename="vortex-class-schedule-${data.asOf}.pdf"`,'Access-Control-Expose-Headers':'Content-Disposition','Cache-Control':'no-store'}).send(pdf)
+  }))
   app.get(`${base}/classes`,allow('classes.view'),handler(req=>listClasses(pool,facility(req),req.query,{includeArchived:req.query.includeArchived==='true'})))
   app.get(`${base}/pricing/classes`,allow('pricing.view'),handler(async req=>{
     const result=await listClasses(pool,facility(req),req.query)
@@ -146,6 +157,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.get(`${base}/classes/:id`,allow(['classes.view','members.view']),handler(req=>classDetail(pool,facility(req),req.params.id,req.query)))
   app.post(`${base}/classes`,allow('classes.manage'),handler(req=>saveClass(pool,facility(req),null,req.body)))
   app.put(`${base}/classes/:id`,allow('classes.manage'),handler(req=>saveClass(pool,facility(req),req.params.id,req.body)))
+  app.patch(`${base}/classes/:id/drop-ins`,allow('classes.manage'),handler(req=>saveClassSetupDropIns(pool,facility(req),req.params.id,req.body)))
   app.get(`${base}/classes/:id/roster`,allow(['classes.view','members.view']),handler(req=>classRoster(pool,facility(req),req.params.id,req.query)))
   const scheduling=createSchedulingHandlers(pool)
   app.post(`${base}/enrollments`,allow(['members.edit','scheduling.manage']),schedulingScopeMiddleware(pool,'create'),scheduling.adminCreateSignup)

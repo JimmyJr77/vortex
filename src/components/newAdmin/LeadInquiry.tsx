@@ -24,7 +24,7 @@ export function LeadFields({ lead, onSaved, onCancel }: { lead: Lead | null; onS
   const [inquiry, setInquiry] = useState({ submitterRole: lead?.inquiry?.submitterRole || '', source: lead?.inquiry?.source || '', interest: lead?.inquiry?.interest || '' })
   const [interests, setInterests] = useState<string[]>(initialInterests)
   const [classTypes, setClassTypes] = useState<string[]>(lead?.inquiry?.classTypes || [])
-  const [newsletter, setNewsletter] = useState(lead?.inquiry?.newsletter ?? false)
+  const [newsletter, setNewsletter] = useState(lead?.inquiry?.newsletter ?? true)
   const [children, setChildren] = useState<LeadChild[]>(lead?.inquiry?.campers || [])
   const [originalAge, setOriginalAge] = useState(String(lead?.inquiry?.athleteAge ?? ''))
   const [originalChildAges, setOriginalChildAges] = useState((lead?.inquiry?.childAges || []).join(', '))

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { allowed, request, useRead, type Access } from './api'
 import { button, Dialog, ErrorNotice, input, Loading, primary } from './shared'
 import { leadDisplayName, type Lead, type LeadChild } from './leadTypes'
+import TextInput from '../common/TextInput'
 
 type Selection = {
   kind: 'program' | 'class' | 'reserved'
@@ -11,8 +12,9 @@ type Selection = {
   timeSlotId: number | ''
   enrollmentStartDate: string
 }
-type CatalogRow = { programs_id: number; program_name: string; class_id: number | null; class_name: string; slot_id: number | null; day_of_week: number; specific_date: string | null; start_time: string; end_time: string; max_participants: number; occupied: number }
-type Invitation = { id: number; status: string; username: string; email: string; expiresAt: string; selections: { label: string; childName: string; kind: string }[] }
+type CatalogRow = { programs_id: number; program_name: string; class_id: number | null; class_name: string; slot_id: number | null; group_id: number; day_of_week: number; specific_date: string | null; start_time: string; end_time: string; max_participants: number; occupied: number }
+type Guardian = { firstName: string; lastName: string; email: string; phone: string }
+type Invitation = { id: number; status: string; username: string; email: string; expiresAt: string; revision: number; guardian: Guardian; children: LeadChild[]; instructions: string; selections: (Omit<Selection, 'childIndex' | 'classEventId' | 'timeSlotId' | 'enrollmentStartDate'> & { childIndex: number | null; classEventId?: number; timeSlotId?: number; enrollmentStartDate?: string | null; slotGroupId?: number; label: string; childName: string })[] }
 const unique = (rows: CatalogRow[], key: 'programs_id' | 'class_id' | 'slot_id') => rows.filter((row, index) => row[key] && rows.findIndex(other => other[key] === row[key]) === index)
 const childFields = { firstName: 'first name', lastName: 'last name', dateOfBirth: 'birthday' } as const
 const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -22,6 +24,8 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
   const catalog = useRead<CatalogRow[]>('/api/admin/new-admin/lead-registration/catalog')
   const existing = useRead<Invitation>(lead.invitation ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
   const [result, setResult] = useState<Invitation | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [guardian, setGuardian] = useState<Guardian>({ firstName: lead.firstName, lastName: lead.lastName, email: lead.email, phone: lead.phone || '' })
   const [children, setChildren] = useState<LeadChild[]>(lead.inquiry?.campers || [])
   const [selections, setSelections] = useState<Selection[]>([])
   const [instructions, setInstructions] = useState('')
@@ -35,6 +39,19 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
   const canReserve = allowed(access, 'scheduling.manage')
   const rows = (catalog.data || []).filter(row => row.slot_id != null)
 
+  const edit = () => {
+    if (!invitation) return
+    setChildren(invitation.children || [])
+    setGuardian(invitation.guardian || { firstName: lead.firstName, lastName: lead.lastName, email: invitation.email, phone: lead.phone || '' })
+    setSelections(invitation.selections.map(item => ({ kind: item.kind, childIndex: item.childIndex ?? '', programsId: item.programsId,
+      classEventId: item.classEventId ?? '', timeSlotId: item.timeSlotId ?? '', enrollmentStartDate: item.enrollmentStartDate || '' })))
+    setInstructions(invitation.instructions || '')
+    setHoldDays(String(Math.max(1, Math.min(30, Math.ceil((Date.parse(invitation.expiresAt) - Date.now()) / 86400000)))))
+    setMode('invite')
+    setError(null)
+    setEditing(true)
+  }
+
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     setBusy(true)
@@ -47,11 +64,13 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
         onClose()
         return
       }
-      const saved = await request<Invitation>(endpoint, {
-        method: 'POST',
-        body: JSON.stringify({ mode, children, selections, instructions, holdDays: Number(holdDays || defaultHoldDays), requestKey }),
+      const saved = await request<Invitation>(editing && invitation ? `/api/admin/new-admin/lead-registration/${invitation.id}` : endpoint, {
+        method: editing ? 'PATCH' : 'POST',
+        body: JSON.stringify({ mode, children, selections, instructions, holdDays: Number(holdDays || defaultHoldDays), requestKey,
+          ...(editing && invitation ? { guardian, revision: invitation.revision } : {}) }),
       })
       setResult(saved)
+      setEditing(false)
       onSent()
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to send registration invitation.')
@@ -92,9 +111,9 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
   }
 
   return (
-    <Dialog title={`Convert ${leadDisplayName(lead)}`} onClose={onClose}>
+    <Dialog title={editing ? `Edit registration invitation · ${leadDisplayName(lead)}` : `Convert ${leadDisplayName(lead)}`} onClose={onClose}>
       <ErrorNotice message={error || catalog.error || existing.error} />
-      {existing.loading ? <Loading /> : invitation ? (
+      {existing.loading ? <Loading /> : invitation && !editing ? (
         <section className="max-w-3xl space-y-4">
           <h3 className="text-lg font-semibold">{invitation.status === 'sent' ? 'Registration email sent' : invitation.status === 'completed' ? 'Account setup completed' : 'Invitation saved — email not sent'}</h3>
           <p>{invitation.email || lead.email} · Username: <strong>{invitation.username}</strong></p>
@@ -104,24 +123,29 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
               <li key={index}>{item.childName || 'Any family member'} · {item.label} {item.kind === 'reserved' ? '(reserved)' : ''}</li>
             ))}
           </ul>
+          {invitation.instructions && <p className="whitespace-pre-wrap text-sm">{invitation.instructions}</p>}
           {invitation.status !== 'completed' && (
+            <div className="flex flex-wrap gap-2">
+            <button className={button} disabled={busy || (!canReserve && invitation.selections.some(item => item.kind === 'reserved'))} onClick={edit}>Edit</button>
             <button className={primary} disabled={busy} onClick={() => void resend()}>
               {busy ? 'Sending…' : invitation.status === 'sent' ? 'Resend registration email' : 'Retry sending email'}
             </button>
+            {!canReserve && invitation.selections.some(item => item.kind === 'reserved') && <p className="w-full text-sm text-slate-500">Scheduling permission is required to edit reserved classes.</p>}
+            </div>
           )}
           <button className={`${button} ml-2`} onClick={onClose}>Done</button>
         </section>
       ) : (
         <form onSubmit={submit} className="space-y-5">
-          <p className="max-w-3xl text-sm text-slate-600">Send a family invitation to {lead.email}. The parent will complete missing details and required forms, then review your class selections and finish enrollment.</p>
+          <p className="max-w-3xl text-sm text-slate-600">{editing ? 'Update the contact details and class selections, then send a revised registration request. The updated email replaces the previous registration link.' : `Send a family invitation to ${lead.email}. The parent will complete missing details and required forms, then review your class selections and finish enrollment.`}</p>
           <fieldset disabled={busy} className="space-y-5">
-            <label className="block max-w-lg text-sm font-medium">
+            {!editing && <label className="block max-w-lg text-sm font-medium">
               Conversion
               <select className={input} value={mode} onChange={event => setMode(event.target.value)}>
                 <option value="invite">Send new family registration invitation</option>
                 <option value="existing">Link verified existing member (no new credentials)</option>
               </select>
-            </label>
+            </label>}
             {mode === 'existing' ? (
               <label className="block max-w-lg text-sm font-medium">
                 Verified member ID
@@ -129,6 +153,13 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
               </label>
             ) : (
               <>
+                {editing && <section className="space-y-3">
+                  <h3 className="font-semibold">Contact information</h3>
+                  <div className="grid gap-3 sm:grid-cols-2">{(['firstName', 'lastName', 'email', 'phone'] as const).map(key => <label key={key} className="text-sm">
+                    {{ firstName: 'Contact first name', lastName: 'Contact last name', email: 'Contact email', phone: 'Contact phone' }[key]}
+                    <TextInput className={input} type={key === 'email' ? 'email' : key === 'phone' ? 'tel' : 'text'} required={key === 'email'} value={guardian[key]} onChange={event => setGuardian(current => ({ ...current, [key]: event.target.value }))} />
+                  </label>)}</div>
+                </section>}
                 <section className="space-y-3">
                   <h3 className="font-semibold">Children</h3>
                   <p className="text-sm text-slate-500">Enter any details you know. The parent can complete them and add family members during signup.</p>
@@ -202,7 +233,8 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
                             <select className={input} required value={item.timeSlotId} onChange={event => updateSelection(index, { timeSlotId: event.target.value ? Number(event.target.value) : '' })}>
                               <option value="">Select time</option>
                               {unique(slots, 'slot_id').map(row => {
-                                const spots = Math.max(0, Number(row.max_participants) - Number(row.occupied))
+                                const ownHolds = editing ? invitation?.selections.filter(selection => selection.kind === 'reserved' && selection.slotGroupId === Number(row.group_id)).length || 0 : 0
+                                const spots = Math.max(0, Number(row.max_participants) - Number(row.occupied) + ownHolds)
                                 return (
                                   <option key={row.slot_id} value={row.slot_id!} disabled={!spots}>
                                     {row.specific_date || weekdays[row.day_of_week]} {row.start_time?.slice(0, 5)}–{row.end_time?.slice(0, 5)} · {spots} spots
@@ -226,7 +258,7 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
                 <label className="block max-w-xs text-sm font-medium">
                   Days to finish registration
                   <input className={input} type="number" min="1" max="30" placeholder={String(defaultHoldDays)} value={holdDays} onChange={event => setHoldDays(event.target.value)} />
-                  <span className="text-xs text-slate-500">Reserved spots are released when this deadline passes.</span>
+                  <span className="text-xs text-slate-500">{editing ? 'Days from sending the updated request. ' : ''}Reserved spots are released when this deadline passes.</span>
                 </label>
                 <label className="block text-sm font-medium">
                   Instructions for the parent
@@ -234,7 +266,10 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
                 </label>
               </>
             )}
-            <button className={primary} disabled={busy}>{busy ? 'Submitting…' : mode === 'existing' ? 'Link member' : 'Send registration email'}</button>
+            <div className="flex flex-wrap gap-2">
+              <button className={primary} disabled={busy}>{busy ? 'Submitting…' : editing ? 'Send updated registration request' : mode === 'existing' ? 'Link member' : 'Send registration email'}</button>
+              {editing && <button type="button" className={button} onClick={() => { setEditing(false); setError(null) }}>Cancel edit</button>}
+            </div>
           </fieldset>
         </form>
       )}

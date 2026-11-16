@@ -138,7 +138,11 @@ const AdminClassSetupOverviewTable = ({
   const visibleScheduleRows = useMemo(() => {
     const expanded = rows.flatMap((classRow) =>
       expandScheduleLines(classRow).map((line, lineIndex) => ({
-        row: { ...classRow, status: line.isActive === false && classRow.status === 'Active' ? 'Inactive' as const : classRow.status },
+        row: {
+          ...classRow,
+          status: line.isActive === false && classRow.status === 'Active' ? 'Inactive' as const : classRow.status,
+          excludeFromDropIns: line.excludeFromDropIns ?? classRow.excludeFromDropIns,
+        },
         line,
         lineIndex,
         rowKey: `${classRow.classId}:${line.timeSlotId ?? `${line.slotGroupId ?? 'none'}:${lineIndex}`}`,

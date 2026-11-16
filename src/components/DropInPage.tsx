@@ -106,8 +106,8 @@ export default function DropInPage() {
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
       const publicPrograms = getPublicBookingPrograms(catalog.programs)
       setProgramOptions(publicPrograms)
-      setClasses(publicPrograms.filter((program) => !program.excludeFromDropIns).flatMap((program) => program.classes
-        .filter((classItem) => classItem.formId != null)
+      setClasses(publicPrograms.flatMap((program) => program.classes
+        .filter((classItem) => classItem.formId != null && !(classItem.excludeFromDropIns ?? program.excludeFromDropIns))
         .map((classItem): DropInClass => ({
           ...(dropInClassById.get(classItem.id) ?? {
             formId: Number(classItem.formId), classId: classItem.id,
@@ -265,7 +265,7 @@ export default function DropInPage() {
             </div>
           </div>
 
-          {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || (selectedProgram?.excludeFromDropIns
+          {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || (selectedProgram && selectedProgram.classes.every(classItem => classItem.excludeFromDropIns ?? selectedProgram.excludeFromDropIns)
             ? <>{selectedProgram.displayName} does not offer drop-in classes. <Link className="font-semibold text-vortex-red underline" to={`/enroll?programsId=${selectedProgram.id}`}>View enrollment options</Link></>
             : 'No classes match your search or filters.')}</div>}
           {programSections.map((rows) => <div key={rows[0].programId} className="np-drop-in-program space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">

@@ -131,6 +131,7 @@ test('release deploy includes application content migrations without broadening 
     '860_trial_assessment_booking_policy.sql',
     '861_merged_member_activity_detachment.sql',
     '862_retire_member_archive_family_fanout.sql',
+    '863_class_schedule_drop_in_overrides.sql',
     '819_coaching_exercise_difficulty_complexity_compatibility.sql',
     '820_coaching_exercise_difficulty_complexity_nullable.sql',
     '818_coaching_athleticism_accelerator_library.sql',

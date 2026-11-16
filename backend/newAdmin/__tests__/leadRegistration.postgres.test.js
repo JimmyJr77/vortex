@@ -8,7 +8,7 @@ import os from 'node:os'
 import bcrypt from 'bcryptjs'
 import pg from 'pg'
 import { createLead, saveLead, listLeads, convertLead } from '../leads.js'
-import { createLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, nextLeadUsername } from '../leadRegistration.js'
+import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, nextLeadUsername } from '../leadRegistration.js'
 import { insertSignupForMember } from '../../scheduling/handlers.js'
 import { sendLeadRegistrationEmail } from '../../email/leadRegistrationEmail.js'
 import { registerFamilySignupRoutes } from '../../platform/familySignup.js'
@@ -39,7 +39,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql','860_trial_assessment_booking_policy.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
       LEFT JOIN facility f ON f.owner_user_id=u.id
       WHERE u.username='admin2' OR f.id IS NOT NULL
@@ -113,6 +113,72 @@ test('lead invitations reserve shared class places, require new credentials, and
       } finally {
         await db.query('ROLLBACK TO SAVEPOINT corrected_email')
         await db.query('RELEASE SAVEPOINT corrected_email')
+      }
+    })
+    await t.test('editing a sent invitation replaces details and holds, invalidates old links, and supports failed email retry', async () => {
+      await db.query('SAVEPOINT edit_invitation')
+      try {
+        const body = { revision: 0, children: children.map(child => ({ ...child, lastName: 'Updated' })), selections,
+          guardian: { firstName: 'Updated', lastName: 'Parent', email: `updated-${nonce}@example.test`, phone: '2025550102' }, instructions: 'Updated classes for your family.', holdDays: 14 }
+        const old = captured
+        let editedEmail
+        const edited = await updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, body, canReserve: true }, {
+          sendInvitation: async args => { editedEmail = args; return { sent: false } },
+        })
+        assert.equal(edited.id, invitation.id)
+        assert.equal(edited.status, 'failed')
+        assert.equal(edited.revision, 1)
+        assert.equal(edited.children[0].lastName, 'Updated')
+        assert.equal(edited.guardian.firstName, 'Updated')
+        assert.equal(edited.instructions, body.instructions)
+        assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [group.id])).rows[0].n, 2)
+        assert.equal((await db.query('SELECT count(*)::int AS n FROM account_invite WHERE registration_id=$1', [lead.id])).rows[0].n, 1)
+        assert.ok((await db.query("SELECT last_name,email FROM scheduling_signup WHERE account_invite_id=$1 AND status='pending_setup'", [invitation.id])).rows.every(row => row.last_name === 'Updated' && row.email === body.guardian.email))
+        assert.equal((await db.query('SELECT email FROM registrations WHERE id=$1', [lead.id])).rows[0].email, body.guardian.email)
+        await assert.rejects(() => openLeadRegistration(pool, invitation.id, { token: old.token, username: invitation.username, password: old.password }), /Invalid registration link/)
+        await assert.rejects(() => updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, body, canReserve: true }), /changed/)
+        const retried = await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id, resend: true }, { sendInvitation: async args => { assert.equal(args.token, editedEmail.token); return { sent: true } } })
+        assert.equal(retried.status, 'sent')
+        const opened = await openLeadRegistration(pool, invitation.id, { token: editedEmail.token, username: invitation.username, password: editedEmail.password })
+        assert.equal(opened.instructions, body.instructions)
+        assert.equal(opened.children[0].lastName, 'Updated')
+        // Moving one reservation to another time releases both original places.
+        const otherGroup = (await db.query('INSERT INTO scheduling_slot_group(form_id,max_participants,is_active) VALUES($1,1,TRUE) RETURNING id', [form.id])).rows[0]
+        const otherSlot = (await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,2,'16:00','17:00',TRUE) RETURNING id", [form.id, otherGroup.id])).rows[0]
+        const moved = await updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, canReserve: true,
+          body: { ...body, revision: 1, selections: [{ ...selections[0], timeSlotId: otherSlot.id }, { kind: 'program', programsId: program.id, childIndex: 1 }] },
+        }, { sendInvitation: async () => ({ sent: true }) })
+        assert.equal(moved.revision, 2)
+        assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [group.id])).rows[0].n, 0)
+        assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [otherGroup.id])).rows[0].n, 1)
+        assert.equal(moved.selections[0].timeSlotId, Number(otherSlot.id))
+      } finally {
+        await db.query('ROLLBACK TO SAVEPOINT edit_invitation')
+        await db.query('RELEASE SAVEPOINT edit_invitation')
+      }
+    })
+    await t.test('invalid edits, capacity conflicts, missing permissions and closed invitations preserve the original request', async () => {
+      const body = { revision: 0, children, selections, guardian: { firstName: lead.firstName, lastName: lead.lastName, email: lead.email, phone: lead.phone }, instructions: 'Do not save', holdDays: 7 }
+      const before = (await db.query('SELECT * FROM account_invite WHERE id=$1', [invitation.id])).rows[0]
+      const holds = (await db.query('SELECT * FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows
+      const noEmail = { sendInvitation: () => assert.fail('Rejected edits must not send email') }
+      await assert.rejects(() => updateLeadInvitation(pool, { facilityId: -1, inviteId: invitation.id, body, canReserve: true }, noEmail), /not found/)
+      await assert.rejects(() => updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, body: { ...body, selections: [] } }, noEmail), /Scheduling permission/)
+      await assert.rejects(() => updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, canReserve: true, body: { ...body, children: [{ dateOfBirth: 'invalid' }] } }, noEmail), /birthday/)
+      await assert.rejects(() => updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, canReserve: true,
+        body: { ...body, selections: [...selections, { ...selections[0], childIndex: null }] },
+      }, noEmail), /reserved/)
+      assert.deepEqual((await db.query('SELECT * FROM account_invite WHERE id=$1', [invitation.id])).rows[0], before)
+      assert.deepEqual((await db.query('SELECT * FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY id', [invitation.id])).rows, holds)
+      for (const state of ["used_at=now()", "expires_at=now()-interval '1 day'"]) {
+        await db.query('SAVEPOINT closed_edit')
+        try {
+          await db.query(`UPDATE account_invite SET ${state} WHERE id=$1`, [invitation.id])
+          await assert.rejects(() => updateLeadInvitation(pool, { facilityId, inviteId: invitation.id, body, canReserve: true }, noEmail), /completed or expired/)
+        } finally {
+          await db.query('ROLLBACK TO SAVEPOINT closed_edit')
+          await db.query('RELEASE SAVEPOINT closed_edit')
+        }
       }
     })
     await t.test('pending seats cannot be taken by another admission path',async()=>{
