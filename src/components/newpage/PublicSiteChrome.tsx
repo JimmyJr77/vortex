@@ -31,7 +31,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false }: 
         </nav>
         <div className="np-nav-actions">
           <button type="button" className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={login}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
-          <Link className="np-button np-nav-cta" to={adultProgram ? '/contact' : '/#free-trial'} data-analytics-cta={adultProgram ? 'contact_adult_gymnastics' : 'free_trial_section'} data-analytics-section="navigation" onClick={closeMenu}>{adultProgram ? 'Ask about adult classes' : 'Try a free class'} <ArrowUpRight size={16} /></Link>
+          <Link className="np-button np-nav-cta" to={adultProgram ? '/contact' : '/#free-trial'} aria-label={adultProgram ? 'Ask about adult gymnastics classes' : undefined} data-analytics-cta={adultProgram ? 'contact_adult_gymnastics' : 'free_trial_section'} data-analytics-section="navigation" onClick={closeMenu}>{adultProgram ? 'Ask Vortex' : 'Try a free class'} <ArrowUpRight size={16} /></Link>
           <button type="button" className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-public-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
       </div>
