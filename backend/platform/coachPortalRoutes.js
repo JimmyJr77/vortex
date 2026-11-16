@@ -5387,10 +5387,10 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     }
   }
 
-  async function loadThreadMessages(threadId, facilityId) {
+  async function loadThreadMessages(threadId, facilityId, viewer) {
     const thread = await loadThreadWithParticipants(pool, threadId, facilityId)
     if (!thread) return null
-    const messages = await loadEnrichedMessagesForThread(pool, threadId)
+    const messages = await loadEnrichedMessagesForThread(pool, threadId, viewer)
     return { thread, messages }
   }
 
@@ -5596,7 +5596,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
             lm.created_at AS last_message_created_at,
             ${messageThreadFavoriteSelectSql('fav')}
           FROM coaching.message_thread t
-          JOIN public.member m ON m.id = t.member_id
+          LEFT JOIN public.member m ON m.id = t.member_id
           ${favJoin}
           LEFT JOIN LATERAL (
             SELECT body, created_at FROM coaching.message
@@ -5645,9 +5645,9 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
     try {
       const facilityId = req.platformAuth.user.facility_id
       const threadId = num(req.params.threadId)
-      const data = await loadThreadMessages(threadId, facilityId)
-      if (!data) return bad(res, 'Thread not found.', 404)
       const coachUserId = Number(req.platformAuth.user.id)
+      const data = await loadThreadMessages(threadId, facilityId, { userId: coachUserId })
+      if (!data) return bad(res, 'Thread not found.', 404)
       if (!await coachHasThreadAccess(data.thread, coachUserId)) return bad(res, 'Thread not found.', 404)
       ok(res, data)
     } catch (error) {
@@ -5900,7 +5900,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
       const facilityId = req.platformAuth.user.facility_id
       const threadId = num(req.params.threadId)
-      const data = await loadThreadMessages(threadId, facilityId)
+      const data = await loadThreadMessages(threadId, facilityId, { userId: Number(req.platformAuth.user.id) })
       if (!data) return bad(res, 'Thread not found.', 404)
       ok(res, data)
     } catch (error) {
@@ -6111,7 +6111,7 @@ export function registerCoachPortalRoutes(app, pool, { jwtSecret }) {
       if (!isParticipant && !await memberCanAccessMessageThread(memberId, thread.member_id, facilityId)) {
         return bad(res, 'Thread not found.', 404)
       }
-      const data = await loadThreadMessages(threadId, facilityId)
+      const data = await loadThreadMessages(threadId, facilityId, { memberId })
       ok(res, data)
     } catch (error) {
       bad(res, error.message, 500)

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { getCoachToken } from '../coach/api'
 import { getAdminToken, getApiUrl } from '../utils/api'
-import type { MessagingRole } from '../components/messaging/types'
+import type { MessageRow, MessagingRole } from '../components/messaging/types'
 
 export interface MessageRealtimePayload {
   type: string
@@ -17,9 +17,17 @@ export interface UseMessageRealtimeOptions {
   role: MessagingRole
   enabled?: boolean
   threadId?: number | null
-  onMessageCreated?: (payload: MessageRealtimePayload) => void
+  onMessageCreated?: (payload: Omit<MessageRealtimePayload, 'data'> & { data?: MessageRow }) => void
   onReadUpdated?: (payload: MessageRealtimePayload) => void
   onNotificationCreated?: (payload: MessageRealtimePayload) => void
+  onReactionsInvalidated?: (threadId: number) => void
+}
+
+function messageFromEvent(data: unknown): MessageRow | undefined {
+  const message = data && typeof data === 'object' && 'message' in data ? data.message : data
+  if (!message || typeof message !== 'object' || !('id' in message) || !('created_at' in message)) return
+  if (!Number.isSafeInteger(Number(message.id)) || typeof message.created_at !== 'string') return
+  return message as MessageRow
 }
 
 function wsOrigin(): string {
@@ -41,9 +49,10 @@ export function useMessageRealtime({
   onMessageCreated,
   onReadUpdated,
   onNotificationCreated,
+  onReactionsInvalidated,
 }: UseMessageRealtimeOptions): void {
-  const callbacksRef = useRef({ onMessageCreated, onReadUpdated, onNotificationCreated })
-  callbacksRef.current = { onMessageCreated, onReadUpdated, onNotificationCreated }
+  const callbacksRef = useRef({ onMessageCreated, onReadUpdated, onNotificationCreated, onReactionsInvalidated })
+  callbacksRef.current = { onMessageCreated, onReadUpdated, onNotificationCreated, onReactionsInvalidated }
 
   useEffect(() => {
     if (!enabled) return
@@ -59,19 +68,28 @@ export function useMessageRealtime({
     const subscribeThread = (id: number) => {
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ action: 'subscribe', channels: [`thread:${id}`] }))
+        if (callbacksRef.current.onReactionsInvalidated) {
+          ws.send(JSON.stringify({ action: 'subscribe_reactions', threadId: id, portal: role }))
+        }
       }
     }
 
     const handlePayload = (payload: MessageRealtimePayload) => {
       switch (payload.type) {
         case 'message.created':
-          callbacksRef.current.onMessageCreated?.(payload)
+          callbacksRef.current.onMessageCreated?.({ ...payload, data: messageFromEvent(payload.data) })
           break
         case 'read.updated':
           callbacksRef.current.onReadUpdated?.(payload)
           break
         case 'notification.created':
           callbacksRef.current.onNotificationCreated?.(payload)
+          break
+        case 'reaction_subscription':
+        case 'message.reactions_updated':
+          if (threadId != null && Number(payload.threadId) === threadId) {
+            callbacksRef.current.onReactionsInvalidated?.(threadId)
+          }
           break
         default:
           break
@@ -84,11 +102,13 @@ export function useMessageRealtime({
       ws = new WebSocket(url)
 
       ws.onopen = () => {
+        if (disposed) return
         attempt = 0
         if (threadId != null) subscribeThread(threadId)
       }
 
       ws.onmessage = (event) => {
+        if (disposed) return
         try {
           const payload = JSON.parse(String(event.data)) as MessageRealtimePayload
           handlePayload(payload)

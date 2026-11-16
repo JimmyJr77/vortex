@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, MessageSquare, Plus, X } from 'lucide-react'
+import { Archive, Inbox, Loader2, MessageSquare, Plus, Search, X } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import ArchivedMessageLines from '../messaging/ArchivedMessageLines'
 import MessageReplyComposer from '../messaging/MessageReplyComposer'
 import MessagingThreadListShell from '../messaging/MessagingThreadListShell'
+import MessagingConversationHeader from '../messaging/MessagingConversationHeader'
+import MessagingEmptyState from '../messaging/MessagingEmptyState'
+import NewMessageDialog from '../messaging/NewMessageDialog'
 import MessagingMobileShell from '../messaging/MessagingMobileShell'
 import MessagingInboxTabs, { type MessagingInboxTab } from '../messaging/MessagingInboxTabs'
 import MessagingThreadRow from '../messaging/MessagingThreadRow'
@@ -16,7 +19,7 @@ import { recipientsToPayload } from '../messaging/recipientPayload'
 import ThreadHeaderMenu from '../messaging/ThreadHeaderMenu'
 import { getMessageViewer } from '../messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from '../messaging/messageAttachmentUpload'
-import { markThreadRead } from '../messaging/messagingApi'
+import { markThreadRead, type ScheduleInboxRow } from '../messaging/messagingApi'
 import MessagingThreadFaq, { type ThreadFaqDraft } from '../messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from '../messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from '../messaging/MessagingMaximizeToggle'
@@ -48,9 +51,8 @@ import {
   messagingWorkspaceRoot,
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
-  defaultLandingThreadId,
-  messagingViewportShowsBothPanels,
   threadListTitle,
+  scheduleRowVirtualId,
 } from '../messaging/messagingLayout'
 import type {
   CriticalComposeFlags,
@@ -61,9 +63,26 @@ import type {
   ThreadParticipant,
 } from '../messaging/types'
 import { mergeRecipientOptions, participantKey } from '../messaging/types'
+import { useMessagingHistoryScroll } from '../messaging/useMessagingHistoryScroll'
 import { useMessageRealtime } from '../../hooks/useMessageRealtime'
+import { useThreadReactionSync } from '../messaging/useThreadReactionSync'
 
 type AdminMessagesTab = 'active-mine' | 'active-all' | 'archived'
+
+interface ReplyDraft {
+  reply: string
+  target: MessageRow | null
+  attachment: File | null
+  critical: CriticalComposeFlags
+  mentions: MessageMentionPayload[]
+  faq: { question: string; prefix: string } | null
+  error: string | null
+}
+
+const EMPTY_DRAFT: ReplyDraft = {
+  reply: '', target: null, attachment: null, mentions: [], faq: null, error: null,
+  critical: { is_critical: false, requires_ack: false, send_critical_sms: false },
+}
 
 async function adminFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const res = await adminApiRequest(endpoint, options)
@@ -88,6 +107,7 @@ export default function AdminMessagesPanel({
   const [tab, setTab] = useState<AdminMessagesTab>('active-mine')
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
   const [threadSubject, setThreadSubject] = useState<string | null>(null)
   const [threadSubjectLocked, setThreadSubjectLocked] = useState(false)
@@ -97,9 +117,12 @@ export default function AdminMessagesPanel({
   const [loading, setLoading] = useState(true)
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [reply, setReply] = useState('')
-  const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
+  const [listError, setListError] = useState<string | null>(null)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [composeError, setComposeError] = useState<string | null>(null)
+  const [drafts, setDrafts] = useState<Record<number, ReplyDraft>>({})
   const [sending, setSending] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [newOpen, setNewOpen] = useState(false)
   const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
   const [newSubject, setNewSubject] = useState('')
@@ -111,27 +134,33 @@ export default function AdminMessagesPanel({
   const [groupsLoading, setGroupsLoading] = useState(true)
   const [threadFavorite, setThreadFavorite] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
-  const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
   const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('messages')
   const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
   const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const [faqDraft, setFaqDraft] = useState<ThreadFaqDraft | null>(null)
-  const [pendingFaqReply, setPendingFaqReply] = useState<{ question: string; prefix: string } | null>(null)
   const [classModalOpen, setClassModalOpen] = useState(false)
   const [eventBoardModalOpen, setEventBoardModalOpen] = useState(false)
   const [fileModalOpen, setFileModalOpen] = useState(false)
   const [calendarComposeOpen, setCalendarComposeOpen] = useState(false)
-  const [criticalFlags, setCriticalFlags] = useState<CriticalComposeFlags>({
-    is_critical: false,
-    requires_ack: false,
-    send_critical_sms: false,
-  })
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const autoOpenedRef = useRef(false)
+  const listRequest = useRef(0)
+  const detailRequest = useRef(0)
+  const activeThreadRef = useRef<number | null>(null)
+  const lastInitialThread = useRef<number | null>(null)
 
-  const isFlatView = tab === 'active-all' || tab === 'archived'
-  const canReply = tab === 'active-mine' || tab === 'active-all'
+  const isFlatView = tab !== 'active-mine'
+  const canReply = tab !== 'archived'
+  const detailOpen = selectedRowId != null || calendarComposeOpen
+  const { reply, target: replyTarget, attachment: pendingAttachment, critical: criticalFlags, mentions, faq: pendingFaqReply, error: replyError } =
+    (selectedId == null ? undefined : drafts[selectedId]) ?? EMPTY_DRAFT
+
+  const updateDraft = (update: Partial<ReplyDraft>) => {
+    if (selectedId == null) return
+    setDrafts((previous) => ({ ...previous, [selectedId]: { ...EMPTY_DRAFT, ...previous[selectedId], ...update } }))
+  }
+  const setReply = (value: string) => updateDraft({ reply: value })
+  const setPendingAttachment = (attachment: File | null) => updateDraft({ attachment })
+  const setCriticalFlags = (critical: CriticalComposeFlags) => updateDraft({ critical })
 
   const viewer = useMemo(() => getMessageViewer('admin'), [])
   const pins = useThreadPinGroups(selectedId, 'admin', adminFetch)
@@ -190,28 +219,32 @@ export default function AdminMessagesPanel({
     setNewRecipients((prev) => mergeRecipientOptions(prev, added))
   }, [resolveEnrollmentGroup])
 
-  const loadThreads = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const params = new URLSearchParams()
-      params.set('status', tab === 'archived' ? 'archived' : 'open')
-      if (tab === 'active-mine') {
-        params.set('scope', 'mine')
-      } else if (tab === 'active-all') {
-        params.set('scope', 'all')
-      }
-      if (isFlatView) {
-        params.set('sort', toApiThreadSort(listSort))
-        params.set('sortDir', listSortDir)
-      }
-      setThreads(await adminFetch<MessageThread[]>(`/api/admin/messages?${params.toString()}`))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load messages')
-    } finally {
-      setLoading(false)
+  const listQuery = useMemo(() => {
+    const params = new URLSearchParams({ status: tab === 'archived' ? 'archived' : 'open' })
+    if (tab !== 'archived') params.set('scope', tab === 'active-mine' ? 'mine' : 'all')
+    if (isFlatView) {
+      params.set('sort', toApiThreadSort(listSort))
+      params.set('sortDir', listSortDir)
     }
+    return params.toString()
   }, [tab, isFlatView, listSort, listSortDir])
+  const activeListQuery = useRef(listQuery)
+  activeListQuery.current = listQuery
+
+  const loadThreads = useCallback(async () => {
+    if (listQuery !== activeListQuery.current) return
+    const request = ++listRequest.current
+    try {
+      const next = await adminFetch<MessageThread[]>(`/api/admin/messages?${listQuery}`)
+      if (request !== listRequest.current) return
+      setThreads(next)
+      setListError(null)
+    } catch (err) {
+      if (request === listRequest.current) setListError(err instanceof Error ? err.message : 'Failed to load messages')
+    } finally {
+      if (request === listRequest.current) setLoading(false)
+    }
+  }, [listQuery])
   const collaboration = useThreadCollaboration({
     role: 'admin',
     threadId: selectedId,
@@ -226,27 +259,52 @@ export default function AdminMessagesPanel({
   }
 
   useEffect(() => {
-    autoOpenedRef.current = false
-    setSelectedId(null)
-    setMessages([])
-    setFaqPanelOpen(false)
-    setFaqDraft(null)
-    setPendingFaqReply(null)
-    setNewOpen(false)
-    setInboxTab(tab === 'archived' ? 'archived' : 'messages')
     void loadThreads()
-  }, [loadThreads, tab])
+    return () => { listRequest.current += 1 }
+  }, [loadThreads])
+
+  const closeDetail = () => {
+    detailRequest.current += 1
+    activeThreadRef.current = null
+    inboxList.setActiveCalendarItem(null)
+    inboxList.setActiveScheduleRow(null)
+    setCalendarComposeOpen(false)
+    setSelectedId(null)
+    setSelectedRowId(null)
+    setDetailError(null)
+    setError(null)
+    closeTakeoverPanels()
+  }
+
+  const changeScope = (scope: AdminMessagesTab) => {
+    if (tab === scope) return
+    listRequest.current += 1
+    closeDetail()
+    setListError(null)
+    setLoading(true)
+    setThreads([])
+    setInboxTab(scope === 'archived' ? 'archived' : 'messages')
+    setTab(scope)
+  }
+
+  const { invalidateReactions, applyReactionMutation } = useThreadReactionSync({
+    role: 'admin',
+    threadId: selectedId,
+    activeThreadId: activeThreadRef,
+    detailRequest,
+    ready: !detailLoading && !detailError && canReply,
+    fetcher: adminFetch,
+    setMessages,
+  })
 
   useMessageRealtime({
     role: 'admin',
     threadId: selectedId,
+    onReactionsInvalidated: canReply ? invalidateReactions : undefined,
     onMessageCreated: (payload) => {
-      if (payload.threadId === selectedId && payload.data) {
-        setMessages((prev) => {
-          const next = payload.data as MessageRow
-          if (prev.some((m) => m.id === next.id)) return prev
-          return [...prev, next]
-        })
+      const next = payload.data
+      if (next && activeThreadRef.current != null && Number(payload.threadId) === activeThreadRef.current) {
+        setMessages((previous) => previous.some((message) => Number(message.id) === Number(next.id)) ? previous : [...previous, next])
       }
       void loadThreads()
     },
@@ -258,73 +316,81 @@ export default function AdminMessagesPanel({
     },
   })
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, selectedId])
+  const { messagesEndRef, followLatest } = useMessagingHistoryScroll({
+    threadId: selectedId,
+    visible: selectedId != null && !detailLoading && !detailError && !anyTakeoverPanelOpen,
+    latestMessageId: messages.at(-1)?.id,
+  })
 
-  const openThread = async (rowId: number) => {
-    const resolved = inboxList.resolveThreadSelection(rowId)
-    const threadId = resolved.threadId
-    if (threadId <= 0) return
+  const openThread = async (rowId: number, scheduleItem?: ScheduleInboxRow) => {
+    const resolved = scheduleItem
+      ? { threadId: scheduleItem.discussion_thread_id ?? rowId, scheduleRow: scheduleItem }
+      : inboxList.resolveThreadSelection(rowId)
+    const threadId = Number(resolved.threadId)
+    const { scheduleRow } = resolved
+    if (threadId <= 0 && !scheduleRow) return
+    if (scheduleItem) inboxList.setActiveScheduleRow(scheduleItem)
+
+    const request = ++detailRequest.current
+    activeThreadRef.current = threadId > 0 ? threadId : null
     setCalendarComposeOpen(false)
-    setSelectedId(threadId)
-    setDetailLoading(true)
+    setSelectedId(activeThreadRef.current)
+    setSelectedRowId(Number(rowId))
+    setDetailLoading(threadId > 0)
+    setDetailError(null)
     setError(null)
-    const listRow = threads.find((t) => t.id === threadId)
-    setThreadFavorite(Boolean(listRow?.is_favorite))
+    setMessages([])
+    setFaqDraft(null)
+    closeTakeoverPanels()
+    if (threadId <= 0) return
+
     try {
       const data = await adminFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/admin/messages/${threadId}`)
+      if (request !== detailRequest.current) return
       setThreadSubject(data.thread.subject ?? null)
       setThreadSubjectLocked(Boolean(data.thread.subject_locked))
-      setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
+      setThreadParticipants(data.thread.participants ?? [])
       setThreadInfoJson(data.thread.info_json ?? null)
       setLinkedThreadId(data.thread.linked_thread_id ?? null)
-      setFaqPanelOpen(false)
-      setFaqDraft(null)
-      setPendingFaqReply(null)
-      setMessages(data.messages)
-      const lastId = data.messages[data.messages.length - 1]?.id
-      void markThreadRead('admin', threadId, adminFetch, lastId)
-      void loadThreads()
+      setThreadFavorite(Boolean(data.thread.is_favorite ?? threads.find((thread) => Number(thread.id) === threadId)?.is_favorite))
+      setMessages((pending) => {
+        if (!pending.length) return data.messages
+        const seen = new Set(data.messages.map(({ id }) => Number(id)))
+        return [...data.messages, ...pending.filter(({ id }) => !seen.has(Number(id)))]
+      })
+      if (tab !== 'archived') {
+        void markThreadRead('admin', threadId, adminFetch, data.messages.at(-1)?.id).then(() => {
+          if (request === detailRequest.current) void loadThreads()
+        })
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load thread')
+      if (request === detailRequest.current) setDetailError(err instanceof Error ? err.message : 'Failed to load conversation')
     } finally {
-      setDetailLoading(false)
+      if (request === detailRequest.current) setDetailLoading(false)
     }
   }
 
   useEffect(() => {
-    if (initialThreadId == null) return
-    autoOpenedRef.current = true
-    void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
-  }, [initialThreadId])
+    if (initialThreadId === lastInitialThread.current) return
+    lastInitialThread.current = initialThreadId
+    if (initialThreadId != null) {
+      void openThread(initialThreadId).finally(() => {
+        if (lastInitialThread.current === initialThreadId) onInitialThreadOpened?.()
+      })
+    }
+  })
 
-  useEffect(() => {
-    if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
-    if (tab === 'archived') return
-    // On phones/small screens only one panel shows at a time — land on the thread list instead.
-    if (!messagingViewportShowsBothPanels()) return
-    const landingId = defaultLandingThreadId(displayedThreads)
-    if (landingId == null) return
-    autoOpenedRef.current = true
-    void openThread(landingId)
-  }, [loading, displayedThreads, initialThreadId, selectedId, tab])
-
-  const replyToMessage = useCallback((message: MessageRow) => {
-    setPendingFaqReply(null)
-    setReplyTarget(message)
-    setReply(buildReplyQuote(message))
-  }, [])
-
-  const replyToMessageWithFaq = useCallback((message: MessageRow) => {
+  const quoteMessage = (message: MessageRow, saveToFaq = false) => {
+    if (sending) return
+    const body = replyTarget ? stripReplyQuote(reply, buildReplyQuote(replyTarget)) : reply
     const prefix = buildReplyQuote(message)
-    setReplyTarget(message)
-    setReply(prefix)
-    setPendingFaqReply({
-      question: message.body?.trim() || 'Question',
-      prefix,
+    updateDraft({
+      target: message,
+      reply: `${prefix}${body}`,
+      faq: saveToFaq ? { question: message.body?.trim() || 'Question', prefix } : null,
+      error: null,
     })
-  }, [])
+  }
 
   const showPinControls = tab !== 'archived'
   const pinHeaderProps = showPinControls
@@ -366,7 +432,8 @@ export default function AdminMessagesPanel({
   }
 
   const sendReply = async (mentions: MessageMentionPayload[] = []) => {
-    if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply) return
+    if (!selectedId || (!reply.trim() && !pendingAttachment) || !canReply || sending) return
+    updateDraft({ error: null })
     setSending(true)
     try {
       let attachmentPayload: Partial<UploadedAttachment> = {}
@@ -391,8 +458,12 @@ export default function AdminMessagesPanel({
           send_critical_sms: criticalFlags.is_critical && criticalFlags.send_critical_sms,
         }),
       })
-      setMessages((prev) => [...prev, msg])
-      if (pendingFaqReply) {
+      const stillSelected = activeThreadRef.current === selectedId
+      if (stillSelected) {
+        followLatest()
+        setMessages((prev) => prev.some((entry) => Number(entry.id) === Number(msg.id)) ? prev : [...prev, msg])
+      }
+      if (stillSelected && pendingFaqReply) {
         setFaqDraft({
           question: pendingFaqReply.question,
           answer: stripReplyQuote(replyText, pendingFaqReply.prefix),
@@ -400,15 +471,15 @@ export default function AdminMessagesPanel({
         collaboration.closePollPanel()
         collaboration.closeSignupPanel()
         setFaqPanelOpen(true)
-        setPendingFaqReply(null)
       }
-      setReply('')
-      setReplyTarget(null)
-      setPendingAttachment(null)
-      setCriticalFlags({ is_critical: false, requires_ack: false, send_critical_sms: false })
+      setDrafts((previous) => {
+        const next = { ...previous }
+        delete next[selectedId]
+        return next
+      })
       void loadThreads()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send message')
+      updateDraft({ error: err instanceof Error ? err.message : 'Failed to send message. Try again.' })
     } finally {
       setSending(false)
     }
@@ -420,6 +491,7 @@ export default function AdminMessagesPanel({
     setCalendarComposeOpen(false)
     switch (primaryAction.mode) {
       case 'message':
+        setComposeError(null)
         setNewOpen(true)
         break
       case 'class':
@@ -429,7 +501,7 @@ export default function AdminMessagesPanel({
         setEventBoardModalOpen(true)
         break
       case 'calendarItem':
-        setSelectedId(null)
+        closeDetail()
         setCalendarComposeOpen(true)
         break
       case 'file':
@@ -441,8 +513,9 @@ export default function AdminMessagesPanel({
   }
 
   const startThread = async () => {
-    if (newRecipients.length === 0 || !newBody.trim()) return
-    setSending(true)
+    if (newRecipients.length === 0 || !newBody.trim() || creating) return
+    setComposeError(null)
+    setCreating(true)
     try {
       const data = await adminFetch<{ thread: MessageThread; message: MessageRow }>('/api/admin/messages', {
         method: 'POST',
@@ -459,9 +532,9 @@ export default function AdminMessagesPanel({
       void loadThreads()
       await openThread(data.thread.id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start thread')
+      setComposeError(err instanceof Error ? err.message : 'Failed to send message')
     } finally {
-      setSending(false)
+      setCreating(false)
     }
   }
 
@@ -471,8 +544,10 @@ export default function AdminMessagesPanel({
       method: 'PATCH',
       body: JSON.stringify(update),
     })
-    setThreadSubject(updated.subject ?? null)
-    setThreadSubjectLocked(Boolean(updated.subject_locked))
+    if (activeThreadRef.current === selectedId) {
+      setThreadSubject(updated.subject ?? null)
+      setThreadSubjectLocked(Boolean(updated.subject_locked))
+    }
     void loadThreads()
   }
 
@@ -482,7 +557,7 @@ export default function AdminMessagesPanel({
       method: 'PATCH',
       body: JSON.stringify(recipientsToPayload(recipients)),
     })
-    setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
+    if (activeThreadRef.current === selectedId) setThreadParticipants(updated.participants ?? [])
   }
 
   const hideFromInbox = async () => {
@@ -491,8 +566,7 @@ export default function AdminMessagesPanel({
       method: 'PATCH',
       body: JSON.stringify({ hidden: true }),
     })
-    setSelectedId(null)
-    setMessages([])
+    if (activeThreadRef.current === selectedId) closeDetail()
     void loadThreads()
   }
 
@@ -502,8 +576,7 @@ export default function AdminMessagesPanel({
       method: 'PATCH',
       body: JSON.stringify({ archived: false }),
     })
-    setSelectedId(null)
-    setMessages([])
+    if (activeThreadRef.current === selectedId) closeDetail()
     void loadThreads()
   }
 
@@ -515,7 +588,7 @@ export default function AdminMessagesPanel({
         method: 'PATCH',
         body: JSON.stringify({ favorite }),
       })
-      setThreadFavorite(favorite)
+      if (activeThreadRef.current === selectedId) setThreadFavorite(favorite)
       void loadThreads()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update favorite')
@@ -524,261 +597,224 @@ export default function AdminMessagesPanel({
     }
   }
 
-  const listPanelTitle =
-    tab === 'archived' ? 'Archived threads' : tab === 'active-all' ? 'All active threads' : 'Your active threads'
-
-  const emptyDetailHint =
-    tab === 'archived'
-      ? 'Select an archived thread to review messages.'
-      : tab === 'active-all'
-        ? 'Select a thread to review the full transcript.'
-        : 'Select a thread to view and reply.'
+  const scopeOptions = [
+    ['active-mine', 'My inbox'],
+    ['active-all', 'Facility inbox'],
+    ['archived', 'Archived'],
+  ] as const
+  const scopeSwitch = (
+    <div role="group" aria-label="Inbox scope" className="flex w-fit max-w-full gap-0.5 rounded-xl border border-slate-200 bg-white p-1">
+      {scopeOptions.map(([id, label]) => (
+        <button
+          key={id}
+          type="button"
+          aria-pressed={tab === id}
+          onClick={() => changeScope(id)}
+          className={`min-h-8 whitespace-nowrap rounded-lg px-2.5 text-xs font-semibold sm:px-3 ${tab === id ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
 
   return (
-    <div
-      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}
-    >
-      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null && !maximized ? 'hidden lg:flex' : maximized ? 'hidden' : 'flex'}`}>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
-          </h2>
-          <p className="text-sm text-gray-500">
-            Your conversations, facility-wide active threads, and archived history.
-          </p>
-        </div>
-        {tab !== 'archived' && (
-          <div className="flex items-center gap-2">
-            {onMaximizedChange && (
-              <MessagingMaximizeToggle
-                maximized={maximized}
-                onToggle={() => onMaximizedChange(!maximized)}
-              />
-            )}
-            <button
-              type="button"
-              onClick={handlePrimaryCreate}
-              disabled={primaryAction.disabled}
-              title={primaryAction.disabled ? primaryAction.disabledReason : undefined}
-              className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
-            >
-              <Plus className="w-4 h-4" /> {primaryAction.label}
-            </button>
+    <div className={`${messagingWorkspaceRoot} ${detailOpen ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}>
+      {!maximized && (
+        <header className={`shrink-0 flex-col gap-3 ${detailOpen ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-700">
+                <MessageSquare className="size-5" aria-hidden />
+              </div>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Messages</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              {onMaximizedChange && <MessagingMaximizeToggle maximized={false} onToggle={() => onMaximizedChange(true)} />}
+              {!primaryAction.hidden && (
+                <button
+                  type="button"
+                  onClick={handlePrimaryCreate}
+                  disabled={primaryAction.disabled}
+                  title={primaryAction.disabledReason}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50 sm:px-4"
+                >
+                  <Plus className="size-4" aria-hidden />
+                  {primaryAction.mode === 'message' ? 'New message' : primaryAction.label}
+                </button>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+          {scopeSwitch}
+        </header>
+      )}
 
-      <div className={`shrink-0 gap-2 border-b border-gray-200 flex-wrap ${maximized ? 'hidden' : selectedId != null ? 'hidden lg:flex' : 'flex'}`}>
-        {(
-          [
-            ['active-mine', 'Active · Admin'],
-            ['active-all', 'Active · All'],
-            ['archived', 'Archived'],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${tab === id ? 'border-vortex-red text-vortex-red' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {error && (
+        <div role="alert" className="flex shrink-0 items-center justify-between gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+          <span>{error}</span>
+          <button type="button" onClick={() => setError(null)} aria-label="Dismiss error" className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-red-100"><X className="size-4" aria-hidden /></button>
+        </div>
+      )}
 
-      {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
-
-      {tab !== 'archived' && newOpen && !maximized && (
-        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <h3 className="font-semibold text-gray-800">New thread</h3>
+      <NewMessageDialog
+        open={newOpen}
+        onClose={() => setNewOpen(false)}
+        onSubmit={() => void startThread()}
+        sending={creating}
+        canSend={newRecipients.length > 0 && Boolean(newBody.trim())}
+        error={composeError}
+      >
+        <div>
           <RecipientPicker
             options={recipientOptions}
             selected={newRecipients}
             onChange={setNewRecipients}
             loading={recipientsLoading}
-            placeholder="Search members, coaches, admins…"
+            placeholder="Search members, coaches, or admins"
             enrollmentGroups={enrollmentGroups}
             onAddEnrollmentGroup={addEnrollmentGroupToNew}
             groupsLoading={groupsLoading}
             groupActionLabel="Add all enrolled in"
           />
-          <input
-            value={newSubject}
-            onChange={(e) => setNewSubject(e.target.value)}
-            placeholder="Thread name (optional)"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <textarea
-            value={newBody}
-            onChange={(e) => setNewBody(e.target.value)}
-            placeholder="Message…"
-            rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => void startThread()}
-              disabled={sending || newRecipients.length === 0 || !newBody.trim()}
-              className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
-            >
-              Send
-            </button>
-            <button type="button" onClick={() => setNewOpen(false)} className="px-4 py-2 rounded-lg text-sm border border-gray-300">
-              Cancel
-            </button>
-          </div>
         </div>
-      )}
+        <label className="block text-sm font-medium">
+          Subject <span className="font-normal text-slate-500">(optional)</span>
+          <input value={newSubject} onChange={(e) => setNewSubject(e.target.value)} placeholder="What’s this about?" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+        </label>
+        <label className="block text-sm font-medium">
+          Message
+          <textarea value={newBody} onChange={(e) => setNewBody(e.target.value)} placeholder="Write your message…" rows={4} className="mt-1.5 block w-full resize-y rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+        </label>
+      </NewMessageDialog>
 
       <div className={messagingWorkspaceShell}>
-      <MessagingMobileShell
-        selectedThreadId={selectedId}
-        onSelectThread={(id) => { if (id != null) void openThread(id) }}
-        onBack={() => {
-          inboxList.setActiveCalendarItem(null)
-          inboxList.setActiveScheduleRow(null)
-          setCalendarComposeOpen(false)
-          setSelectedId(null)
-        }}
-        maximized={maximized}
-        listPanel={
-          <MessagingThreadListShell
-            maximized={maximized}
-            title={listPanelTitle}
-            titleAction={
-              <MessagingThreadListHeaderActions
-                primaryAction={primaryAction}
-                onPrimaryCreate={handlePrimaryCreate}
-                sort={listSort}
-                sortDir={listSortDir}
-                onSortChange={(sort, sortDir) => {
-                  setListSort(sort)
-                  setListSortDir(sortDir)
-                }}
-                maximized={maximized}
-                onMaximizedChange={onMaximizedChange}
-              />
-            }
-            search={listSearch}
-            onSearchChange={setListSearch}
-            searchPlaceholder="Search threads…"
-            headerExtra={
-              tab === 'archived' ? undefined : (
-                <MessagingInboxTabs
-                  activeTab={inboxTab}
-                  onChange={setInboxTab}
-                  counts={inboxCounts}
-                  hiddenTabs={['archived']}
+        <MessagingMobileShell
+          selectedThreadId={selectedId}
+          detailOpen={detailOpen}
+          onBack={closeDetail}
+          maximized={maximized}
+          listPanel={
+            <MessagingThreadListShell
+              title={tab === 'archived' ? 'Archived conversations' : 'Conversations'}
+              resultCount={!loading && !listError ? displayedThreads.length : undefined}
+              titleAction={
+                <MessagingThreadListHeaderActions
+                  primaryAction={primaryAction}
+                  onPrimaryCreate={handlePrimaryCreate}
+                  sort={listSort}
+                  sortDir={listSortDir}
+                  onSortChange={(sort, sortDir) => {
+                    setListSort(sort)
+                    setListSortDir(sortDir)
+                  }}
+                  showCreate={maximized}
+                  maximized={maximized}
+                  onMaximizedChange={onMaximizedChange}
                 />
-              )
-            }
-          >
-            {loading ? (
-              <div className="p-4 flex items-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-            ) : displayedThreads.length === 0 ? (
-              <div className="p-4 text-sm text-gray-500">
-                {threads.length === 0 ? 'No threads found.' : 'No threads match your filters.'}
-              </div>
+              }
+              search={listSearch}
+              onSearchChange={setListSearch}
+              headerExtra={
+                <>
+                  {maximized && scopeSwitch}
+                  {tab !== 'archived' && <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} hiddenTabs={['archived']} />}
+                </>
+              }
+            >
+              {loading ? (
+                <p role="status" className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversations…</p>
+              ) : listError && !threads.length ? (
+                <MessagingEmptyState compact title="Couldn’t load conversations" description={listError}
+                  action={<button type="button" onClick={() => void loadThreads()} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>} />
+              ) : displayedThreads.length === 0 ? (
+                <MessagingEmptyState
+                  compact
+                  icon={listSearch.trim() ? Search : tab === 'archived' ? Archive : Inbox}
+                  title={listSearch.trim() ? 'No results' : tab === 'archived' ? 'No archived conversations' : inboxTab === 'unread' ? 'You’re all caught up' : 'No conversations to show'}
+                  description={listSearch.trim() ? 'Try a different name or keyword.' : inboxTab === 'pinned' ? 'Favorite a conversation to find it here.' : undefined}
+                  action={listSearch.trim() ? <button type="button" onClick={() => setListSearch('')} className="text-sm font-semibold text-red-700 hover:underline">Clear search</button> : undefined}
+                />
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {displayedThreads.map((t) => (
+                    <MessagingThreadRow
+                      key={t.id}
+                      thread={t}
+                      selected={selectedRowId === Number(t.id)}
+                      onSelect={(id) => void openThread(id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </MessagingThreadListShell>
+          }
+          detailPanel={
+            calendarComposeOpen ? (
+              <CalendarItemComposePanel
+                fetcher={adminFetch}
+                role="admin"
+                onCancel={() => setCalendarComposeOpen(false)}
+                onCreated={(row, threadId) => {
+                  setCalendarComposeOpen(false)
+                  inboxList.refreshScheduleRows()
+                  void loadThreads()
+                  if (row) void openThread(scheduleRowVirtualId(row.row_key), row)
+                  else if (threadId != null) void openThread(threadId)
+                }}
+              />
+            ) : !selectedId && inboxList.activeScheduleRow ? (
+              <MessagingThreadDetailShell header={<MessagingConversationHeader title={inboxList.activeScheduleRow.title} subtitle="Schedule details" />}>
+                <ScheduleItemBanner item={inboxList.activeScheduleRow} />
+              </MessagingThreadDetailShell>
+            ) : !selectedId ? (
+              <MessagingEmptyState
+                title="Select a conversation"
+                description={tab === 'archived' ? 'Choose an archived conversation to review its history.' : 'Choose a conversation from the list to read it and reply.'}
+              />
+            ) : detailLoading ? (
+              <p role="status" className="flex flex-1 items-center justify-center gap-2 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversation…</p>
+            ) : detailError ? (
+              <MessagingEmptyState title="Couldn’t open conversation" description={detailError}
+                action={<button type="button" onClick={() => { if (selectedRowId != null) void openThread(selectedRowId, inboxList.activeScheduleRow ?? undefined) }} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>} />
             ) : (
-              <div className="divide-y divide-gray-100">
-                {displayedThreads.map((t) => (
-                  <MessagingThreadRow
-                    key={t.id}
-                    thread={t}
-                    selected={selectedId === t.id}
-                    onSelect={(id) => void openThread(id)}
-                    subtitle={t.participant_names}
-                    meta={isFlatView && t.created_at ? `Created ${new Date(t.created_at).toLocaleDateString()}` : null}
-                  />
-                ))}
-              </div>
-            )}
-          </MessagingThreadListShell>
-        }
-        detailPanel={
-          calendarComposeOpen ? (
-            <CalendarItemComposePanel
-              fetcher={adminFetch}
-              role="admin"
-              onCancel={() => setCalendarComposeOpen(false)}
-              onCreated={(_row, threadId) => {
-                setCalendarComposeOpen(false)
-                inboxList.refreshScheduleRows()
-                void loadThreads()
-                if (threadId != null) void openThread(threadId)
-              }}
-            />
-          ) : !selectedId ? (
-            <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-8">
-              {emptyDetailHint}
-            </div>
-          ) : detailLoading ? (
-            <div className="flex-1 flex items-center justify-center gap-2 text-gray-600"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-          ) : isFlatView ? (
-            <MessagingThreadDetailShell
-              header={
-                <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-sm text-gray-900">{threadSubject || 'Conversation'}</div>
-                    {threadParticipants.length > 0 && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        {threadParticipants.map((p) => p.name).filter(Boolean).join(' · ')}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
+              <MessagingThreadDetailShell
+                key={selectedId}
+                header={
+                  <MessagingConversationHeader
+                    title={threadSubject?.trim() || threadListTitle(threads.find((thread) => Number(thread.id) === selectedId) ?? { id: selectedId })}
+                    subtitle={threadParticipants.map((participant) => participant.name).filter(Boolean).join(' · ')}
+                    badge={tab === 'archived' ? 'Archived' : threadSubjectLocked ? 'Locked' : undefined}
+                  >
                     {anyTakeoverPanelOpen ? (
                       <button
                         type="button"
                         aria-label="Close panel"
                         onClick={closeTakeoverPanels}
-                        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                        className="grid size-9 place-items-center rounded-lg text-slate-600 hover:bg-slate-100"
                       >
-                        <X className="w-5 h-5" />
+                        <X className="size-5" aria-hidden />
                       </button>
-                    ) : tab === 'archived' ? (
-                      <ThreadHeaderMenu
-                        subject={threadSubject}
-                        subjectLocked={threadSubjectLocked}
-                        canLock={false}
-                        canEdit={false}
-                        onUpdateSubject={updateThreadSubject}
-                        isGloballyArchived
-                        onRestoreThread={restoreThreadGlobally}
-                        isFavorite={threadFavorite}
-                        onToggleFavorite={toggleFavorite}
-                        favoriteLoading={favoriteLoading}
-                        onOpenFaq={() => {
-                          collaboration.closePollPanel()
-                          collaboration.closeSignupPanel()
-                          setFaqPanelOpen(true)
-                        }}
-                        {...pinHeaderProps}
-                        {...collaborationHeaderProps}
-                      />
                     ) : (
                       <ThreadHeaderMenu
                         subject={threadSubject}
                         subjectLocked={threadSubjectLocked}
-                        canLock
-                        canEdit
+                        canLock={canReply}
+                        canEdit={canReply}
                         onUpdateSubject={updateThreadSubject}
+                        isGloballyArchived={tab === 'archived'}
+                        onRestoreThread={tab === 'archived' ? restoreThreadGlobally : undefined}
                         recipientOptions={recipientOptions}
                         existingParticipantKeys={existingParticipantKeys}
                         recipientsLoading={recipientsLoading}
-                        onAddRecipients={addRecipients}
+                        onAddRecipients={canReply ? addRecipients : undefined}
                         enrollmentGroups={enrollmentGroups}
                         resolveEnrollmentGroup={resolveEnrollmentGroup}
                         groupsLoading={groupsLoading}
-                        canHideFromInbox
-                        onHideFromInbox={hideFromInbox}
+                        canHideFromInbox={canReply}
+                        onHideFromInbox={canReply ? hideFromInbox : undefined}
                         isFavorite={threadFavorite}
                         onToggleFavorite={toggleFavorite}
                         favoriteLoading={favoriteLoading}
-                        canAttach={tab === 'active-all'}
-                        onAttachmentPick={setPendingAttachment}
                         onOpenFaq={() => {
                           collaboration.closePollPanel()
                           collaboration.closeSignupPanel()
@@ -788,318 +824,138 @@ export default function AdminMessagesPanel({
                         {...collaborationHeaderProps}
                       />
                     )}
-                  </div>
-                </div>
-              }
-              footer={
-                canReply && !anyTakeoverPanelOpen ? (
+                  </MessagingConversationHeader>
+                }
+                footer={canReply && !anyTakeoverPanelOpen ? (
                   <>
-                    <div className="px-4 pt-2 shrink-0">
-                      <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                    </div>
+                    {replyError && <p role="alert" className="mx-4 mt-1 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{replyError}</p>}
                     <MessageReplyComposer
                       reply={reply}
                       onReplyChange={setReply}
                       onSend={(mentions) => void sendReply(mentions)}
                       sending={sending}
-                      placeholder="Reply as admin… (@ to mention)"
+                      placeholder="Write a reply…"
                       participants={threadParticipants}
                       viewer={viewer}
                       pendingAttachment={pendingAttachment}
+                      onAttachmentPick={setPendingAttachment}
                       onClearAttachment={() => setPendingAttachment(null)}
+                      mentions={mentions}
+                      onMentionsChange={(value) => updateDraft({ mentions: value })}
+                      auxiliaryActions={<CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} compact />}
                     />
                   </>
-                ) : undefined
-              }
-            >
-              {collaboration.pollPanelOpen && collaboration.panelMode ? (
-                <MessagingThreadPollsPanel
-                  mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
-                  polls={collaboration.polls}
-                  activePoll={collaboration.activePoll}
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  loading={collaboration.loading}
-                  error={collaboration.error}
-                  scrollToLatest={collaboration.scrollPollToLatest}
-                  onScrollToLatestDone={collaboration.clearScrollPollToLatest}
-                  onCreatePoll={collaboration.createPoll}
-                  onPickPoll={collaboration.openPoll}
-                  onRefresh={collaboration.refresh}
-                  onClosePoll={collaboration.setPollClosed}
-                  onIgnorePoll={collaboration.ignorePoll}
-                />
-              ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
-                <MessagingThreadSignupsPanel
-                  mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
-                  signups={collaboration.signups}
-                  activeSignup={collaboration.activeSignup}
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  viewerUserId={viewer.userId}
-                  loading={collaboration.loading}
-                  error={collaboration.error}
-                  scrollToLatest={collaboration.scrollSignupToLatest}
-                  onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
-                  onCreateSignup={collaboration.createSignup}
-                  onPickSignup={collaboration.openSignup}
-                  onRefresh={collaboration.refresh}
-                  onCloseSignup={collaboration.setSignupClosed}
-                  onIgnoreSignup={collaboration.ignoreSignup}
-                />
-              ) : faqPanelOpen ? (
-                <MessagingThreadFaq
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  canEdit={tab !== 'archived'}
-                  variant="panel"
-                  initialDraft={faqDraft}
-                  onSaved={() => setFaqDraft(null)}
-                />
-              ) : (
-                <>
-                  {pins.pinFilter === 'off' && !pins.importantFilterActive && (
-                    <>
-                      <MessagingContextBanner
-                        linkedThreadId={linkedThreadId}
-                        linkedThreadTitle={
-                          linkedThreadId != null
-                            ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
-                            : null
-                        }
-                        onJump={(id) => void openThread(id)}
-                      />
-                      <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
-                      <ScheduleItemBanner item={inboxList.activeScheduleRow} />
-                      <MessagingInfoCard infoJson={threadInfoJson} />
-                    </>
-                  )}
-                  {pins.pinSelection && tab === 'active-all' && (
-                    <MessagePinSelectionBar
-                      selectedCount={pins.pinSelection.size}
-                      saving={pins.saving}
-                      onSave={() => void pins.savePinSelection()}
-                      onCancel={pins.cancelPinSelection}
-                    />
-                  )}
-                  {tab === 'active-all' ? (
-                    <MessagingMessageThread
-                      messages={messages}
-                      viewer={viewer}
-                      threadId={selectedId}
-                      role="admin"
-                      fetcher={adminFetch}
-                      participants={threadParticipants}
-                      messagesEndRef={messagesEndRef}
-                      onReply={replyToMessage}
-                      onReplyWithFaq={replyToMessageWithFaq}
-                      onPinComment={(message) => pins.startPinSelection(message.id)}
-                      canUnpinMessage={(message) =>
-                        pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
-                      }
-                      onUnpin={(message) => void pins.unpinMessage(message.id)}
-                      pinSelectionActive={pins.pinSelectionActive}
-                      pinSelectedIds={pins.pinSelection ?? undefined}
-                      onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
-                      displayGroups={pins.displayGroups}
-                      pinFilterActive={pins.pinFilter !== 'off'}
-                      importantFilterActive={pins.importantFilterActive}
-                      onReactionsUpdated={(messageId, reactions) => {
-                        setMessages((prev) =>
-                          prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
-                        )
-                      }}
-                    />
-                  ) : (
-                    <div>
-                      <ArchivedMessageLines messages={messages} />
-                      <div ref={messagesEndRef} />
-                    </div>
-                  )}
-                </>
-              )}
-            </MessagingThreadDetailShell>
-          ) : (
-            <MessagingThreadDetailShell
-              header={
-                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="font-semibold text-sm truncate">{threadSubject || 'Conversation'}</span>
-                    {threadSubjectLocked && (
-                      <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
-                    )}
-                  </div>
-                  {anyTakeoverPanelOpen ? (
-                    <button
-                      type="button"
-                      aria-label="Close panel"
-                      onClick={closeTakeoverPanels}
-                      className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  ) : (
-                    <ThreadHeaderMenu
-                      subject={threadSubject}
-                      subjectLocked={threadSubjectLocked}
-                      canLock
-                      canEdit
-                      onUpdateSubject={updateThreadSubject}
-                      recipientOptions={recipientOptions}
-                      existingParticipantKeys={existingParticipantKeys}
-                      recipientsLoading={recipientsLoading}
-                      onAddRecipients={addRecipients}
-                      enrollmentGroups={enrollmentGroups}
-                      resolveEnrollmentGroup={resolveEnrollmentGroup}
-                      groupsLoading={groupsLoading}
-                      canHideFromInbox
-                      onHideFromInbox={hideFromInbox}
-                      isFavorite={threadFavorite}
-                      onToggleFavorite={toggleFavorite}
-                      favoriteLoading={favoriteLoading}
-                      canAttach
-                      onAttachmentPick={setPendingAttachment}
-                      onOpenFaq={() => {
-                        collaboration.closePollPanel()
-                        collaboration.closeSignupPanel()
-                        setFaqPanelOpen(true)
-                      }}
-                      {...pinHeaderProps}
-                      {...collaborationHeaderProps}
-                    />
-                  )}
-                </div>
-              }
-              footer={
-                anyTakeoverPanelOpen ? undefined : (
-                <>
-                  <div className="px-4 pt-2 shrink-0">
-                    <CriticalMessageToggle value={criticalFlags} onChange={setCriticalFlags} disabled={sending} />
-                  </div>
-                  <MessageReplyComposer
-                    reply={reply}
-                    onReplyChange={setReply}
-                    onSend={(mentions) => void sendReply(mentions)}
-                    sending={sending}
-                    placeholder="Reply as admin… (@ to mention)"
-                    participants={threadParticipants}
-                    viewer={viewer}
-                    pendingAttachment={pendingAttachment}
-                    onClearAttachment={() => setPendingAttachment(null)}
-                  />
-                </>
-                )
-              }
-            >
-              {collaboration.pollPanelOpen && collaboration.panelMode ? (
-                <MessagingThreadPollsPanel
-                  mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
-                  polls={collaboration.polls}
-                  activePoll={collaboration.activePoll}
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  loading={collaboration.loading}
-                  error={collaboration.error}
-                  scrollToLatest={collaboration.scrollPollToLatest}
-                  onScrollToLatestDone={collaboration.clearScrollPollToLatest}
-                  onCreatePoll={collaboration.createPoll}
-                  onPickPoll={collaboration.openPoll}
-                  onRefresh={collaboration.refresh}
-                  onClosePoll={collaboration.setPollClosed}
-                  onIgnorePoll={collaboration.ignorePoll}
-                />
-              ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
-                <MessagingThreadSignupsPanel
-                  mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
-                  signups={collaboration.signups}
-                  activeSignup={collaboration.activeSignup}
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  viewerUserId={viewer.userId}
-                  loading={collaboration.loading}
-                  error={collaboration.error}
-                  scrollToLatest={collaboration.scrollSignupToLatest}
-                  onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
-                  onCreateSignup={collaboration.createSignup}
-                  onPickSignup={collaboration.openSignup}
-                  onRefresh={collaboration.refresh}
-                  onCloseSignup={collaboration.setSignupClosed}
-                  onIgnoreSignup={collaboration.ignoreSignup}
-                />
-              ) : faqPanelOpen ? (
-                <MessagingThreadFaq
-                  role="admin"
-                  threadId={selectedId}
-                  fetcher={adminFetch}
-                  canEdit
-                  variant="panel"
-                  initialDraft={faqDraft}
-                  onSaved={() => setFaqDraft(null)}
-                />
-              ) : (
-                <>
-                  {pins.pinFilter === 'off' && !pins.importantFilterActive && (
-                    <>
-                      <MessagingContextBanner
-                        linkedThreadId={linkedThreadId}
-                        linkedThreadTitle={
-                          linkedThreadId != null
-                            ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
-                            : null
-                        }
-                        onJump={(id) => void openThread(id)}
-                      />
-                      <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
-                      <ScheduleItemBanner item={inboxList.activeScheduleRow} />
-                      <MessagingInfoCard infoJson={threadInfoJson} />
-                    </>
-                  )}
-                  {pins.pinSelection && (
-                    <MessagePinSelectionBar
-                      selectedCount={pins.pinSelection.size}
-                      saving={pins.saving}
-                      onSave={() => void pins.savePinSelection()}
-                      onCancel={pins.cancelPinSelection}
-                    />
-                  )}
-                  <MessagingMessageThread
-                    messages={messages}
-                    viewer={viewer}
-                    threadId={selectedId}
+                ) : undefined}
+              >
+                {collaboration.pollPanelOpen && collaboration.panelMode ? (
+                  <MessagingThreadPollsPanel
+                    mode={collaboration.panelMode as 'list-poll' | 'create-poll' | 'pick-poll' | 'view-poll'}
+                    polls={collaboration.polls}
+                    activePoll={collaboration.activePoll}
                     role="admin"
+                    threadId={selectedId}
                     fetcher={adminFetch}
-                    participants={threadParticipants}
-                    messagesEndRef={messagesEndRef}
-                    onReply={replyToMessage}
-                    onReplyWithFaq={replyToMessageWithFaq}
-                    onPinComment={(message) => pins.startPinSelection(message.id)}
-                    canUnpinMessage={(message) =>
-                      pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
-                    }
-                    onUnpin={(message) => void pins.unpinMessage(message.id)}
-                    pinSelectionActive={pins.pinSelectionActive}
-                    pinSelectedIds={pins.pinSelection ?? undefined}
-                    onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
-                    displayGroups={pins.displayGroups}
-                    pinFilterActive={pins.pinFilter !== 'off'}
-                    importantFilterActive={pins.importantFilterActive}
-                    onReactionsUpdated={(messageId, reactions) => {
-                      setMessages((prev) =>
-                        prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
-                      )
-                    }}
+                    loading={collaboration.loading}
+                    error={collaboration.error}
+                    scrollToLatest={collaboration.scrollPollToLatest}
+                    onScrollToLatestDone={collaboration.clearScrollPollToLatest}
+                    onCreatePoll={collaboration.createPoll}
+                    onPickPoll={collaboration.openPoll}
+                    onRefresh={collaboration.refresh}
+                    onClosePoll={collaboration.setPollClosed}
+                    onIgnorePoll={collaboration.ignorePoll}
                   />
-                </>
-              )}
-            </MessagingThreadDetailShell>
-          )
-        }
-      />
+                ) : collaboration.signupPanelOpen && collaboration.panelMode ? (
+                  <MessagingThreadSignupsPanel
+                    mode={collaboration.panelMode as 'list-signup' | 'create-signup' | 'pick-signup' | 'view-signup'}
+                    signups={collaboration.signups}
+                    activeSignup={collaboration.activeSignup}
+                    role="admin"
+                    threadId={selectedId}
+                    fetcher={adminFetch}
+                    viewerUserId={viewer.userId}
+                    loading={collaboration.loading}
+                    error={collaboration.error}
+                    scrollToLatest={collaboration.scrollSignupToLatest}
+                    onScrollToLatestDone={collaboration.clearScrollSignupToLatest}
+                    onCreateSignup={collaboration.createSignup}
+                    onPickSignup={collaboration.openSignup}
+                    onRefresh={collaboration.refresh}
+                    onCloseSignup={collaboration.setSignupClosed}
+                    onIgnoreSignup={collaboration.ignoreSignup}
+                  />
+                ) : faqPanelOpen ? (
+                  <MessagingThreadFaq
+                    role="admin"
+                    threadId={selectedId}
+                    fetcher={adminFetch}
+                    canEdit={canReply}
+                    variant="panel"
+                    initialDraft={faqDraft}
+                    onSaved={() => setFaqDraft(null)}
+                  />
+                ) : (
+                  <>
+                    {pins.pinFilter === 'off' && !pins.importantFilterActive && (
+                      <>
+                        <MessagingContextBanner
+                          linkedThreadId={linkedThreadId}
+                          linkedThreadTitle={
+                            linkedThreadId != null
+                              ? threadListTitle(threads.find((t) => t.id === linkedThreadId) ?? { id: linkedThreadId })
+                              : null
+                          }
+                          onJump={(id) => void openThread(id)}
+                        />
+                        <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
+                        <ScheduleItemBanner item={inboxList.activeScheduleRow} />
+                        <MessagingInfoCard infoJson={threadInfoJson} />
+                      </>
+                    )}
+                    {pins.pinSelection && (
+                      <MessagePinSelectionBar
+                        selectedCount={pins.pinSelection.size}
+                        saving={pins.saving}
+                        onSave={() => void pins.savePinSelection()}
+                        onCancel={pins.cancelPinSelection}
+                      />
+                    )}
+                    {canReply ? (
+                      <MessagingMessageThread
+                        messages={messages}
+                        viewer={viewer}
+                        threadId={selectedId}
+                        role="admin"
+                        fetcher={adminFetch}
+                        participants={threadParticipants}
+                        messagesEndRef={messagesEndRef}
+                        onReply={quoteMessage}
+                        onReplyWithFaq={(message) => quoteMessage(message, true)}
+                        onPinComment={(message) => pins.startPinSelection(message.id)}
+                        canUnpinMessage={(message) =>
+                          pins.pinFilter === 'mine' && Boolean(pins.findOwnedGroupForMessage(message.id))
+                        }
+                        onUnpin={(message) => void pins.unpinMessage(message.id)}
+                        pinSelectionActive={pins.pinSelectionActive}
+                        pinSelectedIds={pins.pinSelection ?? undefined}
+                        onPinSelectionToggle={(message) => pins.togglePinSelectionMessage(message.id)}
+                        displayGroups={pins.displayGroups}
+                        pinFilterActive={pins.pinFilter !== 'off'}
+                        importantFilterActive={pins.importantFilterActive}
+                        onReactionsUpdated={applyReactionMutation}
+                      />
+                    ) : (
+                      <div>
+                        <ArchivedMessageLines messages={messages} participants={threadParticipants} viewer={viewer} />
+                        <div ref={messagesEndRef} />
+                      </div>
+                    )}
+                  </>
+                )}
+              </MessagingThreadDetailShell>
+            )
+          }
+        />
       </div>
       <ClassThreadCreateModal
         open={classModalOpen}

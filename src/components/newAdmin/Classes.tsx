@@ -14,8 +14,20 @@ import { allowed, request, useRead, useSearch, type Access, type Page } from './
 
 const Scheduling = lazyWithRetry(() => import('./ScheduleEditor'))
 const ClassModal = lazyWithRetry(() => import('../programs/ClassEventModal'))
-interface ClassRow { monthlyPriceCents?: number | null; costAmountCents?: number; costUnit?: string; schedules?: Array<Slot & { activeStart?: string | null; activeEnd?: string | null }>; id: number; formId: number | null; programsId: number | null; name: string; programName: string | null; isActive: boolean; archived: boolean; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; details: ClassEventFormData }
-interface Slot { id: number; dayOfWeek: number; weekLetter: string | null; specificDate: string | null; startTime: string; endTime: string; scheduleMode: string; isActive: boolean }
+interface ClassRow { monthlyPriceCents?: number | null; costAmountCents?: number; costUnit?: string; scheduleGroups?: ClassScheduleGroup[]; id: number; formId: number | null; programsId: number | null; name: string; programName: string | null; isActive: boolean; archived: boolean; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; details: ClassEventFormData }
+interface ScheduleTime { id: number; dayOfWeek: number; weekLetter: string | null; specificDate: string | null; startTime: string; endTime: string }
+interface ClassScheduleTime extends ScheduleTime {
+  activeStart: string | null
+  activeEnd: string | null
+}
+interface ClassScheduleGroup {
+  id: number
+  enrolledCount: number
+  capacity: number
+  waitlistCount: number
+  slots: ClassScheduleTime[]
+}
+interface Slot extends ScheduleTime { scheduleMode: string; isActive: boolean }
 interface Group { id: number; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; activeStart: string | null; activeEnd: string | null; slots: Slot[] }
 
 interface Detail { class: ClassRow; groups: Group[]; roster: Page<RosterRow>; scheduleTruncated?: boolean }
@@ -85,6 +97,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
   const openEdit = (row: ClassRow) => { setEdit(row); setMonthlyPrice(row.monthlyPriceCents == null ? '' : (row.monthlyPriceCents / 100).toFixed(2)) }
   const [programMode, setProgramMode] = useState<'create' | 'edit' | null>(null)
   const canManage = allowed(access, 'classes.manage')
+  const canViewRoster = allowed(access, 'members.view')
   const editing = useMemo(() => edit ? { ...edit.details, id: edit.id, programsId: edit.programsId } : null, [edit])
   const refresh = () => setVersion(value => value + 1)
   const params = new URLSearchParams({ search, page: String(page), pageSize: '25', sort, direction })
@@ -104,7 +117,72 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
       </div>
     </div>
     <ErrorNotice message={downloadError} onRetry={() => void downloadSchedule()} />
-    {id != null ? <ClassDetail key={id} id={id} access={access} revision={revision + version} onBack={() => setId(null)} onMember={onMember} onChanged={refresh} onEdit={openEdit} /> : <><label className="mb-4 block max-w-xl text-sm font-medium"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search classes</span><input className={input} value={query} onChange={event => { setQuery(event.target.value); setPage(1) }} placeholder="Class or program name" /></label><ErrorNotice message={data.error} onRetry={refresh} />{data.loading ? <Loading label="Loading classes…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{classColumns.map(column => <th className={cell} key={column.key} aria-sort={sort === column.key ? direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" className="inline-flex items-center gap-1 whitespace-nowrap font-semibold uppercase hover:text-vortex-red" onClick={() => sortBy(column.key)}>{column.label}{sort === column.key ? direction === 'asc' ? <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />}</button></th>)}<th className={cell}>Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(row => <tr key={row.id}><td className={cell}>{row.programName || 'Unassigned'}</td><td className={cell}><button className="font-semibold underline decoration-slate-300 underline-offset-4 hover:text-red-700" disabled={!allowed(access, 'members.view')} onClick={() => setId(row.id)}>{row.name}</button><p className="mt-1 text-xs text-slate-500">Class #{row.id}</p></td><td className={cell}>{row.costAmountCents == null ? 'Not set' : `${(row.costAmountCents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} / ${(row.costUnit || 'per_month').replace('per_', '')}`}</td><td className={`${cell} min-w-56`}>{row.schedules?.length ? row.schedules.map(slot => <p key={slot.id} className="whitespace-nowrap">{slot.specificDate || ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][slot.dayOfWeek]}{slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · {formatTime(slot.startTime)}–{formatTime(slot.endTime)}{slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}</p>) : 'No available schedules'}</td><td className={cell}>{row.enrolledCount}</td><td className={cell}>{row.capacity}</td><td className={cell}>{row.waitlistCount}</td><td className={cell}><Status value={row.archived ? 'archived' : row.isActive ? 'active' : 'inactive'} /></td><td className={cell}>{canManage && <button className={button} aria-label={`Edit class: ${row.name}`} onClick={() => openEdit(row)}>Edit class</button>}</td></tr>)}</tbody></table> : <Empty>No classes match this search.</Empty>}<Pager data={data.data} onPage={setPage} /></div> : null}</>}
+    {id != null ? (
+      <ClassDetail key={id} id={id} access={access} revision={revision + version} onBack={() => setId(null)} onMember={onMember} onChanged={refresh} onEdit={openEdit} />
+    ) : <>
+      <label className="mb-4 block max-w-xl text-sm font-medium">
+        <span className="flex items-center gap-2"><Search className="h-4 w-4" />Search classes</span>
+        <input className={input} value={query} onChange={event => { setQuery(event.target.value); setPage(1) }} placeholder="Class or program name" />
+      </label>
+      <ErrorNotice message={data.error} onRetry={refresh} />
+      {data.loading ? <Loading label="Loading classes…" /> : data.data ? (
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+          {data.data.rows.length ? (
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100 text-xs uppercase text-slate-500">
+                <tr>
+                  {classColumns.map(column => (
+                    <th className={cell} key={column.key} aria-sort={sort === column.key ? direction === 'asc' ? 'ascending' : 'descending' : 'none'}>
+                      <button type="button" className="inline-flex items-center gap-1 whitespace-nowrap font-semibold uppercase hover:text-vortex-red" onClick={() => sortBy(column.key)}>
+                        {column.label}
+                        {sort === column.key ? direction === 'asc' ? <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />}
+                      </button>
+                    </th>
+                  ))}
+                  <th className={cell}>Actions</th>
+                </tr>
+              </thead>
+              {data.data.rows.map(row => {
+                const schedules = row.scheduleGroups?.length ? row.scheduleGroups : [null]
+                return <tbody key={row.id} className="divide-y divide-slate-100 border-t border-slate-200">
+                  {schedules.map((schedule, index) => (
+                    <tr key={schedule?.id ?? 'unscheduled'}>
+                      {index === 0 && <>
+                        <td className={cell} rowSpan={schedules.length}>{row.programName || 'Unassigned'}</td>
+                        <td className={cell} rowSpan={schedules.length}>
+                          <button className="font-semibold underline decoration-slate-300 underline-offset-4 hover:text-red-700" disabled={!canViewRoster} onClick={() => setId(row.id)}>{row.name}</button>
+                          <p className="mt-1 text-xs text-slate-500">Class #{row.id}</p>
+                        </td>
+                        <td className={cell} rowSpan={schedules.length}>
+                          {row.costAmountCents == null ? 'Not set' : `${(row.costAmountCents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} / ${(row.costUnit || 'per_month').replace('per_', '')}`}
+                        </td>
+                      </>}
+                      <td className={`${cell} min-w-56`}>
+                        {schedule ? schedule.slots.map(slot => <p key={slot.id} className="whitespace-nowrap">
+                          {slot.specificDate || ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][slot.dayOfWeek]}
+                          {slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
+                          {slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}
+                        </p>) : 'No available schedules'}
+                      </td>
+                      <td className={`${cell} tabular-nums`}>{schedule?.enrolledCount ?? '—'}</td>
+                      <td className={`${cell} tabular-nums`}>{schedule?.capacity ?? '—'}</td>
+                      <td className={`${cell} tabular-nums`}>{schedule?.waitlistCount ?? '—'}</td>
+                      {index === 0 && <>
+                        <td className={cell} rowSpan={schedules.length}><Status value={row.archived ? 'archived' : row.isActive ? 'active' : 'inactive'} /></td>
+                        <td className={cell} rowSpan={schedules.length}>
+                          {canManage && <button className={button} aria-label={`Edit class: ${row.name}`} onClick={() => openEdit(row)}>Edit class</button>}
+                        </td>
+                      </>}
+                    </tr>
+                  ))}
+                </tbody>
+              })}
+            </table>
+          ) : <Empty>No classes match this search.</Empty>}
+          <Pager data={data.data} onPage={setPage} />
+        </div>
+      ) : null}
+    </>}
     {create ? <ClassCreator onClose={() => setCreate(false)} onSaved={() => { setCreate(false); refresh() }} /> : null}
     {edit && editing ? <Suspense fallback={<Loading />}><ClassModal open editing={editing} programsId={edit.programsId ?? 0} programsDisplayName={edit.programName ?? undefined} lockProgram hideSportTags pricingFields={<ClassPriceFields value={monthlyPrice} onChange={setMonthlyPrice} legacyUnit={edit.costUnit !== 'per_month' ? edit.costUnit : undefined} />} saveClass={async (_programId, details) => { await request(`/api/admin/new-admin/classes/${edit.id}`, { method: 'PUT', body: JSON.stringify({ ...details, ...(monthlyPrice !== '' && Math.round(Number(monthlyPrice) * 100) !== edit.monthlyPriceCents ? { monthlyPriceCents: Math.round(Number(monthlyPrice) * 100) } : {}) }) }) }} onClose={() => setEdit(null)} onSaved={refresh} /></Suspense> : null}
     {programMode ? <ProgramEditor mode={programMode} onClose={() => setProgramMode(null)} onSaved={refresh} /> : null}

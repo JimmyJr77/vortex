@@ -9,7 +9,7 @@ import {
   type ThreadListSortDir,
   type ThreadListSortField,
 } from './messaging/messagingThreadSort'
-import { buildReplyQuote } from './messaging/messageFormatting'
+import { buildReplyQuote, stripReplyQuote } from './messaging/messageFormatting'
 import { prepareMessageBodyForSend, type MessageMentionPayload } from './messaging/messageMentions'
 import MessagingThreadListShell from './messaging/MessagingThreadListShell'
 import MessagingMobileShell from './messaging/MessagingMobileShell'
@@ -20,7 +20,7 @@ import EventCalendarItemBanner from './messaging/EventCalendarItemBanner'
 import MessagingInfoCard from './messaging/MessagingInfoCard'
 import { getMessageViewer } from './messaging/messageBubbleStyle'
 import { uploadMessageAttachment, type UploadedAttachment } from './messaging/messageAttachmentUpload'
-import { markThreadRead } from './messaging/messagingApi'
+import { markThreadRead, type ScheduleInboxRow } from './messaging/messagingApi'
 import MessagingThreadFaq from './messaging/MessagingThreadFaq'
 import MessagingThreadDetailShell from './messaging/MessagingThreadDetailShell'
 import MessagingMaximizeToggle from './messaging/MessagingMaximizeToggle'
@@ -37,14 +37,17 @@ import FileUploadComposeModal from './messaging/FileUploadComposeModal'
 import EventBoardCreateModal from './messaging/EventBoardCreateModal'
 import CalendarItemComposePanel from './messaging/CalendarItemComposePanel'
 import ScheduleItemBanner from './messaging/ScheduleItemBanner'
+import MessagingConversationHeader from './messaging/MessagingConversationHeader'
+import MessagingEmptyState from './messaging/MessagingEmptyState'
+import NewMessageDialog from './messaging/NewMessageDialog'
+import { useMessagingHistoryScroll } from './messaging/useMessagingHistoryScroll'
 import {
   countThreadsByInboxTab,
   filterThreadsByInboxTab,
   messagingWorkspaceRoot,
   messagingWorkspaceShell,
   messagingWorkspaceThreadOpen,
-  defaultLandingThreadId,
-  messagingViewportShowsBothPanels,
+  scheduleRowVirtualId,
   threadListTitle,
 } from './messaging/messagingLayout'
 import type {
@@ -56,7 +59,8 @@ import type {
 } from './messaging/types'
 import { mergeRecipientOptions, participantKey } from './messaging/types'
 import { useMessageRealtime } from '../hooks/useMessageRealtime'
-import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Trophy, Video, X, Plus } from 'lucide-react'
+import { useThreadReactionSync } from './messaging/useThreadReactionSync'
+import { Loader2, Dumbbell, CheckCircle2, ChevronRight, MessageSquare, Search, Trophy, Video, X, Plus } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid, Legend } from 'recharts'
 import { coachFetch } from '../coach/api'
 import type { Workout } from '../coach/types'
@@ -862,6 +866,17 @@ function WellnessCheckinCard() {
   )
 }
 
+interface MemberReplyDraft {
+  body: string
+  target: MessageRow | null
+  attachment: File | null
+  mentions: MessageMentionPayload[]
+  error: string | null
+}
+
+const EMPTY_MEMBER_REPLY: MemberReplyDraft = { body: '', target: null, attachment: null, mentions: [], error: null }
+const EMPTY_MEMBER_THREAD_PARTICIPANTS: ThreadParticipant[] = []
+
 export function MemberMessagesTab({
   initialThreadId = null,
   onInitialThreadOpened,
@@ -875,14 +890,18 @@ export function MemberMessagesTab({
 } = {}) {
   const [threads, setThreads] = useState<MessageThread[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null)
   const [messages, setMessages] = useState<MessageRow[]>([])
-  const [subject, setSubject] = useState<string | null>(null)
-  const [subjectLocked, setSubjectLocked] = useState(false)
-  const [threadParticipants, setThreadParticipants] = useState<ThreadParticipant[]>([])
+  const [thread, setThread] = useState<MessageThread | null>(null)
   const [loading, setLoading] = useState(true)
-  const [reply, setReply] = useState('')
-  const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
+  const [listError, setListError] = useState<string | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [replyDrafts, setReplyDrafts] = useState<Record<number, MemberReplyDraft>>({})
+  const [sendingReplies, setSendingReplies] = useState<number[]>([])
   const [newOpen, setNewOpen] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const [composeError, setComposeError] = useState<string | null>(null)
   const [newBody, setNewBody] = useState('')
   const [newSubject, setNewSubject] = useState('')
   const [newRecipients, setNewRecipients] = useState<RecipientOption[]>([])
@@ -890,25 +909,29 @@ export function MemberMessagesTab({
   const [recipientsLoading, setRecipientsLoading] = useState(true)
   const [enrollmentGroups, setEnrollmentGroups] = useState<EnrollmentGroup[]>([])
   const [groupsLoading, setGroupsLoading] = useState(true)
-  const [threadFavorite, setThreadFavorite] = useState(false)
   const [favoriteLoading, setFavoriteLoading] = useState(false)
-  const [pendingAttachment, setPendingAttachment] = useState<File | null>(null)
-  const [sending, setSending] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [threadSearch, setThreadSearch] = useState('')
   const [listSort, setListSort] = useState<ThreadListSortField>('recent')
   const [listSortDir, setListSortDir] = useState<ThreadListSortDir>(() => defaultSortDir('recent'))
   const [inboxTab, setInboxTab] = useState<MessagingInboxTab>('messages')
-  const [threadInfoJson, setThreadInfoJson] = useState<Record<string, unknown> | null>(null)
-  const [linkedThreadId, setLinkedThreadId] = useState<number | null>(null)
   const [faqPanelOpen, setFaqPanelOpen] = useState(false)
   const [classModalOpen, setClassModalOpen] = useState(false)
   const [fileModalOpen, setFileModalOpen] = useState(false)
   const [eventBoardModalOpen, setEventBoardModalOpen] = useState(false)
   const [calendarComposeOpen, setCalendarComposeOpen] = useState(false)
   const [memberPermissions, setMemberPermissions] = useState<string[]>([])
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const autoOpenedRef = useRef(false)
+  const listRequest = useRef(0)
+  const detailRequest = useRef(0)
+  const activeThreadId = useRef<number | null>(null)
+  const openedInitialThreadId = useRef<number | null>(null)
+  const subject = thread?.subject ?? null
+  const subjectLocked = Boolean(thread?.subject_locked)
+  const threadParticipants = thread?.participants ?? EMPTY_MEMBER_THREAD_PARTICIPANTS
+  const linkedThreadId = thread?.linked_thread_id ?? null
+  const replyDraft = (selectedId == null ? null : replyDrafts[selectedId]) ?? EMPTY_MEMBER_REPLY
+  const sendingReply = selectedId != null && sendingReplies.includes(selectedId)
+  const detailOpen = calendarComposeOpen || selectedRowId != null
   const viewer = useMemo(() => getMessageViewer('member'), [])
   const pins = useThreadPinGroups(selectedId, 'member', coachFetch)
   const inboxCountsBase = useMemo(() => countThreadsByInboxTab(threads), [threads])
@@ -972,19 +995,29 @@ export function MemberMessagesTab({
     return coachFetch<RecipientOption[]>(`/api/member/messages/group-members?${params.toString()}`)
   }, [])
 
-  const addEnrollmentGroupToNew = useCallback(async (group: EnrollmentGroup) => {
-    const added = await resolveEnrollmentGroup(group)
-    setNewRecipients((prev) => mergeRecipientOptions(prev, added))
-  }, [resolveEnrollmentGroup])
+  const addEnrollmentGroupToNew = async (group: EnrollmentGroup) => {
+    setComposeError(null)
+    try {
+      const added = await resolveEnrollmentGroup(group)
+      setNewRecipients((prev) => mergeRecipientOptions(prev, added))
+    } catch (err) {
+      setComposeError(err instanceof Error ? err.message : 'Could not add the enrollment group')
+    }
+  }
 
   const loadThreads = useCallback(async () => {
-    setLoading(true)
+    const request = ++listRequest.current
     try {
-      setThreads(await coachFetch<MessageThread[]>('/api/member/messages'))
+      const rows = await coachFetch<MessageThread[]>('/api/member/messages')
+      if (request !== listRequest.current) return
+      setThreads(rows)
+      setListError(null)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load messages')
+      if (request === listRequest.current) {
+        setListError(err instanceof Error ? err.message : 'Could not load conversations')
+      }
     } finally {
-      setLoading(false)
+      if (request === listRequest.current) setLoading(false)
     }
   }, [])
   const collaboration = useThreadCollaboration({
@@ -994,26 +1027,35 @@ export function MemberMessagesTab({
     onChanged: () => void loadThreads(),
   })
   const anyTakeoverPanelOpen = faqPanelOpen || collaboration.pollPanelOpen || collaboration.signupPanelOpen
-  const closeTakeoverPanels = () => {
+  const { closePollPanel, closeSignupPanel } = collaboration
+  const closeTakeoverPanels = useCallback(() => {
     setFaqPanelOpen(false)
-    collaboration.closePollPanel()
-    collaboration.closeSignupPanel()
-  }
+    closePollPanel()
+    closeSignupPanel()
+  }, [closePollPanel, closeSignupPanel])
 
   useEffect(() => {
     void loadThreads()
   }, [loadThreads])
 
+  const { invalidateReactions, applyReactionMutation } = useThreadReactionSync({
+    role: 'member',
+    threadId: selectedId,
+    activeThreadId,
+    detailRequest,
+    ready: thread != null && !detailLoading && !detailError,
+    fetcher: coachFetch,
+    setMessages,
+  })
+
   useMessageRealtime({
     role: 'member',
     threadId: selectedId,
+    onReactionsInvalidated: invalidateReactions,
     onMessageCreated: (payload) => {
-      if (payload.threadId === selectedId && payload.data) {
-        setMessages((prev) => {
-          const next = payload.data as MessageRow
-          if (prev.some((m) => m.id === next.id)) return prev
-          return [...prev, next]
-        })
+      const next = payload.data
+      if (next && activeThreadId.current != null && Number(payload.threadId) === activeThreadId.current) {
+        setMessages((current) => current.some((message) => Number(message.id) === Number(next.id)) ? current : [...current, next])
       }
       void loadThreads()
     },
@@ -1025,71 +1067,111 @@ export function MemberMessagesTab({
     },
   })
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, selectedId])
+  const { messagesEndRef, followLatest } = useMessagingHistoryScroll({
+    threadId: selectedId,
+    visible: selectedId != null && Boolean(thread) && !detailLoading && !detailError && !anyTakeoverPanelOpen,
+    latestMessageId: messages.at(-1)?.id,
+  })
 
-  const openThread = async (rowId: number) => {
-    const resolved = inboxList.resolveThreadSelection(rowId)
-    const threadId = resolved.threadId
-    if (threadId <= 0) return
-    setSelectedId(threadId)
-    const listRow = threads.find((t) => t.id === threadId)
-    setThreadFavorite(Boolean(listRow?.is_favorite))
-    try {
-      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/member/messages/${threadId}`)
-      setSubject(data.thread.subject ?? null)
-      setSubjectLocked(Boolean(data.thread.subject_locked))
-      setThreadParticipants(Array.isArray(data.thread.participants) ? data.thread.participants : [])
-      setThreadInfoJson(data.thread.info_json ?? null)
-      setLinkedThreadId(data.thread.linked_thread_id ?? null)
-      setFaqPanelOpen(false)
-      setMessages(data.messages)
-      const lastId = data.messages[data.messages.length - 1]?.id
-      void markThreadRead('member', threadId, coachFetch, lastId)
-      void loadThreads()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load thread')
-    }
+  const closeDetail = () => {
+    detailRequest.current += 1
+    activeThreadId.current = null
+    setSelectedId(null)
+    setSelectedRowId(null)
+    setThread(null)
+    setMessages([])
+    setDetailError(null)
+    setDetailLoading(false)
+    setActionError(null)
+    setCalendarComposeOpen(false)
+    inboxList.setActiveCalendarItem(null)
+    inboxList.setActiveScheduleRow(null)
+    closeTakeoverPanels()
   }
 
-  useEffect(() => {
-    if (initialThreadId == null) return
-    autoOpenedRef.current = true
-    void openThread(initialThreadId).finally(() => onInitialThreadOpened?.())
-  }, [initialThreadId])
+  const openThread = useCallback(async (rowId: number, scheduleRow?: ScheduleInboxRow) => {
+    const resolvedId = scheduleRow ? scheduleRow.discussion_thread_id : inboxList.resolveThreadSelection(rowId).threadId
+    const threadId = resolvedId != null && Number(resolvedId) > 0 ? Number(resolvedId) : null
+    if (scheduleRow) inboxList.setActiveScheduleRow(scheduleRow)
+    const request = ++detailRequest.current
+    activeThreadId.current = threadId
+    setSelectedRowId(Number(rowId))
+    setSelectedId(threadId)
+    setThread(null)
+    setMessages([])
+    setDetailError(null)
+    setActionError(null)
+    setFavoriteLoading(false)
+    setCalendarComposeOpen(false)
+    inboxList.setActiveCalendarItem(null)
+    closeTakeoverPanels()
+    setDetailLoading(threadId != null)
+    if (threadId == null) return
+    try {
+      const data = await coachFetch<{ thread: MessageThread; messages: MessageRow[] }>(`/api/member/messages/${threadId}`)
+      if (request !== detailRequest.current) return
+      setThread({
+        ...data.thread,
+        participants: Array.isArray(data.thread.participants) ? data.thread.participants : [],
+        is_favorite: data.thread.is_favorite ?? threads.find((row) => Number(row.id) === threadId)?.is_favorite,
+      })
+      setMessages((current) => {
+        const loadedIds = new Set(data.messages.map((message) => Number(message.id)))
+        return [...data.messages, ...current.filter((message) => !loadedIds.has(Number(message.id)))]
+      })
+      const lastId = data.messages[data.messages.length - 1]?.id
+      void markThreadRead('member', threadId, coachFetch, lastId).then(loadThreads)
+    } catch (err) {
+      if (request === detailRequest.current) {
+        setDetailError(err instanceof Error ? err.message : 'Could not load conversation')
+      }
+    } finally {
+      if (request === detailRequest.current) setDetailLoading(false)
+    }
+  }, [closeTakeoverPanels, inboxList, loadThreads, threads])
 
   useEffect(() => {
-    if (loading || autoOpenedRef.current || initialThreadId != null || selectedId != null) return
-    // On phones/small screens only one panel shows at a time — land on the thread list instead.
-    if (!messagingViewportShowsBothPanels()) return
-    const landingId = defaultLandingThreadId(filteredThreads)
-    if (landingId == null) return
-    autoOpenedRef.current = true
-    void openThread(landingId)
-  }, [loading, filteredThreads, initialThreadId, selectedId])
+    if (initialThreadId == null) {
+      openedInitialThreadId.current = null
+      return
+    }
+    if (openedInitialThreadId.current === initialThreadId) return
+    openedInitialThreadId.current = initialThreadId
+    void openThread(initialThreadId)
+    onInitialThreadOpened?.()
+  }, [initialThreadId, onInitialThreadOpened, openThread])
 
-  const replyToMessage = useCallback((message: MessageRow) => {
-    setReplyTarget(message)
-    setReply(buildReplyQuote(message))
-  }, [])
+  const updateDraft = (threadId: number, changes: Partial<MemberReplyDraft>) => {
+    setReplyDrafts((current) => ({
+      ...current,
+      [threadId]: { ...(current[threadId] ?? EMPTY_MEMBER_REPLY), ...changes },
+    }))
+  }
+
+  const replyToMessage = (message: MessageRow) => {
+    if (selectedId == null || sendingReply) return
+    const body = replyDraft.target ? stripReplyQuote(replyDraft.body, buildReplyQuote(replyDraft.target)) : replyDraft.body
+    updateDraft(selectedId, { target: message, body: `${buildReplyQuote(message)}${body}`, error: null })
+  }
 
   const sendReply = async (mentions: MessageMentionPayload[] = []) => {
-    if (!selectedId || (!reply.trim() && !pendingAttachment)) return
-    setSending(true)
+    if (selectedId == null || sendingReply || (!replyDraft.body.trim() && !replyDraft.attachment)) return
+    const threadId = selectedId
+    const { attachment, body: draftBody, target } = replyDraft
+    setSendingReplies((current) => [...current, threadId])
+    updateDraft(threadId, { error: null })
     try {
       let attachmentPayload: Partial<UploadedAttachment> = {}
-      if (pendingAttachment) {
-        attachmentPayload = await uploadMessageAttachment(pendingAttachment, 'member', coachFetch)
+      if (attachment) {
+        attachmentPayload = await uploadMessageAttachment(attachment, 'member', coachFetch)
       }
-      const replyText = reply.trim()
       const { body, mentions: resolvedMentions } = prepareMessageBodyForSend(
-        replyText,
+        draftBody.trim(),
         mentions,
-        replyTarget,
+        target,
         threadParticipants,
       )
-      const msg = await coachFetch<MessageRow>(`/api/member/messages/${selectedId}`, {
+      const msg = await coachFetch<MessageRow>(`/api/member/messages/${threadId}`, {
         method: 'POST',
         body: JSON.stringify({
           body,
@@ -1097,70 +1179,101 @@ export function MemberMessagesTab({
           ...attachmentPayload,
         }),
       })
-      setMessages((prev) => [...prev, msg])
-      setReply('')
-      setReplyTarget(null)
-      setPendingAttachment(null)
+      if (activeThreadId.current === threadId) {
+        followLatest()
+        setMessages((current) => current.some((message) => Number(message.id) === Number(msg.id)) ? current : [...current, msg])
+        setThread((current) => current?.status === 'archived' ? { ...current, status: 'open' } : current)
+      }
+      setReplyDrafts((current) => {
+        const next = { ...current }
+        delete next[threadId]
+        return next
+      })
       void loadThreads()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send')
+      updateDraft(threadId, { error: err instanceof Error ? err.message : 'Could not send the reply' })
     } finally {
-      setSending(false)
+      setSendingReplies((current) => current.filter((id) => id !== threadId))
     }
   }
 
   const updateThreadSubject = async (update: { subject: string | null }) => {
     if (!selectedId) return
-    const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/subject`, {
-      method: 'PATCH',
-      body: JSON.stringify(update),
-    })
-    setSubject(updated.subject ?? null)
-    setSubjectLocked(Boolean(updated.subject_locked))
-    void loadThreads()
+    setActionError(null)
+    try {
+      const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/subject`, {
+        method: 'PATCH',
+        body: JSON.stringify(update),
+      })
+      if (activeThreadId.current === selectedId) {
+        setThread((current) => current && { ...current, subject: updated.subject, subject_locked: updated.subject_locked })
+      }
+      void loadThreads()
+    } catch (err) {
+      if (activeThreadId.current === selectedId) {
+        setActionError(err instanceof Error ? err.message : 'Could not update the subject')
+      }
+    }
   }
 
   const addRecipients = async (recipients: RecipientOption[]) => {
     if (!selectedId || recipients.length === 0) return
-    const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/recipients`, {
-      method: 'PATCH',
-      body: JSON.stringify(recipientsToPayload(recipients)),
-    })
-    setThreadParticipants(Array.isArray(updated.participants) ? updated.participants : [])
+    setActionError(null)
+    try {
+      const updated = await coachFetch<MessageThread>(`/api/member/messages/${selectedId}/recipients`, {
+        method: 'PATCH',
+        body: JSON.stringify(recipientsToPayload(recipients)),
+      })
+      if (activeThreadId.current === selectedId) {
+        setThread((current) => current && { ...current, participants: updated.participants ?? [] })
+      }
+    } catch (err) {
+      if (activeThreadId.current === selectedId) {
+        setActionError(err instanceof Error ? err.message : 'Could not add recipients')
+      }
+    }
   }
 
   const toggleFavorite = async (favorite: boolean) => {
     if (!selectedId) return
     setFavoriteLoading(true)
+    setActionError(null)
     try {
       await coachFetch(`/api/member/messages/${selectedId}/favorite`, {
         method: 'PATCH',
         body: JSON.stringify({ favorite }),
       })
-      setThreadFavorite(favorite)
+      if (activeThreadId.current === selectedId) {
+        setThread((current) => current && { ...current, is_favorite: favorite })
+      }
       void loadThreads()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update favorite')
+      if (activeThreadId.current === selectedId) setActionError(err instanceof Error ? err.message : 'Could not update the favorite')
     } finally {
-      setFavoriteLoading(false)
+      if (activeThreadId.current === selectedId) setFavoriteLoading(false)
     }
   }
 
   const hideFromInbox = async () => {
     if (!selectedId) return
-    await coachFetch(`/api/member/messages/${selectedId}/inbox`, {
-      method: 'PATCH',
-      body: JSON.stringify({ hidden: true }),
-    })
-    setSelectedId(null)
-    setMessages([])
-    void loadThreads()
+    setActionError(null)
+    try {
+      await coachFetch(`/api/member/messages/${selectedId}/inbox`, {
+        method: 'PATCH',
+        body: JSON.stringify({ hidden: true }),
+      })
+      if (activeThreadId.current === selectedId) closeDetail()
+      void loadThreads()
+    } catch (err) {
+      if (activeThreadId.current === selectedId) setActionError(err instanceof Error ? err.message : 'Could not archive the conversation')
+    }
   }
 
   const handlePrimaryCreate = () => {
-    if (primaryAction.disabled) return
+    if (primaryAction.disabled || primaryAction.hidden) return
     setNewOpen(false)
     setCalendarComposeOpen(false)
+    setComposeError(null)
     switch (primaryAction.mode) {
       case 'message':
         setNewOpen(true)
@@ -1172,7 +1285,7 @@ export function MemberMessagesTab({
         setEventBoardModalOpen(true)
         break
       case 'calendarItem':
-        setSelectedId(null)
+        closeDetail()
         setCalendarComposeOpen(true)
         break
       case 'file':
@@ -1184,8 +1297,9 @@ export function MemberMessagesTab({
   }
 
   const startThread = async () => {
-    if (!newBody.trim() || newRecipients.length === 0) return
-    setSending(true)
+    if (creating || !newBody.trim() || newRecipients.length === 0) return
+    setCreating(true)
+    setComposeError(null)
     try {
       const data = await coachFetch<{ thread: MessageThread; message: MessageRow }>('/api/member/messages', {
         method: 'POST',
@@ -1202,91 +1316,87 @@ export function MemberMessagesTab({
       void loadThreads()
       await openThread(data.thread.id)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send')
+      setComposeError(err instanceof Error ? err.message : 'Could not send the message')
     } finally {
-      setSending(false)
+      setCreating(false)
     }
   }
 
+  const conversationTitle = thread ? threadListTitle(thread) : 'Conversation'
+  const participantSummary = threadParticipants.map((participant) => participant.name).filter(Boolean).join(' · ')
+  const retryListAction = (
+    <button type="button" onClick={() => void loadThreads()} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>
+  )
+
   return (
     <div
-      className={`${messagingWorkspaceRoot} ${selectedId != null ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}
+      className={`${messagingWorkspaceRoot} ${detailOpen ? messagingWorkspaceThreadOpen : ''} ${maximized ? 'messaging-workspace--maximized' : ''}`}
     >
-      <div className={`shrink-0 items-center justify-between flex-wrap gap-3 ${selectedId != null && !maximized ? 'hidden lg:flex' : maximized ? 'hidden' : 'flex'}`}>
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-vortex-red" /> Messages
-        </h2>
-        <div className="flex items-center gap-2">
-          {onMaximizedChange && (
-            <MessagingMaximizeToggle
-              maximized={maximized}
-              onToggle={() => onMaximizedChange(!maximized)}
-            />
-          )}
-          <button
-            type="button"
-            onClick={handlePrimaryCreate}
-            disabled={primaryAction.hidden || primaryAction.disabled}
-            title={primaryAction.disabled ? primaryAction.disabledReason : undefined}
-            className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 disabled:opacity-60"
-          >
-            <Plus className="w-4 h-4" /> {primaryAction.hidden ? 'New message thread' : primaryAction.label}
-          </button>
-        </div>
-      </div>
-      {error && <div className="shrink-0 rounded-lg bg-red-50 text-red-700 px-4 py-2 text-sm">{error}</div>}
-
-      {newOpen && !maximized && (
-        <div className="shrink-0 bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-          <h3 className="font-semibold text-gray-800 text-sm">Start a conversation</h3>
-          <RecipientPicker
-            options={recipientOptions}
-            selected={newRecipients}
-            onChange={setNewRecipients}
-            loading={recipientsLoading}
-            placeholder="Search coaches, admins, members…"
-            enrollmentGroups={enrollmentGroups}
-            onAddEnrollmentGroup={addEnrollmentGroupToNew}
-            groupsLoading={groupsLoading}
-            groupActionLabel="Add everyone in your class"
-          />
-          <input
-            value={newSubject}
-            onChange={(e) => setNewSubject(e.target.value)}
-            placeholder="Thread name (optional)"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <textarea
-            value={newBody}
-            onChange={(e) => setNewBody(e.target.value)}
-            placeholder="Your message…"
-            rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          />
-          <button
-            type="button"
-            onClick={() => void startThread()}
-            disabled={sending || !newBody.trim() || newRecipients.length === 0}
-            className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
-          >
-            Send
-          </button>
-        </div>
+      {!maximized && (
+        <header className={`shrink-0 flex-wrap items-center justify-between gap-3 ${detailOpen ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-700">
+              <MessageSquare className="size-5" aria-hidden />
+            </span>
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Messages</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            {onMaximizedChange && <MessagingMaximizeToggle maximized={false} onToggle={() => onMaximizedChange(true)} />}
+            {!primaryAction.hidden && (
+              <button
+                type="button"
+                onClick={handlePrimaryCreate}
+                disabled={primaryAction.disabled}
+                title={primaryAction.disabledReason}
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50 sm:px-4"
+              >
+                <Plus className="size-4" aria-hidden />
+                {primaryAction.mode === 'message' ? 'New message' : primaryAction.label}
+              </button>
+            )}
+          </div>
+        </header>
       )}
+
+      <NewMessageDialog
+        open={newOpen}
+        onClose={() => setNewOpen(false)}
+        onSubmit={() => void startThread()}
+        sending={creating}
+        canSend={newRecipients.length > 0 && Boolean(newBody.trim())}
+        error={composeError}
+      >
+        <RecipientPicker
+          options={recipientOptions}
+          selected={newRecipients}
+          onChange={setNewRecipients}
+          loading={recipientsLoading}
+          placeholder="Search coaches, admins, or members"
+          enrollmentGroups={enrollmentGroups}
+          onAddEnrollmentGroup={addEnrollmentGroupToNew}
+          groupsLoading={groupsLoading}
+          groupActionLabel="Add everyone in your class"
+        />
+        <label className="block text-sm font-medium">
+          Subject <span className="font-normal text-slate-500">(optional)</span>
+          <input value={newSubject} onChange={(event) => setNewSubject(event.target.value)} placeholder="What’s this about?" className="mt-1.5 block w-full rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+        </label>
+        <label className="block text-sm font-medium">
+          Message
+          <textarea value={newBody} onChange={(event) => setNewBody(event.target.value)} placeholder="Write your message…" rows={4} className="mt-1.5 block w-full resize-y rounded-lg border border-slate-300 px-3 py-2 font-normal" />
+        </label>
+      </NewMessageDialog>
 
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
         selectedThreadId={selectedId}
-        onSelectThread={(id) => { if (id != null) void openThread(id) }}
-        onBack={() => {
-          inboxList.setActiveScheduleRow(null)
-          setSelectedId(null)
-        }}
+        detailOpen={detailOpen}
+        onBack={closeDetail}
         maximized={maximized}
         listPanel={
           <MessagingThreadListShell
-            maximized={maximized}
-            title="Threads"
+            title="Conversations"
+            resultCount={!loading && !listError ? filteredThreads.length : undefined}
             titleAction={
               <MessagingThreadListHeaderActions
                 primaryAction={primaryAction}
@@ -1297,30 +1407,43 @@ export function MemberMessagesTab({
                   setListSort(sort)
                   setListSortDir(sortDir)
                 }}
+                showCreate={maximized}
                 maximized={maximized}
                 onMaximizedChange={onMaximizedChange}
               />
             }
             search={threadSearch}
             onSearchChange={setThreadSearch}
-            searchPlaceholder="Search threads…"
+            searchPlaceholder="Search conversations…"
             headerExtra={
-              <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} />
+              <MessagingInboxTabs activeTab={inboxTab} onChange={setInboxTab} counts={inboxCounts} hiddenTabs={['archived']} />
             }
           >
-            {loading ? (
-              <div className="p-3 text-sm text-gray-500 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
-            ) : filteredThreads.length === 0 ? (
-              <div className="p-3 text-sm text-gray-500">
-                {threads.length === 0 ? 'No conversations yet.' : 'No threads match your filters.'}
+            {listError && filteredThreads.length > 0 && (
+              <div role="status" className="flex items-center justify-between gap-2 border-b border-amber-100 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <span>Couldn’t refresh conversations.</span>
+                {retryListAction}
               </div>
+            )}
+            {loading ? (
+              <p role="status" className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversations…</p>
+            ) : listError && filteredThreads.length === 0 ? (
+              <MessagingEmptyState compact title="Couldn’t load conversations" description={listError} action={retryListAction} />
+            ) : filteredThreads.length === 0 ? (
+              <MessagingEmptyState
+                compact
+                icon={threadSearch.trim() ? Search : MessageSquare}
+                title={threadSearch.trim() ? 'No results' : inboxTab === 'unread' ? 'You’re all caught up' : 'No conversations to show'}
+                description={threadSearch.trim() ? 'Try a different name or keyword.' : inboxTab === 'pinned' ? 'Favorite a conversation to find it here.' : undefined}
+                action={threadSearch.trim() ? <button type="button" onClick={() => setThreadSearch('')} className="text-sm font-semibold text-red-700 hover:underline">Clear search</button> : undefined}
+              />
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-slate-100">
                 {filteredThreads.map((t) => (
                   <MessagingThreadRow
                     key={t.id}
                     thread={t}
-                    selected={selectedId === t.id}
+                    selected={selectedRowId === Number(t.id)}
                     onSelect={(id) => void openThread(id)}
                   />
                 ))}
@@ -1334,33 +1457,47 @@ export function MemberMessagesTab({
               fetcher={coachFetch}
               role="member"
               onCancel={() => setCalendarComposeOpen(false)}
-              onCreated={(_row, threadId) => {
+              onCreated={(row, threadId) => {
                 setCalendarComposeOpen(false)
                 inboxList.refreshScheduleRows()
                 void loadThreads()
-                if (threadId != null) void openThread(threadId)
+                if (row) void openThread(scheduleRowVirtualId(row.row_key), row)
+                else if (threadId != null) void openThread(threadId)
               }}
             />
+          ) : !selectedId && inboxList.activeScheduleRow ? (
+            <MessagingThreadDetailShell header={<MessagingConversationHeader title={inboxList.activeScheduleRow.title} subtitle="Schedule details" />}>
+              <ScheduleItemBanner item={inboxList.activeScheduleRow} />
+            </MessagingThreadDetailShell>
           ) : !selectedId ? (
-            <div className="flex-1 flex items-center justify-center text-sm text-gray-500 p-6">Select a thread or start a new one.</div>
+            <MessagingEmptyState title="Select a conversation" description="Choose a conversation from the list to read it and reply." />
+          ) : detailLoading ? (
+            <p role="status" className="flex flex-1 items-center justify-center gap-2 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversation…</p>
+          ) : detailError || !thread ? (
+            <MessagingEmptyState
+              title="Couldn’t open conversation"
+              description={detailError ?? undefined}
+              action={<button type="button" onClick={() => { if (selectedRowId != null) void openThread(selectedRowId, inboxList.activeScheduleRow ?? undefined) }} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>}
+            />
           ) : (
             <MessagingThreadDetailShell
+              key={selectedId}
               header={
-                <div className="px-4 py-2 border-b flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-sm font-semibold truncate">{subject || 'Conversation'}</span>
-                    {subjectLocked && (
-                      <span className="text-[10px] uppercase tracking-wide text-gray-400 shrink-0">Locked</span>
-                    )}
-                  </div>
+                <>
+                <MessagingConversationHeader
+                  title={conversationTitle}
+                  subtitle={participantSummary === conversationTitle ? undefined : participantSummary || undefined}
+                  badge={thread.status === 'archived' ? 'Archived' : subjectLocked ? 'Subject locked' : undefined}
+                >
                   {anyTakeoverPanelOpen ? (
                     <button
                       type="button"
-                      aria-label="Close panel"
+                      aria-label="Back to conversation"
+                      title="Back to conversation"
                       onClick={closeTakeoverPanels}
-                      className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                      className="grid size-9 place-items-center rounded-lg text-slate-600 hover:bg-slate-100"
                     >
-                      <X className="w-5 h-5" />
+                      <X className="size-5" aria-hidden />
                     </button>
                   ) : (
                   <ThreadHeaderMenu
@@ -1377,11 +1514,9 @@ export function MemberMessagesTab({
                     groupsLoading={groupsLoading}
                     canHideFromInbox
                     onHideFromInbox={hideFromInbox}
-                    isFavorite={threadFavorite}
+                    isFavorite={Boolean(thread.is_favorite)}
                     onToggleFavorite={toggleFavorite}
                     favoriteLoading={favoriteLoading}
-                    canAttach
-                    onAttachmentPick={setPendingAttachment}
                     pinFilter={pins.pinFilter}
                     onPinFilterChange={pins.togglePinFilter}
                     importantFilterActive={pins.importantFilterActive}
@@ -1420,21 +1555,33 @@ export function MemberMessagesTab({
                     }}
                   />
                   )}
-                </div>
+                </MessagingConversationHeader>
+                {actionError && (
+                  <div role="alert" className="flex items-center justify-between gap-2 bg-red-50 px-3 py-2 text-sm text-red-800">
+                    <span>{actionError}</span>
+                    <button type="button" onClick={() => setActionError(null)} aria-label="Dismiss error" className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-red-100"><X className="size-4" aria-hidden /></button>
+                  </div>
+                )}
+                </>
               }
               footer={
                 anyTakeoverPanelOpen ? undefined : (
-                <MessageReplyComposer
-                  reply={reply}
-                  onReplyChange={setReply}
-                  onSend={(mentions) => void sendReply(mentions)}
-                  sending={sending}
-                  placeholder="Reply… (@ to mention)"
-                  participants={threadParticipants}
-                  viewer={viewer}
-                  pendingAttachment={pendingAttachment}
-                  onClearAttachment={() => setPendingAttachment(null)}
-                />
+                  <>
+                    {replyDraft.error && <p role="alert" className="mx-3 my-1 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{replyDraft.error}</p>}
+                    <MessageReplyComposer
+                      reply={replyDraft.body}
+                      onReplyChange={(body) => updateDraft(selectedId, { body, error: null })}
+                      onSend={(mentions) => void sendReply(mentions)}
+                      sending={sendingReply}
+                      participants={threadParticipants}
+                      viewer={viewer}
+                      pendingAttachment={replyDraft.attachment}
+                      onAttachmentPick={(attachment) => updateDraft(selectedId, { attachment, error: null })}
+                      onClearAttachment={() => updateDraft(selectedId, { attachment: null, error: null })}
+                      mentions={replyDraft.mentions}
+                      onMentionsChange={(mentions) => updateDraft(selectedId, { mentions })}
+                    />
+                  </>
                 )
               }
             >
@@ -1498,7 +1645,7 @@ export function MemberMessagesTab({
                   />
                   <EventCalendarItemBanner item={inboxList.activeCalendarItem} />
                   <ScheduleItemBanner item={inboxList.activeScheduleRow} />
-                  <MessagingInfoCard infoJson={threadInfoJson} />
+                  <MessagingInfoCard infoJson={thread.info_json} />
                 </>
               )}
               {pins.pinSelection && (
@@ -1517,7 +1664,6 @@ export function MemberMessagesTab({
                 fetcher={coachFetch}
                 participants={threadParticipants}
                 messagesEndRef={messagesEndRef}
-                showSenderName={false}
                 onReply={replyToMessage}
                 onPinComment={(message) => pins.startPinSelection(message.id)}
                 canUnpinMessage={(message) =>
@@ -1530,12 +1676,7 @@ export function MemberMessagesTab({
                 displayGroups={pins.displayGroups}
                 pinFilterActive={pins.pinFilter !== 'off'}
                 importantFilterActive={pins.importantFilterActive}
-                onReactionsUpdated={(messageId, reactions) => {
-                  setMessages((prev) =>
-                    prev.map((row) => (row.id === messageId ? { ...row, reactions } : row)),
-                  )
-                }}
-                className="p-4 space-y-2"
+                onReactionsUpdated={applyReactionMutation}
               />
               </>
               )}

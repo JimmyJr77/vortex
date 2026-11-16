@@ -22,6 +22,7 @@ import {
   addMessageReaction,
   removeMessageReaction,
   loadMessageReactions,
+  loadThreadReactionGroups,
   voteMessagePoll,
   loadMessagePoll,
   createMessagePoll,
@@ -80,7 +81,7 @@ import {
   postSchedulingSystemMessage,
   provisionSchedulingFormThread,
 } from './messageSchedulingThreads.js'
-import { broadcastMessageEvent } from './messageRealtime.js'
+import { broadcastMessageEvent, broadcastReactionUpdate } from './messageRealtime.js'
 import { hasPermission } from './registerRoutes.js'
 import {
   memberIsThreadParticipant,
@@ -107,6 +108,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     sendEmail,
     memberCanAccessMessageThread,
     coachHasThreadAccess,
+    broadcastReactionUpdate: publishReactionUpdate = broadcastReactionUpdate,
   } = deps
 
   if (deps.broadcastMessageEvent) {
@@ -147,7 +149,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
   async function memberCanViewThread(threadId, memberId, thread) {
     const isParticipant = await memberIsThreadParticipant(pool, threadId, memberId)
     if (isParticipant) return true
-    return memberCanAccessMessageThread(memberId, thread.member_id)
+    return memberCanAccessMessageThread(memberId, thread.member_id, thread.facility_id)
   }
 
   async function assertThreadAccess(req, res, threadId, portal) {
@@ -178,6 +180,29 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
       return null
     }
     return { thread, facilityId, viewer: { memberId } }
+  }
+
+  async function assertReactionThreadAccess(req, res, threadId, portal) {
+    if (req.platformAuth?.portalAccess?.[portal] !== true) {
+      bad(res, 'Portal access required.', 403)
+      return null
+    }
+    return assertThreadAccess(req, res, threadId, portal)
+  }
+
+  async function assertReactionAccess(req, res, threadId, messageId, portal) {
+    const ctx = await assertReactionThreadAccess(req, res, threadId, portal)
+    if (!ctx) return null
+    const result = await pool.query(
+      `SELECT 1 FROM coaching.message
+       WHERE id = $1 AND thread_id = $2 AND deleted_at IS NULL`,
+      [messageId, threadId],
+    )
+    if (!result.rows.length) {
+      bad(res, 'Message not found.', 404)
+      return null
+    }
+    return ctx
   }
 
   function notificationPrefsHandler(portal, method) {
@@ -786,17 +811,30 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
     }
 
     // Reactions
+    app.get(`/api/${portal}/messages/:threadId/reactions`, auth, async (req, res) => {
+      try {
+        const threadId = num(req.params.threadId)
+        const ctx = await assertReactionThreadAccess(req, res, threadId, portal)
+        if (!ctx) return
+        await ensureSchema()
+        res.set('Cache-Control', 'private, no-store')
+        ok(res, await loadThreadReactionGroups(pool, threadId, ctx.viewer))
+      } catch (error) {
+        bad(res, error.message, 500)
+      }
+    })
+
     app.post(`/api/${portal}/messages/:threadId/messages/:messageId/reactions`, auth, async (req, res) => {
       try {
         await ensureSchema()
         const threadId = num(req.params.threadId)
         const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        const ctx = await assertReactionAccess(req, res, threadId, messageId, portal)
         if (!ctx) return
         const emoji = String(req.body?.emoji || '').trim()
         if (!emoji) return bad(res, 'emoji is required.')
-        await addMessageReaction(pool, messageId, emoji, ctx.viewer)
-        ok(res, await loadMessageReactions(pool, messageId))
+        if (await addMessageReaction(pool, messageId, emoji, ctx.viewer)) publishReactionUpdate(threadId)
+        ok(res, await loadMessageReactions(pool, messageId, ctx.viewer))
       } catch (error) {
         bad(res, error.message, 500)
       }
@@ -807,10 +845,10 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         await ensureSchema()
         const threadId = num(req.params.threadId)
         const messageId = num(req.params.messageId)
-        const ctx = await assertThreadAccess(req, res, threadId, portal)
+        const ctx = await assertReactionAccess(req, res, threadId, messageId, portal)
         if (!ctx) return
-        await removeMessageReaction(pool, messageId, decodeURIComponent(req.params.emoji), ctx.viewer)
-        ok(res, await loadMessageReactions(pool, messageId))
+        if (await removeMessageReaction(pool, messageId, req.params.emoji, ctx.viewer)) publishReactionUpdate(threadId)
+        ok(res, await loadMessageReactions(pool, messageId, ctx.viewer))
       } catch (error) {
         bad(res, error.message, 500)
       }

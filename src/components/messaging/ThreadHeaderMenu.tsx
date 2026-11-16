@@ -1,6 +1,7 @@
 import { confirmArchive } from '../../utils/confirmArchive'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Lock, MoreHorizontal, Pencil, Paperclip, Star, UserPlus, Archive, ArchiveRestore, CircleHelp, Vote, ListChecks } from 'lucide-react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { Archive, ArchiveRestore, CircleHelp, ListChecks, Lock, MoreHorizontal, Paperclip, Pencil, Star, UserPlus, Vote, type LucideIcon } from 'lucide-react'
+import { PortalOverlayTarget } from '../portal/portalOverlayTarget'
 import RecipientPicker from './RecipientPicker'
 import type { EnrollmentGroup, RecipientOption } from './types'
 import { mergeRecipientOptions } from './types'
@@ -47,6 +48,16 @@ interface ThreadHeaderMenuProps {
   onSignupNow?: () => void
 }
 
+const iconButtonClass = 'grid h-9 w-9 shrink-0 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-vortex-red disabled:opacity-50'
+const secondaryButtonClass = 'rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50'
+const primaryButtonClass = 'rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50'
+
+type MenuAction = {
+  label: string
+  icon: LucideIcon
+  run: () => void
+}
+
 export default function ThreadHeaderMenu({
   subject,
   subjectLocked = false,
@@ -84,126 +95,146 @@ export default function ThreadHeaderMenu({
   onCreateSignup,
   onSignupNow,
 }: ThreadHeaderMenuProps) {
-  const [open, setOpen] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const [addingRecipients, setAddingRecipients] = useState(false)
-  const [draft, setDraft] = useState(subject || '')
+  const menuId = useId()
+  const dialogTitleId = useId()
+  const inputId = useId()
+  const [dialogMode, setDialogMode] = useState<'subject' | 'recipients' | null>(null)
+  const [dialog, setDialog] = useState<HTMLDialogElement | null>(null)
+  const [draft, setDraft] = useState('')
   const [pickedRecipients, setPickedRecipients] = useState<RecipientOption[]>([])
   const [saving, setSaving] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
+  const [error, setError] = useState<string | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
   const attachmentInputRef = useRef<HTMLInputElement>(null)
 
-  const canAddRecipients = Boolean(onAddRecipients)
-  const canHideInbox = Boolean(onHideFromInbox) && canHideFromInbox
-  const canRestoreThread = Boolean(onRestoreThread) && isGloballyArchived
   const canPickAttachment = Boolean(onAttachmentPick) && canAttach && !isGloballyArchived
-  const canCollaborate = Boolean(onCreatePoll || onRespondPoll || onCreateSignup || onSignupNow)
   const existingKeys = useMemo(() => new Set(existingParticipantKeys), [existingParticipantKeys])
   const availableOptions = useMemo(
-    () => recipientOptions.filter((o) => !existingKeys.has(o.key)),
+    () => recipientOptions.filter((option) => !existingKeys.has(option.key)),
     [recipientOptions, existingKeys],
   )
 
   useEffect(() => {
-    setDraft(subject || '')
-  }, [subject])
+    if (dialogMode && dialog && !dialog.open) {
+      dialog.showModal()
+      dialog.querySelector<HTMLInputElement>('input:not([type="hidden"])')?.focus()
+    }
+  }, [dialog, dialogMode])
 
   useEffect(() => {
-    if (!open) return
-    const onDocClick = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDocClick)
-    return () => document.removeEventListener('mousedown', onDocClick)
-  }, [open])
+    if (error) errorRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [error])
 
-  const saveSubject = async () => {
+  function closeMenu() {
+    const menu = menuRef.current
+    if (menu?.matches(':popover-open')) menu.hidePopover()
+    triggerRef.current?.focus({ preventScroll: true })
+  }
+
+  function openDialog(mode: 'subject' | 'recipients') {
+    closeMenu()
+    setError(null)
+    setDraft(subject ?? '')
+    setPickedRecipients([])
+    setDialogMode(mode)
+  }
+
+  function closeDialog() {
+    dialog?.close()
+    setDialogMode(null)
+    setError(null)
+    triggerRef.current?.focus({ preventScroll: true })
+  }
+
+  async function saveAction(action: () => Promise<void>, fallback: string, onSuccess: () => void) {
     setSaving(true)
+    setError(null)
     try {
-      await onUpdateSubject({ subject: draft.trim() || null })
-      setEditing(false)
-      setOpen(false)
+      await action()
+      onSuccess()
+    } catch (cause) {
+      setError(cause instanceof Error && cause.message ? cause.message : fallback)
+      const menu = menuRef.current
+      if (!dialogMode && menu?.isConnected && !menu.matches(':popover-open')) {
+        menu.showPopover()
+      }
     } finally {
       setSaving(false)
     }
   }
 
-  const toggleLock = async () => {
-    setSaving(true)
-    try {
-      await onUpdateSubject({ subject: subject ?? null, subject_locked: !subjectLocked })
-      setOpen(false)
-    } finally {
-      setSaving(false)
-    }
+  function runPanelAction(action: () => void) {
+    closeMenu()
+    setError(null)
+    action()
   }
 
-  const saveRecipients = async () => {
-    if (!onAddRecipients || pickedRecipients.length === 0) return
-    setSaving(true)
-    try {
-      await onAddRecipients(pickedRecipients)
-      setPickedRecipients([])
-      setAddingRecipients(false)
-      setOpen(false)
-    } finally {
-      setSaving(false)
-    }
+  async function archiveFromInbox(archive: () => Promise<void>) {
+    closeMenu()
+    setError(null)
+    const confirmed = await confirmArchive(
+      subject || 'This conversation',
+      'Archiving removes this conversation from your inbox. Other participants will keep access.',
+    )
+    if (!confirmed || !triggerRef.current) return
+    await saveAction(archive, 'Could not archive this conversation.', closeMenu)
   }
 
-  const hideFromInbox = async () => {
-    if (!onHideFromInbox) return
-    if (!await confirmArchive(subject || 'This conversation', 'This conversation will be archived from your inbox and will no longer be accessible for use there. Other participants will retain access.')) return
-    setSaving(true)
-    try {
-      await onHideFromInbox()
-      setOpen(false)
-    } finally {
-      setSaving(false)
-    }
-  }
+  const collaborationActions: MenuAction[] = []
+  if (onOpenFaq) collaborationActions.push({ label: 'View FAQ', icon: CircleHelp, run: () => runPanelAction(onOpenFaq) })
+  if (onCreatePoll) collaborationActions.push({ label: 'Create a poll', icon: Vote, run: () => runPanelAction(onCreatePoll) })
+  if (onRespondPoll) collaborationActions.push({ label: 'Respond to a poll', icon: Vote, run: () => runPanelAction(onRespondPoll) })
+  if (onCreateSignup) collaborationActions.push({ label: 'Create a sign-up list', icon: ListChecks, run: () => runPanelAction(onCreateSignup) })
+  if (onSignupNow) collaborationActions.push({ label: 'Respond to a sign-up', icon: ListChecks, run: () => runPanelAction(onSignupNow) })
 
-  const restoreThread = async () => {
-    if (!onRestoreThread) return
-    setSaving(true)
-    try {
-      await onRestoreThread()
-      setOpen(false)
-    } finally {
-      setSaving(false)
-    }
-  }
+  const conversationActions: MenuAction[] = []
+  if (canEdit && !subjectLocked) conversationActions.push({ label: 'Rename conversation', icon: Pencil, run: () => openDialog('subject') })
+  if (onAddRecipients) conversationActions.push({ label: 'Add people', icon: UserPlus, run: () => openDialog('recipients') })
+  if (canPickAttachment) conversationActions.push({
+    label: 'Attach a file',
+    icon: Paperclip,
+    run: () => runPanelAction(() => attachmentInputRef.current?.click()),
+  })
+  if (canLock) conversationActions.push({
+    label: subjectLocked ? 'Unlock conversation name' : 'Lock conversation name',
+    icon: Lock,
+    run: () => void saveAction(
+      () => onUpdateSubject({ subject, subject_locked: !subjectLocked }),
+      'Could not change the conversation name lock.',
+      closeMenu,
+    ),
+  })
 
-  const toggleFavorite = async () => {
-    if (!onToggleFavorite) return
-    setSaving(true)
-    try {
-      await onToggleFavorite(!isFavorite)
-      setOpen(false)
-    } finally {
-      setSaving(false)
-    }
-  }
+  const archiveActions: MenuAction[] = []
+  if (canHideFromInbox && onHideFromInbox && !isGloballyArchived) archiveActions.push({
+    label: 'Archive from my inbox',
+    icon: Archive,
+    run: () => void archiveFromInbox(onHideFromInbox),
+  })
+  if (isGloballyArchived && onRestoreThread) archiveActions.push({
+    label: 'Restore conversation',
+    icon: ArchiveRestore,
+    run: () => void saveAction(onRestoreThread, 'Could not restore this conversation.', closeMenu),
+  })
 
-  const pickAttachment = () => {
-    setOpen(false)
-    attachmentInputRef.current?.click()
-  }
-
-  if (!canEdit && !canLock && !canAddRecipients && !canHideInbox && !canRestoreThread && !onToggleFavorite && !canPickAttachment && !onOpenFaq && !onPinFilterChange && !onImportantFilterChange && !canCollaborate && !hasActionablePoll && !hasActionableSignup) return null
+  const actionGroups = [collaborationActions, conversationActions, archiveActions].filter((group) => group.length > 0)
+  const showLockedHint = canEdit && subjectLocked && !canLock
+  const hasMenu = actionGroups.length > 0 || showLockedHint
 
   return (
-    <div ref={rootRef} className="relative shrink-0 flex items-center gap-0.5">
+    <div className="flex shrink-0 items-center gap-0.5">
       {canPickAttachment && (
         <input
           ref={attachmentInputRef}
           type="file"
           className="hidden"
           accept={MESSAGE_ATTACHMENT_ACCEPT}
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file && onAttachmentPick) onAttachmentPick(file)
-            e.target.value = ''
+          onChange={(event) => {
+            const file = event.target.files?.[0]
+            if (file) onAttachmentPick?.(file)
+            event.target.value = ''
           }}
         />
       )}
@@ -225,226 +256,138 @@ export default function ThreadHeaderMenu({
       {onToggleFavorite && (
         <button
           type="button"
-          aria-label={isFavorite ? 'Remove favorite' : 'Favorite thread'}
+          aria-label="Favorite conversation"
+          aria-pressed={isFavorite}
+          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           disabled={favoriteLoading}
           onClick={() => void onToggleFavorite(!isFavorite)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-60"
+          className={`${iconButtonClass} ${isFavorite ? 'text-amber-600' : ''}`}
         >
-          <Star
-            className={`w-5 h-5 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`}
-            strokeWidth={isFavorite ? 0 : 1.75}
-          />
+          <Star size={18} className={isFavorite ? 'fill-amber-400' : ''} aria-hidden="true" />
         </button>
       )}
-      <button
-        type="button"
-        aria-label="Thread options"
-        onClick={() => setOpen((v) => !v)}
-        className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+      {hasMenu && (
+        <>
+          <button
+            ref={triggerRef}
+            type="button"
+            aria-label="Thread options"
+            title="Thread options"
+            popoverTarget={menuId}
+            className={iconButtonClass}
+          >
+            <MoreHorizontal size={20} aria-hidden="true" />
+          </button>
+          <div
+            ref={menuRef}
+            id={menuId}
+            popover="auto"
+            role="group"
+            aria-label="Thread options"
+            onBeforeToggle={(event) => {
+              if (event.newState !== 'open' || !triggerRef.current) return
+              const bounds = triggerRef.current.getBoundingClientRect()
+              const gap = 8
+              const popover = event.currentTarget
+              popover.style.right = `${Math.max(gap, window.innerWidth - bounds.right)}px`
+              const below = window.innerHeight - bounds.bottom - gap * 2
+              const above = bounds.top - gap * 2
+              const openAbove = below < 180 && above > below
+              popover.style.top = openAbove ? 'auto' : `${bounds.bottom + gap}px`
+              popover.style.bottom = openAbove ? `${window.innerHeight - bounds.top + gap}px` : 'auto'
+              popover.style.maxHeight = `${Math.max(0, openAbove ? above : below)}px`
+            }}
+            className="fixed inset-auto m-0 w-60 max-w-[calc(100vw-1rem)] overflow-auto overscroll-contain rounded-xl border border-slate-200 bg-white p-1 text-slate-900 shadow-lg shadow-slate-900/10"
+          >
+            {showLockedHint && <p className="px-2.5 py-2 text-xs text-slate-600">The conversation name is locked.</p>}
+            {!dialogMode && error && (
+              <p ref={errorRef} role="alert" className="mb-1 rounded-lg bg-red-50 px-2.5 py-2 text-sm text-red-800">{error}</p>
+            )}
+            {actionGroups.map((group, index) => (
+              <div key={group[0].label} className={index > 0 ? 'mt-1 border-t border-slate-100 pt-1' : undefined}>
+                {group.map(({ label, icon: Icon, run }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={saving}
+                    onClick={run}
+                    className="flex min-h-10 w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-vortex-red disabled:opacity-50"
+                  >
+                    <Icon size={16} className="shrink-0" aria-hidden="true" /> {label}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      <dialog
+        ref={setDialog}
+        aria-labelledby={dialogTitleId}
+        onCancel={(event) => {
+          event.preventDefault()
+          if (!saving) closeDialog()
+        }}
+        className="m-auto max-h-[85dvh] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-slate-200 bg-white p-0 text-slate-900 shadow-2xl backdrop:bg-slate-950/40"
       >
-        <MoreHorizontal className="w-5 h-5" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full mt-1 z-30 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-          {canCollaborate && (
-            <>
-              {onCreatePoll && (
-                <button
-                  type="button"
-                  onClick={() => { onCreatePoll(); setOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-                >
-                  <Vote className="w-4 h-4" /> + Poll
-                </button>
+        {dialogMode && (
+          <form onSubmit={(event) => {
+            event.preventDefault()
+            if (saving) return
+            if (dialogMode === 'subject') {
+              void saveAction(
+                () => onUpdateSubject({ subject: draft.trim() || null }),
+                'Could not rename this conversation.',
+                closeDialog,
+              )
+            } else if (onAddRecipients && pickedRecipients.length > 0) {
+              void saveAction(() => onAddRecipients(pickedRecipients), 'Could not add people to this conversation.', closeDialog)
+            }
+          }}>
+            <h2 id={dialogTitleId} className="border-b border-slate-200 px-5 py-4 text-lg font-semibold">
+              {dialogMode === 'subject' ? 'Rename conversation' : 'Add people'}
+            </h2>
+            <div className="space-y-3 px-5 py-4">
+              {dialogMode === 'subject' ? (
+                <div className="space-y-1.5">
+                  <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">Conversation name</label>
+                  <input
+                    id={inputId}
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-base focus:border-vortex-red focus:outline-none focus:ring-2 focus:ring-red-100"
+                  />
+                </div>
+              ) : (
+                <PortalOverlayTarget.Provider value={dialog}>
+                  <RecipientPicker
+                    options={availableOptions}
+                    selected={pickedRecipients}
+                    onChange={setPickedRecipients}
+                    loading={recipientsLoading}
+                    placeholder="Search people to add…"
+                    enrollmentGroups={enrollmentGroups}
+                    onAddEnrollmentGroup={resolveEnrollmentGroup ? async (group) => {
+                      const added = await resolveEnrollmentGroup(group)
+                      const newPeople = added.filter((person) => !existingKeys.has(person.key))
+                      setPickedRecipients((previous) => mergeRecipientOptions(previous, newPeople))
+                    } : undefined}
+                    groupsLoading={groupsLoading}
+                  />
+                </PortalOverlayTarget.Provider>
               )}
-              {onRespondPoll && (
-                <button
-                  type="button"
-                  onClick={() => { onRespondPoll(); setOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-                >
-                  <Vote className="w-4 h-4" /> Respond to Poll
-                </button>
-              )}
-              {onCreateSignup && (
-                <button
-                  type="button"
-                  onClick={() => { onCreateSignup(); setOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-                >
-                  <ListChecks className="w-4 h-4" /> + Signup list
-                </button>
-              )}
-              {onSignupNow && (
-                <button
-                  type="button"
-                  onClick={() => { onSignupNow(); setOpen(false) }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-                >
-                  <ListChecks className="w-4 h-4" /> Signup now
-                </button>
-              )}
-              <div className="my-1 border-t border-gray-100" />
-            </>
-          )}
-          {canEdit && !subjectLocked && (
-            <button
-              type="button"
-              onClick={() => { setEditing(true); setOpen(false) }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-            >
-              <Pencil className="w-4 h-4" /> Edit thread name
-            </button>
-          )}
-          {canEdit && subjectLocked && (
-            <div className="px-3 py-2 text-xs text-gray-500">Thread name is locked</div>
-          )}
-          {canAddRecipients && (
-            <button
-              type="button"
-              onClick={() => { setAddingRecipients(true); setOpen(false) }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-            >
-              <UserPlus className="w-4 h-4" /> Add recipients
-            </button>
-          )}
-          {onToggleFavorite && (
-            <button
-              type="button"
-              disabled={saving || favoriteLoading}
-              onClick={() => void toggleFavorite()}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
-            >
-              <Star className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-              {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            </button>
-          )}
-          {canPickAttachment && (
-            <button
-              type="button"
-              onClick={pickAttachment}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-            >
-              <Paperclip className="w-4 h-4" /> Add attachment
-            </button>
-          )}
-          {onOpenFaq && (
-            <button
-              type="button"
-              onClick={() => {
-                onOpenFaq()
-                setOpen(false)
-              }}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50"
-            >
-              <CircleHelp className="w-4 h-4" /> FAQ
-            </button>
-          )}
-          {canHideInbox && !isGloballyArchived && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void hideFromInbox()}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
-            >
-              <Archive className="w-4 h-4" /> Archive from inbox
-            </button>
-          )}
-          {canRestoreThread && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void restoreThread()}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
-            >
-              <ArchiveRestore className="w-4 h-4" /> Restore thread
-            </button>
-          )}
-          {canLock && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void toggleLock()}
-              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 disabled:opacity-60"
-            >
-              <Lock className="w-4 h-4" />
-              {subjectLocked ? 'Unlock thread name' : 'Lock thread name'}
-            </button>
-          )}
-        </div>
-      )}
-
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4 space-y-3">
-            <h3 className="font-semibold text-gray-900">Edit thread name</h3>
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="Thread name"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-              autoFocus
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => void saveSubject()}
-                className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
-              >
-                Save
+              {error && <p ref={errorRef} role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>}
+            </div>
+            <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-5 py-3">
+              <button type="button" onClick={closeDialog} disabled={saving} className={secondaryButtonClass}>Cancel</button>
+              <button type="submit" disabled={saving || (dialogMode === 'recipients' && pickedRecipients.length === 0)} className={primaryButtonClass}>
+                {saving ? 'Saving…' : dialogMode === 'subject' ? 'Save name' : 'Add people'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {addingRecipients && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4 space-y-3">
-            <h3 className="font-semibold text-gray-900">Add recipients</h3>
-            <RecipientPicker
-              options={availableOptions}
-              selected={pickedRecipients}
-              onChange={setPickedRecipients}
-              loading={recipientsLoading}
-              placeholder="Search people to add…"
-              label="Add to this thread"
-              enrollmentGroups={enrollmentGroups}
-              onAddEnrollmentGroup={resolveEnrollmentGroup ? async (group) => {
-                const added = await resolveEnrollmentGroup(group)
-                setPickedRecipients((prev) => mergeRecipientOptions(prev, added))
-              } : undefined}
-              groupsLoading={groupsLoading}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => { setAddingRecipients(false); setPickedRecipients([]) }}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={saving || pickedRecipients.length === 0}
-                onClick={() => void saveRecipients()}
-                className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </form>
+        )}
+      </dialog>
     </div>
   )
 }

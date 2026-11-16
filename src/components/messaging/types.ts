@@ -82,6 +82,12 @@ export interface MessageMention {
   member_id?: number | null
 }
 
+export interface MessageReactionGroup {
+  emoji: string
+  count: number
+  reacted_by_viewer?: boolean
+}
+
 export interface MessageRow {
   id: number
   body: string
@@ -99,7 +105,7 @@ export interface MessageRow {
   edited_at?: string | null
   deleted_at?: string | null
   files?: MessageFile[]
-  reactions?: { emoji: string; count: number }[]
+  reactions?: MessageReactionGroup[]
   poll?: MessagePoll | null
   checklist?: MessageChecklist | null
   created_at: string

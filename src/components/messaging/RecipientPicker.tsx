@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Loader2, X } from 'lucide-react'
+import { ChevronDown, Loader2, X } from 'lucide-react'
 import SearchCombobox, { type SearchComboboxOption } from '../coach/SearchCombobox'
 import type { EnrollmentGroup, RecipientOption } from './types'
 import { enrollmentGroupLabel } from './types'
@@ -30,6 +30,7 @@ export default function RecipientPicker({
   groupActionLabel = 'Add everyone in',
 }: RecipientPickerProps) {
   const [search, setSearch] = useState('')
+  const [groupError, setGroupError] = useState<string | null>(null)
   const [addingGroupKey, setAddingGroupKey] = useState<string | null>(null)
   const selectedKeys = useMemo(() => new Set(selected.map((s) => s.key)), [selected])
 
@@ -59,9 +60,12 @@ export default function RecipientPicker({
 
   const handleAddGroup = async (group: EnrollmentGroup) => {
     if (!onAddEnrollmentGroup) return
+    setGroupError(null)
     setAddingGroupKey(group.key)
     try {
       await onAddEnrollmentGroup(group)
+    } catch (err) {
+      setGroupError(err instanceof Error ? err.message : 'Couldn’t add this group. Try again.')
     } finally {
       setAddingGroupKey(null)
     }
@@ -69,7 +73,7 @@ export default function RecipientPicker({
 
   return (
     <div className="space-y-2">
-      <span className="block text-xs font-semibold text-gray-500">{label}</span>
+      <span className="block text-sm font-medium text-slate-800">{label}</span>
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selected.map((r) => (
@@ -90,9 +94,21 @@ export default function RecipientPicker({
           ))}
         </div>
       )}
+      <SearchCombobox
+        value={search}
+        onChange={setSearch}
+        onSelect={addRecipient}
+        options={comboboxOptions}
+        loading={loading}
+        placeholder={placeholder}
+        ariaLabel={label}
+        inputClassName="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm placeholder:text-slate-500 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100"
+        emptyMessage="No matches. Try another name."
+        loadingMessage="Loading people…"
+      />
       {onAddEnrollmentGroup && (
-        <div className="space-y-1.5">
-          <span className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide">{groupActionLabel}</span>
+        <details className="group space-y-2 rounded-lg border border-slate-200 px-3 py-1.5">
+          <summary className="flex min-h-7 cursor-pointer list-none items-center justify-between gap-2 text-xs font-semibold text-slate-700 [&::-webkit-details-marker]:hidden">{groupActionLabel} <ChevronDown className="size-4 text-slate-500 transition-transform group-open:rotate-180" aria-hidden /></summary>
           {groupsLoading ? (
             <div className="flex items-center gap-2 text-xs text-gray-500 py-1">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading groups…
@@ -100,7 +116,7 @@ export default function RecipientPicker({
           ) : enrollmentGroups.length === 0 ? (
             <p className="text-xs text-gray-400">No enrollment groups available.</p>
           ) : (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex max-h-28 flex-wrap gap-1.5 overflow-y-auto pb-1">
               {enrollmentGroups.map((group) => (
                 <button
                   key={group.key}
@@ -118,18 +134,9 @@ export default function RecipientPicker({
               ))}
             </div>
           )}
-        </div>
+          {groupError && <p role="alert" className="text-xs text-red-700">{groupError}</p>}
+        </details>
       )}
-      <SearchCombobox
-        value={search}
-        onChange={setSearch}
-        onSelect={addRecipient}
-        options={comboboxOptions}
-        loading={loading}
-        placeholder={placeholder}
-        emptyMessage="No matches. Try another name."
-        loadingMessage="Loading people…"
-      />
     </div>
   )
 }

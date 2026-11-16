@@ -1,14 +1,16 @@
-import { useMemo, useRef, useState } from 'react'
-import { Paperclip, X } from 'lucide-react'
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { AtSign, FileText, Loader2, Paperclip, Send, X } from 'lucide-react'
+import { MESSAGE_ATTACHMENT_ACCEPT, MESSAGE_ATTACHMENT_MAX_BYTES } from './messageAttachmentUpload'
 import type { MessageViewer } from './messageBubbleStyle'
 import {
   filterParticipantsForMentionQuery,
   findActiveMentionQuery,
-  mentionKey,
   mentionPayloadFromParticipant,
+  mergeMentionPayloads,
+  tokenizeMentionsInBody,
   type MessageMentionPayload,
 } from './messageMentions'
-import type { ThreadParticipant } from './types'
+import { participantKey, type ThreadParticipant } from './types'
 
 interface MessageReplyComposerProps {
   reply: string
@@ -18,9 +20,28 @@ interface MessageReplyComposerProps {
   placeholder?: string
   sendLabel?: string
   pendingAttachment?: File | null
+  onAttachmentPick?: (file: File) => void
   onClearAttachment?: () => void
   participants?: ThreadParticipant[]
   viewer?: MessageViewer
+  mentions?: MessageMentionPayload[]
+  onMentionsChange?: (mentions: MessageMentionPayload[]) => void
+  auxiliaryActions?: ReactNode
+}
+
+interface MentionMenu {
+  text: string
+  start: number
+  query: string
+  activeIndex: number
+  dismissed?: boolean
+}
+
+const EMPTY_PARTICIPANTS: ThreadParticipant[] = []
+const TOOL_BUTTON = 'inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red disabled:opacity-50'
+
+function mentionsInText(text: string, mentions: MessageMentionPayload[], participants: ThreadParticipant[]) {
+  return mentions.filter((mention) => tokenizeMentionsInBody(text, [mention], participants) !== text)
 }
 
 export default function MessageReplyComposer({
@@ -28,150 +49,269 @@ export default function MessageReplyComposer({
   onReplyChange,
   onSend,
   sending = false,
-  placeholder = 'Type a reply…',
+  placeholder = 'Write a reply…',
   sendLabel = 'Send',
   pendingAttachment = null,
+  onAttachmentPick,
   onClearAttachment,
-  participants = [],
+  participants = EMPTY_PARTICIPANTS,
   viewer,
+  mentions,
+  onMentionsChange,
+  auxiliaryActions,
 }: MessageReplyComposerProps) {
-  const canSend = Boolean(reply.trim() || pendingAttachment)
+  const id = useId()
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const [mentionStart, setMentionStart] = useState<number | null>(null)
-  const [mentionQuery, setMentionQuery] = useState('')
-  const [pendingMentions, setPendingMentions] = useState<MessageMentionPayload[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const activeMentionRef = useRef<HTMLButtonElement>(null)
+  const [mentionMenu, setMentionMenu] = useState<MentionMenu | null>(null)
+  const [localMentions, setLocalMentions] = useState<MessageMentionPayload[]>([])
+  const [attachmentError, setAttachmentError] = useState('')
 
-  const mentionOptions = useMemo(
-    () => filterParticipantsForMentionQuery(participants, mentionQuery, viewer),
-    [participants, mentionQuery, viewer],
+  const canSend = Boolean(reply.trim() || pendingAttachment)
+  const storedMentions = mentions ?? localMentions
+  const activeMention = mentionMenu?.text === reply && !mentionMenu.dismissed && !sending ? mentionMenu : null
+  const mentionable = useMemo(
+    () => filterParticipantsForMentionQuery(participants, '', viewer).filter((participant) => participantKey(participant) !== null),
+    [participants, viewer],
   )
+  const mentionOptions = activeMention
+    ? filterParticipantsForMentionQuery(mentionable, activeMention.query).slice(0, 8)
+    : []
+  const activeIndex = Math.min(activeMention?.activeIndex ?? 0, mentionOptions.length - 1)
+  const showMentions = Boolean(activeMention && mentionable.length)
+  const mentionListId = `${id}-mentions`
 
-  const showMentionMenu = mentionStart != null && participants.length > 0
+  useEffect(() => {
+    activeMentionRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [activeIndex])
 
-  const syncMentionMenu = (text: string, caret: number) => {
-    const active = findActiveMentionQuery(text, caret)
-    if (!active) {
-      setMentionStart(null)
-      setMentionQuery('')
-      return
+  const updateReply = (text: string, addedMention?: MessageMentionPayload) => {
+    const current = mentionsInText(reply, storedMentions, participants)
+    const retained = mentionsInText(text, current, participants)
+    const next = addedMention ? mergeMentionPayloads(retained, [addedMention]) : retained
+    if (next.length !== storedMentions.length || next.some((mention, index) => mention !== storedMentions[index])) {
+      (onMentionsChange ?? setLocalMentions)(next)
     }
-    setMentionStart(active.start)
-    setMentionQuery(active.query)
+    onReplyChange(text)
+  }
+
+  const syncMentionMenu = (text: string, start: number, end: number) => {
+    const query = start === end ? findActiveMentionQuery(text, start) : null
+    setMentionMenu((current) => {
+      if (!query) return null
+      if (current?.text === text && current.start === query.start && current.query === query.query) return current
+      return { ...query, text, activeIndex: 0 }
+    })
+  }
+
+  const focusEditorAt = (position: number) => {
+    inputRef.current?.focus({ preventScroll: true })
+    requestAnimationFrame(() => {
+      inputRef.current?.setSelectionRange(position, position)
+    })
   }
 
   const insertMention = (participant: ThreadParticipant) => {
     const payload = mentionPayloadFromParticipant(participant)
     const name = participant.name?.trim()
-    if (!payload || !name || mentionStart == null) return
+    if (!payload || !name || !activeMention) return
 
     const caret = inputRef.current?.selectionStart ?? reply.length
-    const before = reply.slice(0, mentionStart)
+    const before = reply.slice(0, activeMention.start)
     const after = reply.slice(caret)
     const insert = `@${name} `
-    const next = `${before}${insert}${after}`
-    onReplyChange(next)
-    setPendingMentions((prev) => {
-      const key = mentionKey(payload)
-      if (!key || prev.some((m) => mentionKey(m) === key)) return prev
-      return [...prev, payload]
-    })
-    setMentionStart(null)
-    setMentionQuery('')
-    requestAnimationFrame(() => {
-      const el = inputRef.current
-      if (!el) return
-      const pos = before.length + insert.length
-      el.focus()
-      el.setSelectionRange(pos, pos)
-    })
+    updateReply(`${before}${insert}${after}`, payload)
+    setMentionMenu(null)
+    focusEditorAt(before.length + insert.length)
+  }
+
+  const startMention = () => {
+    const start = inputRef.current?.selectionStart ?? reply.length
+    const end = inputRef.current?.selectionEnd ?? start
+    const query = start === end ? findActiveMentionQuery(reply, start) : null
+    if (query) {
+      setMentionMenu({ ...query, text: reply, activeIndex: 0 })
+      focusEditorAt(start)
+      return
+    }
+
+    const before = reply.slice(0, start)
+    const insert = before && !/\s$/.test(before) ? ' @' : '@'
+    const text = `${before}${insert}${reply.slice(end)}`
+    const caret = start + insert.length
+    updateReply(text)
+    syncMentionMenu(text, caret, caret)
+    focusEditorAt(caret)
   }
 
   const handleSend = () => {
     if (!canSend || sending) return
-    onSend(pendingMentions)
-    setPendingMentions([])
-    setMentionStart(null)
-    setMentionQuery('')
+    setMentionMenu(null)
+    setAttachmentError('')
+    onSend(mentionsInText(reply, storedMentions, participants))
+  }
+
+  const handleEditorKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (sending || event.nativeEvent.isComposing || event.keyCode === 229) return
+
+    if (showMentions && event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      setMentionMenu((current) => current && { ...current, dismissed: true })
+      return
+    }
+    if (mentionOptions.length && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+      event.preventDefault()
+      const step = event.key === 'ArrowDown' ? 1 : -1
+      const next = (activeIndex + step + mentionOptions.length) % mentionOptions.length
+      setMentionMenu((current) => current && { ...current, activeIndex: next })
+      return
+    }
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      if (event.repeat) return
+      const participant = mentionOptions[activeIndex]
+      if (participant) insertMention(participant)
+      else handleSend()
+    }
   }
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 px-4 pb-4 pt-2 bg-white">
-      {pendingAttachment && (
-        <div className="mb-2 shrink-0 flex items-center gap-2 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5">
-          <Paperclip className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate flex-1">{pendingAttachment.name}</span>
-          {onClearAttachment && (
+    <div
+      className="flex min-h-0 flex-1 flex-col px-3 pb-3 pt-1 sm:px-4 sm:pb-4"
+      aria-label="Reply composer"
+      role="group"
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setMentionMenu(null)
+      }}
+    >
+      {onAttachmentPick && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept={MESSAGE_ATTACHMENT_ACCEPT}
+          disabled={sending}
+          onChange={(event) => {
+            const file = event.currentTarget.files?.[0]
+            event.currentTarget.value = ''
+            if (!file) return
+            if (file.size > MESSAGE_ATTACHMENT_MAX_BYTES) {
+              setAttachmentError('Choose a file that is 8 MB or smaller.')
+              return
+            }
+            setAttachmentError('')
+            onAttachmentPick(file)
+          }}
+        />
+      )}
+      {auxiliaryActions && <div className="mb-1 shrink-0">{auxiliaryActions}</div>}
+      <div className="relative flex min-h-0 flex-1 flex-col rounded-xl border border-slate-200 bg-white transition-colors focus-within:border-slate-400">
+        {showMentions && (
+          <div className="absolute inset-x-0 bottom-full z-30 mb-2 max-w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+            <div className="px-3 py-2 text-xs font-semibold text-slate-500">Mention someone</div>
+            {mentionOptions.length ? (
+              <div id={mentionListId} role="listbox" aria-label="Mention suggestions" className="max-h-48 overflow-auto overscroll-contain p-1">
+                {mentionOptions.map((participant, index) => (
+                  <button
+                    key={participantKey(participant)}
+                    id={`${mentionListId}-${index}`}
+                    ref={index === activeIndex ? activeMentionRef : undefined}
+                    role="option"
+                    aria-selected={index === activeIndex}
+                    type="button"
+                    tabIndex={-1}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => insertMention(participant)}
+                    className={`flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-sm hover:bg-slate-100 ${index === activeIndex ? 'bg-slate-100 text-slate-900' : 'text-slate-700'}`}
+                  >
+                    <AtSign className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+                    <span className="truncate">{participant.name}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p role="status" className="px-3 pb-3 text-sm text-slate-600">No matching participants.</p>
+            )}
+          </div>
+        )}
+        {pendingAttachment && (
+          <div className="mx-3 mt-2 flex w-fit max-w-[calc(100%_-_1.5rem)] shrink-0 items-center gap-2 rounded-lg bg-slate-100 py-1 pl-2.5 pr-1 text-xs font-medium text-slate-700">
+            <FileText className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
+            <span className="min-w-0 truncate" title={pendingAttachment.name}>{pendingAttachment.name}</span>
+            {onClearAttachment && (
+              <button
+                type="button"
+                aria-label="Remove attachment"
+                title="Remove attachment"
+                disabled={sending}
+                onClick={() => {
+                  setAttachmentError('')
+                  onClearAttachment()
+                }}
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red disabled:opacity-50"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        )}
+        {attachmentError && <p role="alert" className="mx-3 mt-2 text-xs font-medium text-red-700">{attachmentError}</p>}
+        <textarea
+          ref={inputRef}
+          id={id}
+          value={reply}
+          aria-label="Reply message"
+          aria-describedby={`${id}-keyboard`}
+          aria-autocomplete={mentionable.length ? 'list' : undefined}
+          aria-controls={mentionOptions.length ? mentionListId : undefined}
+          aria-activedescendant={activeIndex >= 0 ? `${mentionListId}-${activeIndex}` : undefined}
+          readOnly={sending}
+          rows={2}
+          onChange={(event) => {
+            const { value, selectionStart, selectionEnd } = event.currentTarget
+            updateReply(value)
+            syncMentionMenu(value, selectionStart, selectionEnd)
+          }}
+          onSelect={(event) => {
+            const { value, selectionStart, selectionEnd } = event.currentTarget
+            syncMentionMenu(value, selectionStart, selectionEnd)
+          }}
+          onKeyDown={handleEditorKeyDown}
+          placeholder={placeholder}
+          className="min-h-12 w-full flex-1 resize-none rounded-t-xl bg-transparent px-3 pb-1 pt-2.5 text-base leading-6 text-slate-900 placeholder:text-slate-500 focus:outline-none sm:text-sm"
+        />
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 px-2 pb-2">
+          <div className="flex min-w-0 flex-wrap items-center">
+            {onAttachmentPick && (
+              <button type="button" disabled={sending} onClick={() => fileInputRef.current?.click()} className={TOOL_BUTTON} title="Attach a file">
+                <Paperclip className="h-4 w-4" aria-hidden="true" />
+                Attach
+              </button>
+            )}
+            {mentionable.length > 0 && (
+              <button type="button" disabled={sending} onClick={startMention} className={TOOL_BUTTON} title="Mention a participant">
+                <AtSign className="h-4 w-4" aria-hidden="true" />
+                Mention
+              </button>
+            )}
+          </div>
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            <span id={`${id}-keyboard`} className="sr-only text-xs text-slate-600 lg:not-sr-only">
+              Enter to send · Shift+Enter for a new line
+            </span>
             <button
               type="button"
-              aria-label="Remove attachment"
-              onClick={onClearAttachment}
-              className="text-gray-400 hover:text-gray-700"
+              onClick={handleSend}
+              disabled={sending || !canSend}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-vortex-red px-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red focus-visible:ring-offset-2 disabled:!bg-slate-100 disabled:!text-slate-500"
             >
-              <X className="w-3.5 h-3.5" />
+              {sending ? <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
+              {sending ? 'Sending…' : sendLabel}
             </button>
-          )}
+          </div>
         </div>
-      )}
-      <div className="flex gap-2 items-stretch flex-1 min-h-0">
-        <div className="relative flex-1 min-h-0 flex flex-col">
-          {showMentionMenu && mentionOptions.length > 0 && (
-            <div className="absolute bottom-full left-0 right-0 mb-1 max-h-40 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg z-20">
-              {mentionOptions.slice(0, 8).map((participant) => {
-                const key = participant.user_id
-                  ? `user:${participant.user_id}`
-                  : `member:${participant.member_id}`
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault()
-                      insertMention(participant)
-                    }}
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50"
-                  >
-                    {participant.name}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-          <textarea
-            ref={inputRef}
-            value={reply}
-            onChange={(e) => {
-              onReplyChange(e.target.value)
-              syncMentionMenu(e.target.value, e.target.selectionStart ?? e.target.value.length)
-            }}
-            onClick={(e) => {
-              syncMentionMenu(reply, e.currentTarget.selectionStart ?? reply.length)
-            }}
-            onKeyUp={(e) => {
-              syncMentionMenu(reply, e.currentTarget.selectionStart ?? reply.length)
-            }}
-            placeholder={placeholder}
-            className="w-full flex-1 min-h-[42px] h-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none"
-            onKeyDown={(e) => {
-              if (showMentionMenu && mentionOptions.length > 0 && e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                insertMention(mentionOptions[0])
-                return
-              }
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                handleSend()
-              }
-            }}
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={sending || !canSend}
-          className="self-end h-[42px] shrink-0 inline-flex items-center justify-center bg-gray-900 text-white px-4 rounded-lg text-sm font-semibold disabled:opacity-60"
-        >
-          {sendLabel}
-        </button>
       </div>
     </div>
   )

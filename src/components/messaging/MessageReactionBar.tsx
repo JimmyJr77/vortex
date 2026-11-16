@@ -1,90 +1,66 @@
-import { useState } from 'react'
-import type { MessagingRole } from './types'
-
-type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
-
-export interface MessageReactionGroup {
-  emoji: string
-  count: number
-}
+import { useId } from 'react'
+import type { MessageReactionGroup } from './types'
 
 interface MessageReactionBarProps {
-  role: MessagingRole
-  threadId: number
-  messageId: number
-  fetcher: Fetcher
-  reactions?: MessageReactionGroup[]
-  onUpdated?: (reactions: MessageReactionGroup[]) => void
+  reactions: MessageReactionGroup[]
+  onToggle: (reaction: MessageReactionGroup, trigger: HTMLButtonElement) => void
   disabled?: boolean
   className?: string
   mode?: 'selected' | 'picker'
-  onPicked?: () => void
 }
 
-const QUICK_EMOJI = ['👍', '❤️', '😂', '🎉', '👀']
-
-const REACTION_PATH: Record<MessagingRole, (threadId: number, messageId: number) => string> = {
-  coach: (t, m) => `/api/coach/messages/${t}/messages/${m}/reactions`,
-  member: (t, m) => `/api/member/messages/${t}/messages/${m}/reactions`,
-  admin: (t, m) => `/api/admin/messages/${t}/messages/${m}/reactions`,
-}
+const QUICK_REACTIONS = [
+  { emoji: '👍', label: 'Thumbs up' },
+  { emoji: '❤️', label: 'Heart' },
+  { emoji: '😂', label: 'Laughing' },
+  { emoji: '🎉', label: 'Celebration' },
+  { emoji: '👀', label: 'Eyes' },
+]
 
 export default function MessageReactionBar({
-  role,
-  threadId,
-  messageId,
-  fetcher,
-  reactions = [],
-  onUpdated,
+  reactions,
+  onToggle,
   disabled = false,
   className = '',
   mode = 'selected',
-  onPicked,
 }: MessageReactionBarProps) {
-  const [busy, setBusy] = useState(false)
-
-  const toggleReaction = async (emoji: string) => {
-    if (disabled || busy) return
-    setBusy(true)
-    try {
-      const existing = reactions.find((r) => r.emoji === emoji)
-      if (existing && existing.count > 0) {
-        const encoded = encodeURIComponent(emoji)
-        const updated = await fetcher(
-          `${REACTION_PATH[role](threadId, messageId)}/${encoded}`,
-          { method: 'DELETE' },
-        ) as MessageReactionGroup[]
-        onUpdated?.(updated)
-      } else {
-        const updated = await fetcher(REACTION_PATH[role](threadId, messageId), {
-          method: 'POST',
-          body: JSON.stringify({ emoji }),
-        }) as MessageReactionGroup[]
-        onUpdated?.(updated)
-      }
-      onPicked?.()
-    } catch {
-      /* best-effort */
-    } finally {
-      setBusy(false)
-    }
-  }
+  const id = useId()
+  const visible: MessageReactionGroup[] = mode === 'picker'
+    ? QUICK_REACTIONS.map(({ emoji }) => reactions.find((reaction) => reaction.emoji === emoji) ?? { emoji, count: 0 })
+    : reactions
 
   return (
-    <div className={`flex flex-wrap items-center gap-1 min-w-0 ${className}`.trim()}>
-      {(mode === 'picker' ? QUICK_EMOJI.map((emoji) => ({ emoji, count: reactions.find((reaction) => reaction.emoji === emoji)?.count ?? 0 })) : reactions).map((r) => (
-        <button
-          key={r.emoji}
-          type="button"
-          disabled={disabled || busy}
-          onClick={() => void toggleReaction(r.emoji)}
-          className={mode === 'picker' ? 'inline-flex h-8 w-8 items-center justify-center rounded-full text-base hover:bg-gray-100 disabled:opacity-50' : 'inline-flex items-center gap-0.5 rounded-full bg-white border border-gray-200 px-1.5 py-0.5 text-[11px] shadow-sm hover:bg-gray-50 disabled:opacity-50'}
-          aria-label={`${r.count > 0 ? 'Remove' : 'Add'} ${r.emoji} reaction`}
-        >
-          <span>{r.emoji}</span>
-          {mode === 'selected' ? <span className="font-semibold text-gray-600">{r.count}</span> : null}
-        </button>
-      ))}
+    <div className={`flex min-w-0 flex-wrap items-center gap-1 ${className}`.trim()}>
+      {visible.map((reaction, index) => {
+        const label = QUICK_REACTIONS.find(({ emoji }) => emoji === reaction.emoji)?.label ?? reaction.emoji
+        const pressed = reaction.reacted_by_viewer === true
+        const countId = `${id}-${index}`
+
+        return (
+          <button
+            key={reaction.emoji}
+            type="button"
+            disabled={disabled}
+            onClick={(event) => onToggle(reaction, event.currentTarget)}
+            className={
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-vortex-red disabled:opacity-50 aria-pressed:bg-red-100 '
+              + (mode === 'picker'
+                ? 'grid h-8 w-8 place-items-center rounded-lg text-base hover:bg-slate-100 aria-pressed:ring-1 aria-pressed:ring-inset aria-pressed:ring-red-300'
+                : 'inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2 text-xs hover:border-slate-300 hover:bg-slate-50 aria-pressed:border-red-300')
+            }
+            aria-label={`${label} reaction`}
+            aria-pressed={pressed}
+            aria-describedby={reaction.count > 0 ? countId : undefined}
+            title={`${pressed ? 'Remove your' : 'Add'} ${label.toLowerCase()} reaction`}
+          >
+            <span aria-hidden="true">{reaction.emoji}</span>
+            {mode === 'selected' && <span aria-hidden="true" className="font-semibold text-slate-600">{reaction.count}</span>}
+            {reaction.count > 0 && (
+              <span id={countId} className="sr-only">{reaction.count} {reaction.count === 1 ? 'reaction' : 'reactions'}</span>
+            )}
+          </button>
+        )
+      })}
     </div>
   )
 }

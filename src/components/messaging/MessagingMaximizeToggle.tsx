@@ -1,4 +1,4 @@
-import { Minimize2, Square } from 'lucide-react'
+import { Maximize2, Minimize2 } from 'lucide-react'
 
 interface MessagingMaximizeToggleProps {
   maximized: boolean
@@ -12,10 +12,10 @@ export default function MessagingMaximizeToggle({ maximized, onToggle }: Messagi
       aria-label={maximized ? 'Exit full screen messages' : 'Full screen messages'}
       aria-pressed={maximized}
       onClick={onToggle}
-      className="p-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+      className="grid size-10 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900"
       title={maximized ? 'Exit full screen' : 'Full screen'}
     >
-      {maximized ? <Minimize2 className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+      {maximized ? <Minimize2 className="size-4" aria-hidden /> : <Maximize2 className="size-4" aria-hidden />}
     </button>
   )
 }

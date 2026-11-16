@@ -13,6 +13,7 @@ interface MessagingThreadListHeaderActionsProps {
   sort: ThreadListSortField
   sortDir: ThreadListSortDir
   onSortChange: (sort: ThreadListSortField, sortDir: ThreadListSortDir) => void
+  showCreate?: boolean
   maximized?: boolean
   onMaximizedChange?: (maximized: boolean) => void
 }
@@ -23,21 +24,22 @@ export default function MessagingThreadListHeaderActions({
   sort,
   sortDir,
   onSortChange,
+  showCreate = true,
   maximized = false,
   onMaximizedChange,
 }: MessagingThreadListHeaderActionsProps) {
   return (
     <div className="flex items-center gap-1 shrink-0">
-      {!primaryAction.hidden && (
+      {showCreate && !primaryAction.hidden && (
         <button
           type="button"
           onClick={onPrimaryCreate}
           disabled={primaryAction.disabled}
           title={primaryAction.disabled ? primaryAction.disabledReason : primaryAction.label}
           aria-label={primaryAction.label}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-vortex-red hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center size-9 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="size-4" aria-hidden />
         </button>
       )}
       {maximized && onMaximizedChange && (

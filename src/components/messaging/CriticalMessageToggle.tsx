@@ -6,11 +6,12 @@ interface CriticalMessageToggleProps {
   value: CriticalComposeFlags
   onChange: (value: CriticalComposeFlags) => void
   disabled?: boolean
+  compact?: boolean
 }
 
 const SMS_CONFIRM_WORD = 'sms'
 
-export default function CriticalMessageToggle({ value, onChange, disabled = false }: CriticalMessageToggleProps) {
+export default function CriticalMessageToggle({ value, onChange, disabled = false, compact = false }: CriticalMessageToggleProps) {
   const [smsConfirmText, setSmsConfirmText] = useState('')
   const [showSmsOption, setShowSmsOption] = useState(false)
 
@@ -30,8 +31,8 @@ export default function CriticalMessageToggle({ value, onChange, disabled = fals
   }
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2 space-y-2">
-      <label className="flex items-center gap-2 cursor-pointer">
+    <div className={compact && !value.is_critical ? '' : 'space-y-2 rounded-lg border border-amber-200 bg-amber-50/60 px-3 py-2'}>
+      <label className={compact && !value.is_critical ? 'inline-flex min-h-8 cursor-pointer items-center gap-2 rounded-md px-2 hover:bg-slate-100' : 'flex cursor-pointer items-center gap-2'}>
         <input
           type="checkbox"
           checked={value.is_critical}
@@ -47,8 +48,8 @@ export default function CriticalMessageToggle({ value, onChange, disabled = fals
           }}
           className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
         />
-        <span className="inline-flex items-center gap-1 text-sm font-semibold text-gray-800">
-          <AlertTriangle className="w-3.5 h-3.5 text-amber-600" aria-hidden />
+        <span className={`inline-flex items-center gap-1 ${compact && !value.is_critical ? 'text-xs font-medium text-slate-600' : 'text-sm font-semibold text-slate-800'}`}>
+          <AlertTriangle className={`h-3.5 w-3.5 ${value.is_critical ? 'text-amber-600' : 'text-slate-500'}`} aria-hidden="true" />
           Critical message
         </span>
       </label>

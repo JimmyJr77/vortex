@@ -851,9 +851,12 @@ const MESSAGE_ENRICH_SELECT = `
       '[]'::json
     ) AS files,
     COALESCE(
-      (SELECT json_agg(json_build_object('emoji', rx.emoji, 'count', rx.cnt) ORDER BY rx.emoji)
+      (SELECT json_agg(json_build_object(
+         'emoji', rx.emoji, 'count', rx.cnt, 'reacted_by_viewer', rx.reacted_by_viewer
+       ) ORDER BY rx.emoji)
        FROM (
-         SELECT emoji, COUNT(*)::int AS cnt
+         SELECT emoji, COUNT(*)::int AS cnt,
+           COALESCE(BOOL_OR(mr.user_id = $2::bigint OR mr.member_id = $3::bigint), FALSE) AS reacted_by_viewer
          FROM coaching.message_reaction mr
          WHERE mr.message_id = msg.id
          GROUP BY emoji
@@ -912,7 +915,7 @@ const MESSAGE_ENRICH_SELECT = `
   FROM coaching.message msg
 `
 
-export async function loadEnrichedMessagesForThread(pool, threadId) {
+export async function loadEnrichedMessagesForThread(pool, threadId, viewer) {
   const r = await pool.query(
     `${MESSAGE_ENRICH_SELECT}
      WHERE msg.thread_id = $1
@@ -920,12 +923,15 @@ export async function loadEnrichedMessagesForThread(pool, threadId) {
        AND NOT EXISTS (SELECT 1 FROM coaching.message_poll p WHERE p.message_id = msg.id)
        AND NOT EXISTS (SELECT 1 FROM coaching.message_checklist c WHERE c.message_id = msg.id)
      ORDER BY msg.created_at ASC`,
-    [threadId],
+    [threadId, viewer?.userId ?? null, viewer?.memberId ?? null],
   )
   return r.rows
 }
 
 export async function loadEnrichedMessageById(pool, messageId) {
-  const r = await pool.query(`${MESSAGE_ENRICH_SELECT} WHERE msg.id = $1`, [messageId])
+  const r = await pool.query(
+    `${MESSAGE_ENRICH_SELECT} WHERE msg.id = $1`,
+    [messageId, null, null],
+  )
   return r.rows[0] ?? null
 }

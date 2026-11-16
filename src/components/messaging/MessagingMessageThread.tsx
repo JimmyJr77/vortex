@@ -1,9 +1,10 @@
+import { Pin } from 'lucide-react'
 import type { RefObject } from 'react'
 import MessageBubble from './MessageBubble'
+import MessagingEmptyState from './MessagingEmptyState'
 import { formatMessageDayLabel, isFirstMessageOfDay } from './messageFormatting'
-import type { MessageReactionGroup } from './MessageReactionBar'
 import type { MessageViewer } from './messageBubbleStyle'
-import type { MessageDisplayGroup, MessageRow, MessagingRole, ThreadParticipant } from './types'
+import type { MessageDisplayGroup, MessageReactionGroup, MessageRow, MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 
@@ -23,7 +24,6 @@ interface MessagingMessageThreadProps {
   fetcher: Fetcher
   participants?: ThreadParticipant[]
   messagesEndRef?: RefObject<HTMLDivElement | null>
-  showSenderName?: boolean
   onReply?: (message: MessageRow) => void
   onReplyWithFaq?: (message: MessageRow) => void
   onPinComment?: (message: MessageRow) => void
@@ -49,7 +49,6 @@ function renderBubble(
     role,
     fetcher,
     participants,
-    showSenderName,
     onReply,
     onReplyWithFaq,
     onPinComment,
@@ -65,7 +64,6 @@ function renderBubble(
     <MessageBubble
       message={m}
       viewer={viewer}
-      showSenderName={showSenderName}
       threadId={threadId}
       role={role}
       fetcher={fetcher}
@@ -91,7 +89,6 @@ export default function MessagingMessageThread({
   fetcher,
   participants = [],
   messagesEndRef,
-  showSenderName = true,
   onReply,
   onReplyWithFaq,
   onPinComment,
@@ -104,7 +101,7 @@ export default function MessagingMessageThread({
   pinFilterActive = false,
   importantFilterActive = false,
   onReactionsUpdated,
-  className = 'p-4 space-y-3',
+  className = 'px-4 py-5 sm:px-6',
 }: MessagingMessageThreadProps) {
   const bubbleProps = {
     viewer,
@@ -112,7 +109,6 @@ export default function MessagingMessageThread({
     role,
     fetcher,
     participants,
-    showSenderName,
     onReply,
     onReplyWithFaq,
     onPinComment,
@@ -124,88 +120,53 @@ export default function MessagingMessageThread({
     onReactionsUpdated,
   }
 
+  const visibleMessages = importantFilterActive ? messages.filter(isImportantMessage) : messages
+  let groups = visibleMessages.length > 0 ? [{ key: 'conversation', messages: visibleMessages }] : []
   if (pinFilterActive) {
-    if (!displayGroups || displayGroups.length === 0) {
-      return (
-        <div className={`${className} text-center text-sm text-gray-500 py-8`}>
-          No pinned messages in this view.
-        </div>
-      )
-    }
-
-    const messageMap = new Map(messages.map((m) => [Number(m.id), m]))
-    const pinnedMessages = displayGroups.flatMap((group) =>
-      group.messageIds
-        .map((messageId) => messageMap.get(Number(messageId)))
-        .filter((message): message is MessageRow => message != null),
-    )
-    if (pinnedMessages.length === 0) {
-      return (
-        <div className={`${className} text-center text-sm text-gray-500 py-8`}>
-          No pinned messages in this view.
-        </div>
-      )
-    }
-    return (
-      <div className={className}>
-        {displayGroups.map((group, groupIndex) => (
-          <div key={group.groupId ?? `super-${groupIndex}`} className="space-y-3">
-            {groupIndex > 0 && <div className="border-t border-gray-200 pt-3" />}
-            {group.messageIds.map((messageId) => {
-              const message = messageMap.get(Number(messageId))
-              if (!message) return null
-              return (
-                <div key={message.id}>
-                  {renderBubble(message, bubbleProps)}
-                </div>
-              )
-            })}
-          </div>
-        ))}
-        {messagesEndRef ? <div ref={messagesEndRef} /> : null}
-      </div>
-    )
+    const messageMap = new Map(messages.map((message) => [Number(message.id), message]))
+    groups = (displayGroups ?? []).flatMap((group, index) => {
+      const pinnedMessages = group.messageIds
+        .map((id) => messageMap.get(Number(id)))
+        .filter((message): message is MessageRow => message != null)
+      return pinnedMessages.length ? [{ key: `pin-group-${group.groupId ?? index}`, messages: pinnedMessages }] : []
+    })
   }
 
-  if (importantFilterActive) {
-    const filtered = messages.filter(isImportantMessage)
-    if (filtered.length === 0) {
-      return (
-        <div className={`${className} text-center text-sm text-gray-500 py-8`}>
-          No staff or critical messages in this thread.
-        </div>
-      )
-    }
+  if (groups.length === 0) {
+    const emptyCopy = pinFilterActive
+      ? 'No pinned messages in this view'
+      : importantFilterActive ? 'No staff or critical messages in this thread' : 'No messages yet'
     return (
-      <div className={className}>
-        {filtered.map((m, index) => (
-          <div key={m.id}>
-            {isFirstMessageOfDay(filtered, index) && (
-              <div className="text-center text-[11px] font-medium text-gray-400 py-2">
-                {formatMessageDayLabel(m.created_at)}
-              </div>
-            )}
-            {renderBubble(m, bubbleProps)}
-          </div>
-        ))}
-        {messagesEndRef ? <div ref={messagesEndRef} /> : null}
+      <div className={className} role="status">
+        <MessagingEmptyState title={emptyCopy} icon={pinFilterActive ? Pin : undefined} compact />
+        <div ref={messagesEndRef} />
       </div>
     )
   }
 
   return (
-    <div className={className}>
-      {messages.map((m, index) => (
-        <div key={m.id}>
-          {isFirstMessageOfDay(messages, index) && (
-            <div className="text-center text-[11px] font-medium text-gray-400 py-2">
-              {formatMessageDayLabel(m.created_at)}
-            </div>
-          )}
-          {renderBubble(m, bubbleProps)}
-        </div>
-      ))}
-      {messagesEndRef ? <div ref={messagesEndRef} /> : null}
+    <div className={className} key={threadId} role="log" aria-label="Conversation history">
+      <div className="mx-auto max-w-5xl space-y-5 divide-y divide-slate-200">
+        {groups.map((group, groupIndex) => (
+          <ol key={group.key} className={`space-y-4 ${groupIndex > 0 ? 'pt-5' : ''}`}>
+            {group.messages.map((message, index) => (
+              <li key={message.id}>
+                {!pinFilterActive && isFirstMessageOfDay(group.messages, index) && (
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-slate-200" aria-hidden="true" />
+                    <time dateTime={message.created_at} className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
+                      {formatMessageDayLabel(message.created_at)}
+                    </time>
+                    <span className="h-px flex-1 bg-slate-200" aria-hidden="true" />
+                  </div>
+                )}
+                {renderBubble(message, bubbleProps)}
+              </li>
+            ))}
+          </ol>
+        ))}
+      </div>
+      <div ref={messagesEndRef} />
     </div>
   )
 }

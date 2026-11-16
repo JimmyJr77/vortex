@@ -9,13 +9,26 @@ test('class managers can edit classes and create and rename programs from Admin'
   })
   const programs = [{ id: 2, displayName: 'Gymnastics', abridgedName: 'Gym', description: 'Original program', archived: false }]
   const details = { displayName: 'Tumbling', abridgedName: 'Tumble', description: 'Original class', isActive: true }
+  const scheduleGroups = [
+    {
+      id: 10, enrolledCount: 4, capacity: 10, waitlistCount: 2,
+      slots: [
+        { id: 1, dayOfWeek: 1, startTime: '16:00:00', endTime: '17:00:00' },
+        { id: 2, dayOfWeek: 3, startTime: '18:00:00', endTime: '19:00:00' },
+      ],
+    },
+    {
+      id: 20, enrolledCount: 7, capacity: 8, waitlistCount: 3,
+      slots: [{ id: 3, dayOfWeek: 5, startTime: '15:00:00', endTime: '16:00:00' }],
+    },
+  ]
   await page.route('**/api/**', async route => {
     const req = route.request()
     const path = new URL(req.url()).pathname
     let data: unknown = []
     if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: ['classes.view', 'classes.manage'], roles: ['ADMIN'], user: { id: 1 } }
     if (path === '/api/admin/new-admin/classes') {
-      data = { rows: [{ id: 1, programsId: 2, name: details.displayName, programName: programs[0].displayName, details, monthlyPriceCents: 12000, costAmountCents: 12000, costUnit: 'per_month', schedules: [{ id: 1, dayOfWeek: 1, startTime: '16:00:00', endTime: '17:00:00' }, { id: 2, dayOfWeek: 3, startTime: '18:00:00', endTime: '19:00:00' }], isActive: true, capacity: 12, enrolledCount: 0, waitlistCount: 0 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+      data = { rows: [{ id: 1, programsId: 2, name: details.displayName, programName: programs[0].displayName, details, monthlyPriceCents: 12000, costAmountCents: 12000, costUnit: 'per_month', scheduleGroups, schedules: scheduleGroups.flatMap(group => group.slots), isActive: true, capacity: 18, enrolledCount: 11, waitlistCount: 5 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
     }
     if (path === '/api/admin/new-admin/classes/1' && req.method() === 'PUT') {
       expect(req.postDataJSON()).toMatchObject({ displayName: 'Advanced Tumbling', description: 'Updated class', abridgedName: 'Tumble', isActive: true, monthlyPriceCents: 13500 })
@@ -51,8 +64,11 @@ test('class managers can edit classes and create and rename programs from Admin'
     await expect(header).toHaveAttribute('aria-sort','descending')
   }
 
-  await expect(page.getByText('Mon · 4:00 PM–5:00 PM', { exact: true })).toBeVisible()
-  await expect(page.getByText('Wed · 6:00 PM–7:00 PM', { exact: true })).toBeVisible()
+  const mondayAndWednesday = page.getByRole('row').filter({ has: page.getByText('Mon · 4:00 PM–5:00 PM', { exact: true }) })
+  const friday = page.getByRole('row').filter({ has: page.getByText('Fri · 3:00 PM–4:00 PM', { exact: true }) })
+  await expect(mondayAndWednesday.getByText('Wed · 6:00 PM–7:00 PM', { exact: true })).toBeVisible()
+  await expect(mondayAndWednesday.getByRole('cell').filter({ hasText: /^\d+$/ })).toHaveText(['4', '10', '2'])
+  await expect(friday.getByRole('cell').filter({ hasText: /^\d+$/ })).toHaveText(['7', '8', '3'])
   await page.getByRole('button', { name: 'Edit class: Tumbling' }).click()
   await expect(page.getByLabel('Monthly price ($)', { exact: true })).toHaveValue('120.00')
   await expect(page.getByText('$40.00', { exact: true })).toBeVisible()

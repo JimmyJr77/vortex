@@ -45,9 +45,9 @@ export function findActiveMentionQuery(
   caret: number,
 ): { start: number; query: string } | null {
   const before = text.slice(0, caret)
-  const match = before.match(/@([^@\n]{0,40})$/)
-  if (!match) return null
-  return { start: caret - match[0].length, query: match[1] }
+  const match = before.match(/(?:^|[\s([{])@([^@\n]{0,40})$/)
+  if (!match || /\s$/.test(match[1])) return null
+  return { start: caret - match[1].length - 1, query: match[1] }
 }
 
 export function filterParticipantsForMentionQuery(
@@ -160,7 +160,7 @@ export function tokenizeReplyMentionPrefix(
     body = text.replace(new RegExp(`^@${escapeRegex(name)}:`), `${token}:`)
     if (body !== text) return body
   }
-  return text.replace(/^@[^:\n]+:/, `${token}:`)
+  return text
 }
 
 export function prepareMessageBodyForSend(
@@ -170,13 +170,11 @@ export function prepareMessageBodyForSend(
   participants: ThreadParticipant[],
 ): { body: string; mentions: MessageMentionPayload[] } {
   const replyMention = replyTarget ? mentionPayloadFromMessage(replyTarget) : null
-  const mentions = mergeMentionPayloads(composerMentions, replyMention ? [replyMention] : [])
-  let body = text
-  if (replyMention && replyTarget) {
-    body = tokenizeReplyMentionPrefix(body, replyMention, replyTarget, participants)
-  }
-  body = tokenizeMentionsInBody(body, composerMentions, participants)
-  return { body, mentions }
+  const replyBody = replyMention && replyTarget
+    ? tokenizeReplyMentionPrefix(text, replyMention, replyTarget, participants)
+    : text
+  const mentions = mergeMentionPayloads(composerMentions, replyMention && replyBody !== text ? [replyMention] : [])
+  return { body: tokenizeMentionsInBody(replyBody, composerMentions, participants), mentions }
 }
 
 export interface MentionSegment {
@@ -256,7 +254,12 @@ export function splitMessageBodyForDisplay(
     const suffix = i < lines.length - 1 ? '\n' : ''
 
     if (line.startsWith('> ')) {
-      segments.push({ kind: 'quote', text: line + suffix })
+      const previous = segments[segments.length - 1]
+      if (previous?.kind === 'quote') {
+        previous.text += line + suffix
+      } else {
+        segments.push({ kind: 'quote', text: line + suffix })
+      }
       continue
     }
 

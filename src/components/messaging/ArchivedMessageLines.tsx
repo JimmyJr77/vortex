@@ -1,11 +1,9 @@
-import type { MessageRow } from './types'
+import type { MessageRow, ThreadParticipant } from './types'
+import type { MessageViewer } from './messageBubbleStyle'
 import MessageAttachmentDisplay from './MessageAttachmentDisplay'
-import YoutubeLinkifiedText from '../YoutubeLinkifiedText'
+import MessageMentionBody from './MessageMentionBody'
+import MessagingEmptyState from './MessagingEmptyState'
 import { formatMessageSenderDisplayName } from './messageFormatting'
-
-interface ArchivedMessageLinesProps {
-  messages: MessageRow[]
-}
 
 function senderPortalLabel(portal?: string) {
   if (portal === 'admin') return 'Admin portal'
@@ -14,33 +12,40 @@ function senderPortalLabel(portal?: string) {
   return 'Unknown portal'
 }
 
-export default function ArchivedMessageLines({ messages }: ArchivedMessageLinesProps) {
-  if (messages.length === 0) {
-    return <div className="p-4 text-sm text-gray-500">No messages in this thread.</div>
-  }
+export default function ArchivedMessageLines({
+  messages, participants, viewer = { portal: 'admin' },
+}: {
+  messages: MessageRow[]
+  participants?: ThreadParticipant[]
+  viewer?: MessageViewer
+}) {
+  if (!messages.length) return <MessagingEmptyState title="No messages in this conversation" compact />
 
   return (
-    <div className="border-t border-gray-200">
-      {messages.map((m) => (
-        <div key={m.id} className="border-b border-gray-100 px-3 py-2.5 text-sm">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 text-xs text-gray-500 mb-1">
-            <span className="tabular-nums">{new Date(m.created_at).toLocaleString()}</span>
-            <span className="text-gray-700">{formatMessageSenderDisplayName(m)}</span>
-            <span className="uppercase tracking-wide text-[10px] text-gray-400">
-              {senderPortalLabel(m.sender_portal ?? m.sender_kind)}
-            </span>
-            <span className="text-gray-400">#{m.id}</span>
+    <ol aria-label="Archived conversation history" className="mx-auto max-w-5xl space-y-2 px-3 py-4 sm:px-5">
+      {messages.map((message) => (
+        <li key={message.id} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 sm:px-4">
+          <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+            <span className="font-semibold text-slate-800">{formatMessageSenderDisplayName(message)}</span>
+            <time dateTime={message.created_at}>{new Date(message.created_at).toLocaleString()}</time>
+            <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium">{senderPortalLabel(message.sender_portal ?? message.sender_kind)}</span>
+            <span className="ml-auto tabular-nums" aria-label={`Message ${message.id}`}>#{message.id}</span>
           </div>
-          <div className="text-gray-900 whitespace-pre-wrap leading-relaxed">
-            <YoutubeLinkifiedText text={m.body ?? ''} />
-          </div>
-          {m.attachment_url && (
-            <div className="mt-1">
-              <MessageAttachmentDisplay url={m.attachment_url} name={m.attachment_name} mime={m.attachment_mime} />
-            </div>
+          {message.deleted_at ? (
+            <p className="italic text-slate-600">Message deleted</p>
+          ) : (
+            <>
+              <MessageMentionBody body={message.body ?? ''} participants={participants} viewer={viewer} />
+              {message.attachment_url && (
+                <MessageAttachmentDisplay url={message.attachment_url} name={message.attachment_name} mime={message.attachment_mime} />
+              )}
+              {message.files?.filter((file) => file.url !== message.attachment_url).map((file) => (
+                <MessageAttachmentDisplay key={file.id ?? file.url} url={file.url} name={file.name} mime={file.mime} />
+              ))}
+            </>
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ol>
   )
 }

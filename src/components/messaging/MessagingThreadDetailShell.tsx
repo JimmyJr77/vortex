@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useId, useRef, useState, type ReactNode } from 'react'
 
 interface MessagingThreadDetailShellProps {
   header: ReactNode
@@ -6,117 +6,64 @@ interface MessagingThreadDetailShellProps {
   children: ReactNode
 }
 
-const MIN_FOOTER_HEIGHT = 120
-const DEFAULT_FOOTER_HEIGHT = 184
+const MIN_FOOTER_HEIGHT = 112
 
-function maxFooterHeight() {
-  if (typeof window === 'undefined') return 360
-  return Math.floor(window.innerHeight * 0.45)
-}
-
-/** Thread detail: fixed header/footer with a single scroll region for messages + contextual blocks. */
-export default function MessagingThreadDetailShell({
-  header,
-  footer,
-  children,
-}: MessagingThreadDetailShellProps) {
+/** Header and composer stay visible while the conversation scrolls independently. */
+export default function MessagingThreadDetailShell({ header, footer, children }: MessagingThreadDetailShellProps) {
+  const contentId = useId()
+  const shellRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLDivElement>(null)
-  const [footerHeight, setFooterHeight] = useState(DEFAULT_FOOTER_HEIGHT)
-  const dragState = useRef<{ startY: number; startHeight: number } | null>(null)
+  const [footerHeight, setFooterHeight] = useState<number | null>(null)
+  const drag = useRef<{ y: number; height: number } | null>(null)
 
-  const clampFooterHeight = (height: number) => {
-    return Math.min(maxFooterHeight(), Math.max(MIN_FOOTER_HEIGHT, height))
-  }
-
-  const endResize = () => {
-    dragState.current = null
-    document.body.style.cursor = ''
-    document.body.style.userSelect = ''
-  }
-
-  const startResize = (clientY: number) => {
-    const el = footerRef.current
-    const measured = el?.getBoundingClientRect().height ?? footerHeight
-    const startHeight = measured
-    setFooterHeight(startHeight)
-    dragState.current = { startY: clientY, startHeight }
-
-    const onMove = (moveClientY: number) => {
-      const drag = dragState.current
-      if (!drag) return
-      const delta = drag.startY - moveClientY
-      setFooterHeight(clampFooterHeight(drag.startHeight + delta))
-    }
-
-    const onMouseMove = (e: MouseEvent) => {
-      onMove(e.clientY)
-    }
-
-    const onMouseUp = () => {
-      endResize()
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('mouseup', onMouseUp)
-    }
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 0) return
-      onMove(e.touches[0].clientY)
-    }
-
-    const onTouchEnd = () => {
-      endResize()
-      window.removeEventListener('touchmove', onTouchMove)
-      window.removeEventListener('touchend', onTouchEnd)
-    }
-
-    document.body.style.cursor = 'ns-resize'
-    document.body.style.userSelect = 'none'
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    window.addEventListener('touchend', onTouchEnd)
-  }
-
-  const onResizeMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
-    startResize(e.clientY)
-  }
-
-  const onResizeTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length === 0) return
-    startResize(e.touches[0].clientY)
-  }
+  const heightNow = () => footerRef.current?.getBoundingClientRect().height ?? MIN_FOOTER_HEIGHT
+  const maxHeight = () => Math.max(MIN_FOOTER_HEIGHT, Math.floor((shellRef.current?.clientHeight ?? 640) * 0.58))
+  const resize = (height: number) => setFooterHeight(Math.min(maxHeight(), Math.max(MIN_FOOTER_HEIGHT, height)))
 
   return (
-    <div
-      className="flex-1 h-full min-h-0 max-h-full overflow-hidden"
-      style={{
-        display: 'grid',
-        gridTemplateRows: footer
-          ? `auto minmax(0, 1fr) ${footerHeight}px`
-          : 'auto minmax(0, 1fr)',
-      }}
-    >
-      <div className="min-h-0">{header}</div>
-      <div className="min-h-0 overflow-y-auto overscroll-contain">{children}</div>
-      {footer ? (
+    <div ref={shellRef} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="shrink-0">{header}</div>
+      <div id={contentId} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+      {footer && (
         <div
           ref={footerRef}
-          className="min-h-0 border-t border-gray-100 bg-white flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom,0px)]"
+          style={footerHeight == null ? undefined : { height: footerHeight, maxHeight: '58%' }}
+          className="relative z-10 flex min-h-min shrink-0 flex-col border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom,0px)]"
         >
           <div
             role="separator"
+            tabIndex={0}
             aria-orientation="horizontal"
             aria-label="Resize reply area"
-            onMouseDown={onResizeMouseDown}
-            onTouchStart={onResizeTouchStart}
-            className="shrink-0 h-2 cursor-ns-resize touch-none flex items-center justify-center hover:bg-gray-50 active:bg-gray-100"
+            title="Drag or use arrow keys to resize. Double-click to reset."
+            onDoubleClick={() => setFooterHeight(null)}
+            onKeyDown={(event) => {
+              const next = event.key === 'ArrowUp' ? heightNow() + 20
+                : event.key === 'ArrowDown' ? heightNow() - 20
+                  : event.key === 'Home' ? MIN_FOOTER_HEIGHT
+                    : event.key === 'End' ? maxHeight()
+                      : null
+              if (next == null && event.key !== 'Escape') return
+              event.preventDefault()
+              if (next == null) setFooterHeight(null)
+              else resize(next)
+            }}
+            onPointerDown={(event) => {
+              if (event.button !== 0) return
+              drag.current = { y: event.clientY, height: heightNow() }
+              event.currentTarget.setPointerCapture(event.pointerId)
+            }}
+            onPointerMove={(event) => {
+              if (drag.current) resize(drag.current.height + drag.current.y - event.clientY)
+            }}
+            onLostPointerCapture={() => { drag.current = null }}
+            className="flex h-3 shrink-0 cursor-ns-resize touch-none select-none items-center justify-center hover:bg-slate-100 focus-visible:bg-slate-100"
           >
-            <div className="w-10 h-1 rounded-full bg-gray-300" />
+            <span className="h-1 w-9 rounded-full bg-slate-300" aria-hidden />
           </div>
-          <div className="flex flex-col flex-1 min-h-0 overflow-y-auto">{footer}</div>
+          <div className="flex min-h-min flex-1 flex-col">{footer}</div>
         </div>
-      ) : null}
+      )}
     </div>
   )
 }

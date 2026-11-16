@@ -775,23 +775,28 @@ export async function addMessageReaction(pool, messageId, emoji, viewer) {
 
 export async function removeMessageReaction(pool, messageId, emoji, viewer) {
   if (viewer?.userId != null) {
-    await pool.query(
+    const result = await pool.query(
       `DELETE FROM coaching.message_reaction
        WHERE message_id = $1 AND emoji = $2 AND user_id = $3`,
       [messageId, emoji, viewer.userId],
     )
-  } else if (viewer?.memberId != null) {
-    await pool.query(
+    return result.rowCount > 0
+  }
+  if (viewer?.memberId != null) {
+    const result = await pool.query(
       `DELETE FROM coaching.message_reaction
        WHERE message_id = $1 AND emoji = $2 AND member_id = $3`,
       [messageId, emoji, viewer.memberId],
     )
+    return result.rowCount > 0
   }
+  return false
 }
 
-export async function loadMessageReactions(pool, messageId) {
+export async function loadMessageReactions(pool, messageId, viewer) {
   const r = await pool.query(
     `SELECT emoji, COUNT(*)::int AS count,
+       COALESCE(BOOL_OR(user_id = $2::bigint OR member_id = $3::bigint), FALSE) AS reacted_by_viewer,
        json_agg(json_build_object(
          'user_id', user_id, 'member_id', member_id, 'created_at', created_at
        )) AS reactors
@@ -799,9 +804,27 @@ export async function loadMessageReactions(pool, messageId) {
      WHERE message_id = $1
      GROUP BY emoji
      ORDER BY emoji`,
-    [messageId],
+    [messageId, viewer?.userId ?? null, viewer?.memberId ?? null],
   )
   return r.rows
+}
+
+export async function loadThreadReactionGroups(pool, threadId, viewer) {
+  const { rows } = await pool.query(
+    `SELECT r.message_id, r.emoji, COUNT(*)::int AS count,
+       COALESCE(BOOL_OR(r.user_id = $2::bigint OR r.member_id = $3::bigint), FALSE) AS reacted_by_viewer
+     FROM coaching.message msg
+     JOIN coaching.message_reaction r ON r.message_id = msg.id
+     WHERE msg.thread_id = $1 AND msg.deleted_at IS NULL
+     GROUP BY r.message_id, r.emoji
+     ORDER BY r.message_id, r.emoji`,
+    [threadId, viewer?.userId ?? null, viewer?.memberId ?? null],
+  )
+  const groups = {}
+  for (const { message_id, ...reaction } of rows) {
+    (groups[message_id] ??= []).push(reaction)
+  }
+  return groups
 }
 
 // --- Polls ---

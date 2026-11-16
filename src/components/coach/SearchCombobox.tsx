@@ -14,6 +14,7 @@ interface SearchComboboxProps {
   onSelect: (option: SearchComboboxOption) => void
   options: SearchComboboxOption[]
   loading?: boolean
+  ariaLabel?: string
   placeholder?: string
   emptyMessage?: string
   loadingMessage?: string
@@ -27,6 +28,7 @@ export default function SearchCombobox({
   onSelect,
   options,
   loading = false,
+  ariaLabel,
   placeholder = 'Search…',
   emptyMessage = 'No matches.',
   loadingMessage = 'Loading…',
@@ -79,6 +81,8 @@ export default function SearchCombobox({
             <button
               type="button"
               role="option"
+              id={`${listId}-${index}`}
+              tabIndex={-1}
               aria-selected={index === activeIndex}
               className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 ${index === activeIndex ? 'bg-red-50 text-vortex-red' : 'text-gray-800'}`}
               onMouseDown={(ev) => ev.preventDefault()}
@@ -118,8 +122,10 @@ export default function SearchCombobox({
         value={value}
         autoComplete="off"
         role="combobox"
+        aria-label={ariaLabel}
         aria-expanded={showList}
-        aria-controls={listId}
+        aria-controls={listbox ? listId : undefined}
+        aria-activedescendant={listbox && activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
         aria-autocomplete="list"
         placeholder={placeholder}
         className={
@@ -136,6 +142,12 @@ export default function SearchCombobox({
           setOpen(true)
         }}
         onKeyDown={(e) => {
+          if (showList && e.key === 'Escape') {
+            e.preventDefault()
+            setOpen(false)
+            setActiveIndex(-1)
+            return
+          }
           if (!showList || options.length === 0) return
           if (e.key === 'ArrowDown') {
             e.preventDefault()
@@ -146,9 +158,6 @@ export default function SearchCombobox({
           } else if (e.key === 'Enter' && activeIndex >= 0) {
             e.preventDefault()
             onSelect(options[activeIndex])
-            setOpen(false)
-            setActiveIndex(-1)
-          } else if (e.key === 'Escape') {
             setOpen(false)
             setActiveIndex(-1)
           }

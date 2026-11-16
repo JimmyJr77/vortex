@@ -5,10 +5,8 @@ import type { ThreadListSortDir, ThreadListSortField } from './messagingThreadSo
 /** Shared layout classes — flex chain from portal main fills remaining viewport height. */
 export const messagingWorkspaceRoot = 'flex flex-col gap-4 messaging-workspace flex-1 min-h-0 h-full max-h-full overflow-hidden'
 export const messagingWorkspaceThreadOpen = 'messaging-workspace--thread-open'
-export const messagingWorkspaceGrid = 'grid gap-4 lg:gap-5 lg:grid-cols-[minmax(220px,280px)_1fr] flex-1 min-h-0 h-full max-h-full overflow-hidden messaging-workspace-grid'
+export const messagingWorkspaceGrid = 'grid lg:grid-cols-[minmax(260px,29%)_minmax(0,1fr)] flex-1 min-h-0 h-full max-h-full overflow-hidden messaging-workspace-grid'
 export const messagingWorkspaceShell = 'flex-1 min-h-0 h-full max-h-full overflow-hidden'
-export const messagingPanel = 'messaging-panel'
-export const messagingScroll = 'messaging-scroll'
 
 const SCHEDULING_LINK_TYPES = new Set([
   'scheduling_form',
@@ -63,14 +61,6 @@ export function threadListAccentCategory(thread: MessageThread): ThreadListAccen
   if (threadHasEventLink(thread)) return 'event'
   if (threadHasSchedulingLink(thread)) return 'scheduling'
   return 'message'
-}
-
-export function threadListAccentClass(thread: MessageThread): string {
-  if (thread.is_calendar_inbox_row) return 'border-l-amber-500'
-  const category = threadListAccentCategory(thread)
-  if (category === 'event') return 'border-l-purple-500'
-  if (category === 'scheduling') return 'border-l-teal-500'
-  return (thread.unread_count ?? 0) > 0 ? 'border-l-blue-500' : 'border-l-gray-300'
 }
 
 function threadHasFiles(t: MessageThread): boolean {
@@ -135,7 +125,8 @@ export function threadListTitle(t: MessageThread, fallback = 'Conversation') {
       .trim()
     return base || fallback
   }
-  return t.subject?.trim() || (t.first_name ? `${t.first_name} ${t.last_name}`.trim() : fallback)
+  const athleteName = [t.first_name, t.last_name].filter(Boolean).join(' ').trim()
+  return t.subject?.trim() || athleteName || t.participant_names?.trim() || fallback
 }
 
 function threadSortTitle(t: MessageThread): string {
@@ -157,8 +148,8 @@ export function sortMessageThreads(
     if (sort === 'title') {
       cmp = threadSortTitle(a).localeCompare(threadSortTitle(b))
     } else if (sort === 'recent') {
-      const aTime = new Date(a.last_message_at || a.created_at || 0).getTime()
-      const bTime = new Date(b.last_message_at || b.created_at || 0).getTime()
+      const aTime = new Date(a.last_message_at || a.last_message_created_at || a.created_at || 0).getTime()
+      const bTime = new Date(b.last_message_at || b.last_message_created_at || b.created_at || 0).getTime()
       cmp = aTime - bTime
     } else {
       const aTime = new Date(a.created_at || 0).getTime()
@@ -168,15 +159,6 @@ export function sortMessageThreads(
     return sortDir === 'asc' ? cmp : -cmp
   })
   return sorted
-}
-
-/** Favorites first, then most recently updated — used for default thread list order and landing. */
-export function defaultThreadListOrder(threads: MessageThread[]): MessageThread[] {
-  return sortMessageThreads(threads, 'recent', 'desc')
-}
-
-export function defaultLandingThreadId(threads: MessageThread[]): number | null {
-  return defaultThreadListOrder(threads.filter((t) => !t.is_calendar_inbox_row && !t.is_schedule_inbox_row))[0]?.id ?? null
 }
 
 /**
