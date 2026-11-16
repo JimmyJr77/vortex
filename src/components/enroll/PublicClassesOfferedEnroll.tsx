@@ -311,7 +311,7 @@ export default function PublicClassesOfferedEnroll({
             program.primarySportName ?? '',
           ].join(' ').toLowerCase().includes(query)
         })
-        .sort((a, b) => a.label.localeCompare(b.label))
+
 
       const programMatchesFilters =
         (programFilter === 'all' || program.id === programFilter) &&

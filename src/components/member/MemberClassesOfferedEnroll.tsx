@@ -320,7 +320,7 @@ function AthleteEnrollment({
             .toLowerCase()
           return haystack.includes(q)
         })
-        .sort((a, b) => a.label.localeCompare(b.label))
+
 
       if (programClasses.length === 0) continue
       sections.push({ program, programClasses })

@@ -31,7 +31,7 @@ export interface ClassesOfferedResponse {
 }
 
 export async function fetchClassesOffered(): Promise<ClassesOfferedResponse> {
-  const res = await fetch(`${getApiUrl()}/api/public/classes-offered`)
+  const res = await fetch(`${getApiUrl()}/api/public/classes-offered`, { cache: 'no-store' })
   const data = await res.json()
   if (!res.ok || !data.success) {
     throw new Error(data.message || 'Failed to load classes offered')

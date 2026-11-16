@@ -25,6 +25,7 @@ import HighlightsModal from './components/HighlightsModal'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
+const NewPage = lazyWithRetry(() => import('./components/newpage/NewPage'))
 const SummerAthleticTraining = lazyWithRetry(() => import('./components/SummerAthleticTraining'))
 const StrengthFitness = lazyWithRetry(() => import('./components/StrengthFitness'))
 const Sports = lazyWithRetry(() => import('./components/Sports'))
@@ -70,9 +71,14 @@ function App() {
   const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
   const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
-  const [activePortal, setActivePortal] = useState<PortalId>(() => (hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'))
+  const [activePortal, setActivePortal] = useState<PortalId>(() => {
+    // The redesign preview should open even when a portal session is stored.
+    if (window.location.pathname.replace(/\/$/, '') === '/newpage') return 'website'
+    return hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'
+  })
   const location = useLocation()
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
+  const isNewPage = Boolean(matchPath('/newpage', location.pathname))
   const {
     highlights,
     isOpen: isHighlightsOpen,
@@ -236,7 +242,7 @@ function App() {
 
   // Check required waivers for restored member sessions. Lead registration
   // uses the invited family's own sign-in and waiver steps.
-  if (!isLeadRegistration && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
+  if (!isLeadRegistration && !(isNewPage && activePortal === 'website') && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
@@ -293,8 +299,8 @@ function App() {
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white relative">
-      <HubSeo />
-      <Header 
+      {!isNewPage && <HubSeo />}
+      {!isNewPage && <Header
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         isLoggedIn={Boolean(member) || isAdmin}
@@ -303,9 +309,16 @@ function App() {
           const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
-      />
+      />}
       <Suspense fallback={<PageLoader />}>
         <Routes>
+          <Route path="/newpage" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+            if (member || isAdmin) {
+              const portals = getAvailablePortals(member)
+              const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
+              switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
+            } else setIsLoginOpen(true)
+          }} />} />
           <Route 
             path="/" 
             element={
@@ -395,10 +408,10 @@ function App() {
         inquiryVariant="athletics"
         inquirySource={inquirySourcePath}
       />
-      <Footer 
+      {!isNewPage && <Footer
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
-      />
+      />}
 
       <Login
         isOpen={isLoginOpen}

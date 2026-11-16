@@ -56,7 +56,7 @@ export async function listPublicClassesOffered(pool) {
     LEFT JOIN discipline_tag primary_dt ON primary_dt.id = p.primary_discipline_tag_id
     WHERE p.archived = FALSE
       ${activeProgramClause}
-    ORDER BY p.display_name ASC
+    ORDER BY p.enrollment_sort_order ASC NULLS LAST, p.display_name ASC, p.id ASC
     `,
   )
 
@@ -111,7 +111,7 @@ export async function listPublicClassesOffered(pool) {
       AND p.${schema.programFkColumn} IS NOT NULL
       AND pr.archived = FALSE
       ${programActiveColumn.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''}
-    ORDER BY p.display_name ASC
+    ORDER BY p.enrollment_sort_order ASC NULLS LAST, p.display_name ASC, p.id ASC
     `,
   )
 

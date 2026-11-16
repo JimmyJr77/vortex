@@ -5,7 +5,7 @@ import { inquiryInput } from './leadInquiry.js'
 import { leadFilters } from './leadFilters.js'
 import { loadAccountNotes } from './accountNotes.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
-import { normalizeUpdatedPhoneNumber, normalizePhoneNumber } from '../phoneNumbers.js'
+import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
@@ -43,10 +43,10 @@ function text(value, label, max, required = false) {
 
 export function leadInput(body, { partial = false, currentPhone } = {}) {
   const result = {}
-  for (const [key, label, max, required] of [['firstName','First name',50,false],['lastName','Last name',50,false],['email','Email',255,true],['notes','Notes',10000,false],['message','Message',10000,false]]) {
+  for (const [key, label, max, required] of [['firstName','First name',50,false],['lastName','Last name',50,false],['email','Email',255,false],['notes','Notes',10000,false],['message','Message',10000,false]]) {
     if (!partial || Object.hasOwn(body, key)) {
       result[key] = text(body[key], label, max, required)
-      if (key === 'firstName' || key === 'lastName') result[key] ??= ''
+      if (key === 'firstName' || key === 'lastName' || key === 'email') result[key] ??= ''
     }
   }
   if (!partial || Object.hasOwn(body, 'phone')) result.phone = normalizeUpdatedPhoneNumber(body.phone ?? null, currentPhone)
@@ -63,7 +63,7 @@ export function leadInput(body, { partial = false, currentPhone } = {}) {
   }
   if (result.contacted === true && result.status === 'new') result.status = 'contacted'
   if (result.contacted === false && result.status === 'contacted') result.status = 'new'
-  if (Object.hasOwn(body, 'inquiry')) result.inquiry = inquiryInput(body.inquiry, { requireAthleteDetails: true })
+  if (Object.hasOwn(body, 'inquiry')) result.inquiry = inquiryInput(body.inquiry)
   return result
 }
 
@@ -77,7 +77,6 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
     if (!submittedBy) throw inputError('The submitting staff account was not found in this facility.', 403)
   }
   const inquiry = input.inquiry || {}
-  if (inquiry.campers?.length && !normalizePhoneNumber(input.phone)) throw inputError('A complete phone number is required when adding an athlete.')
   // One statement persists the full lead, attribution and explicit newsletter
   // opt-in together. Caller-supplied staff names/IDs are never used.
   const result = await db.query(`WITH saved AS (INSERT INTO registrations
@@ -87,7 +86,7 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $9::boolean THEN now() ELSE NULL END,
       $11::text[],$12,$13::text[],$14::jsonb,$15,$16,$17,$18,$19::int[],$20,$21,$22) RETURNING *),
     subscribed AS (INSERT INTO newsletter_subscribers(email)
-      SELECT email FROM saved WHERE newsletter_opt_in IS TRUE ON CONFLICT (email) DO NOTHING)
+      SELECT email FROM saved WHERE newsletter_opt_in IS TRUE AND NULLIF(btrim(email),'') IS NOT NULL ON CONFLICT (email) DO NOTHING)
     SELECT r.*, inquiry_contact.member_id AS matched_member_id FROM saved r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`,
   [facility,input.firstName,input.lastName,input.email,input.phone,input.notes,input.message,input.status || (input.contacted ? 'contacted' : 'new'),input.contacted ?? input.status === 'contacted',input.followUp ?? false,
     inquiry.interests ?? null,inquiry.interests?.join(', ') ?? null,inquiry.classTypes ?? null,JSON.stringify(inquiry.campers ?? []),
@@ -99,13 +98,6 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
 export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   const input = leadInput(body, { partial: true, currentPhone })
   const inquiry = input.inquiry
-  if (Object.hasOwn(input, 'phone') || inquiry?.campers) {
-    const { rows: [existing] } = await db.query('SELECT phone,campers FROM registrations WHERE id=$1 AND facility_id=$2', [id(leadId), id(facilityId)])
-    if (!existing) throw inputError('Lead not found.', 404)
-    const athletes = inquiry?.campers ?? existing.campers
-    const phone = Object.hasOwn(input, 'phone') ? input.phone : existing.phone
-    if (athletes?.length && !normalizePhoneNumber(phone)) throw inputError('A complete phone number is required when adding an athlete.')
-  }
   delete input.inquiry
   const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status',contacted:'contacted',followUp:'follow_up' }
   const values = [id(leadId), id(facilityId)]
@@ -124,7 +116,7 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   const result = await db.query(`WITH saved AS (UPDATE registrations SET ${updates.join(',')},updated_at=now()
     WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE RETURNING *),
     subscribed AS (INSERT INTO newsletter_subscribers(email)
-      SELECT email FROM saved WHERE $${subscribeParameter}::boolean ON CONFLICT (email) DO NOTHING)
+      SELECT email FROM saved WHERE $${subscribeParameter}::boolean AND NULLIF(btrim(email),'') IS NOT NULL ON CONFLICT (email) DO NOTHING)
     SELECT r.*, inquiry_contact.member_id AS matched_member_id FROM saved r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`, values)
   if (!result.rows[0]) throw inputError('Lead not found.',404)
   return leadRow(result.rows[0])

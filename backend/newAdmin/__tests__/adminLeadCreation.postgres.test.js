@@ -9,15 +9,20 @@ import { createLead, updateLead, leadInput } from '../leads.js'
 const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL
 if (connectionString) validateRehearsalDatabaseUrl(connectionString, { nodeEnv: 'development' })
 
-test('admin leads require only email and optional fields are validated when supplied', () => {
+test('admin leads have no mandatory fields and validate optional values when supplied', () => {
   assert.equal(leadInput({ email: 'prospect@example.test' }).firstName, '')
   assert.equal(leadInput({ email: 'prospect@example.test' }).lastName, '')
-  assert.throws(() => leadInput({}), /Email is required/)
+  assert.equal(leadInput({}).email, '')
+  assert.equal(leadInput({ firstName: 'Only a name' }).email, '')
+  assert.equal(leadInput({ email: '  ' }).email, '')
   assert.throws(() => leadInput({ email: 'invalid' }), /valid email/)
   assert.throws(() => leadInput({ email: 'prospect@example.test', inquiry: { newsletter: 'yes' } }), /boolean/)
   assert.throws(() => leadInput({ email: 'prospect@example.test', inquiry: { campers: [{ dateOfBirth: '2020-02-31', gender: 'male' }] } }), /birthday/)
-  assert.throws(() => leadInput({ email: 'prospect@example.test', inquiry: { campers: [{ gender: 'female' }] } }), /date of birth/)
-  assert.throws(() => leadInput({ email: 'prospect@example.test', inquiry: { campers: [{ dateOfBirth: '2020-02-20' }] } }), /gender/)
+  assert.deepEqual(leadInput({ inquiry: { campers: [{ gender: 'female' }, { dateOfBirth: '2020-02-20' }, {}] } }).inquiry.campers, [
+    { firstName: '', lastName: '', dateOfBirth: '', gender: 'female' },
+    { firstName: '', lastName: '', dateOfBirth: '2020-02-20', gender: '' },
+    { firstName: '', lastName: '', dateOfBirth: '', gender: '' },
+  ])
 })
 
 test('admin inquiry creation stores trusted staff attribution, optional public fields, and newsletter choice atomically', { skip: !connectionString }, async () => {
@@ -25,9 +30,32 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
   await db.connect()
   try {
     await db.query('BEGIN')
-    await db.query(await readFile(new URL('../../migrations/857_admin_lead_submission.sql', import.meta.url), 'utf8'))
+    for (const migration of ['855_repeat_public_inquiries.sql', '857_admin_lead_submission.sql']) {
+      await db.query(await readFile(new URL(`../../migrations/${migration}`, import.meta.url), 'utf8'))
+    }
     const facility = (await db.query("INSERT INTO facility(name) VALUES('Admin lead fixture') RETURNING id")).rows[0]
     const staff = (await db.query("INSERT INTO app_user(facility_id,full_name,role) VALUES($1,'Staff Who Entered Lead','ADMIN') RETURNING id", [facility.id])).rows[0]
+    const subscribersBefore = (await db.query("SELECT count(*)::int AS count FROM newsletter_subscribers WHERE NULLIF(btrim(email),'') IS NULL")).rows[0].count
+    const blank = await createLead(db, facility.id, {}, { userId: staff.id })
+    assert.equal(blank.firstName, '')
+    assert.equal(blank.lastName, '')
+    assert.equal(blank.email, '')
+    assert.equal(blank.phone, null)
+    assert.equal(blank.inquiry.submittedBy.userId, Number(staff.id))
+    assert.equal(blank.matchedMemberId, null)
+    const incomplete = await createLead(db, facility.id, { inquiry: { campers: [{ firstName: 'Optional' }, { gender: 'female' }, {}], newsletter: true } }, { userId: staff.id })
+    assert.equal(incomplete.email, '')
+    assert.equal(incomplete.inquiry.campers.length, 3)
+    assert.equal(incomplete.inquiry.campers[0].firstName, 'Optional')
+    assert.equal(incomplete.inquiry.campers[0].dateOfBirth, '')
+    assert.equal(incomplete.inquiry.newsletter, true)
+    assert.equal((await db.query("SELECT count(*)::int AS count FROM newsletter_subscribers WHERE NULLIF(btrim(email),'') IS NULL")).rows[0].count, subscribersBefore)
+    const incompleteEdit = await updateLead(db, facility.id, incomplete.id, { email: '', phone: '', inquiry: { campers: [{ dateOfBirth: '2020-02-20' }], newsletter: true } })
+    assert.equal(incompleteEdit.email, '')
+    assert.equal(incompleteEdit.phone, null)
+    assert.equal(incompleteEdit.inquiry.campers[0].gender, '')
+    assert.equal(incompleteEdit.inquiry.submittedBy.userId, Number(staff.id))
+    assert.equal((await db.query("SELECT count(*)::int AS count FROM newsletter_subscribers WHERE NULLIF(btrim(email),'') IS NULL")).rows[0].count, subscribersBefore)
     const email = `${randomUUID()}@example.test`
     const lead = await createLead(db, facility.id, { email, submittedBy: { name: 'Forged' }, inquiry: { submittedBy: { userId: -1, name: 'Forged' } } }, { userId: staff.id })
     assert.equal(lead.firstName, '')
@@ -48,8 +76,10 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
     assert.equal(complete.inquiry.campers.length, 2)
     assert.equal(complete.inquiry.campers[1].dateOfBirth, '2021-02-20')
     assert.equal(complete.inquiry.campers[1].firstName, '')
-    await assert.rejects(createLead(db, facility.id, { email, inquiry: { campers: [{ dateOfBirth: '2020-02-20', gender: 'female' }] } }, { userId: staff.id }), /phone number/)
-    await assert.rejects(updateLead(db, facility.id, complete.id, { phone: '' }), /phone number/)
+    const cleared = await updateLead(db, facility.id, complete.id, { phone: '', email: '' })
+    assert.equal(cleared.phone, null)
+    assert.equal(cleared.email, '')
+    assert.equal(cleared.inquiry.campers.length, 2)
     assert.equal(complete.inquiry.newsletter, true)
     assert.equal((await db.query('SELECT 1 FROM newsletter_subscribers WHERE email=$1', [fullEmail])).rowCount, 1)
     const edited = await updateLead(db, facility.id, lead.id, { firstName: '', inquiry: { submittedBy: { name: 'Forged' }, newsletter: true } })

@@ -727,6 +727,7 @@ export default function AdminMembers({
                                 <Edit2 className="h-4 w-4" />
                               </button> : null}
                               {canManageRecords && !member.staffAccess.roles.includes('OWNER') ? <MemberRecordActions
+                                compact
                                 record={{ kind: 'member', id: member.id, name: `${member.firstName} ${member.lastName}`, archived: !isActive }}
                                 onChanged={() => { if (isExpanded) setExpandedMemberId(null); void fetchMembers() }}
                               /> : null}

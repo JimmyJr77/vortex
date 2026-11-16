@@ -15,6 +15,7 @@ import { getEnrollCatalogDefault } from '../utils/enrollSite'
 import { getApiUrl } from '../utils/api'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 import PublicClassesOfferedEnroll from './enroll/PublicClassesOfferedEnroll'
+import EnrollmentOrderEditor from './enroll/EnrollmentOrderEditor'
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
   if (raw == null || raw === '') return undefined
@@ -172,7 +173,11 @@ const SchedulingPage = () => {
       </section>
 
       <section className="section-padding bg-gray-50">
-        <div className="container-custom max-w-5xl mx-auto">
+        <div className="container-custom max-w-5xl mx-auto space-y-6">
+          <EnrollmentOrderEditor onSaved={async () => {
+            const response = await fetchClassesOffered()
+            setOfferedPrograms(response.programs)
+          }} />
           <PublicClassesOfferedEnroll
             apiUrl={apiUrl}
             programs={offeredPrograms}

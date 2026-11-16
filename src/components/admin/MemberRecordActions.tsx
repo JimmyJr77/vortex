@@ -8,8 +8,6 @@ type AccountRecord = { id: number; name: string } & (
   { kind: 'member' | 'lead' | 'family'; archived: boolean } | { kind: 'login' }
 )
 
-const actionClass = button
-
 async function checkResponse(response: Response, fallback: string, requireArchiveApproval = false) {
   const data = await response.json().catch(() => null)
   if (response.ok && data?.success !== false && (!requireArchiveApproval || data?.canArchive === true)) return
@@ -19,7 +17,8 @@ async function checkResponse(response: Response, fallback: string, requireArchiv
   throw new Error(blockers.length ? blockers.join(' ') : data?.message || fallback)
 }
 
-export default function MemberRecordActions({ record, onChanged }: { record: AccountRecord; onChanged: (action: RecordAction) => void }) {
+export default function MemberRecordActions({ record, onChanged, compact = false }: { record: AccountRecord; onChanged: (action: RecordAction) => void; compact?: boolean }) {
+  const actionClass = compact ? `${button} !h-8 !py-0` : button
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const inFlight = useRef(false)
@@ -62,7 +61,7 @@ export default function MemberRecordActions({ record, onChanged }: { record: Acc
   }
 
   return <div className="min-w-0">
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap items-start gap-1.5">
       {record.kind !== 'login' && <button type="button" className={actionClass} disabled={busy}
         aria-label={`${record.archived ? 'Restore' : 'Archive'} ${record.name}`}
         onClick={() => void update(record.archived ? 'restore' : 'archive')}>{record.archived ? 'Restore' : 'Archive'}</button>}

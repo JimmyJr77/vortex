@@ -1,3 +1,4 @@
+import { loadEnrollmentOrder, saveEnrollmentOrder } from '../programs/enrollmentOrder.js'
 import { changeLeadLifecycle } from './leadLifecycle.js'
 import { classRoster } from './classRoster.js'
 import { saveClass,saveClassPrice } from './classPricing.js'
@@ -42,6 +43,8 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.use(base,(req,res,next)=>req.canonicalAccess?next():auth(req,res,next))
   const allow=permission=>permissionMiddleware(pool,permission)
   const facility=req=>req.canonicalAccess.facilityId
+  app.get(`${base}/enroll-order`,allow('classes.manage'),handler(req=>loadEnrollmentOrder(pool,facility(req))))
+  app.put(`${base}/enroll-order`,allow('classes.manage'),handler(req=>saveEnrollmentOrder(pool,facility(req),req.body)))
   app.get(`${base}/timesheets/options`,allow([]),handler(req=>timesheetOptions(pool,req.canonicalAccess)))
   app.get(`${base}/timesheets/week`,allow([]),handler(req=>weeklyTimesheets(pool,req.canonicalAccess,req.query)))
   app.put(`${base}/timesheets/week`,allow([]),handler(req=>saveWeeklyHours(pool,req.canonicalAccess,req.body)))

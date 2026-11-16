@@ -54,7 +54,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
       <td className={cell}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
       <td className={cell}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">Registration invitation {lead.invitation.status}</p>}</td>
       <td className={cell}><KidDetails children={lead.inquiry?.campers || []} /></td>
-      <td className={cell}><div className="flex flex-wrap gap-2">
+      <td className={cell}><div className="flex flex-wrap items-start gap-2">
         <button className={button} onClick={() => setNotes(lead)}>Notes</button>
         {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
         {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
