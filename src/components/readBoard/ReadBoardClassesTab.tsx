@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
+import { getPublicBookingPrograms } from '../../utils/publicBookingPrograms'
 import ClassesOfferedList from '../classes/ClassesOfferedList'
 
 const ReadBoardClassesTab = () => {
@@ -18,7 +19,7 @@ const ReadBoardClassesTab = () => {
       setError(null)
       try {
         const data = await fetchClassesOffered()
-        if (!cancelled) setPrograms(data.programs)
+        if (!cancelled) setPrograms(getPublicBookingPrograms(data.programs))
       } catch (e) {
         if (!cancelled) {
           setPrograms([])

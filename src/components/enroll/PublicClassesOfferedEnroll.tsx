@@ -43,7 +43,6 @@ type CatalogState = SignupClassCatalog | 'loading' | 'error'
 interface Props {
   apiUrl: string
   programs: PublicProgramOffered[]
-  initialSportFilter?: string
   initialProgramId?: number | null
   initialFocusedFormId?: number | null
 }
@@ -67,8 +66,6 @@ interface AppliedDiscountRow {
   qualifiedLabel: string | null
   nextTierHint: string | null
 }
-
-const UNSPECIFIED_SPORT = '__unspecified_sport__'
 
 function money(cents: number) {
   return `$${(cents / 100).toFixed(2)}`
@@ -181,7 +178,6 @@ function summarizeAppliedDiscounts(preview: SignupOrderPreview | null) {
 export default function PublicClassesOfferedEnroll({
   apiUrl,
   programs,
-  initialSportFilter = 'all',
   initialProgramId = null,
   initialFocusedFormId = null,
 }: Props) {
@@ -189,7 +185,6 @@ export default function PublicClassesOfferedEnroll({
   const [catalogs, setCatalogs] = useState<Record<number, CatalogState>>({})
   const [cart, setCart] = useState<PublicEnrollmentCartItem[]>(loadPublicEnrollmentCart)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sportFilter, setSportFilter] = useState(initialSportFilter)
   const [programFilter, setProgramFilter] = useState<number | 'all'>(
     initialProgramId ?? 'all',
   )
@@ -270,23 +265,6 @@ export default function PublicClassesOfferedEnroll({
     }
   }, [catalogs, classesWithForm, loadCatalog])
 
-  const sportOptions = useMemo(() => {
-    const names = new Set<string>()
-    let hasUnspecified = false
-    for (const program of programs) {
-      if (program.primarySportName) names.add(program.primarySportName)
-      else hasUnspecified = true
-    }
-    return { named: [...names].sort(), hasUnspecified }
-  }, [programs])
-
-  const programOptions = useMemo(() => {
-    if (sportFilter === 'all') return programs
-    return programs.filter(
-      (program) => (program.primarySportName ?? UNSPECIFIED_SPORT) === sportFilter,
-    )
-  }, [programs, sportFilter])
-
   const { filteredProgramSections, acrossFilterProgramSections } = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     const filteredSections: Array<{
@@ -314,9 +292,7 @@ export default function PublicClassesOfferedEnroll({
 
 
       const programMatchesFilters =
-        (programFilter === 'all' || program.id === programFilter) &&
-        (sportFilter === 'all' ||
-          (program.primarySportName ?? UNSPECIFIED_SPORT) === sportFilter)
+        programFilter === 'all' || program.id === programFilter
       const classesWithinFilters = programMatchesFilters
         ? programClasses.filter((classItem) => classMatchesLevel(classItem.skillLevel, levelFilter))
         : []
@@ -340,7 +316,7 @@ export default function PublicClassesOfferedEnroll({
       filteredProgramSections: filteredSections,
       acrossFilterProgramSections: acrossFilterSections,
     }
-  }, [classesWithForm, levelFilter, programFilter, programs, searchQuery, sportFilter])
+  }, [classesWithForm, levelFilter, programFilter, programs, searchQuery])
 
   const cartByProgram = useMemo(() => {
     const result = new Map<number, PublicEnrollmentCartItem[]>()
@@ -493,7 +469,6 @@ export default function PublicClassesOfferedEnroll({
 
   const clearFilters = () => {
     setSearchQuery('')
-    setSportFilter('all')
     setProgramFilter('all')
     setLevelFilter('all')
   }
@@ -520,7 +495,7 @@ export default function PublicClassesOfferedEnroll({
   }
 
   const hasFilters =
-    searchQuery !== '' || sportFilter !== 'all' || programFilter !== 'all' || levelFilter !== 'all'
+    searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
   const displayedProgramSections = [
     ...filteredProgramSections.map((section) => ({ ...section, resultGroup: 'filtered' as const })),
     ...acrossFilterProgramSections.map((section) => ({ ...section, resultGroup: 'across' as const })),
@@ -562,30 +537,15 @@ export default function PublicClassesOfferedEnroll({
         />
         <div className="np-enrollment-filter-fields flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
-            <span className="text-xs font-semibold text-gray-600">Sport</span>
-            <select value={sportFilter} onChange={(event) => {
-              const nextSport = event.target.value
-              setSportFilter(nextSport)
-              if (programFilter !== 'all') {
-                const selected = programs.find((program) => program.id === programFilter)
-                if (nextSport !== 'all' && (selected?.primarySportName ?? UNSPECIFIED_SPORT) !== nextSport) setProgramFilter('all')
-              }
-            }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">
-              <option value="all">All sports</option>
-              {sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}
-              {sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Program</span>
-            <select value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">
+            <select aria-label="Program" value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">
               <option value="all">All programs</option>
-              {programOptions.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}
+              {programs.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Experience level</span>
-            <select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">
+            <select aria-label="Experience level" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">
               {CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </label>
@@ -616,8 +576,7 @@ export default function PublicClassesOfferedEnroll({
               <div className="border-t border-gray-300 pt-6">
                 <h2 className="text-xl font-bold text-gray-900">Available classes across filters</h2>
                 <p className="mt-1 text-sm text-gray-600">
-                  These classes match your search but fall outside one or more of the selected sport,
-                  program, or experience level filters.
+                  These classes match your search but fall outside the selected program or experience level filters.
                 </p>
               </div>
             )}

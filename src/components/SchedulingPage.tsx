@@ -10,7 +10,7 @@ import {
   fetchClassesOffered,
   type PublicProgramOffered,
 } from '../utils/publicClassesApi'
-import { getEnrollCatalogDefault } from '../utils/enrollSite'
+import { getPublicBookingProgramName, getPublicBookingPrograms } from '../utils/publicBookingPrograms'
 import { getApiUrl } from '../utils/api'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 import PublicClassesOfferedEnroll from './enroll/PublicClassesOfferedEnroll'
@@ -61,7 +61,6 @@ function EnrollmentHero({ signup = false }: { signup?: boolean }) {
 
 const SchedulingPage = () => {
   const apiUrl = getApiUrl()
-  const catalogDefault = useMemo(() => getEnrollCatalogDefault(), [])
   const [searchParams] = useSearchParams()
   const urlFormId = useMemo(
     () => parseOptionalInt(searchParams.get('form')) ?? null,
@@ -71,7 +70,6 @@ const SchedulingPage = () => {
     () => parseOptionalInt(searchParams.get('programsId')) ?? null,
     [searchParams],
   )
-  const urlSportFilter = searchParams.get('sportFilter')
   const urlProgramName = searchParams.get('program')
   const urlOfferingId = useMemo(
     () => parseOptionalInt(searchParams.get('offeringId')),
@@ -102,7 +100,7 @@ const SchedulingPage = () => {
 
   useEffect(() => {
     fetchClassesOffered()
-      .then((response) => setOfferedPrograms(response.programs))
+      .then((response) => setOfferedPrograms(getPublicBookingPrograms(response.programs)))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load enroll options'))
       .finally(() => setLoading(false))
   }, [])
@@ -121,17 +119,14 @@ const SchedulingPage = () => {
       )
       if (matchingProgram) return matchingProgram.id
     }
-    const requestedName = urlProgramName || (catalogDefault.type === 'program' ? catalogDefault.value : null)
+    const requestedName = urlProgramName && (getPublicBookingProgramName(urlProgramName) ?? urlProgramName)
     if (!requestedName) return null
     const normalized = normalizeFilterName(requestedName)
     return offeredPrograms.find((program) => {
       const programName = normalizeFilterName(program.displayName)
       return programName === normalized || programName.includes(normalized) || normalized.includes(programName)
     })?.id ?? null
-  }, [catalogDefault, offeredPrograms, urlFormId, urlProgramName, urlProgramsId])
-
-  const initialSportFilter =
-    urlSportFilter || (catalogDefault.type === 'sport' ? catalogDefault.value : 'all')
+  }, [offeredPrograms, urlFormId, urlProgramName, urlProgramsId])
 
   const handleSignupComplete = useCallback((detail: SchedulingSignupCompleteDetail) => {
     setSignupComplete(detail.completed)
@@ -192,12 +187,11 @@ const SchedulingPage = () => {
         <div className="np-enrollment-wrap space-y-6">
           <EnrollmentOrderEditor onSaved={async () => {
             const response = await fetchClassesOffered()
-            setOfferedPrograms(response.programs)
+            setOfferedPrograms(getPublicBookingPrograms(response.programs))
           }} />
           <PublicClassesOfferedEnroll
             apiUrl={apiUrl}
             programs={offeredPrograms}
-            initialSportFilter={initialSportFilter}
             initialProgramId={initialProgramId}
             initialFocusedFormId={urlFormId}
           />

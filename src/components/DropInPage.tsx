@@ -4,7 +4,9 @@ import type { FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
-import { fetchClassesOffered } from '../utils/publicClassesApi'
+import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
+import { getPublicBookingPrograms } from '../utils/publicBookingPrograms'
+import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { formatPhoneForDisplay } from '../utils/phoneUtils'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
@@ -12,10 +14,25 @@ import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import './DropInPage.css'
 
-const UNSPECIFIED_SPORT = '__unspecified_sport__'
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
-const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(`${date}T12:00:00`))
+const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
 const prettyTime = (time: string) => new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+
+function DropInSessionOption({ session, alternative = false, onSelect }: {
+  session: DropInSession
+  alternative?: boolean
+  onSelect: (session: DropInSession) => void
+}) {
+  return <button type="button" disabled={session.isFull} onClick={() => onSelect(session)} className={`np-drop-in-session-option${alternative ? ' np-drop-in-session-alternative' : ''} min-h-24 w-full touch-manipulation rounded-xl border border-gray-200 p-4 text-left hover:border-vortex-red disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60`}>
+    {alternative && <span className="np-drop-in-different-date">Different date</span>}
+    <div className="flex items-start justify-between gap-3">
+      <div><div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 shrink-0 text-vortex-red" /> {prettyDate(session.date)}</div><p className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)}</p></div>
+      <strong className="shrink-0 text-vortex-red">{money(session.totalCents)}</strong>
+    </div>
+    <p className="mt-3 text-xs font-semibold text-gray-600">{session.isFull ? 'Class full' : `${session.spotsRemaining} spots available`}</p>
+    <p className="mt-1 text-xs text-gray-500">{session.monthlyEnrolled} monthly + {session.dropInEnrolled} drop-in · maximum {session.maxParticipants}</p>
+  </button>
+}
 
 export default function DropInPage() {
   const [params] = useSearchParams()
@@ -30,6 +47,7 @@ export default function DropInPage() {
     `${loggedInAccount?.firstName || ''} ${loggedInAccount?.lastName || ''}`.trim()
   const [sessions, setSessions] = useState<DropInSession[]>([])
   const [classes, setClasses] = useState<DropInClass[]>([])
+  const [programOptions, setProgramOptions] = useState<PublicProgramOffered[]>([])
   const [benefits, setBenefits] = useState<DropInBenefits | null>(null)
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
   const [selected, setSelected] = useState<DropInSession | null>(null)
@@ -37,13 +55,12 @@ export default function DropInPage() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sportFilter, setSportFilter] = useState('all')
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [result, setResult] = useState<Awaited<ReturnType<typeof registerDropIn>> | null>(null)
-  const [enrollmentStartDate, setEnrollmentStartDate] = useState('')
-  const [startDateError, setStartDateError] = useState<string | null>(null)
-  const startDateInputRef = useRef<HTMLInputElement>(null)
+  const [dropInDate, setDropInDate] = useState('')
+  const [dateError, setDateError] = useState<string | null>(null)
+  const dateInputRef = useRef<HTMLInputElement>(null)
   const [form, setForm] = useState({
     firstName: loggedInAccount?.firstName?.trim() ?? '',
     lastName: loggedInAccount?.lastName?.trim() ?? '',
@@ -81,15 +98,20 @@ export default function DropInPage() {
   useEffect(() => {
     Promise.all([fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
-      setClasses(catalog.programs.filter((program) => !program.excludeFromDropIns).flatMap((program) => program.classes
+      const publicPrograms = getPublicBookingPrograms(catalog.programs)
+      setProgramOptions(publicPrograms)
+      setClasses(publicPrograms.filter((program) => !program.excludeFromDropIns).flatMap((program) => program.classes
         .filter((classItem) => classItem.formId != null)
-        .map((classItem): DropInClass => dropInClassById.get(classItem.id) ?? ({
-          formId: Number(classItem.formId), classId: classItem.id,
-          className: classItem.displayName, classDescription: classItem.description,
-          programId: program.id, programName: program.displayName,
-          programDescription: program.description, sportName: program.primarySportName ?? null,
-          skillLevel: classItem.skillLevel, ageMin: classItem.ageMin, ageMax: classItem.ageMax,
-          monthlyCents: 0, baseCents: 0, discountPercent: 0, discountCents: 0, totalCents: 0,
+        .map((classItem): DropInClass => ({
+          ...(dropInClassById.get(classItem.id) ?? {
+            formId: Number(classItem.formId), classId: classItem.id,
+            className: classItem.displayName, classDescription: classItem.description,
+            programId: program.id, programName: program.displayName,
+            programDescription: program.description, sportName: program.primarySportName ?? null,
+            skillLevel: classItem.skillLevel, ageMin: classItem.ageMin, ageMax: classItem.ageMax,
+            monthlyCents: 0, baseCents: 0, discountPercent: 0, discountCents: 0, totalCents: 0,
+          }),
+          programName: program.displayName,
         }))))
       setSessions(data.sessions)
       setBenefits(data.benefits)
@@ -98,47 +120,31 @@ export default function DropInPage() {
     // Read the authenticated identity once on entry; typed emails never resolve account benefits.
   }, [])
 
-  const sportOptions = useMemo(() => {
-    const names = new Set<string>()
-    let hasUnspecified = false
-    for (const row of classes) {
-      if (row.sportName) names.add(row.sportName)
-      else hasUnspecified = true
-    }
-    return { named: [...names].sort(), hasUnspecified }
-  }, [classes])
-
-  const programOptions = useMemo(() => {
-    const unique = new Map<number, DropInClass>()
-    for (const row of classes) {
-      if (sportFilter === 'all' || (row.sportName ?? UNSPECIFIED_SPORT) === sportFilter) unique.set(row.programId, row)
-    }
-    return [...unique.values()].sort((a, b) => (a.programName ?? '').localeCompare(b.programName ?? ''))
-  }, [classes, sportFilter])
-
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     const filtered = classes.filter((row) =>
-      (sportFilter === 'all' || (row.sportName ?? UNSPECIFIED_SPORT) === sportFilter) &&
       (programFilter === 'all' || row.programId === programFilter) &&
       (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
-      (!enrollmentStartDate || sessions.some(
-        (session) => session.classId === row.classId && session.date === enrollmentStartDate,
+      (!dropInDate || sessions.some(
+        (session) => session.classId === row.classId && session.date === dropInDate,
       )) &&
       (!query || [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription].filter(Boolean).join(' ').toLowerCase().includes(query)),
     )
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])
-    return [...grouped.values()].sort((a, b) => (a[0]?.programName ?? '').localeCompare(b[0]?.programName ?? ''))
-  }, [classes, enrollmentStartDate, levelFilter, programFilter, searchQuery, sessions, sportFilter])
+    return [...grouped.values()]
+  }, [classes, dropInDate, levelFilter, programFilter, searchQuery, sessions])
 
-  const upcoming = useMemo(() => sessions
-    .filter((row) => row.classId === selectedClassId && row.date === enrollmentStartDate)
-    .sort((a, b) => a.startTime.localeCompare(b.startTime)), [enrollmentStartDate, selectedClassId, sessions])
+  const { onSelectedDate, alternatives } = useMemo(
+    () => getDropInDateOptions(sessions, selectedClassId, dropInDate),
+    [dropInDate, selectedClassId, sessions],
+  )
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
-  const hasFilters = searchQuery !== '' || sportFilter !== 'all' || programFilter !== 'all' || levelFilter !== 'all'
-  const clearFilters = () => { setSearchQuery(''); setSportFilter('all'); setProgramFilter('all'); setLevelFilter('all') }
+  const selectedProgram = programOptions.find((program) => program.id === programFilter)
+  const hasFilters = searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
+  const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
+  const selectSession = (session: DropInSession) => { setSelected(session); setResult(null); setError(null) }
 
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -189,33 +195,35 @@ export default function DropInPage() {
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
             <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" aria-label="Search drop-in classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
             <EnrollmentStartDateField
-              id="drop-in-enrollment-start-date"
-              value={enrollmentStartDate}
+              id="drop-in-date"
+              label="Drop-in date"
+              value={dropInDate}
               onChange={(value) => {
-                setEnrollmentStartDate(value)
+                setDropInDate(value)
                 setSelectedClassId(null)
                 setSelected(null)
-                if (value) setStartDateError(null)
+                if (value) setDateError(null)
               }}
-              error={startDateError}
-              inputRef={startDateInputRef}
+              error={dateError}
+              inputRef={dateInputRef}
               className="max-w-sm"
               helpText="Choose the date you want to attend this drop-in class."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Sport</span><select value={sportFilter} onChange={(event) => { setSportFilter(event.target.value); setProgramFilter('all') }} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All sports</option>{sportOptions.named.map((sport) => <option key={sport} value={sport}>{sport}</option>)}{sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}</select></label>
-              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((row) => <option key={row.programId} value={row.programId}>{row.programName}</option>)}</select></label>
-              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select aria-label="Program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}</select></label>
+              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select aria-label="Experience level" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             </div>
           </div>
 
-          {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || 'No classes match your search or filters.'}</div>}
+          {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || (selectedProgram?.excludeFromDropIns
+            ? <>{selectedProgram.displayName} does not offer drop-in classes. <Link className="font-semibold text-vortex-red underline" to={`/enroll?programsId=${selectedProgram.id}`}>View enrollment options</Link></>
+            : 'No classes match your search or filters.')}</div>}
           {programSections.map((rows) => <div key={rows[0].programId} className="np-drop-in-program space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">
             <div><h2 className="text-lg font-bold text-vortex-red">{rows[0].programName}</h2>{rows[0].programDescription && <p className="mt-1 text-sm text-gray-600">{rows[0].programDescription}</p>}</div>
             {rows.map((row) => <button type="button" key={row.classId} onClick={() => {
-              if (!enrollmentStartDate) {
-                setStartDateError('Select an enrollment start date before choosing a class.')
-                startDateInputRef.current?.focus()
+              if (!dropInDate) {
+                setDateError('Select a drop-in date before choosing a class.')
+                dateInputRef.current?.focus()
                 return
               }
               setSelectedClassId(row.classId)
@@ -229,7 +237,23 @@ export default function DropInPage() {
         {selectedClassId && <aside className="np-drop-in-sessions fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl md:p-5 lg:sticky lg:inset-auto lg:top-[calc(var(--site-header-height,0px)+1rem)] lg:z-auto lg:max-h-none lg:rounded-xl lg:pb-5 lg:shadow-sm">
           <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300 lg:hidden" />
           <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-vortex-red">Upcoming classes</p><h2 className="mt-1 text-xl font-bold text-gray-900">{selectedClass?.className}</h2><p className="mt-1 text-sm text-gray-600">Choose one day, date, and time.</p></div><button type="button" onClick={() => setSelectedClassId(null)} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close upcoming classes"><X className="h-5 w-5" /></button></div>
-          <div className="mt-5 max-h-[58dvh] space-y-3 overflow-y-auto overscroll-contain pr-1 lg:max-h-[65vh]">{upcoming.map((session) => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} type="button" disabled={session.isFull} onClick={() => { setSelected(session); setResult(null); setError(null) }} className="min-h-24 w-full touch-manipulation rounded-xl border border-gray-200 p-4 text-left hover:border-vortex-red disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-vortex-red" /> {prettyDate(session.date)}</div><p className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)}</p></div><strong className="text-vortex-red">{money(session.totalCents)}</strong></div><p className="mt-3 text-xs font-semibold text-gray-600">{session.isFull ? 'Class full' : `${session.spotsRemaining} spots available`}</p><p className="mt-1 text-xs text-gray-500">{session.monthlyEnrolled} monthly + {session.dropInEnrolled} drop-in · maximum {session.maxParticipants}</p></button>)}{upcoming.length === 0 && <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">No upcoming dates are open for this class.</p>}</div>
+          <div className="mt-5 max-h-[58dvh] overflow-y-auto overscroll-contain pr-1 lg:max-h-[65vh]">
+            <section aria-labelledby="drop-in-selected-date-heading" className="space-y-3">
+              <div className="np-drop-in-date-heading">
+                <h3 id="drop-in-selected-date-heading">Your selected date</h3>
+                <p>{prettyDate(dropInDate)}</p>
+              </div>
+              {onSelectedDate.map((session) => <DropInSessionOption key={`${session.slotGroupId}:${session.date}:${session.startTime}`} session={session} onSelect={selectSession} />)}
+              {onSelectedDate.length === 0 && <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">No times are available for this class on your selected date.</p>}
+            </section>
+            {alternatives.length > 0 && <section aria-labelledby="drop-in-alternatives-heading" className="np-drop-in-alternatives space-y-3">
+              <div className="np-drop-in-date-heading">
+                <h3 id="drop-in-alternatives-heading">Other dates &amp; times</h3>
+                <p>These options are on a different date from {prettyDate(dropInDate)}.</p>
+              </div>
+              {alternatives.map((session) => <DropInSessionOption key={`${session.slotGroupId}:${session.date}:${session.startTime}`} session={session} alternative onSelect={selectSession} />)}
+            </section>}
+          </div>
         </aside>}
       </div>}
     </section>
@@ -258,6 +282,7 @@ export default function DropInPage() {
       {result ? <div className="text-center">
         {result.status === 'confirmed' && <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" />}
         <h2 className="mt-4 text-2xl font-bold">{result.accountRequired ? 'Finish creating your family account' : result.status === 'payment_pending' ? 'Payment required' : 'Drop-in confirmed'}</h2>
+        <p className="mt-3 font-semibold">{selected.className}<br />{prettyDate(selected.date)} · {prettyTime(selected.startTime)}–{prettyTime(selected.endTime)}</p>
         <p className="mt-2 text-gray-600">{result.accountRequired ? 'Create your family account and add this athlete to continue with your drop-in.'
           : result.status === 'payment_pending' ? `Pay ${money(result.totalCents)} to confirm this drop-in.`
           : result.benefitType === 'free_trial' ? 'Your one-time free trial is confirmed.'
@@ -267,7 +292,7 @@ export default function DropInPage() {
         {result.status === 'payment_pending' && <button type="button" disabled={paymentBusy} onClick={() => void payForBooking(result.id)} className="mt-5 rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white disabled:opacity-60">{paymentBusy ? 'Opening checkout…' : 'Pay by credit card'}</button>}
         {paymentError && <p className="mt-2 text-sm text-red-700" role="alert">{paymentError}</p>}
         <button type="button" className="mt-4 block w-full text-sm font-semibold" onClick={() => { setSelected(null); setPaymentError(null) }}>Close</button>
-      </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}</p><form onSubmit={submit} className="mt-6 space-y-4">
+      </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}–{prettyTime(selected.endTime)}</p>{selected.date !== dropInDate && <p className="np-drop-in-alternate-notice">You selected an alternate date: <strong>{prettyDate(selected.date)}</strong>, instead of {prettyDate(dropInDate)}.</p>}<form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3"><label className="text-sm font-semibold">First name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></label></div>
         {loggedInAccount ? <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><strong>Signed in{loggedInName ? ` as ${loggedInName}` : ''}</strong>{loggedInAccount.email && <span className="block">{loggedInAccount.email}</span>}<span className="mt-1 block text-green-700">This registration will use your logged-in account.</span></div> : <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>}<label className="block text-sm font-semibold">Phone<TextInput type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
         {benefits?.trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={form.useFreeTrial} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}

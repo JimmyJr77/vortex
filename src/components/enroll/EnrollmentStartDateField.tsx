@@ -8,6 +8,7 @@ interface EnrollmentStartDateFieldProps {
   error?: string | null
   inputRef?: Ref<HTMLInputElement>
   className?: string
+  label?: string
   helpText?: string
   required?: boolean
 }
@@ -19,6 +20,7 @@ export default function EnrollmentStartDateField({
   error = null,
   inputRef,
   className = '',
+  label = 'Enrollment start date',
   helpText = 'Choose the date you want the class enrollment to take effect.',
   required = true,
 }: EnrollmentStartDateFieldProps) {
@@ -28,7 +30,7 @@ export default function EnrollmentStartDateField({
   return (
     <label className={`flex flex-col gap-1 ${className}`} htmlFor={id}>
       <span className="text-xs font-semibold text-gray-700">
-        Enrollment start date {required ? <span className="text-vortex-red" aria-hidden="true">*</span> : null}
+        {label} {required ? <span className="text-vortex-red" aria-hidden="true">*</span> : null}
       </span>
       <input
         ref={inputRef}
