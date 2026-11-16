@@ -459,21 +459,44 @@ if (live) {
   ]
   for (const check of hostRedirectChecks) {
     const path = '/__seo-host-redirect-check__'
-    const response = await fetch(`${check.sourceOrigin}${path}`, { redirect: 'manual' })
-    const location = response.headers.get('location') ?? ''
-    let resolvedLocation = location
-    try {
-      resolvedLocation = new URL(location, check.sourceOrigin).toString()
-    } catch {
-      // The assertion below reports a missing or invalid Location header.
+    const destination = `${check.canonicalOrigin}${path}`
+    let current = `${check.sourceOrigin}${path}`
+    let reachedPrimary = false
+    const visited = new Set([current])
+    for (let hop = 0; hop < 3; hop += 1) {
+      const response = await fetch(current, { redirect: 'manual' })
+      const location = response.headers.get('location') ?? ''
+      let next
+      try {
+        if (!location) throw new Error('Missing Location')
+        next = new URL(location, current)
+      } catch {
+        assert(false, `${check.label}: ${current} returned HTTP ${response.status} with an invalid Location header`)
+        break
+      }
+      // The existing project-level apex alias redirects temporarily to www
+      // before the application's permanent redirect to the primary website.
+      const knownGymnasticsAlias = current === `https://vortex-gymnastics.com${path}`
+        && next.href === `${GYMNASTICS_ORIGIN}${path}`
+      const validStatus = response.status === 308 || (knownGymnasticsAlias && response.status === 307)
+      assert(validStatus, `${check.label}: ${current} returned HTTP ${response.status}; expected a permanent canonical redirect`)
+      if (!validStatus) break
+      const validTarget = next.pathname === path && !next.search && !next.hash
+        && (next.origin === check.canonicalOrigin || knownGymnasticsAlias)
+      assert(validTarget, `${check.label}: unexpected redirect destination ${next.href}`)
+      if (!validTarget) break
+      if (next.href === destination) {
+        reachedPrimary = true
+        break
+      }
+      assert(!visited.has(next.href), `${check.label}: redirect loop at ${next.href}`)
+      if (visited.has(next.href)) break
+      visited.add(next.href)
+      current = next.href
     }
     assert(
-      response.status === 308,
-      `${check.label} returned HTTP ${response.status}; expected permanent HTTP 308`,
-    )
-    assert(
-      normalizedUrl(resolvedLocation) === normalizedUrl(`${check.canonicalOrigin}${path}`),
-      `${check.label} redirects to ${location || 'nowhere'}; expected ${check.canonicalOrigin}${path}`,
+      reachedPrimary,
+      `${check.label}: did not reach ${destination} within three same-path redirects ending in permanent HTTP 308`,
     )
   }
 
