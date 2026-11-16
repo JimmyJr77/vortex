@@ -17,7 +17,7 @@ async function mockNavigationApi(page: Page) {
   return { billingWrites, errors }
 }
 
-test('staff return through Member Portal on desktop/mobile and switch admin inside the portal', async ({ page }) => {
+test('staff return through My portal on desktop/mobile and switch admin inside the portal', async ({ page }) => {
   const { billingWrites, errors } = await mockNavigationApi(page)
   // Covers older admin sessions that have no stored member profile.
   await page.addInitScript(() => {
@@ -31,7 +31,7 @@ test('staff return through Member Portal on desktop/mobile and switch admin insi
   await page.getByRole('button', { name: 'Return to website home' }).click()
   await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'Open a portal' })).toHaveCount(0)
-  const returnToPortal = page.getByRole('button', { name: 'Member Portal', exact: true })
+  const returnToPortal = page.getByRole('button', { name: 'My portal', exact: true })
   await returnToPortal.click()
   await page.getByRole('button', { name: 'Switch portal account' }).click()
   await page.getByRole('option', { name: 'Admin', exact: true }).click()
@@ -44,8 +44,9 @@ test('staff return through Member Portal on desktop/mobile and switch admin insi
   for (const width of [1100, 390]) {
     await page.setViewportSize({ width, height: 844 })
     await expect(page.getByRole('combobox', { name: 'Open a portal' })).toHaveCount(0)
+    if (width < 861) await page.getByRole('button', { name: 'Open menu', exact: true }).click()
     await expect(returnToPortal).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Account login', exact: true })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Member login', exact: true })).toHaveCount(0)
     const header = page.getByRole('banner')
     await expect.poll(async () => Math.round((await header.boundingBox())?.y ?? -1)).toBe(0)
     expect(await header.evaluate(element => element.scrollWidth <= window.innerWidth)).toBe(true)
@@ -54,6 +55,7 @@ test('staff return through Member Portal on desktop/mobile and switch admin insi
   await page.getByRole('button', { name: 'Switch portal account' }).click()
   await page.getByRole('option', { name: 'Admin', exact: true }).click()
   await page.getByRole('button', { name: 'Return to website home' }).click()
+  await page.getByRole('button', { name: 'Open menu', exact: true }).click()
   await returnToPortal.click()
   await expect(page.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
   expect(billingWrites).toEqual([])
@@ -64,15 +66,15 @@ test('public visitors and member-only accounts are not offered admin portals', a
   await mockNavigationApi(page)
   await page.goto('/')
   await expect(page.getByRole('combobox', { name: 'Open a portal' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Account login', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Member login', exact: true })).toBeVisible()
   await page.evaluate(() => {
     localStorage.setItem('vortex_member_token', 'member-test-token')
     localStorage.setItem('vortex_member', JSON.stringify({ id: 2, fullName: 'Member', roles: ['MEMBER_ATHLETE'], availablePortals: ['member'] }))
   })
   await page.reload()
   await expect(page.getByRole('combobox', { name: 'Open a portal' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Account login', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'My portal', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Member login', exact: true })).toHaveCount(0)
 })
 
 test('scrolling stops at the bottom of the active portal page', async ({ page }) => {

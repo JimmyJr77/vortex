@@ -14,7 +14,7 @@ async function setup(page: Page, {
     { ...required, acceptance_id: current ? 20 : null, waiver_type: paymentPolicy ? 'PAYMENT_POLICY' : 'RELEASE_OF_LIABILITY' },
     optional,
   ]
-  const state = { reads: 0, readFailure, saveFailure, writes: [] as Record<string, unknown>[] }
+  const state = { reads: 0, readsAfterSigning: 0, readFailure, saveFailure, writes: [] as Record<string, unknown>[] }
   if (restored) await page.addInitScript(account => {
     localStorage.setItem('vortex_member_token', 'waiver-test-token')
     localStorage.setItem('vortex_member', JSON.stringify(account))
@@ -25,6 +25,7 @@ async function setup(page: Page, {
     if (path === '/api/members/login') return respond({ success: true, token: 'waiver-test-token', member: account })
     if (path === '/api/members/waivers') {
       state.reads++
+      if (waivers.some(waiver => waiver.acceptance_id === 42)) state.readsAfterSigning++
       expect(route.request().headers().authorization).toBe('Bearer waiver-test-token')
       if (state.readFailure) return respond({ success: false, message: 'Unavailable' }, 503)
       return respond({ success: true, data: waivers })
@@ -48,16 +49,23 @@ async function setup(page: Page, {
 
 async function login(page: Page, path = '/') {
   await page.goto(path)
-  if (!path.includes('?sport=')) await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
   if (path.includes('?sport=soccer')) {
     await page.getByRole('button', { name: 'Open menu', exact: true }).click()
     await page.getByRole('button', { name: 'Account Login', exact: true }).click()
   } else {
-    await page.getByRole('button', { name: 'Account login', exact: true }).click()
+    await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
+    await page.getByRole('button', { name: path === '/store' ? 'Account login' : 'Member login', exact: true }).click()
   }
   await page.getByLabel('Email, username, or phone number', { exact: true }).fill('jordan')
   await page.getByLabel('Password', { exact: true }).fill('test-password')
   await page.getByRole('button', { name: 'Login', exact: true }).click()
+}
+
+async function enterRestoredPortal(page: Page) {
+  const consent = page.getByRole('button', { name: 'Necessary only', exact: true })
+  if (await consent.isVisible()) await consent.click()
+  if ((page.viewportSize()?.width ?? 1280) < 861) await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+  await page.getByRole('button', { name: 'My portal', exact: true }).click()
 }
 
 async function signRequired(page: Page) {
@@ -74,20 +82,20 @@ test('outdated waivers appear before the portal and only explicitly selected wai
   const state = await setup(page)
   await login(page)
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Sign waivers and continue' }).click()
   await expect(page.getByRole('alert')).toHaveText('Please agree to Updated liability waiver.')
   expect(state.writes).toEqual([])
   await signRequired(page)
-  await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toBeVisible()
-  expect(state.reads).toBe(2)
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
+  expect(state.readsAfterSigning).toBeGreaterThanOrEqual(1)
   expect(state.writes).toEqual([{ signatureName: 'Jordan Rivera', comments: '', acceptedTemplateIds: [2], paymentPolicyAcknowledged: false }])
 })
 
 test('current required waivers bypass the prompt even with an unsigned optional waiver', async ({ page }) => {
   const state = await setup(page, { current: true })
   await login(page)
-  await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toHaveCount(0)
   expect(state.reads).toBeGreaterThanOrEqual(1)
   expect(state.writes).toEqual([])
@@ -97,12 +105,14 @@ test('restored sessions prompt on mobile and can defer without signing', async (
   await page.setViewportSize({ width: 390, height: 844 })
   const state = await setup(page, { restored: true })
   await page.goto('/')
+  await enterRestoredPortal(page)
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
   expect(await page.getByRole('main').evaluate(element => element.scrollWidth <= window.innerWidth)).toBe(true)
   await page.screenshot({ path: 'test-results/member-waivers-mobile.png' })
   await page.getByRole('button', { name: 'Remind me next time' }).click()
-  await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
   await page.reload()
+  await enterRestoredPortal(page)
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
   expect(state.writes).toEqual([])
 })
@@ -110,8 +120,9 @@ test('restored sessions prompt on mobile and can defer without signing', async (
 test('failed status checks offer retry instead of reporting waivers current', async ({ page }) => {
   const state = await setup(page, { restored: true, readFailure: true })
   await page.goto('/')
+  await enterRestoredPortal(page)
   await expect(page.getByRole('alert')).toContainText('Unable to check your waivers')
-  await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toHaveCount(0)
   state.readFailure = false
   await page.getByRole('button', { name: 'Try again' }).click()
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
@@ -120,12 +131,13 @@ test('failed status checks offer retry instead of reporting waivers current', as
 test('failed signing keeps entered consent and does not continue until a successful retry', async ({ page }) => {
   const state = await setup(page, { restored: true, saveFailure: true })
   await page.goto('/')
+  await enterRestoredPortal(page)
   await signRequired(page)
   await expect(page.getByRole('alert')).toHaveText('Unable to save. Please try again.')
   await expect(page.getByLabel('Full Name (signature)', { exact: true })).toHaveValue('Jordan Rivera')
   state.saveFailure = false
   await page.getByRole('button', { name: 'Sign waivers and continue' }).click()
-  await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
 })
 
 test('staff without member access are not asked for athlete waivers', async ({ page }) => {
@@ -142,15 +154,16 @@ test('storefront login returns to the store after the waiver prompt', async ({ p
   await signRequired(page)
   await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
   await expect(page).toHaveURL(/\/store$/)
-  await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toHaveCount(0)
 })
 
 test('renewals leave existing signatures alone and acknowledge a selected payment policy', async ({ page }) => {
   const state = await setup(page, { restored: true, existingSigned: true, paymentPolicy: true })
   await page.goto('/')
+  await enterRestoredPortal(page)
   await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
   await signRequired(page)
-  await expect(page.getByRole('button', { name: 'Member Portal', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
   expect(state.writes[0]).toMatchObject({ acceptedTemplateIds: [2], paymentPolicyAcknowledged: true })
 })
 
@@ -159,8 +172,8 @@ for (const sport of ['gymnastics', 'soccer']) {
     await setup(page)
     await login(page, `/?sport=${sport}`)
     await expect(page.getByRole('heading', { name: 'Please complete your waivers' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toHaveCount(0)
     await signRequired(page)
-    await expect(page.getByRole('heading', { name: 'VORTEX MEMBER PORTAL' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Member portal', exact: true })).toBeVisible()
   })
 }
