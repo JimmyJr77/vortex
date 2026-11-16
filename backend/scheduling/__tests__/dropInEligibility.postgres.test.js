@@ -89,6 +89,20 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     }), /no longer available/)
     assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE member_id=$1', [memberId])).count), 0)
 
+    // Group/date reservations cannot distinguish two times on the same day.
+    // An excluded sibling must not disappear before eligibility is evaluated.
+    const mixedSlot = await addSlot(dates.allowed, true)
+    await db.query("UPDATE scheduling_time_slot SET start_time='14:00',end_time='15:00' WHERE id=$1", [mixedSlot])
+    assert.equal((await catalog()).sessions.some(row => row.slotGroupId === groupId && row.date === dates.allowed), false)
+    const registrationsBefore = (await db.query('SELECT * FROM drop_in_registration WHERE slot_group_id=$1 ORDER BY id', [groupId])).rows
+    const mixedDenied = await request('post', '/api/public/drop-ins/register', { ...guest, email: `mixed-${facilityId}@example.test`, classDate: dates.allowed })
+    assert.equal(mixedDenied.status, 400, mixedDenied.message)
+    await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.allowed }, {
+      memberId, facilityId, contactEmail: guest.email,
+    }), /no longer available/)
+    assert.deepEqual((await db.query('SELECT * FROM drop_in_registration WHERE slot_group_id=$1 ORDER BY id', [groupId])).rows, registrationsBefore)
+    await db.query('DELETE FROM scheduling_time_slot WHERE id=$1', [mixedSlot])
+
     // A class override can allow inherited slots under an excluded program.
     await db.query('UPDATE program SET exclude_from_drop_ins=FALSE WHERE id=$1', [classId])
     assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId).map(row => row.date), [dates.blocked, dates.allowed])
@@ -98,6 +112,35 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     await db.query('UPDATE scheduling_time_slot SET exclude_from_drop_ins=TRUE WHERE id=$1', [allowedSlot])
     assert.equal((await catalog()).classes.some(row => row.classId === classId), false)
     assert.equal((await advertisedClass()).excludeFromDropIns, true)
+
+    // An excluded or inactive A/B sibling remains part of rotation context.
+    const rotationDates = await one(`SELECT ($1::date + ((8-EXTRACT(DOW FROM $1::date)::int)%7))::text AS a,
+      ($1::date + ((8-EXTRACT(DOW FROM $1::date)::int)%7) + 7)::text AS b`, [dates.blocked])
+    const rotatingGroup = Number((await one(`INSERT INTO scheduling_slot_group(form_id,schedule_mode,max_participants,active_start,inherits_offering_dates,dates_tbd,is_active)
+      VALUES($1,'day',8,$2,FALSE,FALSE,TRUE) RETURNING id`, [formId, rotationDates.a])).id)
+    const addRotatingSlot = async (letter, excluded) => Number((await one(`INSERT INTO scheduling_time_slot
+      (form_id,slot_group_id,schedule_mode,day_of_week,week_letter,start_time,end_time,max_participants,dates_tbd,is_active,exclude_from_drop_ins)
+      VALUES($1,$2,'day',1,$3,'12:00','13:00',8,FALSE,TRUE,$4) RETURNING id`, [formId, rotatingGroup, letter, excluded])).id)
+    const aSlot = await addRotatingSlot('A', false), bSlot = await addRotatingSlot('B', true)
+    const rotatingSessions = (await catalog()).sessions.filter(row => row.slotGroupId === rotatingGroup)
+    assert.ok(rotatingSessions.some(row => row.date === rotationDates.a))
+    assert.equal(rotatingSessions.some(row => row.date === rotationDates.b), false)
+    const rotationDenied = await request('post', '/api/public/drop-ins/register', { ...guest, slotGroupId: rotatingGroup, classDate: rotationDates.b })
+    assert.equal(rotationDenied.status, 400, rotationDenied.message)
+    await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: rotatingGroup, classDate: rotationDates.b }, {
+      memberId, facilityId, contactEmail: guest.email,
+    }), /no longer available/)
+    assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE slot_group_id=$1', [rotatingGroup])).count), 0)
+    const rotationAccepted = await request('post', '/api/public/drop-ins/register', { ...guest, email: `rotation-${facilityId}@example.test`, slotGroupId: rotatingGroup, classDate: rotationDates.a })
+    assert.equal(rotationAccepted.status, 201, rotationAccepted.message)
+
+    await db.query('UPDATE scheduling_time_slot SET is_active=FALSE WHERE id=$1', [aSlot])
+    await db.query('UPDATE scheduling_time_slot SET exclude_from_drop_ins=FALSE WHERE id=$1', [bSlot])
+    const inactiveSiblingSessions = (await catalog()).sessions.filter(row => row.slotGroupId === rotatingGroup)
+    assert.equal(inactiveSiblingSessions.some(row => row.date === rotationDates.a), false)
+    assert.ok(inactiveSiblingSessions.some(row => row.date === rotationDates.b))
+    const inactiveDenied = await request('post', '/api/public/drop-ins/register', { ...guest, slotGroupId: rotatingGroup, classDate: rotationDates.a })
+    assert.equal(inactiveDenied.status, 400, inactiveDenied.message)
   } finally {
     await db.query('ROLLBACK')
     await db.end()

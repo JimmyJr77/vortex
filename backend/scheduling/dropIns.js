@@ -13,6 +13,7 @@ import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.j
 import { normalizePhoneNumber, normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
+import { DROP_IN_CALENDAR_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -391,7 +392,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
   await expirePendingDropIns(pool)
   const benefits = await memberBenefits(pool, member)
   const result = await pool.query(`
-    SELECT sg.id AS slot_group_id, sf.id AS form_id, pending_registration_holds(sg.id) AS registration_holds,
+    SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id AS slot_group_id, sf.id AS form_id, pending_registration_holds(sg.id) AS registration_holds,
            sg.schedule_mode, sg.max_participants, sg.active_start, sg.active_end,
            sg.offering_id, sg.inherits_offering_dates, sg.dates_tbd,
            sf.start_date AS form_start_date, sf.end_date AS form_end_date,
@@ -409,7 +410,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
            (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
       FROM scheduling_slot_group sg
       JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
-      JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
+      JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id
       JOIN program p ON p.id=sf.program_id
       JOIN programs top ON top.id=COALESCE(sf.programs_id, p.programs_id)
       JOIN facility ON facility.id=top.facility_id
@@ -421,7 +422,6 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
        ${includeTrialOnly ? '' : 'AND COALESCE(p.is_trial_assessment, FALSE)=FALSE'}
        AND COALESCE(top.is_active, TRUE)=TRUE
        AND COALESCE(top.archived, FALSE)=FALSE
-       ${includeExcluded ? '' : 'AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE)=FALSE'}
      ORDER BY primary_dt.name, top.display_name, p.display_name,
               ts.day_of_week, ts.specific_date, ts.start_time
   `)
@@ -466,7 +466,20 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
   }
   const sessions = []
   const classesById = new Map()
+  const windows = new Map(), occurrencesByRow = new Map()
   for (const row of result.rows) {
+    const key = `${row.facility_date}:${row.booking_end_date}`
+    if (!windows.has(key)) windows.set(key, [])
+    windows.get(key).push(row)
+  }
+  for (const rows of windows.values()) {
+    for (const occurrence of dropInOccurrences(rows, rows[0].facility_date, rows[0].booking_end_date)) {
+      if (!occurrencesByRow.has(occurrence.row)) occurrencesByRow.set(occurrence.row, [])
+      occurrencesByRow.get(occurrence.row).push(occurrence)
+    }
+  }
+  for (const row of result.rows) {
+    if (!row.calendar_slot_active || (!includeExcluded && row.excluded_from_drop_ins)) continue
     const offeringById = row.offering_id == null ? null : new Map([[Number(row.offering_id), {
       start_date: row.offering_start_date,
       end_date: row.offering_end_date,
@@ -475,18 +488,6 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
       start_date: row.form_start_date,
       end_date: row.form_end_date,
     }, offeringById)
-    const specificDate = formatDateOnly(row.specific_date)
-    // Generate the same facility-local booking window used when the registration is committed.
-    const dates = []
-    const windowStart = row.facility_date
-    const windowEnd = row.booking_end_date
-    if (specificDate) {
-      if (specificDate >= windowStart && specificDate <= windowEnd) dates.push(specificDate)
-    } else if (row.day_of_week != null) {
-      for (const cursor = new Date(`${windowStart}T12:00:00Z`); cursor.toISOString().slice(0, 10) <= windowEnd; cursor.setUTCDate(cursor.getUTCDate() + 1)) {
-        if (cursor.getUTCDay() === Number(row.day_of_week)) dates.push(cursor.toISOString().slice(0, 10))
-      }
-    }
     const monthlyCents = classDropInMonthlyCents(row)
     const price = calculateDropInPrice({ monthlyCents, annualMember: benefits.annualMember, discountPercent: benefits.discountPercent })
     if (!classesById.has(Number(row.class_id))) {
@@ -506,10 +507,8 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
       // any of its scheduled times permits drop-ins.
       classesById.get(Number(row.class_id)).excludedFromDropIns = false
     }
-    for (const date of dates) {
-      if (activeDates.datesTbd) continue
-      if (activeDates.activeStart && date < activeDates.activeStart) continue
-      if (activeDates.activeEnd && date > activeDates.activeEnd) continue
+    for (const { date, excludedFromDropIns } of occurrencesByRow.get(row) || []) {
+      if (!includeExcluded && excludedFromDropIns) continue
       const availability = calculateDropInAvailability({
         maxParticipants: row.max_participants,
         monthlyEnrolled: (monthlyStartsByGroup.get(Number(row.slot_group_id)) ?? [])
@@ -535,7 +534,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
         facilityId: Number(row.facility_id), timeZone: row.time_zone,
         ageMin: row.age_min != null ? Number(row.age_min) : null,
         ageMax: row.age_max != null ? Number(row.age_max) : null,
-        excludedFromDropIns: Boolean(row.excluded_from_drop_ins), isTrialAssessment: Boolean(row.is_trial_assessment),
+        excludedFromDropIns, isTrialAssessment: Boolean(row.is_trial_assessment),
         scheduleDayOfWeek: row.day_of_week != null ? Number(row.day_of_week) : null,
         activeStart: activeDates.activeStart,
         activeEnd: activeDates.activeEnd,
@@ -718,7 +717,9 @@ export function registerDropInRoutes(app, pool) {
       // statement after the lock so a waiting booking sees the committed edit.
       await client.query('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE', [slotGroupId])
       const slot = await client.query(`
-        SELECT sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
+        SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
+               COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
+               ts.start_time, ts.end_time,
                sg.dates_tbd, ts.day_of_week, ts.specific_date, p.is_trial_assessment,
                CASE
                  WHEN offering.id IS NOT NULL
@@ -744,7 +745,7 @@ export function registerDropInRoutes(app, pool) {
                    AND s.enrollment_start_date <= $2::date)::int AS monthly_enrolled
           FROM scheduling_slot_group sg
           JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
-          JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
+          JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id
           LEFT JOIN scheduling_offering offering ON offering.id=sg.offering_id
           JOIN program p ON p.id=sf.program_id
           JOIN programs top ON top.id=COALESCE(sf.programs_id,p.programs_id)
@@ -753,16 +754,19 @@ export function registerDropInRoutes(app, pool) {
            AND COALESCE(p.archived, FALSE)=FALSE
            AND COALESCE(top.is_active, TRUE)=TRUE
            AND COALESCE(top.archived, FALSE)=FALSE
-           AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE)=FALSE
          FOR UPDATE OF sg`, [slotGroupId, classDate])
       if (!slot.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ success: false, message: 'Class not found.' }) }
       if (slot.rows.some(row => row.is_trial_assessment)) {
         await client.query('ROLLBACK')
         return res.status(400).json({ success: false, message: 'Trial assessments must be booked through the free-trial registration with an authorized guardian and required waivers.' })
       }
-      if (!slot.rows.some((row) => isActiveSlotOccurrence(row, classDate))) {
+      const occurrences = dropInOccurrences(slot.rows, classDate).filter(occurrence => !occurrence.excludedFromDropIns)
+      if (!occurrences.length) {
         await client.query('ROLLBACK'); return res.status(400).json({ success: false, message: 'That date is not an active occurrence of this class.' })
       }
+      // Pricing/capacity use the actual eligible occurrence, not an unrelated
+      // sibling returned first by the schedule query.
+      slot.rows = occurrences.map(occurrence => occurrence.row)
       if (!dateInTwoMonthWindow(classDate)) {
         await client.query('ROLLBACK'); return res.status(400).json({ success: false, message: 'Drop-ins may be booked up to two months in advance.' })
       }

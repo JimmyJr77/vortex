@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import os from 'node:os'
 import pg from 'pg'
-import { loadScheduleExport } from '../scheduleExport.js'
+import { loadScheduleExport, scheduleExportSections } from '../scheduleExport.js'
 
 test('schedule export is complete, facility scoped and subtracts active holds per shared schedule', {
   skip: process.env.RUN_SCHEDULE_EXPORT_LOCAL_TEST !== 'true',
@@ -47,6 +47,47 @@ test('schedule export is complete, facility scoped and subtracts active holds pe
     assert.equal(shared.length, 2)
     assert.ok(shared.every(row => row.capacity === 8 && row.enrolled === 2 && row.reserved === 1 && row.available === 5))
     assert.ok(data.rows.every(row => !/Hidden|Ended|Unselected/.test(row.className)))
+
+    // Slot dates override group/form defaults, and offering dates apply only according
+    // to the same inheritance rules used by the class calendar.
+    const explicit = await create('Explicit slot window')
+    await db.query("UPDATE scheduling_form SET start_date='2026-01-01',end_date='2027-12-31' WHERE id=$1", [explicit.form])
+    await db.query("UPDATE scheduling_slot_group SET active_start='2026-02-01',active_end='2027-11-30' WHERE id=$1", [explicit.group])
+    await db.query("UPDATE scheduling_time_slot SET active_start='2026-11-01',active_end='2026-12-01' WHERE id=$1", [explicit.slot])
+    const endedSlot = await create('Ended explicit slot')
+    await db.query("UPDATE scheduling_slot_group SET active_start='2026-01-01',active_end='2027-12-31' WHERE id=$1", [endedSlot.group])
+    await db.query("UPDATE scheduling_time_slot SET active_start='2026-10-01',active_end='2026-11-15' WHERE id=$1", [endedSlot.slot])
+    const offeringCases = []
+    for (const [name, inherits, end] of [['Custom offering window', false, '2026-11-30'], ['Inherited offering window', true, '2026-11-30'], ['Ended custom offering window', false, '2026-11-15']]) {
+      const record = await create(name)
+      const selected = (await db.query("INSERT INTO scheduling_offering(form_id,start_date,end_date,is_selected) VALUES($1,'2026-01-01','2027-12-31',TRUE) RETURNING id", [record.form])).rows[0].id
+      await db.query('UPDATE scheduling_slot_group SET offering_id=$2,inherits_offering_dates=$3 WHERE id=$1', [record.group, selected, inherits])
+      await db.query("UPDATE scheduling_time_slot SET active_start='2026-11-01',active_end=$2 WHERE id=$1", [record.slot, end])
+      offeringCases.push(record)
+    }
+    const tbd = await create('Dates TBD slot')
+    await db.query("UPDATE scheduling_time_slot SET dates_tbd=TRUE,active_start='2000-01-01',active_end='2000-02-01' WHERE id=$1", [tbd.slot])
+    const tbdGroup = await create('Dates TBD group')
+    await db.query('UPDATE scheduling_slot_group SET dates_tbd=TRUE WHERE id=$1', [tbdGroup.group])
+    const outsideWindow = await create('Specific date outside window')
+    await db.query("UPDATE scheduling_time_slot SET specific_date='2026-12-01',active_start='2026-11-01',active_end='2026-11-30' WHERE id=$1", [outsideWindow.slot])
+    const current = await loadScheduleExport(db, facility, new Date('2026-11-16T12:00:00Z'))
+    const exported = record => current.rows.find(row => row.slotId === Number(record.slot))
+    assert.deepEqual([exported(explicit).activeStart, exported(explicit).activeEnd], ['2026-11-01', '2026-12-01'])
+    assert.equal(exported(endedSlot), undefined)
+    assert.deepEqual([exported(offeringCases[0]).activeStart, exported(offeringCases[0]).activeEnd], ['2026-11-01', '2026-11-30'])
+    assert.deepEqual([exported(offeringCases[1]).activeStart, exported(offeringCases[1]).activeEnd], ['2026-01-01', '2027-12-31'])
+    assert.equal(exported(offeringCases[2]), undefined)
+    assert.equal(exported(outsideWindow), undefined)
+    for (const record of [tbd, tbdGroup]) {
+      const row = exported(record)
+      assert.deepEqual([row.activeStart, row.activeEnd, row.datesTbd], [null, null, true])
+    }
+    const sections = scheduleExportSections(current.rows)
+    const tbdSlots = [Number(tbd.slot), Number(tbdGroup.slot)].sort((a, b) => a - b)
+    assert.deepEqual(sections.byDay.find(section => section.name === 'Dates to be determined').rows.map(row => row.slotId).sort((a, b) => a - b), tbdSlots)
+    assert.ok(sections.byDay.slice(0, 7).every(section => section.rows.every(row => !tbdSlots.includes(row.slotId))))
+    assert.ok(sections.byClass.flatMap(section => section.rows).filter(row => tbdSlots.includes(row.slotId)).every(row => row.datesTbd))
     const emptyFacility = (await db.query("INSERT INTO facility(name) VALUES('Empty export fixture') RETURNING id")).rows[0].id
     assert.deepEqual((await loadScheduleExport(db, emptyFacility)).rows, [])
   } finally { await db.query('ROLLBACK'); await db.end() }
