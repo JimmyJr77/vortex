@@ -186,7 +186,7 @@ test('lead invitations reserve shared class places, require new credentials, and
       const invalidLead=await createLead(pool,facilityId,{firstName:'Other',lastName:'Family',email:`other-${nonce}@example.test`})
       await assert.rejects(()=>createLeadInvitation(pool,{facilityId,leadId:invalidLead.id,userId:owner.id,body:{children,selections}},{sendInvitation}),/reserved/)
     })
-    await t.test('credentials and the invitation scope are required; emails contain ordered setup and class links',async()=>{
+    await t.test('credentials and the invitation scope are required; emails contain setup links and class summaries',async()=>{
       await assert.rejects(()=>openLeadRegistration(pool,invitation.id,{token:captured.token,username:invitation.username,password:'wrong'}),/Incorrect/)
       await assert.rejects(()=>openLeadRegistration(pool,invitation.id,{token:'wrong',username:invitation.username,password:captured.password}),/Invalid/)
       session=await openLeadRegistration(pool,invitation.id,{token:captured.token,username:invitation.username,password:captured.password})
@@ -195,10 +195,45 @@ test('lead invitations reserve shared class places, require new credentials, and
       await sendLeadRegistrationEmail({...captured,send:async args=>{email=args;return{sent:true}}})
       assert.equal(email.category,'parent_account_invitation')
       assert.match(email.text,/Finish your family account/);assert.match(email.text,/Coach suggested enrollment\(s\)/)
-      assert.match(email.html,/selection=0/);assert.match(email.html,/selection=1/)
+      assert.match(email.html,/Start registration/)
+      assert.doesNotMatch(email.html,/selection=|Review reserved class|Review class selection/)
+      assert.doesNotMatch(email.text,/selection=/)
+      for (const selection of captured.invite.pending_payload.selections) {
+        assert.ok(email.text.includes(`${selection.childName} · ${selection.label}`))
+      }
       assert.ok(!Object.hasOwn(session,'temporary_password_hash'))
     })
     const payload=()=>({token:captured.token,session:session.session,primaryAdult:{firstName:'Testparent',lastName:'Invite',dateOfBirth:'1988-01-01',gender:'male',email:lead.email,phone:'2025550101',addressStreet:'100 Test Street',addressCity:'Albany',addressState:'NY',addressZip:'12207',username:invitation.username,password:'ReplacementPassword32!',confirmPassword:'ReplacementPassword32!'},additionalMembers:children.map(child=>({...child,emailSource:'parent',portalAccessRequested:false})),waivers:{signatureName:'Testparent Invite',acceptedTemplateIds:session.waivers.map(item=>Number(item.id)),paymentPolicyAcknowledged:true}})
+    await t.test('families add a class and reassign a reserved class while preserving both held places', async () => {
+      await db.query('SAVEPOINT reassign_and_add_class')
+      try {
+        const extraClass = (await db.query("INSERT INTO program(facility_id,programs_id,category,name,display_name,is_active) VALUES($1,$2,(enum_range(NULL::program_category))[1],$3,$3,TRUE) RETURNING id", [facilityId, program.id, `Additional class ${nonce}`])).rows[0]
+        const extraForm = (await db.query('INSERT INTO scheduling_form(program_id,programs_id,title,is_active) VALUES($1,$2,$3,TRUE) RETURNING id', [extraClass.id, program.id, 'Additional invitation class'])).rows[0]
+        const extraGroup = (await db.query('INSERT INTO scheduling_slot_group(form_id,max_participants,is_active) VALUES($1,10,TRUE) RETURNING id', [extraForm.id])).rows[0]
+        const extraSlot = (await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,2,'16:00','17:00',TRUE) RETURNING id", [extraForm.id, extraGroup.id])).rows[0]
+        const originalEnrollment = { programsId: program.id, classEventId: klass.id, schedulingFormId: form.id, slotGroupId: group.id, timeSlotId: slot.id, enrollmentStartDate }
+        const completed = await completeLeadRegistration(pool, invitation.id, {
+          ...payload(),
+          enrollments: [
+            { ...originalEnrollment, memberIndex: 2 },
+            { ...originalEnrollment, memberIndex: 0 },
+            { programsId: program.id, classEventId: extraClass.id, schedulingFormId: extraForm.id, slotGroupId: extraGroup.id, timeSlotId: extraSlot.id, enrollmentStartDate, memberIndex: 1 },
+          ],
+        })
+        assert.equal(completed.pendingEnrollments.length, 3)
+        assert.deepEqual(completed.pendingEnrollments.map(item => item.memberId), [completed.memberIds[2], completed.memberIds[0], completed.memberIds[1]])
+        assert.equal(completed.pendingEnrollments[2].classEventId, Number(extraClass.id))
+        const holds = (await db.query('SELECT status,member_id,invite_child_index FROM scheduling_signup WHERE account_invite_id=$1 ORDER BY invite_child_index', [invitation.id])).rows
+        assert.deepEqual(holds.map(row => ({ status: row.status, memberId: Number(row.member_id), childIndex: row.invite_child_index })), [
+          { status: 'pending_setup', memberId: completed.memberIds[0], childIndex: 0 },
+          { status: 'pending_setup', memberId: completed.memberIds[2], childIndex: 1 },
+        ])
+        assert.equal((await db.query('SELECT pending_registration_holds($1) AS n', [group.id])).rows[0].n, 2)
+      } finally {
+        await db.query('ROLLBACK TO SAVEPOINT reassign_and_add_class')
+        await db.query('RELEASE SAVEPOINT reassign_and_add_class')
+      }
+    })
     await t.test('setup requires replacing the temporary password and is idempotent',async()=>{
       const same=payload();same.primaryAdult.password=captured.password;same.primaryAdult.confirmPassword=captured.password
       await assert.rejects(()=>completeLeadRegistration(pool,invitation.id,same),/new password/)

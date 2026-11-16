@@ -1550,17 +1550,17 @@ export default function FamilySignupWizard({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Program enrollment</h3>
-        {!leadRegistration && <button
+        <button
           type="button"
           onClick={() => setEnrollments((prev) => [...prev, emptyEnrollment()])}
           className="inline-flex items-center gap-1 text-sm text-vortex-red font-semibold"
         >
-          <UserPlus className="w-4 h-4" /> Add enrollment
-        </button>}
+          <UserPlus className="w-4 h-4" /> {leadRegistration ? 'Add class' : 'Add enrollment'}
+        </button>
       </div>
       <p className="text-sm text-gray-600">
         {leadRegistration
-          ? 'Review the selections in your invitation and fill in the remaining details before checkout.'
+          ? 'Review the selections in your invitation, choose the family member for each class, and add any additional classes before checkout.'
           : 'Each enrollment is for one family member. To enroll another child in the same class, use “Enroll another family member in this class” below. Changing the family member on an existing enrollment only changes who that enrollment is for.'}
       </p>
       {enrollPrefill && (
@@ -1603,7 +1603,6 @@ export default function FamilySignupWizard({
                   id={`enrollment-member-${index}`} aria-invalid={invalidField === `enrollment-member-${index}` || undefined}
                   className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm"
                   value={row.memberClientId}
-                  disabled={invited?.childIndex != null}
                   onChange={(e) => updateEnrollmentRow(index, { memberClientId: e.target.value })}
                 >
                   <option value="">Select family member</option>
@@ -1699,7 +1698,12 @@ export default function FamilySignupWizard({
             )}
 
             {!invited && scheduleOptions.length > 0 && (
-              <div className="space-y-4">
+              <div
+                role="group" aria-label="Class times" data-field={`enrollment-time-${index}`}
+                aria-invalid={invalidField === `enrollment-time-${index}` || undefined}
+                aria-describedby={invalidField === `enrollment-time-${index}` ? 'signup-error' : undefined}
+                className="space-y-4"
+              >
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Active dates & schedule (select all that apply)

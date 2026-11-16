@@ -57,6 +57,7 @@ import {
   resendAdminPaymentReceipt,
   resendAdminRefundReceipt,
   updateAdminCustomerBillingAccount,
+  updateAdminHouseholdCollectionDay,
 } from './customerBillingAdminOperations.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { registerAccountingRoutes } from './accountingRoutes.js'
@@ -205,6 +206,28 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
         res.status(errorStatus(error)).json({
           success: false,
           message: error?.message ?? 'Billing account could not be updated.',
+        })
+      }
+    },
+  )
+
+  app.patch(
+    '/api/admin/customer-billing/families/:familyId/collection-day',
+    ...requirePermission(pool, jwtSecret, 'billing.manage'),
+    async (req, res) => {
+      try {
+        const data = await updateAdminHouseholdCollectionDay(pool, {
+          familyId: Number(req.params.familyId),
+          facilityId: facilityId(req),
+          actorUserId: actorId(req),
+          collectionDay: req.body?.collectionDay,
+        })
+        res.json({ success: true, data })
+      } catch (error) {
+        console.error('[customer-billing] collection day update:', error)
+        res.status(errorStatus(error)).json({
+          success: false,
+          message: error?.message ?? 'Billing day could not be updated.',
         })
       }
     },

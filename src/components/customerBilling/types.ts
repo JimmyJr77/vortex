@@ -173,6 +173,7 @@ export interface CustomerBillingOverview {
     billingZip: string | null
     stripeCustomerId: string | null
     householdMonthlyBillingEnabled: boolean
+    collectionDay: number
     isActive: boolean
     accountStatus: 'active' | 'inactive'
   }

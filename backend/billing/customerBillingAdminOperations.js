@@ -4,7 +4,7 @@ import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { notifyPaymentReceipt, notifyRefundReceipt } from '../email/memberNotifications.js'
 import { beginBillingAdminAction, finishBillingAdminAction } from './billingAdminActions.js'
-import { recordBillingActivityBestEffort } from './billingActivity.js'
+import { recordBillingActivity, recordBillingActivityBestEffort } from './billingActivity.js'
 import { allocateHouseholdPayments } from './paymentAllocation.js'
 import {
   findActiveEnrollmentCheckoutBalanceCollector,
@@ -13,6 +13,7 @@ import {
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { requireAdminFacilityScope } from './adminFacilityScope.js'
 import { withHouseholdMonthlyInvoiceAccountLock } from './householdMonthlyInvoice.js'
+import { validCollectionDay } from './householdCollectionSchedule.js'
 
 function optionalText(value) {
   const normalized = String(value ?? '').trim()
@@ -107,6 +108,49 @@ export async function loadAdminCustomerBillingAccount(pool, familyId, facilityId
   const row = result.rows[0]
   if (!row || row.id == null) return null
   return row
+}
+
+export async function updateAdminHouseholdCollectionDay(pool, {
+  familyId,
+  facilityId,
+  actorUserId,
+  collectionDay,
+}) {
+  const scopedFacilityId = requireAdminFacilityScope({ facilityId })
+  if (!validCollectionDay(collectionDay)) throw new Error('Choose a billing day from 1 through 31.')
+  const account = await loadAdminCustomerBillingAccount(pool, familyId, scopedFacilityId)
+  if (!account?.is_active) throw new Error('Active family billing account was not found.')
+
+  return withHouseholdMonthlyInvoiceAccountLock(pool, account.id, async (db) => {
+    await db.query('BEGIN')
+    try {
+      const { rows: [current] } = await db.query(
+        `SELECT account.collection_day FROM family_billing_account account
+          JOIN family ON family.id = account.family_id
+          WHERE account.id = $1 AND account.is_active = TRUE AND family.id = $2 AND family.facility_id = $3
+          FOR UPDATE OF account`,
+        [account.id, familyId, scopedFacilityId],
+      )
+      if (!current) throw new Error('Active family billing account was not found.')
+      if (current.collection_day !== collectionDay) {
+        await db.query('UPDATE family_billing_account SET collection_day = $2, updated_at = now() WHERE id = $1',
+          [account.id, collectionDay])
+        await recordBillingActivity(db, {
+          accountId: Number(account.id),
+          eventType: 'billing_collection_day_updated',
+          summary: `Monthly billing day changed from day ${current.collection_day} to day ${collectionDay}.`,
+          beforeValue: { collectionDay: current.collection_day },
+          afterValue: { collectionDay },
+          actorUserId,
+        })
+      }
+      await db.query('COMMIT')
+      return { collectionDay }
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+  })
 }
 
 export async function updateAdminCustomerBillingAccount(pool, {

@@ -8,6 +8,7 @@ import {
   billingMonthDueDate,
   billingPaymentMethodAlertPolicy,
   customerBillingCardPresentation,
+  customerBillingNextBillDate,
   customerFacingPriceSyncError,
   effectiveEnrollmentNextBillDate,
   earliestActiveNextBillDate,
@@ -720,6 +721,13 @@ test('billing-month due dates are serialized as full calendar dates', () => {
   assert.equal(billingMonthDueDate('2026-09'), '2026-09-01')
   assert.equal(billingMonthDueDate(new Date('2026-10-01T00:00:00.000Z')), '2026-10-01')
   assert.equal(billingMonthDueDate(null), null)
+})
+
+test('custom due dates stay in the current month until the facility reaches the selected day', () => {
+  const zone = 'America/New_York'
+  assert.equal(customerBillingNextBillDate('2026-03', new Date('2026-02-13T02:00:00Z'), zone, 12), '2026-02-12')
+  assert.equal(customerBillingNextBillDate('2026-03', new Date('2026-02-13T06:00:00Z'), zone, 12), '2026-03-12')
+  assert.equal(customerBillingNextBillDate('2028-03', new Date('2028-02-20T15:00:00Z'), zone, 31), '2028-02-29')
 })
 
 test('monthly recurring card remains the full scheduled tuition while balance uses ledger facts', () => {

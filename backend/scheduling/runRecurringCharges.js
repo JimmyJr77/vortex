@@ -14,6 +14,8 @@ import { expirePassCredits } from '../programs/multiClassPass.js'
 import { assertRequiredBillingSchema } from '../billing/billingSchemaReadiness.js'
 import { configureBillingWorkerPool } from '../billing/billingDatabaseRecovery.js'
 import { createRecurringBillingProgress } from '../billing/recurringBillingProgress.js'
+import { facilityDate } from '../billing/canonicalBillingMigrationState.js'
+import { householdCollectionWindow } from '../billing/householdCollectionSchedule.js'
 
 const { Pool } = pg
 
@@ -99,25 +101,25 @@ async function main() {
     const enrollmentRecovery = []
     if (collectPayments) {
       const { completeEnrollmentAutoBilling, recordEnrollmentAutoBillingAttention } = await import('../billing/enrollmentAutoBilling.js')
-      const candidates = await pool.query(`SELECT DISTINCT account.id, account.payer_member_id
+      const candidates = await pool.query(`SELECT DISTINCT account.id, account.payer_member_id, account.collection_day, facility.timezone
         FROM family_billing_account account
         JOIN family ON family.id=account.family_id
         JOIN facility ON facility.id=family.facility_id
         JOIN billing_charge charge ON charge.family_billing_account_id=account.id
         WHERE account.is_active=TRUE AND account.household_monthly_billing_enabled=TRUE
-          AND EXTRACT(DAY FROM now() AT TIME ZONE facility.timezone) IN (1,4)
-          AND COALESCE(charge.service_period_start,charge.created_at::date) <= (now() AT TIME ZONE facility.timezone)::date
+          AND COALESCE(charge.service_period_start,charge.created_at::date) <= ($1::timestamptz AT TIME ZONE facility.timezone)::date
           AND charge.source_type IN ('scheduling_signup','additional_fee') AND charge.amount_cents>0
           AND charge.collection_status NOT IN ('paid','failed','processing')
-          AND charge.stripe_checkout_session_id IS NULL`)
+          AND charge.stripe_checkout_session_id IS NULL`, [asOf])
       for (const candidate of candidates.rows) {
         stopping.signal.throwIfAborted()
         if (heldAccountIds.has(Number(candidate.id))) continue
+        if (!householdCollectionWindow(facilityDate(asOf, candidate.timezone), candidate.collection_day)) continue
         await progress.record({ accountId: Number(candidate.id), phase: 'enrollment_recovery', status: 'running' })
         let recoveryResult
         try {
-          const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true })
-          if (!['complete','feature_disabled'].includes(outcome.status)) {
+          const outcome = await completeEnrollmentAutoBilling(pool, { accountId: Number(candidate.id), scheduledRecovery: true, now: asOf })
+          if (!['complete','feature_disabled','outside_automatic_collection_window'].includes(outcome.status)) {
             const error = new Error(outcome.status)
             error.code = outcome.status
             throw error

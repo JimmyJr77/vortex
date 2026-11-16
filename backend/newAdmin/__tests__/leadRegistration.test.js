@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { invitationSummary } from '../leadRegistration.js'
+import { invitationSummary, matchReservedInvitationEnrollments } from '../leadRegistration.js'
 import { registerNewAdminRoutes } from '../registerRoutes.js'
 
 test('invitation editing exposes saved details and revision without temporary credentials', () => {
@@ -27,4 +27,46 @@ test('editing invitation route requires member edit access before loading or wri
   await authorize(req, res, () => assert.fail('Unauthorized edits must not reach handler'))
   assert.equal(res.statusCode, 403)
   assert.match(res.body.message, /members.edit/)
+})
+
+const classTime = { classEventId: 2, schedulingFormId: 3, slotGroupId: 4, timeSlotId: 5 }
+const reservation = (holdSignupId, childIndex) => ({ ...classTime, kind: 'reserved', holdSignupId, childIndex })
+const enrollment = memberIndex => ({ ...classTime, memberIndex })
+
+test('a reserved class follows a newly assigned family member without losing its hold', () => {
+  const selections = [reservation(10, 0)]
+  const enrollments = [enrollment(2)]
+  const matches = matchReservedInvitationEnrollments(selections, enrollments)
+  assert.equal(matches.length, 1)
+  assert.equal(matches[0].selection.holdSignupId, 10)
+  assert.equal(matches[0].enrollment.memberIndex, 2)
+  assert.deepEqual(selections, [reservation(10, 0)])
+  assert.deepEqual(enrollments, [enrollment(2)])
+})
+
+test('unchanged athletes retain their holds before another hold is reassigned', () => {
+  const matches = matchReservedInvitationEnrollments(
+    [reservation(10, 0), reservation(11, 1), reservation(12, null)],
+    [enrollment(2), enrollment(0), enrollment(3)],
+  )
+  assert.deepEqual(matches.map(({ selection, enrollment }) => [selection.holdSignupId, enrollment.memberIndex]),
+    [[10, 0], [11, 2], [12, 3]])
+})
+
+test('removing classes releases excess holds and changing times does not transfer a different hold', () => {
+  const matches = matchReservedInvitationEnrollments(
+    [reservation(10, 0), reservation(11, 1), { ...reservation(12, 2), timeSlotId: 8 }],
+    [enrollment(2), { ...enrollment(3), slotGroupId: 20, timeSlotId: 21 }],
+  )
+  assert.deepEqual(matches.map(({ selection, enrollment }) => [selection.holdSignupId, enrollment?.memberIndex ?? null]),
+    [[10, null], [11, 2], [12, null]])
+})
+
+test('additional class choices do not reuse a hold or create holds for nonreserved suggestions', () => {
+  const matches = matchReservedInvitationEnrollments(
+    [reservation(10, 0), { ...classTime, kind: 'class', childIndex: 1 }],
+    [enrollment(0), enrollment(1), enrollment(2)],
+  )
+  assert.equal(matches.length, 1)
+  assert.equal(matches[0].enrollment.memberIndex, 1)
 })

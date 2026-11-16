@@ -392,6 +392,44 @@ test('a missed first-day collection waits for the fourth', async () => {
   assert.deepEqual(attempts, ['initial'])
 })
 
+test('custom schedules use the current account setting and never use the default retry', async () => {
+  const failed = { id: 802, status: 'failed', automatic_attempt_count: 1, stripe_payment_intent_id: 'pi_failed' }
+  const cases = [
+    { date: '2026-02-01', day: 12 },
+    { date: '2026-02-04', day: 12 },
+    { date: '2026-02-04', day: 12, invoice: failed },
+    { date: '2026-02-04', day: 4, expected: 'initial' },
+    { date: '2026-02-04', day: 4, invoice: failed },
+    { date: '2026-02-12', day: 12, expected: 'initial' },
+    { date: '2026-02-12', day: 12, invoice: failed },
+    { date: '2026-02-12', day: 12, invoice: { id: 802, status: 'paid', automatic_attempt_count: 1 } },
+    { date: '2026-02-13', day: 12 },
+    { date: '2026-02-27', day: 31 },
+    { date: '2026-02-28', day: 31, expected: 'initial' },
+  ]
+  for (const { date, day, invoice, expected } of cases) {
+    const fixture = recurringAccountFixture({
+      account: { ...ACCOUNT, collection_day: day, verified_collection_month: '2026-01-01' },
+      due: [], invoice,
+    })
+    const attempts = []
+    const instant = new Date(`${date}T16:00:00Z`)
+    await processRecurringBillingAccount(fixture.db, { ...ACCOUNT, collection_day: 1 }, {
+      asOfTimestamp: instant,
+      clock: recurringBillingClock(instant, ACCOUNT.facility_timezone),
+      ...safeProcessors({
+        recurringChargeReconciler: async () => ({ verified: true }),
+        invoiceFactory: async (_db, options) => {
+          assert.equal(options.account.collection_day, day)
+          attempts.push(options.automaticAttemptPolicy)
+          return { created: false }
+        },
+      }),
+    })
+    assert.deepEqual(attempts, expected ? [expected] : [], `${date} with day ${day}`)
+  }
+})
+
 test('a confirmed failed household payment is retried only on the fourth and only once', async () => {
   const cases = [
     { day: '2026-09-03', attempts: 1, expected: [] },

@@ -335,6 +335,29 @@ async function resolveInvitationEnrollments(db, invite, enrollments, additionalM
   return resolved
 }
 
+export function matchReservedInvitationEnrollments(selections, enrollments) {
+  const available = [...enrollments]
+  const matches = selections.filter(selection => selection.kind === 'reserved')
+    .map(selection => ({ selection, enrollment: null }))
+  const sameClassTime = (selection, enrollment) => enrollment.classEventId === selection.classEventId
+    && enrollment.schedulingFormId === selection.schedulingFormId && enrollment.slotGroupId === selection.slotGroupId
+    && enrollment.timeSlotId === selection.timeSlotId
+  // Keep each original athlete's hold first, then transfer unused holds to other
+  // family members choosing that same class time. Every hold and choice is used once.
+  for (const match of matches) {
+    if (match.selection.childIndex == null) continue
+    const index = available.findIndex(enrollment => sameClassTime(match.selection, enrollment)
+      && enrollment.memberIndex === match.selection.childIndex + 1)
+    if (index >= 0) match.enrollment = available.splice(index, 1)[0]
+  }
+  for (const match of matches) {
+    if (match.enrollment) continue
+    const index = available.findIndex(enrollment => sameClassTime(match.selection, enrollment))
+    if (index >= 0) match.enrollment = available.splice(index, 1)[0]
+  }
+  return matches
+}
+
 export async function completeLeadRegistration(pool, inviteId, body, request = {}) {
   let claims
   try { claims=jwt.verify(String(body.session || ''), resolveJwtSecret()) } catch { throw inputError('Please sign in to your registration invitation again.', 401) }
@@ -381,15 +404,7 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
     const result = await processFamilySignup(db, { primaryAdult, additionalMembers: children, enrollments, waivers: body.waivers, familyName: `${primaryAdult.lastName} Family` }, { facilityId: invite.facility_id, leadInvitationId: invite.id, ipAddress: request.ip, userAgent: request.userAgent })
     // Preserve only holds still selected by the family. Match the actual schedule,
     // not array position: removing/reordering a suggestion must not attach another hold.
-    const available = [...enrollments]
-    const reservedSelections = invite.pending_payload.selections.filter(item => item.kind === 'reserved')
-      .sort((a, b) => Number(a.childIndex == null) - Number(b.childIndex == null))
-    for (const selection of reservedSelections) {
-      const match = available.findIndex(item => item.classEventId === selection.classEventId
-        && item.schedulingFormId === selection.schedulingFormId && item.slotGroupId === selection.slotGroupId
-        && item.timeSlotId === selection.timeSlotId
-        && (selection.childIndex == null || item.memberIndex === selection.childIndex + 1))
-      const enrollment = match < 0 ? null : available.splice(match, 1)[0]
+    for (const { selection, enrollment } of matchReservedInvitationEnrollments(invite.pending_payload.selections, enrollments)) {
       if (!enrollment) {
         await db.query(`UPDATE scheduling_signup SET status='cancelled',reserved_until=NULL
           WHERE account_invite_id=$1 AND slot_group_id=$2 AND status='pending_setup'

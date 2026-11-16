@@ -220,7 +220,6 @@ function statusBadge(row: MemberEnrollmentRow) {
   }
 
   const normalized = row.status.toLowerCase()
-  if (normalized === 'pending_setup') return <span className="text-xs font-medium text-amber-800">Reserved — awaiting payment</span>
   if (row.source === 'drop_in' && normalized === 'payment_pending') {
     return (
       <a className="text-xs font-semibold text-vortex-red underline" href={`/drop-in?booking=${row.id}`}>
@@ -558,7 +557,10 @@ export default function MemberEnrollmentsPanel({
   }, [showCancellationToast])
 
   const displayEnrollments = useMemo(
-    () => enrichEnrollmentsFromClassesOffered(enrollments, classesOffered),
+    () => enrichEnrollmentsFromClassesOffered(
+      enrollments.filter((row) => row.status.toLowerCase() !== 'pending_setup'),
+      classesOffered,
+    ),
     [enrollments, classesOffered],
   )
   const manageableMemberIdSet = useMemo(
@@ -630,7 +632,7 @@ export default function MemberEnrollmentsPanel({
             Current and past monthly, temporary, one-time, and drop-in class registrations for your family.
           </p>
         </div>
-        {enrollments.length > 0 && !hideViewToggle && (
+        {displayEnrollments.length > 0 && !hideViewToggle && (
           <div className="portal-section-tabs inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
             <button
               type="button"
@@ -681,7 +683,7 @@ export default function MemberEnrollmentsPanel({
 
         {loading ? (
           <div className="text-center py-12 text-gray-600">Loading enrollments…</div>
-        ) : enrollments.length === 0 ? (
+        ) : displayEnrollments.length === 0 ? (
           <p className="text-gray-600 flex items-center gap-2 py-4">
             <Calendar className="w-4 h-4 shrink-0" />
             No enrollments yet. Sign up for a class from the schedule below.

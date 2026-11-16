@@ -151,14 +151,17 @@ test('staff edit a sent registration invitation, preserve drafts on errors, and 
   await expect(page.getByRole('dialog').getByRole('button', { name: 'Edit', exact: true })).toHaveCount(0)
 })
 
-for (const removeSuggested of [false, true]) {
-test(`invited parent completes registration with ${removeSuggested ? 'removed' : 'original'} coach suggestions`,async({page})=>{
+for (const scenario of ['original', 'removed', 'added-and-reassigned'] as const) {
+const removeSuggested = scenario === 'removed'
+const editEnrollments = scenario === 'added-and-reassigned'
+test(`invited parent completes registration with ${editEnrollments ? 'additional classes and a reassigned family member' : `${scenario} coach suggestions`}`,async({page})=>{
   let completion:Record<string,unknown>|null=null
   const memberLogins: unknown[] = []
   const waivers=[{id:1,name:'Test waiver',body:'Fixture waiver',version:'1',is_required:true}]
   const pendingEnrollments=[
     {memberId:9,programsId:1,classEventId:2,formId:3,slotGroupId:4,timeSlotId:5,classLabel:'Gymnastics Basics',enrollmentStartDate:'2027-01-12'},
-    {memberId:10,programsId:1,classEventId:6,formId:7,slotGroupId:8,timeSlotId:9,classLabel:'Foundations',enrollmentStartDate:'2027-01-10'},
+    {memberId:editEnrollments ? 9 : 10,programsId:1,classEventId:6,formId:7,slotGroupId:8,timeSlotId:9,classLabel:'Foundations',enrollmentStartDate:'2027-01-10'},
+    ...(editEnrollments ? [{memberId:10,programsId:11,classEventId:12,formId:13,slotGroupId:14,timeSlotId:15,classLabel:'Trampoline Basics',enrollmentStartDate:'2027-01-15'}] : []),
   ]
   const result={payerMemberId:9,memberIds:[9,10],pendingEnrollments: removeSuggested ? pendingEnrollments.slice(1) : pendingEnrollments,enrollmentsPrepared:true}
   await page.addInitScript(()=>{localStorage.setItem('vortex_admin','true');localStorage.setItem('adminToken','fixture');localStorage.setItem('vortex-admin-info',JSON.stringify({id:1,isMaster:false}));localStorage.setItem('vortex_admin_portal','new-admin')})
@@ -260,6 +263,8 @@ test(`invited parent completes registration with ${removeSuggested ? 'removed' :
   const enrollments=page.getByRole('heading',{name:'Program enrollment'})
   await expect(enrollments).toBeVisible()
   await expect(page.getByLabel('Program',{exact:true}).first().locator('option:checked')).toHaveText('Gymnastics')
+  await expect(page.getByRole('button',{name:'Add class',exact:true})).toBeVisible()
+  await expect(page.getByLabel('Family member',{exact:true}).nth(1)).toBeEnabled()
   await expect(page.getByLabel('Family member',{exact:true}).nth(1).locator('option:checked')).toHaveText('Casey Rivera')
   await expect(page.getByLabel('Class',{exact:true}).nth(1).locator('option:checked')).toHaveText('Foundations')
   await expect(page.getByLabel('Class time',{exact:true}).last().locator('option:checked')).toHaveText('Monday 16:00–17:00')
@@ -290,6 +295,27 @@ test(`invited parent completes registration with ${removeSuggested ? 'removed' :
   await page.getByRole('button',{name:'Continue',exact:true}).click()
   await expect(page.getByText('Select an enrollment start date for enrollment 1.')).toBeVisible()
   await page.getByLabel('Enrollment start date').first().fill('2027-01-12')
+  if (editEnrollments) {
+    await page.getByLabel('Family member',{exact:true}).nth(1).selectOption({label:'Jordan Rivera'})
+    await expect(page.getByLabel('Class',{exact:true}).nth(1)).toHaveValue('6')
+    await expect(page.getByLabel('Class time',{exact:true}).nth(1)).toHaveValue('8:9')
+    await expect(page.getByLabel('Enrollment start date').nth(1)).toHaveValue('2027-01-10')
+    await page.getByRole('button',{name:'Add class',exact:true}).click()
+    await expect(page.getByLabel('Class',{exact:true})).toHaveCount(3)
+    await page.getByRole('button',{name:'Continue',exact:true}).click()
+    await expect(page.getByRole('alert')).toContainText('Select a family member for enrollment 3.')
+    await page.getByLabel('Family member',{exact:true}).nth(2).selectOption({label:'Casey Rivera'})
+    await page.getByRole('button',{name:'Continue',exact:true}).click()
+    await expect(page.getByRole('alert')).toContainText('Select a class for enrollment 3.')
+    await page.getByLabel('Program',{exact:true}).nth(2).selectOption('11')
+    await page.getByLabel('Class',{exact:true}).nth(2).selectOption('12')
+    await page.getByLabel('Enrollment start date').nth(2).fill('2027-01-15')
+    await page.getByRole('button',{name:'Continue',exact:true}).click()
+    await expect(page.getByRole('alert')).toContainText('Select a class time for enrollment 3.')
+    await page.getByRole('button',{name:'Go to field',exact:true}).click()
+    await expect(page.getByRole('checkbox',{name:'Friday 16:00–17:00',exact:true})).toBeFocused()
+    await page.getByRole('checkbox',{name:'Friday 16:00–17:00',exact:true}).check()
+  }
   if (removeSuggested) {
     page.once('dialog',dialog=>dialog.accept())
     await page.getByRole('button',{name:'Remove class',exact:true}).first().click()
@@ -311,7 +337,8 @@ test(`invited parent completes registration with ${removeSuggested ? 'removed' :
     additionalMembers:[{firstName:'Casey',lastName:'Rivera',dateOfBirth:'2016-01-01'}],
     enrollments:[
       ...(!removeSuggested ? [{memberIndex:0,classEventId:2,schedulingFormId:3,slotGroupId:4,timeSlotId:5,enrollmentStartDate:'2027-01-12'}] : []),
-      {memberIndex:1,classEventId:6,schedulingFormId:7,slotGroupId:8,timeSlotId:9,enrollmentStartDate:'2027-01-10'},
+      {memberIndex:editEnrollments ? 0 : 1,classEventId:6,schedulingFormId:7,slotGroupId:8,timeSlotId:9,enrollmentStartDate:'2027-01-10'},
+      ...(editEnrollments ? [{memberIndex:1,classEventId:12,schedulingFormId:13,slotGroupId:14,timeSlotId:15,enrollmentStartDate:'2027-01-15'}] : []),
     ],
   })
   await page.goto('/signup/lead?invite=8&token=fixture-token')
@@ -323,7 +350,15 @@ test(`invited parent completes registration with ${removeSuggested ? 'removed' :
     {emailOrUsername:'jordan',password:'NewPassword123!'},
     {emailOrUsername:'jordan',password:'NewPassword123!'},
   ])
-  await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:9:10') || 'null'))).toMatchObject({cart:[{classEventId:6,enrollmentStartDate:'2027-01-10'}]})
+  await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:9:10') || 'null'))).toMatchObject({cart:[editEnrollments
+    ? {classEventId:12,enrollmentStartDate:'2027-01-15'}
+    : {classEventId:6,enrollmentStartDate:'2027-01-10'}]})
+  if (editEnrollments) {
+    await expect.poll(()=>page.evaluate(()=>JSON.parse(sessionStorage.getItem('vortex_member_enrollment_draft_v1:9:9') || 'null'))).toMatchObject({cart:[
+      {classEventId:2,enrollmentStartDate:'2027-01-12'},
+      {classEventId:6,enrollmentStartDate:'2027-01-10'},
+    ]})
+  }
 })
 
 }

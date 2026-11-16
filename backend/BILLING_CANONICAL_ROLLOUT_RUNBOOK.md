@@ -126,10 +126,17 @@ the household ledger renewal.
 The recurring worker honors the verified migration's effective collection
 month. For a cohort adopted ahead of its boundary, normal enrollment lifecycle,
 pause-credit, annual-renewal, and canonical ledger processing continues, but no
-household Stripe invoice is published or collected before that month. At the
-first run in that month, the household invoice includes the account's entire
+household Stripe invoice is published or collected before that month. On the
+account's scheduled collection day, the household invoice includes its entire
 positive unpaid, unreserved balance. Record and approve that exact open balance
 per account before adoption so historical debt is never collected by surprise.
+
+The daily worker uses each facility's local date. The default monthly collection
+day is the 1st, with a recovery or retry window on the 4th. Admins with billing
+management access can change the billing day in Account Billing & Enrollments.
+Custom schedules get one automatic collection window per month, on the chosen
+day or the last day of a shorter month. Bill preparation and service periods
+keep their ordinary monthly calendar.
 
 The family bootstrap creates or reuses only an active payerless billing
 account, explicitly leaves household collection disabled, and persists a

@@ -13,6 +13,7 @@ import {
   billingHouseholdInvoiceEnabled,
 } from './billingFeatureFlags.js'
 import { facilityDate, facilityMonth, isValidTimeZone } from './canonicalBillingMigrationState.js'
+import { householdCollectionWindow } from './householdCollectionSchedule.js'
 import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
 import {
   findActiveEnrollmentCheckoutBalanceCollector,
@@ -1394,15 +1395,16 @@ export function automaticAttemptAllowed(invoice, {
   policy = null,
   now = new Date(),
   facilityTimeZone,
+  collectionDay,
 } = {}) {
   if (!policy || policy === 'manual') return true
   const attempts = Number(invoice?.automatic_attempt_count ?? 0)
   const date = facilityDate(now, facilityTimeZone)
-  const day = Number(date.slice(8, 10))
+  const window = householdCollectionWindow(date, collectionDay)
   if (dateOnly(invoice.billing_month)?.slice(0, 7) !== date.slice(0, 7)) return false
-  if (policy === 'initial') return [1, 4].includes(day) && attempts === 0
+  if (policy === 'initial') return window !== null && attempts === 0
   if (policy === 'retry_on_fourth') {
-    return day === 4 && attempts === 1 && ['failed', 'draft', 'open'].includes(invoice?.status)
+    return window === 'default_retry' && attempts === 1 && ['failed', 'draft', 'open'].includes(invoice?.status)
   }
   return false
 }
@@ -1457,11 +1459,13 @@ async function reservePaymentAttempt(pool, invoice, stripe, {
   paymentMethodId = null,
   now = new Date(),
   facilityTimeZone,
+  collectionDay,
 } = {}) {
   if (!automaticAttemptAllowed(invoice, {
     policy: automaticAttemptPolicy,
     now,
     facilityTimeZone,
+    collectionDay,
   })) {
     const error = new Error('This household invoice is not eligible for another automatic collection attempt.')
     error.code = 'household_automatic_attempt_not_eligible'
@@ -1872,6 +1876,7 @@ async function pushInvoiceToStripe(pool, {
   try {
     paymentAttempt = await reservePaymentAttempt(pool, invoice, stripe, {
       automaticAttemptPolicy, paymentMethodId: boundary.paymentMethodId, now, facilityTimeZone,
+      collectionDay: account.collection_day,
     })
   } catch (error) {
     if (error.code === 'household_hard_decline_new_payment_method_required') {
@@ -1974,9 +1979,11 @@ export async function createHouseholdMonthlyInvoice(pool, {
   publishOnly = false,
   now = new Date(),
 }) {
+  let collectionWindow = null
   if (automaticAttemptPolicy && automaticAttemptPolicy !== 'manual') {
     const today = facilityDate(now, facilityTimeZone)
-    if (![1, 4].includes(Number(today.slice(8, 10)))
+    collectionWindow = householdCollectionWindow(today, account?.collection_day)
+    if (!collectionWindow || (automaticAttemptPolicy === 'retry_on_fourth' && collectionWindow !== 'default_retry')
       || dateOnly(billingMonth)?.slice(0, 7) !== today.slice(0, 7)) {
       return { skipped: 'outside_automatic_collection_window', invoice: null, created: false }
     }
@@ -1992,8 +1999,7 @@ export async function createHouseholdMonthlyInvoice(pool, {
     const stripe = stripeClient === undefined
       ? (stripeEnabled() ? await getStripeClient() : null)
       : stripeClient
-    const refreshCurrentInvoice = automaticAttemptPolicy === 'retry_on_fourth'
-      || (automaticAttemptPolicy === 'initial' && Number(facilityDate(now, facilityTimeZone).slice(8, 10)) === 4)
+    const refreshCurrentInvoice = collectionWindow === 'default_retry'
     if (refreshCurrentInvoice) {
       const current = (await db.query(
         `SELECT * FROM billing_monthly_invoice WHERE family_billing_account_id=$1
@@ -2003,7 +2009,7 @@ export async function createHouseholdMonthlyInvoice(pool, {
         return { skipped: 'automatic_attempt_not_eligible', invoice: current, created: false }
       }
       if (current && current.status !== 'void') {
-        if (!automaticAttemptAllowed(current, { policy: automaticAttemptPolicy, now, facilityTimeZone })) {
+        if (!automaticAttemptAllowed(current, { policy: automaticAttemptPolicy, now, facilityTimeZone, collectionDay: account.collection_day })) {
           return { skipped: 'automatic_attempt_not_eligible', invoice: current, created: false }
         }
         if (current.payment_attempted_at) {

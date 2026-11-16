@@ -25,6 +25,7 @@ import { autoCompleteEndedEnrollments } from './adminEnrollmentsView.js'
 import { allocateHouseholdPayments } from '../billing/paymentAllocation.js'
 import { createHouseholdMonthlyInvoice } from '../billing/householdMonthlyInvoice.js'
 import { facilityDate } from '../billing/canonicalBillingMigrationState.js'
+import { householdCollectionWindow } from '../billing/householdCollectionSchedule.js'
 import { withBillingAccountCollectionLock } from '../billing/billingAccountCollectionLock.js'
 import { isBillingDatabaseConnectionError } from '../billing/billingDatabaseRecovery.js'
 import { reconcileAccountMonthlyInvoicePayments } from '../billing/reassessBillingAllocations.js'
@@ -337,8 +338,8 @@ export async function processRecurringBillingAccount(db, account, {
   // preparation run. Current enrollment/pricing is not evidence that a bill
   // posted earlier in the month (or its proration) was incorrect. Due schedules
   // still go through the catch-up loop above on every day.
-  const collectionDay = clock.dayOfMonth === 1 || clock.dayOfMonth === 4
-  if (canonicalLedgerOwned && collectionDay && !reconciledMonths.has(clock.billingMonth)) {
+  const collectionWindow = householdCollectionWindow(clock.asOfDate, fresh.collection_day)
+  if (canonicalLedgerOwned && collectionWindow && !reconciledMonths.has(clock.billingMonth)) {
     const current = await recurringChargeReconciler(db, {
       accountId: Number(fresh.id),
       billingMonth: clock.billingMonth,
@@ -356,9 +357,8 @@ export async function processRecurringBillingAccount(db, account, {
     chargesPosted += current.postedChargeIds?.length ?? 0
   }
 
-  // The fifth is a billing-preparation cutoff, not a collection event. Post the
-  // following month's deterministic enrollment charges now so account cards and
-  // Account History are accurate, but leave Stripe untouched until the first.
+  // Prepare the following month's charges from the fifth onward so account
+  // cards and history are accurate. Collection uses the separate window below.
   if (canonicalLedgerOwned && clock.isNextMonthPostingDay) {
     const nextMonth = monthStart(new Date(`${clock.billingMonth}T12:00:00.000Z`))
     const nextBillingMonth = new Date(`${nextMonth}T12:00:00.000Z`)
@@ -402,15 +402,14 @@ export async function processRecurringBillingAccount(db, account, {
       error.code = 'household_payment_outcome_requires_reconciliation'
       throw error
     }
-    // Only the first and fourth collect automatically. The fourth also recovers
-    // a missed first run or a newly saved method; the fifth only prepares bills.
-    // Unknown outcomes remain quarantined until reconciliation proves failure.
+    // The default retry window also recovers a missed first run or a newly
+    // saved method. A custom day opens only the initial attempt window.
     const awaitingFirstPaymentMethod = ['draft', 'open', 'payment_method_required'].includes(existingInvoice?.status)
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 0
       && !existingInvoice.payment_attempted_at
       && !existingInvoice.stripe_payment_intent_id
-    const shouldAttemptInitial = collectionDay && (!existingInvoice || awaitingFirstPaymentMethod)
-    const shouldAttemptRetry = clock.dayOfMonth === 4
+    const shouldAttemptInitial = collectionWindow && (!existingInvoice || awaitingFirstPaymentMethod)
+    const shouldAttemptRetry = collectionWindow === 'default_retry'
       && (['failed', 'void', 'open'].includes(existingInvoice?.status)
         || (['draft', 'open'].includes(existingInvoice?.status) && !existingInvoice.payment_attempted_at && !existingInvoice.stripe_payment_intent_id))
       && Number(existingInvoice.automatic_attempt_count ?? 0) === 1

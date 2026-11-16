@@ -215,6 +215,11 @@ test('required billing schema reports ready only when every request dependency e
   assert.deepEqual(REQUIRED_BILLING_DEFAULTS, [
     {
       tableName: 'family_billing_account',
+      columnName: 'collection_day',
+      expectedExpression: '1',
+    },
+    {
+      tableName: 'family_billing_account',
       columnName: 'household_monthly_billing_enabled',
       expectedExpression: 'false',
     },

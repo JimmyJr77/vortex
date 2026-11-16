@@ -16,5 +16,6 @@ export function registerAdminAccountReadRoutes(app,pool,{jwtSecret}) {
   read(`${base}/members`,['members.view'],(facility,req)=>listAccountDirectory(pool,{facilityId:facility,query:req.query}))
   read(`${base}/members/:id`,['members.view'],(facility,req)=>memberDetail(pool,facility,req.params.id,req.query))
   read(`${base}/classes`,['classes.view'],(facility,req)=>listClasses(pool,facility,req.query))
-  read(`${base}/classes/:id`,['classes.view','members.view'],(facility,req)=>classDetail(pool,facility,req.params.id,req.query))
+  // Leave named class routes such as schedule.pdf to the New Admin router.
+  read(`${base}/classes/:id(\\d+)`,['classes.view','members.view'],(facility,req)=>classDetail(pool,facility,req.params.id,req.query))
 }

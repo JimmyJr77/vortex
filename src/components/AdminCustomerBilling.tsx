@@ -1113,6 +1113,7 @@ export default function AdminCustomerBilling({
   const [refundTarget, setRefundTarget] = useState<RefundTarget | null>(null)
   const [contactDraft, setContactDraft] = useState<ContactDraft>(EMPTY_CONTACT)
   const [editingContact, setEditingContact] = useState(false)
+  const [collectionDayDraft, setCollectionDayDraft] = useState<number | null>(null)
   const [newEnrollmentOpen, setNewEnrollmentOpen] = useState(false)
 
   const canManage = access.isMasterAdmin || access.permissions.includes('billing.manage')
@@ -1238,6 +1239,7 @@ export default function AdminCustomerBilling({
       setSelectedMemberId(memberId)
       setContactDraft(billingContactDraft(nextOverview.account))
       setEditingContact(false)
+      setCollectionDayDraft(null)
       setSearchResults([])
       await loadAudits(familyId, memberId, false)
       return true
@@ -1541,6 +1543,28 @@ export default function AdminCustomerBilling({
     }
   }
 
+  const saveCollectionDay = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!overview || !canManage || !overview.account.isActive || collectionDayDraft == null || saving || loading) return
+    setSaving(true)
+    setError(null)
+    setSuccess(null)
+    try {
+      const response = await adminApiRequest(`/api/admin/customer-billing/families/${overview.account.familyId}/collection-day`, {
+        method: 'PATCH',
+        body: JSON.stringify({ collectionDay: collectionDayDraft }),
+      })
+      const body = await jsonBody(response)
+      if (!response.ok) throw new Error(body.message || 'Monthly billing day failed to save.')
+      setCollectionDayDraft(null)
+      await refresh('Monthly billing day updated.')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Monthly billing day failed to save.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const openPaymentMethodLink = async () => {
     if (!overview) return
     setSaving(true)
@@ -1797,6 +1821,29 @@ export default function AdminCustomerBilling({
               </div>
             ) : null}
             <div className="space-y-5 border-t border-gray-200 p-5">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-900">Monthly billing day</h3>
+                    <p className="mt-1 text-sm text-gray-700">Day {overview.account.collectionDay ?? 1} of each month</p>
+                    <p id="monthly-billing-day-help" className="mt-1 text-xs text-gray-600">Day 1 includes an automatic retry on day 4. A custom day has no automatic retry. In shorter months, days 29–31 fall on the last day of the month.</p>
+                  </div>
+                  {canManage && overview.account.isActive && collectionDayDraft == null ? (
+                    <button type="button" onClick={() => setCollectionDayDraft(overview.account.collectionDay ?? 1)} disabled={saving || loading} className="shrink-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Edit billing day</button>
+                  ) : null}
+                </div>
+                {canManage && collectionDayDraft != null ? (
+                  <form onSubmit={(event) => void saveCollectionDay(event)} className="mt-3 flex flex-wrap items-end gap-2">
+                    <label className="text-xs font-semibold text-gray-600">Collection day
+                      <select aria-describedby="monthly-billing-day-help" value={collectionDayDraft} onChange={(event) => setCollectionDayDraft(Number(event.target.value))} disabled={saving || loading} className="mt-1 block rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm">
+                        {Array.from({ length: 31 }, (_, index) => index + 1).map((day) => <option key={day} value={day}>{day === 1 ? '1 (default)' : day}</option>)}
+                      </select>
+                    </label>
+                    <button type="submit" disabled={saving || loading || collectionDayDraft === (overview.account.collectionDay ?? 1)} className="portal-primary rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Save billing day</button>
+                    <button type="button" onClick={() => setCollectionDayDraft(null)} disabled={saving || loading} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button>
+                  </form>
+                ) : null}
+              </div>
               <details open className="w-full">
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg text-sm font-bold text-gray-800 marker:hidden"><span className="flex items-center gap-2"><PencilLine className="h-4 w-4" /> Billing contact & payer</span><ChevronDown className="h-4 w-4" /></summary>
                 {canManageContact && !editingContact ? <button type="button" onClick={() => setEditingContact(true)} disabled={saving || loading} aria-label="Edit billing contact and payer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"><PencilLine className="h-4 w-4" />Edit</button> : null}

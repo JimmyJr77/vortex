@@ -124,16 +124,18 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
             ))}
           </ul>
           {invitation.instructions && <p className="whitespace-pre-wrap text-sm">{invitation.instructions}</p>}
-          {invitation.status !== 'completed' && (
-            <div className="flex flex-wrap gap-2">
-            <button className={button} disabled={busy || (!canReserve && invitation.selections.some(item => item.kind === 'reserved'))} onClick={edit}>Edit</button>
-            <button className={primary} disabled={busy} onClick={() => void resend()}>
-              {busy ? 'Sending…' : invitation.status === 'sent' ? 'Resend registration email' : 'Retry sending email'}
-            </button>
-            {!canReserve && invitation.selections.some(item => item.kind === 'reserved') && <p className="w-full text-sm text-slate-500">Scheduling permission is required to edit reserved classes.</p>}
-            </div>
-          )}
-          <button className={`${button} ml-2`} onClick={onClose}>Done</button>
+          <div className="flex items-center gap-2">
+            {invitation.status !== 'completed' && (
+              <>
+                <button className={button} disabled={busy || (!canReserve && invitation.selections.some(item => item.kind === 'reserved'))} onClick={edit}>Edit</button>
+                <button className={primary} disabled={busy} onClick={() => void resend()}>
+                  {busy ? 'Sending…' : invitation.status === 'sent' ? 'Resend registration email' : 'Retry sending email'}
+                </button>
+              </>
+            )}
+            <button className={button} onClick={onClose}>Done</button>
+          </div>
+          {invitation.status !== 'completed' && !canReserve && invitation.selections.some(item => item.kind === 'reserved') && <p className="text-sm text-slate-500">Scheduling permission is required to edit reserved classes.</p>}
         </section>
       ) : (
         <form onSubmit={submit} className="space-y-5">
@@ -200,7 +202,7 @@ export default function ConvertLead({ lead, access, onClose, onSent }: { lead: L
                             updateSelection(index, { kind, ...(kind === 'program' ? { classEventId: '' } : {}), timeSlotId: '' })
                           }}>
                             <option value="program">Choose from a program</option>
-                            <option value="class">Choose a time for a class</option>
+                            <option value="class">Reserve a Class</option>
                             {canReserve && <option value="reserved">Reserve a class and time</option>}
                           </select>
                         </label>

@@ -25,6 +25,7 @@ import { createLocalHouseholdInvoice } from '../householdMonthlyInvoice.js'
 import { repairBillingAdministration } from '../billingAdministrativeRepair.js'
 import { recordRecurringBillingExceptions } from '../recurringBillingOutcome.js'
 import { allocateHouseholdPaymentsLocked } from '../paymentAllocation.js'
+import { updateAdminHouseholdCollectionDay } from '../customerBillingAdminOperations.js'
 
 const url = process.env.BILLING_TURNOVER_TEST_DATABASE_URL
 const enabled = Boolean(url)
@@ -74,12 +75,37 @@ test('billing turnover PostgreSQL regressions', {skip:!enabled}, async (t) => {
     await db.query(await fs.readFile(new URL('../../migrations/836_monthly_invoice_revisions.sql',import.meta.url),'utf8'))
     await installSharedAccountRecords(db)
     await seedAccount()
+    await db.query(await fs.readFile(new URL('../../migrations/864_household_collection_day.sql',import.meta.url),'utf8'))
   })
   t.afterEach(async () => {
     await db.query('ROLLBACK')
     await db.query(`DROP SCHEMA ${quote(`turnover_${process.pid}_${index}`)} CASCADE`)
   })
   t.after(async () => { await db.end() })
+
+  await t.test('billing day defaults to the first and a scoped admin can change it with an audit record', async () => {
+    const readDay = async () => (await db.query('SELECT collection_day FROM family_billing_account WHERE id = 1')).rows[0].collection_day
+    assert.equal(await readDay(), 1)
+    await insert('family', { id: 2, facility_id: 1, family_name: 'New family' })
+    assert.equal((await insert('family_billing_account', { id: 2, family_id: 2, is_active: true })).collection_day, 1)
+
+    const input = { familyId: 1, facilityId: 1, actorUserId: 3, collectionDay: 17 }
+    await assert.rejects(updateAdminHouseholdCollectionDay(db, { ...input, facilityId: 2 }), /not found/)
+    for (const collectionDay of [0, 32, 1.5, '12', null]) {
+      await assert.rejects(updateAdminHouseholdCollectionDay(db, { ...input, collectionDay }), /1 through 31/)
+    }
+    await assert.rejects(db.query('UPDATE family_billing_account SET collection_day = 32 WHERE id = 1'), { code: '23514' })
+    assert.equal(await readDay(), 1)
+
+    assert.deepEqual(await updateAdminHouseholdCollectionDay(db, input), { collectionDay: 17 })
+    assert.equal(await readDay(), 17)
+    await updateAdminHouseholdCollectionDay(db, input)
+    const { rows } = await db.query(`SELECT before_value, after_value, actor_user_id::int FROM billing_account_activity
+      WHERE family_billing_account_id = 1 AND event_type = 'billing_collection_day_updated'`)
+    assert.deepEqual(rows, [{ before_value: { collectionDay: 1 }, after_value: { collectionDay: 17 }, actor_user_id: 3 }])
+    await updateAdminHouseholdCollectionDay(db, { ...input, collectionDay: 1 })
+    assert.equal(await readDay(), 1)
+  })
 
   await t.test('imported history shares normal pagination and reports without becoming collectible or crossing accounts',async()=>{
     await charge(1,2000,{created_at:'2026-10-01T12:00:00Z'})

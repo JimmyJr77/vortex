@@ -2,6 +2,8 @@ import { billingHouseholdAutoActivateEnabled } from './billingFeatureFlags.js'
 import { facilityDate } from './canonicalBillingMigrationState.js'
 import { getStripeClient } from './stripeBilling.js'
 import { BILLING_DEPLOY_MANIFEST_CHECKSUM } from './billingReleaseManifest.js'
+import { withBillingAccountCollectionLock } from './billingAccountCollectionLock.js'
+import { householdCollectionWindow } from './householdCollectionSchedule.js'
 
 /** Provision collection authority only through the existing audited saga.
  * A saved customer, exact household ownership and a clean remote collector
@@ -46,14 +48,27 @@ export async function completeEnrollmentAutoBilling(pool, {
   if (!stripe) return { status: 'stripe_unavailable' }
   const activation = await activateEnrollmentHouseholdBilling(pool, { accountId, stripe, environment, now })
   if (activation.status !== 'ready') return activation
-  const { checkoutAmountForBillingCharge, collectLedgerChargeWithSavedCard } = await import('./customerBillingPayments.js')
   const { account } = activation
   const today = facilityDate(now, account.timezone)
-  if (scheduledRecovery && ![1, 4].includes(Number(today.slice(8, 10)))) {
-    return { status: 'outside_automatic_collection_window' }
+  if (scheduledRecovery) {
+    return withBillingAccountCollectionLock(pool, accountId, async (db) => {
+      // The schedule can change after candidate selection or activation. Hold
+      // the same account lock as the admin write through any Stripe attempts.
+      const { rows: [current] } = await db.query(
+        'SELECT collection_day FROM family_billing_account WHERE id = $1 AND is_active = TRUE', [accountId],
+      )
+      if (!current || !householdCollectionWindow(today, current.collection_day)) {
+        return { status: 'outside_automatic_collection_window' }
+      }
+      return collectInitialEnrollmentBills(db, { account, signupIds, stripe, today, throughDate: today })
+    })
   }
-  const { resolveDefaultPaymentMethod } = await import('./customerBillingPayments.js')
-  try { await resolveDefaultPaymentMethod(stripe, account.stripe_customer_id, { billingMonth: facilityDate(now, account.timezone) }) }
+  return collectInitialEnrollmentBills(pool, { account, signupIds, stripe, today })
+}
+
+async function collectInitialEnrollmentBills(pool, { account, signupIds, stripe, today, throughDate = null }) {
+  const { checkoutAmountForBillingCharge, collectLedgerChargeWithSavedCard, resolveDefaultPaymentMethod } = await import('./customerBillingPayments.js')
+  try { await resolveDefaultPaymentMethod(stripe, account.stripe_customer_id, { billingMonth: today }) }
   catch (error) {
     if (error.code === 'STRIPE_PAYMENT_METHOD_NOT_READY') return { status: 'payment_method_required' }
     throw error
@@ -77,8 +92,7 @@ export async function completeEnrollmentAutoBilling(pool, {
       AND NOT EXISTS (SELECT 1 FROM billing_monthly_invoice_line line
         JOIN billing_monthly_invoice invoice ON invoice.id=line.billing_monthly_invoice_id
         WHERE line.billing_charge_id=charge.id AND invoice.status IN ('draft','open','paid','failed','payment_method_required'))
-    ORDER BY charge.id`, [accountId, signupIds == null ? null : signupIds.map(String), account.family_id,
-    scheduledRecovery ? today : null])).rows
+    ORDER BY charge.id`, [account.id, signupIds == null ? null : signupIds.map(String), account.family_id, throughDate])).rows
   const payments = []
   for (const charge of charges) {
     let amountCents
@@ -89,7 +103,7 @@ export async function completeEnrollmentAutoBilling(pool, {
     }
     payments.push(await collectLedgerChargeWithSavedCard(pool, {
       account, charge, stripeClient: stripe, attemptKey: `enrollment-auto:${charge.id}:v1`,
-      authorization: { source: 'enrollment_automatic_billing', date: facilityDate(now, account.timezone),
+      authorization: { source: 'enrollment_automatic_billing', date: today,
         note: 'Enrollment policy: collect the enrollment or annual membership bill using the household saved payment method.',
         confirmed: true, confirmedAmountCents: amountCents },
     }))

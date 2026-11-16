@@ -628,6 +628,11 @@ function resumePool({
       }
       if (text.includes('UPDATE billing_monthly_invoice') && text.includes('RETURNING *')) {
         if (Number(params[0]) !== invoice.id) return { rows: [] }
+        if (text.includes('automatic_attempt_count = automatic_attempt_count + 1')) {
+          const attempts = invoice.automatic_attempt_count ?? 0
+          if (attempts !== params.at(-1)) return { rows: [] }
+          invoice.automatic_attempt_count = attempts + 1
+        }
         if (
           text.includes('stripe_invoice_id IS NULL OR stripe_invoice_id = $2')
           && invoice.stripe_invoice_id
@@ -3037,6 +3042,42 @@ test('automatic collection is limited to the first and fourth in facility time',
   assert.equal(automaticAttemptAllowed({...invoice,billing_month:'2026-12-01'},options),false)
   assert.equal(automaticAttemptAllowed(invoice,{...options,now:new Date('2026-11-05T07:15:00Z')}),false)
   assert.equal(automaticAttemptAllowed({...invoice,automatic_attempt_count:0,status:'draft'},{...options,policy:'initial',now:new Date('2026-11-01T07:15:00Z')}),true)
+})
+
+test('the invoice service disallows the default windows for custom accounts', async () => {
+  const db = { query() { assert.fail('No invoice work outside the collection window') } }
+  const base = { id: 1, household_monthly_billing_enabled: true, facility_timezone: 'America/New_York' }
+  for (const [date, collectionDay, policy] of [
+    ['2026-11-01T16:00:00Z', 12, 'initial'],
+    ['2026-11-04T16:00:00Z', 12, 'initial'],
+    ['2026-11-04T16:00:00Z', 4, 'retry_on_fourth'],
+    ['2026-11-12T02:00:00Z', 12, 'initial'],
+  ]) {
+    const result = await createHouseholdMonthlyInvoice(db, {
+      account: { ...base, collection_day: collectionDay }, billingMonth: '2026-11-01',
+      now: new Date(date), automaticAttemptPolicy: policy,
+    })
+    assert.equal(result.skipped, 'outside_automatic_collection_window')
+  }
+  const options = { policy: 'initial', now: new Date('2026-11-12T16:00:00Z'),
+    facilityTimeZone: base.facility_timezone, collectionDay: 12 }
+  const invoice = { billing_month: '2026-11-01', automatic_attempt_count: 0, status: 'draft' }
+  assert.equal(automaticAttemptAllowed(invoice, options), true)
+  assert.equal(automaticAttemptAllowed({ ...invoice, automatic_attempt_count: 1, status: 'failed' }, options), false)
+})
+
+test('a custom date can reserve and dispatch a payment for the current month', async () => {
+  const pool = resumePool()
+  const stripe = stripeFixture()
+  const result = await createHouseholdMonthlyInvoice(pool, {
+    account: { id: 8, family_id: 6, stripe_customer_id: 'cus_8', facility_timezone: 'America/New_York',
+      household_monthly_billing_enabled: true, collection_day: 12 },
+    billingMonth: '2026-09-01', now: new Date('2026-09-12T07:15:00Z'), automaticAttemptPolicy: 'initial',
+    environment: { BILLING_HOUSEHOLD_INVOICE_ENABLED: 'true' }, stripeClient: stripe,
+  })
+  assert.equal(result.invoice.stripe_payment_intent_id, 'pi_42')
+  assert.equal(pool.invoice.automatic_attempt_count, 1)
+  assert.equal(stripe.payRequests.length, 1)
 })
 
 test('fourth-day retry cancels its stale invoice and skips collection when a manual payment already paid the bill', async () => {

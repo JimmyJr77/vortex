@@ -15,6 +15,8 @@ import {
   mapPriceAdjustment,
 } from './customerBillingPricing.js'
 import { mapBillingActivity } from './billingActivity.js'
+import { facilityDate } from './canonicalBillingMigrationState.js'
+import { DEFAULT_COLLECTION_DAY, householdCollectionDate } from './householdCollectionSchedule.js'
 import {
   membershipRenewsOnFromPurchase,
 } from '../scheduling/membershipAnniversary.js'
@@ -535,6 +537,7 @@ function mapAccount(account) {
     billingZip: account.billing_zip ?? null,
     stripeCustomerId: account.stripe_customer_id ?? null,
     householdMonthlyBillingEnabled: account.household_monthly_billing_enabled === true,
+    collectionDay: account.collection_day ?? DEFAULT_COLLECTION_DAY,
     isActive: account.is_active !== false,
   }
 }
@@ -611,10 +614,19 @@ export function upcomingRecurringPricingMonth(asOf = new Date(), timeZone = 'Ame
 // UI due dates must be full calendar dates. Sending a bare YYYY-MM string
 // makes JavaScript parse it as UTC midnight, which renders as the preceding
 // calendar day for facilities west of UTC.
-export function billingMonthDueDate(month) {
+export function billingMonthDueDate(month, collectionDay = DEFAULT_COLLECTION_DAY) {
   if (month == null || String(month).trim() === '') return null
   const key = billingMonthKey(month)
-  return key ? `${key}-01` : null
+  return key ? householdCollectionDate(key, collectionDay) : null
+}
+
+export function customerBillingNextBillDate(pricingMonth, asOf, timeZone, collectionDay = DEFAULT_COLLECTION_DAY) {
+  if (collectionDay === DEFAULT_COLLECTION_DAY) return billingMonthDueDate(pricingMonth)
+  const today = facilityDate(asOf, timeZone)
+  const currentDueDate = householdCollectionDate(today, collectionDay)
+  return today <= currentDueDate
+    ? currentDueDate
+    : billingMonthDueDate(addBillingMonths(today, 1), collectionDay)
 }
 
 // The monthly card is a budget/tracking figure, not a collection remainder.
@@ -1107,7 +1119,7 @@ export async function buildCustomerBillingOverview(pool, {
     list.push(adjustment)
     adjustmentsBySignup.set(adjustment.signupId, list)
   }
-  const nextBillDate = billingMonthDueDate(pricingMonth)
+  const nextBillDate = customerBillingNextBillDate(pricingMonth, asOf, account.facility_timezone, account.collection_day)
   const householdMonthlyBillingEnabled = account.household_monthly_billing_enabled === true
   const pricingStartedAt = Date.now()
   const displayPricing = await resolveFamilyEnrollmentPricing(pool, {

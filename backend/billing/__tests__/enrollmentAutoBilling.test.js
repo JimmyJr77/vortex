@@ -39,10 +39,14 @@ test('class moves cannot authorize a second enrollment autopay, including legacy
 test('scheduled enrollment recovery uses facility collection days and excludes future service', async () => {
   const account = { id: 1, family_id: 2, timezone: 'America/New_York', stripe_customer_id: 'cus_fixture',
     household_monthly_billing_enabled: true, migration_state: 'verified', verified_collection: true }
+  let collectionDay = 1
+  let expectedThrough = '2026-11-04'
   const db = { query: async (sql, values) => {
     if (sql.includes('SELECT account.*')) return { rows: [account] }
+    if (/pg_advisory_(lock|unlock)/.test(sql)) return { rows: [{}] }
+    if (sql.startsWith('SELECT collection_day')) return { rows: [{ collection_day: collectionDay }] }
     assert.match(sql, /COALESCE\(charge.service_period_start, charge.created_at::date\) <= \$4::date/)
-    assert.equal(values[3], '2026-11-04')
+    assert.equal(values[3], expectedThrough)
     return { rows: [] }
   } }
   let methodReads = 0
@@ -57,5 +61,14 @@ test('scheduled enrollment recovery uses facility collection days and excludes f
     'outside_automatic_collection_window')
   assert.equal(methodReads, 0)
   assert.deepEqual(await completeEnrollmentAutoBilling(db, { ...options, now: new Date('2026-11-05T02:00:00Z') }),
+    { status: 'complete', paymentCount: 0 })
+  collectionDay = 12
+  for (const date of ['2026-11-01', '2026-11-04', '2026-11-13']) {
+    assert.equal((await completeEnrollmentAutoBilling(db, { ...options, now: new Date(`${date}T16:00:00Z`) })).status,
+      'outside_automatic_collection_window')
+  }
+  assert.equal(methodReads, 1)
+  expectedThrough = '2026-11-12'
+  assert.deepEqual(await completeEnrollmentAutoBilling(db, { ...options, now: new Date('2026-11-12T16:00:00Z') }),
     { status: 'complete', paymentCount: 0 })
 })

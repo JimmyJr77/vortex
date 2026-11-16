@@ -40,6 +40,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '840_stripe_customer_projection.sql',
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
+  '864_household_collection_day.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -103,6 +104,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '840_stripe_customer_projection.sql',
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
+  '864_household_collection_day.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
@@ -209,6 +211,7 @@ export const DEPLOY_BILLING_COLUMNS = Object.freeze([
   { tableName: 'billing_monthly_invoice_line', columnName: 'deleted_charge_id' },
   { tableName: 'billing_payment_attempt_charge', columnName: 'deleted_charge_id' },
   { tableName: 'family_billing_account', columnName: 'household_monthly_billing_enabled' },
+  { tableName: 'family_billing_account', columnName: 'collection_day' },
   { tableName: 'billing_payment', columnName: 'request_key' },
   { tableName: 'multi_class_pass_redemption', columnName: 'request_key' },
   { tableName: 'multi_class_pass_redemption', columnName: 'idempotency_fingerprint' },
@@ -291,6 +294,7 @@ export const DEPLOY_BILLING_COLUMNS = Object.freeze([
 ])
 
 export const DEPLOY_BILLING_DEFAULTS = Object.freeze([
+  { tableName: 'family_billing_account', columnName: 'collection_day', expectedExpression: '1' },
   {
     tableName: 'family_billing_account',
     columnName: 'household_monthly_billing_enabled',
@@ -350,6 +354,7 @@ export const DEPLOY_BILLING_FUNCTIONS = Object.freeze([
 ])
 
 export const DEPLOY_BILLING_CONSTRAINTS = Object.freeze([
+  { tableName: 'family_billing_account', constraintName: 'family_billing_account_collection_day_check', constraintType: 'c' },
   { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_checkout_mode_check', constraintType: 'c' },
   { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_status_check', constraintType: 'c' },
   { tableName: 'billing_migration_run', constraintName: 'billing_migration_run_target_month_first_check', constraintType: 'c' },

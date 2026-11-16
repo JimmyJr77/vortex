@@ -19,6 +19,7 @@ interface CapturedRequests {
   classSwapKeys?: string[]
   overviewLoads?: number
   transactionLoads?: number
+  collectionDayChanges?: Array<Record<string, unknown>>
 }
 
 const failedAdjustment = {
@@ -48,6 +49,7 @@ const overview = {
     billingState: 'NY',
     billingZip: '10001',
     stripeCustomerId: 'cus_test_rivera',
+    collectionDay: 1,
     accountStatus: 'active',
     isActive: true,
   },
@@ -507,6 +509,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
       })
       await json({
         ...overview,
+        account: { ...overview.account, collectionDay: captured.collectionDayChanges?.at(-1)?.collectionDay ?? overview.account.collectionDay },
         revision: `test-${captured.overviewLoads}`,
         summary: {
           ...overview.summary,
@@ -518,6 +521,13 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
         bundlePasses: overview.bundlePasses.map((pass) => ({ ...pass, classesRemaining })),
         bundleUsage: [...adjustmentUsage.reverse(), ...overview.bundleUsage],
       })
+      return
+    }
+    if (url.pathname === '/api/admin/customer-billing/families/42/collection-day' && request.method() === 'PATCH') {
+      const input = request.postDataJSON()
+      const changes = captured.collectionDayChanges ??= []
+      changes.push(input)
+      await json(input)
       return
     }
     if (url.pathname === '/api/admin/customer-billing/families/42/migration-status') {
@@ -710,6 +720,24 @@ async function findRiveraAccount(page: Page) {
 }
 
 test.describe('Account Billing & Enrollments administration', () => {
+  test('edits a household billing day and restores the default after refresh', async ({ page }) => {
+    const captured: CapturedRequests = {
+      searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0,
+    }
+    await openCustomerBilling(page, captured)
+    await findRiveraAccount(page)
+    await expect(page.getByText('Day 1 of each month', { exact: true })).toBeVisible()
+
+    for (const day of [17, 1]) {
+      await page.getByRole('button', { name: 'Edit billing day' }).click()
+      await page.getByRole('combobox', { name: 'Collection day', exact: true }).selectOption(String(day))
+      await page.getByRole('button', { name: 'Save billing day' }).click()
+      await expect(page.getByText(`Day ${day} of each month`, { exact: true })).toBeVisible()
+      await expect(page.getByText('Monthly billing day updated.', { exact: true })).toBeVisible()
+    }
+    expect(captured.collectionDayChanges).toEqual([{ collectionDay: 17 }, { collectionDay: 1 }])
+  })
+
   test('moves a current enrollment after previewing the prorated ledger impact once', async ({ page }) => {
     const captured: CapturedRequests = {
       searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0,
