@@ -4,6 +4,9 @@ const PUBLIC_BOOKING_PROGRAMS = [
   { name: 'Fit & Flip', aliases: ['Fit & Flip'] },
 ] as const
 
+export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
+export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
+
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 
 /** Public booking labels only; retain catalog IDs, pricing, and portal names. */

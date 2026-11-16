@@ -25,7 +25,7 @@ const legacyDestinations = [...new Set(Object.values(legacyLandingRedirects))]
 const programActions = new Map([
   ['/gymnastics', { path: '/enroll', program: 'Developmental Gymnastics' }],
   ['/fit-and-flip', { path: '/enroll', program: 'Fit & Flip' }],
-  ['/adult-gymnastics', { path: '/contact' }],
+  ['/adult-gymnastics', { path: '/enroll', program: 'Adult Fitness & Acrobatics' }],
 ])
 const failures = []
 const indexedTitles = new Map()

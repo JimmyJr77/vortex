@@ -1,5 +1,6 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
+import { ADULT_BOOKING_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
 
@@ -141,14 +142,14 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     name: 'Adult Gymnastics and Acrobatics',
     path: '/adult-gymnastics',
     title: 'Adult Gymnastics & Acrobatics in Bowie, MD | Vortex',
-    description: 'Ask about Typhoons at Vortex in Bowie, MD. Adults 18 and up can build strength, mobility, and introductory gymnastics and acrobatics skills.',
+    description: 'Find Typhoons adult gymnastics and acrobatics in Bowie, MD. Adults 18 and up can build strength, mobility, and introductory skills. See current class times.',
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is Vortex’s fitness and acrobatics class for adults 18 and up. It combines strength, conditioning, and mobility with introductory acrobatics. Beginners and returning gymnasts are welcome.',
     image: '/gym-DSC02636-1600.webp',
     imageAlt: 'Vortex Athletics gymnastics training area in Bowie, Maryland',
     imageWidth: 1600,
     imageHeight: 1066,
-    primaryAction: { href: '/contact', label: 'Ask about adult class availability', analyticsKey: 'inquire' },
+    primaryAction: { href: ADULT_BOOKING_HREF, label: 'See adult class times', analyticsKey: 'browse_classes' },
     sections: [
       {
         id: 'class-format',
@@ -162,13 +163,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'adult-availability',
         heading: 'Plan your first adult class',
-        description: 'Contact Vortex and ask about Typhoons. The team can confirm current openings, how to join, what to bring, and which class fits your experience.',
+        description: 'Check the current Typhoons schedule and choose an available class to enroll. Contact Vortex if you have questions about what to bring, which starting level fits, or when more openings are expected.',
+        links: [
+          { href: '/contact', label: 'Ask about Typhoons', analyticsKey: 'inquire' },
+        ],
       },
     ],
     faqs: [
       { question: 'What age is the adult gymnastics class for?', answer: 'Typhoons is for adults ages 18 and up. Vortex has separate youth gymnastics pathways for kids and teens.' },
       { question: 'Can I join as a beginner?', answer: 'Yes. Typhoons welcomes adults without prior gymnastics experience. Contact Vortex if you would like help choosing your starting point.' },
-      { question: 'How do I sign up for Typhoons?', answer: 'Contact Vortex and ask for the current adult schedule, availability, and registration options.' },
+      { question: 'How do I sign up for Typhoons?', answer: 'Choose See adult class times to check the current schedule and begin enrollment. If there are no classes available online, contact Vortex for help.' },
     ],
     relatedPaths: ['/gymnastics', '/fit-and-flip'],
   },
