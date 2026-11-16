@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { ArrowLeft, ArrowRight, X, Lock, Mail } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, X, Lock, Mail } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import type { PortalAccount } from '../utils/portalSession'
 import './Login.css'
@@ -13,6 +13,7 @@ interface LoginProps {
 export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
   const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordVisible, setPasswordVisible] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
   const [resetAccountType, setResetAccountType] = useState<'member' | 'staff'>('member')
   const [forgotMode, setForgotMode] = useState(false)
@@ -33,6 +34,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     accountInputRef.current?.focus({ preventScroll: true })
     return () => {
       dialog.close()
+      setPasswordVisible(false)
       document.body.style.overflow = previousOverflow
       if (trigger?.isConnected) trigger.focus({ preventScroll: true })
     }
@@ -172,17 +174,30 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
 
           {!forgotMode && <div className="np-account-login-field">
             <label htmlFor={id + '-password'}>Password</label>
-            <div className="np-account-login-input-wrap">
+            <div className="np-account-login-input-wrap np-account-login-password-wrap">
               <Lock size={18} aria-hidden="true" />
               <input
-                type="password"
+                type={passwordVisible ? 'text' : 'password'}
                 id={id + '-password'}
                 name="password"
                 value={password}
                 autoComplete="current-password"
+                autoCapitalize="none"
+                spellCheck={false}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                className="np-account-login-password-toggle"
+                aria-label={passwordVisible ? 'Hide password' : 'Show password'}
+                aria-controls={id + '-password'}
+                aria-pressed={passwordVisible}
+                title={passwordVisible ? 'Hide password' : 'Show password'}
+                onClick={() => setPasswordVisible((visible) => !visible)}
+              >
+                {passwordVisible ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}
+              </button>
             </div>
           </div>}
 
@@ -193,7 +208,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
           <button
             type="button"
             className="np-account-login-switch"
-            onClick={() => { setError(''); setResetSent(false); setForgotMode((value) => !value) }}
+            onClick={() => { setError(''); setResetSent(false); setPasswordVisible(false); setForgotMode((value) => !value) }}
           >
             {forgotMode && <ArrowLeft size={16} aria-hidden="true" />}
             {forgotMode ? 'Back to login' : 'Forgot password?'}

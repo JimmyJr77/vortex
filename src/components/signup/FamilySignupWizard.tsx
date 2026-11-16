@@ -248,6 +248,7 @@ export interface FreeTrialSignupSelection {
 }
 
 interface FamilySignupWizardProps {
+  dropInSignup?: boolean
   freeTrial?: FreeTrialSignupSelection
   leadRegistration?: LeadRegistrationSetup
   mode?: WizardMode
@@ -293,6 +294,7 @@ function mapApiMemberToForm(
 }
 
 export default function FamilySignupWizard({
+  dropInSignup = false,
   mode = 'public',
   editMemberId = null,
   returnTo = null,
@@ -323,6 +325,7 @@ export default function FamilySignupWizard({
     phone: formatPhoneForDisplay(leadRegistration?.guardian.phone),
     username: leadRegistration?.username || '',
   }))
+  const [dropInAthleteClientId, setDropInAthleteClientId] = useState('')
   const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children ?? (isFreeTrial ? [emptyMember()] : [])).map((child) => ({
     ...emptyMember(),
     firstName: child.firstName ?? '',
@@ -1022,6 +1025,12 @@ export default function FamilySignupWizard({
       setInvalidField('trial-potty-trained')
       return 'A parent or legal guardian must confirm that their child is potty trained for Mommy & Me.'
     }
+    if (dropInSignup && ![primaryAdult, ...members].some(member =>
+      member.clientId === dropInAthleteClientId && (member === primaryAdult || !isAdult(member.dateOfBirth)),
+    )) {
+      setInvalidField('drop-in-athlete')
+      return 'Choose yourself or a child in your family to attend this drop-in. Other adults must sign their own waivers.'
+    }
     return null
   }
 
@@ -1240,7 +1249,9 @@ export default function FamilySignupWizard({
         signatureName,
         comments,
         acceptedTemplateIds: checkedTemplateIds,
-        paymentPolicyAcknowledged: isFreeTrial ? agreeAll && waivers.some(waiver => waiver.waiver_type === 'PAYMENT_POLICY' && checkedTemplateIds.includes(waiver.id)) : paymentPolicyAcknowledged,
+        paymentPolicyAcknowledged: isFreeTrial || dropInSignup || Boolean(pendingDropInId)
+          ? agreeAll && waivers.some(waiver => waiver.waiver_type === 'PAYMENT_POLICY' && checkedTemplateIds.includes(waiver.id))
+          : paymentPolicyAcknowledged,
       },
       pendingDropInId: pendingDropInId && /^\d+$/.test(pendingDropInId) ? Number(pendingDropInId) : null,
     }
@@ -1379,6 +1390,16 @@ export default function FamilySignupWizard({
           })
       const data = await res.json()
       if (!res.ok || data.success === false) throw new Error(data.message || 'Signup failed')
+      if (dropInSignup) {
+        const athleteIndex = [primaryAdult, ...additionalMembers].findIndex(member => member.clientId === dropInAthleteClientId)
+        const dropInMemberId = Number(data.data?.memberIds?.[athleteIndex])
+        const login = await loginMemberWithCredentials(apiUrl, {
+          emailOrUsername: primaryAdult.username, password: primaryAdult.password,
+        }).catch(() => null)
+        setSuccessMessage('Account created. Continue to review your drop-in and payment.')
+        onComplete?.({ ...data.data, ...login, dropInMemberId })
+        return
+      }
       if (isFreeTrial) {
         const booking = data.data?.completedDropIn
         if (booking?.status !== 'confirmed' || booking?.benefitType !== 'free_trial' || booking?.totalCents !== 0) {
@@ -1755,7 +1776,7 @@ export default function FamilySignupWizard({
               ? 'Youth signup — invite a parent'
               : isAdmin
                 ? 'Create Vortex account'
-                : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
+                : dropInSignup ? 'Register for your drop-in' : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
           Step {step} of {maxStep} —{' '}
@@ -1766,6 +1787,8 @@ export default function FamilySignupWizard({
           {step === waiverStep && !isMinorStart && 'Waivers'}
         </p>
       </div>
+
+      {dropInSignup && <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">Complete your account details and required waivers, then review your drop-in and optional yearly membership. Payment comes last.</p>}
 
       {leadRegistration && step === 1 && <p className="rounded-lg bg-blue-50 p-3 text-sm">Choose a new password to replace the temporary password. You may also change the suggested username.</p>}
       {error && <div id="signup-error" ref={errorRef} role="alert" tabIndex={-1} className="scroll-mt-32 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}
@@ -1908,6 +1931,18 @@ export default function FamilySignupWizard({
               </div>
             )
           })}
+          {dropInSignup && <label className="block rounded-xl border border-gray-200 p-4 text-sm font-semibold">
+            Who is attending this drop-in?
+            <select className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-normal"
+              value={dropInAthleteClientId} onChange={event => setDropInAthleteClientId(event.target.value)}
+              data-field="drop-in-athlete" aria-invalid={invalidField === 'drop-in-athlete' || undefined}>
+              <option value="">Choose an athlete</option>
+              {allAthletes.filter(member => member.clientId === primaryAdult.clientId || (member.dateOfBirth && !isAdult(member.dateOfBirth))).map(member =>
+                <option key={member.clientId} value={member.clientId}>{member.firstName} {member.lastName}</option>,
+              )}
+            </select>
+            <span className="mt-2 block font-normal text-gray-600">Choose yourself or a child for whom you are the parent or legal guardian. Other adults must sign their own waivers.</span>
+          </label>}
           {isFreeTrial && freeTrial?.gymnasticsTrack === 'mommy-me' && <label className="np-trial-potty-confirmation">
             <input type="checkbox" required checked={trialPottyTrainedConfirmed} onChange={event => setTrialPottyTrainedConfirmed(event.target.checked)}
               data-field="trial-potty-trained" aria-invalid={invalidField === 'trial-potty-trained' || undefined}
@@ -1935,7 +1970,7 @@ export default function FamilySignupWizard({
           paymentPolicyAcknowledged={paymentPolicyAcknowledged}
           onPaymentPolicyAcknowledgedChange={setPaymentPolicyAcknowledged}
         />
-        {isFreeTrial && waivers.length === 0 && <button type="button" onClick={() => void loadCatalogAndWaivers()} className="font-semibold text-vortex-red">
+        {(isFreeTrial || dropInSignup) && waivers.length === 0 && <button type="button" onClick={() => void loadCatalogAndWaivers()} className="font-semibold text-vortex-red">
           Try loading waivers again
         </button>}
         </>
@@ -1963,7 +1998,7 @@ export default function FamilySignupWizard({
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
+            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : dropInSignup ? 'Create account & review payment' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
             {step < maxStep && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

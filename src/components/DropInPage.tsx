@@ -1,5 +1,5 @@
 import TextInput from './common/TextInput'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
@@ -13,6 +13,8 @@ import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, typ
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import './DropInPage.css'
+
+const DropInSignup = lazy(() => import('./signup/DropInSignup'))
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
 const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
@@ -35,7 +37,9 @@ function DropInSessionOption({ session, alternative = false, onSelect }: {
 }
 
 export default function DropInPage() {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
+  const signupSlotGroupId = Number(params.get('signupSlot'))
+  const signupDate = params.get('signupDate')
   const bookingId = Number(params.get('booking'))
   const checkoutSessionId = params.get('checkout') === 'paid' ? params.get('session_id') : null
   const [paymentStatus, setPaymentStatus] = useState<'payment_pending' | 'confirmed'>('payment_pending')
@@ -52,6 +56,7 @@ export default function DropInPage() {
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null)
   const [selected, setSelected] = useState<DropInSession | null>(null)
   const [loading, setLoading] = useState(true)
+  const [catalogVersion, setCatalogVersion] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -96,6 +101,7 @@ export default function DropInPage() {
   }
 
   useEffect(() => {
+    setLoading(true)
     Promise.all([fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
       const publicPrograms = getPublicBookingPrograms(catalog.programs)
@@ -117,8 +123,8 @@ export default function DropInPage() {
       setBenefits(data.benefits)
       setForm((current) => ({ ...current, useFreeTrial: data.benefits.trialAvailable }))
     }).catch((err) => setError(err instanceof Error ? err.message : 'Unable to load classes')).finally(() => setLoading(false))
-    // Read the authenticated identity once on entry; typed emails never resolve account benefits.
-  }, [])
+    // Refresh after account/membership checkout; typed emails never resolve account benefits.
+  }, [catalogVersion])
 
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -144,7 +150,23 @@ export default function DropInPage() {
   const selectedProgram = programOptions.find((program) => program.id === programFilter)
   const hasFilters = searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
   const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
-  const selectSession = (session: DropInSession) => { setSelected(session); setResult(null); setError(null) }
+  const selectSession = (session: DropInSession) => {
+    setResult(null)
+    setError(null)
+    if (!memberToken) {
+      setParams({ signupSlot: String(session.slotGroupId), signupDate: session.date })
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
+    setSelected(session)
+  }
+
+  const closeSignup = () => {
+    setParams({})
+    setSelectedClassId(null)
+    setError(null)
+    setCatalogVersion(current => current + 1)
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault()
@@ -153,6 +175,34 @@ export default function DropInPage() {
     try { setResult(await registerDropIn({ slotGroupId: selected.slotGroupId, classDate: selected.date, ...form })) }
     catch (err) { setError(err instanceof Error ? err.message : 'Registration failed') }
     finally { setSubmitting(false) }
+  }
+
+  if (signupSlotGroupId > 0 && signupDate) {
+    const signupSession = sessions.find((session) => session.slotGroupId === signupSlotGroupId && session.date === signupDate)
+    return <div className="np-drop-in-page min-h-screen">
+      <section className="np-drop-in-hero">
+        <div className="np-drop-in-container">
+          <p className="np-drop-in-eyebrow">Your next class starts here</p>
+          <h1>Drop-in registration.</h1>
+          <p className="np-drop-in-intro">Complete your account and waivers, explore yearly membership benefits, then finish with payment.</p>
+        </div>
+      </section>
+      <section className="np-drop-in-container np-drop-in-content">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+          {signupSession && <div className="mb-6 rounded-xl bg-gray-50 p-4">
+            <p className="font-bold">{signupSession.className}</p>
+            <p className="text-sm text-gray-600">{prettyDate(signupSession.date)} · {prettyTime(signupSession.startTime)}–{prettyTime(signupSession.endTime)}</p>
+          </div>}
+          {loading ? <div role="status" className="flex items-center gap-3"><Loader2 className="h-6 w-6 animate-spin" />Loading your class…</div>
+            : signupSession ? <Suspense fallback={<p role="status">Loading registration…</p>}>
+              <DropInSignup key={`${signupSession.slotGroupId}:${signupSession.date}`} session={signupSession} onCancel={closeSignup} />
+            </Suspense> : <div role="alert" className="space-y-4">
+              <p>{error || 'This drop-in is no longer available. Choose another class or date to continue.'}</p>
+              <button type="button" onClick={closeSignup} className="rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white">Browse drop-in classes</button>
+            </div>}
+        </div>
+      </section>
+    </div>
   }
 
   return <div className="np-drop-in-page min-h-screen">

@@ -56,8 +56,9 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export async function fetchDropIns(): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
-  const response = await fetch(`${getApiUrl()}/api/public/drop-ins`, { headers: authHeaders() })
+export async function fetchDropIns(memberId?: number): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
+  const query = memberId == null ? '' : `?memberId=${encodeURIComponent(String(memberId))}`
+  const response = await fetch(`${getApiUrl()}/api/public/drop-ins${query}`, { headers: authHeaders() })
   const body = await response.json()
   if (!response.ok || !body.success) throw new Error(body.message || 'Failed to load drop-in classes')
   return body.data
@@ -66,9 +67,10 @@ export async function fetchDropIns(): Promise<{ classes: DropInClass[]; sessions
 export async function registerDropIn(input: {
   slotGroupId: number
   classDate: string
-  firstName: string
-  lastName: string
-  email: string
+  memberId?: number
+  firstName?: string
+  lastName?: string
+  email?: string
   phone?: string
   useFreeTrial: boolean
   promoCode?: string
