@@ -1,6 +1,7 @@
 const paths = new Set([
   '/', '/404', '/contact', '/enroll', '/drop-in', '/read-board', '/store', '/ninja',
   '/support', '/privacy-policy', '/terms-of-service', '/camp_interest',
+  '/blog/athletic-development-young-athletes',
   '/camp_interest/thank-you', '/signup/family', '/signup/lead', '/signup/invite',
   '/verify-email', '/registration/receipt', '/waivers-memberships', '/copy',
   '/gymnastics', '/vortex-athletics', '/summer-athletic-training', '/fit-and-flip',

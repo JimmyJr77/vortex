@@ -11,6 +11,7 @@ import {
   SPA_ONLY_PATHS,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
+  YOUTH_ATHLETIC_GUIDE_PATH,
 } from './seo-config.mjs'
 
 const root = process.cwd()
@@ -294,6 +295,29 @@ const verifyHtml = (
       robots.length === 1 && /(?:^|,)\s*noindex\b/i.test(robots[0]),
       `${label}: expected exactly one noindex robots directive`,
     )
+  }
+
+  const guideCanonical = canonicalFor(HUB_ORIGIN, YOUTH_ATHLETIC_GUIDE_PATH)
+  if (shouldIndex && (canonical === HUB_ORIGIN || canonical === guideCanonical)) {
+    const content = (canonical === HUB_ORIGIN
+      ? html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)
+      : html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i))?.[0] ?? ''
+    const links = tags(content, 'a')
+      .map((tag) => attribute(tag, 'href'))
+      .filter(Boolean)
+      .map((href) => new URL(href, HUB_ORIGIN))
+    if (canonical === HUB_ORIGIN) {
+      assert(links.some((url) => url.href === guideCanonical),
+        `${label}: missing the crawlable youth athletic development guide link in main content`)
+    } else {
+      assert(
+        links.some((url) =>
+          url.origin === HUB_ORIGIN &&
+          ((url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') ||
+            (url.pathname === '/' && url.hash === '#free-trial'))),
+        `${label}: missing a crawlable link from the guide to Fit & Flip enrollment or a free trial`,
+      )
+    }
   }
 
   if (requireSchema) {
