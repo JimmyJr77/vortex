@@ -53,7 +53,7 @@
 }
 
 .np-inquiry .np-inquiry-optional {
-  color: #777a75;
+  color: var(--np-muted);
   font-size: 11px;
   font-weight: 400;
 }
@@ -66,7 +66,7 @@
   min-height: 44px;
   margin-top: 6px;
   padding: 10px 12px;
-  border: 1px solid #e1e1de;
+  border: 1px solid var(--np-control-line);
   border-radius: 8px;
   background: #fff;
   color: #202223;
@@ -91,12 +91,12 @@
 
 .np-inquiry input::placeholder,
 .np-inquiry textarea::placeholder {
-  color: #858781;
+  color: var(--np-muted);
 }
 
 .np-inquiry .np-inquiry-note {
   margin: 16px 0;
-  color: #737670;
+  color: var(--np-muted);
   font-size: 11px;
   line-height: 1.65;
 }
@@ -162,7 +162,7 @@
 
 .np-inquiry .np-inquiry-contact {
   margin: 18px 0 0;
-  color: #737670;
+  color: var(--np-muted);
   font-size: 11px;
   line-height: 1.6;
   text-align: center;
@@ -224,4 +224,14 @@
   .np-inquiry select,
   .np-inquiry textarea,
   .np-inquiry .np-inquiry-submit { transition: none; }
+}
+
+@media (min-width: 861px) {
+  .np-inquiry .np-inquiry-intro { font-size: 15px; }
+  .np-inquiry label,
+  .np-inquiry .np-inquiry-submit { font-size: 14px; }
+  .np-inquiry .np-inquiry-optional,
+  .np-inquiry .np-inquiry-note,
+  .np-inquiry .np-inquiry-contact { font-size: 13px; }
+  .np-inquiry .np-inquiry-eyebrow { font-size: 12px; }
 }

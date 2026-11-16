@@ -1,7 +1,9 @@
 .np-page {
   --np-red: #c9232c;
   --np-ink: #202321;
-  --np-muted: #696d68;
+  --np-muted: #565d53;
+  --np-tag-ink: #4c5348;
+  --np-control-line: #8a9282;
   --np-line: #dddfd9;
   --np-paper: #f5f6f2;
   background: #fff;
@@ -235,7 +237,7 @@
   font-size: 7px;
   font-weight: 500;
   letter-spacing: 1px;
-  color: #74776f;
+  color: var(--np-muted);
   margin-top: 42px;
   white-space: nowrap;
 }
@@ -373,7 +375,7 @@
   margin-left: auto;
   font-size: 9px;
   letter-spacing: 1px;
-  color: #81857d;
+  color: var(--np-muted);
 }
 .np-orbit {
   position: absolute;
@@ -405,7 +407,7 @@
 .np-sport-strip>span {
   font-size: 8px;
   letter-spacing: 1.3px;
-  color: #787d73;
+  color: var(--np-muted);
   white-space: nowrap;
 }
 .np-sport-strip>div {
@@ -421,7 +423,7 @@
   font-size: 15px;
 }
 .np-sport-strip>a {
-  color: #787d73;
+  color: var(--np-muted);
 }
 .np-section {
   padding-top: 100px;
@@ -509,7 +511,7 @@
 }
 .np-program-body>.np-eyebrow {
   font-size: 8px;
-  color: #777c72;
+  color: var(--np-muted);
   letter-spacing: 1.45px;
 }
 .np-program h3 {
@@ -534,11 +536,11 @@
   margin-bottom: 29px;
 }
 .np-tags>span {
-  border: 1px solid #e1e4dc;
+  border: 1px solid var(--np-control-line);
   border-radius: 3px;
   padding: 5px 9px;
   font-size: 9px;
-  color: #70766b;
+  color: var(--np-tag-ink);
   background: #fafbf8;
 }
 .np-program-link {
@@ -586,7 +588,7 @@
   font-weight: 500;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  color: #81867a;
+  color: var(--np-muted);
 }
 .np-triad-tabs button>span {
   font-size: 9px;
@@ -896,7 +898,7 @@
 .np-button-outline {
   background: transparent;
   color: var(--np-ink);
-  border-color: #bfc4b8;
+  border-color: var(--np-control-line);
 }
 .np-button-outline:hover {
   background: #e7eae1;
@@ -907,7 +909,7 @@
   justify-content: center;
   gap: 10px;
   font-size: 10px;
-  color: #757c6e;
+  color: var(--np-muted);
   margin-top: 41px;
 }
 .np-footer {
@@ -930,7 +932,7 @@
   font-size: 8px;
   letter-spacing: 1.4px;
   display: block;
-  color: #858a7f;
+  color: var(--np-muted);
   margin-bottom: 15px;
 }
 .np-footer-main>div>a:not(.np-brand) {
@@ -956,7 +958,7 @@
   padding-top: 19px;
   gap: 15px;
   font-size: 9px;
-  color: #81867c;
+  color: var(--np-muted);
 }
 .np-footer-bottom>div {
   display: flex;
@@ -991,7 +993,7 @@
   width: 38px;
   height: 38px;
   background: #fff;
-  border: 1px solid var(--np-line);
+  border: 1px solid var(--np-control-line);
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -1050,7 +1052,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   background: var(--np-paper);
-  border: 1px solid var(--np-line);
+  border: 1px solid var(--np-control-line);
   border-radius: 4px;
   margin-top: 26px;
 }
@@ -1086,7 +1088,7 @@
 }
 .np-goal-options>button {
   padding: 18px;
-  border: 1px solid var(--np-line);
+  border: 1px solid var(--np-control-line);
   border-radius: 5px;
   display: flex;
   align-items: center;
@@ -2420,4 +2422,74 @@
   .np-hero-buttons .np-text-button { justify-content: center; }
   .np-triad-tabs button { font-size: 12px; }
   .np-tags > span { font-size: 10px; }
+}
+
+/* Desktop readability; retain the existing tablet and phone type scales. */
+@media (min-width: 861px) {
+  .np-hero-description,
+  .np-section-heading>p,
+  .np-program-body>p:not(.np-eyebrow),
+  .np-triad-copy>p:not(.np-eyebrow),
+  .np-approach-copy>p:not(.np-eyebrow),
+  .np-principles p,
+  .np-difference p:not(.np-eyebrow),
+  .np-faq>div>p:not(.np-eyebrow),
+  .np-faq-list summary,
+  .np-faq-list details>p,
+  .np-visit p:not(.np-eyebrow),
+  .np-dialog-content>p:not(.np-eyebrow),
+  .np-dialog-points>li,
+  .np-goal-options strong,
+  .np-recommendation>p:not(.np-eyebrow),
+  .np-video-dialog-content>p:last-child,
+  .np-video-fallback p {
+    font-size: 15px;
+  }
+  .np-desktop-nav,
+  .np-button,
+  .np-text-button,
+  .np-program-link,
+  .np-path-help,
+  .np-triad-cues,
+  .np-triad-equation {
+    font-size: 14px;
+  }
+  .np-login,
+  .np-nav-cta,
+  .np-hero-note,
+  .np-sport-strip>div,
+  .np-footer-main p,
+  .np-footer-main>div>a:not(.np-brand),
+  .np-pathways p,
+  .np-goal-options small {
+    font-size: 13px;
+  }
+  .np-program-body>.np-program-audience,
+  .np-triad-copy>.np-triad-application {
+    font-size: 13px!important;
+  }
+  .np-tags>span,
+  .np-address,
+  .np-back-top,
+  .np-footer-bottom,
+  .np-pathways span,
+  .np-principles article>span {
+    font-size: 12px;
+  }
+  .np-eyebrow,
+  .np-program-body>.np-eyebrow,
+  .np-triad-copy .np-eyebrow,
+  .np-hero-location,
+  .np-sport-strip>span,
+  .np-footer-label,
+  .np-triad-tabs button>span,
+  .np-triad-image>span,
+  .np-note-index {
+    font-size: 11px;
+  }
+  .np-media-label,
+  .np-media-caption>div>span,
+  .np-difference-image>span {
+    font-size: 10px;
+  }
 }
