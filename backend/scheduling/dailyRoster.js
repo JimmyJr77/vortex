@@ -1,10 +1,13 @@
-import { loadSchedulingCalendar } from './calendarQuery.js'
+import { loadSchedulingCalendarRows } from './calendarQuery.js'
+import { expandCalendarRange } from './calendarExpansion.js'
+import { firstDayBySignup } from './dailyRosterFirstDay.js'
 import { sendEmail } from '../email/sendEmail.js'
 import { listMemberGuardianOutreachContacts, submittedGuardianContact } from '../email/memberContact.js'
 import { formatDateOnly, loadGroupDisplayLabels } from './slotDisplayLabel.js'
 import { loadDailyReportActivity } from './dailyReportActivity.js'
 import { loadDailyReportInquiries } from './dailyReportInquiries.js'
 import { loadDailyReportUnpaid } from './dailyReportBilling.js'
+import { loadDailyReportTrials } from './dailyReportTrials.js'
 import { normalizePhoneNumber } from '../phoneNumbers.js'
 
 export const ROSTER_TIME_ZONE = 'America/New_York'
@@ -194,11 +197,8 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   const rosterDate = validateRosterDate(date)
   if (!rosterDate) throw new Error('Roster date must be a valid YYYY-MM-DD date')
 
-  const calendar = await loadSchedulingCalendar(pool, {
-    startDate: rosterDate,
-    endDate: rosterDate,
-    formActive: 'active',
-  })
+  const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active' })
+  const calendar = expandCalendarRange({ startDate: rosterDate, endDate: rosterDate, rows: calendarRows })
   const events = calendar.events.filter(
     (event) => event.formActive && event.classActive && event.slotGroupActive && event.slotActive,
   )
@@ -212,6 +212,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
             s.slot_group_id,
             s.time_slot_id,
             s.member_id,
+            s.enrollment_start_date::text AS enrollment_start_date,
             COALESCE(NULLIF(TRIM(m.first_name), ''), NULLIF(TRIM(s.first_name), ''), '') AS first_name,
             COALESCE(NULLIF(TRIM(m.last_name), ''), NULLIF(TRIM(s.last_name), ''), '') AS last_name,
             CASE
@@ -269,6 +270,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
       )
     : { rows: [] }
 
+  const newBySignup = firstDayBySignup(calendarRows, signups.rows, rosterDate)
   const classes = events.map((event) => {
     const schedulingAthletes = signups.rows
       .filter(
@@ -292,6 +294,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         billingType: signup.billing_type,
         amountCents: Number(signup.amount_cents || 0),
         benefitType: null,
+        isNew: newBySignup.get(Number(signup.id)) === true,
       }))
 
     const dropInAthletes = dropIns.rows
@@ -357,10 +360,11 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
 
 export async function buildVortexDailyReport(pool, date, { through = new Date() } = {}) {
   const since = new Date(through.getTime() - DAY_MS)
-  const [roster, inquiries, unpaid] = await Promise.all([
+  const [roster, inquiries, unpaid, trials] = await Promise.all([
     buildDailyRoster(pool, date, { registeredSince: since, registeredThrough: through }),
     loadDailyReportInquiries(pool, { since, through }),
     loadDailyReportUnpaid(pool, { date }),
+    loadDailyReportTrials(pool, { since, through }),
   ])
   const newEnrollees = roster.newRegistrations.filter(({ status }) => status === 'confirmed')
   const guardiansByMemberId = new Map()
@@ -379,11 +383,11 @@ export async function buildVortexDailyReport(pool, date, { through = new Date() 
     registrationDetails,
     loadDailyReportActivity(pool, { since, through, newSignupIds: newEnrollees.map(({ signupId }) => signupId) }),
   ])
-  return { ...roster, report: { inquiries, enrollees, adds, drops, unpaid } }
+  return { ...roster, report: { inquiries, enrollees, adds, drops, unpaid, trials } }
 }
 
 function reportSections(roster, textLines) {
-  const { inquiries, enrollees, adds, drops, unpaid } = roster.report
+  const { inquiries, enrollees, adds, drops, unpaid, trials = [] } = roster.report
   const missing = 'Not recorded'
   const money = (cents) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
   const age = (years) => years == null ? 'Age not recorded' : `Age ${years}`
@@ -403,7 +407,31 @@ function reportSections(roster, textLines) {
   }
   const month = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' })
     .format(new Date(`${roster.date}T12:00:00Z`))
+  const scheduledTrials = new Map()
+  roster.classes.forEach((item, classIndex) => item.athletes.forEach((athlete, athleteIndex) => {
+    if (athlete.source !== 'drop_in' || athlete.benefitType !== 'free_trial') return
+    // A booking belongs to a group/date and may cover more than one occurrence.
+    // Count that booking once in the summary while retaining each roster entry.
+    const key = athlete.signupId ?? `${classIndex}:${athleteIndex}`
+    if (!scheduledTrials.has(key)) scheduledTrials.set(key, {
+      heading: `${athlete.name} (Free Trial) — ${item.className}`,
+      times: new Set(),
+      programName: item.programName,
+    })
+    if (item.timeLabel) scheduledTrials.get(key).times.add(item.timeLabel)
+  }))
   return [
+    section(`Free trials scheduled for ${roster.dateLabel}`, [...scheduledTrials.values()].map((trial) => ({
+      heading: trial.heading,
+      details: [[trial.programName, [...trial.times].join('; ')].filter(Boolean).join(' · ')],
+    })), 'No free trials scheduled for this date.'),
+    section('Free-trial bookings in the last 24 hours', trials.map((trial) => ({
+      heading: `${trial.name} (Free Trial) — ${trial.className}`,
+      details: [
+        [trial.programName, trial.scheduleLabel || trial.classDate].filter(Boolean).join(' · '),
+        [trial.email || 'Email not recorded', trial.phone || 'Phone not recorded'].join(' · '),
+      ],
+    })), 'No new free-trial bookings recorded.'),
     section('Inquiries in the last 24 hours', inquiries.map((inquiry) => ({
       heading: inquiry.contactName || 'Unnamed contact',
       details: [
@@ -436,11 +464,19 @@ function reportSections(roster, textLines) {
 }
 
 const SINGLE_DAY_BENEFIT_LABELS = {
-  free_trial: 'Free trial',
   annual_credit: 'Annual member credit',
   admin_credit: 'Admin credit',
   free_pass: 'Free pass',
   promo_code: 'Registration code',
+}
+
+function rosterAthleteName(athlete) {
+  if (athlete.source === 'drop_in') {
+    if (athlete.benefitType === 'free_trial') return `${athlete.name} (Free Trial)`
+    const benefit = SINGLE_DAY_BENEFIT_LABELS[athlete.benefitType]
+    return `${athlete.name} (Drop-in${benefit ? ` · ${benefit}` : ''})`
+  }
+  return `${athlete.name}${athlete.isNew ? ' (New)' : ''}`
 }
 
 export function renderDailyRosterEmail(roster, { includeNewRegistrations = true } = {}) {
@@ -467,7 +503,7 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
     summaryHtml = `<h2 style="font-size:18px;margin:0">New registrations (${roster.newRegistrationCount || 0})</h2>${newRegistrationsHtml}`
   }
 
-  if (roster.report) textLines.push("Today's class roster", '')
+  if (roster.report) textLines.push(`Class roster for ${roster.dateLabel}`, '')
   const sections = roster.classes.map((item) => {
     const heading = [item.startTime ? item.timeLabel : null, item.className, item.programName]
       .filter(Boolean)
@@ -475,20 +511,17 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
     textLines.push(heading, `${item.athleteCount} enrolled`)
     const scheduled = item.athletes.filter((athlete) => athlete.source !== 'drop_in')
     const singleDay = item.athletes.filter((athlete) => athlete.source === 'drop_in')
-    if (scheduled.length) scheduled.forEach((athlete, index) => textLines.push(`${index + 1}. ${athlete.name}`))
+    if (scheduled.length) scheduled.forEach((athlete, index) => textLines.push(`${index + 1}. ${rosterAthleteName(athlete)}`))
     else textLines.push(singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes')
-    const singleDayNames = singleDay.map((athlete) => {
-      const label = SINGLE_DAY_BENEFIT_LABELS[athlete.benefitType]
-      return label ? `${athlete.name} (${label})` : athlete.name
-    })
-    if (singleDayNames.length) textLines.push(`Drop-ins and make-ups (${singleDayNames.length})`, ...singleDayNames.map((name) => `• ${name}`))
+    const singleDayNames = singleDay.map(rosterAthleteName)
+    if (singleDayNames.length) textLines.push(`Drop-ins, free trials and make-ups (${singleDayNames.length})`, ...singleDayNames.map((name) => `• ${name}`))
     textLines.push('')
 
     const athletesHtml = scheduled.length
-      ? `<ol style="margin:10px 0 0;padding-left:22px">${scheduled.map((athlete) => `<li style="padding:2px 0">${escapeHtml(athlete.name)}</li>`).join('')}</ol>`
+      ? `<ol style="margin:10px 0 0;padding-left:22px">${scheduled.map((athlete) => `<li style="padding:2px 0">${escapeHtml(rosterAthleteName(athlete))}</li>`).join('')}</ol>`
       : `<p style="margin:10px 0 0;color:#6b7280">${singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes'}</p>`
     const singleDayHtml = singleDayNames.length
-      ? `<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:8px 12px;margin-top:12px"><strong>Drop-ins and make-ups (${singleDayNames.length})</strong><ul style="margin:4px 0 0;padding-left:18px">${singleDayNames.map((name) => `<li>${escapeHtml(name)}</li>`).join('')}</ul></div>`
+      ? `<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:8px 12px;margin-top:12px"><strong>Drop-ins, free trials and make-ups (${singleDayNames.length})</strong><ul style="margin:4px 0 0;padding-left:18px">${singleDayNames.map((name) => `<li>${escapeHtml(name)}</li>`).join('')}</ul></div>`
       : ''
     return `<section style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:0 0 14px">
       <h2 style="font-size:17px;margin:0;color:#111827">${escapeHtml(heading)}</h2>
@@ -505,7 +538,7 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
     html: `<h1 style="font-size:24px;margin:0 0 6px">${title}</h1>
       <p style="margin:0 0 22px;color:#4b5563">${escapeHtml(roster.dateLabel)} · ${roster.classCount} classes · ${roster.athleteCount} enrollments</p>
       ${summaryHtml}
-      ${roster.report ? '<h2 style="font-size:18px;margin:0 0 12px">Today’s class roster</h2>' : ''}
+      ${roster.report ? `<h2 style="font-size:18px;margin:0 0 12px">Class roster for ${escapeHtml(roster.dateLabel)}</h2>` : ''}
       ${sections.join('') || '<p>No classes are scheduled for this date.</p>'}`,
   }
 }
