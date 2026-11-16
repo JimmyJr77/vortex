@@ -37,6 +37,7 @@ import {
   sortScheduleCatalogOptions,
 } from '../scheduling/slotSort.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { assertCurrentMemberWaivers } from './waiverCompletion.js'
 
 const DEFAULT_FACILITY_TIME_ZONE = 'America/New_York'
 
@@ -1151,6 +1152,7 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
   }
 
   const memberId = Number(match.member.id)
+  await assertCurrentMemberWaivers(client, memberId, match.member.facility_id)
   const status = Number(row.amount_cents) > 0 ? 'payment_pending' : 'confirmed'
   await client.query(
     `UPDATE drop_in_registration

@@ -97,6 +97,7 @@ test('family signup attaches and confirms a pending free-trial drop-in without c
   const client = {
     async query(sql, params) {
       calls.push({ sql, params })
+      if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: 8, signature_name: 'Parent Stone' }] }
       if (sql.includes('FROM drop_in_registration d')) {
         return { rows: [{
           id: 41,
@@ -118,7 +119,7 @@ test('family signup attaches and confirms a pending free-trial drop-in without c
     primaryEmail: 'PARENT@example.com',
     createdMembers: [
       { member: { id: 7, family_id: 3, first_name: 'Parent', last_name: 'Stone' } },
-      { member: { id: 8, family_id: 3, first_name: 'Avery', last_name: 'Stone' } },
+      { member: { id: 8, family_id: 3, facility_id: 1, first_name: 'Avery', last_name: 'Stone' } },
     ],
   })
 
@@ -134,6 +135,7 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
     const client = {
       async query(sql, params) {
         calls.push({ sql, params })
+        if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: 12, signature_name: 'Jordan Lee' }] }
         if (sql.includes('FROM drop_in_registration d')) {
           return { rows: [{
             id: benefitType === 'paid' ? 51 : 52,
@@ -153,7 +155,7 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
     }
     const result = await finalizePendingDropIn(client, benefitType === 'paid' ? 51 : 52, {
       primaryEmail: 'jordan@example.com',
-      createdMembers: [{ member: { id: 12, family_id: 4, first_name: 'Jordan', last_name: 'Lee' } }],
+      createdMembers: [{ member: { id: 12, family_id: 4, facility_id: 1, first_name: 'Jordan', last_name: 'Lee' } }],
     })
     assert.equal(result.status, benefitType === 'paid' ? 'payment_pending' : 'confirmed')
     assert.equal(
@@ -161,4 +163,22 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
       benefitType === 'paid',
     )
   }
+})
+
+test('pending drop-in cannot be confirmed for an adult whose own waivers were not signed', async () => {
+  const calls = []
+  const client = { async query(sql, params) {
+    calls.push({ sql, params })
+    if (sql.includes('FROM drop_in_registration d')) return { rows: [{
+      id: 60, first_name: 'Other', last_name: 'Adult', email: 'payer@example.com',
+      benefit_type: 'free_trial', amount_cents: 0, base_price_cents: 4000,
+    }] }
+    if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: null, signature_name: null }] }
+    return { rows: [] }
+  } }
+  await assert.rejects(finalizePendingDropIn(client, 60, {
+    primaryEmail: 'payer@example.com',
+    createdMembers: [{ member: { id: 12, family_id: 4, facility_id: 1, first_name: 'Other', last_name: 'Adult' } }],
+  }), /required waivers must be signed for this athlete/)
+  assert.equal(calls.some(({ sql }) => sql.includes('UPDATE drop_in_registration') || sql.includes('INSERT INTO billing_charge')), false)
 })

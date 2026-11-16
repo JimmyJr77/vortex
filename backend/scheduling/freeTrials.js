@@ -2,6 +2,7 @@ import { formatDateOnly } from './slotActiveDates.js'
 import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
 import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
 import { calculateDropInPrice } from '../shared/dropInPricing.js'
+import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
 const TRIAL_PROGRAMS = new Set(['gymnastics', 'fit-flip'])
@@ -146,21 +147,7 @@ export function registerFreeTrialCatalogRoutes(app, pool, loadCatalog) {
 }
 
 export async function assertCurrentTrialWaivers(client, memberId, facilityId) {
-  const result = await client.query(
-    `SELECT template.id, template.waiver_type, acceptance.member_id,
-            acceptance.signature_name, acceptance.payment_policy_acknowledged
-       FROM waiver_template template
-       LEFT JOIN member_waiver_acceptance acceptance
-         ON acceptance.waiver_template_id = template.id AND acceptance.member_id = $1
-      WHERE template.facility_id = $2 AND template.is_required = TRUE
-        AND template.active_from <= now() AND (template.active_to IS NULL OR template.active_to > now())`,
-    [memberId, facilityId],
-  )
-  if (!result.rows.length) throw trialError('Required waivers are unavailable. Please contact the team before booking.')
-  if (result.rows.some(row => !row.member_id || !String(row.signature_name ?? '').trim()
-      || (row.waiver_type === 'PAYMENT_POLICY' && row.payment_policy_acknowledged !== true))) {
-    throw trialError('All current required waivers must be signed for this athlete before the free trial is confirmed.')
-  }
+  return assertCurrentMemberWaivers(client, memberId, facilityId, 'free trial')
 }
 
 /** Caller owns the transaction, guardian authorization, and waiver acceptance. Never creates billing or monthly enrollments. */

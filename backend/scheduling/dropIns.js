@@ -12,6 +12,7 @@ import { toUtcDateString } from './membershipAnniversary.js'
 import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.js'
 import { normalizePhoneNumber, normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
+import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -212,8 +213,15 @@ async function resolveMember(pool, req) {
     [access.memberId, userId])).rows[0] ?? null
 }
 
-async function resolveBookingMember(pool, authenticatedMember, { firstName, lastName }) {
-  if (!authenticatedMember) return null
+export async function resolveBookingMember(pool, authenticatedMember, { memberId = null, firstName, lastName }) {
+  const hasMemberId = memberId != null
+  if (hasMemberId && (!Number.isSafeInteger(Number(memberId)) || Number(memberId) <= 0)) {
+    throw Object.assign(new Error('Choose a valid athlete from your family account.'), { statusCode: 400 })
+  }
+  if (!authenticatedMember) {
+    if (hasMemberId) throw Object.assign(new Error('Sign in before choosing an athlete from your family account.'), { statusCode: 401 })
+    return null
+  }
   const familyId = await resolveCanonicalActiveMemberFamilyId(pool, {
     memberId: authenticatedMember.id, facilityId: authenticatedMember.facility_id,
   })
@@ -226,12 +234,18 @@ async function resolveBookingMember(pool, authenticatedMember, { firstName, last
           id = $1
           OR ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'athlete', familyIdReference: '$2' })}
         )
-        AND lower(trim(first_name)) = lower(trim($3))
-        AND lower(trim(last_name)) = lower(trim($4))
+        AND (
+          ($6::bigint IS NOT NULL AND id = $6)
+          OR ($6::bigint IS NULL AND lower(trim(first_name)) = lower(trim($3))
+            AND lower(trim(last_name)) = lower(trim($4)))
+        )
       ORDER BY (id = $1) DESC, id
       LIMIT 1`,
-    [authenticatedMember.id, familyId, firstName, lastName, authenticatedMember.facility_id],
+    [authenticatedMember.id, familyId, firstName ?? null, lastName ?? null, authenticatedMember.facility_id, hasMemberId ? Number(memberId) : null],
   )
+  if (hasMemberId && !result.rows[0]) {
+    throw Object.assign(new Error('That athlete is not available in your family account.'), { statusCode: 403 })
+  }
   return result.rows[0] ? { ...result.rows[0], bookingFamilyId: familyId } : null
 }
 
@@ -564,9 +578,15 @@ export function registerDropInRoutes(app, pool) {
   registerFreeTrialCatalogRoutes(app, pool, (db, member) => loadCatalog(db, member, { includeTrialOnly: true }))
   app.get('/api/public/drop-ins', async (req, res) => {
     try {
-      const member = await resolveMember(pool, req)
+      const authenticatedMember = await resolveMember(pool, req)
+      const member = req.query?.memberId == null ? authenticatedMember
+        : await resolveBookingMember(pool, authenticatedMember, { memberId: req.query.memberId })
+      res.set('Cache-Control', 'no-store')
       res.json({ success: true, data: await loadCatalog(pool, member) })
     } catch (error) {
+      if (error.statusCode >= 400 && error.statusCode < 500) {
+        return res.status(error.statusCode).json({ success: false, message: error.message })
+      }
       console.error('[drop-ins] catalog:', error)
       res.status(500).json({ success: false, message: 'Failed to load drop-in classes' })
     }
@@ -655,17 +675,18 @@ export function registerDropInRoutes(app, pool) {
   app.post('/api/public/drop-ins/register', async (req, res) => {
     const client = await pool.connect()
     try {
-      const { slotGroupId, classDate, firstName, lastName, email, phone, useFreeTrial, promoCode } = req.body || {}
+      const { slotGroupId, classDate, memberId, firstName, lastName, email, phone, useFreeTrial, promoCode } = req.body || {}
       const authenticatedMember = await resolveMember(client, req)
       const bookingEmail = authenticatedMember?.email?.trim() || String(email ?? '').trim()
       const savedPhone = authenticatedMember?.phone?.trim() || null
       const bookingPhone = normalizeUpdatedPhoneNumber(phone, savedPhone)
-      if (!slotGroupId || !/^\d{4}-\d{2}-\d{2}$/.test(String(classDate)) || !firstName || !lastName || !bookingEmail) {
+      if (!slotGroupId || !/^\d{4}-\d{2}-\d{2}$/.test(String(classDate))
+          || (memberId == null && (!firstName || !lastName)) || !bookingEmail) {
         return res.status(400).json({ success: false, message: 'Class, date, athlete name, and email are required.' })
       }
       await client.query('BEGIN')
       await expirePendingDropIns(client)
-      const member = await resolveBookingMember(client, authenticatedMember, { firstName, lastName })
+      const member = await resolveBookingMember(client, authenticatedMember, { memberId, firstName, lastName })
       if (authenticatedMember && !member) {
         await client.query('ROLLBACK')
         return res.status(400).json({
@@ -686,6 +707,7 @@ export function registerDropInRoutes(app, pool) {
           })
         }
       }
+      if (member && memberId != null) await assertCurrentMemberWaivers(client, Number(member.id), member.facility_id)
       const benefits = await memberBenefits(client, member)
       const slot = await client.query(`
         SELECT sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
@@ -783,7 +805,7 @@ export function registerDropInRoutes(app, pool) {
          RETURNING id`,
         [
           member?.id ?? null, slot.rows[0].form_id, slotGroupId, classDate,
-          String(firstName).trim(), String(lastName).trim(), bookingEmail, normalizePhoneNumber(bookingPhone) ?? bookingPhone,
+          String(member?.first_name ?? firstName).trim(), String(member?.last_name ?? lastName).trim(), bookingEmail, normalizePhoneNumber(bookingPhone) ?? bookingPhone,
           benefitType, freePass?.templateId ?? null, freePass?.grantId ?? null,
           freePass?.promoCode ?? null, price.baseCents, price.discountPercent, price.totalCents, status,
         ],
@@ -849,7 +871,9 @@ export function registerDropInRoutes(app, pool) {
       res.status(201).json({ success: true, data: { id: Number(inserted.rows[0].id), status, benefitType, enrollmentStartDate: classDate, ...price, accountRequired: status === 'account_required', signupUrl: status === 'account_required' ? `/signup/family?dropIn=${inserted.rows[0].id}` : null } })
     } catch (error) {
       await client.query('ROLLBACK').catch(() => {})
-      if (error.statusCode === 400) return res.status(400).json({ success: false, message: error.message })
+      if (error.statusCode >= 400 && error.statusCode < 500) {
+        return res.status(error.statusCode).json({ success: false, message: error.message, code: error.code })
+      }
       if (error?.code === '23505') return res.status(409).json({ success: false, message: 'This free trial or class date has already been registered.' })
       console.error('[drop-ins] register:', error)
       res.status(500).json({ success: false, message: 'Failed to register for this drop-in.' })

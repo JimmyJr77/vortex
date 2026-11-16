@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { missingRequiredWaiverIds } from '../waiverCompletion.js'
+import { assertCurrentMemberWaivers, missingRequiredWaiverIds } from '../waiverCompletion.js'
 
 const base = { facilityId: 7, memberIds: [10], requiredIds: [1, 2], acceptedTemplateIds: [2] }
 
@@ -32,4 +32,29 @@ test('an old template signature does not satisfy a replacement version', async (
 test('accepting the entire current set needs no existing-signature lookup', async () => {
   const pool = { async query() { assert.fail('unexpected signature lookup') } }
   assert.deepEqual(await missingRequiredWaiverIds(pool, { ...base, acceptedTemplateIds: [1, 2] }), [])
+})
+
+test('booking waivers require current facility templates and complete athlete signatures', async () => {
+  const valid = [
+    { id: 1, waiver_type: 'RELEASE_OF_LIABILITY', member_id: 10, signature_name: 'Parent Test' },
+    { id: 2, waiver_type: 'PAYMENT_POLICY', member_id: 10, signature_name: 'Parent Test', payment_policy_acknowledged: true },
+  ]
+  const client = rows => ({ async query(sql, params) {
+    assert.deepEqual(params, [10, 7])
+    assert.match(sql, /template\.facility_id = \$2/)
+    assert.match(sql, /acceptance\.member_id = \$1/)
+    assert.match(sql, /template\.active_from <= now\(\)/)
+    assert.match(sql, /template\.active_to > now\(\)/)
+    return { rows }
+  } })
+  await assertCurrentMemberWaivers(client(valid), 10, 7)
+  for (const invalid of [
+    [{ ...valid[0], member_id: null }],
+    [{ ...valid[0], signature_name: ' ' }],
+    [valid[0], { ...valid[1], payment_policy_acknowledged: false }],
+  ]) {
+    await assert.rejects(assertCurrentMemberWaivers(client(invalid), 10, 7), error =>
+      error.statusCode === 400 && error.code === 'DROP_IN_WAIVERS_REQUIRED')
+  }
+  await assert.rejects(assertCurrentMemberWaivers(client([]), 10, 7), /Required waivers are unavailable/)
 })
