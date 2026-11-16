@@ -1,4 +1,5 @@
 export interface EnrollmentMonth {
+  totalFamilies?: number | null
   key: string; label: string; openingFamilies: number | null; newFamilies: number | null
   canceledFamilies: number | null; lostFamilies: number | null; lossRate: number | null; partial: boolean
 }
@@ -21,7 +22,7 @@ interface CurrentBreakdowns {
 }
 export interface EnrollmentTrendData {
   quarters?: QuarterSummary[]; studentQuarters?: QuarterSummary[]
-  studentMonths?: Array<Omit<EnrollmentMonth, 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
+  studentMonths?: Array<Omit<EnrollmentMonth, 'totalFamilies' | 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {totalStudents?: number | null; openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
   year: number; asOf: string; coverageStart: string | null; months: EnrollmentMonth[]; rollingMonths: EnrollmentMonth[]; notes: string[]
   summary: LossRateSummary & { newFamilies: number | null; averageNewFamilies: number | null; newFamilyMonths: number
     cancellations: number | null; averageCancellations: number | null; cancellationMonths: number }

@@ -71,12 +71,21 @@ function EnrollmentTrend({ data, population, setPopulation }: {
   setPopulation: (population: 'Families' | 'Students') => void
 }) {
   const [view, setView] = useState<typeof VIEWS[number]>('Timeline')
+  const [mode, setMode] = useState<'Total' | 'Delta'>('Delta')
+  const total = mode === 'Total'
   const students = population === 'Students'
   const noun = students ? 'students' : 'families'
   const title = students ? 'Student' : 'Family'
-  const months = students ? (data.studentMonths ?? []).map(row => ({...row, openingFamilies: row.openingStudents,
+  const months = students ? (data.studentMonths ?? []).map(row => ({...row, totalFamilies: row.totalStudents, openingFamilies: row.openingStudents,
     newFamilies: row.newStudents, canceledFamilies: row.canceledStudents, lostFamilies: row.lostStudents})) : data.months
-  const hasData = months.some(row => row.newFamilies != null)
+  const recorded = months.flatMap((row, index) => row.totalFamilies == null ? [] : [{ index, value: row.totalFamilies }])
+  const first = recorded[0], last = recorded.at(-1)
+  const averageGrowth = first && last && last.index > first.index ? (last.value - first.value) / (last.index - first.index) : null
+  const totalMonths = months.map((row, index) => ({ ...row,
+    growthTrend: averageGrowth != null && first && last && index >= first.index && index <= last.index
+      ? first.value + averageGrowth * (index - first.index) : null,
+  }))
+  const hasData = total ? recorded.length > 0 : months.some(row => row.newFamilies != null)
   const latest = data.months.at(-1)
   const quarters = students ? data.studentQuarters : data.quarters
   return <>
@@ -85,6 +94,9 @@ function EnrollmentTrend({ data, population, setPopulation }: {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h3 className="font-bold">{title} enrollment trend · {data.year}</h3><p className="mt-1 text-sm text-slate-500">January – {latest?.label} · As of {data.asOf}{latest?.partial ? ' · Current month is partial' : ''}</p></div>
         <div className="flex flex-wrap gap-2">
+        <div role="group" aria-label="Enrollment measure" className="flex rounded-xl bg-slate-100 p-1">
+          {(['Total', 'Delta'] as const).map(option => <button key={option} type="button" aria-pressed={mode === option} onClick={() => setMode(option)} className={`rounded-lg px-3 py-2 text-sm font-semibold focus-visible:outline-red-600 ${mode === option ? 'bg-white shadow-sm' : 'text-slate-600'}`}>{option}</button>)}
+        </div>
         {data.studentMonths ? <div role="group" aria-label="Enrollment population" className="flex rounded-xl bg-slate-100 p-1">
           {(['Families', 'Students'] as const).map(option => <button key={option} type="button" aria-pressed={population === option} onClick={() => setPopulation(option)} className={`rounded-lg px-3 py-2 text-sm font-semibold focus-visible:outline-red-600 ${population === option ? 'bg-white shadow-sm' : 'text-slate-600'}`}>{option}</button>)}
         </div> : null}
@@ -94,7 +106,20 @@ function EnrollmentTrend({ data, population, setPopulation }: {
         </div>
         </div>
       </div>
+      {total ? <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <MetricCard label="Total current members" value={number(data.current?.students)} color="text-blue-700" detail={`Unique currently enrolled students, including paused enrollments · As of ${data.asOf}`} />
+        <MetricCard label="Average monthly growth" value={averageGrowth == null ? 'Unavailable' : `${averageGrowth > 0 ? '+' : ''}${number(averageGrowth, 1)}`} color="text-emerald-700" detail={`${noun} per month · Change from first to latest recorded total ÷ elapsed months${latest?.partial ? ' · Includes the current partial month' : ''}`} />
+      </div> : null}
       {!hasData ? <p className="py-12 text-center text-sm text-slate-500">No enrollment history is available for this year.</p> : view === 'Table' ? <div className="mt-5 overflow-x-auto">
+        {total ? <table className="w-full whitespace-nowrap text-left text-sm">
+          <caption className="sr-only">Monthly total {noun} and average growth trend for {data.year}.</caption>
+          <thead className="border-b border-slate-200 text-xs text-slate-500"><tr>{['Month', `Total ${noun}`, 'Average growth trend'].map(label => <th scope="col" key={label} className="px-3 py-3 font-semibold">{label}</th>)}</tr></thead>
+          <tbody className="divide-y divide-slate-100">{totalMonths.map(row => <tr key={row.key}>
+            <th scope="row" className="px-3 py-3 font-semibold">{row.label}{row.partial ? ' (partial)' : ''}</th>
+            <td className="px-3 py-3 font-semibold text-blue-700">{number(row.totalFamilies)}</td>
+            <td className="px-3 py-3 text-emerald-700">{number(row.growthTrend, 1)}</td>
+          </tr>)}</tbody>
+        </table> :
         <table className="w-full whitespace-nowrap text-left text-sm">
           <caption className="sr-only">Monthly {noun} enrollment and loss rate for {data.year}. Cancellations include new {noun} who leave in the same month; loss rate uses only the starting cohort.</caption>
           <thead className="border-b border-slate-200 text-xs text-slate-500"><tr>{['Month', `Starting ${noun}`, `New ${noun}`, 'Cancellations', `Starting ${noun} lost`, 'Loss rate'].map(label => <th scope="col" key={label} className="px-3 py-3 font-semibold">{label}</th>)}</tr></thead>
@@ -106,37 +131,47 @@ function EnrollmentTrend({ data, population, setPopulation }: {
             <td className="px-3 py-3 text-slate-600">{row.lostFamilies ?? 'Unavailable'}</td>
             <td className="px-3 py-3 font-semibold text-red-700">{rate(row.lossRate)}</td>
           </tr>)}</tbody>
-        </table>
+        </table>}
       </div> : <div className="mt-5">
-        <p className="mb-3 text-xs text-slate-500">Left axis: {noun} (count) · Right axis: loss rate (%) · Table shows exact values.</p>
-        <div className="h-80 w-full" role="img" aria-label={`${view} of monthly new ${noun}, cancellations and ${title.toLowerCase()} loss percentage. Exact values are available in the Table view.`}>
+        <p className="mb-3 text-xs text-slate-500">{total ? `Month-end ${noun} totals · Current month is as of ${data.asOf} · Dashed line shows average monthly growth.` : `Left axis: ${noun} (count) · Right axis: loss rate (%) · Table shows exact values.`}</p>
+        <div className="h-80 w-full" role="img" aria-label={total ? `${view} of monthly total ${noun} and average monthly growth. Exact values are available in the Table view.` : `${view} of monthly new ${noun}, cancellations and ${title.toLowerCase()} loss percentage. Exact values are available in the Table view.`}>
           <ResponsiveContainer width="100%" height={320} minWidth={0}>
-            <ComposedChart data={months} margin={{ top: 12, right: 0, bottom: 8, left: 0 }} accessibilityLayer>
+            <ComposedChart data={total ? totalMonths : months} margin={{ top: 12, right: 0, bottom: 8, left: 0 }} accessibilityLayer>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis dataKey="label" tick={{ fontSize: 12 }} minTickGap={12} />
               <YAxis yAxisId="families" allowDecimals={false} tick={{ fontSize: 12 }} width={32} domain={[0, 'auto']} />
-              <YAxis yAxisId="rate" orientation="right" tickFormatter={value => `${value}%`} domain={[0, 'auto']} tick={{ fontSize: 12, fill: '#b91c1c' }} width={48} />
-              <Tooltip formatter={(value, name) => [name === 'Loss rate' ? `${Number(value).toFixed(1)}%` : `${value} ${noun}`, name]}
+              {!total && <YAxis yAxisId="rate" orientation="right" tickFormatter={value => `${value}%`} domain={[0, 'auto']} tick={{ fontSize: 12, fill: '#b91c1c' }} width={48} />}
+              <Tooltip formatter={(value, name) => [name === 'Loss rate' ? `${Number(value).toFixed(1)}%` : `${number(Number(value), name === 'Average growth trend' ? 1 : 0)} ${noun}`, name]}
                 labelFormatter={(_, payload) => {
                   const row = payload?.[0]?.payload as EnrollmentTrendData['months'][number] | undefined
                   return row ? `${row.label} ${data.year}${row.partial ? ' · Partial month' : ''}` : ''
                 }} />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              {view === 'Bar graph' ? <>
+              {total ? <>
+                {view === 'Bar graph'
+                  ? <Bar yAxisId="families" dataKey="totalFamilies" name={`Total ${noun}`} fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
+                  : <Line yAxisId="families" dataKey="totalFamilies" name={`Total ${noun}`} stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />}
+                <Line yAxisId="families" dataKey="growthTrend" name="Average growth trend" stroke="#059669" strokeDasharray="6 4" strokeWidth={2.5} dot={false} connectNulls={false} isAnimationActive={false} />
+              </> : view === 'Bar graph' ? <>
                 <Bar yAxisId="families" dataKey="newFamilies" name={`New ${noun}`} fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
                 <Bar yAxisId="families" dataKey="canceledFamilies" name="Cancellations" fill="#d97706" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
               </> : <>
                 <Line yAxisId="families" dataKey="newFamilies" name={`New ${noun}`} stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />
                 <Line yAxisId="families" dataKey="canceledFamilies" name="Cancellations" stroke="#d97706" strokeDasharray="6 4" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />
               </>}
-              <Line yAxisId="rate" dataKey="lossRate" name="Loss rate" stroke="#dc2626" strokeWidth={3} dot={{ r: 4 }} connectNulls={false} isAnimationActive={false} />
+              {!total && <Line yAxisId="rate" dataKey="lossRate" name="Loss rate" stroke="#dc2626" strokeWidth={3} dot={{ r: 4 }} connectNulls={false} isAnimationActive={false} />}
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>}
       <details className="mt-5 border-t border-slate-100 pt-4 text-xs leading-relaxed text-slate-600">
         <summary className="cursor-pointer font-semibold text-slate-700">Calculation details</summary>
-        <ul className="mt-3 list-disc space-y-2 pl-5">{(students ? data.studentNotes ?? [] : data.notes).map(note => <li key={note}>{note}</li>)}</ul>
+        <ul className="mt-3 list-disc space-y-2 pl-5">
+          {total && <>
+            <li>Totals count unique enrolled {noun} at month end, or the as-of date for the current month. Returning {noun} are included; multiple classes count once. Paused enrollments remain enrolled.</li>
+            <li>The average growth line joins the first and latest recorded totals. Its slope is the change in enrollment divided by elapsed calendar months. At least two recorded months are required; missing totals remain unavailable.</li>
+          </>}
+          {(students ? data.studentNotes ?? [] : data.notes).map(note => <li key={note}>{note}</li>)}</ul>
       </details>
     </div>
   </>

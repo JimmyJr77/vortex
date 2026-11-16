@@ -21,7 +21,7 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     delete quarter.averageLossRate
     delete quarter.lossRateMonths
   }
-  const buildData = () => ({...trend,studentMonths:trend.months.map(row=>({...row,openingStudents:30,newStudents:6,canceledStudents:4,lostStudents:3,lossRate:studentRate(row)})),studentNotes:['Students count once across all classes.'],rollingMonths,summary,studentSummary,quarters,studentQuarters,current:{...current,familyBreakdowns:{...current,ages:[{label:"Age 8",count:20}]}},acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
+  const buildData = () => ({...trend,months:trend.months.map((row, i)=>({...row,totalFamilies:10+i})),studentMonths:trend.months.map((row, i)=>({...row,totalStudents:10+2*i,openingStudents:30,newStudents:6,canceledStudents:4,lostStudents:3,lossRate:studentRate(row)})),studentNotes:['Students count once across all classes.'],rollingMonths,summary,studentSummary,quarters,studentQuarters,current:{...current,familyBreakdowns:{...current,ages:[{label:"Age 8",count:20}]}},acquisition:financial ? acquisitionMetrics([...rollingMonths,trend.months.at(-1)],spending,current,summary) : null,permissions:{canViewFinancial:financial,canEditMarketing:editable}})
 
   const requests: string[] = [], errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
@@ -61,7 +61,7 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     if (path === '/api/admin/new-admin/classes') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
     if (path === '/api/admin/new-admin/enrollment-trend') {
       if (failure) { failure = false; return route.fulfill({ status: 503, json: { success: false, message: 'Enrollment history is temporarily unavailable.' } }) }
-      data = empty ? { ...buildData(), quarters:summarizeQuarters(trend.asOf, []), studentQuarters:summarizeQuarters(trend.asOf, []), summary:summarizeMonths([]), studentSummary:summarizeLossRates([]), coverageStart: null, months: trend.months.map(row => ({ ...row, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()
+      data = empty ? { ...buildData(), quarters:summarizeQuarters(trend.asOf, []), studentQuarters:summarizeQuarters(trend.asOf, []), summary:summarizeMonths([]), studentSummary:summarizeLossRates([]), coverageStart: null, months: trend.months.map(row => ({ ...row, totalFamilies: null, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()
       if (legacy) { data = trend; legacy = false }
     }
     if (path.includes('/marketing-spend/')) {
@@ -77,6 +77,58 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
   if (permission) await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Dashboard', exact: true }).click()
   return { requests, errors }
 }
+
+test('Total shows monthly population, growth and current members while Delta remains the default', async ({ page }) => {
+  const { requests, errors } = await prepare(page)
+  let chart = page.getByRole('group', { name: 'Family enrollment trend', exact: true })
+  await expect(chart.getByRole('button', { name: 'Delta', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await chart.getByRole('button', { name: 'Total', exact: true }).click()
+  await expect(chart.locator('.recharts-line')).toHaveCount(2)
+  await expect(chart.getByRole('article', { name: 'Total current members' })).toContainText('30')
+  await expect(chart.getByRole('article', { name: 'Average monthly growth' })).toContainText('+1.0')
+  await chart.getByRole('button', { name: 'Bar graph', exact: true }).click()
+  await expect(chart.locator('.recharts-bar')).toHaveCount(1)
+  await expect(chart.locator('.recharts-line')).toHaveCount(1)
+  await chart.getByRole('button', { name: 'Table', exact: true }).click()
+  await expect(chart.getByRole('columnheader', { name: 'Total families', exact: true })).toBeVisible()
+  await expect(chart.getByRole('row').filter({ hasText: 'Jan' }).getByRole('cell').first()).toHaveText('10')
+  await expect(chart.getByRole('row').filter({ hasText: 'Nov (partial)' }).getByRole('cell').first()).toHaveText('20')
+  await chart.getByRole('button', { name: 'Timeline', exact: true }).click()
+  await expect(chart.locator('.recharts-line')).toHaveCount(2)
+  await expect(chart.getByRole('button', { name: 'Total', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await chart.getByRole('button', { name: 'Students', exact: true }).click()
+  chart = page.getByRole('group', { name: 'Student enrollment trend', exact: true })
+  await expect(chart.getByRole('article', { name: 'Average monthly growth' })).toContainText('+2.0')
+  if (process.env.ENROLLMENT_SCREENSHOTS) {
+    await page.setViewportSize({ width: 1440, height: 1200 })
+    await chart.screenshot({ path: process.env.ENROLLMENT_SCREENSHOTS + '/total-students-desktop.png' })
+  }
+  await chart.getByRole('button', { name: 'Bar graph', exact: true }).click()
+  await expect(chart.locator('.recharts-bar')).toHaveCount(1)
+  await expect(chart.locator('.recharts-line')).toHaveCount(1)
+  await chart.getByRole('button', { name: 'Table', exact: true }).click()
+  await expect(chart.getByRole('columnheader', { name: 'Total students', exact: true })).toBeVisible()
+  await expect(chart.getByRole('row').filter({ hasText: 'Jan' }).getByRole('cell').first()).toHaveText('10')
+  await expect(chart.getByRole('row').filter({ hasText: 'Nov (partial)' }).getByRole('cell').first()).toHaveText('30')
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await chart.getByRole('button', { name: 'Timeline', exact: true }).click()
+  if (process.env.ENROLLMENT_SCREENSHOTS) await chart.screenshot({ path: process.env.ENROLLMENT_SCREENSHOTS + '/total-students-mobile.png' })
+  await chart.getByRole('button', { name: 'Delta', exact: true }).click()
+  await expect(chart.locator('.recharts-line')).toHaveCount(3)
+  await expect(chart.getByRole('article', { name: 'Total current members' })).toHaveCount(0)
+  expect(requests.filter(path => path.endsWith('/enrollment-trend'))).toHaveLength(1)
+  expect(errors).toEqual([])
+})
+
+test('Total keeps absent historical counts and growth unavailable on older responses', async ({ page }) => {
+  await prepare(page, { legacy: true })
+  const chart = page.getByRole('group', { name: 'Family enrollment trend', exact: true })
+  await chart.getByRole('button', { name: 'Total', exact: true }).click()
+  await expect(chart.getByText('No enrollment history is available for this year.')).toBeVisible()
+  await expect(chart.getByRole('article', { name: 'Average monthly growth' })).toContainText('Unavailable')
+  await expect(chart.getByRole('article', { name: 'Total current members' })).toContainText('Unavailable')
+})
 
 test('Admin overlays all family measures; view changes are local and mobile/table remain accessible', async ({ page }) => {
   const { requests, errors } = await prepare(page)

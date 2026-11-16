@@ -129,6 +129,7 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
     return {
       key: start.slice(0, 7), label: new Date(`${start}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }),
       openingFamilies: covered ? openingFamilies : null,
+      totalFamilies: hasRecords ? families.filter(rows => rows.some(r => r.start <= cutoff && r.end > cutoff)).length : null,
       newFamilies: hasRecords ? [...firstStarts.values()].filter(first => first >= start && first <= cutoff).length : null,
       canceledFamilies: hasRecords ? families.filter(canceled).length : null,
       lostFamilies: covered ? lost : null,
@@ -165,8 +166,8 @@ export function buildEnrollmentTrend({ historical = [], live = [], events = [], 
   let studentMonths, studentNotes, studentSummary, studentQuarters
   if (population === 'families') {
     const student = buildEnrollmentTrend({ historical, live, events, today, population: 'students' }, now)
-    studentMonths = student.months.map(({ openingFamilies, newFamilies, canceledFamilies, lostFamilies, ...month }) => ({
-      ...month, openingStudents: openingFamilies, newStudents: newFamilies, canceledStudents: canceledFamilies, lostStudents: lostFamilies,
+    studentMonths = student.months.map(({ openingFamilies, totalFamilies, newFamilies, canceledFamilies, lostFamilies, ...month }) => ({
+      ...month, openingStudents: openingFamilies, totalStudents: totalFamilies, newStudents: newFamilies, canceledStudents: canceledFamilies, lostStudents: lostFamilies,
     }))
     studentSummary = summarizeLossRates(student.rollingMonths)
     studentQuarters = student.quarters

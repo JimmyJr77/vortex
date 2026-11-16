@@ -6,6 +6,33 @@ const historical = (family_id, start_date, end_date = null) => ({ family_id, sta
 const live = (id, family_id, start_date, cancel_date = null) => ({ id, family_id, start_date, cancel_date, status: cancel_date ? 'cancelled' : 'confirmed' })
 const build = (data, date = '2026-04-15') => buildEnrollmentTrend(data, at(date))
 
+test('monthly totals count unique active students and families, including returns and partial months', () => {
+  const enrollment = (id, family, member, start, end) => ({ ...live(id, family, start, end), member_id: member })
+  const data = build({ live: [
+    enrollment(1, 1, 10, '2025-12-01', '2026-02-01'),
+    enrollment(2, 1, 10, '2026-03-01'), // Returning student, not a new enrollment.
+    enrollment(3, 1, 10, '2026-03-01'), // A second class must not inflate totals.
+    { ...enrollment(4, 1, 11, '2026-01-01'), status: 'paused' },
+    enrollment(5, 2, 20, '2026-02-01', '2026-03-31'),
+    enrollment(6, 3, 30, '2026-04-16'), // Starts after the as-of date.
+    enrollment(7, 4, 40, '2026-04-15', '2026-04-20'),
+    { ...enrollment(8, 5, 50, '2026-01-01'), status: 'waitlisted' },
+  ] })
+  assert.deepEqual(data.months.map(row => row.totalFamilies), [1, 2, 1, 2])
+  assert.deepEqual(data.studentMonths.map(row => row.totalStudents), [2, 2, 2, 3])
+  assert.equal(data.studentMonths[2].newStudents, 0)
+  assert.equal(data.months.at(-1).partial, true)
+  assert.equal(data.months.at(-1).totalFamilies, data.current.families)
+  assert.equal(data.studentMonths.at(-1).totalStudents, data.current.students)
+})
+
+test('totals distinguish unavailable history from an observed zero after the last cancellation', () => {
+  const data = build({ live: [{ ...live(1, 1, '2026-02-01', '2026-03-01'), member_id: 10 }] })
+  assert.deepEqual(data.months.map(row => row.totalFamilies), [null, 1, 0, 0])
+  assert.deepEqual(data.studentMonths.map(row => row.totalStudents), [null, 1, 0, 0])
+  assert.ok(build({}).months.every(row => row.totalFamilies === null))
+})
+
 test('siblings, duplicate source rows and touching class transfers count once', () => {
   const data = build({ historical: [historical(1, '2025-12-01', '2026-02-02'), historical(1, '2026-02-02', '2026-06-01'), historical(1, '2026-02-02', '2026-06-01')], live: [live(1, 1, '2026-02-02'), live(2, 2, '2026-02-10')] })
   assert.equal(data.months[1].openingFamilies, 1)
