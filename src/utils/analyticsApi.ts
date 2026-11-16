@@ -179,6 +179,37 @@ export interface SeoData {
   }>
 }
 
+export type SearchConsoleTopicFailure = 'access_denied' | 'provider_error'
+
+export interface SearchConsoleTopicReport {
+  status: 'ok' | 'partial' | 'unconfigured' | 'error'
+  reason?: 'missing_property' | 'missing_credentials' | SearchConsoleTopicFailure
+  startDate: string
+  endDate: string
+  timeZone: 'America/Los_Angeles'
+  topics: Array<{
+    id: string
+    label: string
+    status: 'reported' | 'no_data' | 'error' | 'unavailable'
+    metrics: {
+      clicks: number
+      impressions: number
+      ctr: number | null
+      position: number | null
+    } | null
+    reason?: SearchConsoleTopicFailure
+  }>
+}
+
+export async function fetchSearchConsoleTopics(): Promise<SearchConsoleTopicReport> {
+  const response = await adminApiRequest('/api/admin/analytics/seo/topics')
+  const result = await response.json()
+  if (!response.ok || !result.success) {
+    throw new Error('Could not load the Search Console topic report.')
+  }
+  return result.data
+}
+
 export interface CompetitorRow {
   id: number
   name: string
