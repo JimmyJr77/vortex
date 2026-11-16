@@ -4,13 +4,23 @@ import { changeLeadLifecycle } from '../leadLifecycle.js'
 import { permissionMiddleware } from '../registerRoutes.js'
 import { leadFilters } from '../leadFilters.js'
 
-function fixture(lead, { paid = false, foreignKey = false } = {}) {
+function fixture(lead, { foreignKey = false, invites = [], held = false, sharedReference = false } = {}) {
   const calls = []
+  const tables = ['registrations','account_invite','new_admin_lead_ownership_audit','note','utm_attribution','visitor_identities']
   const client = {
     async query(sql, values) {
       calls.push({ sql, values })
-      if (sql.startsWith('SELECT id, archived')) return { rows: lead ? [lead] : [] }
-      if (sql.includes('AS retained')) return { rows: [{ retained: paid }] }
+      if (sql.startsWith('SELECT id, archived')) return { rows: lead ? [{ id:5,...lead }] : [] }
+      if (sql.includes("(pending_payload ? 'result')")) return { rows: invites }
+      if (sql.startsWith('SELECT 1 FROM scheduling_signup')) return { rows: held ? [{}] : [] }
+      if (sql.includes('WHERE c.oid=to_regclass($1)')) {
+        const table=values[0].replace(/^public\./,'')
+        return { rows:[{oid:String(tables.indexOf(table)+1),schema_name:'public',table_name:table,primary_key:['id']}] }
+      }
+      if (sql.startsWith('SELECT * FROM "public"."registrations"')) return { rows:lead ? [{id:5,...lead}] : [] }
+      if (sql.startsWith('SELECT * FROM "public"."account_invite"')) return { rows:invites.filter(invite=>values[0].includes(invite.id)) }
+      if (sql.includes('FROM pg_constraint c')) return { rows:sharedReference ? [{child_oid:'99',parent_oid:'1',child_schema:'public',child_table:'retained_evidence',confdeltype:'c',child_columns:['registration_id'],parent_columns:['id']}] : [] }
+      if (sql.startsWith('WITH deletion_parameters')) return { rows:[{blocked:sharedReference}] }
       if (sql.startsWith('DELETE FROM registrations') && foreignKey) throw Object.assign(new Error('linked'), { code: '23503' })
       return { rows: [] }
     },
@@ -31,24 +41,37 @@ for (const action of ['archive', 'restore']) test(`${action} is facility scoped 
 for (const [label, lead, options, message] of [
   ['missing/foreign facility', null, {}, /not found/],
   ['active', { archived: false }, {}, /Archive this lead/],
-  ['paid converted', { archived: true, converted_member_id: 7 }, { paid: true }, /Payments have been made/],
   ['referenced', { archived: true }, { foreignKey: true }, /linked records/],
+  ['unplanned cascade', { archived:true }, {sharedReference:true}, /linked to records/],
+  ['unfinished reservation', {archived:true}, {invites:[{id:12,facility_id:2,used_at:null}],held:true}, /unfinished account registration/],
+  ['pending family', {archived:true}, {invites:[{id:12,facility_id:2,used_at:null,pending_family_id:9}]}, /unfinished account registration/],
+  ['completed payload without completion', {archived:true}, {invites:[{id:12,facility_id:2,used_at:null,has_completed_payload:true}]}, /unfinished account registration/],
+  ['cross-facility invitation', {archived:true}, {invites:[{id:12,facility_id:3,used_at:new Date()}]}, /another facility/],
 ]) test(`delete protects ${label} leads and rolls back`, async () => {
   const pool = fixture(lead, options)
   await assert.rejects(changeLeadLifecycle(pool, 2, 5, 'delete'), message)
   assert.ok(pool.calls.some(c => c.sql === 'ROLLBACK'))
   assert.ok(!pool.calls.some(c => c.sql === 'COMMIT'))
-  assert.ok(!pool.calls.some(c => c.sql.startsWith('DELETE FROM note')))
 })
 
-test('delete removes an unpaid converted lead and invitations without deleting its member', async () => {
-  const pool = fixture({ archived: true, converted_member_id: 7 })
+test('delete removes only an archived inquiry even when its linked member has billing history', async () => {
+  const pool = fixture({ archived: true, member_id:7, converted_member_id:7 }, {invites:[{id:12,facility_id:2,used_at:null}]})
   await changeLeadLifecycle(pool, 2, 5, 'delete')
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('DELETE FROM registrations')).values, [5, 2])
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('DELETE FROM note')).values, [5])
   assert.ok(pool.calls.some(c => c.sql === 'COMMIT'))
   assert.ok(pool.calls.some(c => c.sql.startsWith('DELETE FROM account_invite')))
-  assert.ok(!pool.calls.some(c => c.sql.startsWith('DELETE FROM member')))
+  assert.ok(!pool.calls.some(c => /(?:DELETE FROM|UPDATE) (?:member|family|scheduling_signup|billing_)/.test(c.sql)))
+  assert.ok(!pool.calls.some(c => c.sql.includes('family_billing_account') || c.sql.includes('hasFamilyPayments')))
+})
+
+test('completed invitation retains its enrollment links and only loses the obsolete inquiry backlink', async () => {
+  const pool=fixture({archived:true,converted_member_id:7},{invites:[{id:12,facility_id:2,used_at:new Date()}]})
+  await changeLeadLifecycle(pool,2,5,'delete')
+  assert.deepEqual(pool.calls.find(c=>c.sql.startsWith('UPDATE account_invite')).values,[[12],5,2])
+  assert.deepEqual(pool.calls.find(c=>c.sql.startsWith('DELETE FROM account_invite')).values,[[],5,2])
+  assert.ok(!pool.calls.some(c=>/(?:UPDATE|DELETE FROM) scheduling_signup/.test(c.sql)))
+  assert.ok(pool.calls.some(c=>c.sql==='COMMIT'))
 })
 
 test('archived lead filter is explicit and validates input', () => {

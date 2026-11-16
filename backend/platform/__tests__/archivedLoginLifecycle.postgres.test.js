@@ -79,6 +79,62 @@ test('only the Owner can list and remove archived unlinked logins in the facilit
     assert.equal((await request(`/${legacyArchived}`, { method: 'DELETE' })).status, 200)
     assert.equal((await request(`/${inactive}`, { method: 'DELETE' })).status, 200)
     assert.deepEqual((await request('?scope=archived-logins')).json.data, [])
+
+    // A suspended coach still owns real roster assignments. The deletion route
+    // must not quietly remove them before checking the login's dependencies.
+    const assignedCoach = await addLogin({ role: 'COACH', staff: false })
+    const program = (await client.query(
+      "INSERT INTO program(facility_id,category,name,display_name) VALUES($1,'GYMNASTICS','Retained coach assignment','Retained coach assignment') RETURNING id",
+      [facilityId],
+    )).rows[0]
+    const assignment = (await client.query(
+      'INSERT INTO coach_class_assignment(coach_user_id,program_id) VALUES($1,$2) RETURNING id',
+      [assignedCoach, program.id],
+    )).rows[0]
+    assert.equal((await request(`/${assignedCoach}`, { method: 'DELETE' })).status, 409)
+    assert.equal(Number((await client.query('SELECT coach_user_id FROM coach_class_assignment WHERE id=$1', [assignment.id])).rows[0].coach_user_id), assignedCoach)
+    assert.equal((await client.query('SELECT 1 FROM app_user WHERE id=$1', [assignedCoach])).rowCount, 1)
+
+    // Future modules must receive the same protection, regardless of whether
+    // their foreign key deletes evidence or silently clears its attribution.
+    for (const action of ['CASCADE', 'SET NULL']) {
+      await client.query('SAVEPOINT retained_login_evidence')
+      const staff = await addLogin({ role: 'COACH', staff: false })
+      const table = `login_delete_evidence_${randomUUID().replaceAll('-', '')}`
+      await client.query(`CREATE TABLE public.${table} (id integer PRIMARY KEY, author bigint REFERENCES app_user(id) ON DELETE ${action}, body text NOT NULL)`)
+      await client.query(`INSERT INTO public.${table}(id,author,body) VALUES(1,$1,'Retained business evidence')`, [staff])
+      const before = (await client.query(`SELECT to_jsonb(e) AS row FROM public.${table} e`)).rows
+      assert.equal((await request(`/${staff}`, { method: 'DELETE' })).status, 409)
+      assert.deepEqual((await client.query(`SELECT to_jsonb(e) AS row FROM public.${table} e`)).rows, before)
+      assert.equal((await client.query('SELECT 1 FROM app_user WHERE id=$1', [staff])).rowCount, 1)
+      await client.query('ROLLBACK TO SAVEPOINT retained_login_evidence')
+      await client.query('RELEASE SAVEPOINT retained_login_evidence')
+    }
+
+    // Notes store their author without a foreign key; their attribution still
+    // prevents removal of the staff identity that wrote them.
+    const noteAuthor = await addLogin({ role: 'ADMIN', staff: false })
+    const inquiry = (await client.query(`INSERT INTO registrations(facility_id,first_name,last_name,email)
+      VALUES($1,'Staff note','Fixture',$2) RETURNING id`, [facilityId, `${randomUUID()}@example.test`])).rows[0]
+    const note = (await client.query(`INSERT INTO note(subject_type,subject_id,note_type,body,author_kind,author_id)
+      VALUES('registration',$1,'staff_note','Retain staff attribution','admin',$2) RETURNING *`, [inquiry.id, noteAuthor])).rows[0]
+    assert.equal((await request(`/${noteAuthor}`, { method: 'DELETE' })).status, 409)
+    assert.deepEqual((await client.query('SELECT * FROM note WHERE id=$1', [note.id])).rows[0], note)
+    assert.equal((await client.query('SELECT 1 FROM app_user WHERE id=$1', [noteAuthor])).rowCount, 1)
+
+    // Login-only configuration may be removed with an otherwise unused login.
+    const unusedCoach = await addLogin({ role: 'COACH', staff: false })
+    await client.query("INSERT INTO app_user_role(user_id,role) VALUES($1,'COACH')", [unusedCoach])
+    await client.query("INSERT INTO coach_profile(user_id,bio) VALUES($1,'Unused coach profile')", [unusedCoach])
+    await client.query(`INSERT INTO app_user_permission_override(user_id,permission_id,effect)
+      SELECT $1,id,'allow' FROM permission WHERE key='admin_access.manage'`, [unusedCoach])
+    await client.query(`INSERT INTO email_verification_token(user_id,email,token_hash,expires_at)
+      VALUES($1,'unused@example.test',$2,now()+interval '1 day')`, [unusedCoach, randomUUID()])
+    assert.equal((await request(`/${unusedCoach}`, { method: 'DELETE' })).status, 200)
+    assert.equal((await client.query('SELECT 1 FROM app_user WHERE id=$1', [unusedCoach])).rowCount, 0)
+    for (const table of ['app_user_role', 'coach_profile', 'app_user_permission_override', 'email_verification_token']) {
+      assert.equal((await client.query(`SELECT 1 FROM ${table} WHERE user_id=$1`, [unusedCoach])).rowCount, 0)
+    }
   } finally {
     if (server) await new Promise(resolve => server.close(resolve))
     await client.query('ROLLBACK').catch(() => {})
