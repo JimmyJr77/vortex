@@ -45,7 +45,7 @@ export default function MessagingInboxTabs({
 
   return (
     <div className="space-y-2">
-      <div role="group" aria-label="Quick filters" className="grid grid-cols-3 gap-0.5 rounded-lg bg-slate-100 p-0.5">
+      <div role="group" aria-label="Quick filters" className="grid grid-cols-3 gap-0.5 rounded-lg !bg-slate-100 p-0.5">
         {QUICK_FILTERS.filter(({ id }) => !hiddenTabs.includes(id)).map(({ id, label }) => (
           <button
             key={id}

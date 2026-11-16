@@ -55,10 +55,10 @@ export default function MessagingResourceSidebar({ role, fetcher, messages, sele
   }, [messages])
 
   return (
-    <aside aria-label="Conversation resources" className="flex h-full min-h-0 flex-col divide-y divide-slate-200 bg-slate-50">
+    <aside aria-label="Conversation resources" className="flex h-full min-h-0 flex-col divide-y divide-slate-200 !bg-slate-50">
       {filesVisible && <section aria-label="Shared files" className="flex min-h-0 flex-1 flex-col">
         <div className="shrink-0 px-5 pb-3 pt-5">
-          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Paperclip className="size-4 text-slate-400" aria-hidden />Shared files <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{selectedThreadId && !loading && !error ? files.length : '—'}</span></h3>
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Paperclip className="size-4 text-slate-400" aria-hidden />Shared files <span className="ml-auto rounded-full !bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{selectedThreadId && !loading && !error ? files.length : '—'}</span></h3>
           <p className="mt-1 text-xs text-slate-500">Posted in this conversation</p>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5">

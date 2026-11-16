@@ -79,7 +79,7 @@ export default function RecipientPicker({
           {selected.map((r) => (
             <span
               key={r.key}
-              className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full px-2.5 py-1 text-xs font-semibold"
+              className="inline-flex items-center gap-1 !bg-slate-100 text-slate-700 border border-slate-200 rounded-full px-2.5 py-1 text-xs font-semibold"
             >
               {r.name}
               <button
