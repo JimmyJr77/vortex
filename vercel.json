@@ -3,6 +3,18 @@
   "version": 2,
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
+      "destination": "https://vortexathletics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
+      "destination": "https://vortexathletics.com/",
+      "permanent": true
+    },
+    {
       "source": "/newpage",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/",

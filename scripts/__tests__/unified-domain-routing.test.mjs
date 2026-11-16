@@ -43,6 +43,18 @@ function resolve(input) {
 }
 
 test('both gymnastics domains and athletics www resolve to the primary homepage', () => {
+  // Explicit roots are required: the deployed platform does not consistently
+  // apply /:path* to the empty root path when a static index exists.
+  for (const host of ['vortex-gymnastics.com', 'www.vortex-gymnastics.com']) {
+    const index = config.redirects.findIndex(rule => rule.source === '/'
+      && rule.has?.some(condition => condition.type === 'host' && condition.value === host))
+    assert(index >= 0, `${host} needs an explicit root redirect`)
+    assert.equal(config.redirects[index].destination, `${primary}/`)
+    assert.equal(config.redirects[index].permanent, true)
+    const wildcardIndex = config.redirects.findIndex(rule => rule.source === '/:path*'
+      && rule.has?.some(condition => condition.type === 'host' && condition.value === host))
+    assert(index < wildcardIndex, 'Root redirects must precede wildcard redirects')
+  }
   for (const host of aliases) assert.equal(nextLocation(`https://${host}/`), `${primary}/`)
   assert.equal(nextLocation(`${primary}/`), null)
 })
