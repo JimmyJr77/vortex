@@ -70,6 +70,16 @@ export function broadcastReactionUpdate(threadId) {
   }
 }
 
+/** Account-scoped invalidation; identity is resolved from the token, never client channel IDs. */
+export function broadcastPanelPreferencesUpdate(facilityId, userId) {
+  const payload = JSON.stringify({ type: 'message.panel_preferences_updated' })
+  for (const client of clients) {
+    if (client.ws.readyState !== 1 || client.preferenceAccount?.userId !== Number(userId)
+      || client.preferenceAccount?.facilityId !== Number(facilityId)) continue
+    try { client.ws.send(payload) } catch { /* Saved preferences remain valid if a socket disconnects. */ }
+  }
+}
+
 export function broadcastMessageEvent({ type, facilityId, threadId, userId, memberId, data }) {
   const payload = JSON.stringify({ type, facilityId, threadId, userId, memberId, data, ts: Date.now() })
   for (const client of clients) {
@@ -109,6 +119,7 @@ export function attachMessageWebSocket(server, { jwtSecret, pool }) {
         facilityId: decoded.facility_id ?? decoded.facilityId ?? undefined,
         threadIds: new Set(),
         reactionThreadId: null,
+        preferenceAccount: null,
         userId: decoded.member_id ? undefined : Number(decoded.id || decoded.userId) || undefined,
         memberId: decoded.member_id ? Number(decoded.member_id ?? decoded.id) : undefined,
       }
@@ -121,6 +132,14 @@ export function attachMessageWebSocket(server, { jwtSecret, pool }) {
           if (msg.action === 'subscribe' && Array.isArray(msg.channels)) {
             for (const ch of msg.channels) subscribeClient(client, String(ch))
             ws.send(JSON.stringify({ type: 'subscribed', channels: msg.channels }))
+          } else if (msg.action === 'subscribe_panel_preferences') {
+            const userId = await resolveCanonicalTokenUserId(pool, decoded)
+            const access = await loadCanonicalAccessContext(pool, userId)
+            if (access?.isActive && access.facilityId && ['admin', 'coach', 'member'].includes(msg.portal)
+              && access.portalAccess[msg.portal] && ws.readyState === 1) {
+              client.preferenceAccount = { userId: access.userId, facilityId: access.facilityId }
+              ws.send(JSON.stringify({ type: 'panel_preferences_subscription' }))
+            }
           } else if (msg.action === 'subscribe_reactions') {
             const request = ++reactionSubscription
             client.reactionThreadId = null

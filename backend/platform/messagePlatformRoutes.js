@@ -82,7 +82,7 @@ import {
   postSchedulingSystemMessage,
   provisionSchedulingFormThread,
 } from './messageSchedulingThreads.js'
-import { broadcastMessageEvent, broadcastReactionUpdate } from './messageRealtime.js'
+import { broadcastMessageEvent, broadcastReactionUpdate, broadcastPanelPreferencesUpdate } from './messageRealtime.js'
 import { hasPermission } from './registerRoutes.js'
 import {
   memberIsThreadParticipant,
@@ -525,6 +525,7 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
           const data = method === 'get'
             ? await getMessagePanelPreferences(pool, user.facility_id, user.id)
             : await updateMessagePanelPreferences(pool, user.facility_id, user.id, req.body)
+          if (method === 'patch') broadcastPanelPreferencesUpdate(user.facility_id, user.id)
           ok(res, data)
         } catch (error) {
           bad(res, error.message, error.statusCode === 400 ? 400 : 500)

@@ -1,3 +1,4 @@
+import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 import { useEffect, useRef, useState } from 'react'
 import type { MessagingRole } from './types'
 
@@ -18,31 +19,49 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
   const [state, setState] = useState({ accountKey, preferences: defaults, busy: true, error: '' })
   const [reload, setReload] = useState(0)
   const generation = useRef(0)
+  const saveError = useRef('')
   const pendingSave = useRef(false)
+  const refreshRef = useRef<(() => void) | null>(null)
   const path = `/api/${role}/messages/panel-preferences`
 
   useEffect(() => {
     const version = ++generation.current
     pendingSave.current = false
-    let request = 0
+    saveError.current = ''
+    let inFlight = false
+    let dirty = false
     const load = async () => {
-      if (!accountKey || !fetcher || !role || pendingSave.current) return
-      const currentRequest = ++request
-      setState((previous) => ({ accountKey, preferences: previous.accountKey === accountKey ? previous.preferences : defaults, busy: true, error: '' }))
+      dirty = true
+      if (!accountKey || !fetcher || !role || pendingSave.current || inFlight || version !== generation.current) return
+      dirty = false
+      inFlight = true
+      setState((previous) => ({ accountKey, preferences: previous.accountKey === accountKey ? previous.preferences : defaults, busy: true, error: saveError.current }))
       try {
         const preferences = parsePreferences(await fetcher(path, { cache: 'no-store' }))
-        if (version === generation.current && currentRequest === request) setState({ accountKey, preferences, busy: false, error: '' })
+        if (version === generation.current) setState({ accountKey, preferences, busy: false, error: saveError.current })
       } catch {
-        if (version === generation.current && currentRequest === request) setState((previous) => ({ ...previous, busy: false, error: 'Couldn’t load panel preferences.' }))
+        if (version === generation.current) setState((previous) => ({ ...previous, busy: false, error: 'Couldn’t load panel preferences.' }))
+      } finally {
+        inFlight = false
+        if (dirty && version === generation.current) void load()
       }
     }
+    refreshRef.current = () => { void load() }
     void load()
     window.addEventListener('focus', load)
     return () => {
+      refreshRef.current = null
       generation.current = version + 1
       window.removeEventListener('focus', load)
     }
   }, [accountKey, role, fetcher, path, reload])
+
+  useMessageRealtime({
+    role: role ?? 'member',
+    connectionKey: accountKey,
+    enabled: Boolean(accountKey && role && fetcher),
+    onPanelPreferencesInvalidated: () => refreshRef.current?.(),
+  })
 
   const current = state.accountKey === accountKey ? state : { accountKey, preferences: defaults, busy: true, error: '' }
   const togglePanel = async (panel: keyof PanelPreferences) => {
@@ -51,6 +70,7 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
     const previous = current.preferences
     const value = !previous[panel]
     pendingSave.current = true
+    saveError.current = ''
     setState({ accountKey, preferences: { ...previous, [panel]: value }, busy: true, error: '' })
     try {
       const preferences = parsePreferences(await fetcher(path, {
@@ -58,11 +78,17 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [panel]: value }),
       }))
-      if (version === generation.current) setState({ accountKey, preferences, busy: false, error: '' })
+      if (version === generation.current) setState({ accountKey, preferences, busy: false, error: saveError.current })
     } catch {
-      if (version === generation.current) setState({ accountKey, preferences: previous, busy: false, error: 'Couldn’t save panel preferences. Your change was undone; try again.' })
+      if (version === generation.current) {
+        saveError.current = 'Couldn’t save panel preferences. Your change was undone; try again.'
+        setState({ accountKey, preferences: previous, busy: false, error: saveError.current })
+      }
     } finally {
-      if (version === generation.current) pendingSave.current = false
+      if (version === generation.current) {
+        pendingSave.current = false
+        refreshRef.current?.()
+      }
     }
   }
 
