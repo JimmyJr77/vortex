@@ -46,11 +46,15 @@ test('permanent member deletion releases an archived login and preserves protect
     await assert.rejects(deleteArchivedMember(pool, target), { code: 'MEMBER_ARCHIVE_REQUIRED' })
 
     await client.query('UPDATE member SET is_active = FALSE WHERE id = $1', [member.id])
+    await client.query('SAVEPOINT imported_identity')
     const { rows: [history] } = await client.query(
       `INSERT INTO jackrabbit_history_record (facility_id, organization_id, record_kind, source_id, member_id, source_data)
        VALUES ($1, 'fixture', 'person', $2, $3, '{}') RETURNING id`,
       [facility.id, randomUUID(), member.id],
     )
+    await assert.rejects(deleteArchivedMember(pool, target), { code: 'ACCOUNT_DELETE_BLOCKED' })
+    assert.equal((await client.query('SELECT 1 FROM jackrabbit_history_record WHERE id=$1', [history.id])).rowCount, 1)
+    await client.query('ROLLBACK TO SAVEPOINT imported_identity')
     const form = (await client.query("INSERT INTO scheduling_form(title) VALUES('Member unpaid fixture') RETURNING id")).rows[0]
     const signup = (await client.query("INSERT INTO scheduling_signup(form_id,member_id,first_name,last_name,email,status) VALUES($1,$2,'Archive','Fixture',$3,'pending_setup') RETURNING id", [form.id,member.id,email])).rows[0]
     await client.query('SAVEPOINT meaningful_member_class')
@@ -80,7 +84,6 @@ test('permanent member deletion releases an archived login and preserves protect
     assert.equal((await client.query('SELECT 1 FROM member WHERE id=$1', [member.id])).rowCount, 1)
     assert.equal((await client.query('SELECT 1 FROM scheduling_signup WHERE id=$1', [signup.id])).rowCount, 1)
     await deleteArchivedMember(pool, target)
-    assert.equal((await client.query('SELECT 1 FROM jackrabbit_history_record WHERE id=$1', [history.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM member_waiver_acceptance WHERE member_id=$1', [member.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM scheduling_signup WHERE id=$1', [signup.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM member WHERE id = $1', [member.id])).rowCount, 0)

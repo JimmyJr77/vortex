@@ -1,4 +1,5 @@
-import { hasFamilyPayments, removeUnpaidHistory } from './unpaidHistoryDeletion.js'
+import { deleteEmptyArchivedAccounts } from './emptyAccountDeletion.js'
+import { tryDeleteMergedMember } from './mergedMemberDeletion.js'
 
 function blocked(message, code = 'MEMBER_DELETE_BLOCKED', blockers = [{ message }]) {
   return Object.assign(new Error(message), { statusCode: 409, code, blockers })
@@ -39,42 +40,6 @@ export async function deleteArchivedMemberInTransaction(db, { memberId, facility
     throw blocked('Archive this member before permanently deleting the record.', 'MEMBER_ARCHIVE_REQUIRED')
   }
 
-  const { rows: accounts } = await db.query(
-    `SELECT id FROM family_billing_account WHERE family_id IN (
-       SELECT family_id FROM member WHERE id=$1
-       UNION SELECT family_id FROM family_member WHERE member_id=$1
-     ) OR payer_member_id=$1 ORDER BY id FOR UPDATE`, [memberId],
-  )
-  if (await hasFamilyPayments(db, { familyId: -1, accountIds: accounts.map(row => row.id), memberIds: [memberId] })) {
-    throw blocked('Payments have been made for this member or their family. Keep the member archived to preserve payment history.')
-  }
-  const { rows: [guardian] } = await db.query(
-    `SELECT EXISTS (SELECT 1 FROM parent_guardian_authority authority
-       JOIN member child ON child.id=authority.child_member_id AND child.is_active=TRUE
-       WHERE authority.parent_member_id=$1 AND authority.has_legal_authority=TRUE) AS protected`, [memberId],
-  )
-  if (guardian.protected) throw blocked('This member has legal authority for an active child. Update the child’s guardian records before deleting this member.')
-  // Remove only this person's unpaid records, never their family's or siblings'.
-  await removeUnpaidHistory(db, { familyId: -1, accountIds: [], memberIds: [memberId] })
-  // Waivers signed for another person remain attached to that person; the
-  // accepted_by FK becomes NULL when the archived signer is removed.
-
-  if (member.app_user_id != null) {
-    await db.query('SELECT id FROM app_user WHERE id = $1 AND facility_id = $2 FOR UPDATE', [member.app_user_id, facilityId])
-  }
-
-  await db.query('DELETE FROM member WHERE id = $1 AND facility_id = $2', [memberId, facilityId])
-  if (member.app_user_id != null) {
-    await db.query(
-      `DELETE FROM app_user login
-        WHERE login.id = $1 AND login.facility_id = $2
-          AND login.role::text = 'MEMBER_ATHLETE'
-          AND NOT EXISTS (
-            SELECT 1 FROM app_user_role WHERE user_id = login.id AND role::text <> 'MEMBER_ATHLETE'
-          )
-          AND NOT EXISTS (SELECT 1 FROM member WHERE app_user_id = login.id)
-          AND NOT EXISTS (SELECT 1 FROM facility WHERE owner_user_id = login.id)`,
-      [member.app_user_id, facilityId],
-    )
-  }
+  if (await tryDeleteMergedMember(db, { memberId, facilityId })) return
+  await deleteEmptyArchivedAccounts(db, { facilityId, memberIds: [memberId] })
 }

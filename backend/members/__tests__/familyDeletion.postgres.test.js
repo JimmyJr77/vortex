@@ -35,7 +35,7 @@ test('family deletion is scoped, guarded, atomic, and removes unused logins', { 
 
     // Failure on the second member must roll back deletion of the first/login.
     await db.query('UPDATE member SET is_active=TRUE WHERE id=$1', [second.id])
-    await assert.rejects(deleteArchivedFamily(pool, target), /Second Fixture: Archive this member/)
+    await assert.rejects(deleteArchivedFamily(pool, target), /Archive every member/)
     assert.equal(await count('member', first.id), 1)
     assert.equal(await count('app_user', first.loginId), 1)
     await db.query('UPDATE member SET is_active=FALSE WHERE id=$1', [second.id])
@@ -50,11 +50,14 @@ test('family deletion is scoped, guarded, atomic, and removes unused logins', { 
     await db.query('DELETE FROM family_member WHERE family_id=$1', [otherFamily])
 
     const { rows: [account] } = await db.query('INSERT INTO family_billing_account(family_id,payer_member_id) VALUES ($1,$2) RETURNING id', [familyId, first.id])
+    await db.query('SAVEPOINT billing_audit')
     const { rows: [history] } = await db.query("INSERT INTO billing_admin_action(family_billing_account_id,action_type) VALUES ($1,'payment_link_sent') RETURNING id", [account.id])
+    await assert.rejects(deleteArchivedFamily(pool, target), { code: 'ACCOUNT_DELETE_BLOCKED' })
+    assert.equal(await count('billing_admin_action', history.id), 1)
+    await db.query('ROLLBACK TO SAVEPOINT billing_audit')
     await db.query('SAVEPOINT paid_fixture')
     await db.query("INSERT INTO billing_payment(family_billing_account_id,amount_cents,method) VALUES ($1,1000,'cash')", [account.id])
     await assert.rejects(deleteArchivedFamily(pool, target), /Payments have been made/)
-    assert.equal(await count('billing_admin_action', history.id), 1)
     await db.query('ROLLBACK TO SAVEPOINT paid_fixture')
 
     // Imported payments protect the family even without a native payment row.
@@ -83,10 +86,17 @@ test('family deletion is scoped, guarded, atomic, and removes unused logins', { 
     const waiver = (await db.query("INSERT INTO waiver_template(facility_id,name,version,body) VALUES($1,'Fixture','1','Fixture') RETURNING id", [facility.id])).rows[0]
     await db.query('INSERT INTO member_waiver_acceptance(member_id,waiver_template_id,accepted_by_member_id) VALUES($1,$2,$3)', [second.id,waiver.id,first.id])
     const inquiry = (await db.query("INSERT INTO registrations(facility_id,first_name,last_name,email,converted_member_id) VALUES($1,'Fixture','Lead','fixture@example.test',$2) RETURNING id", [facility.id,first.id])).rows[0]
+    await db.query('SAVEPOINT imported_person')
     await db.query(`INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,source_data)
       VALUES($1,'fixture','person','unpaid',$2,$3,'{}')`, [facility.id,familyId,second.id])
+    await assert.rejects(deleteArchivedFamily(pool, target), { code: 'ACCOUNT_DELETE_BLOCKED' })
+    await db.query('ROLLBACK TO SAVEPOINT imported_person')
+    await db.query('SAVEPOINT unpaid_finances')
     const charge = (await db.query("INSERT INTO billing_charge(family_billing_account_id,member_id,description,amount_cents,collection_status) VALUES($1,$2,'Unpaid class',15000,'checkout_pending') RETURNING id", [account.id,second.id])).rows[0]
     await db.query("INSERT INTO billing_payment(family_billing_account_id,amount_cents,method,external_status) VALUES($1,15000,'card','pending')", [account.id])
+    await assert.rejects(deleteArchivedFamily(pool, target), { code: 'ACCOUNT_DELETE_BLOCKED' })
+    assert.equal(await count('billing_charge', charge.id), 1)
+    await db.query('ROLLBACK TO SAVEPOINT unpaid_finances')
 
     await deleteArchivedFamily(pool, target)
     for (const member of [first, second]) {
@@ -95,8 +105,6 @@ test('family deletion is scoped, guarded, atomic, and removes unused logins', { 
     }
     assert.equal(await count('scheduling_signup', signup.id), 0)
     assert.equal(await count('registrations', inquiry.id), 0)
-    assert.equal(await count('billing_charge', charge.id), 0)
-    assert.equal(await count('billing_admin_action', history.id), 0)
     assert.equal(await count('family', familyId), 0)
     assert.equal(await count('family_billing_account', account.id), 0)
     // Empty archived families can also be removed.

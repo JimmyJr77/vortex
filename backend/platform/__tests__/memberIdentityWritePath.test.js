@@ -232,7 +232,13 @@ test('member archive changes lifecycle without rewriting portal or derived statu
 
   assert.match(mutation, /SET is_active = \$1/)
   assert.doesNotMatch(mutation, /UPDATE app_user/)
+  assert.doesNotMatch(mutation, /UPDATE family_billing_account/)
   assert.doesNotMatch(mutation, /status\s*=/)
+
+  const startup = await fs.readFile(serverSourceUrl, 'utf8')
+  assert.match(startup, /DROP TRIGGER IF EXISTS trigger_update_family_active/)
+  assert.doesNotMatch(startup, /CREATE(?: OR REPLACE)? TRIGGER trigger_update_family_active/)
+  assert.doesNotMatch(startup, /CREATE OR REPLACE FUNCTION update_family_active_status\(\)/)
 })
 
 test('member archive and permanent deletion require Owner or explicit lifecycle permission', async () => {

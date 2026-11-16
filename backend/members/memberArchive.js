@@ -188,18 +188,9 @@ export async function setMemberArchived(pool, memberId, archived, { facilityId =
       return preflight
     }
 
-    // A payer for a family with other active members is blocked above. If this
-    // is a single-person billing account, safely remove the now-stale payer link.
-    if (archived) {
-      await client.query(
-        `UPDATE family_billing_account
-         SET payer_member_id = NULL, updated_at = CURRENT_TIMESTAMP
-         WHERE payer_member_id = $1
-           AND is_active = TRUE`,
-        [memberId],
-      )
-    }
-
+    // Archival changes lifecycle only. A payer link can still belong to a real
+    // inactive household or retained billing history; resolving it is a separate
+    // account action, and permanent deletion must reject any remaining link.
     const memberResult = await client.query(
       `UPDATE member
        SET is_active = $1,

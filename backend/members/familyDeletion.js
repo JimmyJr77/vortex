@@ -1,5 +1,4 @@
-import { hasFamilyPayments, removeUnpaidHistory } from './unpaidHistoryDeletion.js'
-import { deleteArchivedMemberInTransaction } from './memberDeletion.js'
+import { deleteEmptyArchivedAccounts } from './emptyAccountDeletion.js'
 
 
 function blocked(message, code = 'FAMILY_DELETE_BLOCKED') {
@@ -31,32 +30,7 @@ export async function deleteArchivedFamily(pool, { familyId, facilityId }) {
     if (members.some(m => String(m.facility_id) !== String(facilityId) || m.shared || (m.family_id != null && String(m.family_id) !== String(familyId)))) {
       throw blocked('A person is linked to another family. Resolve their family memberships before deleting this family.')
     }
-    const { rows: accounts } = await db.query('SELECT id FROM family_billing_account WHERE family_id = $1 FOR UPDATE', [familyId])
-    // Older production schemas retain the retired athlete table; fresh schemas
-    // use member exclusively. Preserve legacy athletes where that table exists.
-    const { rows: [legacy] } = await db.query("SELECT to_regclass('public.athlete') IS NOT NULL AS present")
-    if (legacy.present && (await db.query('SELECT 1 FROM athlete WHERE family_id = $1 LIMIT 1', [familyId])).rowCount) {
-      throw blocked('Legacy athlete records are linked to this family. Keep the family archived to preserve them.')
-    }
-    const accountIds = accounts.map(account => account.id)
-    const memberIds = members.map(member => member.id)
-    if (await hasFamilyPayments(db, { familyId, accountIds, memberIds })) {
-      throw blocked('Payments have been made for this family. Keep the family archived to preserve its payment history.')
-    }
-
-    await removeUnpaidHistory(db, { familyId, accountIds, memberIds })
-
-    for (const member of members) {
-      try {
-        await deleteArchivedMemberInTransaction(db, { memberId: member.id, facilityId })
-      } catch (error) {
-        if (error.statusCode === 409) {
-          throw blocked(`${member.first_name} ${member.last_name}: ${error.blockers?.map(item => item.message).join(' ') || error.message}`)
-        }
-        throw error
-      }
-    }
-    await db.query('DELETE FROM family WHERE id = $1 AND facility_id = $2', [familyId, facilityId])
+    await deleteEmptyArchivedAccounts(db, { facilityId, familyId, memberIds: members.map(member => member.id) })
     await db.query('COMMIT')
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {})

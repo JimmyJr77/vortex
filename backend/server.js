@@ -1128,43 +1128,10 @@ export const initDatabase = async () => {
     // environment can boot without a partial marketing migration failure.
     await initMarketingTables(pool)
     
-    // Keep family activity in its dedicated boolean. Older versions also wrote
-    // a "family_active" member status here, which is rejected by newer member
-    // status constraints and made otherwise valid archive operations fail.
-    await pool.query(`
-      CREATE OR REPLACE FUNCTION update_family_active_status()
-      RETURNS TRIGGER AS $$
-      DECLARE family_active BOOLEAN;
-      BEGIN
-        IF NEW.family_id IS NULL OR pg_trigger_depth() > 1 THEN
-          RETURN NEW;
-        END IF;
-
-        SELECT EXISTS (
-          SELECT 1 FROM member family_member
-          WHERE family_member.family_id = NEW.family_id
-            AND family_member.is_active = TRUE
-        ) INTO family_active;
-
-        UPDATE member
-        SET family_is_active = family_active
-        WHERE family_id = NEW.family_id
-          AND family_is_active IS DISTINCT FROM family_active;
-        
-        RETURN NEW;
-      END;
-      $$ LANGUAGE plpgsql;
-    `)
-    
-    // Trigger to update family_is_active when member is updated
-    await pool.query(`
-      DROP TRIGGER IF EXISTS trigger_update_family_active ON member;
-      CREATE TRIGGER trigger_update_family_active
-      AFTER UPDATE OF is_active, family_is_active ON member
-      FOR EACH ROW
-      WHEN (OLD.is_active IS DISTINCT FROM NEW.is_active OR OLD.family_is_active IS DISTINCT FROM NEW.family_is_active)
-      EXECUTE FUNCTION update_family_active_status();
-    `)
+    // Match migration862: lifecycle changes must not fan out through the legacy
+    // family_id cache and rewrite other people in the household.
+    await pool.query('DROP TRIGGER IF EXISTS trigger_update_family_active ON member')
+    await pool.query('DROP FUNCTION IF EXISTS update_family_active_status()')
     
     // Function to calculate and set family_is_active based on family status
     await pool.query(`
