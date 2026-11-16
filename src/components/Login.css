@@ -1,0 +1,74 @@
+.np-account-login {
+  --login-red: #c9232c;
+  --login-ink: #202321;
+  --login-muted: #565d53;
+  --login-line: #8a9282;
+  width: min(480px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #dddfd9;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--login-ink);
+  box-shadow: 0 24px 90px #20232130;
+  font: 400 15px/1.6 Inter, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.np-account-login::backdrop { background: #161b186b; backdrop-filter: blur(6px); }
+.np-account-login[open] { animation: np-account-login-in .2s ease-out; }
+.np-account-login * { box-sizing: border-box; }
+.np-account-login button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.np-account-login :focus-visible { outline: 3px solid var(--login-red); outline-offset: 3px; }
+.np-account-login .np-account-login-header { padding: 26px 32px 28px; background: #f5f6f2; border-bottom: 1px solid #dddfd9; }
+.np-account-login-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.np-account-login-logo { display: block; width: 240px; max-width: calc(100% - 62px); height: auto; aspect-ratio: 2172 / 342; object-fit: cover; object-position: center 61.5%; }
+.np-account-login .np-account-login-close { display: grid; place-items: center; width: 44px; min-width: 44px; height: 44px; padding: 0; border: 1px solid var(--login-line); border-radius: 50%; background: #fff; color: var(--login-ink); }
+.np-account-login .np-account-login-close:hover { background: #e9ebe5; }
+.np-account-login h2 { margin: 24px 0 0; color: var(--login-ink); font-size: 38px; font-weight: 500; line-height: 1.12; letter-spacing: -.045em; }
+.np-account-login .np-account-login-description { margin: 14px 0 0; color: var(--login-muted); font-size: 14px; line-height: 1.7; }
+.np-account-login-body { padding: 28px 32px 20px; }
+.np-account-login-form { display: grid; gap: 20px; }
+.np-account-login .np-account-login-field > label,
+.np-account-login .np-account-login-account-types > legend { display: block; margin: 0 0 8px; padding: 0; color: var(--login-ink); font-size: 13px; font-weight: 600; }
+.np-account-login-input-wrap { position: relative; }
+.np-account-login-input-wrap > svg { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); pointer-events: none; color: var(--login-muted); }
+.np-account-login .np-account-login-input-wrap > input { width: 100%; min-width: 0; min-height: 52px; margin: 0; padding: 12px 14px 12px 43px; border: 1px solid var(--login-line); border-radius: 6px; background: #fff; color: var(--login-ink); font: inherit; font-size: 16px; line-height: 1.5; }
+.np-account-login-input-wrap > input::placeholder { color: var(--login-muted); opacity: 1; }
+.np-account-login .np-account-login-account-types { min-width: 0; padding: 0; margin: 0; border: 0; }
+.np-account-login-type-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.np-account-login .np-account-login-type-option { position: relative; display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 10px; border: 1px solid var(--login-line); border-radius: 6px; color: var(--login-muted); font-size: 13px; font-weight: 600; line-height: 1.5; text-align: center; cursor: pointer; }
+.np-account-login-type-option.is-selected { border-color: var(--login-red); background: #fff3f2; color: var(--login-red); box-shadow: inset 0 0 0 1px var(--login-red); }
+.np-account-login .np-account-login-type-option > input { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.np-account-login-type-option:has(input:focus-visible) { outline: 3px solid var(--login-red); outline-offset: 3px; }
+.np-account-login .np-account-login-submit { display: flex; align-items: center; justify-content: center; gap: 20px; min-height: 52px; padding: 13px 18px; border: 1px solid var(--login-red); border-radius: 4px; background: var(--login-red); color: #fff; font-size: 14px; font-weight: 600; line-height: 1.5; transition: background-color .15s; }
+.np-account-login-submit svg { flex-shrink: 0; }
+.np-account-login .np-account-login-submit:hover:not(:disabled) { background: #a91c24; border-color: #a91c24; }
+.np-account-login .np-account-login-submit:disabled { opacity: .6; cursor: wait; }
+.np-account-login .np-account-login-switch { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; margin-top: -12px; padding: 8px; border: 0; background: transparent; color: var(--login-red); font-size: 13px; font-weight: 600; }
+.np-account-login-switch:hover { text-decoration: underline; text-underline-offset: 4px; }
+.np-account-login-notice { margin: 0 0 20px; padding: 13px 15px; border: 1px solid; border-radius: 6px; font-size: 14px; overflow-wrap: anywhere; }
+.np-account-login-error { border-color: #d39498; background: #fff1f1; color: #961b23; }
+.np-account-login-success { border-color: #9eb69b; background: #f0f6ec; color: #34552d; }
+@keyframes np-account-login-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 861px) {
+  .np-account-login .np-account-login-description { font-size: 15px; }
+  .np-account-login .np-account-login-field > label,
+  .np-account-login .np-account-login-account-types > legend,
+  .np-account-login .np-account-login-type-option,
+  .np-account-login .np-account-login-switch { font-size: 14px; }
+}
+@media (max-width: 420px) {
+  .np-account-login { width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+  .np-account-login .np-account-login-header { padding: 18px 20px 24px; }
+  .np-account-login h2 { margin-top: 20px; font-size: 32px; }
+  .np-account-login-body { padding: 24px 20px 16px; }
+  .np-account-login-type-options { gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .np-account-login[open] { animation: none; }
+  .np-account-login .np-account-login-submit { transition: none; }
+}

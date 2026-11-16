@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, Lock, Mail } from 'lucide-react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { ArrowLeft, ArrowRight, X, Lock, Mail } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
 import type { PortalAccount } from '../utils/portalSession'
+import './Login.css'
 
 interface LoginProps {
   isOpen: boolean
@@ -19,6 +19,24 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
   const [resetSent, setResetSent] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const accountInputRef = useRef<HTMLInputElement>(null)
+  const id = useId()
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!isOpen || !dialog) return
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const previousOverflow = document.body.style.overflow
+    if (!dialog.open) dialog.showModal()
+    document.body.style.overflow = 'hidden'
+    accountInputRef.current?.focus({ preventScroll: true })
+    return () => {
+      dialog.close()
+      document.body.style.overflow = previousOverflow
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true })
+    }
+  }, [isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,157 +98,108 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     }
   }
 
+  if (!isOpen) return null
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[100] p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            className="bg-white rounded-lg shadow-xl max-w-md w-full p-8 relative"
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 50, opacity: 0 }}
-          >
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
+    <dialog
+      ref={dialogRef}
+      className="np-account-login"
+      aria-labelledby={id + '-title'}
+      aria-describedby={id + '-description'}
+      onCancel={(event) => { event.preventDefault(); onClose() }}
+      onClick={(event) => {
+        if (event.target !== event.currentTarget) return
+        const bounds = event.currentTarget.getBoundingClientRect()
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) onClose()
+      }}
+    >
+      <div className="np-account-login-header">
+        <div className="np-account-login-brand-row">
+          <img className="np-account-login-logo" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+          <button type="button" className="np-account-login-close" onClick={onClose} aria-label="Close account login"><X size={20} aria-hidden="true" /></button>
+        </div>
+        <h2 id={id + '-title'}>{forgotMode ? 'Reset Account Password' : 'Account Login'}</h2>
+        <p id={id + '-description'} className="np-account-login-description">
+          {forgotMode
+            ? 'Choose your account type, then enter the email you use to sign in.'
+            : 'Welcome back. Sign in to access your Vortex account.'}
+        </p>
+      </div>
 
-            <div className="text-center mb-6">
-              <div className="mx-auto w-16 h-16 bg-vortex-red/10 rounded-full flex items-center justify-center mb-4">
-                <Lock className="w-8 h-8 text-vortex-red" />
-              </div>
-              <h2 className="text-3xl font-display font-bold text-black mb-2">
-                {forgotMode ? 'Reset Account Password' : 'Account Login'}
-              </h2>
-              <p className="text-gray-600">
-                {forgotMode
-                  ? 'Choose the portal you use, then enter its account email.'
-                  : 'Enter your email or username to access your account'}
-              </p>
+      <div className="np-account-login-body">
+        {error && <div className="np-account-login-notice np-account-login-error" role="alert">{error}</div>}
+        {resetSent && <div className="np-account-login-notice np-account-login-success" role="status">If an account exists for this email, a temporary password has been sent.</div>}
+
+        <form onSubmit={forgotMode ? handleReset : handleSubmit} className="np-account-login-form" aria-busy={isSubmitting}>
+          {forgotMode && <fieldset className="np-account-login-account-types">
+            <legend>Account type</legend>
+            <div className="np-account-login-type-options">
+              {([
+                ['member', 'Member / family'],
+                ['staff', 'Staff / coach'],
+              ] as const).map(([value, label]) => <label key={value} className={'np-account-login-type-option' + (resetAccountType === value ? ' is-selected' : '')}>
+                <input
+                  type="radio"
+                  name={id + '-resetAccountType'}
+                  value={value}
+                  checked={resetAccountType === value}
+                  onChange={() => { setResetAccountType(value); setResetSent(false); setError('') }}
+                />
+                <span>{label}</span>
+              </label>)}
             </div>
+          </fieldset>}
 
-            {error && (
-              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <strong className="font-bold">Error!</strong>
-                <span className="block sm:inline"> {error}</span>
-              </div>
-            )}
+          <div className="np-account-login-field">
+            <label htmlFor={id + '-account'}>{forgotMode ? 'Account Email' : 'Email, username, or phone number'}</label>
+            <div className="np-account-login-input-wrap">
+              <Mail size={18} aria-hidden="true" />
+              <input
+                ref={accountInputRef}
+                type={forgotMode ? 'email' : 'text'}
+                id={id + '-account'}
+                name="emailOrUsername"
+                value={forgotMode ? resetEmail : emailOrUsername}
+                onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setEmailOrUsername(e.target.value))}
+                placeholder={forgotMode ? 'Enter your account email' : 'Email, username, or phone number'}
+                autoComplete={forgotMode ? 'email' : 'username'}
+                autoCapitalize="none"
+                spellCheck={false}
+                required
+              />
+            </div>
+          </div>
 
-            <form onSubmit={forgotMode ? handleReset : handleSubmit} className="space-y-4">
-              {resetSent && (
-                <div className="bg-green-100 border border-green-300 text-green-800 px-4 py-3 rounded">
-                  If an account exists for this email, a temporary password has been sent.
-                </div>
-              )}
-              {forgotMode ? (
-                <fieldset>
-                  <legend className="block text-gray-700 text-sm font-bold mb-2">Account type</legend>
-                  <div className="grid grid-cols-2 gap-2">
-                    {([
-                      ['member', 'Member / family'],
-                      ['staff', 'Staff / coach'],
-                    ] as const).map(([value, label]) => (
-                      <label
-                        key={value}
-                        className={`cursor-pointer rounded-lg border px-3 py-2 text-center text-sm font-medium ${
-                          resetAccountType === value
-                            ? 'border-vortex-red bg-red-50 text-vortex-red'
-                            : 'border-gray-300 text-gray-700'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="resetAccountType"
-                          value={value}
-                          checked={resetAccountType === value}
-                          onChange={() => {
-                            setResetAccountType(value)
-                            setResetSent(false)
-                            setError('')
-                          }}
-                          className="sr-only"
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                </fieldset>
-              ) : null}
-              <div>
-                <label htmlFor="emailOrUsername" className="block text-gray-700 text-sm font-bold mb-2">
-                  {forgotMode ? 'Account Email' : 'Email, username, or phone number'}
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type={forgotMode ? 'email' : 'text'}
-                    id="emailOrUsername"
-                    name="emailOrUsername"
-                    value={forgotMode ? resetEmail : emailOrUsername}
-                    onChange={(e) => (forgotMode ? setResetEmail(e.target.value) : setEmailOrUsername(e.target.value))}
-                    placeholder={forgotMode ? 'Enter your account email' : 'Enter your email, username, or phone number'}
-                    autoComplete={forgotMode ? 'email' : 'username'}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                    required
-                    autoFocus
-                  />
-                </div>
-              </div>
+          {!forgotMode && <div className="np-account-login-field">
+            <label htmlFor={id + '-password'}>Password</label>
+            <div className="np-account-login-input-wrap">
+              <Lock size={18} aria-hidden="true" />
+              <input
+                type="password"
+                id={id + '-password'}
+                name="password"
+                value={password}
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>}
 
-              {!forgotMode && (
-                <div>
-                  <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="password"
-                      id="password"
-                      name="password"
-                      value={password}
-                      autoComplete="current-password"
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors"
-                      required
-                    />
-                  </div>
-                </div>
-              )}
-
-              <motion.button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-vortex-red text-white px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-              >
-                {isSubmitting ? (forgotMode ? 'Submitting...' : 'Logging in...') : (forgotMode ? 'Send Temporary Password' : 'Login')}
-              </motion.button>
-              <button
-                type="button"
-                className="w-full text-sm text-vortex-red hover:text-red-700"
-                onClick={() => {
-                  setError('')
-                  setResetSent(false)
-                  setForgotMode((value) => !value)
-                }}
-              >
-                {forgotMode ? 'Back to login' : 'Forgot password?'}
-              </button>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <button type="submit" disabled={isSubmitting} className="np-account-login-submit">
+            <span>{isSubmitting ? (forgotMode ? 'Submitting...' : 'Logging in...') : (forgotMode ? 'Send Temporary Password' : 'Login')}</span>
+            {!isSubmitting && <ArrowRight size={18} aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            className="np-account-login-switch"
+            onClick={() => { setError(''); setResetSent(false); setForgotMode((value) => !value) }}
+          >
+            {forgotMode && <ArrowLeft size={16} aria-hidden="true" />}
+            {forgotMode ? 'Back to login' : 'Forgot password?'}
+          </button>
+        </form>
+      </div>
+    </dialog>
   )
 }
