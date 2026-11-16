@@ -319,6 +319,10 @@
       "destination": "/terms-of-service/index.html"
     },
     {
+      "source": "/blog/athletic-development-young-athletes",
+      "destination": "/blog/athletic-development-young-athletes/index.html"
+    },
+    {
       "source": "/ninja",
       "destination": "/ninja/index.html"
     },

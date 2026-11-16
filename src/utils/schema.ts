@@ -8,6 +8,7 @@ import {
   TEAM_EMAIL,
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from '../config/athleticDevelopmentGuide'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -254,6 +255,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/enroll': 'Classes & Enrollment',
     '/drop-in': 'Drop-In Classes',
     '/contact': 'Contact & Location',
+    [ATHLETIC_DEVELOPMENT_GUIDE.path]: 'Youth Athletic Development Guide',
     '/support': 'Customer Support',
     '/store': 'Vortex Athletics Store',
     '/privacy-policy': 'Privacy Policy',
@@ -323,6 +325,19 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
   if (pathname === '/contact') {
     schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+  }
+  if (pathname === ATHLETIC_DEVELOPMENT_GUIDE.path) {
+    schema.push({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      mainEntityOfPage: url,
+      headline: ATHLETIC_DEVELOPMENT_GUIDE.heading,
+      description: ATHLETIC_DEVELOPMENT_GUIDE.description,
+      image: `${HUB_ORIGIN}${ATHLETIC_DEVELOPMENT_GUIDE.image}`,
+      author: { '@id': `${HUB_ORIGIN}/#organization` },
+      publisher: { '@id': `${HUB_ORIGIN}/#organization` },
+      inLanguage: 'en-US',
+    })
   }
 
   return schema

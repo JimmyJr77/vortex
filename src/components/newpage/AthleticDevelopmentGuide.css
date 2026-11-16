@@ -1,0 +1,178 @@
+.athletic-guide {
+  color: var(--np-ink);
+  background: white;
+}
+
+.athletic-guide-hero {
+  padding-block: clamp(36px, 6vw, 82px);
+  border-bottom: 1px solid var(--np-line);
+  background: var(--np-paper);
+}
+
+.athletic-guide-shell {
+  width: min(calc(100% - clamp(32px, 9vw, 112px)), 72rem);
+  margin-inline: auto;
+}
+
+.athletic-guide-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 70px);
+}
+
+.athletic-guide-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  color: var(--np-muted);
+  font-size: 0.9rem;
+}
+
+.athletic-guide h1 {
+  margin-bottom: 1.125rem;
+  font-size: clamp(2.25rem, 4.6vw, 4.125rem);
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+  font-weight: 720;
+  text-wrap: balance;
+}
+
+.athletic-guide-lead {
+  max-width: 47ch;
+  color: var(--np-muted);
+  font-size: clamp(1rem, 1.7vw, 1.15rem);
+}
+
+.athletic-guide-byline {
+  margin-top: 1.125rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.athletic-guide-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.6rem;
+}
+
+.athletic-guide-body {
+  width: min(calc(100% - clamp(32px, 9vw, 112px)), 47rem);
+  margin-inline: auto;
+  padding-block: clamp(28px, 5vw, 56px) clamp(48px, 8vw, 84px);
+  font-size: 1rem;
+  line-height: 1.68;
+}
+
+.athletic-guide-index {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--np-line);
+}
+
+.athletic-guide-index ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 1.25rem;
+  list-style: none;
+}
+
+.athletic-guide-index a {
+  display: inline-block;
+  padding-block: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.athletic-guide-index a,
+.athletic-guide-breadcrumb a,
+.athletic-guide-sources a,
+.athletic-guide-trial {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.athletic-guide a:hover:not(.np-button) {
+  color: var(--np-red);
+}
+
+.athletic-guide-body > section,
+.athletic-guide-next {
+  margin-top: clamp(28px, 5vw, 50px);
+  scroll-margin-top: calc(var(--site-header-height, 76px) + 1.25rem);
+}
+
+.athletic-guide h2 {
+  margin-bottom: 0.7rem;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: -0.033em;
+  font-weight: 680;
+  text-wrap: balance;
+}
+
+.athletic-guide-body p + p,
+.athletic-guide-body p + :is(ul, ol) {
+  margin-top: 0.85rem;
+}
+
+.athletic-guide-body section ul,
+.athletic-guide-body section ol {
+  padding-left: 1.4rem;
+}
+
+.athletic-guide-body section ul {
+  list-style: disc;
+}
+
+.athletic-guide-body section ol {
+  list-style: decimal;
+}
+
+.athletic-guide-body section li + li {
+  margin-top: 0.42rem;
+}
+
+.athletic-guide-next {
+  padding: clamp(20px, 4vw, 32px);
+  border: 1px solid var(--np-line);
+  border-radius: 0.6rem;
+  background: var(--np-paper);
+}
+
+.athletic-guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.1rem;
+  margin-top: 1.15rem;
+}
+
+.athletic-guide-actions .np-button {
+  gap: 0.45rem;
+}
+
+.athletic-guide-trial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-block: 0.4rem;
+  font-weight: 650;
+}
+
+.athletic-guide-sources {
+  color: var(--np-muted);
+  font-size: 0.9rem;
+}
+
+.athletic-guide-sources h2 {
+  color: var(--np-ink);
+  font-size: 1.25rem;
+}
+
+@media (max-width: 760px) {
+  .athletic-guide-intro {
+    grid-template-columns: 1fr;
+  }
+}

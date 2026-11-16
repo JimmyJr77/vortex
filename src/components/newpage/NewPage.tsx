@@ -8,6 +8,7 @@ import ParallaxGym from '../ParallaxGym'
 import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { getHubSchema } from '../../utils/schema'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
 import { trackEvent } from '../../utils/analyticsClient'
@@ -256,6 +257,11 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <div className="np-triad-tabs" role="tablist" aria-label="The Triad of Athleticism">{triad.map((item, index) => <button ref={node => { tabRefs.current[index] = node }} key={item.name} id={`np-triad-tab-${index}`} role="tab" aria-selected={activeTriad === index} aria-controls="np-triad-panel" tabIndex={activeTriad === index ? 0 : -1} onClick={() => setActiveTriad(index)} onKeyDown={event => { let next = index; if (event.key === 'ArrowRight') next = (index + 1) % 3; else if (event.key === 'ArrowLeft') next = (index + 2) % 3; else if (event.key === 'Home') next = 0; else if (event.key === 'End') next = 2; else return; event.preventDefault(); setActiveTriad(next); tabRefs.current[next]?.focus() }}><span>{item.number}</span>{item.name}<ArrowUpRight size={20} /></button>)}</div>
           <div className="np-triad-panel" id="np-triad-panel" role="tabpanel" aria-labelledby={`np-triad-tab-${activeTriad}`} tabIndex={0}><div className="np-triad-image"><img key={selectedTriad.image} src={selectedTriad.image} alt={selectedTriad.alt} width="900" height="675" loading="lazy" /><span>{selectedTriad.number} / 03</span></div><div className="np-triad-copy" key={selectedTriad.name}><p className="np-eyebrow">THE {selectedTriad.name.toUpperCase()} ELEMENT</p><h3>{selectedTriad.line}</h3><p>{selectedTriad.text}</p><div className="np-triad-cues">{selectedTriad.cues.map(cue => <span key={cue}><Check size={15} />{cue}</span>)}</div><p className="np-triad-application">{selectedTriad.application}</p></div></div>
           <div className="np-triad-equation"><span>Strength</span><Plus size={18} /><span>Explosiveness</span><Plus size={18} /><span>Body control</span><ArrowRight size={20} /><strong>Athleticism.</strong></div>
+          <div className="mt-5 flex justify-center">
+            <Link className="np-text-button" to={ATHLETIC_DEVELOPMENT_GUIDE.path} data-analytics-cta="read_athletic_development_guide" data-analytics-section="triad">
+              How to choose youth athletic development training <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          </div>
         </div></section>
 
         <section className="np-container np-section np-approach" id="approach">
