@@ -1,8 +1,33 @@
-/**
- * Google Search Console sync (optional). Requires googleapis + GSC_SITE_URL.
- */
+const SEARCH_CONSOLE_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
+
+export function isSearchConsoleConfigured(env = process.env) {
+  return Boolean(env.GSC_SITE_URL &&
+    (env.GOOGLE_APPLICATION_CREDENTIALS || env.GOOGLE_APPLICATION_CREDENTIALS_JSON))
+}
+
+function createSearchConsoleAuth(google) {
+  const options = { scopes: [SEARCH_CONSOLE_SCOPE] }
+
+  // Render supplies a credential file for Workload Identity Federation.
+  // Allow GoogleAuth to read and refresh that identity via ADC.
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    if (process.env.GOOGLE_CLOUD_PROJECT) options.projectId = process.env.GOOGLE_CLOUD_PROJECT
+  } else {
+    try {
+      options.credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
+    } catch {
+      throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON must be valid JSON')
+    }
+  }
+
+  return new google.auth.GoogleAuth(options)
+}
 
 export async function syncGscRankings(pool) {
+  if (!isSearchConsoleConfigured()) {
+    return { skipped: 'GSC_SITE_URL or credentials not set' }
+  }
+
   let google
   try {
     const mod = await import('googleapis')
@@ -11,43 +36,18 @@ export async function syncGscRankings(pool) {
     return { skipped: 'googleapis package not installed' }
   }
 
-  const credsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-  const siteUrl = process.env.GSC_SITE_URL
-  if (!credsJson || !siteUrl) {
-    return { skipped: 'Missing GSC env' }
-  }
-
-  const credentials = JSON.parse(credsJson)
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ['https://www.googleapis.com/auth/webmasters.readonly'],
-  })
-  const webmasters = google.webmasters({ version: 'v3', auth })
-  const searchconsole = google.searchconsole({ version: 'v1', auth })
-
+  const searchconsole = google.searchconsole({ version: 'v1', auth: createSearchConsoleAuth(google) })
   const end = new Date()
   const start = new Date(end.getTime() - 28 * 24 * 60 * 60 * 1000)
-
-  let response
-  try {
-    response = await searchconsole.searchanalytics.query({
-      siteUrl,
-      requestBody: {
-        startDate: start.toISOString().slice(0, 10),
-        endDate: end.toISOString().slice(0, 10),
-        dimensions: ['query', 'page', 'date'],
-        rowLimit: 500,
-      },
-    })
-  } catch {
-    response = await webmasters.searchanalytics.query({
-      siteUrl,
+  const response = await searchconsole.searchanalytics.query({
+    siteUrl: process.env.GSC_SITE_URL,
+    requestBody: {
       startDate: start.toISOString().slice(0, 10),
       endDate: end.toISOString().slice(0, 10),
       dimensions: ['query', 'page', 'date'],
       rowLimit: 500,
-    })
-  }
+    },
+  })
 
   let rows = 0
   for (const row of response.data.rows || []) {

@@ -35,13 +35,28 @@ change after analytics consent. Use this custom event for tags that need the san
 | Variable | Description |
 |----------|-------------|
 | `GA4_PROPERTY_ID` | Numeric GA4 property ID (Admin → Property settings) |
-| `GSC_SITE_URL` | Search Console property URL, e.g. `sc-domain:vortexathletics.com` or `https://www.vortexathletics.com/` |
-| `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Full service account JSON (single line or base64) with access to GA4 Data API and Search Console |
+| `GSC_SITE_URL` | Search Console property URL, e.g. `sc-domain:vortexathletics.com` or `https://vortexathletics.com/` |
+| `GOOGLE_APPLICATION_CREDENTIALS_JSON` | Raw service account JSON for GA4 Data API and legacy Search Console authentication |
 
 Grant the service account:
 
 - **GA4:** Property → Admin → Property access management → Viewer (or Analyst)
 - **Search Console:** Settings → Users and permissions → Full or Restricted user
+
+### Keyless Search Console authentication on Render
+
+On a Render workspace that supports [managed OIDC](https://render.com/docs/oidc),
+configure a Google Workload Identity Pool provider for the workspace and grant
+the backend service’s exact Render subject `roles/iam.workloadIdentityUser` on the
+service account with Search Console access. Enable the IAM, Security Token
+Service, IAM Service Account Credentials, and Search Console APIs.
+
+Set `GCP_WORKLOAD_IDENTITY_PROVIDER` and `GCP_SERVICE_ACCOUNT_EMAIL` on the
+backend service, optionally set `GOOGLE_CLOUD_PROJECT` to the project ID, and
+redeploy. Render generates the credential file and sets
+`GOOGLE_APPLICATION_CREDENTIALS` to its path. Search Console uses that file
+first and falls back to raw JSON when no file path is set. GA4 Data API sync
+continues to use `GOOGLE_APPLICATION_CREDENTIALS_JSON`.
 
 ## Manual sync
 
