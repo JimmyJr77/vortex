@@ -9,6 +9,7 @@ EXPOSE 3001
 CMD ["node", "--watch", "server.js"]
 
 FROM base AS production
+ENV NODE_ENV=production
 RUN npm ci --omit=dev
 COPY . .
 EXPOSE 3001

@@ -15,6 +15,10 @@ export function resolveJwtSecret() {
   if (!secret && process.env.NODE_ENV === 'production') {
     throw new Error('JWT_SECRET is required in production.')
   }
+  if (process.env.NODE_ENV === 'production' &&
+      (Buffer.byteLength(secret.trim(), 'utf8') < 32 || secret === 'dev-insecure-jwt-secret' || /your-super-secret|change-this/i.test(secret))) {
+    throw new Error('JWT_SECRET must be a securely generated production key of at least 32 bytes.')
+  }
 
   if (!process.env.JWT_SECRET && process.env.NODE_ENV !== 'production') {
     console.warn('⚠️ JWT_SECRET is not set. Development fallback token signing is enabled.')

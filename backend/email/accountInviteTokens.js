@@ -1,11 +1,11 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import { publicAppUrl } from './publicAppUrl.js'
+import { resolveJwtSecret } from '../auth/jwtSecret.js'
 
 /** @typedef {'active' | 'used'} AccountInviteTokenState */
 
-function inviteCryptoKey() {
-  const secret = process.env.JWT_SECRET || 'dev-insecure-jwt-secret'
+function inviteCryptoKey(secret = resolveJwtSecret()) {
   return crypto.createHash('sha256').update(secret).digest()
 }
 
@@ -19,22 +19,30 @@ export function encryptAccountInviteToken(plain) {
   const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
   const encrypted = Buffer.concat([cipher.update(plain, 'utf8'), cipher.final()])
   const tag = cipher.getAuthTag()
-  return Buffer.concat([iv, tag, encrypted]).toString('base64url')
+  return 'v2.' + Buffer.concat([iv, tag, encrypted]).toString('base64url')
 }
 
 export function decryptAccountInviteToken(ciphertext) {
   if (!ciphertext) return null
-  try {
-    const buf = Buffer.from(ciphertext, 'base64url')
-    const iv = buf.subarray(0, 12)
-    const tag = buf.subarray(12, 28)
-    const encrypted = buf.subarray(28)
-    const decipher = crypto.createDecipheriv('aes-256-gcm', inviteCryptoKey(), iv)
-    decipher.setAuthTag(tag)
-    return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8')
-  } catch {
-    return null
+  const versioned = ciphertext.startsWith('v2.')
+  // Legacy decryption is confined to stored, unversioned invitation ciphertext.
+  // It is never used for authentication or for encrypting new invitations.
+  const keys = [inviteCryptoKey()]
+  if (!versioned) keys.push(inviteCryptoKey('dev-insecure-jwt-secret'))
+  for (const key of keys) {
+    try {
+      const buf = Buffer.from(versioned ? ciphertext.slice(3) : ciphertext, 'base64url')
+      const iv = buf.subarray(0, 12)
+      const tag = buf.subarray(12, 28)
+      const encrypted = buf.subarray(28)
+      const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+      decipher.setAuthTag(tag)
+      return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8')
+    } catch {
+      // Try the narrowly scoped legacy format, if applicable.
+    }
   }
+  return null
 }
 
 export async function createAccountInviteTokenRecord() {
