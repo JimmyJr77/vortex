@@ -10,6 +10,7 @@ const message = (id: number, body: string) => ({ id, body, sender_name: 'Jamie L
 
 async function openMessages(page: Page) {
   const reads: number[] = []
+  let panelPreferences = { filesVisible: true, eventsVisible: true }
   const sent: { path: string; body: string; recipient_member_ids?: number[] }[] = []
   let blockedThread: Promise<void> | undefined
   let rejectNextReply = false
@@ -25,6 +26,10 @@ async function openMessages(page: Page) {
     const { pathname: path, searchParams } = new URL(route.request().url())
     const method = route.request().method()
     let data: unknown = []
+    if (path === '/api/admin/messages/panel-preferences') {
+      if (method === 'PATCH') panelPreferences = { ...panelPreferences, ...route.request().postDataJSON() }
+      data = panelPreferences
+    }
     if (path === '/api/admin/access/me') data = { isMasterAdmin: true, permissions: [], user: { id: 1 } }
     if (path === '/api/admin/messages/recipient-options') data = recipients
     if (path === '/api/admin/messages/schedule-inbox-rows') data = [
@@ -154,4 +159,51 @@ test('admin keeps replies with their conversation and ignores a late thread resp
   await page.getByRole('button', { name: 'Conversations', exact: true }).click()
   await page.getByRole('button', { name: 'New calendar item', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'New calendar item' })).toBeVisible()
+})
+
+test('full-screen messages show conversation files and upcoming events beside a narrower chat', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await openMessages(page)
+  await page.route('**/api/admin/messages/schedule-inbox-rows', (route) => route.fulfill({ json: { success: true, data: [
+    { row_key: 'event:1', source: 'event', title: 'Upcoming meet', when_start: '2099-01-01T16:00:00Z', where_text: 'Main gym' },
+    { row_key: 'event:2', source: 'event', title: 'Past meet', when_start: '2020-01-01T16:00:00Z' },
+  ] } }))
+  await page.route('**/api/admin/messages/8', (route) => route.fulfill({ json: { success: true, data: {
+    thread: { ...threads[0], participants: recipients },
+    messages: [
+      { ...message(80, 'Please review'), attachment_url: '/schedule.pdf', attachment_name: 'Schedule.pdf', files: [{ url: '/schedule.pdf', name: 'Schedule.pdf' }] },
+      { ...message(81, 'Removed file'), deleted_at: date, files: [{ url: '/deleted.pdf', name: 'Deleted.pdf' }] },
+    ],
+  } } }))
+  await page.getByRole('button', { name: /Practice updates/ }).click()
+  await page.getByRole('button', { name: 'Full screen messages', exact: true }).click()
+  const sidebar = page.getByRole('complementary', { name: 'Conversation resources' })
+  await expect(sidebar).toBeVisible()
+  await expect(sidebar.getByRole('link', { name: 'Schedule.pdf' })).toHaveCount(1)
+  await expect(sidebar.getByText('Deleted.pdf')).toHaveCount(0)
+  await expect(sidebar.getByText('Upcoming meet')).toBeVisible()
+  await expect(sidebar.getByText('Past meet')).toHaveCount(0)
+  const bounds = await sidebar.boundingBox()
+  expect(bounds!.width).toBeGreaterThanOrEqual(300)
+  expect(bounds!.width).toBeLessThanOrEqual(304)
+  expect(bounds!.x).toBeGreaterThan(900)
+  const chatToolbar = page.getByRole('group', { name: 'Conversation panels' })
+  const chatBefore = await chatToolbar.boundingBox()
+  await page.getByRole('button', { name: 'Hide files', exact: true }).click()
+  await expect(sidebar.getByRole('region', { name: 'Shared files', exact: true })).toHaveCount(0)
+  await expect(sidebar.getByText('Upcoming meet')).toBeVisible()
+  await page.getByRole('button', { name: 'Hide upcoming events', exact: true }).click()
+  await expect(sidebar).toHaveCount(0)
+  const chatAfter = await chatToolbar.boundingBox()
+  expect(chatAfter!.width).toBeGreaterThan(chatBefore!.width)
+  await page.getByRole('button', { name: 'Show files', exact: true }).click()
+  await expect(sidebar.getByRole('link', { name: 'Schedule.pdf' })).toBeVisible()
+  await expect(sidebar.getByRole('region', { name: 'Upcoming events', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Show upcoming events', exact: true }).click()
+  await expect(sidebar.getByText('Upcoming meet')).toBeVisible()
+  await page.getByRole('button', { name: /Enrollment question/ }).click()
+  await expect(sidebar.getByText('No files shared yet.')).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(sidebar).toBeHidden()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })

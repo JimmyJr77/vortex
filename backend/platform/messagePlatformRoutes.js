@@ -1,3 +1,4 @@
+import { getMessagePanelPreferences, updateMessagePanelPreferences } from './messagePanelPreferences.js'
 /**
  * Message platform HTTP routes — tags, read state, search, collaboration, events.
  */
@@ -512,6 +513,24 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         bad(res, error.message, 500)
       }
     })
+
+    for (const method of ['get', 'patch']) {
+      app[method](`/api/${portal}/messages/panel-preferences`, auth, async (req, res) => {
+        try {
+          const { user } = req.platformAuth
+          if (req.platformAuth.portalAccess?.[portal] !== true) return bad(res, 'Portal access required.', 403)
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+          if (!user?.id || !user?.facility_id) return bad(res, 'Account required.', 403)
+          res.set('Cache-Control', 'private, no-store')
+          const data = method === 'get'
+            ? await getMessagePanelPreferences(pool, user.facility_id, user.id)
+            : await updateMessagePanelPreferences(pool, user.facility_id, user.id, req.body)
+          ok(res, data)
+        } catch (error) {
+          bad(res, error.message, error.statusCode === 400 ? 400 : 500)
+        }
+      })
+    }
 
     app.get(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'GET'))
     app.patch(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'PATCH'))

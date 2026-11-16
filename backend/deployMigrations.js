@@ -43,6 +43,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '821_floor_planner.sql',
   '822_floor_planner_views.sql',
   '865_floor_planner_class_colors.sql',
+  '866_message_panel_preferences.sql',
   '840_staff_legal_signatures.sql',
 ])
 export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([

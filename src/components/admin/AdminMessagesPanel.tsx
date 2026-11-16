@@ -1,3 +1,4 @@
+import MessagingResourceSidebar from '../messaging/MessagingResourceSidebar'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, Inbox, Loader2, MessageSquare, Plus, Search, X } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
@@ -689,6 +690,10 @@ export default function AdminMessagesPanel({
 
       <div className={messagingWorkspaceShell}>
         <MessagingMobileShell
+        preferenceRole="admin"
+        preferenceFetcher={adminFetch}
+        preferenceAccountKey={viewer.userId ? `admin:${viewer.userId}` : undefined}
+        resourcePanel={maximized ? (visibility) => <MessagingResourceSidebar {...visibility} role="admin" fetcher={adminFetch} messages={messages} selectedThreadId={selectedId} loading={detailLoading} error={detailError} /> : undefined}
           selectedThreadId={selectedId}
           detailOpen={detailOpen}
           onBack={closeDetail}

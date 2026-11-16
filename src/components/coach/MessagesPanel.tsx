@@ -1,3 +1,4 @@
+import MessagingResourceSidebar from '../messaging/MessagingResourceSidebar'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, CircleAlert, Loader2, MessageSquare, Plus, Search, UsersRound, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
@@ -718,6 +719,10 @@ export default function MessagesPanel({
 
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
+        preferenceRole="coach"
+        preferenceFetcher={coachFetch}
+        preferenceAccountKey={viewer.userId ? `coach:${viewer.userId}` : undefined}
+        resourcePanel={maximized ? (visibility) => <MessagingResourceSidebar {...visibility} role="coach" fetcher={coachFetch} messages={messages} selectedThreadId={selectedId} loading={detailLoading} error={detailError} /> : undefined}
         selectedThreadId={selectedId}
         detailOpen={detailOpen}
         onBack={dismissThread}
