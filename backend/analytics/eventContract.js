@@ -6,7 +6,7 @@ export const publicPaths = new Set([
   '/schedule', '/scheduling', '/store', '/store/success',
   '/signup/family', '/signup/invite', '/signup/lead',
   '/verify-email', '/registration/receipt', '/waivers-memberships',
-  '/gymnastics', '/vortex-athletics', '/fit-and-flip', '/summer-athletic-training',
+  '/gymnastics', '/adult-gymnastics', '/vortex-athletics', '/fit-and-flip', '/summer-athletic-training',
   '/aerobic-gymnastics', '/acro-gymnastics', '/artistic-gymnastics', '/rhythmic-gymnastics',
   '/trampoline-tumbling', '/beginner-gymnastics', '/homeschool-gymnastics', '/summer-camp-26',
   '/artistic-gymnastics-early', '/artistic-gymnastics-6-12', '/artistic-gymnastics-13-18',

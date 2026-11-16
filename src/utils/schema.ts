@@ -15,6 +15,7 @@ import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { ENROLL_PATH } from '../config/enrollSites'
+import { PUBLIC_PROGRAMS } from '../config/publicPrograms'
 import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
 
 /** Any JSON-LD object (loosely typed; serialized into a <script> tag). */
@@ -69,10 +70,11 @@ export const webSiteSchema = (origin: string): JsonLd => ({
 
 const localServiceCatalog = () => ({
   '@type': 'OfferCatalog',
-  name: 'Youth athletics and gymnastics programs',
+  name: 'Athletics and gymnastics programs',
   itemListElement: [
     'Youth Sports Performance Training',
     'Gymnastics Classes',
+    'Adult Gymnastics',
     'Beginner Gymnastics',
     'Artistic Gymnastics',
     'Rhythmic Gymnastics',
@@ -97,7 +99,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   url: rootUrl(HUB_ORIGIN),
   mainEntityOfPage: rootUrl(pageOrigin),
   description:
-    'Gymnastics and Fit & Flip athletic development for children and teens in Bowie, Maryland, built around strength, explosiveness, and body control.',
+    'Youth and adult gymnastics plus Fit & Flip athletic development at Vortex Athletics and Gymnastics in Bowie, Maryland.',
   image: DEFAULT_OG_IMAGE,
   telephone: phoneE164,
   email: TEAM_EMAIL,
@@ -244,9 +246,19 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
 
   const url = buildCanonical(HUB_ORIGIN, pathname)
+  const program = Object.values(PUBLIC_PROGRAMS).find(({ path }) => path === pathname)
+  if (program) {
+    return [
+      ...schema,
+      sportsActivityLocationSchema(HUB_ORIGIN),
+      breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, program.name, pathname)]),
+      serviceSchema({ name: program.name, description: program.description, url }),
+      faqPageSchema(program.faqs),
+    ]
+  }
+
   const breadcrumbName: Record<string, string> = {
     '/ninja': 'Kids Ninja Classes',
-    '/fit-and-flip': 'Fit & Flip Athletic Training',
     '/vortex-athletics': 'Vortex Athletics',
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
@@ -295,16 +307,6 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
         name: 'Middle & High School Summer Athletic Training (Athleticism Accelerator)',
         description:
           'Summer athletic development program for middle and high school athletes in Bowie, MD. Speed, strength, agility, mobility, conditioning, and performance testing. Free sessions available for students from select schools.',
-        url,
-      }),
-    )
-  }
-  if (pathname === '/fit-and-flip') {
-    schema.push(
-      serviceSchema({
-        name: 'Fit & Flip Foundational Athletic Training',
-        description:
-          'Foundational athletics training combining advanced athletic development with tumbling, coordination, and body control in 1.5-hour blocks.',
         url,
       }),
     )

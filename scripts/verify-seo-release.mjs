@@ -5,6 +5,7 @@ import {
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
   HUB_PRERENDER_PATHS,
+  HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
   SEO_CONTENT_LASTMOD,
   SITE_NAME,
@@ -18,6 +19,13 @@ const live = process.argv.includes('--live')
 const legacyLandingRedirects = JSON.parse(
   readFileSync(join(root, 'src/config/publicLandingRedirects.json'), 'utf8'),
 )
+const legacyDestinations = [...new Set(Object.values(legacyLandingRedirects))]
+  .map((destination) => new URL(destination, HUB_ORIGIN))
+const programActions = new Map([
+  ['/gymnastics', { path: '/enroll', program: 'Developmental Gymnastics' }],
+  ['/fit-and-flip', { path: '/enroll', program: 'Fit & Flip' }],
+  ['/adult-gymnastics', { path: '/contact' }],
+])
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -82,6 +90,11 @@ const normalizedUrl = (value) => {
 }
 
 const canonicalFor = (origin, path) => `${origin}${path === '/' ? '' : path}`
+
+const anchorUrls = (html) => tags(html, 'a')
+  .map((tag) => attribute(tag, 'href'))
+  .filter(Boolean)
+  .map((href) => new URL(href, HUB_ORIGIN))
 
 const verifyLocalAssets = (label, html) => {
   const candidates = [
@@ -260,20 +273,44 @@ const verifyHtml = (
     `${label}: a link must not contain another keyboard focus target`,
   )
 
-  if (normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN) && shouldIndex) {
+  const pagePath = new URL(canonical).pathname
+  const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
+  if (pagePath === '/' && shouldIndex) {
     assert(h1s[0] === 'Built for more.', `${label}: the primary homepage must render the new unified design`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
+    const pageLinks = anchorUrls(html)
     for (const path of ['/enroll', '/drop-in', '/store', '/contact']) {
-      assert(anchorBlocks.some((tag) => new URL(attribute(tag, 'href') || '#', HUB_ORIGIN).href === canonicalFor(HUB_ORIGIN, path)),
+      assert(pageLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing a crawlable link to ${path}`)
     }
-    const pageIds = [...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1])
-    for (const destination of new Set(Object.values(legacyLandingRedirects))) {
-      const { pathname, hash } = new URL(destination, HUB_ORIGIN)
-      if (pathname === '/' && hash) {
-        assert(pageIds.includes(hash.slice(1)), `${label}: a legacy redirect points to missing section ${hash}`)
+    for (const id of ['gymnastics', 'fit-flip']) {
+      assert(pageIds.has(id), `${label}: missing homepage section #${id}`)
+    }
+  }
+
+  if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
+    const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
+    const mainLinks = anchorUrls(mainHtml)
+    if (pagePath === '/') {
+      for (const path of HUB_PROGRAM_PATHS) {
+        assert(mainLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+          `${label}: missing a crawlable program link to ${path} in main content`)
       }
+    } else {
+      const action = programActions.get(pagePath)
+      assert(
+        action && mainLinks.some((url) =>
+          url.origin === HUB_ORIGIN && url.pathname === action.path &&
+          (!action.program || url.searchParams.get('program') === action.program)),
+        `${label}: missing a crawlable ${action?.path ?? 'program action'} link in main content`,
+      )
+    }
+  }
+
+  if (shouldIndex) {
+    for (const { hash } of legacyDestinations.filter(({ pathname, hash }) => pathname === pagePath && hash)) {
+      assert(pageIds.has(hash.slice(1)), `${label}: a legacy redirect points to missing section ${hash}`)
     }
   }
 
@@ -637,10 +674,23 @@ const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
   header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
 )
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
-  const destination = new URL(path, HUB_ORIGIN).href
+  const destination = new URL(path, HUB_ORIGIN)
+  assert(
+    destination.origin === HUB_ORIGIN &&
+    (HUB_PRERENDER_PATHS.includes(destination.pathname) || SPA_ONLY_PATHS.includes(destination.pathname)),
+    `${source}: legacy destination ${destination.href} is not a public route`,
+  )
   for (const host of ['vortexathletics.com', 'www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex-gymnastics.com']) {
-    assert(redirectFor(host, source, destination), `vercel.json: missing permanent redirect from ${host}${source} to ${destination}`)
+    assert(redirectFor(host, source, destination.href), `vercel.json: missing permanent redirect from ${host}${source} to ${destination.href}`)
   }
+}
+for (const path of HUB_PROGRAM_PATHS) {
+  assert(!Object.hasOwn(legacyLandingRedirects, path),
+    `${path}: an active program page must not remain in the client-side legacy redirects`)
+  assert(!redirects.some((rule) => {
+    const host = rule.has?.find((condition) => condition.type === 'host')
+    return rule.source === path && (!host || new RegExp(`^(?:${host.value})$`).test(new URL(HUB_ORIGIN).host))
+  }), `vercel.json: ${path} must serve its program page on the canonical host`)
 }
 assert(
   headers.some(rule => rule.source === '/:path*' && hasNoindexHeader(rule) &&

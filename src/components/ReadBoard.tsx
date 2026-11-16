@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { trackEvent } from '../utils/analyticsClient'
 import ReadBoardClassesTab from './readBoard/ReadBoardClassesTab'
 import ReadBoardScheduleTab from './readBoard/ReadBoardScheduleTab'
@@ -50,8 +50,10 @@ const ReadBoard = () => {
             <p className="np-browse-eyebrow">Find your next step</p>
             <h1>Classes &amp; schedules.</h1>
             <p className="np-browse-description">
-              Explore youth gymnastics and Fit &amp; Flip classes, training schedules,
-              camps, and events at Vortex Athletics in Bowie, MD.
+              Find classes, schedules, camps, and events in Bowie, MD. Explore{' '}
+              <Link className="underline" to="/gymnastics">youth gymnastics</Link> and{' '}
+              <Link className="underline" to="/fit-and-flip">Fit &amp; Flip</Link>, or see how to get started with{' '}
+              <Link className="underline" to="/adult-gymnastics">adult gymnastics</Link>.
             </p>
           </div>
 
