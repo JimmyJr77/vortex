@@ -48,6 +48,7 @@ test('account panel settings persist across sessions and isolate users, faciliti
         role = 'ADMIN' AS can_access_admin_portal, role = 'COACH' AS can_access_coach_portal,
         role = 'MEMBER' AS can_access_member_portal FROM public.app_user`)
     await db.query(await readFile(new URL('../../migrations/866_message_panel_preferences.sql', import.meta.url), 'utf8'))
+    await db.query(await readFile(new URL('../../migrations/867_message_panel_widths.sql', import.meta.url), 'utf8'))
     const routes = new Map()
     registerMessagePlatformRoutes(Object.fromEntries(['get', 'patch', 'post', 'put', 'delete'].map((method) => [method, (path, auth, handler) => routes.set(`${method} ${path}`, handler)])), db, {
       auth() {}, num: Number,
@@ -65,27 +66,35 @@ test('account panel settings persist across sessions and isolate users, faciliti
     for (const [portal, id] of [['admin', 10], ['coach', 20], ['member', 30]]) {
       const user = { id, facility_id: 1, role: portal.toUpperCase() }
       const sessions = await Promise.all([connect(portal, id), connect(portal, id)])
-      assert.deepEqual((await call(portal, 'get', user)).data, { filesVisible: true, eventsVisible: true })
-      assert.deepEqual((await call(portal, 'patch', user, { filesVisible: false })).data, { filesVisible: false, eventsVisible: true })
+      assert.deepEqual((await call(portal, 'get', user)).data, { filesVisible: true, eventsVisible: true, listWidth: 320, sidebarWidth: 304 })
+      assert.deepEqual((await call(portal, 'patch', user, { filesVisible: false })).data, { filesVisible: false, eventsVisible: true, listWidth: 320, sidebarWidth: 304 })
       // A fresh request/session reads the account's saved preference.
-      assert.deepEqual((await call(portal, 'get', { ...user })).data, { filesVisible: false, eventsVisible: true })
-      assert.deepEqual((await call(portal, 'patch', user, { eventsVisible: false })).data, { filesVisible: false, eventsVisible: false })
-      assert.deepEqual((await call(portal, 'get', { ...user, facility_id: 2 })).data, { filesVisible: true, eventsVisible: true })
+      assert.deepEqual((await call(portal, 'get', { ...user })).data, { filesVisible: false, eventsVisible: true, listWidth: 320, sidebarWidth: 304 })
+      assert.deepEqual((await call(portal, 'patch', user, { eventsVisible: false })).data, { filesVisible: false, eventsVisible: false, listWidth: 320, sidebarWidth: 304 })
+      assert.deepEqual((await call(portal, 'get', { ...user, facility_id: 2 })).data, { filesVisible: true, eventsVisible: true, listWidth: 320, sidebarWidth: 304 })
       assert.equal((await call(portal, 'patch', user, { filesVisible: 'false' })).status, 400)
       assert.equal((await call(portal, 'patch', user, { user_id: 40, filesVisible: true })).status, 400)
       assert.equal((await call(portal, 'get', user, undefined, false)).status, 403)
+      assert.deepEqual((await call(portal, 'patch', user, { listWidth: 380, sidebarWidth: 400 })).data,
+        { filesVisible: false, eventsVisible: false, listWidth: 380, sidebarWidth: 400 })
+      for (const width of [239, 481, 300.5, '320', null]) {
+        assert.equal((await call(portal, 'patch', user, { sidebarWidth: width })).status, 400)
+      }
+      assert.deepEqual((await call(portal, 'get', { ...user })).data,
+        { filesVisible: false, eventsVisible: false, listWidth: 380, sidebarWidth: 400 })
+      await call(portal, 'patch', user, { listWidth: 320, sidebarWidth: 304 })
       for (const session of sessions) {
         const pong = once(session.socket, 'pong')
         session.socket.ping()
         await pong
-        assert.equal(session.frames.filter(f => f.type === 'message.panel_preferences_updated').length, 2)
+        assert.equal(session.frames.filter(f => f.type === 'message.panel_preferences_updated').length, 4)
       }
       assert.equal(outsider.frames.filter(f => f.type === 'message.panel_preferences_updated').length, 0)
 
     }
-    assert.deepEqual((await call('member', 'get', { id: 40, facility_id: 1 })).data, { filesVisible: true, eventsVisible: true })
+    assert.deepEqual((await call('member', 'get', { id: 40, facility_id: 1 })).data, { filesVisible: true, eventsVisible: true, listWidth: 320, sidebarWidth: 304 })
     // A staff account's preferences are the same when it uses another authorized portal.
-    assert.deepEqual((await call('coach', 'get', { id: 10, facility_id: 1 })).data, { filesVisible: false, eventsVisible: false })
+    assert.deepEqual((await call('coach', 'get', { id: 10, facility_id: 1 })).data, { filesVisible: false, eventsVisible: false, listWidth: 320, sidebarWidth: 304 })
   } finally {
     for (const socket of sockets) socket.terminate()
     await new Promise(resolve => wss.close(resolve))

@@ -2,16 +2,19 @@ import { useMessageRealtime } from '../../hooks/useMessageRealtime'
 import { useEffect, useRef, useState } from 'react'
 import type { MessagingRole } from './types'
 
-type PanelPreferences = { filesVisible: boolean; eventsVisible: boolean }
+type PanelPreferences = { filesVisible: boolean; eventsVisible: boolean; listWidth: number; sidebarWidth: number }
 export type PanelPreferenceFetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
-const defaults: PanelPreferences = { filesVisible: true, eventsVisible: true }
+const defaults: PanelPreferences = { filesVisible: true, eventsVisible: true, listWidth: 320, sidebarWidth: 304 }
 
 function parsePreferences(value: unknown): PanelPreferences {
   const data = value as Partial<PanelPreferences> | null
   if (typeof data?.filesVisible !== 'boolean' || typeof data?.eventsVisible !== 'boolean') {
     throw new Error('Invalid panel preferences response')
   }
-  return { filesVisible: data.filesVisible, eventsVisible: data.eventsVisible }
+  return { filesVisible: data.filesVisible, eventsVisible: data.eventsVisible,
+    listWidth: Number.isInteger(data.listWidth) && data.listWidth! >= 240 && data.listWidth! <= 480 ? data.listWidth! : 320,
+    sidebarWidth: Number.isInteger(data.sidebarWidth) && data.sidebarWidth! >= 240 && data.sidebarWidth! <= 480 ? data.sidebarWidth! : 304,
+  }
 }
 
 /** Server-authoritative account settings; no browser-local preferences override them. */
@@ -20,6 +23,7 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
   const [reload, setReload] = useState(0)
   const generation = useRef(0)
   const saveError = useRef('')
+  const mutationVersion = useRef(0)
   const pendingSave = useRef(false)
   const refreshRef = useRef<(() => void) | null>(null)
   const path = `/api/${role}/messages/panel-preferences`
@@ -35,12 +39,13 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
       if (!accountKey || !fetcher || !role || pendingSave.current || inFlight || version !== generation.current) return
       dirty = false
       inFlight = true
+      const beforeMutation = mutationVersion.current
       setState((previous) => ({ accountKey, preferences: previous.accountKey === accountKey ? previous.preferences : defaults, busy: true, error: saveError.current }))
       try {
         const preferences = parsePreferences(await fetcher(path, { cache: 'no-store' }))
-        if (version === generation.current) setState({ accountKey, preferences, busy: false, error: saveError.current })
+        if (beforeMutation === mutationVersion.current && !pendingSave.current && version === generation.current) setState({ accountKey, preferences, busy: false, error: saveError.current })
       } catch {
-        if (version === generation.current) setState((previous) => ({ ...previous, busy: false, error: 'Couldn’t load panel preferences.' }))
+        if (beforeMutation === mutationVersion.current && !pendingSave.current && version === generation.current) setState((previous) => ({ ...previous, busy: false, error: 'Couldn’t load panel preferences.' }))
       } finally {
         inFlight = false
         if (dirty && version === generation.current) void load()
@@ -64,19 +69,19 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
   })
 
   const current = state.accountKey === accountKey ? state : { accountKey, preferences: defaults, busy: true, error: '' }
-  const togglePanel = async (panel: keyof PanelPreferences) => {
-    if (!accountKey || !fetcher || !role || current.busy || pendingSave.current) return
+  const savePreferences = async (patch: Partial<PanelPreferences>) => {
+    if (!accountKey || !fetcher || !role || pendingSave.current) return
     const version = generation.current
     const previous = current.preferences
-    const value = !previous[panel]
     pendingSave.current = true
+    mutationVersion.current += 1
     saveError.current = ''
-    setState({ accountKey, preferences: { ...previous, [panel]: value }, busy: true, error: '' })
+    setState({ accountKey, preferences: { ...previous, ...patch }, busy: true, error: '' })
     try {
       const preferences = parsePreferences(await fetcher(path, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [panel]: value }),
+        body: JSON.stringify(patch),
       }))
       if (version === generation.current) setState({ accountKey, preferences, busy: false, error: saveError.current })
     } catch {
@@ -92,5 +97,8 @@ export function useMessagingPanelPreferences(accountKey?: string, role?: Messagi
     }
   }
 
-  return { ...current.preferences, busy: current.busy, error: current.error, retry: () => setReload((value) => value + 1), togglePanel }
+  const togglePanel = (panel: 'filesVisible' | 'eventsVisible') => savePreferences({ [panel]: !current.preferences[panel] })
+  const setPanelWidth = (panel: 'listWidth' | 'sidebarWidth', width: number) => savePreferences({ [panel]: Math.min(480, Math.max(240, Math.round(width))) })
+
+  return { ...current.preferences, busy: current.busy, error: current.error, retry: () => setReload((value) => value + 1), togglePanel, setPanelWidth }
 }

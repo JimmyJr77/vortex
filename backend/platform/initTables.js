@@ -954,6 +954,7 @@ export async function initPlatformTables(pool) {
     '822_floor_planner_views.sql',
     '865_floor_planner_class_colors.sql',
     '866_message_panel_preferences.sql',
+    '867_message_panel_widths.sql',
     // These additive migrations own columns and tables read directly by the
     // Admin runtime. Keep them in the boot set so an ordinary deploy cannot
     // expose newer route code against an older database contract.

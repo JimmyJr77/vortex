@@ -2,7 +2,7 @@ import { expect, test, type WebSocketRoute } from '@playwright/test'
 
 for (const portal of ['admin', 'coach', 'member'] as const) {
   test(`${portal} panels sync between open browsers and recover after reconnect`, async ({ browser }) => {
-    let preferences = { filesVisible: true, eventsVisible: true }
+    let preferences = { filesVisible: true, eventsVisible: true, listWidth: 320, sidebarWidth: 304 }
     const sockets = new Set<WebSocketRoute>()
     const contexts = await Promise.all([browser.newContext({ viewport: { width: 1440, height: 900 } }), browser.newContext({ viewport: { width: 1440, height: 900 } })])
     try {
@@ -52,6 +52,29 @@ for (const portal of ['admin', 'coach', 'member'] as const) {
         return page
       }))
       const [first, second] = pages
+      const left = first.getByRole('separator', { name: 'Resize conversation list' })
+      const right = first.getByRole('separator', { name: 'Resize resource panels' })
+      const leftBox = (await left.boundingBox())!
+      await first.mouse.move(leftBox.x + leftBox.width / 2, leftBox.y + leftBox.height / 2)
+      await first.mouse.down()
+      await first.mouse.move(leftBox.x + leftBox.width / 2 + 60, leftBox.y + leftBox.height / 2, { steps: 6 })
+      await first.mouse.up()
+      await expect(second.getByRole('separator', { name: 'Resize conversation list' })).toHaveAttribute('aria-valuenow', '380')
+      const rightBox = (await right.boundingBox())!
+      await first.mouse.move(rightBox.x + rightBox.width / 2, rightBox.y + rightBox.height / 2)
+      await first.mouse.down()
+      await first.mouse.move(rightBox.x + rightBox.width / 2 - 80, rightBox.y + rightBox.height / 2, { steps: 6 })
+      await first.mouse.up()
+      await expect(second.getByRole('separator', { name: 'Resize resource panels' })).toHaveAttribute('aria-valuenow', '384')
+      await expect(first.getByRole('button', { name: 'Hide files', exact: true })).toBeEnabled()
+      await second.getByRole('separator', { name: 'Resize resource panels' }).press('ArrowRight')
+      await expect(right).toHaveAttribute('aria-valuenow', '368')
+      await expect(second.getByRole('button', { name: 'Hide files', exact: true })).toBeEnabled()
+      // Widths adapt to the viewport without replacing the user's saved values.
+      await second.setViewportSize({ width: 1280, height: 900 })
+      expect(await second.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+      await second.setViewportSize({ width: 1440, height: 900 })
+
       await first.getByRole('button', { name: 'Hide files', exact: true }).click()
       await expect(second.getByRole('button', { name: 'Show files', exact: true })).toBeEnabled()
       await second.getByRole('button', { name: 'Hide upcoming events', exact: true }).click()
@@ -65,7 +88,7 @@ for (const portal of ['admin', 'coach', 'member'] as const) {
       }
       for (const socket of sockets) socket.close({ code: 1012, reason: 'Reconnect test' })
       sockets.clear()
-      preferences = { filesVisible: false, eventsVisible: false }
+      preferences = { ...preferences, filesVisible: false, eventsVisible: false }
       for (const page of pages) {
         await expect(page.getByRole('button', { name: 'Show files', exact: true })).toBeEnabled()
         await expect(page.getByRole('button', { name: 'Show upcoming events', exact: true })).toBeEnabled()

@@ -1,6 +1,7 @@
+import MessagingResizeHandle from './MessagingResizeHandle'
 import type { MessagingRole } from './types'
 import { useMessagingPanelPreferences, type PanelPreferenceFetcher } from './useMessagingPanelPreferences'
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { CalendarDays, ChevronLeft, Paperclip } from 'lucide-react'
 import { messagingWorkspaceGrid, messagingViewportShowsBothPanels } from './messagingLayout'
 
@@ -29,7 +30,22 @@ export default function MessagingMobileShell({
   maximized = false,
   resourcePanel,
 }: MessagingMobileShellProps) {
-  const { filesVisible, eventsVisible, busy, error, retry, togglePanel } = useMessagingPanelPreferences(preferenceAccountKey, preferenceRole, preferenceFetcher)
+  const { filesVisible, eventsVisible, listWidth, sidebarWidth, busy, error, retry, togglePanel, setPanelWidth } = useMessagingPanelPreferences(preferenceAccountKey, preferenceRole, preferenceFetcher)
+  const workspaceRef = useRef<HTMLDivElement>(null)
+  const [workspaceWidth, setWorkspaceWidth] = useState(1280)
+  const [preview, setPreview] = useState<{ account?: string; listWidth?: number | null; sidebarWidth?: number | null }>({})
+  const maxWidth = Math.max(240, Math.min(480, Math.floor(workspaceWidth * 0.32)))
+  const displayListWidth = Math.min(maxWidth, (preview.account === preferenceAccountKey ? preview.listWidth : null) ?? listWidth)
+  const displaySidebarWidth = Math.min(maxWidth, (preview.account === preferenceAccountKey ? preview.sidebarWidth : null) ?? sidebarWidth)
+  const previewWidth = (panel: 'listWidth' | 'sidebarWidth', width: number | null) => setPreview(previous => ({ ...(previous.account === preferenceAccountKey ? previous : {}), account: preferenceAccountKey, [panel]: width }))
+  useLayoutEffect(() => {
+    const element = workspaceRef.current
+    if (!element) return
+    const observer = new ResizeObserver(() => setWorkspaceWidth(element.clientWidth))
+    observer.observe(element)
+    setWorkspaceWidth(element.clientWidth)
+    return () => observer.disconnect()
+  }, [])
   const resourcesVisible = filesVisible || eventsVisible
   const listRef = useRef<HTMLDivElement>(null)
   const backRef = useRef<HTMLButtonElement>(null)
@@ -48,9 +64,10 @@ export default function MessagingMobileShell({
   }, [detailOpen])
 
   return (
-    <div className={`${messagingWorkspaceGrid} ${maximized && resourcePanel ? resourcesVisible ? 'xl:!grid-cols-[minmax(260px,20rem)_minmax(0,1fr)_19rem]' : 'xl:!grid-cols-[minmax(260px,20rem)_minmax(0,1fr)]' : ''} isolate min-h-0 flex-1 bg-white ${maximized ? '' : 'rounded-2xl border border-slate-200 shadow-sm'}`}>
-      <div ref={listRef} className={`h-full min-h-0 min-w-0 flex-col overflow-hidden lg:border-r lg:border-slate-200 ${detailOpen ? 'hidden lg:flex' : 'flex'}`}>
+    <div ref={workspaceRef} style={{ '--message-list-width': `${displayListWidth}px`, '--message-sidebar-width': `${displaySidebarWidth}px` } as CSSProperties} className={`${messagingWorkspaceGrid} lg:!grid-cols-[var(--message-list-width)_minmax(0,1fr)] ${maximized && resourcePanel ? resourcesVisible ? 'xl:!grid-cols-[var(--message-list-width)_minmax(0,1fr)_var(--message-sidebar-width)]' : 'xl:!grid-cols-[var(--message-list-width)_minmax(0,1fr)]' : ''} isolate min-h-0 flex-1 bg-white ${maximized ? '' : 'rounded-2xl border border-slate-200 shadow-sm'}`}>
+      <div ref={listRef} className={`relative h-full min-h-0 min-w-0 flex-col overflow-hidden lg:border-r lg:border-slate-200 ${detailOpen ? 'hidden lg:flex' : 'flex'}`}>
         {listPanel}
+        <div className="hidden lg:block"><MessagingResizeHandle key={preferenceAccountKey} label="Resize conversation list" side="left" width={displayListWidth} maxWidth={maxWidth} defaultWidth={320} busy={busy} onPreview={value => previewWidth('listWidth', value)} onCommit={value => setPanelWidth('listWidth', value)} /></div>
       </div>
       <div className={`h-full min-h-0 min-w-0 flex-col overflow-hidden bg-slate-50/80 ${detailOpen ? 'flex' : 'hidden lg:flex'}`}>
         {maximized && resourcePanel && (
@@ -82,7 +99,10 @@ export default function MessagingMobileShell({
         )}
         <div className={`flex min-h-0 w-full flex-1 flex-col overflow-hidden ${maximized ? 'mx-auto max-w-5xl' : ''}`}>{detailPanel}</div>
       </div>
-      {maximized && resourcePanel && resourcesVisible && <div className="hidden min-h-0 min-w-0 overflow-hidden border-l border-slate-200 xl:block">{resourcePanel({ filesVisible, eventsVisible })}</div>}
+      {maximized && resourcePanel && resourcesVisible && <div className="relative hidden min-h-0 min-w-0 overflow-hidden border-l border-slate-200 xl:block">
+        <MessagingResizeHandle key={preferenceAccountKey} label="Resize resource panels" side="right" width={displaySidebarWidth} maxWidth={maxWidth} defaultWidth={304} busy={busy} onPreview={value => previewWidth('sidebarWidth', value)} onCommit={value => setPanelWidth('sidebarWidth', value)} />
+        {resourcePanel({ filesVisible, eventsVisible })}
+      </div>}
     </div>
   )
 }
