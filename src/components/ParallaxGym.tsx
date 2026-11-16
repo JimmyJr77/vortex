@@ -25,7 +25,7 @@ const ROTATING_GYM_IMAGES = [
   { src: '/gym-DSC02646-1600.webp', alt: 'Vortex Athletics logo above the gymnastics floor' },
 ]
 
-export default function ParallaxGym() {
+export default function ParallaxGym({ paused = false }: { paused?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [useCompactLayout, setUseCompactLayout] = useState(() =>
@@ -40,11 +40,12 @@ export default function ParallaxGym() {
   const overlayOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.4, 1, 0.4])
 
   useEffect(() => {
+    if (paused) return
     const timer = window.setInterval(() => {
       setActiveImageIndex((current) => (current + 1) % ROTATING_GYM_IMAGES.length)
     }, 5000)
     return () => window.clearInterval(timer)
-  }, [])
+  }, [paused])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 767px)')
@@ -60,7 +61,7 @@ export default function ParallaxGym() {
     <section ref={containerRef} className="relative h-[100svh] min-h-[38rem] overflow-hidden bg-black">
       <motion.div
         className="absolute inset-0 flex items-center"
-        style={{ y: useCompactLayout ? 0 : backgroundY }}
+        style={{ y: paused || useCompactLayout ? 0 : backgroundY }}
       >
         <AnimatePresence mode="popLayout">
           <motion.img
@@ -73,26 +74,27 @@ export default function ParallaxGym() {
                 ? 'relative h-auto w-full object-contain'
                 : 'absolute inset-0 h-full w-full object-cover'
             }
-            initial={{ opacity: 0, scale: 1.04 }}
+            initial={paused ? false : { opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1, ease: 'easeInOut' }}
+            transition={{ duration: paused ? 0 : 1, ease: 'easeInOut' }}
           />
         </AnimatePresence>
       </motion.div>
 
       <motion.div
         className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/15 to-black/75"
-        style={{ opacity: overlayOpacity }}
+        style={{ opacity: paused ? 1 : overlayOpacity }}
       />
 
       <div className="absolute inset-x-0 top-[9%] z-20 px-4">
         <motion.h2
           className="text-center text-5xl font-display font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl"
-          initial={{ opacity: 0, y: -20 }}
+          initial={paused ? false : { opacity: 0, y: -20 }}
+          animate={paused ? { opacity: 1, y: 0 } : undefined}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: paused ? 0 : 0.8 }}
         >
           THE COMPLETE ATHLETE
         </motion.h2>
@@ -101,10 +103,11 @@ export default function ParallaxGym() {
       <div className="absolute inset-x-0 bottom-[9%] z-20 px-4">
         <motion.p
           className="text-center text-5xl font-display font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl"
-          initial={{ opacity: 0, y: 20 }}
+          initial={paused ? false : { opacity: 0, y: 20 }}
+          animate={paused ? { opacity: 1, y: 0 } : undefined}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.15 }}
+          transition={{ duration: paused ? 0 : 0.8, delay: paused ? 0 : 0.15 }}
         >
           NEEDS A COMPLETE GYM
         </motion.p>

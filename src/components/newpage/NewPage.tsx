@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
 import { BUSINESS_NAP, GOOGLE_MAPS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
+import ParallaxGym from '../ParallaxGym'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { getHubSchema } from '../../utils/schema'
@@ -235,6 +236,8 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         <section className="np-difference"><div className="np-container np-difference-grid"><div><p className="np-eyebrow">THE VORTEX DIFFERENCE</p><h2>Power is only<br />part of the picture.</h2><p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p><button className="np-button np-button-white" onClick={() => setOverlay('fit-flip')}>Discover Fit & Flip <ArrowUpRight size={18} /></button></div><div className="np-difference-image"><img src="/calisthenics-card.jpg" alt="An athlete practicing a controlled handstand at Vortex" width="1536" height="1024" loading="lazy" /><span>CONTROL CHANGES EVERYTHING.</span></div></div></section>
 
         <section className="np-container np-section np-faq" id="faq"><div><p className="np-eyebrow">A LITTLE CLARITY</p><h2>Good questions.<br /><span>Clear answers.</span></h2><p>Choosing a program should feel simple.<br />We’re here to help you find the right fit.</p><button className="np-text-button" onClick={() => openInquiry()}>Talk to our team <ArrowUpRight size={18} /></button></div><div className="np-faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<Plus size={20} /></summary><p>{answer}</p></details>)}</div></section>
+
+        <ParallaxGym paused={motionPaused} />
 
         <section className="np-visit" id="visit"><div className="np-container np-visit-inner"><p className="np-eyebrow">YOUR NEXT LEVEL STARTS HERE</p><h2>Let’s build<br /><span>what’s next.</span></h2><p>A first skill. A stronger takeoff. A more complete athlete.<br />Find the right path at Vortex.</p><div className="np-visit-buttons"><button className="np-button" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button><button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button></div><a className="np-address" href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">{BUSINESS_NAP.streetAddress} · {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}<ArrowUpRight size={16} /></a></div></section>
       </main>
