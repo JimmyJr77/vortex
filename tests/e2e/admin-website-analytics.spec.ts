@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 
-test('analytics admins can filter traffic and inspect Web Vitals and ordered funnels', async ({ page }) => {
+test('analytics admins can filter reports and check Google search visibility', async ({ page }) => {
   const reportRequests: URL[] = []
+  let topicRequests = 0
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'analytics-test-token')
@@ -41,6 +42,29 @@ test('analytics admins can filter traffic and inspect Web Vitals and ordered fun
           vitals: [{ metric: 'LCP', device: 'mobile', p75: 2300, samples: 5 }], vitalPages: [],
         }
         break
+      case '/api/admin/analytics/seo':
+        return route.fulfill({ status: 502, json: { success: false, message: 'Cached SEO reports unavailable' } })
+      case '/api/admin/analytics/seo/topics': {
+        topicRequests += 1
+        const startDate = '2026-10-17'
+        const endDate = '2026-11-13'
+        const timeZone = 'America/Los_Angeles'
+        if (topicRequests === 1) {
+          data = { status: 'unconfigured', reason: 'missing_credentials', startDate, endDate, timeZone, topics: [] }
+        } else {
+          data = {
+            status: 'partial', startDate, endDate, timeZone,
+            topics: [
+              { id: 'youth-athletics', label: 'Youth Athletics', status: 'reported', metrics: {
+                clicks: 2, impressions: 25, ctr: 0.08, position: 7.2,
+              } },
+              { id: 'youth-gymnastics', label: 'Youth Gymnastics', status: 'no_data', metrics: null },
+              { id: 'adult-gymnastics', label: 'Adult Gymnastics', status: 'error', reason: 'provider_error', metrics: null },
+            ],
+          }
+        }
+        break
+      }
       case '/api/admin/analytics/funnel':
         data = { journeys: [{ name: 'Free trial', steps: [
           { name: 'Trial opened', count: 3, conversionFromPrevious: null },
@@ -71,4 +95,17 @@ test('analytics admins can filter traffic and inspect Web Vitals and ordered fun
   await expect(page.getByRole('cell', { name: '2,300 ms' })).toBeVisible()
   await page.getByRole('button', { name: 'Website Funnels' }).click()
   await expect(page.getByRole('row').filter({ hasText: 'Trial confirmed' })).toContainText('33.3%')
+  await page.getByRole('button', { name: 'Marketing & SEO' }).click()
+  const checkVisibility = page.getByRole('button', { name: 'Check search visibility' })
+  await expect(page.getByText('Cached SEO reports unavailable')).toBeVisible()
+  await expect(checkVisibility).toBeVisible()
+  expect(topicRequests).toBe(0)
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Connect an identity' })).toBeVisible()
+  await checkVisibility.click()
+  const table = page.getByRole('table', { name: 'Search visibility by topic' })
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Athletics' })).toContainText('8%')
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Gymnastics' })).toContainText('No data reported')
+  await expect(table.getByRole('row').filter({ hasText: 'Adult Gymnastics' })).toContainText('Query unavailable')
+  expect(topicRequests).toBe(2)
 })
