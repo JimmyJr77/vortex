@@ -85,18 +85,22 @@ async function addClass(page: Page, start = '09:00', end = '10:00') {
   await editor.getByRole('button', { name: 'Apply placement' }).click()
 }
 
-test('scheduled duration, coaches, independent colors, weekdays, copying and saved reload', async ({ page }) => {
+test('scheduled duration, coaches, consistent class colors, weekdays, copying and saved reload', async ({ page }) => {
   const writes = await openPlanner(page)
   await addClass(page)
   await expect(page.getByTestId('floor-block')).toContainText('Avery')
   await addClass(page, '10:00', '11:00')
-  const colors = await page.getByTestId('floor-block').evaluateAll((els) => els.map((el) => el.getAttribute('data-color')))
-  expect(new Set(colors).size).toBe(2)
+  const blocks = page.getByTestId('floor-block')
+  await expect(blocks).toHaveCount(2)
+  const classColor = await blocks.first().evaluate((el) => getComputedStyle(el).borderLeftColor)
+  await expect(blocks.last()).toHaveCSS('border-left-color', classColor)
   await page.getByRole('button', { name: 'Copy day', exact: true }).click()
   await page.getByLabel('Destination day', { exact: true }).selectOption('1')
   await page.getByRole('button', { name: 'Copy to Tuesday' }).click()
   await expect(page.getByRole('tab', { name: /^Tue/ })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByTestId('floor-block')).toHaveCount(2)
+  await expect(blocks.first()).toHaveCSS('border-left-color', classColor)
+  await expect(blocks.last()).toHaveCSS('border-left-color', classColor)
   await page.getByTestId('floor-block').first().click()
   await page.getByRole('button', { name: 'Remove', exact: true }).click()
   await page.getByRole('tab', { name: /^Mon/ }).click()
@@ -112,6 +116,7 @@ test('scheduled duration, coaches, independent colors, weekdays, copying and sav
   await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await page.getByRole('tab', { name: /^Tue/ }).click()
   await expect(page.getByTestId('floor-block')).toHaveCount(1)
+  await expect(blocks).toHaveCSS('border-left-color', classColor)
 })
 
 test('drag from library, right-click split, move pieces between locations and merge adjacent siblings', async ({ page }) => {
@@ -287,6 +292,75 @@ async function saveAsView(page: Page, name: string) {
   await page.getByRole('button', { name: 'Save new view', exact: true }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
 }
+
+test('the calendar uses the class color across days and slots, including when reopening a saved view', async ({ page }) => {
+  await openPlanner(page, {
+    view: 'current',
+    calendarEvents: (monday) => {
+      const tuesday = new Date(`${monday}T12:00:00Z`)
+      tuesday.setUTCDate(tuesday.getUTCDate() + 1)
+      return [
+        juniorClassOn(monday, '09:00', '10:00'),
+        { ...juniorClassOn(monday, '10:00', '11:00'), id: 'junior-monday-second', formId: 21, timeSlotId: 51 },
+        { ...juniorClassOn(monday, '11:00', '12:00'), id: 'separate-class', classEventId: 11, formId: 22, timeSlotId: 52 },
+        { ...juniorClassOn(tuesday.toISOString().slice(0, 10), '09:30', '10:15'), id: 'junior-tuesday', formId: 23, timeSlotId: 53 },
+      ]
+    },
+  })
+
+  const blocks = page.getByTestId('floor-block')
+  await expect(blocks).toHaveCount(3)
+  const classColor = await blocks.filter({ hasText: '9:00 AM–10:00 AM' }).evaluate((el) => getComputedStyle(el).borderLeftColor)
+  await expect(blocks.filter({ hasText: '10:00 AM–11:00 AM' })).toHaveCSS('border-left-color', classColor)
+  await expect(blocks.filter({ hasText: '11:00 AM–12:00 PM' })).not.toHaveCSS('border-left-color', classColor)
+  await addClass(page, '12:00', '13:00')
+  await expect(blocks.filter({ hasText: '12:00 PM–1:00 PM' })).toHaveCSS('border-left-color', classColor)
+
+  await page.getByRole('tab', { name: /^Tue/ }).click()
+  await expect(blocks).toContainText('9:30 AM–10:15 AM')
+  await expect(blocks).toHaveCSS('border-left-color', classColor)
+  await saveAsView(page, 'Class colors')
+
+  await page.reload()
+  await page.getByRole('navigation').getByRole('button', { name: 'Floor Planner', exact: true }).click()
+  await page.getByLabel('Saved view', { exact: true }).selectOption({ label: 'Class colors' })
+  await expect(page.getByRole('tab', { name: /^Tue/ })).toHaveAttribute('aria-selected', 'true')
+  await expect(blocks).toHaveCSS('border-left-color', classColor)
+  await page.getByRole('tab', { name: /^Mon/ }).click()
+  await expect(blocks.filter({ hasText: '9:00 AM–10:00 AM' })).toHaveCSS('border-left-color', classColor)
+  await expect(blocks.filter({ hasText: '10:00 AM–11:00 AM' })).toHaveCSS('border-left-color', classColor)
+})
+
+test('an older weekly plan uses consistent class colors without resaving', async ({ page }) => {
+  const initialPlan = basePlan()
+  const legacyBlock = (id: string, classId: string, name: string, day: number, start: number, color: number): Plan['blocks'][number] => ({
+    id, instanceId: id, classId, name, program: 'Gymnastics', coaches: [], day,
+    locationId: 'floor', start, end: start + 60, color,
+  })
+  initialPlan.blocks = [
+    legacyBlock('mon-live', 'scheduled:20:50', 'Junior Gymnastics', 0, 540, 0),
+    legacyBlock('tue-live', 'scheduled:20:51', 'Junior rotation', 1, 540, 1),
+    legacyBlock('mon-archived', 'scheduled:80:100', 'Archived Tumbling', 0, 600, 2),
+    legacyBlock('tue-archived', 'scheduled:81:101', 'archived tumbling', 1, 600, 3),
+  ]
+  const writes = await openPlanner(page, {
+    initialPlan,
+    calendarEvents: (monday) => [juniorClassOn(monday, '09:00', '10:00')],
+  })
+
+  const blocks = page.getByTestId('floor-block')
+  const juniorColor = await blocks.filter({ hasText: 'Junior Gymnastics' }).evaluate((el) => getComputedStyle(el).borderLeftColor)
+  const archivedColor = await blocks.filter({ hasText: 'Archived Tumbling' }).evaluate((el) => getComputedStyle(el).borderLeftColor)
+  await page.getByRole('tab', { name: /^Tue/ }).click()
+  await expect(blocks.filter({ hasText: 'Junior rotation' })).toHaveCSS('border-left-color', juniorColor)
+  await expect(blocks.filter({ hasText: 'archived tumbling' })).toHaveCSS('border-left-color', archivedColor)
+  await expect(page.getByText('All changes saved', { exact: true })).toBeVisible()
+
+  await page.getByLabel('Saved view', { exact: true }).selectOption({ label: 'Current schedule' })
+  await page.getByRole('tab', { name: /^Mon/ }).click()
+  await expect(blocks).toHaveCSS('border-left-color', juniorColor)
+  expect(writes).toHaveLength(0)
+})
 
 test('the default shows current class times, and a saved view keeps manual floor assignments', async ({ page }) => {
   let startTime = '09:07'

@@ -4,7 +4,7 @@ import { AlertTriangle, Check, Clock3, Copy, GripVertical, LayoutGrid, Loader2, 
 import { fetchClassSetupOverview } from '../../utils/classSetupOverviewApi'
 import { randomUUID } from '../../utils/uuid'
 import { deleteView, isSavedView, listViews, loadCoaches, loadCurrentSchedule, loadPlan, loadView, savePlan, saveView, type ViewSummary } from './api'
-import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, resetFromSchedule, buildLibrary, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, nextColor, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
+import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, resetFromSchedule, blockColor, buildLibrary, classPlacement, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
 import PlannerDialog from './PlannerDialog'
 
 const CELL = 64
@@ -21,7 +21,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const [saved, setSaved] = useState('')
   const [revision, setRevision] = useState(0)
   const [viewId, setViewId] = useState('')
-  const [scheduleSource, setScheduleSource] = useState<{ startDate: string; endDate: string; signature: string; warning: string } | null>(null)
+  const [scheduleSource, setScheduleSource] = useState<{ startDate: string; endDate: string; signature: string; warning: string; classesByForm: ReadonlyMap<number, string> } | null>(null)
   const [activeView, setActiveView] = useState<ViewSummary | null>(null)
   const [views, setViews] = useState<ViewSummary[]>([])
   const [viewsError, setViewsError] = useState('')
@@ -84,7 +84,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       const suffix = schedule ? ':current-schedule' : opensSavedView ? `:${targetViewId}` : ''
       const key = `vortex-floor-planner:${result.facilityId}:${userId ?? 'admin'}${suffix}`
       const source = schedule && snapshot ? {
-        ...schedule.range, signature: snapshot.signature,
+        ...schedule.range, signature: snapshot.signature, classesByForm: snapshot.classesByForm,
         warning: [
           snapshot.unsupportedTimes ? `${snapshot.unsupportedTimes} scheduled ${snapshot.unsupportedTimes === 1 ? 'class could' : 'classes could'} not be shown due to unsupported start or end times.` : '',
           schedule.coaches === null ? 'Coach assignments are unavailable for this schedule.' : '',
@@ -179,6 +179,13 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     commit({ ...plan, blocks }); setSelected(null)
   }
   const allClasses = useMemo(() => [...library, ...plan.classes], [library, plan.classes])
+  const classesByForm = useMemo(() => {
+    const ids = new Map(scheduleSource?.classesByForm)
+    for (const item of library) {
+      if (item.formId != null && item.classId && !ids.has(item.formId)) ids.set(item.formId, item.classId)
+    }
+    return ids
+  }, [library, scheduleSource])
   const filtered = allClasses.filter((c) => `${c.name} ${c.program} ${c.coaches.join(' ')} ${c.schedule || ''}`.toLowerCase().includes(query.toLowerCase()))
   const dayBlocks = useMemo(() => plan.blocks.filter((b) => b.day === day), [plan.blocks, day])
   useEffect(() => {
@@ -196,7 +203,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
 
   const addClass = (item: PlannerClass, locationId: string, start: number) => {
     if (start + item.duration > 1440) { setError('This class would end after midnight. Choose an earlier start time.'); return }
-    const block: Block = { id: randomUUID(), instanceId: randomUUID(), classId: item.id, name: item.name, program: item.program, coaches: [...item.coaches], day, locationId, start, end: start + item.duration, color: nextColor(plan.blocks) }
+    const block = classPlacement(item, day, locationId, start)
     commit({ ...plan, blocks: [...plan.blocks, block], start: Math.min(plan.start, start), end: Math.max(plan.end, Math.ceil(block.end / plan.increment) * plan.increment) }, `${item.name} added to ${DAYS[day]}.`)
     setPendingClass(null); setSelected(block)
   }
@@ -347,13 +354,14 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
                 const clippedStart = Math.max(block.start, plan.start), clippedEnd = Math.min(block.end, plan.end)
                 if (clippedEnd <= clippedStart) return null
                 const warning = warnings.get(block.id)
-                return <div key={block.id} data-testid="floor-block" data-instance={block.instanceId} data-color={block.color} draggable={editing && !resizing} onDragStart={(e) => dragStart(e, { kind: 'block', id: block.id, offset: (e.clientX - e.currentTarget.getBoundingClientRect().left) / px + clippedStart - block.start })} onDragEnd={() => { drag.current = null; setDropPreview(null) }}
+                const color = blockColor(block, classesByForm)
+                return <div key={block.id} data-testid="floor-block" data-instance={block.instanceId} data-color={color} draggable={editing && !resizing} onDragStart={(e) => dragStart(e, { kind: 'block', id: block.id, offset: (e.clientX - e.currentTarget.getBoundingClientRect().left) / px + clippedStart - block.start })} onDragEnd={() => { drag.current = null; setDropPreview(null) }}
                   role="button" tabIndex={0} aria-label={`${block.program} · ${block.name}, ${timeLabel(block.start)} to ${timeLabel(block.end)}, ${row.name}${warning ? ', conflict' : ''}`} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(block) } }}
                   onClick={(e) => { e.stopPropagation(); setSelected(block); setPendingClass(null) }}
                   onContextMenu={(e) => { e.preventDefault(); if (!editing) return; const minute = snap(clippedStart + (e.clientX - e.currentTarget.getBoundingClientRect().left) / px, plan.increment); setContext({ anchor: e.currentTarget, id: block.id, minute: Math.max(block.start + 5, Math.min(block.end - 5, minute)), x: Math.min(e.clientX, window.innerWidth - 250), y: Math.max(8, Math.min(e.clientY, window.innerHeight - 205)) }) }}
                   title={`${block.program} · ${block.name}\n${timeLabel(block.start)}–${timeLabel(block.end)} · ${block.end - block.start} min\n${block.coaches.join(', ') || 'Coach unassigned'}${warning ? `\n${[...warning].join('\n')}` : ''}`}
                   className={`absolute cursor-grab select-none overflow-hidden rounded-lg border border-l-[4px] px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-vortex-red ${selected?.id === block.id ? 'ring-2 ring-vortex-red ring-offset-1' : ''}`}
-                  style={{ ...colorStyle(block.color), left: (clippedStart - plan.start) * px + 2, width: Math.max(16, (clippedEnd - clippedStart) * px - 4), top: lane * LANE_HEIGHT + 8, height: BLOCK_HEIGHT }}>
+                  style={{ ...colorStyle(color), left: (clippedStart - plan.start) * px + 2, width: Math.max(16, (clippedEnd - clippedStart) * px - 4), top: lane * LANE_HEIGHT + 8, height: BLOCK_HEIGHT }}>
                   <div className="flex items-center gap-1"><span className="line-clamp-2 text-xs font-bold">{block.program} · {block.name}</span>{warning && <AlertTriangle size={13} className="shrink-0" />}</div><p className="mt-0.5 truncate text-[10px] font-medium">{timeLabel(block.start)}–{timeLabel(block.end)}</p><p className="mt-1 flex items-center gap-1 truncate text-[10px]"><Users size={10} className="shrink-0" /><span className="truncate">{block.coaches.join(', ') || 'Assign coach'}</span></p>
                   {editing && (['start', 'end'] as const).map((edge) => <span key={edge} data-testid={`resize-${edge}`} title={`Resize ${edge} time`} onPointerDown={(e) => startResize(e, original, edge)} onClick={(e) => e.stopPropagation()} draggable={false} onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }} className={`absolute top-0 h-full w-2 cursor-ew-resize touch-none hover:bg-black/10 ${edge === 'start' ? 'left-0' : 'right-0'}`} />)}
                 </div>
@@ -398,7 +406,10 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
         <div className="flex items-start gap-2"><GripVertical size={16} className="mt-0.5 shrink-0 cursor-grab text-gray-300" /><button disabled={!editing} onClick={() => setPendingClass(item)} className="min-w-0 flex-1 text-left"><span className="line-clamp-2 text-sm font-bold" title={`${item.program} · ${item.name}`}>{item.program} · {item.name}</span></button>{item.idea && <span className="rounded bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-700">Idea</span>}</div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500"><span className="flex items-center gap-1"><Clock3 size={12} />{item.duration} min</span><span className="flex items-center gap-1"><Users size={12} />{item.coaches.join(', ') || 'Unassigned'}</span></div>
         <p className="mt-2 line-clamp-2 min-h-8 text-[11px] text-gray-400" title={item.schedule}>{item.schedule || 'For planning and scheduling ideas'}</p>
-        <div className="mt-3 flex justify-between"><button className="inline-flex items-center gap-1 text-xs font-bold text-vortex-red disabled:opacity-40" disabled={!editing || !plan.locations.length} onClick={() => { setPendingClass(null); setSelected({ id: randomUUID(), instanceId: randomUUID(), classId: item.id, name: item.name, program: item.program, coaches: [...item.coaches], color: nextColor(plan.blocks), day, locationId: plan.locations[0].id, start: Math.min(plan.start, 1440 - item.duration), end: Math.min(plan.start + item.duration, 1440) }) }}><Plus size={13} />Add to {DAYS[day].slice(0, 3)}</button>{item.idea && <button aria-label={`Delete idea ${item.name}`} disabled={!editing} onClick={() => { commit({ ...plan, classes: plan.classes.filter((c) => c.id !== item.id) }, 'Idea removed from the library. Existing placements are kept.'); if (pendingClass?.id === item.id) setPendingClass(null) }} className="text-gray-400 hover:text-red-600"><Trash2 size={13} /></button>}</div>
+        <div className="mt-3 flex justify-between"><button className="inline-flex items-center gap-1 text-xs font-bold text-vortex-red disabled:opacity-40" disabled={!editing || !plan.locations.length} onClick={() => {
+          setPendingClass(null)
+          setSelected(classPlacement(item, day, plan.locations[0].id, Math.min(plan.start, 1440 - item.duration)))
+        }}><Plus size={13} />Add to {DAYS[day].slice(0, 3)}</button>{item.idea && <button aria-label={`Delete idea ${item.name}`} disabled={!editing} onClick={() => { commit({ ...plan, classes: plan.classes.filter((c) => c.id !== item.id) }, 'Idea removed from the library. Existing placements are kept.'); if (pendingClass?.id === item.id) setPendingClass(null) }} className="text-gray-400 hover:text-red-600"><Trash2 size={13} /></button>}</div>
       </div>)}</div>
       {!libraryLoading && !filtered.length && <p className="py-8 text-center text-sm text-gray-500">{query ? 'No classes match your search.' : 'No scheduled classes yet. Create an idea class to start planning.'}</p>}
     </section>
