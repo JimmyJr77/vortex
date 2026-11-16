@@ -77,30 +77,21 @@
 .np-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  width: 300px;
+  max-width: 100%;
   flex-shrink: 0;
   color: var(--np-ink);
 }
 .np-brand img {
-  width: 38px;
-  height: 38px;
-  object-fit: contain;
-}
-.np-brand>span {
-  font-size: 30px;
-  letter-spacing: -1.8px;
-  line-height: 1;
-  font-weight: 900;
-  font-style: italic;
-}
-.np-brand small {
   display: block;
-  font-size: 7px;
-  letter-spacing: 1.65px;
-  font-weight: 600;
-  font-style: normal;
-  margin: 7px 0 0 2px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2172 / 342;
+  /* Frame the artwork inside the supplied PNG’s transparent top/bottom space. */
+  object-fit: cover;
+  object-position: center 61.5%;
 }
+
 .np-desktop-nav {
   display: flex;
   gap: 28px;
@@ -1498,18 +1489,7 @@
     height: 73px;
     gap: 12px;
   }
-  .np-brand img {
-    width: 30px;
-    height: 30px;
-  }
-  .np-brand>span {
-    font-size: 25px;
-  }
-  .np-brand small {
-    font-size: 5.6px;
-    letter-spacing: 1.4px;
-    margin-top: 6px;
-  }
+
   .np-nav-cta {
     padding: 10px 12px;
     font-size: 9px;
@@ -1930,13 +1910,7 @@
     min-height: 44px;
     gap: 8px;
   }
-  .np-brand>span {
-    font-size: 24px;
-  }
-  .np-brand small {
-    font-size: 6px;
-    letter-spacing: 1px;
-  }
+
   .np-nav-actions {
     gap: 4px;
   }
@@ -2414,9 +2388,7 @@
 }
 @media (max-width: 359px) {
   .np-nav { padding-left: 12px; padding-right: 12px; gap: 4px; }
-  .np-brand > span { font-size: 21px; }
-  .np-brand img { width: 26px; height: 26px; }
-  .np-brand small { font-size: 5px; }
+
   .np-nav-cta { font-size: 10px; padding: 10px; }
   .np-hero-buttons { grid-template-columns: 1fr; gap: 7px; }
   .np-hero-buttons .np-text-button { justify-content: center; }
@@ -2493,3 +2465,12 @@
     font-size: 10px;
   }
 }
+
+/* Keep the full supplied logo clear without crowding the navigation. */
+@media (min-width: 861px) and (max-width: 1150px) {
+  .np-header .np-brand { width: clamp(176px, calc(100vw - 686px), 300px); }
+}
+@media (max-width: 620px) {
+  .np-header .np-brand { width: clamp(120px, calc(100vw - 234px), 220px); }
+}
+.np-footer .np-brand { width: 300px; }

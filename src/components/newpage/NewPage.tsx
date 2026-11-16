@@ -54,7 +54,7 @@ const goals = [
 const faqs = HOME_FAQS.map(({ question, answer }) => [question, answer] as const)
 
 function Brand() {
-  return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><img src="/red_vortex.png" width="42" height="42" alt="" /><span>VORTEX<small>ATHLETICS & GYMNASTICS</small></span></a>
+  return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><img src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" /></a>
 }
 
 function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = false }: { paused: boolean; onPlaybackChange?: (playing: boolean) => void; onAutoplayBlocked?: () => void; full?: boolean }) {
