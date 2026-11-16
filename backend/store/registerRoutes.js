@@ -1510,6 +1510,30 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
     }
   })
 
+  app.get('/api/members/store/orders/:id/confirmation', ...memberAuth, async (req, res) => {
+    res.set('Cache-Control', 'no-store')
+    try {
+      const sessionId = req.query.session_id
+      const orderId = integer(req.params.id, null)
+      const facilityId = await resolveFacilityId(pool, req.platformAuth)
+      const memberId = integer(req.platformAuth?.user?.member_id, null)
+      if (!facilityId || !memberId) return res.status(403).json({ success: false, message: 'Member account is required.' })
+      if (!orderId || orderId < 1 || typeof sessionId !== 'string' || !/^cs_(?:test|live)_[a-zA-Z0-9]{1,200}$/.test(sessionId)) {
+        return res.status(400).json({ success: false, message: 'Order and checkout session are required.' })
+      }
+      const result = await pool.query(
+        `SELECT payment_status, status FROM store_order
+         WHERE id = $1 AND facility_id = $2 AND member_id = $3 AND stripe_checkout_session_id = $4`,
+        [orderId, facilityId, memberId, sessionId],
+      )
+      const order = result.rows[0]
+      if (!order) return res.status(404).json({ success: false, message: 'Store order was not found.' })
+      res.json({ success: true, data: { confirmed: order.payment_status === 'paid' && ['placed', 'fulfilled'].includes(order.status) } })
+    } catch (error) {
+      handleRouteError(res, error, 'Could not confirm the store order.')
+    }
+  })
+
   app.post('/api/members/store/checkout', ...memberAuth, async (req, res) => {
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)

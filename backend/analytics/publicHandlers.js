@@ -1,9 +1,6 @@
 import Joi from 'joi'
-import {
-  ANALYTICS_POLICY_VERSION,
-  stripEventProperties,
-  upsertVisitorSession,
-} from './helpers.js'
+import { ANALYTICS_POLICY_VERSION } from './helpers.js'
+import { ingestBrowserEvents } from './eventIngest.js'
 
 const eventSchema = Joi.object({
   eventId: Joi.string().uuid().required(),
@@ -58,51 +55,7 @@ export function createPublicAnalyticsHandlers(pool) {
         })
       }
 
-      let accepted = 0
-      for (const ev of value.events) {
-        const properties = stripEventProperties(ev.properties)
-        const occurredAt = new Date(ev.occurredAt)
-
-        try {
-          await pool.query(
-            `INSERT INTO analytics_events (
-              event_id, event_name, occurred_at, visitor_id, session_id,
-              page_path, hostname, properties, consent_analytics, consent_marketing, is_staff
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-            ON CONFLICT (event_id) DO NOTHING`,
-            [
-              ev.eventId,
-              ev.eventName,
-              occurredAt,
-              ev.visitorId,
-              ev.sessionId,
-              ev.pagePath || '/',
-              ev.hostname || null,
-              JSON.stringify(properties),
-              !!ev.consentAnalytics,
-              !!ev.consentMarketing,
-              !!ev.isStaff,
-            ],
-          )
-          accepted++
-
-          if (ev.eventName === 'page_view' || ev.consentAnalytics) {
-            await upsertVisitorSession(pool, {
-              sessionId: ev.sessionId,
-              visitorId: ev.visitorId,
-              pagePath: ev.pagePath || '/',
-              hostname: ev.hostname,
-              referrer: ev.referrer,
-              utm: ev.utm,
-              isStaff: ev.isStaff,
-              occurredAt,
-            })
-          }
-        } catch (insertErr) {
-          console.warn('[analytics/event] skip', ev.eventId, insertErr.message)
-        }
-      }
-
+      const accepted = await ingestBrowserEvents(pool, value.events)
       res.json({ success: true, accepted })
     } catch (err) {
       console.error('[analytics/event]', err)

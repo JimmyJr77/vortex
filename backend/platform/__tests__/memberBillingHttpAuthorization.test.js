@@ -74,6 +74,7 @@ async function invokeRoute(app, {
     const responseHeaders = {}
     const response = {
       status(code) { statusCode = Number(code); return this },
+      set(name, value) { responseHeaders[String(name).toLowerCase()] = value; return this },
       setHeader(name, value) { responseHeaders[String(name).toLowerCase()] = value },
       json(payload) { resolve({ status: statusCode, headers: responseHeaders, body: payload }); return this },
       send(payload) { resolve({ status: statusCode, headers: responseHeaders, body: payload }); return this },
@@ -103,6 +104,58 @@ function memberHeaders(extra = {}) {
     ...extra,
   }
 }
+
+test('store confirmation requires the purchaser, their facility and the matching paid checkout session', async () => {
+  const sessionId = 'cs_test_confirmedOrder123'
+  const orders = new Map([
+    [501, { status: 'placed', payment_status: 'paid' }],
+    [502, { status: 'fulfilled', payment_status: 'paid' }],
+    [503, { status: 'awaiting_payment', payment_status: 'pending' }],
+    [504, { status: 'cancelled', payment_status: 'paid' }],
+    [505, { status: 'placed', payment_status: 'billed_to_account' }],
+  ])
+  let viewer = {}
+  const lookup = []
+  const pool = {
+    async query(sql, params) {
+      const auth = authenticationRows(sql, viewer)
+      if (auth) return auth
+      assert.match(sql, /FROM store_order\s+WHERE id = \$1 AND facility_id = \$2 AND member_id = \$3\s+AND stripe_checkout_session_id = \$4/i)
+      lookup.push(params)
+      const [orderId, facilityId, memberId, checkoutSession] = params
+      const order = orders.get(orderId)
+      if (facilityId !== 3 || memberId !== 74 || checkoutSession !== sessionId || !order) return { rows: [] }
+      return { rows: [order] }
+    },
+  }
+  const app = createPlatformApp(pool)
+  const confirm = (id, options = {}) => invokeRoute(app, {
+    path: '/api/members/store/orders/:id/confirmation',
+    params: { id: String(id) },
+    query: { session_id: sessionId },
+    headers: memberHeaders(),
+    ...options,
+  })
+
+  assert.equal((await confirm(501, { headers: {} })).status, 401)
+  assert.equal((await confirm(501, { query: {} })).status, 400)
+  assert.deepEqual(lookup, [])
+
+  for (const [id, confirmed] of [[501, true], [502, true], [503, false], [504, false], [505, false]]) {
+    const response = await confirm(id)
+    assert.equal(response.status, 200)
+    assert.equal(response.headers['cache-control'], 'no-store')
+    assert.deepEqual(response.body, { success: true, data: { confirmed } })
+  }
+
+  const wrongSession = await confirm(501, { query: { session_id: 'cs_test_differentCheckout456' } })
+  assert.equal(wrongSession.status, 404)
+  assert.equal(wrongSession.headers['cache-control'], 'no-store')
+  viewer = { member_id: 75 }
+  assert.equal((await confirm(501)).status, 404)
+  viewer = { facility_id: 4 }
+  assert.equal((await confirm(501)).status, 404)
+})
 
 test('coach-only credentials reach the Coach Portal while Admin Portal access stays restricted', async () => {
   let account = { role: 'COACH', member_id: null }

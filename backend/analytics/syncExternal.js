@@ -8,25 +8,25 @@ export async function syncExternalAnalytics(pool) {
   }
 
   const fp = await pool.query(`
+    WITH page_views AS MATERIALIZED (
+      SELECT (occurred_at AT TIME ZONE 'America/New_York')::date AS date,
+             REGEXP_REPLACE(LOWER(hostname), '^www[.]', '') AS hostname,
+             session_id, visitor_id
+      FROM analytics_events
+      WHERE event_name = 'page_view' AND consent_analytics IS TRUE AND is_staff IS NOT TRUE
+        AND occurred_at >= now() - interval '90 days' AND hostname IS NOT NULL
+        AND visitor_id NOT IN ('anonymous', '') AND session_id NOT IN ('anonymous', '')
+        AND page_path !~ '^/(admin|new-admin|member|coach|payroll)(/|$)'
+    )
     INSERT INTO analytics_daily_traffic (date, hostname, source, sessions, users, page_views)
-    SELECT DATE(started_at) AS date,
-      COALESCE(hostname, 'unknown'),
-      'first_party',
-      COUNT(*)::int,
-      COUNT(DISTINCT visitor_id)::int,
-      (SELECT COUNT(*)::int FROM analytics_events ae
-        WHERE ae.event_name = 'page_view'
-        AND DATE(ae.occurred_at) = DATE(vs.started_at)
-        AND COALESCE(ae.hostname, 'unknown') = COALESCE(vs.hostname, 'unknown')
-        AND ae.is_staff IS NOT TRUE)
-    FROM visitor_sessions vs
-    WHERE vs.started_at >= now() - interval '90 days' AND vs.is_staff IS NOT TRUE
-    GROUP BY DATE(started_at), COALESCE(hostname, 'unknown')
+    SELECT date, hostname, 'first_party',
+           COUNT(DISTINCT (session_id, visitor_id))::int,
+           COUNT(DISTINCT visitor_id)::int, COUNT(*)::int
+    FROM page_views GROUP BY date, hostname
     ON CONFLICT (date, hostname, source) DO UPDATE SET
       sessions = EXCLUDED.sessions,
       users = EXCLUDED.users,
       page_views = EXCLUDED.page_views
-    RETURNING COUNT(*)::int AS rows
   `)
   result.firstParty = { rowsUpdated: fp.rowCount }
 
