@@ -121,11 +121,80 @@ test('daily report shows inquiry, enrollment and billing details before the high
   })
 
   assert.equal(result.subject, 'Vortex Daily Report — Thursday, November 12, 2026')
-  assert.match(result.text, /Inquiries[\s\S]*New enrollees and adds[\s\S]*Drops[\s\S]*Unpaid tuition[\s\S]*Today's class roster/)
+  assert.match(result.text, /Inquiries[\s\S]*New enrollees and adds[\s\S]*Drops[\s\S]*Unpaid tuition[\s\S]*Class roster for Thursday, November 12, 2026/)
   assert.match(result.text, /Nell Silva\n\s+Member · parent · nell@example\.com · 555-0100\n\s+Children: Alex \(Age 0\) \/ Sam \(Age 4\)/)
   assert.match(result.text, /Jaime Liu \(Age 7\) — Twisters\n\s+Gymnastics · Monday · 16:00–17:00; Wednesday · 17:00–18:00\n\s+Start date: 2026-11-16\n\s+Parent or guardian: Kim Liu · kim@example\.com · 555-0102/)
   assert.match(result.text, /Taylor Mills — \$55\.00 due\n\s+Charlie Mills · Twisters · \$55\.00 · Card declined/)
   assert.match(result.html, /Twisters &amp; Tumbling/)
-  assert.match(result.html, /Monthly Member<\/li>[\s\S]*Drop-ins and make-ups \(1\)[\s\S]*Single &lt;Day&gt; \(Admin credit\)/)
+  assert.match(result.html, /Monthly Member<\/li>[\s\S]*Drop-ins, free trials and make-ups \(1\)[\s\S]*Single &lt;Day&gt; \(Drop-in · Admin credit\)/)
   assert.equal(result.html.split('Single &lt;Day&gt;').length, 2)
+})
+
+test('report distinguishes dated trials, recent future bookings, new class members and every drop-in benefit', () => {
+  const roster = {
+    date: '2026-11-16', dateLabel: 'Monday, November 16, 2026', classCount: 1, athleteCount: 7,
+    report: {
+      inquiries: [], enrollees: [], adds: [], drops: [], unpaid: [],
+      trials: [{ name: 'Future <Trial>', className: 'Tumbling', classDate: '2026-11-20', scheduleLabel: '2026-11-20 · 16:00–17:00' }],
+    },
+    classes: [{
+      startTime: '16:00', timeLabel: '4:00 PM–5:00 PM', className: 'Tumbling', athleteCount: 7,
+      athletes: [
+        { name: 'Returning Member', source: 'scheduling', isNew: false },
+        { name: 'First <Class>', source: 'scheduling', isNew: true },
+        { name: 'Booked Earlier', source: 'drop_in', benefitType: 'free_trial', amountCents: 0 },
+        { name: 'Paid Visitor', source: 'drop_in', benefitType: null, amountCents: 2500 },
+        { name: 'Credit Visitor', source: 'drop_in', benefitType: 'annual_credit', amountCents: 0 },
+        { name: 'Pass Visitor', source: 'drop_in', benefitType: 'free_pass', amountCents: 0 },
+        { name: 'Promo Visitor', source: 'drop_in', benefitType: 'promo_code', amountCents: 0 },
+      ],
+    }],
+  }
+  const { text, html } = renderDailyRosterEmail(roster)
+  for (const output of [text, html]) {
+    assert.match(output, /Free trials scheduled for Monday, November 16, 2026 \(1\)/)
+    assert.match(output, /Booked Earlier \(Free Trial\)/)
+    assert.match(output, /Free-trial bookings in the last 24 hours \(1\)/)
+    assert.match(output, /2026-11-20/)
+    assert.match(output, /Paid Visitor \(Drop-in\)/)
+    assert.match(output, /Credit Visitor \(Drop-in · Annual member credit\)/)
+    assert.match(output, /Pass Visitor \(Drop-in · Free pass\)/)
+    assert.match(output, /Promo Visitor \(Drop-in · Registration code\)/)
+    assert.doesNotMatch(output, /Returning Member \(New\)/)
+    assert.doesNotMatch(output, /Visitor \(Free Trial\)/)
+  }
+  assert.match(text, /First <Class> \(New\)/)
+  assert.match(html, /First &lt;Class&gt; \(New\)/)
+  assert.match(html, /Future &lt;Trial&gt;/)
+  assert.doesNotMatch(html, /<Trial>|<Class>/)
+  assert.equal(text.split('Booked Earlier (Free Trial)').length, 3, 'appears once in dated trial summary and once in class roster')
+  assert.equal(text.split('Future <Trial>').length, 2, 'future booking is activity, not in the recorded day roster')
+})
+
+test('daily report explicitly reports no trials for a date without classes or recent bookings', () => {
+  const { text, html } = renderDailyRosterEmail({
+    date: '2026-11-15', dateLabel: 'Sunday, November 15, 2026', classCount: 0, athleteCount: 0,
+    classes: [], report: { inquiries: [], enrollees: [], adds: [], drops: [], unpaid: [] },
+  })
+  for (const output of [text, html]) {
+    assert.match(output, /No free trials scheduled for this date\./)
+    assert.match(output, /No new free-trial bookings recorded\./)
+    assert.match(output, /No classes are scheduled for this date\./)
+  }
+})
+
+test('trial summary counts a group booking once across multiple same-day class times', () => {
+  const { text, html } = renderDailyRosterEmail({
+    date: '2026-11-16', dateLabel: 'Monday, November 16, 2026', classCount: 2, athleteCount: 2,
+    report: { inquiries: [], enrollees: [], adds: [], drops: [], unpaid: [] },
+    classes: ['4:00 PM–5:00 PM', '5:00 PM–6:00 PM'].map(timeLabel => ({
+      className: 'Tumbling', timeLabel, athleteCount: 1,
+      athletes: [{ signupId: 9, source: 'drop_in', benefitType: 'free_trial', name: 'One Trial' }],
+    })),
+  })
+  for (const output of [text, html]) {
+    assert.match(output, /Free trials scheduled for Monday, November 16, 2026 \(1\)/)
+    assert.match(output, /4:00 PM–5:00 PM; 5:00 PM–6:00 PM/)
+  }
+  assert.equal(text.split('One Trial (Free Trial)').length, 4, 'one summary entry and two scheduled occurrences')
 })
