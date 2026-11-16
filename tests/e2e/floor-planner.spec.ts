@@ -1,14 +1,32 @@
 import { expect, test, type Page } from '@playwright/test'
+import type { Plan } from '../../src/components/floorPlanner/model'
 
 const runtimeErrors = new WeakMap<Page, string[]>()
 test.beforeEach(({ page }) => { const errors: string[] = []; runtimeErrors.set(page, errors); page.on('pageerror', (error) => errors.push(error.message)) })
 test.afterEach(async ({ page }) => { expect(runtimeErrors.get(page)).toEqual([]); await expect(page.locator('vite-error-overlay')).toHaveCount(0) })
 
-const basePlan = () => ({ version: 1, increment: 15, start: 480, end: 780, locations: [{ id: 'floor', name: 'Main floor' }, { id: 'bars', name: 'Bars' }], classes: [], blocks: [] })
-async function openPlanner(page: Page, manage = true) {
+const basePlan = (): Plan => ({ version: 1, increment: 15, start: 480, end: 780, locations: [{ id: 'floor', name: 'Main floor' }, { id: 'bars', name: 'Bars' }], classes: [], blocks: [] })
+const juniorClassOn = (date: string, startTime: string, endTime: string) => ({
+  id: 'junior-monday', date, startTime, endTime, formId: 20, classEventId: 10,
+  programsId: 30, programName: 'Gymnastics', className: 'Junior Gymnastics',
+  offeringId: 60, slotGroupId: 40, timeSlotId: 50, formActive: true,
+  classActive: true, slotGroupActive: true, slotActive: true,
+})
+
+async function openPlanner(page: Page, {
+  manage = true,
+  view = 'weekly-plan',
+  initialPlan,
+  calendarEvents = () => [],
+}: {
+  manage?: boolean
+  view?: 'weekly-plan' | 'current'
+  initialPlan?: Plan
+  calendarEvents?: (startDate: string) => unknown[]
+} = {}) {
   const writes: Record<string, unknown>[] = []
-  let saved: unknown = null
-  let revision = 0
+  let saved: unknown = initialPlan ?? null
+  let revision = initialPlan ? 1 : 0
   const namedViews = new Map<string, { id: string; name: string; revision: number; selectedDay: number; plan: unknown; facilityId: number; updatedAt: string }>()
   let nextView = 1
   await page.addInitScript(() => {
@@ -16,7 +34,7 @@ async function openPlanner(page: Page, manage = true) {
     localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Planner Admin', email: 'planner@example.com', isMaster: true }))
   })
   await page.route('**/api/**', async (route) => {
-    const path = new URL(route.request().url()).pathname
+    const { pathname: path, searchParams } = new URL(route.request().url())
     const json = (data: unknown) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) })
     if (path === '/api/admin/access/me') return json({ isMasterAdmin: false, permissions: ['scheduling.view', 'classes.view', ...(manage ? ['scheduling.manage'] : [])], roles: ['ADMIN'], user: { id: 1 } })
     if (path === '/api/admin/notifications') return json({ notifications: [], unreadCount: 0 })
@@ -47,13 +65,14 @@ async function openPlanner(page: Page, manage = true) {
       return json(view)
     }
     if (path === '/api/admin/floor-planner/coaches') return json([{ id: 1, name: 'Avery', assignments: [{ classId: 10 }] }, { id: 2, name: 'Jordan', assignments: [] }])
+    if (path === '/api/admin/scheduling/calendar') return json({ events: calendarEvents(searchParams.get('startDate')!), tbdPatterns: [] })
     if (path === '/api/admin/class-setup/overview') return json({ rows: [{ classId: 10, className: 'Junior Gymnastics', programName: 'Gymnastics', classIsActive: true, classArchived: false, programArchived: false, formId: 20, programsId: 30, offerings: [], slotGroups: [{ slotGroupId: 40, formId: 20, offeringId: null, maxParticipants: 12, signupCount: 4, scheduleLabel: 'Monday · 09:00–10:00', scheduleLines: [{ timeSlotId: 50, isActive: true, scheduleLabel: 'Monday · 09:00–10:00' }] }] }] })
     return json([])
   })
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible({ timeout: 30000 })
   await page.getByRole('navigation').getByRole('button', { name: 'Floor Planner', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Floor Planner', exact: true })).toBeVisible()
+  if (view === 'weekly-plan') await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await page.getByRole('tab', { name: /^Mon/ }).click()
   await expect(page.getByTestId('library-class')).toHaveCount(1)
   return writes
@@ -89,8 +108,8 @@ test('scheduled duration, coaches, independent colors, weekdays, copying and sav
   expect(plan.blocks).toHaveLength(3)
   expect(plan.blocks[0].end - plan.blocks[0].start).toBe(60)
   await page.reload()
-  await expect(page.getByRole('heading', { name: /VORTEX ADMIN/i })).toBeVisible()
   await page.getByRole('navigation').getByRole('button', { name: 'Floor Planner', exact: true }).click()
+  await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await page.getByRole('tab', { name: /^Tue/ }).click()
   await expect(page.getByTestId('floor-block')).toHaveCount(1)
 })
@@ -158,7 +177,7 @@ test('resizing snaps to grid and search, idea creation, locations and replacemen
 })
 
 test('read-only admins cannot change the plan', async ({ page }) => {
-  await openPlanner(page, false)
+  await openPlanner(page, { manage: false })
   await expect(page.getByText('View only', { exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save week', exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Notional Class' })).toBeDisabled()
@@ -177,6 +196,7 @@ test('unsaved drafts survive navigation, coach overlaps are visible and stale sa
   await expect(page.getByRole('region', { name: 'Class details' }).getByText('Coach overlap: Avery', { exact: true })).toBeVisible()
   await page.getByRole('navigation').getByRole('button', { name: 'Home', exact: true }).click()
   await page.getByRole('navigation').getByRole('button', { name: 'Floor Planner', exact: true }).click()
+  await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await page.getByRole('tab', { name: /^Mon/ }).click()
   await expect(page.getByTestId('floor-block')).toHaveCount(2)
   await expect(page.getByText('Restored your unsaved plan from this tab.', { exact: true }).last()).toBeVisible()
@@ -268,6 +288,92 @@ async function saveAsView(page: Page, name: string) {
   await expect(page.getByRole('dialog')).toHaveCount(0)
 }
 
+test('the default shows current class times, and a saved view keeps manual floor assignments', async ({ page }) => {
+  let startTime = '09:07'
+  let endTime = '10:02'
+  const initialPlan = basePlan()
+  initialPlan.blocks.push({
+    id: 'old-block', instanceId: 'old-instance', classId: 'old-class', name: 'Previous plan class',
+    program: 'Gymnastics', coaches: [], day: 0, locationId: 'floor', start: 600, end: 660, color: 0,
+  })
+  const writes = await openPlanner(page, {
+    view: 'current',
+    initialPlan,
+    calendarEvents: (date) => [juniorClassOn(date, startTime, endTime)],
+  })
+
+  const viewSelector = page.getByLabel('Saved view', { exact: true })
+  await expect(viewSelector.locator('option:checked')).toHaveText('Current schedule')
+  const unassigned = page.getByTestId('floor-row-Unassigned').getByTestId('floor-block')
+  await expect(unassigned).toContainText('Junior Gymnastics')
+  await expect(unassigned).toContainText('9:07 AM–10:02 AM')
+  await expect(page.getByTestId('floor-block')).toHaveCount(1)
+
+  const axis = page.getByRole('tabpanel')
+  const nine = await axis.getByText('9:00 AM', { exact: true }).boundingBox()
+  const nextTick = await axis.getByText('9:15 AM', { exact: true }).boundingBox()
+  const scheduled = await unassigned.boundingBox()
+  expect(nine && nextTick && scheduled).not.toBeNull()
+  const pixelsPerMinute = (nextTick!.x - nine!.x) / 15
+  expect(Math.abs(scheduled!.x - nine!.x - 7 * pixelsPerMinute)).toBeLessThan(6)
+  expect(Math.abs(scheduled!.width - 55 * pixelsPerMinute)).toBeLessThan(6)
+
+  const barsRow = page.getByTestId('floor-row-Bars')
+  const assigned = barsRow.getByTestId('floor-block')
+  // Drop further along the time axis to verify assignment keeps the original times.
+  await unassigned.dragTo(barsRow, { sourcePosition: { x: 24, y: 24 }, targetPosition: { x: 365, y: 30 } })
+  await expect(assigned).toContainText('9:07 AM–10:02 AM')
+  await expect(unassigned).toHaveCount(0)
+  await saveAsView(page, 'Monday floor assignments')
+  await expect(viewSelector.locator('option:checked')).toHaveText('Monday floor assignments')
+
+  startTime = '09:22'
+  endTime = '10:17'
+  await page.reload()
+  await page.getByRole('navigation').getByRole('button', { name: 'Floor Planner', exact: true }).click()
+  await page.getByRole('tab', { name: /^Mon/ }).click()
+  await expect(viewSelector.locator('option:checked')).toHaveText('Current schedule')
+  await expect(unassigned).toContainText('9:22 AM–10:17 AM')
+  await expect(assigned).toHaveCount(0)
+
+  await viewSelector.selectOption({ label: 'Monday floor assignments' })
+  await expect(assigned).toContainText('9:07 AM–10:02 AM')
+  await expect(unassigned).toHaveCount(0)
+  await viewSelector.selectOption({ label: 'Weekly plan' })
+  await expect(page.getByTestId('floor-row-Main floor').getByTestId('floor-block')).toContainText('Previous plan class')
+  expect(writes).toHaveLength(0)
+})
+
+test('the current schedule restores an unsaved placement only while its source is unchanged', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z'))
+  let startTime = '09:07'
+  await openPlanner(page, {
+    view: 'current',
+    calendarEvents: (date) => [juniorClassOn(date, startTime, '10:02')],
+  })
+
+  const unassigned = page.getByTestId('floor-row-Unassigned').getByTestId('floor-block')
+  const assigned = page.getByTestId('floor-row-Bars').getByTestId('floor-block')
+  await unassigned.click()
+  const editor = page.getByRole('region', { name: 'Class details' })
+  await editor.getByRole('combobox', { name: 'Location', exact: true }).selectOption('bars')
+  await editor.getByRole('button', { name: 'Apply placement' }).click()
+  await expect(assigned).toContainText('9:07 AM–10:02 AM')
+  await expect(page.getByText('Unsaved changes', { exact: true })).toBeVisible()
+
+  const viewSelector = page.getByLabel('Saved view', { exact: true })
+  await viewSelector.selectOption({ label: 'Weekly plan' })
+  await viewSelector.selectOption({ label: 'Current schedule' })
+  await expect(assigned).toContainText('9:07 AM–10:02 AM')
+
+  startTime = '09:22'
+  await viewSelector.selectOption({ label: 'Weekly plan' })
+  await viewSelector.selectOption({ label: 'Current schedule' })
+  await expect(unassigned).toContainText('9:22 AM–10:02 AM')
+  await expect(assigned).toHaveCount(0)
+  await expect(page.getByTestId('floor-planner').getByRole('status')).toContainText('The schedule changed since your last visit.')
+})
+
 test('named views save independent weeks and display settings, reopen, update, and delete', async ({ page }) => {
   const writes = await openPlanner(page)
   await addClass(page)
@@ -289,7 +395,7 @@ test('named views save independent weeks and display settings, reopen, update, a
   await expect(page.getByRole('tab', { name: /^Tue/ })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByLabel('Time increments')).toHaveValue('30')
   await expect(page.getByTestId('floor-block')).toHaveCount(1)
-  await page.getByLabel('Saved view', { exact: true }).selectOption('')
+  await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await page.getByRole('tab', { name: /^Mon/ }).click()
   await expect(page.getByLabel('Time increments')).toHaveValue('15')
   await expect(page.getByTestId('floor-block')).toHaveCount(1)
@@ -323,7 +429,7 @@ test('named view drafts are isolated and duplicate names keep the save dialog op
   await page.getByRole('button', { name: 'Close dialog' }).click()
   await page.getByTestId('floor-block').click()
   await page.getByRole('button', { name: 'Remove', exact: true }).click()
-  await page.getByLabel('Saved view', { exact: true }).selectOption('')
+  await page.getByLabel('Saved view', { exact: true }).selectOption('weekly-plan')
   await expect(page.getByTestId('floor-block')).toHaveCount(1)
   await page.getByLabel('Saved view', { exact: true }).selectOption({ label: 'Fall plan' })
   await expect(page.getByTestId('floor-block')).toHaveCount(0)

@@ -44,6 +44,7 @@ export function parseCalendarDateRange(query) {
  * @param {{
  *   startDate: string,
  *   endDate: string,
+ *   facilityId?: number | null,
  *   programsId?: number | null,
  *   programId?: number | null,
  *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
@@ -59,6 +60,7 @@ export async function loadSchedulingCalendar(pool, options) {
 // of an enrollment, including offering inheritance and alternating weeks.
 export async function loadSchedulingCalendarRows(pool, options = {}) {
   const {
+    facilityId = null,
     programsId = null,
     programId = null,
     formActive = 'all',
@@ -87,6 +89,10 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
     filters.push('p.is_active = FALSE')
   }
 
+  if (facilityId != null) {
+    params.push(facilityId)
+    filters.push(`p.facility_id = $${params.length}`)
+  }
   if (programsId != null) {
     params.push(programsId)
     filters.push(`sf.programs_id = $${params.length}`)

@@ -2,10 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type
 import PortalOverlay from '../portal/PortalOverlay'
 import { AlertTriangle, Check, Clock3, Copy, GripVertical, LayoutGrid, Loader2, MapPin, Plus, Save, Scissors, Search, RotateCcw, Trash2, Undo2, Users, X } from 'lucide-react'
 import { fetchClassSetupOverview } from '../../utils/classSetupOverviewApi'
-import { adminFetchSchedulingCalendar } from '../../utils/schedulingApi'
 import { randomUUID } from '../../utils/uuid'
-import { deleteView, isSavedView, listViews, loadCoaches, loadPlan, loadView, savePlan, saveView, type ViewSummary } from './api'
-import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, currentWeekRange, resetFromSchedule, buildLibrary, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, nextColor, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
+import { deleteView, isSavedView, listViews, loadCoaches, loadCurrentSchedule, loadPlan, loadView, savePlan, saveView, type ViewSummary } from './api'
+import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, resetFromSchedule, buildLibrary, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, nextColor, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
 import PlannerDialog from './PlannerDialog'
 
 const CELL = 64
@@ -13,6 +12,7 @@ const input = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-
 const button = 'inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40'
 const primary = 'inline-flex items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40'
 const DRAG_TYPE = 'application/x-vortex-floor-class'
+const WEEKLY_PLAN = 'weekly-plan'
 interface DragData { kind: 'class' | 'block'; id: string; offset: number }
 interface Context { id: string; minute: number; x: number; y: number; anchor: HTMLElement }
 
@@ -20,6 +20,8 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const [plan, setPlan] = useState<Plan>(newPlan)
   const [saved, setSaved] = useState('')
   const [revision, setRevision] = useState(0)
+  const [viewId, setViewId] = useState('')
+  const [scheduleSource, setScheduleSource] = useState<{ startDate: string; endDate: string; signature: string; warning: string } | null>(null)
   const [activeView, setActiveView] = useState<ViewSummary | null>(null)
   const [views, setViews] = useState<ViewSummary[]>([])
   const [viewsError, setViewsError] = useState('')
@@ -55,43 +57,76 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const resizeCleanup = useRef<(() => void) | null>(null)
   const [resizing, setResizing] = useState<Block | null>(null)
   const contextRef = useRef<HTMLDivElement>(null)
+  const boardRef = useRef<HTMLDivElement>(null)
+  const positionedDay = useRef<number | null>(null)
+  const loadRequest = useRef(0)
+  const isCurrentSchedule = viewId === ''
   const serialized = JSON.stringify(plan)
   const dirty = serialized !== saved || Boolean(activeView && day !== savedDay)
   const px = CELL / plan.increment
   const width = (plan.end - plan.start) * px
   const editing = canManage && !saving && !loading
 
-  const reload = useCallback(async (restoreDraft = true, targetViewId = '') => {
-    setLoading(true); setLoadError(''); setError('')
+  const reload = useCallback(async (restoreDraft = true, targetViewId = '', coachesRequest?: Promise<Coach[]>) => {
+    const requestId = ++loadRequest.current
+    positionedDay.current = null
+    setViewId(targetViewId); setLoading(true); setLoadError(''); setError(''); setDialog(null)
     try {
-      const result = targetViewId ? await loadView(targetViewId) : await loadPlan()
-      const initial = result.plan || newPlan()
-      const key = `vortex-floor-planner:${result.facilityId}:${userId ?? 'admin'}${targetViewId ? `:${targetViewId}` : ''}`
+      const opensSavedView = targetViewId !== '' && targetViewId !== WEEKLY_PLAN
+      const [result, schedule] = await Promise.all([
+        opensSavedView ? loadView(targetViewId) : loadPlan(),
+        targetViewId === '' ? loadCurrentSchedule(coachesRequest) : null,
+      ])
+      if (requestId !== loadRequest.current) return
+      const base = result.plan || newPlan()
+      const snapshot = schedule ? resetFromSchedule(base, schedule.events, schedule.coaches ?? [], schedule.range) : null
+      const initial = snapshot?.plan ?? base
+      const suffix = schedule ? ':current-schedule' : opensSavedView ? `:${targetViewId}` : ''
+      const key = `vortex-floor-planner:${result.facilityId}:${userId ?? 'admin'}${suffix}`
+      const source = schedule && snapshot ? {
+        ...schedule.range, signature: snapshot.signature,
+        warning: [
+          snapshot.unsupportedTimes ? `${snapshot.unsupportedTimes} scheduled ${snapshot.unsupportedTimes === 1 ? 'class could' : 'classes could'} not be shown due to unsupported start or end times.` : '',
+          schedule.coaches === null ? 'Coach assignments are unavailable for this schedule.' : '',
+        ].filter(Boolean).join(' '),
+      } : null
       setStorageKey(key)
+      setScheduleSource(source)
       if (isSavedView(result)) { setActiveView(result); setDay(result.selectedDay); setSavedDay(result.selectedDay) }
-      else setActiveView(null)
-      setSelected(null); setPendingClass(null); setContext(null); setNotice('')
+      else {
+        setActiveView(null)
+        if (schedule) {
+          if (restoreDraft) setDay((new Date().getDay() + 6) % 7)
+          if (schedule.coaches) setCoaches(schedule.coaches)
+        }
+      }
+      setSelected(null); setPendingClass(null); setContext(null); setNotice(''); setDropPreview(null)
       setSaved(JSON.stringify(initial)); setRevision(result.revision); setPlan(initial); setHistory([])
       if (restoreDraft && canManage) {
         try {
           const draft = JSON.parse(sessionStorage.getItem(key) || 'null')
           if (draft?.plan?.version === 1 && Array.isArray(draft.plan.blocks)) {
-            setPlan(draft.plan); setRevision(draft.revision)
-            if (targetViewId && Number.isInteger(draft.day) && draft.day >= 0 && draft.day <= 6) setDay(draft.day)
-            setNotice('Restored your unsaved plan from this tab.')
+            if (!source || (draft.week === source.startDate && draft.signature === source.signature)) {
+              setPlan(draft.plan); setRevision(draft.revision)
+              if (targetViewId !== WEEKLY_PLAN && Number.isInteger(draft.day) && draft.day >= 0 && draft.day <= 6) setDay(draft.day)
+              setNotice('Restored your unsaved plan from this tab.')
+            } else {
+              setNotice('The schedule changed since your last visit. Showing the latest schedule.')
+            }
           }
         } catch { /* Storage is optional; server saves remain available. */ }
       } else { try { sessionStorage.removeItem(key) } catch { /* optional */ } }
-    } catch (err) { setLoadError(err instanceof Error ? err.message : 'Unable to load the plan.') }
-    finally { setLoading(false) }
+    } catch (err) {
+      if (requestId === loadRequest.current) setLoadError(err instanceof Error ? err.message : 'Unable to load the plan.')
+    } finally { if (requestId === loadRequest.current) setLoading(false) }
   }, [userId, canManage])
   const refreshViews = useCallback(async () => {
     try { setViews(await listViews()); setViewsError('') }
     catch (err) { setViewsError(err instanceof Error ? err.message : 'Unable to load saved views.') }
   }, [])
-  const reloadLibrary = useCallback(async () => {
+  const reloadLibrary = useCallback(async (coachesRequest = loadCoaches()) => {
     setLibraryLoading(true); setLibraryError('')
-    const [classesResult, coachesResult] = await Promise.allSettled([fetchClassSetupOverview(), loadCoaches()])
+    const [classesResult, coachesResult] = await Promise.allSettled([fetchClassSetupOverview(), coachesRequest])
     const availableCoaches = coachesResult.status === 'fulfilled' ? coachesResult.value : []
     setCoaches(availableCoaches)
     if (classesResult.status === 'fulfilled') setLibrary(buildLibrary(classesResult.value.rows, availableCoaches))
@@ -101,14 +136,17 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     ].filter(Boolean).join(' '))
     setLibraryLoading(false)
   }, [])
-  useEffect(() => { void reload(); void reloadLibrary(); void refreshViews() }, [reload, reloadLibrary, refreshViews])
+  useEffect(() => {
+    const coachesRequest = loadCoaches()
+    void reload(true, '', coachesRequest); void reloadLibrary(coachesRequest); void refreshViews()
+  }, [reload, reloadLibrary, refreshViews])
   useEffect(() => {
     if (loading || loadError || !storageKey || !canManage) return
     try {
-      if (dirty) sessionStorage.setItem(storageKey, JSON.stringify({ plan, revision, day }))
+      if (dirty) sessionStorage.setItem(storageKey, JSON.stringify({ plan, revision, day, week: scheduleSource?.startDate, signature: scheduleSource?.signature }))
       else sessionStorage.removeItem(storageKey)
     } catch { /* Browser storage can be unavailable; the unsaved badge remains visible. */ }
-  }, [plan, revision, day, dirty, loading, loadError, storageKey, canManage])
+  }, [plan, revision, day, dirty, loading, loadError, storageKey, canManage, scheduleSource])
   useEffect(() => {
     if (!dirty || loading) return
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = '' }
@@ -143,6 +181,13 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const allClasses = useMemo(() => [...library, ...plan.classes], [library, plan.classes])
   const filtered = allClasses.filter((c) => `${c.name} ${c.program} ${c.coaches.join(' ')} ${c.schedule || ''}`.toLowerCase().includes(query.toLowerCase()))
   const dayBlocks = useMemo(() => plan.blocks.filter((b) => b.day === day), [plan.blocks, day])
+  useEffect(() => {
+    const board = boardRef.current
+    if (loading || !isCurrentSchedule || !board || positionedDay.current === day) return
+    positionedDay.current = day
+    const firstStart = Math.min(...dayBlocks.map((block) => block.start))
+    board.scrollLeft = Number.isFinite(firstStart) ? Math.max(0, (firstStart - plan.start) * px - CELL) : 0
+  }, [day, dayBlocks, isCurrentSchedule, loading, plan.start, px])
   const warnings = useMemo(() => conflicts(dayBlocks), [dayBlocks])
   const rows = plan.locations.map((location) => ({ ...location, ...layoutBlocks(dayBlocks.filter((b) => b.locationId === location.id)) }))
   const ticks = Array.from({ length: Math.ceil((plan.end - plan.start) / plan.increment) }, (_, i) => plan.start + i * plan.increment)
@@ -164,7 +209,9 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     const item = data.kind === 'class' ? allClasses.find((c) => c.id === data.id) : plan.blocks.find((b) => b.id === data.id)
     if (!item) return null
     const duration = 'duration' in item ? item.duration : item.end - item.start
-    const start = Math.max(0, Math.min(1440 - duration, snap(plan.start + (event.clientX - event.currentTarget.getBoundingClientRect().left) / px - data.offset, plan.increment)))
+    const start = 'locationId' in item && item.locationId === UNASSIGNED_LOCATION
+      ? item.start
+      : Math.max(0, Math.min(1440 - duration, snap(plan.start + (event.clientX - event.currentTarget.getBoundingClientRect().left) / px - data.offset, plan.increment)))
     return { data, item, start, duration }
   }
   const splitBlock = (id: string, minute: number) => {
@@ -192,13 +239,13 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const prepareReset = async () => {
     const requestId = ++resetRequest.current
     setDialog('reset'); setResetPreview(null); setResetError(''); setResetLoading(true)
-    const range = currentWeekRange()
     try {
-      const [calendar, currentCoaches] = await Promise.all([
-        adminFetchSchedulingCalendar({ ...range, formActive: 'active' }), loadCoaches(),
-      ])
+      const { range, events, coaches: currentCoaches } = await loadCurrentSchedule()
       if (requestId !== resetRequest.current) return
-      setResetPreview({ plan: resetFromSchedule(plan, calendar.events, currentCoaches, range), ...range })
+      if (!currentCoaches) throw new Error('Coach assignments could not load. Your plan has not changed.')
+      const snapshot = resetFromSchedule(plan, events, currentCoaches, range)
+      if (snapshot.unsupportedTimes) throw new Error('Some scheduled classes have unsupported start or end times. Your plan has not changed.')
+      setResetPreview({ plan: snapshot.plan, ...range })
       setCoaches(currentCoaches)
     } catch (err) {
       if (requestId === resetRequest.current) setResetError(err instanceof Error ? err.message : 'Unable to read the current schedule. Your plan has not changed.')
@@ -219,6 +266,10 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     setSaving(true); setViewError('')
     try {
       const result = await saveView(plan, day, name)
+      if (isCurrentSchedule) {
+        try { sessionStorage.removeItem(storageKey) } catch { /* Optional draft storage. */ }
+      }
+      setViewId(result.id); setScheduleSource(null)
       setActiveView(result); setRevision(result.revision); setSaved(serialized); setSavedDay(day)
       setStorageKey(`vortex-floor-planner:${result.facilityId}:${userId ?? 'admin'}:${result.id}`)
       setViews((items) => [...items, result].sort((a, b) => a.name.localeCompare(b.name)))
@@ -238,21 +289,27 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     finally { setSaving(false) }
   }
 
+  const openSaveView = () => { setViewError(''); setDialog('saveView') }
+  const reloadLabel = isCurrentSchedule ? 'Refresh schedule' : activeView ? 'Reload saved view' : 'Reload saved week'
+  const viewControls = (
+    <section aria-label="Saved planning views" className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4">
+      <label className="min-w-56 text-xs font-semibold text-gray-600">Saved view<select aria-label="Saved view" className={`${input} mt-1`} value={viewId} disabled={saving} onChange={(e) => void reload(true, e.target.value)}><option value="">Current schedule</option><option value={WEEKLY_PLAN}>Weekly plan</option>{views.map((view) => <option key={view.id} value={view.id}>{view.name}</option>)}</select></label>
+      <p className="flex-1 text-xs text-gray-500">{!loadError && scheduleSource ? `${scheduleSource.startDate} through ${scheduleSource.endDate}` : 'Each saved view keeps all seven days, locations, classes, coaches, and timeline settings.'}</p>
+      <div className="flex gap-2"><button className={button} disabled={saving} onClick={() => void refreshViews()}>Refresh views</button>{!isCurrentSchedule && !loadError && <button className={button} disabled={!editing} onClick={openSaveView}><Plus size={15} />Save as new view</button>}{activeView && !loadError && <button className={`${button} !text-red-600`} disabled={!editing} onClick={() => { setViewError(''); setDialog('deleteView') }}><Trash2 size={15} />Delete view</button>}</div>
+      {viewsError && <p role="alert" className="w-full text-sm text-red-700">{viewsError}</p>}
+    </section>
+  )
   if (loading) return <div className="flex items-center gap-3 p-12 text-gray-500"><Loader2 className="animate-spin" />Loading Floor Planner…</div>
-  if (loadError) return <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-6"><h2 className="text-xl font-bold">Floor Planner</h2><p className="my-3">{loadError}</p><button className={button} onClick={() => void reload()}>Load current week</button></div>
+  if (loadError) return <div className="space-y-5"><h2 className="text-3xl font-bold">Floor Planner</h2>{viewControls}<div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-6"><p className="mb-3">{loadError}</p><button className={button} onClick={() => void reload(true, viewId)}>Try again</button></div></div>
 
   return <div className="space-y-5 text-gray-900" data-testid="floor-planner">
     <header className="flex flex-wrap items-start justify-between gap-4">
       <div><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-vortex-red"><LayoutGrid size={15} />Facility planning</div><h2 className="text-3xl font-bold tracking-tight">Floor Planner</h2><p className="mt-1 text-sm text-gray-500">A place for every class. A plan for every day.</p></div>
-      <div className="flex flex-wrap items-center gap-2"><span className={`mr-2 text-xs font-medium ${dirty ? 'text-amber-700' : 'text-emerald-700'}`}>{dirty ? 'Unsaved changes' : 'All changes saved'}</span><button className={button} disabled={!editing || !history.length} onClick={() => { setPlan(history[history.length - 1]); setHistory(history.slice(0, -1)); setSelected(null); setNotice('Last change undone.') }}><Undo2 size={15} />Undo</button><button className={button} disabled={saving} onClick={() => setDialog('reload')}>Reload saved</button><button className={button} disabled={!editing} onClick={() => void prepareReset()}><RotateCcw size={15} />Reset to current schedule</button>{canManage && <button className={primary} disabled={!dirty || saving} onClick={() => void save()}>{saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}{activeView ? 'Save view' : 'Save week'}</button>}</div>
+      <div className="flex flex-wrap items-center gap-2"><span className={`mr-2 text-xs font-medium ${dirty ? 'text-amber-700' : 'text-emerald-700'}`}>{dirty ? 'Unsaved changes' : isCurrentSchedule ? 'Current schedule' : 'All changes saved'}</span><button className={button} disabled={!editing || !history.length} onClick={() => { setPlan(history[history.length - 1]); setHistory(history.slice(0, -1)); setSelected(null); setNotice('Last change undone.') }}><Undo2 size={15} />Undo</button><button className={button} disabled={saving} onClick={() => { if (isCurrentSchedule && !dirty) void reload(false, viewId); else setDialog('reload') }}>{isCurrentSchedule ? reloadLabel : 'Reload saved'}</button>{!isCurrentSchedule && <button className={button} disabled={!editing} onClick={() => void prepareReset()}><RotateCcw size={15} />Reset to current schedule</button>}{canManage && <button className={primary} disabled={saving || (!isCurrentSchedule && !dirty)} onClick={isCurrentSchedule ? openSaveView : () => void save()}>{saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}{isCurrentSchedule ? 'Save as new view' : activeView ? 'Save view' : 'Save week'}</button>}</div>
     </header>
-    <section aria-label="Saved planning views" className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4">
-      <label className="min-w-56 text-xs font-semibold text-gray-600">Saved view<select aria-label="Saved view" className={`${input} mt-1`} value={activeView?.id || ''} disabled={saving} onChange={(e) => void reload(true, e.target.value)}><option value="">Current week</option>{views.map((view) => <option key={view.id} value={view.id}>{view.name}</option>)}</select></label>
-      <p className="flex-1 text-xs text-gray-500">Each view saves all seven days, locations, classes, coaches, visible hours, and time increments.</p>
-      <div className="flex gap-2"><button className={button} disabled={saving} onClick={() => void refreshViews()}>Refresh views</button><button className={button} disabled={!editing} onClick={() => { setViewError(''); setDialog('saveView') }}><Plus size={15} />Save as new view</button>{activeView && <button className={`${button} !text-red-600`} disabled={!editing} onClick={() => { setViewError(''); setDialog('deleteView') }}><Trash2 size={15} />Delete view</button>}</div>
-      {viewsError && <p role="alert" className="w-full text-sm text-red-700">{viewsError} Your current board is still available.</p>}
-    </section>
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm text-blue-900"><p><strong>Planning workspace</strong> · Changes here are saved separately from the live class schedule.</p>{!canManage && <span className="font-semibold">View only</span>}</div>
+    {viewControls}
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm text-blue-900"><p>{isCurrentSchedule ? <><strong>This week’s class schedule.</strong>{canManage ? ' Drag a class from Unassigned to a floor location. Its scheduled time stays the same.' : ' Classes start in Unassigned at their scheduled times.'}</> : <><strong>Planning workspace</strong> · Changes here are saved separately from the live class schedule.</>}</p>{!canManage && <span className="font-semibold">View only</span>}</div>
+    {scheduleSource?.warning && <p role="alert" className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">{scheduleSource.warning}</p>}
     {error && <div role="alert" className="flex items-center justify-between gap-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800"><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError('')}><X size={16} /></button></div>}
     <p role="status" className="sr-only">{notice}</p>
     {notice && <p className="flex items-center gap-2 text-sm text-emerald-700"><Check size={15} />{notice}</p>}
@@ -267,7 +324,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       </div>
       {hiddenCount > 0 && <div className="flex items-center gap-3 bg-amber-50 px-5 py-2 text-xs text-amber-900">{hiddenCount} class segments extend outside the visible hours.<button className="font-bold underline" disabled={!editing} onClick={() => commit({ ...plan, start: Math.min(plan.start, ...dayBlocks.map((b) => b.start)), end: Math.max(plan.end, ...dayBlocks.map((b) => b.end)) })}>Fit all classes</button></div>}
       {pendingClass && <div className="flex items-center justify-between bg-red-50 px-5 py-2 text-sm text-red-900">Click a time cell to place {pendingClass.program} · {pendingClass.name}, or use its Add button for exact times.<button aria-label="Cancel placement" onClick={() => setPendingClass(null)}><X size={16} /></button></div>}
-      <div className="max-h-[580px] overflow-auto" id="floor-day-panel" role="tabpanel" aria-labelledby={`floor-day-${day}`}>
+      <div ref={boardRef} className="max-h-[580px] overflow-auto" id="floor-day-panel" role="tabpanel" aria-labelledby={`floor-day-${day}`}>
         <div style={{ minWidth: width + 200 }}>
           <div className="sticky top-0 z-30 flex h-12 border-b border-gray-200 bg-white">
             <div className="sticky left-0 z-40 flex w-[200px] shrink-0 items-center gap-2 border-r border-gray-200 bg-gray-50 px-4 text-xs font-bold uppercase tracking-wider text-gray-500"><MapPin size={14} />Location</div>
@@ -399,6 +456,6 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
         </>}
       </div>
     </PlannerDialog>}
-    {dialog === 'reload'  && <PlannerDialog title={activeView ? 'Reload saved view' : 'Reload saved week'} onClose={() => setDialog(null)}><p className="text-sm text-gray-600">{dirty ? 'Discard your unsaved changes and load the latest saved week?' : 'Load the latest version saved by your team?'}</p><div className="mt-5 flex gap-2"><button className={primary} onClick={() => { setDialog(null); setSelected(null); setNotice(''); void reload(false, activeView?.id) }}>{activeView ? 'Reload saved view' : 'Reload saved week'}</button><button className={button} onClick={() => setDialog(null)}>Cancel</button></div></PlannerDialog>}
+    {dialog === 'reload' && <PlannerDialog title={reloadLabel} onClose={() => setDialog(null)}><p className="text-sm text-gray-600">{isCurrentSchedule ? 'Discard unsaved changes and reload this week’s classes at their scheduled times?' : dirty ? 'Discard your unsaved changes and load the latest saved plan?' : 'Load the latest version saved by your team?'}</p><div className="mt-5 flex gap-2"><button className={primary} onClick={() => void reload(false, viewId)}>{reloadLabel}</button><button className={button} onClick={() => setDialog(null)}>Cancel</button></div></PlannerDialog>}
   </div>
 }

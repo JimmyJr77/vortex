@@ -3117,6 +3117,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
 
     async getAdminCalendar(req, res) {
       try {
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
         const range = parseCalendarDateRange(req.query)
         if (range.error) {
           return res.status(400).json({ success: false, message: range.error })
@@ -3140,6 +3141,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         const data = await loadSchedulingCalendar(pool, {
           startDate: range.startDate,
           endDate: range.endDate,
+          facilityId,
           programsId,
           programId,
           formActive,
@@ -3147,6 +3149,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         })
         res.json({ success: true, data })
       } catch (err) {
+        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
         console.error('[scheduling] getAdminCalendar:', err)
         res.status(500).json({ success: false, message: 'Failed to load calendar' })
       }

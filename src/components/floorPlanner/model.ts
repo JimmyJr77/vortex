@@ -54,7 +54,7 @@ export function currentWeekRange(today = new Date()) {
 }
 
 /** Snapshot actual calendar occurrences; this never writes to scheduling or coach assignments. */
-export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[], coaches: Coach[], range: { startDate: string; endDate: string }): Plan {
+export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[], coaches: Coach[], range: ReturnType<typeof currentWeekRange>) {
   const locations = [
     { id: UNASSIGNED_LOCATION, name: 'Unassigned' },
     ...plan.locations.filter((location) => location.id !== UNASSIGNED_LOCATION),
@@ -63,6 +63,7 @@ export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[],
   const seen = new Set<string>()
   let color = nextColor(plan.blocks)
   const blocks: Block[] = []
+  let unsupportedTimes = 0
   for (const event of events) {
     // Enrollment visibility is separate from the admin calendar's active class status.
     if (!event.classActive || !event.slotGroupActive || !event.slotActive
@@ -70,9 +71,11 @@ export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[],
     const key = `${event.date}:${event.formId}:${event.timeSlotId}`
     if (seen.has(key)) continue
     seen.add(key)
-    const start = minutes(event.startTime), end = minutes(event.endTime) || 1440
+    const start = minutes(event.startTime), endMinute = minutes(event.endTime)
+    const end = endMinute === 0 && start > 0 ? 1440 : endMinute
     if (!Number.isFinite(start) || !Number.isFinite(end) || start < 0 || end > 1440 || end - start < 5) {
-      throw new Error(`Check the scheduled times for ${event.programName || 'Classes'} · ${event.className}. The plan has not been reset.`)
+      unsupportedTimes++
+      continue
     }
     const assigned = coaches.filter((coach) => coach.assignments.some((a) => {
       if (a.timeSlotId != null) return Number(a.timeSlotId) === event.timeSlotId
@@ -89,10 +92,14 @@ export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[],
     })
   }
   if (blocks.length > 3000) throw new Error('This schedule exceeds the 3,000-segment planning limit.')
+  const signature = JSON.stringify(blocks.map(({ classId, name, program, day, start, end }) => JSON.stringify([classId, name, program, day, start, end])).sort())
   return {
-    ...plan, locations, blocks,
-    start: Math.min(plan.start, ...blocks.map((b) => Math.floor(b.start / plan.increment) * plan.increment)),
-    end: Math.max(plan.end, ...blocks.map((b) => Math.ceil(b.end / plan.increment) * plan.increment)),
+    signature, unsupportedTimes,
+    plan: {
+      ...plan, locations, blocks,
+      start: Math.min(plan.start, ...blocks.map((b) => Math.floor(b.start / plan.increment) * plan.increment)),
+      end: Math.max(plan.end, ...blocks.map((b) => Math.ceil(b.end / plan.increment) * plan.increment)),
+    },
   }
 }
 
