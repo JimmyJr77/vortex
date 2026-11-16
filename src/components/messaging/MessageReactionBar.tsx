@@ -43,10 +43,10 @@ export default function MessageReactionBar({
             disabled={disabled}
             onClick={(event) => onToggle(reaction, event.currentTarget)}
             className={
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-vortex-red disabled:opacity-50 aria-pressed:bg-red-100 '
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-700 disabled:opacity-50 aria-pressed:bg-blue-100 '
               + (mode === 'picker'
-                ? 'grid h-8 w-8 place-items-center rounded-lg text-base hover:bg-slate-100 aria-pressed:ring-1 aria-pressed:ring-inset aria-pressed:ring-red-300'
-                : 'inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2 text-xs hover:border-slate-300 hover:bg-slate-50 aria-pressed:border-red-300')
+                ? 'grid h-8 w-8 place-items-center rounded-lg text-base hover:bg-slate-100 aria-pressed:ring-1 aria-pressed:ring-inset aria-pressed:ring-blue-300'
+                : 'inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2 text-xs hover:border-slate-300 hover:bg-slate-50 aria-pressed:border-blue-300')
             }
             aria-label={`${label} reaction`}
             aria-pressed={pressed}

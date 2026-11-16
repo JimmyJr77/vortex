@@ -55,7 +55,7 @@ export default function MessagingResourceSidebar({ role, fetcher, messages, sele
   }, [messages])
 
   return (
-    <aside aria-label="Conversation resources" className="flex h-full min-h-0 flex-col divide-y divide-slate-200 bg-white">
+    <aside aria-label="Conversation resources" className="flex h-full min-h-0 flex-col divide-y divide-slate-200 bg-slate-50">
       {filesVisible && <section aria-label="Shared files" className="flex min-h-0 flex-1 flex-col">
         <div className="shrink-0 px-5 pb-3 pt-5">
           <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-900"><Paperclip className="size-4 text-slate-400" aria-hidden />Shared files <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">{selectedThreadId && !loading && !error ? files.length : '—'}</span></h3>
@@ -78,7 +78,7 @@ export default function MessagingResourceSidebar({ role, fetcher, messages, sele
           {eventsLoading ? <p role="status" className="text-sm text-slate-500">Loading events…</p>
             : eventsError ? <div className="text-sm text-slate-500">Couldn’t load events. <button type="button" className="font-semibold text-slate-700 underline" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>
               : events.length ? <ul className="space-y-3">{events.map((event) => (
-                <li key={event.row_key} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                <li key={event.row_key} className="rounded-xl border border-slate-200 bg-white p-3">
                   <details>
                     <summary className="cursor-pointer text-sm font-semibold text-slate-800 [overflow-wrap:anywhere]">{event.title}</summary>
                     {(event.what_text || event.notes || event.who_text) && <p className="mt-2 whitespace-pre-wrap text-xs text-slate-600">{[event.what_text, event.who_text, event.notes].filter(Boolean).join('\n')}</p>}

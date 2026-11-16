@@ -46,7 +46,7 @@ export default function MessagingThreadListShell({
             }}
             placeholder={searchPlaceholder}
             aria-label="Search conversations"
-            className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-500 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100 [&::-webkit-search-cancel-button]:hidden"
+            className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2 pl-9 pr-10 text-sm text-slate-900 placeholder:text-slate-500 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100 [&::-webkit-search-cancel-button]:hidden"
           />
           {search && (
             <button type="button" aria-label="Clear search" onClick={() => { onSearchChange(''); inputRef.current?.focus() }} className="absolute right-1 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-md text-slate-600 hover:bg-slate-200">

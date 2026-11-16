@@ -75,7 +75,7 @@ export function MessagePollBlock({
               type="button"
               onClick={() => void castVote(index)}
               className={`w-full text-left rounded-md border px-3 py-2 text-sm transition-colors ${
-                selected ? 'border-vortex-red bg-red-50' : 'border-gray-200 hover:bg-gray-50'
+                selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">

@@ -625,7 +625,7 @@ export default function AdminMessagesPanel({
         <header className={`shrink-0 flex-col gap-3 ${detailOpen ? 'hidden lg:flex' : 'flex'}`}>
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-700">
+              <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-700">
                 <MessageSquare className="size-5" aria-hidden />
               </div>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Messages</h2>
@@ -638,7 +638,7 @@ export default function AdminMessagesPanel({
                   onClick={handlePrimaryCreate}
                   disabled={primaryAction.disabled}
                   title={primaryAction.disabledReason}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-3 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50 sm:px-4"
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-blue-700 px-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 disabled:opacity-50 sm:px-4"
                 >
                   <Plus className="size-4" aria-hidden />
                   {primaryAction.mode === 'message' ? 'New message' : primaryAction.label}
@@ -730,14 +730,14 @@ export default function AdminMessagesPanel({
                 <p role="status" className="flex items-center justify-center gap-2 px-4 py-10 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversations…</p>
               ) : listError && !threads.length ? (
                 <MessagingEmptyState compact title="Couldn’t load conversations" description={listError}
-                  action={<button type="button" onClick={() => void loadThreads()} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>} />
+                  action={<button type="button" onClick={() => void loadThreads()} className="text-sm font-semibold text-blue-700 hover:underline">Try again</button>} />
               ) : displayedThreads.length === 0 ? (
                 <MessagingEmptyState
                   compact
                   icon={listSearch.trim() ? Search : tab === 'archived' ? Archive : Inbox}
                   title={listSearch.trim() ? 'No results' : tab === 'archived' ? 'No archived conversations' : inboxTab === 'unread' ? 'You’re all caught up' : 'No conversations to show'}
                   description={listSearch.trim() ? 'Try a different name or keyword.' : inboxTab === 'pinned' ? 'Favorite a conversation to find it here.' : undefined}
-                  action={listSearch.trim() ? <button type="button" onClick={() => setListSearch('')} className="text-sm font-semibold text-red-700 hover:underline">Clear search</button> : undefined}
+                  action={listSearch.trim() ? <button type="button" onClick={() => setListSearch('')} className="text-sm font-semibold text-blue-700 hover:underline">Clear search</button> : undefined}
                 />
               ) : (
                 <div className="divide-y divide-gray-100">
@@ -780,7 +780,7 @@ export default function AdminMessagesPanel({
               <p role="status" className="flex flex-1 items-center justify-center gap-2 text-sm text-slate-600"><Loader2 className="size-4 animate-spin" aria-hidden /> Loading conversation…</p>
             ) : detailError ? (
               <MessagingEmptyState title="Couldn’t open conversation" description={detailError}
-                action={<button type="button" onClick={() => { if (selectedRowId != null) void openThread(selectedRowId, inboxList.activeScheduleRow ?? undefined) }} className="text-sm font-semibold text-red-700 hover:underline">Try again</button>} />
+                action={<button type="button" onClick={() => { if (selectedRowId != null) void openThread(selectedRowId, inboxList.activeScheduleRow ?? undefined) }} className="text-sm font-semibold text-blue-700 hover:underline">Try again</button>} />
             ) : (
               <MessagingThreadDetailShell
                 key={selectedId}

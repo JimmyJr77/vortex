@@ -38,7 +38,7 @@ interface MentionMenu {
 }
 
 const EMPTY_PARTICIPANTS: ThreadParticipant[] = []
-const TOOL_BUTTON = 'inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red disabled:opacity-50'
+const TOOL_BUTTON = 'inline-flex min-h-9 items-center gap-1.5 rounded-md px-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50'
 
 function mentionsInText(text: string, mentions: MessageMentionPayload[], participants: ThreadParticipant[]) {
   return mentions.filter((mention) => tokenizeMentionsInBody(text, [mention], participants) !== text)
@@ -250,7 +250,7 @@ export default function MessageReplyComposer({
                   setAttachmentError('')
                   onClearAttachment()
                 }}
-                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red disabled:opacity-50"
+                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
@@ -305,7 +305,7 @@ export default function MessageReplyComposer({
               type="button"
               onClick={handleSend}
               disabled={sending || !canSend}
-              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-vortex-red px-3 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vortex-red focus-visible:ring-offset-2 disabled:!bg-slate-100 disabled:!text-slate-500"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-blue-700 px-3 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:!bg-slate-100 disabled:!text-slate-500"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
               {sending ? 'Sending…' : sendLabel}

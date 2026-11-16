@@ -39,9 +39,9 @@ export default function MessagingThreadRow({ thread, selected, onSelect, subtitl
       type="button"
       onClick={() => onSelect(thread.id)}
       aria-current={selected ? 'true' : undefined}
-      className={`relative flex w-full min-w-0 items-start gap-2.5 border-l-[3px] py-3 pl-2.5 pr-3 text-left transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-red-500 ${selected ? '!border-l-red-600 bg-red-50/80' : '!border-l-transparent hover:bg-slate-50'}`}
+      className={`relative flex w-full min-w-0 items-start gap-2.5 border-l-[3px] py-3 pl-2.5 pr-3 text-left transition-colors focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-500 ${selected ? '!border-l-blue-600 bg-blue-50/80' : '!border-l-transparent hover:bg-slate-50'}`}
     >
-      <span className={`mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl ${selected ? 'bg-red-100 text-red-700' : iconColor}`} aria-hidden>
+      <span className={`mt-0.5 grid size-9 shrink-0 place-items-center rounded-xl ${selected ? 'bg-blue-100 text-blue-700' : iconColor}`} aria-hidden>
         <Icon className="size-4" />
       </span>
       <span className="min-w-0 flex-1">
@@ -56,7 +56,7 @@ export default function MessagingThreadRow({ thread, selected, onSelect, subtitl
         <span className="mt-0.5 flex min-w-0 items-center gap-2">
           <span className={`min-w-0 flex-1 truncate text-xs ${unread ? 'font-medium text-slate-700' : 'text-slate-600'}`}>{preview || participantLabel || (hasFiles ? 'Attachment' : 'No messages yet')}</span>
           {unread > 0 && (
-            <span aria-label={`${unread} unread ${unread === 1 ? 'message' : 'messages'}`} className="min-w-5 shrink-0 rounded-full bg-vortex-red px-1 text-center text-[10px] font-semibold leading-5 text-white">
+            <span aria-label={`${unread} unread ${unread === 1 ? 'message' : 'messages'}`} className="min-w-5 shrink-0 rounded-full bg-blue-700 px-1 text-center text-[10px] font-semibold leading-5 text-white">
               {unread > 99 ? '99+' : unread}
             </span>
           )}

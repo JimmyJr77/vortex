@@ -55,7 +55,7 @@ export default function MessagingInboxTabs({
             className={`flex min-h-9 items-center justify-center gap-1 rounded-md px-1 text-xs font-semibold transition-colors ${id === activeTab ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             {label}
-            {id === 'unread' && unread > 0 && <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] leading-none text-red-800">{unread > 99 ? '99+' : unread}</span>}
+            {id === 'unread' && unread > 0 && <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] leading-none text-blue-800">{unread > 99 ? '99+' : unread}</span>}
           </button>
         ))}
       </div>
@@ -66,7 +66,7 @@ export default function MessagingInboxTabs({
             value={extraActive ? activeTab : ''}
             onChange={(e) => onChange(e.target.value as MessagingInboxTab)}
             aria-label="More conversation filters"
-            className={`min-h-9 w-full appearance-none rounded-lg border bg-white py-1.5 pl-8 pr-8 text-xs font-medium ${extraActive ? 'border-red-200 text-red-800' : 'border-slate-200 text-slate-700'}`}
+            className={`min-h-9 w-full appearance-none rounded-lg border bg-white py-1.5 pl-8 pr-8 text-xs font-medium ${extraActive ? 'border-blue-200 text-blue-800' : 'border-slate-200 text-slate-700'}`}
           >
             <option value="" disabled>More filters</option>
             {extra.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}

@@ -32,7 +32,7 @@ export default function MessageMentionBody({
               key={index}
               className={
                 segment.isSelfMention
-                  ? 'rounded bg-red-100 px-0.5 font-semibold text-red-800'
+                  ? 'rounded bg-blue-100 px-0.5 font-semibold text-blue-800'
                   : 'font-semibold text-blue-700'
               }
             >

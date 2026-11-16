@@ -51,7 +51,7 @@ export default function NewMessageDialog({
           </div>
           <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50 px-5 py-3">
             <button type="button" onClick={onClose} disabled={sending} className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200/70 disabled:opacity-50">Cancel</button>
-            <button type="submit" disabled={!canSend || sending} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="submit" disabled={!canSend || sending} className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50">
               {sending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />}
               {sending ? 'Sending…' : 'Send message'}
             </button>

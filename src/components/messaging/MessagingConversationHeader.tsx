@@ -12,7 +12,7 @@ export default function MessagingConversationHeader({
   return (
     <div className="relative z-10 flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-slate-200 bg-white px-3 py-3 sm:px-5">
       <div className="flex min-w-[10rem] flex-1 items-center gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-red-50 text-red-700">
+        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
           <MessageSquare className="size-[18px]" aria-hidden />
         </span>
         <div className="min-w-0">

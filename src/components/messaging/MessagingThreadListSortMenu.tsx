@@ -18,7 +18,7 @@ interface MessagingThreadListSortMenuProps {
 
 export default function MessagingThreadListSortMenu({ sort, sortDir, onChange }: MessagingThreadListSortMenuProps) {
   return (
-    <div className="relative size-9 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-within:ring-2 focus-within:ring-red-300">
+    <div className="relative size-9 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 focus-within:ring-2 focus-within:ring-blue-300">
       <ArrowDownUp className="pointer-events-none absolute inset-0 m-auto size-4" aria-hidden />
       <select
         aria-label="Sort conversations"
