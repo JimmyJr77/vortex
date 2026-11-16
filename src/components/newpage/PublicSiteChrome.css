@@ -14,8 +14,6 @@
 }
 .np-public-site :is(button, a) { -webkit-tap-highlight-color: transparent; }
 .np-public-site :focus-visible { outline: 3px solid var(--np-red); outline-offset: 4px; }
-.np-public-header .np-desktop-nav a { min-height: 44px; display: flex; align-items: center; white-space: nowrap; }
-.np-public-header .np-desktop-nav a[aria-current='page'] { color: var(--np-red); }
 .np-public-content { min-height: 55vh; }
 .np-public-registration { background: var(--np-paper); }
 .np-public-registration > .min-h-screen { min-height: 65vh; padding-block: 48px 64px; background: var(--np-paper); }

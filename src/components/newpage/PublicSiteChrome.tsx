@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
+import PublicNavigationLinks from './PublicNavigationLinks'
 import './NewPage.css'
 import './PublicSiteChrome.css'
 
@@ -23,9 +24,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin }: { isLoggedIn: boolean;
       <div className="np-container np-nav">
         <PublicBrand />
         <nav className="np-desktop-nav" aria-label="Main navigation">
-          <Link to="/#programs">Our programs</Link>
-          <NavLink to="/enroll">Browse classes</NavLink>
-          <NavLink to="/read-board#schedule">Schedule</NavLink>
+          <PublicNavigationLinks />
         </nav>
         <div className="np-nav-actions">
           <button type="button" className="np-login" onClick={login}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
@@ -34,13 +33,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin }: { isLoggedIn: boolean;
         </div>
       </div>
       {menuOpen && <nav id="np-public-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation">
-        {[
-          ['Our programs', '/#programs'],
-          ['Browse classes', '/enroll'],
-          ['Schedule', '/read-board#schedule'],
-          ['Book a drop-in', '/drop-in'],
-          ['Free trial', '/#free-trial'],
-        ].map(([label, to]) => <Link key={to} to={to} onClick={closeMenu}>{label}<ArrowUpRight size={18} /></Link>)}
+        <PublicNavigationLinks mobile onNavigate={closeMenu} />
         <button type="button" onClick={login}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button>
       </nav>}
     </header>

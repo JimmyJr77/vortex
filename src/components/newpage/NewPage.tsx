@@ -4,6 +4,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X 
 import { BUSINESS_NAP, GOOGLE_MAPS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
+import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { getHubSchema } from '../../utils/schema'
@@ -163,10 +164,10 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
       <header className="np-header">
         <div className="np-container np-nav">
           <Brand />
-          <nav className="np-desktop-nav" aria-label="Main navigation"><a href="#programs">Our programs</a><a href="#free-trial">Free trial</a><a href="#triad">The triad</a><a href="#approach">Our approach</a></nav>
+          <nav className="np-desktop-nav" aria-label="Main navigation"><PublicNavigationLinks /></nav>
           <div className="np-nav-actions"><button className="np-login" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" onClick={() => openTrial()}>Try a free class <ArrowUpRight size={16} /></button><button className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
         </div>
-        {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation">{[['Our programs', '#programs'], ['Free trial', '#free-trial'], ['The triad', '#triad'], ['Our approach', '#approach'], ['Visit us', '#visit']].map(([label, href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}<ArrowUpRight size={18} /></a>)}<button onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
+        {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation"><PublicNavigationLinks mobile onNavigate={() => setMenuOpen(false)} /><button onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
       </header>
 
       <main id="main">

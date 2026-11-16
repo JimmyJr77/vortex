@@ -94,15 +94,29 @@
 
 .np-desktop-nav {
   display: flex;
+  align-items: center;
   gap: 28px;
   font-size: 12px;
   font-weight: 500;
 }
 .np-desktop-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  white-space: nowrap;
   transition: color .2s;
 }
 .np-desktop-nav a:hover {
   color: var(--np-red);
+}
+.np-nav-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.np-nav-label svg {
+  flex-shrink: 0;
 }
 .np-nav-actions {
   display: flex;
@@ -2466,6 +2480,29 @@
 }
 
 /* Keep the full supplied logo clear without crowding the navigation. */
+@media (min-width: 861px) and (max-width: 1279px) {
+  .np-header .np-desktop-nav { display: none; }
+  .np-header .np-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+  }
+  .np-header .np-mobile-nav {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--np-line);
+    padding: 8px 36px 20px;
+  }
+  .np-header .np-mobile-nav a,
+  .np-header .np-mobile-nav > button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 12px 0;
+  }
+}
 @media (min-width: 861px) and (max-width: 1150px) {
   .np-header .np-brand { width: clamp(176px, calc(100vw - 686px), 300px); }
 }
