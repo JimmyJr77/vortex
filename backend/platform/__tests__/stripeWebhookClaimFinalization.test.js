@@ -46,6 +46,7 @@ async function withStripeTestEnvironment(callback) {
     'STRIPE_ENABLED',
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
+    'STRIPE_WEBHOOK_SECRET_TEST',
     'STRIPE_WEBHOOK_SECRETS',
   ]
   const previous = Object.fromEntries(names.map((name) => [name, process.env[name]]))
@@ -53,6 +54,7 @@ async function withStripeTestEnvironment(callback) {
     process.env.STRIPE_ENABLED = 'true'
     process.env.STRIPE_SECRET_KEY = 'sk_test_webhook_claim_finalization'
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_claim_finalization'
+    delete process.env.STRIPE_WEBHOOK_SECRET_TEST
     delete process.env.STRIPE_WEBHOOK_SECRETS
     await callback()
   } finally {
@@ -63,7 +65,7 @@ async function withStripeTestEnvironment(callback) {
   }
 }
 
-async function postWebhook(pool, event) {
+async function postWebhook(pool, event, signingSecret = process.env.STRIPE_WEBHOOK_SECRET) {
   const app = express()
   registerPlatformRoutes(app, pool, { jwtSecret: JWT_SECRET })
   const route = app._router.stack.find((layer) => (
@@ -75,7 +77,7 @@ async function postWebhook(pool, event) {
 
   const payload = JSON.stringify(event)
   const timestamp = Math.floor(Date.now() / 1000)
-  const digest = createHmac('sha256', process.env.STRIPE_WEBHOOK_SECRET).update(`${timestamp}.${payload}`).digest('hex')
+  const digest = createHmac('sha256', signingSecret).update(`${timestamp}.${payload}`).digest('hex')
   const request = {
     body: Buffer.from(payload),
     headers: { 'stripe-signature': `t=${timestamp},v1=${digest}` },
@@ -652,6 +654,7 @@ test('an async annual membership payment is quarantined durably before webhook a
     try {
     const response = await postWebhook(pool, {
       id: 'evt_annual_commit_incomplete',
+      livemode: false,
       type: 'checkout.session.async_payment_succeeded',
       data: {
         object: session,
@@ -678,6 +681,51 @@ test('an async annual membership payment is quarantined durably before webhook a
   })
 })
 
+test('a sandbox PaymentIntent is acknowledged before claiming or using the live Stripe client', async (t) => {
+  await withStripeTestEnvironment(async () => {
+    const sandboxSigningSecret = 'whsec_sandbox_claim_finalization'
+    process.env.STRIPE_SECRET_KEY = 'sk_live_webhook_claim_finalization'
+    process.env.STRIPE_WEBHOOK_SECRET_TEST = sandboxSigningSecret
+    const stripe = await getStripeClient()
+    const emptyPage = async () => ({ data: [], has_more: false })
+    const listInvoicePayments = t.mock.method(stripe.invoicePayments, 'list', emptyPage)
+    const listCheckoutSessions = t.mock.method(stripe.checkout.sessions, 'list', emptyPage)
+    const pool = webhookClaimPool({
+      onFulfillmentQuery(text) {
+        if (text.includes('FROM billing_payment_attempt attempt')) return { rows: [] }
+        if (text.includes('FROM billing_payment')) return { rows: [] }
+        throw new Error(`Unexpected PaymentIntent webhook query: ${text}`)
+      },
+    })
+    const event = {
+      id: 'evt_sandbox_payment',
+      livemode: false,
+      type: 'payment_intent.succeeded',
+      data: {
+        object: { id: 'pi_sandbox_payment', object: 'payment_intent', currency: 'usd', status: 'succeeded' },
+      },
+    }
+
+    const response = await postWebhook(pool, event, sandboxSigningSecret)
+    assert.equal(response.status, 200)
+    assert.deepEqual(response.body, { received: true, ignored: true })
+    assert.deepEqual(pool.calls, [])
+    assert.equal(listInvoicePayments.mock.callCount(), 0)
+    assert.equal(listCheckoutSessions.mock.callCount(), 0)
+
+    const invalid = await postWebhook(pool, event, 'whsec_incorrect')
+    assert.equal(invalid.status, 400)
+    assert.equal(pool.claimState, 'unclaimed')
+
+    process.env.STRIPE_SECRET_KEY = 'sk_test_webhook_claim_finalization'
+    const sameMode = await postWebhook(pool, event, sandboxSigningSecret)
+    assert.equal(sameMode.status, 500)
+    assert.match(sameMode.body.message, /neither a paid invoice binding nor a durable payment-attempt owner/)
+    assert.equal(pool.claimState, 'failed')
+    assert.equal(pool.calls.some(({ text }) => text.includes('INSERT INTO billing_payment')), false)
+  })
+})
+
 test('an unowned paid generic Checkout is never written or acknowledged', { concurrency: false }, async () => {
   await withStripeTestEnvironment(async () => {
     const pool = webhookClaimPool({
@@ -690,6 +738,7 @@ test('an unowned paid generic Checkout is never written or acknowledged', { conc
     })
     const response = await postWebhook(pool, {
       id: 'evt_unowned_paid_checkout',
+      livemode: false,
       type: 'checkout.session.completed',
       data: {
         object: {

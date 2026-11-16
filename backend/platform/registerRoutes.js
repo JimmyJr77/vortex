@@ -38,6 +38,7 @@ import {
   recordStripePayment,
   recordEnrollmentStripePayment,
   getStripeClient,
+  stripeApiKeyIsLive,
   stripeEventCreatedAt,
   stripeWebhookRawBody,
   logWebhookVerificationFailure,
@@ -3822,6 +3823,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     try {
       event = await parseWebhookEvent(rawBody, signature)
       if (!event) return res.status(400).json({ success: false })
+      // A shared destination can verify sandbox signatures, but the live API
+      // key and billing ledger must never process those events.
+      if (event.livemode === false && stripeApiKeyIsLive()) {
+        return res.json({ received: true, ignored: true })
+      }
       webhookClaim = await beginStripeWebhookEvent(pool, event)
       if (webhookClaim.replayed) return res.json({ received: true, replayed: true })
       if (!webhookClaim.claimed) {

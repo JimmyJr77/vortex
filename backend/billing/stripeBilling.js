@@ -19,6 +19,10 @@ export function stripeEnabled() {
   return process.env.STRIPE_ENABLED === 'true' && Boolean(process.env.STRIPE_SECRET_KEY)
 }
 
+export function stripeApiKeyIsLive() {
+  return /^(sk|rk)_live_/.test((process.env.STRIPE_SECRET_KEY ?? '').trim())
+}
+
 let cachedClient = null
 
 /** family_billing_account.stripe_customer_id + payment idempotency index (047). */
@@ -604,7 +608,7 @@ export async function parseWebhookEvent(rawBody, signature) {
   if (!stripe) return null
 
   const secrets = webhookSigningSecrets()
-  const mode = String(process.env.STRIPE_SECRET_KEY ?? '').trim().startsWith('sk_live_') ? 'live' : 'test'
+  const mode = stripeApiKeyIsLive() ? 'live' : 'test'
   if (!secrets.length) throw new Error(`Stripe webhook signing secret is required in ${mode} mode.`)
   if (!signature) throw new Error(`Stripe webhook signature is required in ${mode} mode.`)
   if (rawBody == null || (!Buffer.isBuffer(rawBody) && typeof rawBody !== 'string')) {
