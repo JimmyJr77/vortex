@@ -4,6 +4,7 @@ import { currentWeekRange, type Plan, type Coach } from './model'
 export interface SavedPlan { plan: Plan | null; revision: number; facilityId: number }
 export interface ViewSummary { id: string; name: string; revision: number; selectedDay: number; updatedAt: string }
 export interface SavedView extends SavedPlan, ViewSummary { plan: Plan }
+export interface ClassColors { colors: Record<string, string>; classesByForm: Record<string, string> }
 export const isSavedView = (value: SavedPlan): value is SavedView => 'id' in value && typeof value.id === 'string' && 'selectedDay' in value
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await adminApiRequest(`/api/admin/floor-planner${path}`, options)
@@ -13,6 +14,8 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 export const loadPlan = () => request<SavedPlan>('')
 export const loadCoaches = () => request<Coach[]>('/coaches')
+export const loadClassColors = () => request<ClassColors>('/class-colors')
+export const saveClassColor = (classId: string, color: string | null) => request<{ classId: string; color: string | null }>(`/class-colors/${encodeURIComponent(classId)}`, { method: 'PUT', body: JSON.stringify({ color }) })
 export async function loadCurrentSchedule(coachesRequest = loadCoaches()) {
   const range = currentWeekRange()
   const [calendar, coaches] = await Promise.all([

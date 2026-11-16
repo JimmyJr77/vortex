@@ -31,17 +31,17 @@ function hashClassId(classId: string) {
 
 const classColor = (classId: string) => hashClassId(classId) % 1_000_001
 
-export function blockColor(block: Block, classesByForm: ReadonlyMap<number, string>) {
+export function blockClassId(block: Block, classesByForm: ReadonlyMap<number, string>) {
   // Older plans stored one ID for each library variant or calendar slot.
   const libraryClass = /^scheduled:(\d+):(?:\d+|null):\d+:\d+$/.exec(block.classId)
-  if (libraryClass) return classColor(scheduledClassId(Number(libraryClass[1])))
+  if (libraryClass) return scheduledClassId(Number(libraryClass[1]))
 
   const calendarForm = /^scheduled:(\d+):\d+$/.exec(block.classId)
   if (calendarForm) {
-    return classColor(classesByForm.get(Number(calendarForm[1])) ?? classLabelId(block.program, block.name))
+    return classesByForm.get(Number(calendarForm[1])) ?? classLabelId(block.program, block.name)
   }
 
-  return classColor(block.classId)
+  return block.classId
 }
 
 export function classPlacement(item: PlannerClass, day: number, locationId: string, start: number): Block {
@@ -52,9 +52,27 @@ export function classPlacement(item: PlannerClass, day: number, locationId: stri
   }
 }
 
-export const colorStyle = (index: number) => {
-  const hue = (index * 137.508 + 210) % 360
+const classHue = (classId: string) => (classColor(classId) * 137.508 + 210) % 360
+
+export function colorStyle(classId: string, custom?: string) {
+  if (custom) {
+    return { backgroundColor: `color-mix(in srgb, ${custom} 14%, white)`, borderColor: custom, color: '#1f2937' }
+  }
+  const hue = classHue(classId)
   return { backgroundColor: `hsl(${hue} 82% 94%)`, borderColor: `hsl(${hue} 62% 45%)`, color: `hsl(${hue} 65% 23%)` }
+}
+
+export function automaticClassColor(classId: string) {
+  // Match the automatic border color when opening the native color picker.
+  const hue = classHue(classId) / 30
+  const lightness = 0.45
+  const chroma = 0.62 * Math.min(lightness, 1 - lightness)
+  const channel = (offset: number) => {
+    const position = (offset + hue) % 12
+    const value = lightness - chroma * Math.max(-1, Math.min(position - 3, 9 - position, 1))
+    return Math.round(value * 255).toString(16).padStart(2, '0')
+  }
+  return `#${channel(0)}${channel(8)}${channel(4)}`
 }
 export function buildLibrary(rows: ClassSetupOverviewRow[], coaches: Coach[]): PlannerClass[] {
   return rows.filter((row) => !row.classArchived && !row.programArchived && row.classIsActive).flatMap((row) => {

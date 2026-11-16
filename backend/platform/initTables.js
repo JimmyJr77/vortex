@@ -952,6 +952,7 @@ export async function initPlatformTables(pool) {
     '818_coaching_athleticism_accelerator_library.sql',
     '821_floor_planner.sql',
     '822_floor_planner_views.sql',
+    '865_floor_planner_class_colors.sql',
     // These additive migrations own columns and tables read directly by the
     // Admin runtime. Keep them in the boot set so an ordinary deploy cannot
     // expose newer route code against an older database contract.
