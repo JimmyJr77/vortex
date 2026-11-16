@@ -2,9 +2,9 @@ import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { Loader2, X } from 'lucide-react'
 import type { Page } from './api'
 
-export const button = 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50'
-export const primary = `${button} !border-red-600 !bg-red-600 !text-white hover:!bg-red-700`
-export const input = 'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-red-500'
+export const button = 'portal-action inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50'
+export const primary = `${button} portal-primary`
+export const input = 'portal-control mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-red-500'
 export const cell = 'px-4 py-3 text-left align-top'
 export function Loading({ label = 'Loading…' }: { label?: string }) {
   return <div role="status" className="flex items-center justify-center gap-2 p-10 text-sm text-slate-500"><Loader2 className="h-5 w-5 animate-spin" />{label}</div>

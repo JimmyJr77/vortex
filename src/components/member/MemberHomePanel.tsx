@@ -62,7 +62,7 @@ export default function MemberHomePanel({
 
   return (
     <div className="space-y-5">
-      <div>
+      <div className="portal-workspace-intro">
         <h2 className="text-2xl font-bold text-gray-900">Welcome{firstName ? `, ${firstName}` : ''}</h2>
         <p className="text-sm text-gray-500">Your member portal. Jump into any section.</p>
       </div>
@@ -74,9 +74,9 @@ export default function MemberHomePanel({
               key={c.tab}
               type="button"
               onClick={() => onNavigate(c.tab)}
-              className="text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all"
+              className="portal-shortcut text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all"
             >
-              <Icon className="w-7 h-7 text-vortex-red" />
+              <Icon className="w-7 h-7 text-vortex-red" aria-hidden="true" />
               <h3 className="mt-3 font-bold text-gray-900">{c.title}</h3>
               <p className="text-sm text-gray-500 mt-1">{c.description}</p>
             </button>

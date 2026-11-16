@@ -109,6 +109,10 @@
 .np-desktop-nav a:hover {
   color: var(--np-red);
 }
+.np-desktop-nav .np-nav-schedule {
+  justify-content: center;
+  min-width: 44px;
+}
 .np-nav-label {
   display: inline-flex;
   align-items: center;
@@ -2477,6 +2481,11 @@
   .np-difference-image>span {
     font-size: 10px;
   }
+}
+
+/* Collapse Schedule to its accessible icon before switching to the dropdown. */
+@media (min-width: 1280px) and (max-width: 1399px) {
+  .np-desktop-nav .np-nav-schedule .np-nav-text { display: none; }
 }
 
 /* Keep the full supplied logo clear without crowding the navigation. */

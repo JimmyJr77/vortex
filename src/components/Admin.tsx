@@ -302,18 +302,16 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
   const messagingFullscreen = false
 
   return (
-    <div className="portal-shell bg-gray-50">
+    <div className="portal-shell portal-admin">
       <StaffLegalPolicies portal="admin" />
-      {/* Admin Header Section - Dark Background */}
-      <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
-        <div className="container-admin py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
-              {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      <header className={`portal-header shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
+        <div className="container-admin portal-header-inner">
+          <div className="portal-header-identity">
+            <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="legacy-admin-navigation" onClick={() => setNavOpen((o) => !o)}>
+              {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <h1 className="text-3xl md:text-5xl font-display font-bold text-white">
-              VORTEX <span className="text-vortex-red">LEGACY ADMIN</span>
-            </h1>
+            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <div className="portal-header-heading"><h1 className="portal-title">Legacy admin</h1></div>
           </div>
           <PortalNavButtons
             activePortal="admin"
@@ -323,12 +321,12 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             notifications={<NotificationBell apiPrefix="admin" />}
           />
         </div>
-      </div>
+      </header>
 
       {/* Workspace: sidebar groups + main content */}
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav aria-label="Legacy Admin sections" className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
-          <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
+        <nav id="legacy-admin-navigation" aria-label="Legacy Admin sections" className={messagingFullscreen ? 'hidden' : `portal-sidebar min-h-0 overflow-y-auto ${navOpen ? 'block' : 'hidden lg:block'}`}>
+          <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2">
             {visibleGroups.map((group) => {
               const Icon = group.icon
               const active = activeGroup === group.id
@@ -337,7 +335,8 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
                   key={group.id}
                   type="button"
                   onClick={() => openGroup(group.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                  aria-current={active ? 'page' : undefined}
+                  className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
                   <Icon className="w-4 h-4" /> {group.label}
                 </button>
@@ -346,7 +345,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
           </div>
         </nav>
 
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 overscroll-y-none ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`portal-main min-w-0 flex-col min-h-0 flex-1 overscroll-y-none ${navOpen ? 'hidden lg:flex' : 'flex'} ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           {accessLoading ? (
             <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">

@@ -230,22 +230,25 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
   const messagingFullscreen = messagesMaximized && tab === 'messages'
 
   return (
-    <div className="portal-shell bg-gray-50">
+    <div className="portal-shell portal-coach">
       <StaffLegalPolicies portal="coach" />
-      <header className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
-        <div className="container-admin py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+      <header className={`portal-header shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
+        <div className="container-admin portal-header-inner">
+          <div className="portal-header-identity">
             <button
               type="button"
-              className="lg:hidden text-white"
+              className="portal-menu-toggle lg:hidden"
               aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={navOpen}
+              aria-controls="coach-portal-navigation"
               onClick={() => setNavOpen((o) => !o)}
             >
-              {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <div>
-              <h1 className="text-3xl md:text-5xl font-display font-bold text-white">VORTEX <span className="text-vortex-red">COACH</span></h1>
-              {coach.fullName && <p className="text-gray-400 text-xs">{coach.fullName}</p>}
+            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <div className="portal-header-heading">
+              <h1 className="portal-title">Coach portal</h1>
+              {coach.fullName && <p className="portal-subtitle">{coach.fullName}</p>}
             </div>
           </div>
           <PortalNavButtons
@@ -259,14 +262,14 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
       </header>
 
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={messagingFullscreen ? 'hidden' : `${navOpen ? 'block' : 'hidden lg:block'} h-full min-h-0 overflow-y-auto overscroll-contain`}>
-          <div className="bg-white border border-gray-200 rounded-xl p-2 lg:sticky lg:top-0">
+        <nav id="coach-portal-navigation" aria-label="Coach navigation" className={messagingFullscreen ? 'hidden' : `portal-sidebar ${navOpen ? 'block' : 'hidden lg:block'} h-full min-h-0 overflow-y-auto overscroll-contain`}>
+          <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2 lg:sticky lg:top-0">
             {visibleNavEntries.map((entry) => {
               if (entry.type === 'section') {
                 return (
                   <h2
                     key={entry.id}
-                    className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+                    className="portal-nav-section px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide"
                   >
                     {entry.label}
                   </h2>
@@ -283,15 +286,16 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
                     setTab(item.tab)
                     setNavOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                  aria-current={active ? 'page' : undefined}
+                  className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
-                  <Icon className="w-4 h-4 shrink-0" /> <span className="text-left">{item.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" /> <span className="text-left">{item.label}</span>
                 </button>
               )
             })}
           </div>
         </nav>
-        <main className={`${navOpen ? 'hidden lg:flex' : 'flex'} min-w-0 min-h-0 flex-col flex-1 overscroll-y-none ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-x-contain'}`}>
+        <main className={`portal-main ${navOpen ? 'hidden lg:flex' : 'flex'} min-w-0 min-h-0 flex-col flex-1 overscroll-y-none ${tab === 'messages' || tab === 'faqs' ? 'overflow-hidden' : 'overflow-y-auto overscroll-x-contain'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
             <Suspense fallback={<div className="flex items-center gap-2 text-gray-500 py-12"><Loader2 className="w-5 h-5 animate-spin" /> Loading…</div>}>
               {renderPanel()}

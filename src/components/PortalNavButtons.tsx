@@ -4,7 +4,7 @@ import type { PortalId } from '../utils/portalSession'
 
 /** Shared height/padding for portal header action buttons (dropdown, bell, home, Logout). */
 export const HEADER_ACTION_BTN =
-  'inline-flex items-center justify-center gap-2 h-9 px-3 md:px-4 rounded-lg font-semibold transition-colors text-sm shrink-0'
+  'portal-header-action inline-flex items-center justify-center gap-2 h-9 px-3 md:px-4 rounded-lg font-semibold transition-colors text-sm shrink-0'
 
 const PORTAL_LABELS: Record<'admin' | 'new-admin' | 'coach' | 'member', string> = {
   admin: 'Legacy Admin',
@@ -53,9 +53,9 @@ export default function PortalNavButtons({
   }, [open])
 
   return (
-    <div className="flex w-fit max-w-full flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-end">
+    <div className="portal-header-actions flex w-fit max-w-full flex-col items-stretch gap-2 md:flex-row md:items-center md:justify-end">
       {selectablePortals.length > 0 && (
-        <div ref={rootRef} className="relative z-50 w-full md:w-auto">
+        <div ref={rootRef} className="portal-switcher relative z-50 w-full md:w-auto">
           <button
             type="button"
             aria-expanded={open}
@@ -120,7 +120,7 @@ export default function PortalNavButtons({
         <button
           type="button"
           onClick={onLogout}
-          className={`${HEADER_ACTION_BTN} bg-vortex-red text-white hover:bg-red-700`}
+          className={`${HEADER_ACTION_BTN} portal-logout bg-vortex-red text-white hover:bg-red-700`}
           aria-label="Log out"
           title="Log out"
         >

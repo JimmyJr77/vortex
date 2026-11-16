@@ -1,0 +1,116 @@
+.vortex-portal-theme {
+  --portal-red: #c9232c;
+  --portal-red-hover: #a91c24;
+  --portal-ink: #202321;
+  --portal-muted: #565d53;
+  --portal-line: #dddfd9;
+  --portal-control-line: #8a9282;
+  --portal-paper: #f5f6f2;
+  --portal-tint: #fff1ef;
+  color: var(--portal-ink);
+  background: var(--portal-paper);
+  font-family: Inter, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+}
+.vortex-portal-theme .portal-shell { background: var(--portal-paper); }
+.vortex-portal-theme :is(button, a) { -webkit-tap-highlight-color: transparent; }
+.vortex-portal-theme :is(button, input, select, textarea) { font-family: inherit; }
+.vortex-portal-theme :focus-visible { outline: 2px solid var(--portal-red); outline-offset: 3px; }
+.vortex-portal-theme :is(h1, h2, h3, .font-display) { font-family: Inter, Arial, sans-serif; letter-spacing: -.025em; }
+.vortex-portal-theme :is(h1, h2) { font-weight: 600; }
+.vortex-portal-theme h3 { font-weight: 600; }
+
+/* White mastheads and familiar navigation, shared by every portal. */
+.vortex-portal-theme .portal-header { background: #fff; border-bottom: 1px solid var(--portal-line); }
+.vortex-portal-theme .portal-header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; padding-top: 20px; padding-bottom: 20px; }
+.vortex-portal-theme .portal-header-identity { display: flex; align-items: center; gap: 22px; min-width: 0; }
+.vortex-portal-theme .portal-brand { display: block; width: 248px; height: auto; flex-shrink: 0; aspect-ratio: 2172 / 342; object-fit: cover; object-position: center 61.5%; }
+.vortex-portal-theme .portal-header-heading { border-left: 1px solid var(--portal-line); padding-left: 22px; }
+.vortex-portal-theme .portal-title { margin: 0; color: var(--portal-ink); font-size: 22px; line-height: 1.2; font-weight: 500; letter-spacing: -.035em; }
+.vortex-portal-theme .portal-subtitle { margin: 5px 0 0; font-size: 13px; line-height: 1.35; color: var(--portal-muted); }
+.vortex-portal-theme .portal-menu-toggle { flex-shrink: 0; width: 44px; height: 44px; padding: 11px; border: 1px solid var(--portal-line); border-radius: 8px; background: #fff; color: var(--portal-ink); }
+.vortex-portal-theme .portal-menu-toggle:hover { background: var(--portal-paper); }
+.vortex-portal-theme .portal-header-actions { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; }
+.vortex-portal-theme .portal-switcher { width: auto; }
+.vortex-portal-theme .portal-header-action { height: 42px; min-width: 42px; border: 1px solid var(--portal-line); border-radius: 7px; background: #fff; color: var(--portal-ink); font-size: 13px; font-weight: 500; }
+.vortex-portal-theme .portal-header-action:hover { background: var(--portal-paper); border-color: var(--portal-control-line); }
+.vortex-portal-theme .portal-header-action.portal-logout { border-color: var(--portal-red); background: var(--portal-red); color: #fff; }
+.vortex-portal-theme .portal-header-action.portal-logout:hover { background: var(--portal-red-hover); }
+.vortex-portal-theme .portal-header-action.notification-bell-unread { animation: none; color: var(--portal-red); background: var(--portal-tint); border-color: #e5aca9; }
+.vortex-portal-theme .notification-bell-unread .notification-bell-icon { animation: none; color: inherit; }
+.vortex-portal-theme .portal-nav-card { border-color: var(--portal-line); border-radius: 12px; padding: 8px; background: #fff; }
+.vortex-portal-theme .portal-nav-section { margin-bottom: 5px; color: var(--portal-muted); font-size: 10px; font-weight: 600; letter-spacing: .11em; line-height: 1.5; }
+.vortex-portal-theme .portal-tab { min-height: 44px; margin: 2px 0; border: 1px solid transparent; border-radius: 7px; color: #4c5348; font-size: 13px; font-weight: 500; line-height: 1.4; text-align: left; }
+.vortex-portal-theme .portal-tab:hover { color: var(--portal-ink); background: var(--portal-paper); }
+.vortex-portal-theme .portal-tab[aria-current='page'] { color: var(--portal-red); background: var(--portal-tint); border-color: #efd1cb; box-shadow: inset 3px 0 0 var(--portal-red); }
+.vortex-portal-theme .portal-main { scrollbar-gutter: stable; }
+.vortex-portal-theme .portal-shortcut { border-radius: 12px; border-color: var(--portal-line); padding: 24px; box-shadow: 0 2px 4px #20232103; }
+.vortex-portal-theme .portal-shortcut:hover { border-color: var(--portal-control-line); box-shadow: 0 6px 20px #20232108; }
+.vortex-portal-theme .portal-shortcut > svg { width: 40px; height: 40px; padding: 9px; border: 1px solid #efd1cb; border-radius: 10px; background: var(--portal-tint); }
+.vortex-portal-theme .portal-workspace-intro { padding: 4px 0 12px; }
+.vortex-portal-theme .portal-workspace-intro h2 { font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: -.04em; }
+.vortex-portal-theme .portal-workspace-intro p { margin-top: 8px; }
+
+/* Match neutral surfaces across existing panels without changing status colors,
+   chart series, modal backdrops, media, or layout/scrolling utilities. */
+.vortex-portal-theme :is(.bg-gray-50, .bg-slate-50) { background-color: var(--portal-paper); }
+.vortex-portal-theme :is(.bg-gray-100, .bg-slate-100) { background-color: #eef0e9; }
+.vortex-portal-theme :is(.text-gray-900, .text-gray-950, .text-slate-900, .text-slate-950) { color: var(--portal-ink); }
+.vortex-portal-theme :is(.text-gray-700, .text-gray-800, .text-slate-700, .text-slate-800) { color: #41473d; }
+.vortex-portal-theme :is(.text-gray-400, .text-gray-500, .text-gray-600, .text-slate-400, .text-slate-500, .text-slate-600) { color: var(--portal-muted); }
+.vortex-portal-theme :is(.border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200) { border-color: var(--portal-line); }
+.vortex-portal-theme :is(.border-gray-300, .border-slate-300) { border-color: var(--portal-control-line); }
+.vortex-portal-theme :is(.divide-gray-100, .divide-gray-200, .divide-slate-100, .divide-slate-200) > :not([hidden]) ~ :not([hidden]) { border-color: var(--portal-line); }
+.vortex-portal-theme .shadow-sm { box-shadow: 0 2px 5px #20232106; }
+.vortex-portal-theme :is(.shadow-md, .shadow-lg) { box-shadow: 0 8px 28px #2023210c; }
+.vortex-portal-theme .text-vortex-red { color: var(--portal-red); }
+.vortex-portal-theme .bg-vortex-red { background-color: var(--portal-red); }
+.vortex-portal-theme .border-vortex-red { border-color: var(--portal-red); }
+.vortex-portal-theme :is(button, a).bg-vortex-red:hover:not(:disabled) { background-color: var(--portal-red-hover); }
+.vortex-portal-theme .portal-primary { color: #fff; background: var(--portal-red); border-color: var(--portal-red); }
+.vortex-portal-theme .portal-primary:hover:not(:disabled) { color: #fff; background: var(--portal-red-hover); border-color: var(--portal-red-hover); }
+.vortex-portal-theme .portal-action { min-height: 42px; font-weight: 500; }
+.vortex-portal-theme .portal-action[aria-pressed='true'] { background: var(--portal-tint); border-color: #d5948d; color: var(--portal-red); }
+.vortex-portal-theme :is(input:not([type]), input[type='text'], input[type='email'], input[type='tel'], input[type='password'], input[type='search'], input[type='number'], input[type='date'], input[type='time'], input[type='datetime-local'], select, textarea) { border-radius: 6px; }
+.vortex-portal-theme :is(input, textarea)::placeholder { color: #687062; opacity: 1; }
+.vortex-portal-theme :is(input[type='checkbox'], input[type='radio']) { accent-color: var(--portal-red); }
+.vortex-portal-theme .portal-control { min-height: 42px; }
+.vortex-portal-theme thead { background: var(--portal-paper); color: var(--portal-muted); }
+.vortex-portal-theme th { font-weight: 600; letter-spacing: .01em; }
+.vortex-portal-theme :is(th, td) { border-color: var(--portal-line); }
+.vortex-portal-theme :is(button, a, input, select, textarea) { transition-duration: .15s; }
+
+@media (min-width: 861px) {
+  .vortex-portal-theme .text-xs { font-size: 13px; line-height: 1.5; }
+  .vortex-portal-theme .text-sm { font-size: 14px; line-height: 1.6; }
+}
+@media (max-width: 1023px) {
+  .vortex-portal-theme .container-admin { padding-left: 20px; padding-right: 20px; }
+  .vortex-portal-theme .portal-header-inner { gap: 14px; padding-top: 15px; padding-bottom: 15px; }
+  .vortex-portal-theme .portal-header-identity { gap: 12px; flex: 1 1 auto; }
+  .vortex-portal-theme .portal-brand { width: 210px; }
+  .vortex-portal-theme .portal-header-heading { padding-left: 16px; }
+  .vortex-portal-theme .portal-title { font-size: 20px; }
+  .vortex-portal-theme .portal-header-action { min-height: 44px; height: 44px; min-width: 44px; }
+}
+@media (max-width: 640px) {
+  .vortex-portal-theme .container-admin { padding-left: 16px; padding-right: 16px; }
+  .vortex-portal-theme .portal-header-inner { gap: 12px; }
+  .vortex-portal-theme .portal-header-identity { display: grid; grid-template-columns: 44px minmax(0, 1fr); column-gap: 14px; row-gap: 6px; width: 100%; }
+  .vortex-portal-theme .portal-menu-toggle { grid-row: 1 / 3; }
+  .vortex-portal-theme .portal-brand { width: min(240px, 100%); }
+  .vortex-portal-theme .portal-header-heading { grid-column: 2; padding: 0; border: 0; }
+  .vortex-portal-theme .portal-title { font-size: 16px; letter-spacing: -.02em; }
+  .vortex-portal-theme .portal-subtitle { display: none; }
+  .vortex-portal-theme .portal-header-actions { width: 100%; justify-content: space-between; }
+  .vortex-portal-theme .portal-tab { min-height: 46px; font-size: 14px; }
+  .vortex-portal-theme .portal-workspace-intro h2 { font-size: 26px; }
+  .vortex-portal-theme .portal-shortcut { padding: 20px; }
+  .vortex-portal-theme :is(input:not([type]), input[type='text'], input[type='email'], input[type='tel'], input[type='password'], input[type='search'], input[type='number'], input[type='date'], input[type='time'], input[type='datetime-local'], select, textarea) { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vortex-portal-theme :is(button, a, input, select, textarea) { transition: none; }
+}

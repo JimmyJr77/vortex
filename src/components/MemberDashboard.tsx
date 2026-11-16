@@ -2008,18 +2008,20 @@ export default function MemberDashboard({
   }, [activeTab, messagesMaximized])
 
   return (
-    <div className="portal-shell bg-gray-50">
+    <div className="portal-shell portal-member">
       <StaffLegalPolicies portal="member" />
-      {/* Member Portal Header Section - Dark Background */}
-      <div className={`bg-gradient-to-br from-black via-gray-900 to-black shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
-        <div className="container-admin py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <button type="button" className="lg:hidden text-white" onClick={() => setNavOpen((o) => !o)}>
-              {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      <header className={`portal-header shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
+        <div className="container-admin portal-header-inner">
+          <div className="portal-header-identity">
+            <button type="button" className="portal-menu-toggle lg:hidden"
+              aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={navOpen}
+              aria-controls="member-portal-navigation"
+              onClick={() => setNavOpen((o) => !o)}>
+              {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <h1 className="text-3xl md:text-5xl font-display font-bold text-white">
-              VORTEX <span className="text-vortex-red">MEMBER</span> PORTAL
-            </h1>
+            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <div className="portal-header-heading"><h1 className="portal-title">Member portal</h1></div>
           </div>
           <PortalNavButtons
             activePortal="member"
@@ -2029,7 +2031,7 @@ export default function MemberDashboard({
             notifications={<NotificationBell apiPrefix="member" />}
           />
         </div>
-      </div>
+      </header>
 
       {(enrollmentConfirming || enrollmentConfirmMessage || enrollmentConfirmError || billingReturnMessage) && !messagingFullscreen && (
         <div className="container-admin pt-4">
@@ -2070,17 +2072,17 @@ export default function MemberDashboard({
 
       {/* Workspace: sidebar nav + main content */}
       <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav className={messagingFullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'}>
-          <div className="bg-white border border-gray-200 rounded-xl p-2 sticky top-4">
+        <nav id="member-portal-navigation" aria-label="Member navigation" className={messagingFullscreen ? 'hidden' : `portal-sidebar ${navOpen ? 'block' : 'hidden lg:block'} h-full min-h-0 overflow-y-auto overscroll-contain`}>
+          <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2 lg:sticky lg:top-0">
             {visibleNavEntries.map((entry) => {
               if (entry.type === 'section') {
                 return (
-                  <div
+                  <h2
                     key={entry.id}
-                    className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+                    className="portal-nav-section px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide"
                   >
                     {entry.label}
-                  </div>
+                  </h2>
                 )
               }
               const item = entry.item
@@ -2094,15 +2096,16 @@ export default function MemberDashboard({
                     setActiveTab(item.tab)
                     setNavOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${active ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                  aria-current={active ? 'page' : undefined}
+                  className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
                 >
-                  <Icon className="w-4 h-4" /> {item.label}
+                  <Icon className="w-4 h-4 shrink-0" aria-hidden="true" /> <span className="text-left">{item.label}</span>
                 </button>
               )
             })}
           </div>
         </nav>
-        <main className={`min-w-0 flex flex-col min-h-0 flex-1 overscroll-y-none ${activeTab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+        <main className={`portal-main min-w-0 ${navOpen ? 'hidden lg:flex' : 'flex'} flex-col min-h-0 flex-1 overscroll-y-none ${activeTab === 'messages' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
           <div className="flex flex-col flex-1 min-h-0 h-full">
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (

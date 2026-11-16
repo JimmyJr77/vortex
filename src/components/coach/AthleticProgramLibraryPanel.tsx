@@ -72,15 +72,15 @@ export default function AthleticProgramLibraryPanel() {
 
   return (
     <div className="space-y-5">
-      <header className="rounded-2xl bg-gradient-to-br from-gray-950 via-gray-900 to-red-950 px-5 py-6 text-white shadow-sm md:px-7">
+      <header className="rounded-2xl border border-gray-200 bg-white px-5 py-6 text-gray-900 shadow-sm md:px-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-300">
+            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-vortex-red">
               <CalendarRange className="h-4 w-4" />
               ABC Progression Library
             </div>
             <h2 className="text-2xl font-bold md:text-3xl">Coach-ready 12-week ABC progressions</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-300">
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-gray-600">
               Sixteen complete progressions across performance outcomes and full-body equipment tracks.
               Every workout component connects to the canonical Exercise Library for coaching, scaling,
               safety, dosage, media, and research.
@@ -202,15 +202,15 @@ function ProgramDetail({
       </button>
 
       <header className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="bg-gradient-to-br from-gray-950 via-gray-900 to-red-950 px-5 py-6 text-white md:px-7">
+        <div className="border-b border-gray-200 bg-gray-50 px-5 py-6 text-gray-900 md:px-7">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-red-300">{program.category}</span>
+              <span className="text-xs font-bold uppercase tracking-[0.16em] text-vortex-red">{program.category}</span>
               <h2 className="mt-2 text-2xl font-bold md:text-3xl">{program.title}</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-gray-300">{program.summary}</p>
+              <p className="mt-2 max-w-3xl text-sm leading-relaxed text-gray-600">{program.summary}</p>
             </div>
             <div className="w-full max-w-[220px]">
-              <AgeSelect value={age} onChange={onAgeChange} dark />
+              <AgeSelect value={age} onChange={onAgeChange} />
             </div>
           </div>
         </div>
@@ -504,23 +504,19 @@ function CoachRules() {
 function AgeSelect({
   value,
   onChange,
-  dark = false,
 }: {
   value: AthleticAgeBracket
   onChange: (value: AthleticAgeBracket) => void
-  dark?: boolean
 }) {
   return (
     <label className="block">
-      <span className={`mb-1 block text-xs font-semibold uppercase tracking-wide ${dark ? 'text-gray-300' : 'text-gray-500'}`}>
+      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-600">
         Athlete age
       </span>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value as AthleticAgeBracket)}
-        className={`w-full rounded-lg px-3 py-2 text-sm ${
-          dark ? 'border border-white/20 bg-white/10 text-white' : 'border border-gray-300 bg-white text-gray-900'
-        }`}
+        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
       >
         {ATHLETIC_AGE_BRACKETS.map((bracket) => (
           <option key={bracket} value={bracket} className="text-gray-900">{bracket}</option>
@@ -532,9 +528,9 @@ function AgeSelect({
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="min-w-[68px] rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-      <div className="text-lg font-black">{value}</div>
-      <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">{label}</div>
+    <div className="min-w-[68px] rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+      <div className="text-lg font-semibold text-gray-900">{value}</div>
+      <div className="text-xs font-semibold uppercase tracking-wide text-gray-600">{label}</div>
     </div>
   )
 }

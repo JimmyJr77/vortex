@@ -7,6 +7,7 @@ import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import Login from './components/Login'
+import PortalTheme from './components/portal/PortalTheme'
 import { trackPageView, trackEngagement } from './utils/analytics'
 import { captureUtmFromLocation } from './utils/utmCapture'
 import { hasAdminSession } from './utils/api'
@@ -260,19 +261,19 @@ function App() {
     ...(isAdmin ? ['admin', 'new-admin'] as const : []),
   ])]
 
-  if (location.pathname === '/employee/payroll/preparer') return <Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense>
+  if (location.pathname === '/employee/payroll/preparer') return <PortalTheme><Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense></PortalTheme>
 
   if (location.pathname === '/employee/payroll') {
-    return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>
+    return <PortalTheme><Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense></PortalTheme>
   }
 
   // Check required waivers for restored member sessions. Lead registration
   // uses the invited family's own sign-in and waiver steps.
   if (!isLeadRegistration && !(isLandingPage && activePortal === 'website') && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
     return (
-      <Suspense fallback={<PageLoader />}>
+      <PortalTheme><Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
-      </Suspense>
+      </Suspense></PortalTheme>
     )
   }
 
@@ -280,13 +281,13 @@ function App() {
   if (!isLeadRegistration && isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
     const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
-      <Suspense fallback={<PageLoader />}>
+      <PortalTheme><Suspense fallback={<PageLoader />}>
         <AdminPortal
           onLogout={handleLogout}
           availablePortals={availablePortals}
           onSwitchPortal={switchPortal}
         />
-      </Suspense>
+      </Suspense></PortalTheme>
     )
   }
 
@@ -294,7 +295,7 @@ function App() {
   if (!isLeadRegistration && member && memberToken && showMemberDashboard) {
     if (activePortal === 'coach') {
       return (
-        <Suspense fallback={<PageLoader />}>
+        <PortalTheme><Suspense fallback={<PageLoader />}>
           <CoachDashboard
             coach={member}
             onLogout={handleMemberLogout}
@@ -302,11 +303,11 @@ function App() {
             availablePortals={availablePortals}
             onSwitchPortal={switchPortal}
           />
-        </Suspense>
+        </Suspense></PortalTheme>
       )
     }
     return (
-      <Suspense fallback={<PageLoader />}>
+      <PortalTheme><Suspense fallback={<PageLoader />}>
         <MemberDashboard 
           member={member} 
           onLogout={handleMemberLogout}
@@ -318,7 +319,7 @@ function App() {
             if (updated) setMember(updated)
           }}
         />
-      </Suspense>
+      </Suspense></PortalTheme>
     )
   }
 

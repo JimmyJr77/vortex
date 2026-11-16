@@ -143,35 +143,36 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
   const fullscreen = current?.id === 'messaging' && messagesMaximized
   const legacy = legacySections.find(item => item.id === current?.id)
   const fixedPanel = current?.id === 'messaging' || current?.id === 'faqLibrary'
-  return <div className="portal-shell bg-gray-50 text-gray-900">
-    <header hidden={fullscreen} className="bg-gradient-to-br from-black via-gray-900 to-black shrink-0">
-      <div className="container-admin py-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <button type="button" className="lg:hidden text-white" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="new-admin-navigation" onClick={() => setNavOpen(open => !open)}>
-            {navOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+  return <div className="portal-shell portal-admin">
+    <header hidden={fullscreen} className="portal-header shrink-0">
+      <div className="container-admin portal-header-inner">
+        <div className="portal-header-identity">
+          <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="new-admin-navigation" onClick={() => setNavOpen(open => !open)}>
+            {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
           </button>
-          <h1 className="text-3xl md:text-5xl font-display font-bold text-white">VORTEX <span className="text-vortex-red">ADMIN</span></h1>
+          <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+          <div className="portal-header-heading"><h1 className="portal-title">Admin workspace</h1></div>
         </div>
         <PortalNavButtons activePortal="new-admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} notifications={<NotificationBell apiPrefix="admin" />} />
       </div>
     </header>
     <div className={fullscreen ? "flex flex-col flex-1 min-h-0 overflow-hidden" : "container-admin pt-6 pb-6 flex flex-col lg:grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden"}>
-      <nav id="new-admin-navigation" aria-label="Admin sections" className={`${fullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'} shrink-0 max-h-[45dvh] lg:max-h-none min-h-0 overflow-y-auto overscroll-contain`}>
-        <div className="bg-white border border-gray-200 rounded-xl p-2">
+      <nav id="new-admin-navigation" aria-label="Admin sections" className={`portal-sidebar ${fullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'} h-full max-h-full shrink-0 min-h-0 overflow-y-auto overscroll-contain`}>
+        <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2">
           {visibleGroups.map(group => <Fragment key={group.label ?? 'start'}>
-            {group.label ? <h2 className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{group.label}</h2> : null}
-            {group.items.map(item => <button type="button" key={item.id} onClick={() => navigate(item.id)} aria-current={current?.id === item.id ? 'page' : undefined} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${current?.id === item.id ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-100'}`}><item.icon className="w-4 h-4 shrink-0" /><span className="text-left">{item.label}</span></button>)}
+            {group.label ? <h2 className="portal-nav-section px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide">{group.label}</h2> : null}
+            {group.items.map(item => <button type="button" key={item.id} onClick={() => navigate(item.id)} aria-current={current?.id === item.id ? 'page' : undefined} className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"><item.icon className="w-4 h-4 shrink-0" /><span className="text-left">{item.label}</span></button>)}
           </Fragment>)}
         </div>
       </nav>
-      <main className={`min-w-0 min-h-0 flex-1 overscroll-y-none ${fixedPanel ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>
+      <main className={`portal-main min-w-0 min-h-0 flex-1 overscroll-y-none ${navOpen && !fullscreen ? 'hidden lg:flex lg:flex-col' : ''} ${fixedPanel ? "flex flex-col overflow-hidden" : "overflow-y-auto"}`}>
         {access.loading ? <Loading label="Checking administrative access…" /> : null}
         <ErrorNotice message={access.error} onRetry={() => window.location.reload()} />
         {access.data && current?.id === 'home' ? <div className="space-y-5">
-          <div><h2 className="text-2xl font-bold text-gray-900">Admin</h2><p className="text-sm text-gray-500">Welcome to your admin workspace. Jump into any area.</p></div>
+          <div className="portal-workspace-intro"><h2 className="text-2xl font-bold text-gray-900">Admin</h2><p className="text-sm text-gray-500">Welcome to your admin workspace. Jump into any area.</p></div>
           {visible.length === 1 ? <p role="status">Your staff account has no permissions for these administrative workflows.</p> : null}
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.filter(item => item.id !== 'home').map(item => <button type="button" key={item.id} aria-label={`Open ${item.label}`} onClick={() => navigate(item.id)} className="text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all">
+            {visible.filter(item => item.id !== 'home').map(item => <button type="button" key={item.id} aria-label={`Open ${item.label}`} onClick={() => navigate(item.id)} className="portal-shortcut text-left bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md hover:border-vortex-red transition-all">
               <item.icon className="w-7 h-7 text-vortex-red" /><h3 className="mt-3 font-bold text-gray-900">{item.label}</h3><p className="text-sm text-gray-500 mt-1">{descriptions[item.id]}</p>
             </button>)}
           </div>

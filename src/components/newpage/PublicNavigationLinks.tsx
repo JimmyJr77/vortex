@@ -13,8 +13,18 @@ const navigation = [
 /** The homepage and public booking pages always use the same navigation. */
 export default function PublicNavigationLinks({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   return navigation.filter(item => mobile || !item.mobileOnly).map(item => (
-    <Link key={item.to} to={item.to} onClick={onNavigate}>
-      <span className="np-nav-label">{item.calendar && <CalendarDays size={mobile ? 18 : 16} aria-hidden="true" />}{item.label}</span>
+    <Link
+      key={item.to}
+      to={item.to}
+      onClick={onNavigate}
+      className={item.calendar && !mobile ? 'np-nav-schedule' : undefined}
+      aria-label={item.calendar ? item.label : undefined}
+      title={item.calendar && !mobile ? item.label : undefined}
+    >
+      <span className="np-nav-label">
+        {item.calendar && !mobile && <CalendarDays size={18} aria-hidden="true" />}
+        <span className="np-nav-text">{item.label}</span>
+      </span>
       {mobile && <ArrowUpRight size={18} aria-hidden="true" />}
     </Link>
   ))
