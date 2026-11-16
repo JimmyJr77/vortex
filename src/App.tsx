@@ -5,6 +5,7 @@ import Header from './components/Header'
 import HubSeo from './components/HubSeo'
 import ContactForm from './components/ContactForm'
 import Footer from './components/Footer'
+import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import Login from './components/Login'
 import { trackPageView, trackEngagement } from './utils/analytics'
 import { captureUtmFromLocation } from './utils/utmCapture'
@@ -86,6 +87,8 @@ function App() {
   const location = useLocation()
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
+  const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
+  const isModernPublicPage = isPublicRegistrationPage || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   const {
     highlights,
     isOpen: isHighlightsOpen,
@@ -321,9 +324,16 @@ function App() {
 
   // Otherwise show normal website
   return (
-    <div className="min-h-screen bg-white relative">
+    <div className={`min-h-screen bg-white relative${isModernPublicPage ? ' np-public-site' : ''}`}>
       {!isLandingPage && <HubSeo />}
-      {!isLandingPage && <Header
+      {isModernPublicPage && <PublicSiteHeader key={location.pathname} isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+        if (member || isAdmin) {
+          const portals = getAvailablePortals(member)
+          const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
+          switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
+        } else setIsLoginOpen(true)
+      }} />}
+      {!isLandingPage && !isModernPublicPage && <Header
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         isLoggedIn={Boolean(member) || isAdmin}
@@ -333,6 +343,7 @@ function App() {
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
       />}
+      <div id={isModernPublicPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
@@ -392,6 +403,7 @@ function App() {
           <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
         </Routes>
       </Suspense>
+      </div>
       <ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
@@ -399,7 +411,8 @@ function App() {
         inquiryVariant="athletics"
         inquirySource={inquirySourcePath}
       />
-      {!isLandingPage && <Footer
+      {isModernPublicPage && <PublicSiteFooter />}
+      {!isLandingPage && !isModernPublicPage && <Footer
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
       />}

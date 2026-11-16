@@ -1,0 +1,258 @@
+.np-drop-in-page {
+  background: var(--np-paper, #f5f6f2);
+  color: var(--np-ink, #202321);
+  font-family: Inter, Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.np-drop-in-container {
+  width: min(100% - 40px, 1120px);
+  margin-inline: auto;
+}
+
+.np-drop-in-hero {
+  padding: 42px 0 36px;
+  border-bottom: 1px solid var(--np-line, #dddfd9);
+  background: var(--np-paper, #f5f6f2);
+}
+
+.np-drop-in-page .np-drop-in-eyebrow {
+  margin: 0 0 16px;
+  color: var(--np-red, #c9232c);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.np-drop-in-hero h1 {
+  margin: 0;
+  font-family: inherit;
+  font-size: clamp(38px, 6vw, 66px);
+  font-weight: 500;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+}
+
+.np-drop-in-hero .np-drop-in-intro {
+  max-width: 640px;
+  margin: 22px 0 0;
+  color: var(--np-muted, #565d53);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.np-drop-in-hero-note {
+  max-width: 680px;
+  margin: 16px 0 0;
+  color: var(--np-muted, #565d53);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.np-drop-in-content {
+  padding-block: 32px 48px;
+}
+
+.np-drop-in-page :is(h2, h3) {
+  font-family: inherit;
+  letter-spacing: -.025em;
+}
+
+.np-drop-in-page :is(.text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700) {
+  color: var(--np-muted, #565d53);
+}
+
+.np-drop-in-page :is(.text-gray-900, .text-gray-950) {
+  color: var(--np-ink, #202321);
+}
+
+.np-drop-in-page .text-vortex-red {
+  color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-page .bg-vortex-red {
+  background-color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-page .bg-vortex-red:hover:not(:disabled) {
+  background-color: #a91c24;
+}
+
+.np-drop-in-page .bg-gray-50 {
+  background-color: var(--np-paper, #f5f6f2);
+}
+
+.np-drop-in-page :is(.border-gray-100, .border-gray-200, .border-gray-300) {
+  border-color: var(--np-control-line, #8a9282);
+}
+
+.np-drop-in-page .border-vortex-red {
+  border-color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-page :is(button, a, input, select, summary):focus-visible {
+  outline: 3px solid var(--np-red, #c9232c);
+  outline-offset: 4px;
+}
+
+.np-drop-in-page button {
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.np-drop-in-page button:disabled {
+  cursor: not-allowed;
+}
+
+.np-drop-in-page :is(input:not([type='checkbox']):not([type='radio']), select) {
+  min-height: 48px;
+  border-color: var(--np-control-line, #8a9282);
+  border-radius: 10px;
+  color: var(--np-ink, #202321);
+  background-color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.np-drop-in-page input::placeholder {
+  color: var(--np-muted, #565d53);
+}
+
+.np-drop-in-page input[type='checkbox'] {
+  width: 19px;
+  height: 19px;
+  margin-top: 3px;
+  flex-shrink: 0;
+  accent-color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-benefits > div {
+  padding: 18px;
+  border-color: var(--np-line, #dddfd9);
+  border-radius: 14px;
+}
+
+.np-drop-in-benefits > div > div:first-child {
+  margin-bottom: 6px;
+}
+
+.np-drop-in-page :is(.np-drop-in-filters, .np-drop-in-program) {
+  min-width: 0;
+  padding: 20px;
+  border-color: var(--np-line, #dddfd9);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.np-drop-in-filters h2 {
+  font-size: 23px;
+  font-weight: 600;
+}
+
+.np-drop-in-page .np-drop-in-program > div:first-child h2 {
+  color: var(--np-ink, #202321);
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.np-drop-in-class {
+  border-radius: 12px;
+}
+
+.np-drop-in-class:hover {
+  border-color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-class h3 {
+  font-size: 17px;
+}
+
+.np-drop-in-sessions h2 {
+  line-height: 1.3;
+}
+
+.np-drop-in-sessions button[aria-label='Close upcoming classes'] {
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+.np-drop-in-faq .np-drop-in-container {
+  max-width: 880px;
+}
+
+.np-drop-in-faq h2 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 500;
+  letter-spacing: -.04em;
+  line-height: 1.15;
+}
+
+.np-drop-in-faq details {
+  border-color: var(--np-line, #dddfd9);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.np-drop-in-faq summary {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.np-drop-in-faq summary::marker {
+  color: var(--np-red, #c9232c);
+}
+
+.np-drop-in-modal {
+  backdrop-filter: blur(4px);
+}
+
+.np-drop-in-modal > div {
+  border: 1px solid var(--np-line, #dddfd9);
+  border-radius: 20px;
+}
+
+.np-drop-in-modal button {
+  min-height: 44px;
+}
+
+@media (min-width: 768px) {
+  .np-drop-in-container {
+    width: min(100% - 80px, 1120px);
+  }
+
+  .np-drop-in-hero {
+    padding: 64px 0 52px;
+  }
+
+  .np-drop-in-page .np-drop-in-eyebrow {
+    font-size: 12px;
+  }
+
+  .np-drop-in-hero .np-drop-in-intro,
+  .np-drop-in-page .text-sm {
+    font-size: 15px;
+  }
+
+  .np-drop-in-hero-note,
+  .np-drop-in-page .text-xs {
+    font-size: 14px;
+  }
+
+  .np-drop-in-content {
+    padding-block: 40px 64px;
+  }
+
+  .np-drop-in-page :is(.np-drop-in-filters, .np-drop-in-program) {
+    padding: 28px;
+  }
+
+  .np-drop-in-faq {
+    padding-block: 64px;
+  }
+}

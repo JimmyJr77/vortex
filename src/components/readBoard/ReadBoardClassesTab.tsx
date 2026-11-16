@@ -35,7 +35,7 @@ const ReadBoardClassesTab = () => {
   }, [])
 
   return (
-    <section className="section-padding bg-white">
+    <section className="np-browse-section section-padding bg-white">
       <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -43,7 +43,7 @@ const ReadBoardClassesTab = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-12 text-center">
+          <h2 className="np-browse-section-title text-4xl md:text-5xl font-display font-bold text-black mb-12 text-center">
             Classes <span className="text-vortex-red">Offered</span>
           </h2>
 
@@ -65,7 +65,7 @@ const ReadBoardClassesTab = () => {
           )}
 
           {!loading && !error && programs.length > 0 && (
-            <ClassesOfferedList programs={programs} />
+            <ClassesOfferedList programs={programs} className="np-browse-class-list" />
           )}
         </motion.div>
       </div>

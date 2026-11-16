@@ -10,6 +10,7 @@ import { formatPhoneForDisplay } from '../utils/phoneUtils'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
+import './DropInPage.css'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
@@ -148,19 +149,19 @@ export default function DropInPage() {
     finally { setSubmitting(false) }
   }
 
-  return <div className="min-h-screen bg-gray-50">
-    <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-14 text-white">
-      <div className="container-custom max-w-5xl text-center">
-        <h1 className="font-display text-4xl font-bold md:text-6xl">
-          Drop-In Gymnastics &amp; Youth Classes in Bowie, MD
-        </h1>
-        <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-300">
-          Sign up for a drop-in class. First class for non-members is free. Member discounts apply and all members get 4 free drop-ins per year. Schedule make-up classes here as well
+  return <div className="np-drop-in-page min-h-screen">
+    <section className="np-drop-in-hero">
+      <div className="np-drop-in-container">
+        <p className="np-drop-in-eyebrow">Gymnastics &amp; athletic development · Bowie, MD</p>
+        <h1>Drop-in classes.</h1>
+        <p className="np-drop-in-intro">
+          Keep growing, one class at a time. Find an available drop-in or schedule a make-up class that fits your week.
         </p>
+        <p className="np-drop-in-hero-note">First class for non-members is free. Member discounts apply, and all members get 4 free drop-ins per year.</p>
       </div>
     </section>
 
-    <section className="container-custom max-w-6xl py-10">
+    <section className="np-drop-in-container np-drop-in-content">
       {bookingId > 0 && (
         <div className="mb-8 rounded-xl border bg-white p-5" aria-live="polite">
           <h2 className="text-lg font-bold">{paymentStatus === 'confirmed' ? 'Drop-in confirmed' : 'Drop-in payment'}</h2>
@@ -175,7 +176,7 @@ export default function DropInPage() {
           </>}
         </div>
       )}
-      {benefits && <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {benefits && <div className="np-drop-in-benefits mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Your rate</div><div className="font-bold">{benefits.annualMember ? `Member pricing${benefits.discountPercent ? ` · ${benefits.discountPercent.toFixed(0)}% discount` : ''}` : 'Non-member pricing'}</div></div>
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Free trial</div><div className="font-bold">{benefits.trialAvailable ? 'Available' : 'Already used'}</div></div>
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Annual member credits</div><div className="font-bold">{benefits.annualCreditsRemaining} remaining</div></div>
@@ -184,9 +185,9 @@ export default function DropInPage() {
 
       {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : <div className={`grid items-start gap-6 ${selectedClassId ? 'lg:grid-cols-[minmax(0,1fr)_24rem]' : ''}`}>
         <div className="space-y-6">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
+          <div className="np-drop-in-filters rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
-            <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
+            <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" aria-label="Search drop-in classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
             <EnrollmentStartDateField
               id="drop-in-enrollment-start-date"
               value={enrollmentStartDate}
@@ -209,7 +210,7 @@ export default function DropInPage() {
           </div>
 
           {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || 'No classes match your search or filters.'}</div>}
-          {programSections.map((rows) => <div key={rows[0].programId} className="space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">
+          {programSections.map((rows) => <div key={rows[0].programId} className="np-drop-in-program space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">
             <div><h2 className="text-lg font-bold text-vortex-red">{rows[0].programName}</h2>{rows[0].programDescription && <p className="mt-1 text-sm text-gray-600">{rows[0].programDescription}</p>}</div>
             {rows.map((row) => <button type="button" key={row.classId} onClick={() => {
               if (!enrollmentStartDate) {
@@ -218,14 +219,14 @@ export default function DropInPage() {
                 return
               }
               setSelectedClassId(row.classId)
-            }} className={`block w-full rounded-xl border p-4 text-left transition-colors ${selectedClassId === row.classId ? 'border-vortex-red bg-red-50 ring-1 ring-red-200' : 'border-gray-100 bg-gray-50 hover:border-gray-300'}`}>
+            }} className={`np-drop-in-class block w-full rounded-xl border p-4 text-left transition-colors ${selectedClassId === row.classId ? 'border-vortex-red bg-red-50 ring-1 ring-red-200' : 'border-gray-100 bg-gray-50 hover:border-gray-300'}`}>
               <h3 className="text-base font-bold text-gray-900">{row.className}</h3><div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500"><span>Age: {formatAgeRange(row.ageMin, row.ageMax)}</span><span>Level: {formatSkillLevel(row.skillLevel)}</span></div>{row.classDescription && <p className="mt-1 text-sm text-gray-600">{row.classDescription}</p>}<p className="mt-3 text-sm font-semibold text-vortex-red">View drop-in times →</p>
             </button>)}
           </div>)}
         </div>
 
         {selectedClassId && <button type="button" aria-label="Close upcoming classes" onClick={() => setSelectedClassId(null)} className="fixed inset-0 z-40 bg-black/45 lg:hidden" />}
-        {selectedClassId && <aside className="fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl md:p-5 lg:sticky lg:inset-auto lg:top-[calc(var(--site-header-height,0px)+1rem)] lg:z-auto lg:max-h-none lg:rounded-xl lg:pb-5 lg:shadow-sm">
+        {selectedClassId && <aside className="np-drop-in-sessions fixed inset-x-0 bottom-0 z-50 max-h-[85dvh] overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl md:p-5 lg:sticky lg:inset-auto lg:top-[calc(var(--site-header-height,0px)+1rem)] lg:z-auto lg:max-h-none lg:rounded-xl lg:pb-5 lg:shadow-sm">
           <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300 lg:hidden" />
           <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-vortex-red">Upcoming classes</p><h2 className="mt-1 text-xl font-bold text-gray-900">{selectedClass?.className}</h2><p className="mt-1 text-sm text-gray-600">Choose one day, date, and time.</p></div><button type="button" onClick={() => setSelectedClassId(null)} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close upcoming classes"><X className="h-5 w-5" /></button></div>
           <div className="mt-5 max-h-[58dvh] space-y-3 overflow-y-auto overscroll-contain pr-1 lg:max-h-[65vh]">{upcoming.map((session) => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} type="button" disabled={session.isFull} onClick={() => { setSelected(session); setResult(null); setError(null) }} className="min-h-24 w-full touch-manipulation rounded-xl border border-gray-200 p-4 text-left hover:border-vortex-red disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60"><div className="flex items-start justify-between gap-3"><div><div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 text-vortex-red" /> {prettyDate(session.date)}</div><p className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)}</p></div><strong className="text-vortex-red">{money(session.totalCents)}</strong></div><p className="mt-3 text-xs font-semibold text-gray-600">{session.isFull ? 'Class full' : `${session.spotsRemaining} spots available`}</p><p className="mt-1 text-xs text-gray-500">{session.monthlyEnrolled} monthly + {session.dropInEnrolled} drop-in · maximum {session.maxParticipants}</p></button>)}{upcoming.length === 0 && <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">No upcoming dates are open for this class.</p>}</div>
@@ -233,12 +234,11 @@ export default function DropInPage() {
       </div>}
     </section>
 
-    <section className="border-t border-gray-200 bg-white py-14">
-      <div className="container-custom max-w-4xl">
-        <h2 className="text-center text-3xl font-display font-bold text-gray-950">
-          Drop-in class FAQs
-        </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-center text-gray-600">
+    <section className="np-drop-in-faq border-t border-gray-200 bg-white py-14">
+      <div className="np-drop-in-container">
+        <p className="np-drop-in-eyebrow">Before you join us</p>
+        <h2>Drop-in questions, answered.</h2>
+        <p className="mt-3 max-w-2xl text-gray-600">
           Try one available class in Bowie without committing to monthly enrollment.
         </p>
         <div className="mt-8 space-y-4">
@@ -254,7 +254,7 @@ export default function DropInPage() {
       </div>
     </section>
 
-    {selected && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={(event) => { if (event.currentTarget === event.target) setSelected(null) }}><div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+    {selected && <div className="np-drop-in-modal fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={(event) => { if (event.currentTarget === event.target) setSelected(null) }}><div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
       {result ? <div className="text-center">
         {result.status === 'confirmed' && <CheckCircle2 className="mx-auto h-14 w-14 text-green-600" />}
         <h2 className="mt-4 text-2xl font-bold">{result.accountRequired ? 'Finish creating your family account' : result.status === 'payment_pending' ? 'Payment required' : 'Drop-in confirmed'}</h2>

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Calendar, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowUpRight, Calendar, Loader2 } from 'lucide-react'
 import {
   saveSchedulingMemberEmail,
   type SchedulingSignupCompleteDetail,
@@ -16,6 +15,7 @@ import { getApiUrl } from '../utils/api'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 import PublicClassesOfferedEnroll from './enroll/PublicClassesOfferedEnroll'
 import EnrollmentOrderEditor from './enroll/EnrollmentOrderEditor'
+import './enroll/PublicEnrollment.css'
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
   if (raw == null || raw === '') return undefined
@@ -31,6 +31,32 @@ function normalizeFilterName(value: string): string {
     .replace(/trampoline/g, 'tramp')
     .replace(/tumbling/g, 'tumble')
     .replace(/[^a-z0-9]+/g, '')
+}
+
+function EnrollmentHero({ signup = false }: { signup?: boolean }) {
+  return (
+    <section className="np-enrollment-hero">
+      <div className="np-enrollment-wrap">
+        <p className="np-enrollment-eyebrow">Your next chapter starts here</p>
+        <h1>{signup ? 'Enroll' : 'Classes Offered'}</h1>
+        <p className="np-enrollment-intro">
+          {signup
+            ? 'Choose an offering and time to complete your signup.'
+            : 'Choose every class time you want, review pricing, then create your family account and assign each class.'}
+        </p>
+        {!signup && (
+          <div className="np-enrollment-actions">
+            <Link to="/signup/family" className="np-enrollment-button">
+              Create a new family account <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link to="/signup/family?mode=minor" className="np-enrollment-button np-enrollment-button-secondary">
+              Under 18? Invite a parent to finish <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
+  )
 }
 
 const SchedulingPage = () => {
@@ -114,16 +140,11 @@ const SchedulingPage = () => {
 
   if (selectedFormId != null) {
     return (
-      <div className="min-h-screen bg-white">
-        <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-12">
-          <div className="container-custom text-center">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">Enroll</h1>
-            <p className="text-gray-300 max-w-2xl mx-auto text-lg">Choose an offering and time to complete your signup.</p>
-          </div>
-        </section>
-        <section className="section-padding bg-gray-50">
-          <div className="container-custom max-w-3xl mx-auto space-y-6">
-            <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:border-gray-400 hover:text-black">
+      <div className="np-enrollment-page">
+        <EnrollmentHero signup />
+        <section className="np-enrollment-content">
+          <div className="np-enrollment-wrap np-enrollment-signup space-y-6">
+            <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="np-enrollment-button np-enrollment-button-secondary">
               <ArrowLeft className="w-4 h-4" /> {signupComplete ? 'Return to classes' : 'Back to classes'}
             </button>
             <SchedulingSignupEmbed
@@ -144,36 +165,31 @@ const SchedulingPage = () => {
   }
 
   if (loading) {
-    return <div className="min-h-[50vh] flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-vortex-red" /></div>
+    return (
+      <div className="np-enrollment-page np-enrollment-state" role="status">
+        <Loader2 className="w-8 h-8 animate-spin text-vortex-red" aria-hidden="true" />
+        <p>Loading classes…</p>
+      </div>
+    )
   }
 
   if (offeredPrograms.length === 0) {
     return (
-      <section className="section-padding pt-below-site-header bg-white min-h-[50vh]">
-        <div className="container-custom max-w-2xl mx-auto text-center">
-          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-3xl font-display font-bold text-black mb-4">Enroll</h1>
-          <p className="text-gray-600">{error || 'No enroll options are open right now. Check back soon.'}</p>
-        </div>
-      </section>
+      <div className="np-enrollment-page">
+        <EnrollmentHero signup />
+        <section className="np-enrollment-state">
+          <Calendar className="w-9 h-9 text-vortex-red" aria-hidden="true" />
+          <p>{error || 'No enroll options are open right now. Check back soon.'}</p>
+        </section>
+      </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <section className="bg-gradient-to-br from-black via-gray-900 to-black pt-below-site-header pb-12">
-        <div className="container-custom text-center">
-          <motion.h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>Classes Offered</motion.h1>
-          <p className="text-gray-300 max-w-2xl mx-auto text-lg">Choose every class time you want, review pricing, then create your family account and assign each class.</p>
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link to="/signup/family" className="inline-flex items-center rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700">Create a new family account</Link>
-            <Link to="/signup/family?mode=minor" className="inline-flex items-center rounded-lg border border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Under 18? Invite a parent to finish</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-padding bg-gray-50">
-        <div className="container-custom max-w-5xl mx-auto space-y-6">
+    <div className="np-enrollment-page">
+      <EnrollmentHero />
+      <section className="np-enrollment-content">
+        <div className="np-enrollment-wrap space-y-6">
           <EnrollmentOrderEditor onSaved={async () => {
             const response = await fetchClassesOffered()
             setOfferedPrograms(response.programs)

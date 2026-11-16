@@ -527,8 +527,8 @@ export default function PublicClassesOfferedEnroll({
   ]
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
+    <div className="np-enrollment-catalog space-y-6">
+      <div className="np-enrollment-filters rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -545,9 +545,9 @@ export default function PublicClassesOfferedEnroll({
             </button>
           )}
         </div>
-        <div className="relative">
+        <div className="np-enrollment-search relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input type="search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
+          <input type="search" aria-label="Search classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
         </div>
         <EnrollmentStartDateField
           id="public-enrollment-start-date"
@@ -560,7 +560,7 @@ export default function PublicClassesOfferedEnroll({
           inputRef={startDateInputRef}
           className="max-w-sm"
         />
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="np-enrollment-filter-fields flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Sport</span>
             <select value={sportFilter} onChange={(event) => {
@@ -621,8 +621,8 @@ export default function PublicClassesOfferedEnroll({
                 </p>
               </div>
             )}
-            <div className="rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm">
-            <div>
+            <div className="np-enrollment-program rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm">
+            <div className="np-enrollment-program-heading">
               <h2 className="text-lg font-bold text-vortex-red">{program.displayName}</h2>
               {program.description && <p className="text-sm text-gray-600 mt-1">{program.description}</p>}
               {programUsesWeeklyTierPricing(program) && maxSlots > 0 && (
@@ -633,7 +633,7 @@ export default function PublicClassesOfferedEnroll({
             </div>
 
             {options.length > 1 && (
-              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <div className="np-enrollment-pricing-options rounded-xl border border-gray-100 bg-gray-50 p-4">
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Pricing option for {program.displayName}</label>
                 <select value={selectedPricingByProgram[program.id] ?? options[0].key} onChange={(event) => setSelectedPricingByProgram((current) => ({ ...current, [program.id]: event.target.value as ProgramPricingOptionKey }))} className="w-full sm:w-96 h-10 rounded-lg border border-gray-300 px-3 text-sm bg-white">
                   {options.map((option) => <option key={option.key} value={option.key}>{formatProgramPricingOptionLabel(option)}</option>)}
@@ -648,10 +648,10 @@ export default function PublicClassesOfferedEnroll({
                 .map((item) => slotOptionKey(item.slotGroupId, item.timeSlotId))
               const focused = classItem.formId === initialFocusedFormId
               return (
-                <div key={classItem.classEventId} className={`rounded-xl border bg-gray-50 p-4 space-y-3 ${focused ? 'border-red-300 ring-1 ring-red-200' : 'border-gray-100'}`}>
+                <div key={classItem.classEventId} className={`np-enrollment-class rounded-xl border bg-gray-50 p-4 space-y-3 ${focused ? 'border-red-300 ring-1 ring-red-200' : 'border-gray-100'}`}>
                   <div>
                     <h3 className="text-base font-bold text-gray-900">{classItem.label}</h3>
-                    <div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <div className="np-enrollment-class-meta mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                       <span>Age: {formatAgeRange(classItem.ageMin, classItem.ageMax)}</span>
                       <span>Level: {formatSkillLevel(classItem.skillLevel)}</span>
                     </div>
@@ -682,7 +682,7 @@ export default function PublicClassesOfferedEnroll({
       })}
 
       {cart.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm space-y-4">
+        <div className="np-enrollment-summary rounded-xl border border-gray-200 bg-white p-4 md:p-5 shadow-sm space-y-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Selection and price breakdown</h2>
             <p className="text-xs text-gray-500 mt-1">Final pricing is confirmed after the account and athlete details are entered.</p>
@@ -739,7 +739,7 @@ export default function PublicClassesOfferedEnroll({
         </div>
       )}
 
-      <div className="sticky bottom-0 -mx-4 md:-mx-6 border-t border-gray-200 bg-white/95 backdrop-blur px-4 md:px-6 py-3 flex items-center justify-between gap-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
+      <div className="np-enrollment-checkout sticky bottom-0 -mx-4 md:-mx-6 border-t border-gray-200 bg-white/95 backdrop-blur px-4 md:px-6 py-3 flex items-center justify-between gap-3 shadow-[0_-8px_20px_rgba(0,0,0,0.06)]">
         <span className="text-sm text-gray-600">{cart.length} {cart.length === 1 ? 'class time' : 'class times'} selected</span>
         <button type="button" onClick={continueToAccount} disabled={cart.length === 0} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50">
           <ShoppingCart className="w-4 h-4" /> Continue to account setup

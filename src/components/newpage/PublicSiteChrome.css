@@ -1,0 +1,54 @@
+.np-public-site {
+  --np-red: #c9232c;
+  --np-ink: #202321;
+  --np-muted: #565d53;
+  --np-tag-ink: #4c5348;
+  --np-control-line: #8a9282;
+  --np-line: #dddfd9;
+  --np-paper: #f5f6f2;
+  color: var(--np-ink);
+  font-family: Inter, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.np-public-site :is(button, a) { -webkit-tap-highlight-color: transparent; }
+.np-public-site :focus-visible { outline: 3px solid var(--np-red); outline-offset: 4px; }
+.np-public-header .np-desktop-nav a { min-height: 44px; display: flex; align-items: center; white-space: nowrap; }
+.np-public-header .np-desktop-nav a[aria-current='page'] { color: var(--np-red); }
+.np-public-content { min-height: 55vh; }
+.np-public-registration { background: var(--np-paper); }
+.np-public-registration > .min-h-screen { min-height: 65vh; padding-block: 48px 64px; background: var(--np-paper); }
+.np-public-registration > .min-h-screen > .max-w-3xl { margin-top: 0; }
+.np-public-registration .font-display { font-family: inherit; }
+.np-public-registration h1 { font-size: clamp(30px, 4vw, 44px); line-height: 1.12; letter-spacing: -.045em; font-weight: 650; }
+.np-public-registration h2 { letter-spacing: -.025em; }
+.np-public-registration .shadow-lg { box-shadow: 0 8px 30px #20232106; }
+.np-public-registration :is(.border-gray-200, .border-gray-300) { border-color: var(--np-control-line); }
+.np-public-registration :is(.text-gray-500, .text-gray-600) { color: var(--np-muted); }
+.np-public-registration :is(.bg-gray-50, .bg-gray-100) { background-color: var(--np-paper); }
+.np-public-registration :is(.text-vortex-red, .text-red-600) { color: var(--np-red); }
+.np-public-registration :is(.bg-vortex-red, .bg-red-600) { background-color: var(--np-red); }
+.np-public-registration button { min-height: 44px; }
+.np-public-registration button:disabled { cursor: not-allowed; }
+.np-public-registration :is(input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+.np-public-registration :is(input[type='checkbox'], input[type='radio']) { width: 19px; height: 19px; flex-shrink: 0; accent-color: var(--np-red); }
+.np-registration-intro { max-width: 768px; margin: 0 auto 28px; }
+.np-registration-intro > p:first-child { color: var(--np-red); font-size: 12px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 12px; }
+.np-registration-intro h1 { margin-bottom: 12px; }
+.np-registration-intro > p:last-child { color: var(--np-muted); max-width: 600px; }
+@media (min-width: 861px) {
+  .np-public-registration .text-sm { font-size: 15px; }
+  .np-public-registration .text-xs { font-size: 14px; }
+}
+@media (max-width: 620px) {
+  .np-public-registration > .min-h-screen { padding-top: 32px; padding-bottom: 40px; }
+  .np-public-registration > .min-h-screen > .max-w-3xl { padding: 20px 16px; }
+  .np-registration-intro { margin-bottom: 24px; }
+}

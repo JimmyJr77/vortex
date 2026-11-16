@@ -246,7 +246,7 @@ const ReadBoardEventsTab = () => {
 
   return (
     <>
-      <section className="section-padding bg-gray-50 pt-12">
+      <section className="np-browse-section np-browse-search-section section-padding bg-gray-50 pt-12">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -258,6 +258,7 @@ const ReadBoardEventsTab = () => {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
+                  aria-label="Search events"
                   placeholder="Search events by name, description, or location..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -269,7 +270,7 @@ const ReadBoardEventsTab = () => {
         </div>
       </section>
 
-      <section className="section-padding bg-gray-50 pt-0">
+      <section className="np-browse-section np-browse-event-list section-padding bg-gray-50 pt-0">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -277,7 +278,7 @@ const ReadBoardEventsTab = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <div className="flex items-center justify-center gap-4 mb-12">
+            <div className="np-browse-event-switcher flex items-center justify-center gap-4 mb-12">
               <button
                 type="button"
                 onClick={() => setEventView(eventView === 'upcoming' ? 'past' : 'upcoming')}
@@ -286,7 +287,7 @@ const ReadBoardEventsTab = () => {
               >
                 <ChevronLeft className="w-6 h-6 text-vortex-red" />
               </button>
-              <h2 className="text-4xl md:text-5xl font-display font-bold text-black text-center">
+              <h2 className="np-browse-section-title text-4xl md:text-5xl font-display font-bold text-black text-center">
                 {eventView === 'upcoming' ? 'Upcoming' : 'Past'}{' '}
                 <span className="text-vortex-red">Events</span>
               </h2>
@@ -321,7 +322,7 @@ const ReadBoardEventsTab = () => {
                 {filteredEvents.map((event, index) => (
                   <motion.div
                     key={event.id}
-                    className="flex items-start space-x-4 py-3 border-b border-gray-200 last:border-b-0"
+                    className="np-browse-event-summary flex items-start space-x-4 py-3 border-b border-gray-200 last:border-b-0"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05, duration: 0.4 }}
@@ -348,7 +349,7 @@ const ReadBoardEventsTab = () => {
         </div>
       </section>
 
-      <section className="section-padding bg-white">
+      <section className="np-browse-section section-padding bg-white">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -356,7 +357,7 @@ const ReadBoardEventsTab = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
+            <h2 className="np-browse-section-title text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
               Event <span className="text-vortex-red">Details</span>
             </h2>
 
@@ -386,7 +387,7 @@ const ReadBoardEventsTab = () => {
                   return (
                     <motion.div
                       key={event.id}
-                      className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-200"
+                      className="np-browse-event-card bg-gradient-to-br from-gray-50 to-white rounded-2xl p-8 border-2 border-gray-200"
                       initial={{ opacity: 0, y: 30 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1, duration: 0.6 }}

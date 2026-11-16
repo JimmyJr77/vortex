@@ -6,6 +6,7 @@ import ReadBoardClassesTab from './readBoard/ReadBoardClassesTab'
 import ReadBoardScheduleTab from './readBoard/ReadBoardScheduleTab'
 import ReadBoardEventsTab from './readBoard/ReadBoardEventsTab'
 import ReadBoardHighlightsTab from './readBoard/ReadBoardHighlightsTab'
+import './readBoard/PublicBrowse.css'
 
 type TabType = 'classes' | 'schedule' | 'events' | 'highlights'
 
@@ -42,46 +43,43 @@ const ReadBoard = () => {
   }, [activeTab, location.pathname])
 
   return (
-    <div className="min-h-screen bg-vortex-dark">
-      <section className="bg-vortex-dark pt-32 pb-0">
-        <div className="container-custom">
+    <div className="np-browse-page">
+      <section className="np-browse-hero">
+        <div className="np-browse-container">
           <motion.div
-            className="text-center mb-8"
+            className="np-browse-intro"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-7xl font-display font-bold text-white mb-6">
-              Read <span className="text-vortex-red">Board</span>
-            </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Stay informed about classes, events, and important announcements
+            <p className="np-browse-eyebrow">Find your next step</p>
+            <h1>Classes &amp; schedules.</h1>
+            <p className="np-browse-description">
+              Find their program. Make room for progress. Explore our classes,
+              training times, and everything happening at Vortex.
             </p>
           </motion.div>
 
-          <div className="flex justify-center border-t border-gray-700">
-            <div className="flex flex-wrap justify-center">
+          <nav className="np-browse-tabs" aria-label="Browse classes and updates">
               {TAB_LABELS.map(({ id, label }) => (
                 <button
                   key={id}
                   type="button"
                   onClick={() => setActiveTab(id)}
-                  className={`px-6 md:px-8 py-4 font-semibold text-base md:text-lg transition-all duration-300 relative ${
-                    activeTab === id ? 'text-white' : 'text-gray-400 hover:text-gray-300'
-                  }`}
+                  aria-pressed={activeTab === id}
+                  className={`np-browse-tab${activeTab === id ? ' is-active' : ''}`}
                 >
                   {label}
                   {activeTab === id && (
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-1 bg-vortex-red"
+                      className="np-browse-tab-line"
                       layoutId="activeTab"
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
                   )}
                 </button>
               ))}
-            </div>
-          </div>
+          </nav>
         </div>
       </section>
 

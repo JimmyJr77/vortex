@@ -46,7 +46,7 @@ function HighlightCtaFooter({ highlight }: { highlight: Highlight }) {
           href={highlight.buttonUrl!}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700"
+          className="np-browse-cta inline-block bg-vortex-red text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-red-700"
         >
           {highlight.buttonLabel?.trim() || 'Learn more'}
         </a>
@@ -100,7 +100,7 @@ const ReadBoardHighlightsTab = () => {
 
   if (loading) {
     return (
-      <section className="section-padding bg-white">
+      <section className="np-browse-section section-padding bg-white">
         <div className="container-custom text-center py-12">
           <p className="text-xl text-gray-600">Loading highlights…</p>
         </div>
@@ -109,14 +109,14 @@ const ReadBoardHighlightsTab = () => {
   }
 
   return (
-    <section className="section-padding bg-white">
-      <div className="container-custom max-w-3xl mx-auto">
+    <section className="np-browse-section section-padding bg-white">
+      <div className="np-browse-highlights container-custom max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
+          <h2 className="np-browse-section-title text-4xl md:text-5xl font-display font-bold text-black mb-8 text-center">
             <span className="text-vortex-red">Highlights</span>
           </h2>
 
@@ -124,6 +124,7 @@ const ReadBoardHighlightsTab = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
+              aria-label="Search highlights"
               placeholder="Search highlights…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
