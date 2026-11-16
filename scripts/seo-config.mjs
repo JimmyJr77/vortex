@@ -4,6 +4,8 @@
 // truthful date is better than rewriting every <lastmod> on every deployment.
 export const SEO_CONTENT_LASTMOD = '2026-11-16'
 
+export const YOUTH_ATHLETIC_GUIDE_PATH = '/blog/athletic-development-young-athletes'
+
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
@@ -20,6 +22,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']

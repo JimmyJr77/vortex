@@ -2,6 +2,7 @@ import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from './config/athleticDevelopmentGuide'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
@@ -43,6 +44,7 @@ const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
+const AthleticDevelopmentGuide = lazyWithRetry(() => import('./components/newpage/AthleticDevelopmentGuide'))
 const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
@@ -91,7 +93,11 @@ function App() {
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
   const programPage = Object.values(PUBLIC_PROGRAMS).find(({ path }) => Boolean(matchPath(path, location.pathname)))
-  const isModernPublicPage = Boolean(programPage) || isPublicRegistrationPage || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
+  const isModernPublicPage =
+    Boolean(programPage)
+    || isPublicRegistrationPage
+    || Boolean(matchPath(ATHLETIC_DEVELOPMENT_GUIDE.path, location.pathname))
+    || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
     if (activePortal !== 'website') return
@@ -369,6 +375,7 @@ function App() {
             element={<Storefront memberToken={memberToken} mode="public" onSignIn={() => setIsLoginOpen(true)} />}
           />
           <Route path="/drop-in" element={<DropInPage />} />
+          <Route path={ATHLETIC_DEVELOPMENT_GUIDE.path} element={<AthleticDevelopmentGuide />} />
           <Route
             path="/contact"
             element={<ContactLocationPage onInquireClick={handleContactClick} />}

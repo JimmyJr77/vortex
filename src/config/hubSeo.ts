@@ -1,4 +1,5 @@
 import { buildCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from './contact'
 import { PUBLIC_PROGRAMS } from './publicPrograms'
 
@@ -56,6 +57,13 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     title: 'Contact Vortex Athletics | Bowie, MD Gym & Training',
     description:
       `Visit Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. Call ${TEAM_PHONE} to ask about gymnastics, Fit & Flip, free trials, and enrollment.`,
+  },
+  {
+    path: ATHLETIC_DEVELOPMENT_GUIDE.path,
+    title: ATHLETIC_DEVELOPMENT_GUIDE.title,
+    description: ATHLETIC_DEVELOPMENT_GUIDE.description,
+    ogImage: `${HUB_ORIGIN}${ATHLETIC_DEVELOPMENT_GUIDE.image}`,
+    ogImageAlt: ATHLETIC_DEVELOPMENT_GUIDE.imageAlt,
   },
   {
     path: '/support',
