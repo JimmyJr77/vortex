@@ -22,6 +22,10 @@
 .np-trial-invitation h2 span { color: #c9232c; }
 .np-trial-invitation p:not(.np-eyebrow) { font-size: 14px; line-height: 1.8; color: #616560; }
 .np-trial-invitation .np-button { width: 100%; margin-top: 23px; font-size: 14px; }
+.np-trial-invitation .np-trial-drop-in { margin-top: 22px; }
+.np-trial-drop-in a { display: flex; align-items: center; gap: 7px; width: fit-content; min-height: 44px; color: #b02128; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.np-trial-drop-in a:hover { color: #89191f; }
+.np-trial-drop-in a svg { flex-shrink: 0; }
 .np-trial-invitation-points { display: grid; gap: 20px; padding-top: 24px; border-top: 1px solid #deded9; }
 .np-trial-invitation-points > div { display: flex; align-items: flex-start; gap: 14px; }
 .np-trial-invitation-points > div > span { display: grid; width: 32px; height: 32px; flex-shrink: 0; place-items: center; background: #fff; border: 1px solid var(--np-control-line); border-radius: 50%; font-size: 11px; color: #c9232c; }

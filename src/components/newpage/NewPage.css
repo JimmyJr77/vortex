@@ -299,7 +299,8 @@
 }
 .np-media-caption {
   position: absolute;
-  bottom: 48px;
+  /* Keep the caption above the overlapping Big goals card at every breakpoint. */
+  bottom: 88px;
   left: 30px;
   right: 30px;
   color: #fff;
@@ -1567,7 +1568,6 @@
     letter-spacing: 1.1px;
   }
   .np-media-caption {
-    bottom: 48px;
     left: 25px;
     right: 25px;
   }
@@ -2004,7 +2004,6 @@
   .np-media-caption {
     left: 22px;
     right: 22px;
-    bottom: 53px;
   }
   .np-media-caption>div>span {
     font-size: 9px;

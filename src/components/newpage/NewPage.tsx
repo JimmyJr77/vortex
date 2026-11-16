@@ -210,6 +210,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               <h2 id="np-free-trial-heading">Their next chapter.<br /><span>First class on us.</span></h2>
               <p>Experience Gymnastics or Fit & Flip with a free trial class. Choose the right age group, find a day that works, and come see what your athlete can do.</p>
               <button className="np-button" onClick={() => openTrial()}>Book a free trial <ArrowUpRight size={18} /></button>
+              <p className="np-trial-drop-in">Already used your free trial? Join us for a drop-in class.<Link to="/drop-in">Book a drop-in class <ArrowUpRight size={16} /></Link></p>
             </div>
             <div className="np-trial-invitation-points">
               <div><span>01</span><div><strong>Find their fit.</strong><p>Choose Gymnastics or Fit & Flip and enter your child’s age.</p></div></div>
