@@ -22,6 +22,7 @@ import {
 } from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
+import { PUBLIC_PROGRAMS } from './config/publicPrograms'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const Header = lazyWithRetry(() => import('./components/Header'))
 const Footer = lazyWithRetry(() => import('./components/Footer'))
@@ -29,6 +30,7 @@ const ContactForm = lazyWithRetry(() => import('./components/ContactForm'))
 const Login = lazyWithRetry(() => import('./components/Login'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
 const NewPage = lazyWithRetry(() => import('./components/newpage/NewPage'))
+const PublicProgramPage = lazyWithRetry(() => import('./components/newpage/PublicProgramPage'))
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
 const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
@@ -88,7 +90,8 @@ function App() {
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
-  const isModernPublicPage = isPublicRegistrationPage || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
+  const programPage = Object.values(PUBLIC_PROGRAMS).find(({ path }) => Boolean(matchPath(path, location.pathname)))
+  const isModernPublicPage = Boolean(programPage) || isPublicRegistrationPage || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
     if (activePortal !== 'website') return
@@ -316,7 +319,7 @@ function App() {
   return (
     <div className={`min-h-screen bg-white relative${isModernPublicPage ? ' np-public-site' : ''}`}>
       {!isLandingPage && <HubSeo />}
-      {isModernPublicPage && <PublicSiteHeader key={location.pathname} isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+      {isModernPublicPage && <PublicSiteHeader key={location.pathname} adultProgram={programPage?.path === '/adult-gymnastics'} isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
         if (member || isAdmin) {
           const portals = getAvailablePortals(member)
           const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
@@ -333,7 +336,7 @@ function App() {
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
       /></Suspense>}
-      <div id={isModernPublicPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
+      <div id={isModernPublicPage && !programPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration && !programPage ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
       <Suspense fallback={<PageLoader />}>
       <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')]) || ['/schedule', '/scheduling'].some(path => Boolean(matchPath(path, location.pathname)))} />
         <Routes>
@@ -344,6 +347,7 @@ function App() {
               switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
             } else setIsLoginOpen(true)
           }} />} />
+          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<PublicProgramPage path={path} />} />)}
           {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />
           <Route path="/camp_interest" element={<CampInterestPage />} />
