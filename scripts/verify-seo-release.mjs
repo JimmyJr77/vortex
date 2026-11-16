@@ -451,6 +451,9 @@ for (const set of expectedSets) {
       const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
       if (path === '/admin' && response.status === 404) continue
       assert(response.ok, `${path}: returned HTTP ${response.status}`)
+      if (path === '/?sport=soccer') {
+        assert(response.url === `${set.origin}${path}`, `${path}: redirect changed the sport preview URL`)
+      }
       const headers = response.headers.get('x-robots-tag') ?? ''
       const robots = metaValues(await response.text(), 'name', 'robots')
       assert(/\bnoindex\b/i.test(headers) || robots.some((value) => /\bnoindex\b/i.test(value)),
@@ -463,13 +466,18 @@ for (const set of expectedSets) {
       notFoundResponse.status === 404,
       `${set.label} unknown route returned HTTP ${notFoundResponse.status}; expected a real 404`,
     )
-    if (notFoundResponse.status === 404) {
-      const notFoundHtml = await notFoundResponse.text()
-      assert(
-        metaValues(notFoundHtml, 'name', 'robots').some((value) => /noindex/i.test(value)),
-        `${set.label} live 404 page is missing noindex`,
-      )
-    }
+    // A platform 404 can have a plain-text body. Check the branded HTML
+    // separately because it is also reachable directly as a static file.
+    const brandedNotFound = await fetch(`${set.origin}/404.html`, { redirect: 'manual' })
+    assert(
+      brandedNotFound.ok || brandedNotFound.status === 404,
+      `${set.label} live /404.html returned HTTP ${brandedNotFound.status}`,
+    )
+    assert(
+      (brandedNotFound.headers.get('content-type') ?? '').includes('text/html') &&
+      metaValues(await brandedNotFound.text(), 'name', 'robots').some((value) => /\bnoindex\b/i.test(value)),
+      `${set.label} live branded /404.html is missing HTML noindex`,
+    )
   }
 }
 
@@ -639,6 +647,12 @@ assert(
     rule.has?.some(condition => condition.type === 'query' && condition.key === 'sport')),
   'vercel.json: public URLs with a sport preview query must have a noindex header',
 )
+const matchesRootSportPreview = (rule) => rule.source === '/' &&
+  rule.has?.some(condition => condition.type === 'query' && condition.key === 'sport' && condition.value === '.+')
+assert(
+  headers.some(rule => matchesRootSportPreview(rule) && hasNoindexHeader(rule)),
+  'vercel.json: the root sport preview must have a noindex header even when the filesystem serves the homepage',
+)
 for (const source of ['/admin', '/admin.html', '/employee/payroll/:path*']) {
   assert(headers.some(rule => rule.source === source && hasNoindexHeader(rule)),
     `vercel.json: ${source} must have a noindex header`)
@@ -736,9 +750,14 @@ for (const path of SPA_ONLY_PATHS) {
     `vercel.json: client-only route ${path} is missing its explicit SPA rewrite`,
   )
 }
+const rootRewrite = rewrites.find(rule => rule.source === '/')
+assert(
+  rootRewrite && matchesRootSportPreview(rootRewrite) && rootRewrite.destination === SPA_SHELL_PATH,
+  'vercel.json: the first root rewrite must route sport previews to the noindex shell',
+)
 for (const rewrite of rewrites.filter((rewrite) => rewrite.destination === SPA_SHELL_PATH)) {
   assert(
-    SPA_ONLY_PATHS.includes(rewrite.source),
+    rewrite === rootRewrite || SPA_ONLY_PATHS.includes(rewrite.source),
     `vercel.json: unexpected SPA rewrite ${rewrite.source}; only explicit client-only routes are allowed to prevent soft 404s`,
   )
 }
