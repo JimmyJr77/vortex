@@ -579,7 +579,7 @@ export default function AdminFamilyBilling() {
             <h3 className="font-bold text-gray-900">Stripe operations</h3>
             <p className="text-xs text-gray-500">Daily reconciliation, webhook health, disputes, and customer email identity.</p>
           </div>
-          <button type="button" onClick={() => void reconcileNow()} disabled={saving || operationsLoading || !operations?.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm text-white disabled:opacity-50">
+          <button type="button" onClick={() => void reconcileNow()} disabled={saving || operationsLoading || !operations?.stripeEnabled} className="portal-primary inline-flex items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm text-white disabled:opacity-50">
             <RefreshCw className={`w-4 h-4 ${saving ? 'animate-spin' : ''}`} /> Reconcile now
           </button>
         </div>
@@ -852,7 +852,7 @@ export default function AdminFamilyBilling() {
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Athlete member ID (optional)" value={charge.memberId} onChange={(e) => setCharge((prev) => ({ ...prev, memberId: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Description" value={charge.description} onChange={(e) => setCharge((prev) => ({ ...prev, description: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Amount dollars (negative for credit)" value={charge.amount} onChange={(e) => setCharge((prev) => ({ ...prev, amount: e.target.value }))} />
-                <button type="button" onClick={() => void addCharge()} disabled={saving} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
+                <button type="button" onClick={() => void addCharge()} disabled={saving} className="portal-primary inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60">
                   <Plus className="w-4 h-4" /> Add
                 </button>
               </div>
@@ -874,7 +874,7 @@ export default function AdminFamilyBilling() {
                 </select>
                 <input required className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Reconciliation or payment note (required)" value={payment.note} onChange={(e) => setPayment((prev) => ({ ...prev, note: e.target.value }))} />
                 <input className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="External payment reference" value={payment.externalReference} onChange={(e) => setPayment((prev) => ({ ...prev, externalReference: e.target.value }))} />
-                <button type="button" onClick={() => void addPayment()} disabled={saving || !payment.method.trim() || !payment.note.trim()} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
+                <button type="button" onClick={() => void addPayment()} disabled={saving || !payment.method.trim() || !payment.note.trim()} className="portal-primary inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60">
                   Record Payment
                 </button>
               </div>
@@ -904,7 +904,7 @@ export default function AdminFamilyBilling() {
                     </option>
                   ))}
                 </select>
-                <button type="button" onClick={() => void addRefund()} disabled={saving || !refundExceptionCategory || !refundEvidenceNote.trim()} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg disabled:opacity-60">
+                <button type="button" onClick={() => void addRefund()} disabled={saving || !refundExceptionCategory || !refundEvidenceNote.trim()} className="portal-primary inline-flex items-center gap-2 px-4 py-2 bg-vortex-red text-white rounded-lg disabled:opacity-60">
                   Issue Refund
                 </button>
                 <div className="divide-y divide-gray-100">

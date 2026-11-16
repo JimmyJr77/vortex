@@ -327,23 +327,23 @@ export default function NewBillingEnrollmentModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-billing-enrollment-title"
-        className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="portal-dialog flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between border-b border-gray-200 px-6 py-5">
+        <div className="portal-dialog-header flex items-start justify-between gap-4 border-b border-gray-200 px-6 py-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-vortex-red">Account Billing &amp; Enrollments</p>
             <h2 id="new-billing-enrollment-title" className="mt-1 text-xl font-black text-gray-950">{isSwap ? 'Move to another class' : 'Add family enrollment'}</h2>
             <p className="mt-1 text-sm text-gray-500">{isSwap ? 'Choose a replacement class and schedule. The original and replacement class bills will be prorated in place from the move date.' : 'Select a family member, class, schedule, and effective enrollment date.'}</p>
           </div>
-          <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50" aria-label="Close new enrollment">
+          <button type="button" onClick={onClose} disabled={submitting} className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100 disabled:opacity-50" aria-label="Close new enrollment">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {error ? <div role="alert" className="mx-6 mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div> : null}
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+        <div className="portal-dialog-body min-h-0 flex-1 overflow-y-auto px-6 py-5">
           {reviewing && selectedMember && selectedForm && selectedSchedule ? (
             <div className="mx-auto max-w-2xl space-y-5">
               <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
@@ -390,7 +390,7 @@ export default function NewBillingEnrollmentModal({
           )}
         </div>
 
-        <div className="flex flex-wrap justify-between gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
+        <div className="portal-dialog-footer flex flex-wrap justify-between gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
           {reviewing ? <button type="button" onClick={() => setReviewing(false)} disabled={submitting} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"><ArrowLeft className="h-4 w-4" /> Back to edit</button> : <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button>}
           {reviewing ? <button type="button" onClick={() => void confirmEnrollment()} disabled={submitting || (isSwap && !swapPreview)} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} {isSwap ? 'Confirm class move' : 'Yes, add enrollment'}</button> : <button type="button" onClick={() => void reviewSelection()} disabled={!canReview || detailLoading || submitting} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{isSwap ? 'Review class move' : 'Review addition'} <ChevronRight className="h-4 w-4" /></button>}
         </div>

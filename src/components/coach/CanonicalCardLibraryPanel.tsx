@@ -108,7 +108,7 @@ export function CanonicalCardLibraryPanel() {
         <label className="mt-3 block text-sm text-violet-950">Coach source notes
           <textarea value={aiNotes} onChange={(event) => setAiNotes(event.target.value)} minLength={20} maxLength={4000} rows={3} placeholder="Describe the movement, intended athletes, delivery contexts, coaching cues, stop conditions, equipment, and any uncertainties." className="mt-1 w-full rounded-lg border border-violet-200 bg-white px-3 py-2" />
         </label>
-        <button type="button" disabled={aiDrafting || aiNotes.trim().length < 20} onClick={() => void draftWithAi()} className="mt-3 inline-flex items-center gap-2 rounded-lg bg-violet-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
+        <button type="button" disabled={aiDrafting || aiNotes.trim().length < 20} onClick={() => void draftWithAi()} className="mt-3 inline-flex items-center gap-2 rounded-lg portal-primary bg-vortex-red px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">
           {aiDrafting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}Create unverified draft
         </button>
       </section>

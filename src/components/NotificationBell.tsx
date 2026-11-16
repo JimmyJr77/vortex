@@ -411,7 +411,7 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
 
       {maximized && (
         <div
-          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
+          className="portal-dialog-backdrop fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4"
           onMouseDown={() => setMaximized(false)}
         >
           <section
@@ -419,9 +419,9 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
             aria-modal="true"
             aria-labelledby="notification-center-title"
             onMouseDown={(event) => event.stopPropagation()}
-            className="flex max-h-[min(48rem,calc(100dvh-2rem))] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
+            className="portal-dialog flex max-h-[min(48rem,calc(100dvh-2rem))] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl"
           >
-            <div className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
+            <div className="portal-dialog-header flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 id="notification-center-title" className="text-xl font-bold text-gray-900">
                   Notifications
@@ -444,7 +444,7 @@ export default function NotificationBell({ apiPrefix, onOpenThread }: Notificati
                   type="button"
                   onClick={() => setMaximized(false)}
                   aria-label="Close notifications"
-                  className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                  className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                 >
                   <X className="h-5 w-5" />
                 </button>

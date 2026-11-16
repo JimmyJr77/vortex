@@ -54,6 +54,63 @@
 .vortex-portal-theme .portal-workspace-intro h2 { font-size: 30px; font-weight: 500; line-height: 1.2; letter-spacing: -.04em; }
 .vortex-portal-theme .portal-workspace-intro p { margin-top: 8px; }
 
+/* Floating menus keep the same tokens even when React mounts them in body. */
+.vortex-portal-theme.portal-overlay-root { display: contents; }
+.vortex-portal-theme :is([role='listbox'], [role='menu'], [role='tooltip']) {
+  border-color: var(--portal-line);
+  border-radius: 8px;
+  box-shadow: 0 10px 32px #20232116;
+}
+.vortex-portal-theme :is([role='listbox'], [role='menu']) :is(button, [role='option'], [role='menuitem']) {
+  font-family: inherit;
+  line-height: 1.5;
+}
+.vortex-portal-theme :is([role='listbox'], [role='menu']) [aria-selected='true'] {
+  background-color: var(--portal-tint);
+  color: var(--portal-red);
+}
+
+/* Shared nested-page and popup surfaces. Existing sizing, positioning,
+   scroll regions, stacking levels and focus behavior remain with each view. */
+.vortex-portal-theme .portal-panel {
+  border-color: var(--portal-line);
+  border-radius: 12px;
+  background-color: #fff;
+  color: var(--portal-ink);
+  box-shadow: 0 2px 5px #20232106;
+}
+.vortex-portal-theme :is(.portal-dialog, dialog),
+.vortex-portal-theme .fixed.inset-0 > .bg-white:not(.portal-drawer) {
+  border: 1px solid var(--portal-line);
+  border-radius: 12px;
+  background-color: #fff;
+  color: var(--portal-ink);
+  box-shadow: 0 24px 80px #20232126;
+}
+.vortex-portal-theme .portal-drawer { border-radius: 0; border-color: var(--portal-line); background: #fff; color: var(--portal-ink); box-shadow: -16px 0 60px #2023211a; }
+.vortex-portal-theme :is(.portal-dialog-header, .portal-panel-header) {
+  border-color: var(--portal-line);
+  background-color: var(--portal-paper);
+  background-image: none;
+  color: var(--portal-ink);
+}
+.vortex-portal-theme .portal-dialog-header { background-color: #fff; }
+.vortex-portal-theme .portal-dialog-header.border-b { background-color: var(--portal-paper); }
+.vortex-portal-theme .portal-dialog-header :is(h1, h2, h3) { font-size: 20px; font-weight: 500; line-height: 1.3; letter-spacing: -.035em; }
+.vortex-portal-theme .portal-dialog-body { color: var(--portal-ink); }
+.vortex-portal-theme .portal-dialog-footer { border-color: var(--portal-line); background-color: var(--portal-paper); }
+.vortex-portal-theme .portal-dialog-close { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-width: 40px; min-height: 40px; padding: 8px; border: 1px solid var(--portal-line); border-radius: 50%; background-color: #fff; color: var(--portal-muted); }
+.vortex-portal-theme .portal-dialog-close:hover { background-color: #e9ece3; color: var(--portal-ink); border-color: var(--portal-control-line); }
+.vortex-portal-theme dialog::backdrop { background: #161b186b; backdrop-filter: blur(4px); }
+.vortex-portal-theme .portal-dialog-backdrop { background-color: #161b186b; backdrop-filter: blur(4px); }
+.vortex-portal-theme .portal-section-tabs { border-color: var(--portal-line); }
+.vortex-portal-theme .portal-section-tabs :is(button, a) { font-family: inherit; font-size: 14px; font-weight: 500; }
+.vortex-portal-theme .portal-section-tabs :is([aria-selected='true'], [aria-pressed='true'], [aria-current='page']) {
+  border-color: #d5948d;
+  background-color: var(--portal-tint);
+  color: var(--portal-red);
+}
+
 /* Match neutral surfaces across existing panels without changing status colors,
    chart series, modal backdrops, media, or layout/scrolling utilities. */
 .vortex-portal-theme :is(.bg-gray-50, .bg-slate-50) { background-color: var(--portal-paper); }
@@ -72,11 +129,16 @@
 .vortex-portal-theme :is(button, a).bg-vortex-red:hover:not(:disabled) { background-color: var(--portal-red-hover); }
 .vortex-portal-theme .portal-primary { color: #fff; background: var(--portal-red); border-color: var(--portal-red); }
 .vortex-portal-theme .portal-primary:hover:not(:disabled) { color: #fff; background: var(--portal-red-hover); border-color: var(--portal-red-hover); }
+.vortex-portal-theme [data-payroll-workspace] button:is(.bg-slate-800, .bg-slate-900, .bg-slate-950) { background-color: var(--portal-red); color: #fff; }
+.vortex-portal-theme [data-payroll-workspace] button:is(.bg-slate-800, .bg-slate-900, .bg-slate-950):hover:not(:disabled) { background-color: var(--portal-red-hover); }
 .vortex-portal-theme .portal-action { min-height: 42px; font-weight: 500; }
 .vortex-portal-theme .portal-action[aria-pressed='true'] { background: var(--portal-tint); border-color: #d5948d; color: var(--portal-red); }
 .vortex-portal-theme :is(input:not([type]), input[type='text'], input[type='email'], input[type='tel'], input[type='password'], input[type='search'], input[type='number'], input[type='date'], input[type='time'], input[type='datetime-local'], select, textarea) { border-radius: 6px; }
 .vortex-portal-theme :is(input, textarea)::placeholder { color: #687062; opacity: 1; }
 .vortex-portal-theme :is(input[type='checkbox'], input[type='radio']) { accent-color: var(--portal-red); }
+.vortex-portal-theme :where(input:not([type]), input[type='text'], input[type='email'], input[type='tel'], input[type='password'], input[type='search'], input[type='number'], input[type='date'], input[type='time'], input[type='datetime-local'], select, textarea):is(.border, .border-2) { border-color: var(--portal-control-line); background-color: #fff; color: var(--portal-ink); }
+.vortex-portal-theme :is(input, select, textarea):is([aria-invalid='true'], .border-red-500, .border-red-600) { border-color: var(--portal-red); }
+.vortex-portal-theme :is(input, select, textarea):disabled { background-color: #eef0e9; color: var(--portal-muted); }
 .vortex-portal-theme .portal-control { min-height: 42px; }
 .vortex-portal-theme thead { background: var(--portal-paper); color: var(--portal-muted); }
 .vortex-portal-theme th { font-weight: 600; letter-spacing: .01em; }
@@ -109,6 +171,8 @@
   .vortex-portal-theme .portal-tab { min-height: 46px; font-size: 14px; }
   .vortex-portal-theme .portal-workspace-intro h2 { font-size: 26px; }
   .vortex-portal-theme .portal-shortcut { padding: 20px; }
+  .vortex-portal-theme .portal-dialog-close { min-width: 44px; min-height: 44px; }
+  .vortex-portal-theme .portal-dialog-header :is(h1, h2, h3) { font-size: 18px; }
   .vortex-portal-theme :is(input:not([type]), input[type='text'], input[type='email'], input[type='tel'], input[type='password'], input[type='search'], input[type='number'], input[type='date'], input[type='time'], input[type='datetime-local'], select, textarea) { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {

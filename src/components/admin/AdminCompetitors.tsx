@@ -185,7 +185,7 @@ Scope:
 Return a short change log with: material changes, pricing changes, new/closed competitors, and strategic implications for Vortex.`
 
 const StatusIcon = ({ value }: { value: boolean }) =>
-  value ? <Check className="mx-auto h-4 w-4 text-emerald-600" aria-label="Yes" /> : <Minus className="mx-auto h-4 w-4 text-gray-300" aria-label="No" />
+  value ? <Check className="mx-auto h-4 w-4 text-emerald-600" aria-label="Yes" /> : <Minus className="mx-auto h-4 w-4 text-gray-600" aria-label="No" />
 
 export default function AdminCompetitors() {
   const [segment, setSegment] = useState<'All' | Segment>('All')
@@ -209,7 +209,7 @@ export default function AdminCompetitors() {
 
   return (
     <div className="space-y-5 pb-8">
-      <section className="overflow-hidden rounded-2xl bg-[#111214] text-white shadow-sm">
+      <section className="portal-panel-header overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-950 shadow-sm">
         <div className="grid gap-8 p-6 md:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
@@ -217,7 +217,7 @@ export default function AdminCompetitors() {
               <span>Snapshot: July 25, 2026</span>
             </div>
             <h2 className="max-w-3xl text-3xl font-bold leading-tight md:text-4xl">Know the field. Sharpen the edge.</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-300">
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-600">
               A decision-ready view of the businesses competing for Vortex families across youth performance and gymnastics.
             </p>
           </div>
@@ -229,13 +229,13 @@ export default function AdminCompetitors() {
             <RefreshCw className="h-4 w-4" /> Run Codex update
           </button>
         </div>
-        <div className="grid border-t border-white/10 sm:grid-cols-3">
+        <div className="grid border-t border-gray-200 sm:grid-cols-3">
           {[
             ['6', 'tracked competitors'],
             ['2', 'market segments'],
             ['2', 'high-threat rivals'],
           ].map(([value, label]) => (
-            <div key={label} className="border-white/10 px-6 py-4 sm:border-r last:border-r-0">
+            <div key={label} className="border-gray-200 px-6 py-4 sm:border-r last:border-r-0">
               <span className="text-2xl font-bold">{value}</span>
               <span className="ml-2 text-sm text-gray-400">{label}</span>
             </div>
@@ -364,11 +364,11 @@ export default function AdminCompetitors() {
       </section>
 
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/35 p-0 sm:p-4" role="dialog" aria-modal="true" aria-label={`${selected.name} competitor profile`} onClick={() => setSelected(null)}>
-          <div className="h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-start justify-between gap-4">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-end justify-end bg-black/35 p-0 sm:p-4" role="dialog" aria-modal="true" aria-label={`${selected.name} competitor profile`} onClick={() => setSelected(null)}>
+          <div className="portal-drawer h-full w-full max-w-xl overflow-y-auto bg-white p-6 shadow-2xl sm:rounded-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="portal-dialog-header flex items-start justify-between gap-4">
               <div><span className="text-xs font-bold uppercase tracking-wider text-vortex-red">{selected.segment}</span><h3 className="mt-1 text-2xl font-bold text-gray-950">{selected.name}</h3><p className="mt-2 flex items-center gap-1.5 text-sm text-gray-500"><MapPin className="h-4 w-4" /> {selected.location} · {selected.distance}</p></div>
-              <button type="button" onClick={() => setSelected(null)} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close"><X className="h-5 w-5" /></button>
+              <button type="button" onClick={() => setSelected(null)} className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close"><X className="h-5 w-5" /></button>
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-gray-50 p-4"><div className="text-xs font-bold uppercase text-gray-400">Ages</div><div className="mt-1 font-semibold">{selected.ages}</div></div>
@@ -379,7 +379,7 @@ export default function AdminCompetitors() {
               <div><h4 className="font-bold text-gray-950">Programs</h4><div className="mt-2 flex flex-wrap gap-2">{selected.programs.map((program) => <span key={program} className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700">{program}</span>)}</div></div>
               <div className="grid gap-4 sm:grid-cols-2"><div><h4 className="font-bold text-gray-950">Public pricing</h4><p className="mt-2 leading-6 text-gray-600">{selected.publicPrice}</p></div><div><h4 className="font-bold text-gray-950">Trial / entry point</h4><p className="mt-2 leading-6 text-gray-600">{selected.trial}</p></div></div>
               <div className="grid gap-4 sm:grid-cols-2"><div><h4 className="font-bold text-gray-950">Strengths</h4><ul className="mt-2 space-y-2 text-gray-600">{selected.strengths.map((value) => <li key={value} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />{value}</li>)}</ul></div><div><h4 className="font-bold text-gray-950">Gaps to exploit</h4><ul className="mt-2 space-y-2 text-gray-600">{selected.gaps.map((value) => <li key={value} className="flex gap-2"><Minus className="mt-0.5 h-4 w-4 shrink-0 text-vortex-red" />{value}</li>)}</ul></div></div>
-              <div className="rounded-xl bg-[#111214] p-5 text-white"><h4 className="font-bold">Recommended Vortex response</h4><p className="mt-2 leading-6 text-gray-300">{selected.response}</p></div>
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-gray-950"><h4 className="font-bold">Recommended Vortex response</h4><p className="mt-2 leading-6 text-gray-600">{selected.response}</p></div>
               <a href={selected.source} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-bold text-vortex-red hover:underline">{selected.sourceLabel}<ExternalLink className="h-4 w-4" /></a>
             </div>
           </div>
@@ -387,10 +387,10 @@ export default function AdminCompetitors() {
       )}
 
       {showUpdate && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-label="Run Codex competitor update" onClick={() => setShowUpdate(false)}>
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-start justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-wider text-vortex-red">Fast refresh</span><h3 className="mt-1 text-2xl font-bold text-gray-950">Update with Codex</h3><p className="mt-2 text-sm leading-6 text-gray-600">Copy this research brief into a Codex task from the Vortex workspace. Codex will verify sources, update the page, and run the build.</p></div><button type="button" onClick={() => setShowUpdate(false)} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close"><X className="h-5 w-5" /></button></div>
-            <pre className="mt-5 max-h-72 overflow-auto whitespace-pre-wrap rounded-xl bg-gray-950 p-4 text-xs leading-5 text-gray-200">{updatePrompt}</pre>
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-label="Run Codex competitor update" onClick={() => setShowUpdate(false)}>
+          <div className="portal-dialog w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="portal-dialog-header flex items-start justify-between gap-4"><div><span className="text-xs font-bold uppercase tracking-wider text-vortex-red">Fast refresh</span><h3 className="mt-1 text-2xl font-bold text-gray-950">Update with Codex</h3><p className="mt-2 text-sm leading-6 text-gray-600">Copy this research brief into a Codex task from the Vortex workspace. Codex will verify sources, update the page, and run the build.</p></div><button type="button" onClick={() => setShowUpdate(false)} className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close"><X className="h-5 w-5" /></button></div>
+            <pre className="mt-5 max-h-72 overflow-auto whitespace-pre-wrap rounded-xl border border-gray-200 bg-gray-50 p-4 text-xs leading-5 text-gray-700">{updatePrompt}</pre>
             <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <button type="button" onClick={() => setShowUpdate(false)} className="h-10 rounded-lg border border-gray-200 px-4 text-sm font-bold text-gray-700 hover:bg-gray-50">Close</button>
               <button type="button" onClick={copyUpdatePrompt} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 text-sm font-bold text-white hover:bg-red-700">{copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}{copied ? 'Copied — paste into Codex' : 'Copy update task'}</button>

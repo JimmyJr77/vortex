@@ -37,10 +37,10 @@ export default function AddCreditModal({ familyId, onClose, onSaved }: {
       setError(caught instanceof Error ? caught.message : 'Credit could not be added.')
     } finally { setWorking(false) }
   }
-  return <dialog ref={dialogRef} onCancel={event => { event.preventDefault(); if (!working) onClose() }} aria-labelledby="add-credit-title" className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-2xl bg-white p-6 shadow-2xl backdrop:bg-black/60">
-      <div className="flex items-center justify-between"><h2 id="add-credit-title" className="text-xl font-bold">Add credit</h2><button type="button" aria-label="Close add credit" disabled={working} onClick={onClose} className="rounded p-2 disabled:opacity-40">×</button></div>
+  return <dialog ref={dialogRef} onCancel={event => { event.preventDefault(); if (!working) onClose() }} aria-labelledby="add-credit-title" className="portal-dialog m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-2xl bg-white p-6 shadow-2xl backdrop:bg-black/60">
+      <div className="portal-dialog-header -mx-6 -mt-6 mb-5 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5"><h2 id="add-credit-title" className="text-xl font-bold">Add credit</h2><button type="button" aria-label="Close add credit" disabled={working} onClick={onClose} className="portal-dialog-close rounded p-2 disabled:opacity-40">×</button></div>
       <p className="mt-2 text-sm text-gray-600">This household credit appears in Future credits and Account History and reduces the next payment. Your logged-in staff account is recorded automatically.</p>
-      <form onSubmit={submit} className="mt-5 space-y-4">
+      <form onSubmit={submit} className="portal-dialog-body mt-5 space-y-4">
         <label className="block text-sm font-semibold">Credit amount ($)<input autoFocus required type="number" min="0.01" max="21474836.47" step="0.01" value={amount} disabled={working} onChange={event => setAmount(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" placeholder="0.00" /></label>
         <label className="block text-sm font-semibold">Reason (required)<textarea required maxLength={2000} rows={3} value={reason} disabled={working} onChange={event => setReason(event.target.value)} className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2" /></label>
         {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}

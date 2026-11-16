@@ -67,7 +67,7 @@ export default function FamilyWorkspace({ familyId, memberId, access, revision, 
         </div>
         {data.financial ? <div className="mt-6 grid gap-3 sm:grid-cols-3"><Summary label="Outstanding balance" value={money(data.financial.outstandingBalanceCents)} /><Summary label="Available credit" value={money(data.financial.futureCreditsCents)} /><Summary label="Next scheduled bill" value={dateLabel(data.financial.nextBillDate)} /></div> : <p className="mt-5 text-sm text-slate-500">{data.financialIssue || (data.permissions.canViewBilling ? 'No active billing account is linked. Existing history is retained below.' : 'Billing and financial history require billing access.')}</p>}
       </header>
-      <nav aria-label="Family workspace sections" className="flex flex-wrap gap-2">{tabs.map(item => <button key={item} className={`${button} ${tab === item ? '!border-slate-950 !bg-slate-950 !text-white' : ''}`} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
+      <nav aria-label="Family workspace sections" className="portal-section-tabs flex flex-wrap gap-2">{tabs.map(item => <button key={item} className={button} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
       {(tab === 'People' || tab === 'Overview') ? <div className="rounded-xl border border-slate-200 bg-white p-5">
         <h3 className="flex items-center gap-2 font-bold"><Users className="h-4 w-4" />People and responsibilities</h3>
         <div className="mt-4 grid gap-3 md:grid-cols-2">{data.people.map(person => <div key={person.id} className="rounded-lg border border-slate-200 p-4">

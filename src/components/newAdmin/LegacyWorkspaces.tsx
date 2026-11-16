@@ -81,7 +81,7 @@ export default function LegacyWorkspaces({ section, access, threadId, onThreadOp
     }
   }
   return <div className={section === 'messaging' || section === 'faqLibrary' ? 'flex flex-col flex-1 min-h-0 h-full overflow-hidden' : 'space-y-4'}>
-    {tabs.length > 1 ? <nav aria-label={`${group.label} tabs`} className="flex gap-1 overflow-x-auto border-b border-gray-200 shrink-0">{tabs.map(tab => <button type="button" key={tab.id} aria-current={tab.id === current.id ? 'page' : undefined} onClick={() => setSelectedTab(tab.id)} className={`whitespace-nowrap px-5 py-3 text-sm font-semibold border-b-2 ${tab.id === current.id ? 'border-vortex-red text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>{tab.label}</button>)}</nav> : null}
+    {tabs.length > 1 ? <nav aria-label={`${group.label} tabs`} className="portal-section-tabs flex gap-1 overflow-x-auto border-b border-gray-200 shrink-0">{tabs.map(tab => <button type="button" key={tab.id} aria-current={tab.id === current.id ? 'page' : undefined} onClick={() => setSelectedTab(tab.id)} className={`whitespace-nowrap px-5 py-3 text-sm font-semibold border-b-2 ${tab.id === current.id ? 'border-vortex-red text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>{tab.label}</button>)}</nav> : null}
     {panel()}
   </div>
 }

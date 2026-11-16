@@ -172,11 +172,11 @@ export default function FlipFitExerciseModal({
         aria-modal="true"
         aria-labelledby="flip-fit-exercise-title"
         tabIndex={-1}
-        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        className="portal-dialog flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
       >
-        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-gray-200 bg-gradient-to-br from-black via-gray-900 to-black px-5 py-4 text-white sm:px-6">
+        <header className="portal-dialog-header flex shrink-0 items-start justify-between gap-4 border-b border-gray-200 bg-gray-50 px-5 py-4 text-gray-900 sm:px-6">
           <div className="min-w-0">
-            <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-300">
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-600">
               <span>{card.phase.replace(/_/g, ' ')}</span>
               <span aria-hidden>·</span>
               <span>{canonicalReference ? MATCH_COPY[matchStatus] : PLANNED_MATCH_COPY[matchStatus]}</span>
@@ -185,13 +185,13 @@ export default function FlipFitExerciseModal({
               )}
             </div>
             <h2 id="flip-fit-exercise-title" className="text-xl font-bold leading-tight sm:text-2xl">{card.name}</h2>
-            <p className="mt-1 max-w-3xl text-sm leading-relaxed text-gray-300">{card.description}</p>
+            <p className="mt-1 max-w-3xl text-sm leading-relaxed text-gray-600">{card.description}</p>
           </div>
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-300 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-vortex-red"
+            className="portal-dialog-close rounded-lg p-2 text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-vortex-red"
             aria-label="Close exercise card"
           >
             <X className="h-5 w-5" />

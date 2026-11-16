@@ -689,7 +689,7 @@ function LegacyCanonicalWorkoutGeneratorPanel() {
             </div>
           </fieldset>
 
-          <button type="button" onClick={() => void generate()} disabled={loading || !seed.trim() || (mode === 'ai_assisted' && !coachRequest.trim()) || (rolloutStatus != null && (!rolloutStatus.coachGeneration.enabled || (mode === 'ai_assisted' && !rolloutStatus.aiIntent.enabled)))} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-700 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
+          <button type="button" onClick={() => void generate()} disabled={loading || !seed.trim() || (mode === 'ai_assisted' && !coachRequest.trim()) || (rolloutStatus != null && (!rolloutStatus.coachGeneration.enabled || (mode === 'ai_assisted' && !rolloutStatus.aiIntent.enabled)))} className="inline-flex w-full items-center justify-center gap-2 rounded-lg portal-primary bg-vortex-red px-4 py-2.5 font-semibold text-white disabled:opacity-50">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
             Generate validated workout
           </button>
@@ -759,7 +759,7 @@ function LegacyCanonicalWorkoutGeneratorPanel() {
                                     <p className="text-indigo-800">{candidate.relationshipType.replaceAll('_', ' ')} · {candidate.rationale}</p>
                                     {candidate.changedDimensions.length > 0 && <p className="text-indigo-700">Changes: {candidate.changedDimensions.join(', ')}</p>}
                                   </div>
-                                  <button type="button" disabled={swapLoadingKey === `${item.phaseKey}:${item.variantId}`} onClick={() => void applySwap(item, candidate)} className="rounded bg-indigo-700 px-2 py-1 font-semibold text-white disabled:opacity-50">Apply and revalidate</button>
+                                  <button type="button" disabled={swapLoadingKey === `${item.phaseKey}:${item.variantId}`} onClick={() => void applySwap(item, candidate)} className="rounded portal-primary bg-vortex-red px-2 py-1 font-semibold text-white disabled:opacity-50">Apply and revalidate</button>
                                 </div>
                               ))}
                             </div>

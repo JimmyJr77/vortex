@@ -708,7 +708,7 @@ export default function AdminStore() {
             {checkoutProductCount > 0 && (
               <p className="mt-2 text-xs text-gray-500">{checkoutProductCount} item{checkoutProductCount === 1 ? '' : 's'} shown across {checkoutProductSections.length} section{checkoutProductSections.length === 1 ? '' : 's'}.</p>
             )}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-gray-950 px-4 py-3 text-white"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}{salePayment === 'card' ? 'Prepare secure card entry' : 'Record sale'}</button></div>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-950"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}{salePayment === 'card' ? 'Prepare secure card entry' : 'Record sale'}</button></div>
             {pendingCardEntryUrl && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950"><div><strong className="block">Secure card entry is ready.</strong><span className="text-xs text-sky-800">Enter the customer’s card directly in Stripe. This sale stays pending until Stripe confirms payment.</span></div><a href={pendingCardEntryUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-bold text-white hover:bg-sky-800">Input credit/debit details</a></div>}
           </div>
         </section>
@@ -745,7 +745,7 @@ export default function AdminStore() {
                       aria-label={`${isSelected ? 'Remove' : 'Add'} ${option.label} tag`}
                       title={isOnlyTag ? 'Each item needs at least one tag' : `${isSelected ? 'Remove' : 'Add'} ${option.label} tag`}
                       onClick={() => toggleProductTag(option.value)}
-                      className={`rounded-md px-2.5 py-1.5 text-left text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isSelected ? 'bg-gray-950 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                      className={`rounded-md px-2.5 py-1.5 text-left text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${isSelected ? 'border border-red-200 bg-red-50 text-red-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
                     >
                       {option.label}
                     </button>
@@ -943,7 +943,7 @@ export default function AdminStore() {
             <div className="flex flex-wrap items-center gap-2 border-b border-gray-100 px-5 py-3 text-xs font-semibold text-gray-600">
               <span className="mr-1 uppercase tracking-wide text-gray-500">Sort by</span>
               {([['date', 'Date'], ['person', 'Person'], ['action', 'Action']] as Array<[AuditSortKey, string]>).map(([sort, label]) => (
-                <button type="button" key={sort} onClick={() => sortAuditBy(sort)} aria-pressed={auditSort === sort} className={`rounded-md px-2.5 py-1.5 ${auditSort === sort ? 'bg-gray-950 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                <button type="button" key={sort} onClick={() => sortAuditBy(sort)} aria-pressed={auditSort === sort} className={`rounded-md px-2.5 py-1.5 ${auditSort === sort ? 'border border-red-200 bg-red-50 text-red-800' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                   {label}{auditSort === sort ? (auditSortDirection === 'asc' ? ' ↑' : ' ↓') : ''}
                 </button>
               ))}

@@ -38,5 +38,5 @@ export function Dialog({ title, onClose, children }: { title: string; onClose: (
     document.addEventListener('keydown', keydown)
     return () => { document.removeEventListener('keydown', keydown); previous?.focus() }
   }, [])
-  return <div className="fixed inset-0 z-[180] overflow-y-auto bg-black/50 p-4 sm:p-8"><div ref={ref} role="dialog" aria-modal="true" aria-labelledby={id} tabIndex={-1} className="mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-xl outline-none"><div className="mb-5 flex items-center justify-between gap-3"><h2 id={id} className="text-xl font-bold text-slate-950">{title}</h2><button className={button} aria-label={`Close ${title}`} onClick={onClose}><X className="h-4 w-4" /></button></div>{children}</div></div>
+  return <div className="portal-dialog-backdrop fixed inset-0 z-[180] overflow-y-auto bg-black/50 p-4 sm:p-8"><div ref={ref} role="dialog" aria-modal="true" aria-labelledby={id} tabIndex={-1} className="portal-dialog mx-auto max-w-6xl rounded-2xl bg-white p-5 shadow-xl outline-none"><div className="portal-dialog-header mb-5 flex items-center justify-between gap-3 rounded-lg px-4 py-3"><h2 id={id} className="text-xl font-bold text-slate-950">{title}</h2><button className={`${button} portal-dialog-close`} aria-label={`Close ${title}`} onClick={onClose}><X className="h-4 w-4" /></button></div>{children}</div></div>
 }

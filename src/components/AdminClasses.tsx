@@ -1843,7 +1843,7 @@ export default function AdminClasses({
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="portal-dialog-backdrop absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => {
                 setShowCategoryModal(false)
                 setEditingCategoryId(null)
@@ -1851,13 +1851,13 @@ export default function AdminClasses({
               }}
             />
             <motion.div
-              className="relative bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="portal-dialog relative bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="portal-dialog-header flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-black">
                   {editingCategoryId ? 'Edit program' : 'Add new program'}
                 </h3>
@@ -1867,7 +1867,7 @@ export default function AdminClasses({
                     setEditingCategoryId(null)
                     setCategoryFormData({})
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full"
                 >
                   <X className="w-6 h-6" />
                 </button>

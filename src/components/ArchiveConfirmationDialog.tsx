@@ -31,7 +31,7 @@ export default function ArchiveConfirmationDialog({ itemName, warning, action = 
       ref={dialogRef}
       aria-labelledby={`${id}-title`}
       aria-describedby={`${id}-item ${id}-warning`}
-      className="m-auto w-[calc(100%_-_2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-0 text-gray-950 shadow-2xl backdrop:bg-black/60"
+      className="portal-dialog m-auto w-[calc(100%_-_2rem)] max-w-md rounded-2xl border border-gray-200 bg-white p-0 text-gray-950 shadow-2xl backdrop:bg-black/60"
       onCancel={(event) => { event.preventDefault(); onComplete(false) }}
       onClose={() => onComplete(false)}
       onKeyDown={(event) => {
@@ -51,15 +51,15 @@ export default function ArchiveConfirmationDialog({ itemName, warning, action = 
         }
       }}
     >
-      <form className="space-y-5 p-6" onSubmit={(event) => {
+      <form className="portal-dialog-body space-y-5 p-6" onSubmit={(event) => {
         event.preventDefault()
         if (confirmed) onComplete(true)
       }}>
-        <div className="flex items-center justify-between gap-4">
+        <div className="portal-dialog-header -mx-6 -mt-6 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5">
           <h2 id={`${id}-title`} className="flex items-center gap-2 text-xl font-bold">
             <Icon className="h-5 w-5" aria-hidden="true" />{deleting ? verb : 'Archive item'}
           </h2>
-          <button type="button" aria-label={deleting ? 'Close delete confirmation' : 'Close archive confirmation'} onClick={() => onComplete(false)} className="rounded-lg p-2 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600">
+          <button type="button" aria-label={deleting ? 'Close delete confirmation' : 'Close archive confirmation'} onClick={() => onComplete(false)} className="portal-dialog-close rounded-lg p-2 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-600">
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
         </div>
@@ -82,7 +82,7 @@ export default function ArchiveConfirmationDialog({ itemName, warning, action = 
             className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-base focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-600/20"
           />
         </div>
-        <div className="flex justify-end gap-3">
+        <div className="portal-dialog-footer -mx-6 -mb-6 flex flex-wrap justify-end gap-3 border-t border-gray-200 px-6 py-4">
           <button type="button" onClick={() => onComplete(false)} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50">Cancel</button>
           <button type="submit" disabled={!confirmed} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-40">{verb}</button>
         </div>

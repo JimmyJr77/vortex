@@ -17,18 +17,18 @@ export default function VortexPhilosophyGuide() {
 
   return (
     <div className="space-y-5" data-testid="vortex-philosophy-guide">
-      <div className="rounded-xl bg-gray-950 p-5 text-white md:p-7">
+      <div className="portal-panel-header rounded-xl border border-gray-200 bg-white p-5 text-gray-900 md:p-7">
         <p className="text-xl font-bold md:text-2xl">{VORTEX_PHILOSOPHY.identity}</p>
-        <p className="mt-3 max-w-4xl leading-relaxed text-gray-200">{VORTEX_PHILOSOPHY.mission}</p>
+        <p className="mt-3 max-w-4xl leading-relaxed text-gray-600">{VORTEX_PHILOSOPHY.mission}</p>
         <ol aria-label="Vortex training progression" className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {VORTEX_DEVELOPMENT_COMPONENTS.map((component, index) => (
-            <li key={component.key} className="rounded-lg border border-white/20 p-4">
-              <p className="font-semibold"><span className="mr-2 text-red-400">{index + 1}.</span>{component.name}</p>
-              <p className="mt-2 text-sm leading-relaxed text-gray-300">{component.purpose}</p>
+            <li key={component.key} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="font-semibold"><span className="mr-2 text-vortex-red">{index + 1}.</span>{component.name}</p>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">{component.purpose}</p>
             </li>
           ))}
         </ol>
-        <p className="mt-5 text-sm font-medium text-gray-200">{VORTEX_PHILOSOPHY.standard}</p>
+        <p className="mt-5 text-sm font-medium text-gray-600">{VORTEX_PHILOSOPHY.standard}</p>
       </div>
 
       <div>

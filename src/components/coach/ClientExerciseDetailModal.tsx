@@ -6,7 +6,7 @@ import type { Exercise } from '../../coach/types'
 import { YoutubeVideoList } from '../YoutubeEmbedPlayer'
 
 const MODAL_SHELL =
-  'bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col shadow-xl'
+  'portal-dialog bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col shadow-xl'
 
 const MODAL_BODY = 'flex-1 min-h-0 overflow-y-auto p-5 space-y-5'
 
@@ -97,12 +97,12 @@ export default function ClientExerciseDetailModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className={MODAL_SHELL} role="dialog" aria-modal="true" aria-labelledby="client-exercise-title">
-        <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 shrink-0">
+        <div className="portal-dialog-header flex items-center justify-between border-b border-gray-100 px-5 py-4 shrink-0">
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Client view</div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
+            className="portal-dialog-close rounded-lg p-1.5 text-gray-500 hover:bg-gray-100"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

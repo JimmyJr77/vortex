@@ -201,10 +201,10 @@ export default function AdminEnrollmentActionModal({
   </Suspense>
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => { if (!busy) onClose() }}>
+    <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => { if (!busy) onClose() }}>
       <div
         role="dialog" aria-modal="true" aria-label="Manage enrollment"
-        className="w-full max-w-md rounded-xl bg-white shadow-xl"
+        className="portal-dialog w-full max-w-md rounded-xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4">

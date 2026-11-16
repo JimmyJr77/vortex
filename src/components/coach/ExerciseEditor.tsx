@@ -448,13 +448,13 @@ export default function ExerciseEditor({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col">
+        <div className="portal-dialog-header flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h3 className="font-bold text-lg">{exercise ? 'Edit Exercise' : 'New Exercise'}</h3>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
         </div>
 
-        <div className="px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100 shrink-0 overflow-x-auto">
+        <div className="portal-section-tabs px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100 shrink-0 overflow-x-auto">
           {EDITOR_TABS.map((t) => (
             <button
               key={t.id}

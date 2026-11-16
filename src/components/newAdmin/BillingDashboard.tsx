@@ -144,8 +144,8 @@ function AccountBalances({ data, onBilling }: { data: BillingData; onBilling: (t
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h3 className="text-lg font-bold">Who still owes</h3><p className="mt-1 text-sm text-slate-500">{owing.length} families · <span className="font-semibold text-red-700">{money(total)}</span> remaining · As of {data.asOf}</p></div>
         <div role="group" aria-label="Unpaid billing period" className="flex flex-wrap gap-2">
-          <button type="button" aria-pressed={period === 'currentCents'} className={`${button} ${period === 'currentCents' ? '!bg-red-50 !border-red-300 !text-red-800' : ''}`} onClick={() => setPeriod('currentCents')}>This month</button>
-          <button type="button" aria-pressed={period === 'overdueCents'} className={`${button} ${period === 'overdueCents' ? '!bg-red-50 !border-red-300 !text-red-800' : ''}`} onClick={() => setPeriod('overdueCents')}>Last month +</button>
+          <button type="button" aria-pressed={period === 'currentCents'} className={button} onClick={() => setPeriod('currentCents')}>This month</button>
+          <button type="button" aria-pressed={period === 'overdueCents'} className={button} onClick={() => setPeriod('overdueCents')}>Last month +</button>
         </div>
       </div>
       <p className="mt-2 text-xs text-slate-500">{period === 'currentCents' ? `Unpaid bills for ${monthName(data.asOf.slice(0, 7))}.` : 'Unpaid bills from last month and all earlier months.'} Select a family to open its billing account.</p>

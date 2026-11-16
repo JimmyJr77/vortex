@@ -172,8 +172,8 @@ export default function FormReviewPanel({
 
       {detail && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
+          <div className="portal-dialog bg-white rounded-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="portal-dialog-header px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white">
               <div>
                 <h3 className="font-bold text-lg">
                   {detail.submission.first_name} {detail.submission.last_name}
@@ -182,7 +182,7 @@ export default function FormReviewPanel({
                   {detail.submission.exercise_name || detail.submission.subject || 'General upload'}
                 </p>
               </div>
-              <button type="button" onClick={() => setDetail(null)} className="text-gray-500 text-sm">Close</button>
+              <button type="button" onClick={() => setDetail(null)} className="portal-dialog-close text-gray-500 text-sm">Close</button>
             </div>
             <div className="p-5 space-y-4">
               <video src={detail.submission.video_url} controls className="w-full rounded-lg bg-black max-h-64" />

@@ -43,10 +43,10 @@ function queryFor(filters: Filters, view: AccountingView, search: string) {
 }
 
 function SummaryCard({ label, cents, note, accent = false }: { label: string; cents: number; note: string; accent?: boolean }) {
-  return <div className={`rounded-xl border p-5 ${accent ? 'border-slate-950 bg-slate-950 text-white' : 'border-slate-200 bg-white text-slate-950'}`}>
-    <p className={`text-xs font-semibold uppercase tracking-wider ${accent ? 'text-slate-300' : 'text-slate-500'}`}>{label}</p>
+  return <div className={`rounded-xl border p-5 ${accent ? 'border-red-200 bg-red-50 text-red-950' : 'border-slate-200 bg-white text-slate-950'}`}>
+    <p className={`text-xs font-semibold uppercase tracking-wider ${accent ? 'text-red-800' : 'text-slate-500'}`}>{label}</p>
     <p className="mt-3 text-2xl font-semibold tracking-tight tabular-nums sm:text-3xl">{amount(cents)}</p>
-    <p className={`mt-2 text-xs leading-5 ${accent ? 'text-slate-300' : 'text-slate-500'}`}>{note}</p>
+    <p className={`mt-2 text-xs leading-5 ${accent ? 'text-red-800' : 'text-slate-500'}`}>{note}</p>
   </div>
 }
 
@@ -144,19 +144,19 @@ export default function Accounting({ revision, onBilling, workspace, onWorkspace
   }
 
   return <section className="space-y-5">
-    <header className="flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-slate-950 px-6 py-7 text-white sm:px-7">
-      <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Finance workspace</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Accounting</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Every bill, payment, and refund across your household accounts.</p></div>
+    <header className="flex flex-wrap items-center justify-between gap-5 portal-panel-header rounded-2xl border border-slate-200 bg-white px-6 py-7 text-slate-950 sm:px-7">
+      <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-700">Finance workspace</p><h2 className="mt-2 text-3xl font-semibold tracking-tight">Accounting</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Every bill, payment, and refund across your household accounts.</p></div>
       <button type="button" onClick={() => void exportCsv()} disabled={exporting || loading || invalidDates || !data || Boolean(state.error)} className="inline-flex items-center gap-2 rounded-lg border border-slate-600 bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-sm hover:bg-slate-100 disabled:opacity-50">{exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownToLine className="h-4 w-4" />}Export filtered CSV</button>
     </header>
 
-    <div role="tablist" aria-label="Accounting views" className="flex gap-1 border-b border-slate-200">
+    <div role="tablist" aria-label="Accounting views" className="portal-section-tabs flex gap-1 border-b border-slate-200">
       {[{ id: 'lines' as const, label: 'Bills & line items', icon: ReceiptText }, { id: 'payments' as const, label: 'Payments & refunds', icon: CreditCard }].map(tab => <button key={tab.id} type="button" role="tab" tabIndex={view === tab.id ? 0 : -1} aria-selected={view === tab.id} aria-controls="accounting-panel" id={`accounting-tab-${tab.id}`} onClick={() => changeView(tab.id)} onKeyDown={event => {
         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
         event.preventDefault()
         const next = event.key === 'Home' ? 'lines' : event.key === 'End' ? 'payments' : view === 'lines' ? 'payments' : 'lines'
         changeView(next)
         document.getElementById(`accounting-tab-${next}`)?.focus()
-      }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold ${view === tab.id ? 'border-slate-950 text-slate-950' : 'border-transparent text-slate-500 hover:text-slate-800'}`}><tab.icon className="h-4 w-4" />{tab.label}</button>)}
+      }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold ${view === tab.id ? 'border-red-600 text-red-700' : 'border-transparent text-slate-500 hover:text-slate-800'}`}><tab.icon className="h-4 w-4" />{tab.label}</button>)}
     </div>
 
     <div id="accounting-panel" role="tabpanel" aria-labelledby={`accounting-tab-${view}`} className="space-y-5">
@@ -169,10 +169,10 @@ export default function Accounting({ revision, onBilling, workspace, onWorkspace
           <label className="text-xs font-semibold text-slate-600">{view === 'lines' ? 'Search line items' : 'Search payments'}<span className="relative block"><Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" /><input className={`${filterInput} !pl-9`} value={filters.search} maxLength={200} onChange={event => update({ search: event.target.value })} placeholder={view === 'lines' ? 'Description, household, person, class, or bill #' : 'Household, reference, or payment #'} /></span></label>
         </div>
         <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-          {view === 'lines' ? <><div className="flex flex-wrap gap-2" role="group" aria-label="Bill status">{billStatuses.map(status => <button type="button" key={status.value} aria-pressed={filters.status === status.value} onClick={() => update({ status: status.value })} className={`rounded-full border px-3 py-1.5 text-xs font-medium ${filters.status === status.value ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}>{status.label}</button>)}</div>
+          {view === 'lines' ? <><div className="flex flex-wrap gap-2" role="group" aria-label="Bill status">{billStatuses.map(status => <button type="button" key={status.value} aria-pressed={filters.status === status.value} onClick={() => update({ status: status.value })} className={`rounded-full border px-3 py-1.5 text-xs font-medium ${filters.status === status.value ? 'border-red-200 bg-red-50 text-red-800' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-400'}`}>{status.label}</button>)}</div>
             <label className="ml-auto flex items-center gap-2 text-xs font-medium text-slate-500">Unpaid period<select aria-label="Unpaid billing period" className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-700" value={filters.balancePeriod ?? 'all'} onChange={event => update({ balancePeriod: event.target.value as Filters['balancePeriod'], status: 'all' })}><option value="all">All line items</option><option value="current">Current unpaid</option><option value="upcoming">Upcoming unpaid</option></select></label>
           </> : <>
-            <div role="group" aria-label="Payment event type" className="flex flex-wrap gap-2">{[{ value: 'all', label: 'All events' }, { value: 'payment', label: 'Payments' }, { value: 'refund', label: 'Refunds' }].map(kind => <button type="button" key={kind.value} aria-pressed={filters.kind === kind.value} onClick={() => update({ kind: kind.value })} className={`rounded-full border px-3 py-1.5 text-xs font-medium ${filters.kind === kind.value ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 text-slate-600 hover:border-slate-400'}`}>{kind.label}</button>)}</div>
+            <div role="group" aria-label="Payment event type" className="flex flex-wrap gap-2">{[{ value: 'all', label: 'All events' }, { value: 'payment', label: 'Payments' }, { value: 'refund', label: 'Refunds' }].map(kind => <button type="button" key={kind.value} aria-pressed={filters.kind === kind.value} onClick={() => update({ kind: kind.value })} className={`rounded-full border px-3 py-1.5 text-xs font-medium ${filters.kind === kind.value ? 'border-red-200 bg-red-50 text-red-800' : 'border-slate-200 text-slate-600 hover:border-slate-400'}`}>{kind.label}</button>)}</div>
             <label className="ml-auto flex items-center gap-2 text-xs font-medium text-slate-500">Payment status<select className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs text-slate-700" value={filters.paymentStatus} onChange={event => update({ paymentStatus: event.target.value })}><option value="all">All statuses</option><option value="settled">Settled</option><option value="pending">Pending</option><option value="failed">Failed</option></select></label>
           </>}
         </div>

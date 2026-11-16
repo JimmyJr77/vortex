@@ -2152,28 +2152,28 @@ export default function MemberDashboard({
                       <button
                         type="button"
                         onClick={() => setActiveTab('profile')}
-                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                        className="portal-primary px-3 py-2 rounded-lg bg-vortex-red text-white text-sm"
                       >
                         Profile
                       </button>
                       <button
                         type="button"
                         onClick={() => setActiveTab('waivers')}
-                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                        className="portal-primary px-3 py-2 rounded-lg bg-vortex-red text-white text-sm"
                       >
                         Waivers
                       </button>
                       <button
                         type="button"
                         onClick={() => setActiveTab('billing')}
-                        className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm"
+                        className="portal-primary px-3 py-2 rounded-lg bg-vortex-red text-white text-sm"
                       >
                         Billing
                       </button>
                     </div>
                   </div>
                 )}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-3">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-3">
                   <h3 className="text-xl font-bold text-black">Account Security</h3>
                   {profileData?.mustChangePassword && (
                     <p className="text-sm text-gray-600">A password change is required for this account.</p>
@@ -2274,7 +2274,7 @@ export default function MemberDashboard({
                   </form>
                 </div>
                 {/* Members Section - Matching AdminMembers Format */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                     <h3 className="text-xl font-bold text-black">
                       Family Members ({members.length})
@@ -2467,7 +2467,7 @@ export default function MemberDashboard({
                     </div>
                   )}
                 </div>
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h3 className="text-xl font-bold text-black mb-2">
                     Payment History
                   </h3>
@@ -2571,7 +2571,7 @@ export default function MemberDashboard({
 
                 </div>
                 {/* Classes Offered */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   {classesOfferedLoading && (
                     <div className="text-center py-12 text-gray-600">Loading classes…</div>
                   )}
@@ -2676,7 +2676,7 @@ export default function MemberDashboard({
                 className="space-y-6"
               >
                 {/* Search Bar and Filters */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-4">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200 space-y-4">
                   <div className="relative max-w-2xl">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
@@ -2773,7 +2773,7 @@ export default function MemberDashboard({
 
                 {/* Upcoming schedule from event calendar items */}
                 {token && eventView === 'upcoming' && (
-                  <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                  <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                     <h2 className="text-xl md:text-2xl font-display font-bold text-black mb-4">
                       Upcoming schedule
                     </h2>
@@ -2819,7 +2819,7 @@ export default function MemberDashboard({
                 )}
 
                 {/* Calendar of Events */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   {/* Event View Toggle - Rotator Style */}
                   <div className="flex items-center justify-center gap-4 mb-6">
                     <button
@@ -2882,7 +2882,7 @@ export default function MemberDashboard({
                 </div>
 
                 {/* Event Details */}
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-6">
                     Event Details
                   </h2>
@@ -2905,7 +2905,7 @@ export default function MemberDashboard({
                         return (
                           <div
                             key={event.id}
-                            className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-6 border-2 border-gray-200"
+                            className="portal-panel bg-white rounded-xl p-6 border border-gray-200"
                           >
                             <div className="flex items-center space-x-4 mb-4">
                               <div className="w-12 h-12 bg-vortex-red/10 rounded-xl flex items-center justify-center">
@@ -3089,7 +3089,7 @@ export default function MemberDashboard({
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+                <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-black mb-2">
                     Athlete Waivers
                   </h2>
@@ -3188,13 +3188,13 @@ export default function MemberDashboard({
             }}
           />
             <motion.div
-              className="relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              className="portal-dialog relative bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <div className="portal-dialog-header flex justify-between items-center px-6 py-4 border-b border-gray-200">
                 <h3 className="text-xl font-bold text-gray-900">
                   {viewingMember.firstName} {viewingMember.lastName}
                 </h3>
@@ -3204,13 +3204,15 @@ export default function MemberDashboard({
                     setViewingMember(null)
                     setViewingMemberFamilyData(null)
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
+                  type="button"
+                  aria-label="Close member details"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full text-gray-500"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="overflow-y-auto flex-1 px-6 py-5 space-y-6">
+              <div className="portal-dialog-body overflow-y-auto flex-1 px-6 py-5 space-y-6">
                 {/* Family Information */}
                 {viewingMember.familyId && (
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -3426,7 +3428,7 @@ export default function MemberDashboard({
                 )}
               </div>
 
-              <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="portal-dialog-footer flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <button
                   onClick={() => {
                     setShowViewModal(false)
@@ -3474,13 +3476,13 @@ export default function MemberDashboard({
               }}
             />
             <motion.div
-              className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              className="portal-dialog relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <div className="portal-dialog-header flex justify-between items-center px-6 py-4 border-b border-gray-200">
                 <h3 className="text-xl font-bold text-gray-900">
                   Edit {editingFamilyMembers[0].firstName || 'Member'}
                 </h3>
@@ -3491,7 +3493,9 @@ export default function MemberDashboard({
                     setEditingFamilyMembers([])
                     setExpandedFamilyMemberId(null)
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
+                  type="button"
+                  aria-label="Close member editor"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full text-gray-500"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -3504,7 +3508,7 @@ export default function MemberDashboard({
                 const field = (key: string, fallback?: string | null) =>
                   (contact as Record<string, string | undefined>)[key] ?? fallback ?? ''
                 return (
-                  <div className="overflow-y-auto flex-1 px-6 py-5 space-y-4">
+                  <div className="portal-dialog-body overflow-y-auto flex-1 px-6 py-5 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">First name</label>
@@ -3603,7 +3607,7 @@ export default function MemberDashboard({
                 )
               })()}
 
-              <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="portal-dialog-footer flex justify-end gap-2 px-6 py-4 border-t border-gray-200 bg-gray-50">
                 <button
                   onClick={() => {
                     setShowEditModal(false)

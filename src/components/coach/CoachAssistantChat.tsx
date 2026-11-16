@@ -108,7 +108,7 @@ export default function CoachAssistantChat({ memberId, athleteName }: CoachAssis
           type="button"
           onClick={() => void send()}
           disabled={loading || !input.trim()}
-          className="bg-black text-white px-3 py-2 rounded-lg disabled:opacity-60"
+          className="portal-primary bg-vortex-red text-white px-3 py-2 rounded-lg disabled:opacity-60"
         >
           <Send className="w-4 h-4" />
         </button>

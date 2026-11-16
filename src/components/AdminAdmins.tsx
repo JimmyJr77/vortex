@@ -527,16 +527,16 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+            className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           >
             <motion.div
-              className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              className="portal-dialog bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b">
+              <div className="portal-dialog-header flex items-center justify-between px-6 py-4 border-b">
                 <h3 className="text-xl font-bold">Edit my account</h3>
                 <button
                   type="button"
@@ -544,7 +544,7 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
                     setEditingMyAccount(false)
                     fetchMyAccount()
                   }}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -658,21 +658,21 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+            className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
           >
             <motion.div
-              className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              className="portal-dialog bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b">
+              <div className="portal-dialog-header flex items-center justify-between px-6 py-4 border-b">
                 <h3 className="text-xl font-bold">Create new admin</h3>
                 <button
                   type="button"
                   onClick={() => setShowAdminForm(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -765,8 +765,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       </AnimatePresence>
 
       {editingOtherAdmin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="portal-dialog bg-white rounded-2xl w-full max-w-2xl p-6 space-y-4">
             <h3 className="text-xl font-bold">Edit admin — {editingOtherAdmin.firstName} {editingOtherAdmin.lastName}</h3>
             {isProtectedDefaultMaster(editingOtherAdmin) && (
               <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -792,8 +792,8 @@ export default function AdminAdmins({ adminInfo, setAdminInfo }: AdminAdminsProp
       )}
 
       {adminToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
+          <div className="portal-dialog bg-white rounded-xl max-w-md w-full p-6 space-y-4">
             <h3 className="text-lg font-bold text-red-600">Delete Admin</h3>
             <p className="text-sm">Permanently delete <strong>{adminToDelete.firstName} {adminToDelete.lastName}</strong>?</p>
             <input type="text" value={deleteConfirmText} onChange={(e) => setDeleteConfirmText(e.target.value)} placeholder="Type delete to confirm" className="w-full border rounded-lg px-3 py-2 text-sm" />

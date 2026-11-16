@@ -147,14 +147,14 @@ function ChannelEditor({
   const inputClass = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-vortex-red focus:outline-none focus:ring-1 focus:ring-vortex-red'
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/40" role="dialog" aria-modal="true">
-      <div className="h-full w-full max-w-2xl overflow-y-auto bg-gray-50 shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-5">
+    <div className="portal-dialog-backdrop fixed inset-0 z-50 flex justify-end bg-black/40" role="dialog" aria-modal="true">
+      <div className="portal-drawer h-full w-full max-w-2xl overflow-y-auto bg-gray-50 shadow-2xl">
+        <div className="portal-dialog-header sticky top-0 z-10 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-vortex-red">Channel settings</p>
             <h3 className="mt-1 text-xl font-bold text-gray-900">{channel.name}</h3>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close">
+          <button type="button" onClick={onClose} className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -336,7 +336,7 @@ export default function AdminMarketingVisibility({ canManage }: { canManage: boo
           <button type="button" onClick={addChannel} disabled={creating || loading || !canManage} className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-bold text-gray-800 hover:bg-gray-50 disabled:opacity-60">
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Add channel
           </button>
-          <button type="button" onClick={publish} disabled={publishing || loading || !canManage} className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-bold text-white hover:bg-black disabled:opacity-60">
+          <button type="button" onClick={publish} disabled={publishing || loading || !canManage} className="portal-primary inline-flex items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-2.5 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60">
             {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />}
             Create implementation package
           </button>

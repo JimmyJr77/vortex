@@ -250,15 +250,15 @@ function AnnualMembershipCard({
 }) {
   const lifetimeMember = membership.lifetimeMember === true
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-700 bg-gray-800 text-white' : 'border-red-800 bg-red-700 text-white'}`}>
-      <div className="text-xs font-semibold uppercase tracking-wide text-gray-300">{lifetimeMember ? 'Lifetime member' : 'Annual membership'}</div>
+    <div className={`rounded-xl border p-4 shadow-sm ${membership.active ? 'border-gray-200 bg-white text-gray-900' : 'border-red-200 bg-red-50 text-red-800'}`}>
+      <div className="text-xs font-semibold uppercase tracking-wide">{lifetimeMember ? 'Lifetime member' : 'Annual membership'}</div>
       <div className="mt-1 truncate text-xl font-bold">{membership.memberName}</div>
-      <div className="mt-1 text-sm text-gray-200">{lifetimeMember ? 'Lifetime access' : membership.active ? `Good through ${formatDate(membership.renewalDate)}` : 'Required before enrolling in classes'}</div>
+      <div className="mt-1 text-sm">{lifetimeMember ? 'Lifetime access' : membership.active ? `Good through ${formatDate(membership.renewalDate)}` : 'Required before enrolling in classes'}</div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className="font-semibold">{lifetimeMember ? 'Lifetime member' : membership.active ? 'Valid' : `Not purchased · ${formatMoney(membership.outstandingAmountCents)}`}</span>
-        {!lifetimeMember && !membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10">Enroll now</button> : null}
+        {!lifetimeMember && !membership.active && onEnroll ? <button type="button" onClick={onEnroll} className="rounded border border-red-300 bg-white px-2 py-1 font-semibold hover:bg-red-100">Enroll now</button> : null}
       </div>
-      {membership.active && !lifetimeMember ? <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/20 pt-3 text-xs"><span className="text-gray-200">Auto-renew {membership.autoRenewal ? 'on' : 'off'}</span>{canManageAutoRenewal && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership.billingSubscriptionId!, !membership.autoRenewal)} className="rounded border border-white/30 px-2 py-1 font-semibold hover:bg-white/10 disabled:opacity-50">{saving ? 'Saving…' : membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</div> : null}
+      {membership.active && !lifetimeMember ? <div className="mt-3 flex items-center justify-between gap-2 border-t border-gray-200 pt-3 text-xs"><span className="text-gray-600">Auto-renew {membership.autoRenewal ? 'on' : 'off'}</span>{canManageAutoRenewal && membership.canManageAutoRenewal && membership.billingSubscriptionId != null ? <button type="button" disabled={saving} onClick={() => onSetAutoRenewal(membership.billingSubscriptionId!, !membership.autoRenewal)} className="rounded border border-gray-300 px-2 py-1 font-semibold hover:bg-gray-50 disabled:opacity-50">{saving ? 'Saving…' : membership.autoRenewal ? 'Cancel Auto-Renew' : 'Resume Auto-Renew'}</button> : null}</div> : null}
     </div>
   )
 }
@@ -417,14 +417,14 @@ export default function MemberCustomerBilling({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
+      <section className="portal-panel rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="portal-panel-header flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h1><StatusBadge value={overview.account.accountStatus} /></div>
             <p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setSelectedMemberId(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-300 text-gray-600'}`}>All family</button>
-              {overview.members.map((member) => <button key={member.id} type="button" onClick={() => setSelectedMemberId(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}
+            <div className="portal-section-tabs mt-4 flex flex-wrap gap-2">
+              <button type="button" aria-pressed={selectedMemberId == null} onClick={() => setSelectedMemberId(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>All family</button>
+              {overview.members.map((member) => <button key={member.id} type="button" aria-pressed={selectedMemberId === member.id} onClick={() => setSelectedMemberId(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}
             </div>
           </div>
           <div className="space-y-3 xl:max-w-lg">
@@ -440,7 +440,7 @@ export default function MemberCustomerBilling({
             </label>
           ) : null}
           <div className="flex flex-wrap gap-2">
-            {data?.access.canManagePayments ? <button type="button" onClick={processMonthlyBalance} disabled={!canPay || payNowLoading} title={canPay ? 'Pay the current household balance.' : 'There is no balance ready for online payment.'} className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><CreditCard className="h-4 w-4" /> {payNowLoading ? 'Starting checkout…' : 'Process monthly balance'}</button> : null}
+            {data?.access.canManagePayments ? <button type="button" onClick={processMonthlyBalance} disabled={!canPay || payNowLoading} title={canPay ? 'Pay the current household balance.' : 'There is no balance ready for online payment.'} className="portal-primary inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><CreditCard className="h-4 w-4" /> {payNowLoading ? 'Starting checkout…' : 'Process monthly balance'}</button> : null}
             {canManagePaymentMethod ? <button type="button" onClick={onManagePayment} disabled={!overview.paymentMethod.stripeEnabled || portalLoading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> {portalLoading ? 'Opening settings…' : 'Update payment method'}</button> : null}
             <button type="button" onClick={onRefresh} disabled={loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading} className="rounded-lg border border-gray-300 p-2 text-gray-600 disabled:opacity-40" aria-label="Refresh billing account" title="Refresh billing account"><RefreshCw className={`h-4 w-4 ${(loading || transactionsLoading || transactionsLoadingMore || payNowLoading || portalLoading) ? 'animate-spin' : ''}`} /></button>
           </div>
@@ -469,8 +469,8 @@ export default function MemberCustomerBilling({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-4 px-5 py-4">
+      <section className="portal-panel rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="portal-panel-header flex flex-wrap items-center justify-between gap-4 px-5 py-4">
           <div><h2 className="text-lg font-bold text-gray-950">Current &amp; upcoming enrollments</h2><p className="text-sm text-gray-500">Every billable class, effective price, and scheduled change.</p></div>
           {canManageBilling ? <button type="button" onClick={onEnroll} className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-vortex-red px-3 py-2 text-sm font-semibold text-white hover:bg-red-700"><Plus className="h-4 w-4" /> New Enrollment</button> : null}
         </div>
@@ -479,8 +479,8 @@ export default function MemberCustomerBilling({
       </section>
 
       {visibleBundlePasses.length > 0 ? (
-        <section className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Class bundles</h2><p className="text-sm text-gray-500">Household pass balances and recent credit usage.</p></div>
+        <section className="portal-panel rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="portal-panel-header border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Class bundles</h2><p className="text-sm text-gray-500">Household pass balances and recent credit usage.</p></div>
           <div className="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
             {visibleBundlePasses.map((pass) => (
               <div key={pass.id} className="rounded-xl border border-gray-200 p-4">
@@ -507,8 +507,8 @@ export default function MemberCustomerBilling({
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Account History</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>
+      <section className="portal-panel overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="portal-panel-header border-b border-gray-200 px-5 py-4"><h2 className="text-lg font-bold text-gray-950">Account History</h2><p className="text-sm text-gray-500">Transactions for this family billing account.</p></div>
         <TransactionTable transactions={visibleTransactions} formatMoney={formatMoney} loading={transactionsLoading} loadingMore={transactionsLoadingMore} hasMore={data?.nextTransactionCursor != null} onLoadMore={onLoadMoreTransactions} />
       </section>
     </div>

@@ -58,7 +58,7 @@ function facetNameMap(taxonomy: Taxonomy | null): Map<string, string> {
 }
 
 const EXERCISE_MODAL_SHELL =
-  'bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col shadow-xl'
+  'portal-dialog bg-white rounded-xl w-full max-w-4xl h-[min(85vh,720px)] overflow-hidden flex flex-col shadow-xl'
 
 const EXERCISE_MODAL_BODY = 'flex-1 min-h-0 overflow-y-auto p-5 space-y-4'
 
@@ -177,7 +177,7 @@ export default function ExerciseDetailModal({
         className={EXERCISE_MODAL_SHELL}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
+        <div className="portal-dialog-header flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
           <div className="min-w-0">
             <h3 className="font-bold text-lg text-gray-900 truncate">{exercise?.name ?? preview?.name ?? 'Exercise'}</h3>
             {exercise && (
@@ -190,7 +190,7 @@ export default function ExerciseDetailModal({
                 <Pencil className="w-4 h-4" /> Edit
               </button>
             )}
-            <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 p-1" aria-label="Close">
+            <button type="button" onClick={onClose} className="portal-dialog-close text-gray-400 hover:text-gray-700 p-1" aria-label="Close">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -209,7 +209,7 @@ export default function ExerciseDetailModal({
 
         {exercise && !error && (
           <>
-            <div className="px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100 shrink-0 overflow-x-auto">
+            <div className="portal-section-tabs px-5 pt-3 flex flex-wrap gap-1 border-b border-gray-100 shrink-0 overflow-x-auto">
               {TABS.map((t) => (
                 <button
                   key={t.id}

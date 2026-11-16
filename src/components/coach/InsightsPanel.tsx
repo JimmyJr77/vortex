@@ -216,7 +216,7 @@ export default function InsightsPanel() {
             <option value="">Class analytics...</option>
             {classes.map((c) => <option key={c.id} value={c.id}>{c.assignment_label || c.class_name || c.program_name || `Class ${c.id}`}</option>)}
           </select>
-          <button type="button" onClick={() => void getNudge()} disabled={memberId === ''} className="flex items-center gap-2 bg-black text-white px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
+          <button type="button" onClick={() => void getNudge()} disabled={memberId === ''} className="flex items-center gap-2 portal-primary bg-vortex-red text-white px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
             <Sparkles className="w-4 h-4 text-vortex-red" /> AI Nudge
           </button>
           <button type="button" onClick={() => void getNarrative()} disabled={memberId === ''} className="flex items-center gap-2 border border-gray-300 px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60">
@@ -465,7 +465,7 @@ function CompletionGradeRow({ row, onGrade }: { row: CompletionRow; onGrade: (ro
       <div className="flex items-center gap-2">
         <input type="number" value={grade} onChange={(e) => setGrade(e.target.value)} placeholder="grade" className="w-16 border border-gray-300 rounded px-2 py-1 text-sm" />
         <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="coach note" className="w-40 border border-gray-300 rounded px-2 py-1 text-sm" />
-        <button type="button" onClick={() => onGrade(row, grade, note)} className="px-3 py-1 rounded bg-gray-900 text-white text-xs">Save</button>
+        <button type="button" onClick={() => onGrade(row, grade, note)} className="px-3 py-1 rounded portal-primary bg-vortex-red text-white text-xs">Save</button>
       </div>
     </div>
   )

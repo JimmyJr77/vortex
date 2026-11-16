@@ -166,8 +166,8 @@ function FilterSelect({
 
 function ProgramMetric({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-3">
-      <div className="text-xl font-bold text-white">{value}</div>
+    <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-3">
+      <div className="text-xl font-bold text-gray-900">{value}</div>
       <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">{label}</div>
     </div>
   )
@@ -584,14 +584,14 @@ export default function FlipFitSchedulePanel() {
 
   return (
     <div className="space-y-5 pb-8">
-      <section className="overflow-hidden rounded-2xl bg-gradient-to-br from-black via-gray-950 to-gray-900 text-white shadow-xl">
+      <section className="portal-panel-header overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-sm">
         <div className="grid gap-6 p-5 sm:p-7 xl:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
           <div>
-            <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-red-400">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-vortex-red">
               <Sparkles className="h-4 w-4" /> Coach-ready athletic development
             </div>
-            <h2 className="mt-3 text-3xl font-display font-bold leading-none sm:text-5xl">Flip &amp; Fit <span className="text-vortex-red">Schedule</span></h2>
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-300 sm:text-base">
+            <h2 className="mt-3 text-2xl font-display font-bold leading-tight sm:text-3xl">Fit &amp; Flip <span className="text-vortex-red">Schedule</span></h2>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-600 sm:text-base">
               A 12-week, Monday–Friday curriculum built on ages 12–14. Every exercise includes a direct regression for ages 9–11 and a readiness-gated progression for ages 15–18.
             </p>
             <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -602,7 +602,7 @@ export default function FlipFitSchedulePanel() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-4 text-gray-950 shadow-lg sm:p-5">
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-gray-950 sm:p-5">
             <AgeBandSelector value={ageBand} onChange={changeAgeBand} />
             <div className="mt-4 border-t border-gray-200 pt-4">
               <label className="block">
@@ -647,8 +647,8 @@ export default function FlipFitSchedulePanel() {
             </span>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-xl bg-gray-950 p-3 text-white"><strong className="block">Odd weeks</strong><span className="text-xs text-gray-300">Capacity Mon/Tue · Sustained Wed–Fri</span></div>
-            <div className="rounded-xl bg-red-700 p-3 text-white"><strong className="block">Even weeks</strong><span className="text-xs text-red-100">Sustained Mon/Tue · Capacity Wed–Fri</span></div>
+            <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900"><strong className="block">Odd weeks</strong><span className="text-xs text-gray-600">Capacity Mon/Tue · Sustained Wed–Fri</span></div>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-red-900"><strong className="block">Even weeks</strong><span className="text-xs text-red-800">Sustained Mon/Tue · Capacity Wed–Fri</span></div>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-gray-500">Every day keeps the exact 10 / 20 / 20 / 25 / 10 / 5 athletic phase order. Normal water, explanation, and station transitions stay inside those windows.</p>
           {(validation.errors.length > 0 || prescriptionErrors.length > 0 || validation.warnings.length > 0) && (
@@ -728,7 +728,7 @@ export default function FlipFitSchedulePanel() {
               type="button"
               onClick={() => void reconcileCards()}
               disabled={!cardReferencesLoaded || reconcilingCards}
-              className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-gray-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg portal-primary bg-vortex-red px-3 py-2 text-xs font-bold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {reconcilingCards ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Layers3 className="h-3.5 w-3.5" />}
               Reconcile facility cards
@@ -861,7 +861,7 @@ export default function FlipFitSchedulePanel() {
                     <p className="mt-2 max-w-4xl text-sm leading-relaxed text-gray-600">{selectedSession.objective}</p>
                   </div>
                   <div className="space-y-2">
-                    <div className="rounded-xl bg-gray-950 px-4 py-3 text-white"><span className="block text-xs uppercase tracking-wide text-gray-400">Active scale</span><strong>{AGE_LABELS[ageBand].title} · {AGE_LABELS[ageBand].detail}</strong></div>
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-900"><span className="block text-xs uppercase tracking-wide text-gray-400">Active scale</span><strong>{AGE_LABELS[ageBand].title} · {AGE_LABELS[ageBand].detail}</strong></div>
                     {selectedAthleteSet && (
                       <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-950">
                         <span className="block font-bold">{selectedAthleteSet.name} facility order</span>
@@ -1000,9 +1000,9 @@ export default function FlipFitSchedulePanel() {
         </main>
       </div>
 
-      <footer className="rounded-2xl border border-gray-200 bg-gray-950 p-4 text-gray-300 sm:p-5">
+      <footer className="rounded-2xl border border-gray-200 bg-gray-50 p-4 text-gray-600 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3"><Clock3 className="h-5 w-5 text-vortex-red" /><p className="text-sm"><strong className="text-white">Every athlete: 120 minutes.</strong> Athletic work remains 90 minutes; tumbling remains a separate 30-minute shared block.</p></div>
+          <div className="flex items-center gap-3"><Clock3 className="h-5 w-5 text-vortex-red" /><p className="text-sm"><strong className="text-gray-900">Every athlete: 120 minutes.</strong> Athletic work remains 90 minutes; tumbling remains a separate 30-minute shared block.</p></div>
           <span className="text-xs font-semibold text-gray-500">Program v{program.version} · deterministic from {program.startDate}</span>
         </div>
       </footer>

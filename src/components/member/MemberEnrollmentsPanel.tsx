@@ -436,24 +436,24 @@ function MemberEnrollmentActionModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div
-        className="w-full max-w-lg rounded-xl bg-white shadow-xl"
+        className="portal-dialog w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-xl bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between border-b border-gray-100 px-5 py-4 gap-3">
+        <div className="portal-dialog-header flex items-start justify-between border-b border-gray-100 px-5 py-4 gap-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 leading-snug">
+            <h2 className="text-lg font-semibold text-gray-900 leading-snug">
               {memberEnrollmentCancelHeading(row)}
-            </p>
+            </h2>
             <p className="text-xs text-gray-500 mt-1">
               {memberDisplayName(row)}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
+          <button type="button" onClick={onClose} aria-label="Close enrollment details" className="portal-dialog-close text-gray-400 hover:text-gray-700">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-4">
+        <div className="portal-dialog-body px-5 py-4 space-y-4">
           {err && (
             <div className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{err}</div>
           )}
@@ -495,7 +495,7 @@ function MemberEnrollmentActionModal({
                       className="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-gray-800"
                     />
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => void runCancel()}
@@ -618,9 +618,9 @@ export default function MemberEnrollmentsPanel({
           </button>
         </div>
       )}
-      <div className={embedded ? 'overflow-hidden' : 'border border-gray-200 rounded-xl bg-white overflow-hidden'}>
+      <div className={embedded ? 'overflow-hidden' : 'portal-panel border border-gray-200 rounded-xl bg-white overflow-hidden'}>
       {!embedded && (
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
+      <div className="portal-panel-header flex flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6 border-b border-gray-200 bg-gray-50/80">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Calendar className="w-7 h-7 text-vortex-red" />
@@ -631,10 +631,11 @@ export default function MemberEnrollmentsPanel({
           </p>
         </div>
         {enrollments.length > 0 && !hideViewToggle && (
-          <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
+          <div className="portal-section-tabs inline-flex rounded-lg border border-gray-300 overflow-hidden bg-white">
             <button
               type="button"
               onClick={() => setView('class')}
+              aria-pressed={view === 'class'}
               className={`px-4 py-2 text-sm font-semibold transition-colors ${
                 view === 'class' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'
               }`}
@@ -644,6 +645,7 @@ export default function MemberEnrollmentsPanel({
             <button
               type="button"
               onClick={() => setView('member')}
+              aria-pressed={view === 'member'}
               className={`px-4 py-2 text-sm font-semibold transition-colors ${
                 view === 'member' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'
               }`}

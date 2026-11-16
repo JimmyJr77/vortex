@@ -146,8 +146,8 @@ const ClassEventModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+      <div className="portal-dialog relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="portal-dialog-header flex items-center justify-between px-5 py-4 border-b border-gray-200">
           <div>
             <h3 className="text-lg font-bold text-black">
               {editing ? 'Edit class or event' : 'Add class or event'}
@@ -188,11 +188,11 @@ const ClassEventModal = ({
               )}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="p-1 text-gray-500 hover:text-gray-800" aria-label="Close">
+          <button type="button" onClick={onClose} className="portal-dialog-close p-1 text-gray-500 hover:text-gray-800" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <form onSubmit={handleSubmit} className="portal-dialog-body p-5 space-y-4">
           {pricingFields}
           {showProgramDropdown && (
             <div>
@@ -342,7 +342,7 @@ const ClassEventModal = ({
             Schedule times are managed in the Scheduling → Slots tab after saving.
           </p>
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="portal-dialog-footer flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
@@ -353,7 +353,7 @@ const ClassEventModal = ({
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
+              className="px-4 py-2 text-sm portal-primary bg-vortex-red text-white rounded-lg hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}
               {submitButtonLabel}

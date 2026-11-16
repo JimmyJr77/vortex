@@ -243,7 +243,7 @@ function MemberGrantsPanel({
           type="button"
           disabled={issuing}
           onClick={() => void addDropInCredits()}
-          className="h-9 rounded-lg bg-gray-900 px-3 text-sm text-white disabled:opacity-50"
+          className="portal-primary h-9 rounded-lg bg-vortex-red px-3 text-sm text-white disabled:opacity-50"
         >
           Add credits
         </button>
@@ -290,9 +290,9 @@ const MemberPricingModal = ({ memberId, memberLabel, onClose }: Props) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
+      <div className="portal-dialog-backdrop absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
+      <div className="portal-dialog relative bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+        <div className="portal-dialog-header flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
           <div>
             <h3 className="text-lg font-bold text-gray-900">Registrations &amp; pricing</h3>
             <p className="text-sm text-gray-500">{memberLabel}</p>
@@ -300,7 +300,7 @@ const MemberPricingModal = ({ memberId, memberLabel, onClose }: Props) => {
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
+            className="portal-dialog-close p-1.5 text-gray-400 hover:text-gray-700 rounded-lg"
             aria-label="Close"
           >
             <X className="w-5 h-5" />

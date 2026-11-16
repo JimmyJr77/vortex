@@ -123,7 +123,7 @@ export default function ChallengeBuilder() {
                   <span className="block text-xs font-semibold text-gray-500 mb-1">Score</span>
                   <input type="number" value={entry.value} onChange={(e) => setEntry({ ...entry, value: e.target.value })} className="w-full border border-gray-300 rounded px-2 py-1.5" />
                 </label>
-                <button type="button" onClick={() => void addEntry()} className="px-3 py-1.5 rounded bg-gray-900 text-white text-sm">Log</button>
+                <button type="button" onClick={() => void addEntry()} className="px-3 py-1.5 rounded portal-primary bg-vortex-red text-white text-sm">Log</button>
               </div>
               <ol className="mt-4 space-y-1">
                 {detail.entries.map((e, i) => (
@@ -141,7 +141,7 @@ export default function ChallengeBuilder() {
 
       {creating && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg p-5 space-y-3">
+          <div className="portal-dialog bg-white rounded-xl w-full max-w-lg p-5 space-y-3">
             <h3 className="font-bold text-lg">New Challenge</h3>
             <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Title" className="w-full border border-gray-300 rounded-lg px-3 py-2" />
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" />

@@ -25,8 +25,8 @@ const AdminClassSetupCopyConfirmModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
-        <div className="flex items-start justify-between border-b border-gray-200 px-5 py-4">
+      <div className="portal-dialog flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
+        <div className="portal-dialog-header flex items-start justify-between border-b border-gray-200 px-5 py-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">Confirm save</h3>
             <p className="mt-0.5 text-sm text-gray-500">
@@ -37,13 +37,13 @@ const AdminClassSetupCopyConfirmModal = ({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+            aria-label="Close" className="portal-dialog-close rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
+        <div className="portal-dialog-body flex-1 space-y-3 overflow-y-auto px-5 py-4">
           {hasProgramLevel && (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
               Some changes are program-level and will apply to every class in the affected program.
@@ -81,7 +81,7 @@ const AdminClassSetupCopyConfirmModal = ({
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
+        <div className="portal-dialog-footer flex justify-end gap-2 border-t border-gray-200 px-5 py-4">
           <button
             type="button"
             onClick={onClose}
@@ -94,7 +94,7 @@ const AdminClassSetupCopyConfirmModal = ({
             type="button"
             onClick={onConfirm}
             disabled={saving || changes.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg portal-primary bg-vortex-red px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
           >
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
             Confirm save

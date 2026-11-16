@@ -94,10 +94,10 @@ export default function EventBoardCreateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4 space-y-3">
-        <div className="flex items-center justify-between gap-2">
+      <div className="portal-dialog bg-white rounded-xl shadow-xl w-full max-w-md p-4 space-y-3">
+        <div className="portal-dialog-header flex items-center justify-between gap-2">
           <h3 className="font-semibold text-gray-900">New event discussion board</h3>
-          <button type="button" onClick={onClose} aria-label="Close" className="p-1 rounded-lg hover:bg-gray-100">
+          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close p-1 rounded-lg hover:bg-gray-100">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -148,7 +148,7 @@ export default function EventBoardCreateModal({
             Add another discussion board (this event already has one)
           </label>
         )}
-        <div className="flex justify-end gap-2">
+        <div className="portal-dialog-footer flex justify-end gap-2">
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm border border-gray-300 rounded-lg">
             Cancel
           </button>
@@ -156,7 +156,7 @@ export default function EventBoardCreateModal({
             type="button"
             disabled={saving || selectedId == null}
             onClick={() => void handleCreate()}
-            className="px-4 py-2 text-sm bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
+            className="px-4 py-2 text-sm portal-primary bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
           >
             {saving ? 'Creating…' : 'Create discussion board'}
           </button>

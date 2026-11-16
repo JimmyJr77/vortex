@@ -140,7 +140,7 @@ export default function BillingAnomaliesPanel({
             {VIEWS.map((option) => {
               const Icon = option.icon
               const active = view === option.id
-              return <button key={option.id} type="button" onClick={() => setView(option.id)} className={`min-w-max rounded-lg border px-3 py-2 text-left text-sm transition ${active ? 'border-gray-950 bg-gray-950 text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
+              return <button key={option.id} type="button" onClick={() => setView(option.id)} className={`min-w-max rounded-lg border px-3 py-2 text-left text-sm transition ${active ? 'border-red-200 bg-red-50 text-red-800' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
                 <span className="flex items-center gap-2 font-semibold"><Icon className="h-4 w-4" />{option.label}<span className={`rounded-full px-1.5 py-0.5 text-xs ${active ? 'bg-white/20' : 'bg-gray-100 text-gray-600'}`}>{countForView(option.id)}</span></span>
                 <span className={`mt-0.5 block text-xs ${active ? 'text-gray-300' : 'text-gray-500'}`}>{option.description}</span>
               </button>

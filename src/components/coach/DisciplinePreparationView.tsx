@@ -91,7 +91,7 @@ export default function DisciplinePreparationView({ routine, onOpenDetail }: {
               <p className="mt-1.5 text-xs leading-relaxed text-gray-600">{step.delivery}</p>
             </li>)}
           </ol>
-          <section aria-label="Ready for the main session" className="mt-4 space-y-3 rounded-xl bg-gray-950 p-4 text-white"><h4 className="text-sm font-bold">Ready for the main session</h4><div className="text-xs leading-relaxed text-gray-300"><List items={routine.exitCriteria} /><p className="mt-3">{routine.progression}</p></div></section>
+          <section aria-label="Ready for the main session" className="mt-4 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-gray-900"><h4 className="text-sm font-bold">Ready for the main session</h4><div className="text-xs leading-relaxed text-gray-600"><List items={routine.exitCriteria} /><p className="mt-3">{routine.progression}</p></div></section>
           <div className="mt-4 rounded-xl border border-gray-200 p-4"><Notes title="What still needs preparation"><List items={routine.limitations} /></Notes></div>
         </div>
       </div>

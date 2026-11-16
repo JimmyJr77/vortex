@@ -482,48 +482,50 @@ export default function FamilyMemberModal(props: FamilyMemberModalProps) {
             onClick={onClose}
           />
           <motion.div
-            className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+            className="portal-dialog relative bg-white rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-display font-bold text-white">
+            <div className="portal-dialog-header -mx-6 -mt-6 mb-6 flex justify-between items-center gap-4 border-b border-gray-200 px-6 py-5">
+              <h3 className="text-2xl font-bold text-gray-900">
                 {mode === 'create-new' && memberModalMode === 'search' && 'Create Member - Search or New'}
                 {mode === 'create-new' && memberModalMode === 'new-family' && 'Create New Family'}
                 {mode === 'add-to-existing' && 'Add Member to Existing Family'}
                 {mode === 'edit' && 'Edit Family Member'}
               </h3>
               <button
+                type="button"
                 onClick={onClose}
-                className="text-gray-400 hover:text-white"
+                aria-label="Close family member"
+                className="portal-dialog-close text-gray-500 hover:text-gray-900"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
             {/* Modal content - simplified for now as this modal is legacy */}
-            <div className="text-white space-y-4">
-              <div className="text-gray-300">
+            <div className="portal-dialog-body text-gray-900 space-y-4">
+              <div className="text-gray-600">
                 {mode === 'edit' && 'Editing family member information'}
                 {mode === 'add-to-existing' && 'Adding member to existing family'}
                 {mode === 'create-new' && 'Creating new family member'}
               </div>
-              <div className="bg-gray-700 p-4 rounded">
-                <p className="text-sm text-gray-300 mb-4">
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-4">
                   This modal is currently a placeholder. Please use the main member creation flow in the Members tab.
                 </p>
-                <div className="flex gap-2">
+                <div className="portal-dialog-footer flex flex-wrap gap-2">
                   <button
                     onClick={handleSubmit}
-                    className="flex-1 bg-vortex-red hover:bg-red-700 text-white px-4 py-2 rounded font-semibold transition-colors"
+                    className="portal-primary flex-1 bg-vortex-red hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Submit
                   </button>
                   <button
                     onClick={onClose}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold transition-colors"
+                    className="flex-1 border border-gray-300 bg-white hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Cancel
                   </button>

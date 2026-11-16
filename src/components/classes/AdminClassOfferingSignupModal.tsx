@@ -184,18 +184,18 @@ const AdminClassOfferingSignupModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div className="portal-dialog bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="portal-dialog-header flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <UserPlus className="w-5 h-5 text-vortex-red" />
             Sign someone up
           </h3>
-          <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-800">
+          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close text-gray-500 hover:text-gray-800">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="px-6 py-4 space-y-4 text-sm text-gray-700">
+        <div className="portal-dialog-body px-6 py-4 space-y-4 text-sm text-gray-700">
           <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-1">
             <p><span className="font-semibold text-gray-900">Class:</span> {className}</p>
             <p><span className="font-semibold text-gray-900">Offering:</span> {offeringLabel}</p>
@@ -220,13 +220,13 @@ const AdminClassOfferingSignupModal = ({
             inputRef={startDateInputRef}
           />
 
-          <div className="flex gap-2">
+          <div className="portal-section-tabs flex gap-2">
             <button
               type="button"
               onClick={() => setMode('search')}
               className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm ${
                 mode === 'search'
-                  ? 'bg-vortex-red text-white'
+                  ? 'portal-primary bg-vortex-red text-white'
                   : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -237,7 +237,7 @@ const AdminClassOfferingSignupModal = ({
               onClick={() => setMode('email')}
               className={`flex-1 px-3 py-2 rounded-lg font-semibold text-sm ${
                 mode === 'email'
-                  ? 'bg-vortex-red text-white'
+                  ? 'portal-primary bg-vortex-red text-white'
                   : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -359,7 +359,7 @@ const AdminClassOfferingSignupModal = ({
           {successMessage && <p className="text-green-700 text-sm font-medium">{successMessage}</p>}
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
+        <div className="portal-dialog-footer flex justify-end gap-3 px-6 py-4 border-t border-gray-200">
           <button
             type="button"
             onClick={onClose}
@@ -375,7 +375,7 @@ const AdminClassOfferingSignupModal = ({
               (mode === 'search' && !selectedMember) ||
               (mode === 'email' && (!emailChecked || (!emailExists && (!firstName.trim() || !lastName.trim()))))
             }
-            className="px-4 py-2 rounded-lg bg-vortex-red text-white font-semibold hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
+            className="px-4 py-2 rounded-lg portal-primary bg-vortex-red text-white font-semibold hover:bg-red-700 disabled:opacity-50 inline-flex items-center gap-2"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             Confirm signup

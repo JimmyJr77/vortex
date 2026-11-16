@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent as ReactPointerEvent } from 'react'
-import { createPortal } from 'react-dom'
+import PortalOverlay from '../portal/PortalOverlay'
 import { AlertTriangle, Check, Clock3, Copy, GripVertical, LayoutGrid, Loader2, MapPin, Plus, Save, Scissors, Search, RotateCcw, Trash2, Undo2, Users, X } from 'lucide-react'
 import { fetchClassSetupOverview } from '../../utils/classSetupOverviewApi'
 import { adminFetchSchedulingCalendar } from '../../utils/schedulingApi'
@@ -345,12 +345,12 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       </div>)}</div>
       {!libraryLoading && !filtered.length && <p className="py-8 text-center text-sm text-gray-500">{query ? 'No classes match your search.' : 'No scheduled classes yet. Create an idea class to start planning.'}</p>}
     </section>
-    {context && createPortal(<div ref={contextRef} role="menu" aria-label="Class actions" className="fixed z-50 w-60 rounded-xl border border-gray-200 bg-white p-1.5 text-gray-900 shadow-xl" style={{ left: Math.max(8, context.x), top: context.y }}>
+    {context && <PortalOverlay><div ref={contextRef} role="menu" aria-label="Class actions" className="fixed z-50 w-60 rounded-xl border border-gray-200 bg-white p-1.5 text-gray-900 shadow-xl" style={{ left: Math.max(8, context.x), top: context.y }}>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50" disabled={(plan.blocks.find((b) => b.id === context.id)?.end ?? 0) - (plan.blocks.find((b) => b.id === context.id)?.start ?? 0) < 10} onClick={() => splitBlock(context.id, context.minute)}><Scissors size={15} />Split at {timeLabel(context.minute)}</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50 disabled:opacity-40" disabled={plan.locations.length < 2} onClick={() => { setMovingBlock(plan.blocks.find((b) => b.id === context.id) || null); setContext(null) }}><MapPin size={15} />Move to location</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50" onClick={() => { setSelected(plan.blocks.find((b) => b.id === context.id) || null); setContext(null) }}><Clock3 size={15} />Edit time / coaches</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50" onClick={() => { commit({ ...plan, blocks: plan.blocks.filter((b) => b.id !== context.id) }, 'Class segment removed.'); setSelected(null); setContext(null) }}><Trash2 size={15} />Remove segment</button>
-    </div>, document.body)}
+    </div></PortalOverlay>}
     {movingBlock && <PlannerDialog title="Move to location" onClose={() => setMovingBlock(null)}>
       <form className="space-y-4" onSubmit={(event) => {
         event.preventDefault()

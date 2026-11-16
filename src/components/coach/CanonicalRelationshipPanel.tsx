@@ -89,7 +89,7 @@ export function CanonicalRelationshipPanel({ cards, onChanged }: CanonicalRelati
         </fieldset>
       )}
       <label className="mt-3 block text-sm">Reviewed rationale<textarea rows={3} value={reason} onChange={(event) => setReason(event.target.value)} className="mt-1 w-full rounded border border-gray-300 px-3 py-2" /></label>
-      <button type="button" disabled={saving || !fromCardId || !toCardId || fromCardId === toCardId || !reason.trim()} onClick={() => void save()} className="mt-3 inline-flex items-center gap-2 rounded bg-indigo-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving && <Loader2 className="h-4 w-4 animate-spin" />}Save for review</button>
+      <button type="button" disabled={saving || !fromCardId || !toCardId || fromCardId === toCardId || !reason.trim()} onClick={() => void save()} className="mt-3 inline-flex items-center gap-2 rounded portal-primary bg-vortex-red px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">{saving && <Loader2 className="h-4 w-4 animate-spin" />}Save for review</button>
     </section>
   )
 }

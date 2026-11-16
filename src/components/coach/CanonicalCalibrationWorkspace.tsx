@@ -164,7 +164,7 @@ export function CanonicalCalibrationWorkspace() {
         <label className="mt-3 block text-sm">Evidence and comparison rationale
           <textarea rows={3} minLength={20} maxLength={2000} value={rationale} onChange={(event) => setRationale(event.target.value)} className="mt-1 w-full rounded border border-blue-200 px-3 py-2" placeholder="Explain the observable criteria and which approved anchors support this score." />
         </label>
-        <button type="button" disabled={saving || !variantId || rationale.trim().length < 20} onClick={() => void propose()} className="mt-3 rounded bg-blue-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Submit for independent review</button>
+        <button type="button" disabled={saving || !variantId || rationale.trim().length < 20} onClick={() => void propose()} className="mt-3 rounded portal-primary bg-vortex-red px-3 py-2 text-sm font-semibold text-white disabled:opacity-50">Submit for independent review</button>
       </div>
 
       {loading ? (

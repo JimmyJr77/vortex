@@ -1698,7 +1698,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
       {saveRequirementsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-xl p-4 w-full max-w-sm space-y-3">
+          <div className="portal-dialog bg-white rounded-xl p-4 w-full max-w-sm space-y-3">
             <h4 className="font-semibold text-gray-900">Save requirements</h4>
             <p className="text-xs text-gray-500">Saves session inputs and the current prescription so you can recall them later.</p>
             <input
@@ -1728,7 +1728,7 @@ export default function NeedsEnginePanel({ onSendToBuilder }: { onSendToBuilder?
 
       {saveModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-xl p-4 w-full max-w-sm space-y-3">
+          <div className="portal-dialog bg-white rounded-xl p-4 w-full max-w-sm space-y-3">
             <h4 className="font-semibold text-gray-900">Save phasing template</h4>
             <input
               value={saveTemplateName}

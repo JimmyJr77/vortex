@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import PortalOverlay from '../portal/PortalOverlay'
 
 interface Props {
   value: string
@@ -69,7 +69,7 @@ const ClassMasterCellText = ({ value, wrap }: Props) => {
         !wrap &&
         value &&
         popupPos &&
-        createPortal(
+        <PortalOverlay>
           <div
             role="tooltip"
             className="pointer-events-none z-[100] max-w-sm rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-lg whitespace-pre-wrap break-words"
@@ -81,9 +81,8 @@ const ClassMasterCellText = ({ value, wrap }: Props) => {
             }}
           >
             {value}
-          </div>,
-          document.body,
-        )}
+          </div>
+        </PortalOverlay>}
     </div>
   )
 }

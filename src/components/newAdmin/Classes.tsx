@@ -35,7 +35,7 @@ export default function Classes(props: ClassesProps) {
   const [showArchived, setShowArchived] = useState(false)
   const toggleArchived = () => setShowArchived(current => !current)
   return <div className="space-y-4">
-    <nav aria-label="Classes & schedules tabs" className="flex gap-1 border-b border-gray-200">
+    <nav aria-label="Classes & schedules tabs" className="portal-section-tabs flex gap-1 border-b border-gray-200">
       {([['classes', 'Classes & schedules'], ['master', 'Class Master']] as const).map(([id, label]) => <button key={id} type="button" aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id)} className={`px-5 py-3 text-sm font-semibold border-b-2 ${tab === id ? 'border-vortex-red text-gray-900' : 'border-transparent text-gray-500'}`}>{label}</button>)}
     </nav>
     {tab === 'classes' ? <ClassesList {...props} showArchived={showArchived} onToggleArchived={toggleArchived} /> : <Suspense fallback={<Loading />}><ClassMaster key={props.revision} showArchived={showArchived} onToggleArchived={toggleArchived} /></Suspense>}

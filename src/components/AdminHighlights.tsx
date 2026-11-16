@@ -412,25 +412,25 @@ const AdminHighlights = () => {
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50"
+            className="portal-dialog-backdrop fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
+              className="portal-dialog bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl"
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
             >
-              <div className="flex items-center justify-between px-6 py-4 border-b">
+              <div className="portal-dialog-header flex items-center justify-between px-6 py-4 border-b">
                 <h3 className="text-xl font-bold">
                   {editingId ? 'Edit highlight' : 'New highlight'}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
+                  className="portal-dialog-close p-2 hover:bg-gray-100 rounded-full"
                 >
                   <X className="w-6 h-6" />
                 </button>

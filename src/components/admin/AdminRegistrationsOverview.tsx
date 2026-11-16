@@ -608,14 +608,14 @@ function DailyEnrollmentsView() {
       </div>
 
       {emailDialogOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section
             role="dialog"
             aria-modal="true"
             aria-labelledby="daily-schedule-email-title"
-            className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl"
+            className="portal-dialog w-full max-w-md rounded-xl bg-white p-5 shadow-xl"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="portal-dialog-header flex items-start justify-between gap-4">
               <div>
                 <h3 id="daily-schedule-email-title" className="text-lg font-bold text-gray-900">Email daily schedule</h3>
                 <p className="mt-1 text-sm text-gray-600">Send the {roster?.dateLabel || date} schedule and enrolled athletes.</p>
@@ -623,7 +623,7 @@ function DailyEnrollmentsView() {
               <button
                 type="button"
                 onClick={() => setEmailDialogOpen(false)}
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                className="portal-dialog-close rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
                 aria-label="Close email schedule dialog"
               >
                 <X className="h-5 w-5" />

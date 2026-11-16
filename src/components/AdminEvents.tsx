@@ -1275,11 +1275,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     // If empty and allowEmpty, show placeholder state
     if (isEmpty && allowEmpty) {
       return (
-        <div className="flex items-center gap-2 bg-gray-600 rounded-lg border border-gray-500 px-2 py-2 h-[42px] w-fit">
+        <div className="flex items-center gap-2 bg-gray-50 rounded-lg border border-gray-300 px-2 py-2 h-[42px] w-fit">
           <button
             type="button"
             onClick={() => onChange('12:00am')}
-            className="text-gray-400 hover:text-white text-sm"
+            className="text-gray-600 hover:text-gray-900 text-sm"
           >
             Set Time
           </button>
@@ -1326,7 +1326,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
     else if (hour > 12) displayHour = hour - 12
     
     return (
-      <div className="flex items-center gap-1 bg-gray-600 rounded-lg border border-gray-500 px-2 py-2 h-[42px] w-fit">
+      <div className="flex items-center gap-1 bg-gray-50 rounded-lg border border-gray-300 px-2 py-2 h-[42px] w-fit">
         {/* Hour */}
         <div className="flex items-center gap-1">
           <input
@@ -1346,27 +1346,27 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               
               onChange(formatTime(hour24, minute, ampm))
             }}
-            className="w-10 text-center bg-transparent text-white border-none outline-none text-base font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            className="w-10 text-center bg-transparent text-gray-900 border-none outline-none text-base font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           <div className="flex flex-col">
             <button
               type="button"
               onClick={() => adjustHour(1)}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronUp className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => adjustHour(-1)}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronDown className="w-4 h-4" />
             </button>
           </div>
         </div>
         
-        <span className="text-white text-base font-mono">:</span>
+        <span className="text-gray-900 text-base font-mono">:</span>
         
         {/* Minute */}
         <div className="flex items-center gap-1">
@@ -1379,20 +1379,20 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               if (newMinute > 59) newMinute = 59
               onChange(formatTime(hour, newMinute, ampm))
             }}
-            className="w-10 text-center bg-transparent text-white border-none outline-none text-base font-mono [appearance:textfield]"
+            className="w-10 text-center bg-transparent text-gray-900 border-none outline-none text-base font-mono [appearance:textfield]"
           />
           <div className="flex flex-col">
             <button
               type="button"
               onClick={() => adjustMinute(1)}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronUp className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => adjustMinute(-1)}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -1404,7 +1404,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
           <button
             type="button"
             onClick={toggleAmPm}
-            className="text-white text-base font-semibold min-w-[2.5ch] text-center px-1.5 py-1 rounded hover:bg-gray-500 transition-colors"
+            className="text-gray-900 text-base font-semibold min-w-[2.5ch] text-center px-1.5 py-1 rounded hover:bg-gray-100 transition-colors"
           >
             {ampm.toUpperCase()}
           </button>
@@ -1412,14 +1412,14 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
             <button
               type="button"
               onClick={toggleAmPm}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronUp className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={toggleAmPm}
-              className="text-gray-300 hover:text-white transition-colors p-0.5"
+              className="text-gray-600 hover:text-gray-900 transition-colors p-0.5"
             >
               <ChevronDown className="w-4 h-4" />
             </button>
@@ -1478,8 +1478,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               onClick={() => setShowArchivedEvents(!showArchivedEvents)}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
                 showArchivedEvents
-                  ? 'bg-gray-600 text-white hover:bg-gray-700'
-                  : 'bg-gray-500 text-white hover:bg-gray-600'
+                  ? 'border border-red-200 bg-red-50 text-red-800 hover:bg-red-100'
+                  : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -1548,21 +1548,21 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="portal-dialog-backdrop absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => {
                 setShowEventForm(false)
                 setEditingEventId(null)
               }}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="portal-dialog relative bg-white rounded-lg p-6 max-w-4xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">
+              <div className="portal-dialog-header flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-gray-900">
                   {editingEventId ? 'Edit Event' : 'Create New Event'}
                 </h3>
                 <button
@@ -1570,7 +1570,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     setShowEventForm(false)
                     setEditingEventId(null)
                   }}
-                  className="text-gray-400 hover:text-white"
+                  aria-label="Close dialog" className="portal-dialog-close text-gray-600 hover:text-gray-900"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -1579,21 +1579,21 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Event Name *</label>
+                    <label className="block text-sm font-semibold text-gray-600 mb-2">Event Name *</label>
                     <input
                       type="text"
                       value={eventFormData.eventName || ''}
                       onChange={(e) => setEventFormData({ ...eventFormData, eventName: e.target.value })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Event Type</label>
+                    <label className="block text-sm font-semibold text-gray-600 mb-2">Event Type</label>
                     <select
                       value={eventFormData.type || 'event'}
                       onChange={(e) => setEventFormData({ ...eventFormData, type: e.target.value as Event['type'] })}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                     >
                       <option value="event">Event</option>
                       <option value="camp">Camp</option>
@@ -1603,7 +1603,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Start Date *</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">Start Date *</label>
                   <input
                     type="date"
                     value={eventFormData.startDate 
@@ -1619,12 +1619,12 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                         setEventFormData({ ...eventFormData, startDate: parsed || new Date() })
                       }
                     }}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">End Date (Optional)</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">End Date (Optional)</label>
                   <input
                     type="date"
                     value={eventFormData.endDate 
@@ -1642,11 +1642,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                         setEventFormData({ ...eventFormData, endDate: undefined })
                       }
                     }}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Short Description *</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">Short Description *</label>
                   <textarea
                     value={eventFormData.shortDescription || ''}
                     onChange={(e) => {
@@ -1658,7 +1658,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       })
                     }}
                     rows={3}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                     placeholder="Brief description for calendar view..."
                     required
                   />
@@ -1678,26 +1678,26 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           })
                         }
                       }}
-                      className="w-4 h-4 text-vortex-red bg-gray-700 border-gray-600 rounded focus:ring-vortex-red"
+                      className="w-4 h-4 text-vortex-red bg-gray-50 border-gray-300 rounded focus:ring-vortex-red"
                     />
-                    <span className="text-sm font-semibold text-gray-300">Use Short Description for Long Description</span>
+                    <span className="text-sm font-semibold text-gray-600">Use Short Description for Long Description</span>
                   </label>
                 </div>
                 {!useShortAsLong && (
                   <div>
-                    <label className="block text-sm font-semibold text-gray-300 mb-2">Long Description *</label>
+                    <label className="block text-sm font-semibold text-gray-600 mb-2">Long Description *</label>
                     <textarea
                       value={eventFormData.longDescription || ''}
                       onChange={(e) => setEventFormData({ ...eventFormData, longDescription: e.target.value })}
                       rows={5}
-                      className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                       placeholder="Detailed description for event details section..."
                       required
                     />
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Address</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">Address</label>
                   <input
                     type="text"
                     value={
@@ -1705,19 +1705,19 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       'Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715'
                     }
                     onChange={(e) => setEventFormData({ ...eventFormData, address: e.target.value })}
-                    className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                    className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                   />
                 </div>
 
                 {/* Images */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Event Images</label>
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">Event Images</label>
                   <div className="space-y-4">
                     <div>
-                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-600 rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                      <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
-                          <p className="mb-2 text-sm text-gray-400">
+                          <ImageIcon className="w-8 h-8 mb-2 text-gray-600" />
+                          <p className="mb-2 text-sm text-gray-600">
                             <span className="font-semibold">Click to upload</span> or drag and drop
                           </p>
                           <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB (multiple images supported)</p>
@@ -1735,7 +1735,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     {/* Preview uploaded images */}
                     {(eventFormData.images || []).length > 0 && (
                       <div className="space-y-2">
-                        <p className="text-xs text-gray-400">Drag images to reorder. First image will be the primary display image.</p>
+                        <p className="text-xs text-gray-600">Drag images to reorder. First image will be the primary display image.</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           {(eventFormData.images || []).map((image, index) => (
                             <div 
@@ -1764,7 +1764,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                               <img
                                 src={image}
                                 alt={`Preview ${index + 1}`}
-                                className="w-full h-32 object-cover rounded-lg border border-gray-600"
+                                className="w-full h-32 object-cover rounded-lg border border-gray-300"
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
                               <button
@@ -1808,7 +1808,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                 {/* Dates & Times */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-semibold text-gray-300">Dates & Times</label>
+                    <label className="block text-sm font-semibold text-gray-600">Dates & Times</label>
                     <button
                       type="button"
                       onClick={() => setEventFormData({
@@ -1822,10 +1822,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     </button>
                   </div>
                   {(eventFormData.datesAndTimes || []).map((entry, index) => (
-                    <div key={index} className="bg-gray-700 p-3 rounded mb-2 space-y-2">
+                    <div key={index} className="bg-gray-50 p-3 rounded mb-2 space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <div className="flex flex-col">
-                          <label className="text-xs text-gray-400 mb-1">Date</label>
+                          <label className="text-xs text-gray-600 mb-1">Date</label>
                           <input
                             type="date"
                             value={entry.date 
@@ -1845,12 +1845,12 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                               }
                               setEventFormData({ ...eventFormData, datesAndTimes: updated })
                             }}
-                            className="px-3 py-2 bg-gray-600 text-white rounded-lg border border-gray-500 h-[42px]"
+                            className="px-3 py-2 bg-gray-100 text-gray-900 rounded-lg border border-gray-500 h-[42px]"
                           />
                         </div>
                         {!entry.allDay && (
                           <div className="flex flex-col">
-                            <label className="text-xs text-gray-400 mb-1">Start Time</label>
+                            <label className="text-xs text-gray-600 mb-1">Start Time</label>
                             <TimeSpinner
                               value={entry.startTime || '12:00am'}
                               onChange={(newTime) => {
@@ -1863,7 +1863,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                         )}
                         {!entry.allDay && (
                           <div className="flex flex-col">
-                            <label className="text-xs text-gray-400 mb-1">End Time (Optional)</label>
+                            <label className="text-xs text-gray-600 mb-1">End Time (Optional)</label>
                             <div className="flex items-center gap-2">
                               <TimeSpinner
                                 value={entry.endTime || ''}
@@ -1882,14 +1882,14 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                     updated[index] = { ...updated[index], endTime: '' }
                                     setEventFormData({ ...eventFormData, datesAndTimes: updated })
                                   }}
-                                  className="text-gray-400 hover:text-white text-xs"
+                                  className="text-gray-600 hover:text-gray-900 text-xs"
                                   title="Clear end time"
                                 >
                                   <X className="w-4 h-4" />
                                 </button>
                               )}
                               {!entry.endTime && (
-                                <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                                <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
                                   <input
                                     type="checkbox"
                                     checked={entry.allDay || false}
@@ -1903,7 +1903,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                       }
                                       setEventFormData({ ...eventFormData, datesAndTimes: updated })
                                     }}
-                                    className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                    className="w-4 h-4 text-vortex-red bg-gray-100 border-gray-500 rounded focus:ring-vortex-red"
                                   />
                                   <span>All Day</span>
                                 </label>
@@ -1913,12 +1913,12 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                         )}
                         {entry.allDay && (
                           <div className="flex flex-col md:col-span-2">
-                            <label className="text-xs text-gray-400 mb-1">End Time (Optional)</label>
+                            <label className="text-xs text-gray-600 mb-1">End Time (Optional)</label>
                             <div className="flex items-center gap-2">
-                              <div className="flex items-center justify-center bg-gray-600 rounded-lg border border-gray-500 px-4 py-2 h-[42px]">
-                                <span className="text-white text-sm">All Day Event</span>
+                              <div className="flex items-center justify-center bg-gray-100 rounded-lg border border-gray-500 px-4 py-2 h-[42px]">
+                                <span className="text-gray-900 text-sm">All Day Event</span>
                               </div>
-                              <label className="flex items-center gap-2 text-xs text-gray-300 cursor-pointer">
+                              <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={true}
@@ -1932,7 +1932,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                     }
                                     setEventFormData({ ...eventFormData, datesAndTimes: updated })
                                   }}
-                                  className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                  className="w-4 h-4 text-vortex-red bg-gray-100 border-gray-500 rounded focus:ring-vortex-red"
                                 />
                                 <span>All Day</span>
                               </label>
@@ -1950,7 +1950,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             updated[index] = { ...updated[index], description: e.target.value }
                             setEventFormData({ ...eventFormData, datesAndTimes: updated })
                           }}
-                          className="flex-1 px-3 py-2 bg-gray-600 text-white rounded border border-gray-500"
+                          className="flex-1 px-3 py-2 bg-gray-100 text-gray-900 rounded border border-gray-500"
                         />
                         <button
                           type="button"
@@ -1968,13 +1968,13 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                 </div>
 
                 {/* Tags Section */}
-                <div className="border-t border-gray-700 pt-4">
-                  <label className="block text-sm font-semibold text-gray-300 mb-4">Tags</label>
+                <div className="border-t border-gray-300 pt-4">
+                  <label className="block text-sm font-semibold text-gray-600 mb-4">Tags</label>
                   
                   <div className="space-y-4">
                     {/* Tag Type Selection */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-300 mb-2">Tag Type *</label>
+                      <label className="block text-sm font-semibold text-gray-600 mb-2">Tag Type *</label>
                       <select
                         value={eventFormData.tagType || 'all_classes_and_parents'}
                         onChange={(e) => {
@@ -1990,7 +1990,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             tagVolunteers: newTagType === 'volunteers'
                           })
                         }}
-                        className="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                        className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                       >
                         <option value="all_classes_and_parents">All Classes and Parents (Default)</option>
                         <option value="specific_classes">Specific Classes</option>
@@ -2004,10 +2004,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     {/* Specific Classes Selection */}
                     {eventFormData.tagType === 'specific_classes' && (
                       <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Select Classes</label>
-                        <div className="max-h-48 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-2">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Select Classes</label>
+                        <div className="max-h-48 overflow-y-auto border border-gray-300 rounded bg-gray-50 p-2 space-y-2">
                           {programs.filter(p => !p.archived && p.isActive).map((program) => (
-                            <label key={program.id} className="flex items-center space-x-2 text-white cursor-pointer hover:bg-gray-600 p-2 rounded">
+                            <label key={program.id} className="flex items-center space-x-2 text-gray-900 cursor-pointer hover:bg-gray-100 p-2 rounded">
                               <input
                                 type="checkbox"
                                 checked={eventFormData.tagClassIds?.includes(program.id) || false}
@@ -2025,13 +2025,13 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                     })
                                   }
                                 }}
-                                className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                className="w-4 h-4 text-vortex-red bg-gray-100 border-gray-500 rounded focus:ring-vortex-red"
                               />
                               <span className="text-sm">{program.displayName}</span>
                             </label>
                           ))}
                           {programs.filter(p => !p.archived && p.isActive).length === 0 && (
-                            <div className="text-gray-400 text-sm p-2">No active classes available</div>
+                            <div className="text-gray-600 text-sm p-2">No active classes available</div>
                           )}
                         </div>
                       </div>
@@ -2040,10 +2040,10 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     {/* Specific Categories Selection */}
                     {eventFormData.tagType === 'specific_categories' && (
                       <div>
-                        <label className="block text-sm font-semibold text-gray-300 mb-2">Select Categories</label>
-                        <div className="max-h-48 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-2 mb-4">
+                        <label className="block text-sm font-semibold text-gray-600 mb-2">Select Categories</label>
+                        <div className="max-h-48 overflow-y-auto border border-gray-300 rounded bg-gray-50 p-2 space-y-2 mb-4">
                           {categories.filter(c => !c.archived).map((category) => (
-                            <label key={category.id} className="flex items-center space-x-2 text-white cursor-pointer hover:bg-gray-600 p-2 rounded">
+                            <label key={category.id} className="flex items-center space-x-2 text-gray-900 cursor-pointer hover:bg-gray-100 p-2 rounded">
                               <input
                                 type="checkbox"
                                 checked={eventFormData.tagCategoryIds?.includes(category.id) || false}
@@ -2061,23 +2061,23 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                     })
                                   }
                                 }}
-                                className="w-4 h-4 text-vortex-red bg-gray-600 border-gray-500 rounded focus:ring-vortex-red"
+                                className="w-4 h-4 text-vortex-red bg-gray-100 border-gray-500 rounded focus:ring-vortex-red"
                               />
                               <span className="text-sm">{category.displayName}</span>
                             </label>
                           ))}
                           {categories.filter(c => !c.archived).length === 0 && (
-                            <div className="text-gray-400 text-sm p-2">No active categories available</div>
+                            <div className="text-gray-600 text-sm p-2">No active categories available</div>
                           )}
                         </div>
                         
                         {/* Show classes for selected categories */}
                         {eventFormData.tagCategoryIds && eventFormData.tagCategoryIds.length > 0 && (
                           <div>
-                            <label className="block text-sm font-semibold text-gray-300 mb-2">
+                            <label className="block text-sm font-semibold text-gray-600 mb-2">
                               Classes in Selected Categories (Auto-populated)
                             </label>
-                            <div className="max-h-32 overflow-y-auto border border-gray-600 rounded bg-gray-700 p-2 space-y-1">
+                            <div className="max-h-32 overflow-y-auto border border-gray-300 rounded bg-gray-50 p-2 space-y-1">
                               {programs
                                 .filter(p => 
                                   !p.archived && 
@@ -2085,7 +2085,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                   eventFormData.tagCategoryIds?.includes(p.categoryId || -1)
                                 )
                                 .map((program) => (
-                                  <div key={program.id} className="text-sm text-gray-300 p-1">
+                                  <div key={program.id} className="text-sm text-gray-600 p-1">
                                     • {program.displayName}
                                   </div>
                                 ))}
@@ -2094,7 +2094,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                 p.isActive && 
                                 eventFormData.tagCategoryIds?.includes(p.categoryId || -1)
                               ).length === 0 && (
-                                <div className="text-gray-400 text-sm p-2">No classes found in selected categories</div>
+                                <div className="text-gray-600 text-sm p-2">No classes found in selected categories</div>
                               )}
                             </div>
                           </div>
@@ -2104,8 +2104,8 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
                     {/* All Parents, Boosters, Volunteers - these are handled by tagType selection */}
                     {(eventFormData.tagType === 'all_parents' || eventFormData.tagType === 'boosters' || eventFormData.tagType === 'volunteers') && (
-                      <div className="bg-gray-700 p-3 rounded border border-gray-600">
-                        <p className="text-sm text-gray-300">
+                      <div className="bg-gray-50 p-3 rounded border border-gray-300">
+                        <p className="text-sm text-gray-600">
                           {eventFormData.tagType === 'all_parents' && 'This event will be visible to all parents.'}
                           {eventFormData.tagType === 'boosters' && 'Boosters tagging is not applicable yet.'}
                           {eventFormData.tagType === 'volunteers' && 'Volunteers tagging is not applicable yet.'}
@@ -2119,7 +2119,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                 {!editingEventId && (
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <label className="block text-sm font-semibold text-gray-300">What to bring</label>
+                      <label className="block text-sm font-semibold text-gray-600">What to bring</label>
                       <button
                         type="button"
                         onClick={() => setEventFormData({
@@ -2146,7 +2146,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             updated[index] = e.target.value
                             setEventFormData({ ...eventFormData, keyDetails: updated })
                           }}
-                          className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                          className="flex-1 px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                         />
                         <button
                           type="button"
@@ -2163,13 +2163,13 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                   </div>
                 )}
 
-                <div ref={formAttachRef} className="border-t border-gray-700 pt-4">
-                  <label className="block text-sm font-semibold text-gray-300 mb-2">Attach Form</label>
-                  <p className="text-xs text-gray-400 mb-2">
+                <div ref={formAttachRef} className="border-t border-gray-300 pt-4">
+                  <label className="block text-sm font-semibold text-gray-600 mb-2">Attach Form</label>
+                  <p className="text-xs text-gray-600 mb-2">
                     Link a scheduling signup form to this event (optional).
                   </p>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" />
                     <input
                       type="text"
                       value={formAttachQuery}
@@ -2180,7 +2180,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                         setFormAttachOpen(true)
                         setEventFormData((prev) => ({ ...prev, schedulingFormId: null }))
                       }}
-                      className="w-full pl-10 pr-10 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                      className="w-full pl-10 pr-10 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                     />
                     {(eventFormData.schedulingFormId || formAttachQuery) && (
                       <button
@@ -2190,18 +2190,18 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           setEventFormData((prev) => ({ ...prev, schedulingFormId: null }))
                           setFormAttachOpen(false)
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
                         aria-label="Clear attached form"
                       >
                         <X className="w-4 h-4" />
                       </button>
                     )}
                     {formAttachOpen && (
-                      <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                      <div className="absolute z-20 mt-1 w-full max-h-48 overflow-y-auto bg-gray-50 border border-gray-300 rounded-lg shadow-lg">
                         {schedulingFormsLoading ? (
-                          <div className="px-3 py-2 text-sm text-gray-400">Loading forms...</div>
+                          <div className="px-3 py-2 text-sm text-gray-600">Loading forms...</div>
                         ) : filteredSchedulingForms.length === 0 ? (
-                          <div className="px-3 py-2 text-sm text-gray-400">No forms found</div>
+                          <div className="px-3 py-2 text-sm text-gray-600">No forms found</div>
                         ) : (
                           filteredSchedulingForms.map((form) => (
                             <button
@@ -2213,15 +2213,15 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                 setFormAttachQuery(form.title)
                                 setFormAttachOpen(false)
                               }}
-                              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-600 ${
+                              className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${
                                 eventFormData.schedulingFormId === form.id
-                                  ? 'bg-gray-600 text-white'
-                                  : 'text-gray-200'
+                                  ? 'bg-red-50 text-red-800'
+                                  : 'text-gray-700'
                               }`}
                             >
                               <span className="font-medium">{form.title}</span>
                               {!form.isActive && (
-                                <span className="ml-2 text-xs text-gray-400">(inactive)</span>
+                                <span className="ml-2 text-xs text-gray-600">(inactive)</span>
                               )}
                             </button>
                           ))
@@ -2232,11 +2232,11 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                 </div>
 
                 {editingEventId && (
-                  <div className="pt-4 mt-4 border-t border-gray-700 space-y-4">
+                  <div className="pt-4 mt-4 border-t border-gray-300 space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <h4 className="text-sm font-semibold text-white">Event discussion board</h4>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <h4 className="text-sm font-semibold text-gray-900">Event discussion board</h4>
+                        <p className="text-xs text-gray-600 mt-0.5">
                           Chat, polls, and signups for this event. Members join from the event page (self-select by default).
                           Event details and what to bring live in the Event schedule entry below.
                         </p>
@@ -2244,7 +2244,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       {eventBoards.length > 0 && (
                         <ul className="space-y-1 mb-3 w-full">
                           {eventBoards.map((board) => (
-                            <li key={board.id} className="text-xs text-gray-300">
+                            <li key={board.id} className="text-xs text-gray-600">
                               #{board.id} · {(board.subject || 'Untitled').replace(/ — Discussion$/, '')}
                             </li>
                           ))}
@@ -2255,7 +2255,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           type="button"
                           onClick={() => void handleSyncEventChat()}
                           disabled={eventChatSyncing}
-                          className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                          className="inline-flex items-center gap-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm font-semibold disabled:opacity-60"
                         >
                           {eventChatSyncing ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -2269,7 +2269,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             type="button"
                             onClick={() => void handleAddEventBoard()}
                             disabled={eventBoardAdding}
-                            className="inline-flex items-center gap-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-900 px-4 py-2 text-sm font-semibold disabled:opacity-60"
                           >
                             {eventBoardAdding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                             Add another discussion board
@@ -2281,12 +2281,12 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           value={linkThreadIdInput}
                           onChange={(e) => setLinkThreadIdInput(e.target.value)}
                           placeholder="Thread ID to link"
-                          className="rounded-lg bg-gray-700 border border-gray-600 px-3 py-2 text-sm text-white w-40"
+                          className="rounded-lg bg-gray-50 border border-gray-300 px-3 py-2 text-sm text-gray-900 w-40"
                         />
                         <button
                           type="button"
                           onClick={() => void handleLinkExistingThread()}
-                          className="rounded-lg bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 text-sm font-semibold"
+                          className="rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-900 px-3 py-2 text-sm font-semibold"
                         >
                           Link existing thread
                         </button>
@@ -2294,35 +2294,35 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-white mb-1">Event schedule entry</h4>
-                      <p className="text-xs text-gray-400 mb-3">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-1">Event schedule entry</h4>
+                      <p className="text-xs text-gray-600 mb-3">
                         Uses this event&apos;s name, date, location, and descriptions — no need to re-enter them.
                       </p>
                       {calendarLoading ? (
-                        <div className="text-sm text-gray-400 flex items-center gap-2">
+                        <div className="text-sm text-gray-600 flex items-center gap-2">
                           <Loader2 className="w-4 h-4 animate-spin" /> Loading…
                         </div>
                       ) : (
                         <>
                           {calendarItems.length === 0 ? (
-                            <p className="text-xs text-gray-400 mb-3">No schedule entry linked yet.</p>
+                            <p className="text-xs text-gray-600 mb-3">No schedule entry linked yet.</p>
                           ) : (
                             <ul className="space-y-2 mb-3">
                               {calendarItems.map((item) => (
                                 <li
                                   key={item.id}
-                                  className="rounded-lg border border-gray-600 bg-gray-700/40 px-3 py-2 text-sm text-gray-200"
+                                  className="rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
                                 >
                                   <div className="flex items-start justify-between gap-2">
                                     <div>
-                                      <div className="font-semibold text-white">{item.title}</div>
+                                      <div className="font-semibold text-gray-900">{item.title}</div>
                                       {item.when_start && (
-                                        <div className="text-xs text-gray-400 mt-0.5">
+                                        <div className="text-xs text-gray-600 mt-0.5">
                                           {new Date(item.when_start).toLocaleString()}
                                         </div>
                                       )}
                                       {item.what_to_bring && item.what_to_bring.length > 0 && (
-                                        <ul className="mt-1.5 text-xs text-gray-300 list-disc list-inside">
+                                        <ul className="mt-1.5 text-xs text-gray-600 list-disc list-inside">
                                           {item.what_to_bring.map((bringItem) => (
                                             <li key={bringItem}>{bringItem}</li>
                                           ))}
@@ -2342,7 +2342,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                             </ul>
                           )}
 
-                          <div className="rounded-lg border border-gray-600 bg-gray-700/30 px-3 py-2 mb-3 text-xs text-gray-300 space-y-1">
+                          <div className="rounded-lg border border-gray-300 bg-gray-50/30 px-3 py-2 mb-3 text-xs text-gray-600 space-y-1">
                             <div><span className="text-gray-500">Title:</span> {eventFormData.eventName || '—'}</div>
                             <div><span className="text-gray-500">When:</span> {formatCalendarPreviewWhen(eventFormData) || '—'}</div>
                             <div><span className="text-gray-500">Where:</span> {eventFormData.address || '—'}</div>
@@ -2358,7 +2358,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
                           <div className="mb-3">
                             <div className="flex justify-between items-center mb-2">
-                              <label className="block text-sm font-semibold text-gray-300">What to bring</label>
+                              <label className="block text-sm font-semibold text-gray-600">What to bring</label>
                               <button
                                 type="button"
                                 onClick={() => setEventFormData({
@@ -2385,7 +2385,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                                     updated[index] = e.target.value
                                     setEventFormData({ ...eventFormData, keyDetails: updated })
                                   }}
-                                  className="flex-1 px-3 py-2 bg-gray-700 text-white rounded border border-gray-600"
+                                  className="flex-1 px-3 py-2 bg-gray-50 text-gray-900 rounded border border-gray-300"
                                 />
                                 <button
                                   type="button"
@@ -2430,7 +2430,7 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                       setShowEventForm(false)
                       setEditingEventId(null)
                     }}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gray-100 hover:bg-gray-50 text-gray-900 py-3 rounded-lg font-semibold transition-colors"
                   >
                     Cancel
                   </button>
@@ -2438,14 +2438,14 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
 
                 {/* Edit Log Link - Only show when editing existing event */}
                 {editingEventId && (
-                  <div className="pt-4 mt-4 border-t border-gray-700">
+                  <div className="pt-4 mt-4 border-t border-gray-300">
                     <button
                       type="button"
                         onClick={() => {
                           setShowEditLog(true)
                           fetchEditLog(editingEventId)
                         }}
-                      className="text-gray-400 hover:text-white text-sm underline transition-colors"
+                      className="text-gray-600 hover:text-gray-900 text-sm underline transition-colors"
                     >
                       View Edit Log
                     </button>
@@ -2467,42 +2467,42 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
             className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
           >
             <motion.div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="portal-dialog-backdrop absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setShowEditLog(false)}
             />
             <motion.div
-              className="relative bg-gray-800 rounded-lg p-6 max-w-3xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
+              className="portal-dialog relative bg-white rounded-lg p-6 max-w-3xl w-full shadow-xl max-h-[90vh] overflow-y-auto"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-white">Edit Log</h3>
+              <div className="portal-dialog-header flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-display font-bold text-gray-900">Edit Log</h3>
                 <button
                   onClick={() => setShowEditLog(false)}
-                  className="text-gray-400 hover:text-white"
+                  aria-label="Close dialog" className="portal-dialog-close text-gray-600 hover:text-gray-900"
                 >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
               {editLogLoading ? (
-                <div className="text-center py-12 text-gray-400">Loading log...</div>
+                <div className="text-center py-12 text-gray-600">Loading log...</div>
               ) : editLog.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">No edit history available</div>
+                <div className="text-center py-12 text-gray-600">No edit history available</div>
               ) : (
                 <div className="space-y-4">
                   {editLog.map((log) => (
-                    <div key={log.id} className="bg-gray-700 rounded-lg p-4 border border-gray-600">
+                    <div key={log.id} className="bg-gray-50 rounded-lg p-4 border border-gray-300">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <p className="text-white font-semibold">
+                          <p className="text-gray-900 font-semibold">
                             {log.adminName || 'Unknown Admin'}
                           </p>
-                          <p className="text-gray-400 text-sm">{log.adminEmail}</p>
+                          <p className="text-gray-600 text-sm">{log.adminEmail}</p>
                         </div>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-600 text-sm">
                           {log.createdAt ? new Date(log.createdAt).toLocaleString() : new Date(log.changedAt).toLocaleString()}
                         </p>
                       </div>
@@ -2533,20 +2533,20 @@ export default function AdminEvents({ programs, categories, adminInfo }: AdminEv
                           }
                           
                           return (
-                            <div key={field} className="bg-gray-600 rounded p-3">
+                            <div key={field} className="bg-gray-100 rounded p-3">
                               <p className="text-vortex-red font-semibold text-sm mb-2">
                                 {formatFieldName(field)}
                               </p>
                               <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div>
-                                  <p className="text-gray-400 text-xs mb-1 font-semibold">Previous:</p>
-                                  <p className="text-gray-300 line-through whitespace-pre-wrap break-words">
+                                  <p className="text-gray-600 text-xs mb-1 font-semibold">Previous:</p>
+                                  <p className="text-gray-600 line-through whitespace-pre-wrap break-words">
                                     {formatChangeValue(change.oldValue)}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="text-gray-400 text-xs mb-1 font-semibold">Updated:</p>
-                                  <p className="text-white whitespace-pre-wrap break-words">
+                                  <p className="text-gray-600 text-xs mb-1 font-semibold">Updated:</p>
+                                  <p className="text-gray-900 whitespace-pre-wrap break-words">
                                     {formatChangeValue(change.newValue)}
                                   </p>
                                 </div>

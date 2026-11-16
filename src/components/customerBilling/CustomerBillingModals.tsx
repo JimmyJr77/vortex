@@ -44,18 +44,18 @@ function ModalShell({
         role="dialog"
         aria-modal="true"
         aria-labelledby="customer-billing-dialog-title"
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-2xl bg-white shadow-2xl ${wide ? 'max-w-5xl' : 'max-w-2xl'}`}
+        className={`portal-dialog max-h-[92vh] w-full overflow-y-auto rounded-2xl bg-white shadow-2xl ${wide ? 'max-w-5xl' : 'max-w-2xl'}`}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-6 py-5">
+        <div className="portal-dialog-header sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-6 py-5">
           <div>
             <h2 id="customer-billing-dialog-title" className="text-xl font-bold text-gray-950">{title}</h2>
             {subtitle ? <p className="mt-1 text-sm text-gray-500">{subtitle}</p> : null}
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close dialog">
+          <button type="button" onClick={onClose} className="portal-dialog-close rounded-lg p-2 text-gray-500 hover:bg-gray-100" aria-label="Close dialog">
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="portal-dialog-body p-6">{children}</div>
       </div>
     </div>
   )
@@ -465,9 +465,9 @@ export function PriceAdjustmentModal({
 
           <fieldset>
             <legend className="mb-2 text-sm font-semibold text-gray-800">Adjustment type</legend>
-            <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => { setKind('fixed_final_price'); invalidate() }} className={`rounded-lg border px-3 py-2 text-sm font-medium ${kind === 'fixed_final_price' ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-700'}`}>Final monthly price</button>
-              <button type="button" onClick={() => { setKind('promo_code'); invalidate() }} className={`rounded-lg border px-3 py-2 text-sm font-medium ${kind === 'promo_code' ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-700'}`}>Discount code</button>
+            <div className="portal-section-tabs grid grid-cols-2 gap-2">
+              <button type="button" aria-pressed={kind === 'fixed_final_price'} onClick={() => { setKind('fixed_final_price'); invalidate() }} className={`rounded-lg border px-3 py-2 text-sm font-medium ${kind === 'fixed_final_price' ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-700'}`}>Final monthly price</button>
+              <button type="button" aria-pressed={kind === 'promo_code'} onClick={() => { setKind('promo_code'); invalidate() }} className={`rounded-lg border px-3 py-2 text-sm font-medium ${kind === 'promo_code' ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-700'}`}>Discount code</button>
             </div>
           </fieldset>
 
@@ -514,7 +514,7 @@ export function PriceAdjustmentModal({
 
           {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
           {hasPendingSync ? <p className="text-xs text-amber-700">Retry or remove the pending price change before adding another one.</p> : null}
-          <button type="button" onClick={() => void previewChange()} disabled={working || hasPendingSync} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">
+          <button type="button" onClick={() => void previewChange()} disabled={working || hasPendingSync} className="inline-flex w-full items-center justify-center gap-2 portal-primary rounded-lg bg-vortex-red px-4 py-2.5 font-semibold text-white disabled:opacity-50">
             {working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Preview billing impact
           </button>
 
@@ -534,7 +534,7 @@ export function PriceAdjustmentModal({
                 </fieldset>
                 {cancellationMode === 'specific_date' ? <label className="block font-medium">Cancellation effective date<input type="date" min={new Date().toISOString().slice(0, 10)} value={cancellationDate} onChange={(event) => { setCancellationDate(event.target.value); invalidateCancellation() }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2" /></label> : null}
                 <label className="block font-medium">Administrative reason<textarea rows={2} value={cancellationReason} onChange={(event) => { setCancellationReason(event.target.value); invalidateCancellation() }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2" placeholder="Required for the immutable audit trail" /></label>
-                <button type="button" onClick={() => void previewCancellation()} disabled={working} className="w-full rounded-lg bg-gray-950 px-4 py-2.5 font-semibold text-white disabled:opacity-50">Review cancellation and billing impact</button>
+                <button type="button" onClick={() => void previewCancellation()} disabled={working} className="w-full portal-primary rounded-lg bg-vortex-red px-4 py-2.5 font-semibold text-white disabled:opacity-50">Review cancellation and billing impact</button>
               </div>
             ) : null}
           </div>
@@ -721,7 +721,7 @@ export function CustomChargeModal({
         ) : null}
 
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-        {fallbackUrl ? <a href={fallbackUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-gray-950 px-4 py-2 text-sm font-semibold text-white">Open secure fallback link <ExternalLink className="h-4 w-4" /></a> : null}
+        {fallbackUrl ? <a href={fallbackUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 portal-primary rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white">Open secure fallback link <ExternalLink className="h-4 w-4" /></a> : null}
         <button type="button" onClick={() => void submit()} disabled={working || !description.trim() || !(Number(amount) > 0) || (collectionMethod === 'saved_card' && !confirmed)} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-50">
           {working ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Create charge{collectionMethod === 'saved_card' ? ' and collect' : ''}
         </button>
@@ -912,7 +912,7 @@ export function ModifyChargeModal({
         {usingManualPrice && appliesTo === 'current_term' && Number.isFinite(finalAmountCents) ? <div className="rounded-lg bg-gray-50 p-3 text-sm"><span className="text-gray-500">Ledger effect: </span><strong>{differenceCents < 0 ? `${money(Math.abs(differenceCents))} bill reduction / account credit` : differenceCents > 0 ? `${money(differenceCents)} additional amount due` : 'No change'}</strong></div> : null}
         {!usingManualPrice ? <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-600">The code is validated by the server against annual-membership rules, eligibility, dates, and redemption limits before it is applied.</div> : null}
         {error ? <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div> : null}
-        <button type="button" onClick={() => void submit()} disabled={working || (isCustom && !description.trim()) || !reason.trim() || (usingManualPrice ? !Number.isFinite(finalAmountCents) || finalAmountCents < 0 : !promoCode.trim())} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gray-950 px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{appliesTo === 'renewals' ? ' Save renewal pricing' : ' Save bill modification'}</button>
+        <button type="button" onClick={() => void submit()} disabled={working || (isCustom && !description.trim()) || !reason.trim() || (usingManualPrice ? !Number.isFinite(finalAmountCents) || finalAmountCents < 0 : !promoCode.trim())} className="inline-flex w-full items-center justify-center gap-2 portal-primary rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-50">{working ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{appliesTo === 'renewals' ? ' Save renewal pricing' : ' Save bill modification'}</button>
         {onTransferMembership ? <div className="border-t border-gray-200 pt-4"><button type="button" disabled={working} onClick={onTransferMembership} className="w-full rounded-lg border border-red-200 px-4 py-3 text-sm font-semibold text-red-700 hover:bg-red-50">Change ownership of this membership</button></div> : null}
       </div>
     </ModalShell>

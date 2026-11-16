@@ -604,7 +604,7 @@ export default function WorkoutBuilder({ defaultType = 'workout' }: { defaultTyp
 
       {showOverride && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-md p-5 space-y-3">
+          <div className="portal-dialog bg-white rounded-xl w-full max-w-md p-5 space-y-3">
             <h3 className="font-bold text-lg">Override validation warnings</h3>
             <p className="text-sm text-gray-600">Explain why you are keeping this order despite warnings.</p>
             <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
@@ -632,8 +632,8 @@ function WorkoutPreviewModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="portal-dialog-header flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
           <div>
             <h3 className="font-bold text-lg text-gray-900">{workout.title}</h3>
             <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
@@ -644,7 +644,7 @@ function WorkoutPreviewModal({
               {workout.target_minutes != null && <span>{workout.target_minutes} min target</span>}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 shrink-0" aria-label="Close">
+          <button type="button" onClick={onClose} className="portal-dialog-close text-gray-400 hover:text-gray-700 shrink-0" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -814,12 +814,12 @@ function ExercisePicker({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-gray-100 space-y-2">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="portal-dialog-header p-4 border-b border-gray-100 space-y-2">
           {programmingCompat && (
             <div className="flex gap-2 text-xs">
-              <button type="button" onClick={() => setProgMode('compatible')} className={`rounded-full px-2 py-1 ${progMode === 'compatible' ? 'bg-indigo-600 text-white' : 'border border-gray-200'}`}>Compatible only</button>
-              <button type="button" onClick={() => setProgMode('all')} className={`rounded-full px-2 py-1 ${progMode === 'all' ? 'bg-indigo-600 text-white' : 'border border-gray-200'}`}>All exercises</button>
+              <button type="button" onClick={() => setProgMode('compatible')} className={`rounded-full px-2 py-1 ${progMode === 'compatible' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>Compatible only</button>
+              <button type="button" onClick={() => setProgMode('all')} className={`rounded-full px-2 py-1 ${progMode === 'all' ? 'bg-vortex-red text-white' : 'border border-gray-200'}`}>All exercises</button>
             </div>
           )}
           {phaseKey && (

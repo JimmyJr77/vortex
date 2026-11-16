@@ -783,8 +783,8 @@ export default function AdminMembers({
       </motion.div>
 
       {((showFamilySignupWizard && canCreateAccounts) || (showAccountEditWizard && canEditMembers)) ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
-          <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
+          <div className="portal-dialog relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
             <button
               type="button"
               onClick={() => {
@@ -792,7 +792,7 @@ export default function AdminMembers({
                 setShowAccountEditWizard(false)
                 setAccountEditMemberId(null)
               }}
-              className="absolute right-4 top-4 rounded-full p-2 text-gray-500 hover:bg-gray-100"
+              className="portal-dialog-close absolute right-4 top-4 rounded-full p-2 text-gray-500 hover:bg-gray-100"
               aria-label="Close"
             >
               <X className="h-5 w-5" />

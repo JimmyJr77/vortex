@@ -660,14 +660,14 @@ export default function AdminAccess({ currentUserId = null, isMasterAdmin = fals
       )}
 
       {showNewStaff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
+        <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="new-staff-title"
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-5 shadow-xl"
+            className="portal-dialog max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-5 shadow-xl"
           >
-            <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="portal-dialog-header mb-4 flex items-start justify-between gap-4">
               <div>
                 <h3 id="new-staff-title" className="text-lg font-bold text-gray-900">New staff access</h3>
                 <p className="text-sm text-gray-500">Give a member Administrator, Coach, or combined staff access.</p>
@@ -677,7 +677,7 @@ export default function AdminAccess({ currentUserId = null, isMasterAdmin = fals
                 disabled={creatingStaff}
                 onClick={() => setShowNewStaff(false)}
                 aria-label="Close new staff dialog"
-                className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+                className="portal-dialog-close rounded-md p-1 text-gray-500 hover:bg-gray-100"
               >
                 <X className="h-5 w-5" />
               </button>

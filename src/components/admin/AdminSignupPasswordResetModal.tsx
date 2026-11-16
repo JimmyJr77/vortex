@@ -74,14 +74,14 @@ const AdminSignupPasswordResetModal = ({ signup, open, onClose, onSuccess }: Pro
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+    <div className="portal-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+      <div className="portal-dialog w-full max-w-md rounded-xl bg-white shadow-xl">
+        <div className="portal-dialog-header flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h3 className="text-lg font-bold text-black">Reset password</h3>
           <button
             type="button"
             onClick={handleClose}
-            className="p-1 rounded hover:bg-gray-100 text-gray-500"
+            className="portal-dialog-close p-1 rounded hover:bg-gray-100 text-gray-500"
             aria-label="Close"
           >
             <X className="w-5 h-5" />

@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
+import PortalOverlay from '../portal/PortalOverlay'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
@@ -255,7 +255,7 @@ const SchedulingCalendarView = ({
       ? `Full · ${event.signupCount}/${event.maxParticipants} enrolled`
       : `${event.spotsRemaining} spot${event.spotsRemaining === 1 ? '' : 's'} open · ${event.signupCount}/${event.maxParticipants} enrolled`
 
-    return createPortal(
+    return <PortalOverlay>
       <div
         id={eventPreviewId}
         role="tooltip"
@@ -283,9 +283,8 @@ const SchedulingCalendarView = ({
           {event.classDescription && <p className="line-clamp-4 pt-1 leading-relaxed">{event.classDescription}</p>}
           {isEventInactive(event) && <div className="font-semibold text-amber-600">Inactive</div>}
         </div>
-      </div>,
-      document.body,
-    )
+      </div>
+    </PortalOverlay>
   }
 
   const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {

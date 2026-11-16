@@ -22,10 +22,10 @@ const ConfirmPricingActionModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onCancel} aria-hidden />
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4">
-        <h3 className="text-lg font-bold text-black">{title}</h3>
-        <p className="text-sm text-gray-700">{message}</p>
-        <div className="flex justify-end gap-2">
+      <div className="portal-dialog relative bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90dvh] overflow-y-auto">
+        <div className="portal-dialog-header border-b border-gray-200 px-5 py-4"><h3 className="text-lg font-bold text-black">{title}</h3></div>
+        <p className="portal-dialog-body px-5 py-5 text-sm text-gray-700">{message}</p>
+        <div className="portal-dialog-footer flex flex-wrap justify-end gap-2 border-t border-gray-200 px-5 py-4">
           <button
             type="button"
             onClick={onCancel}

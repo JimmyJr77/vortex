@@ -431,15 +431,15 @@ export function CanonicalCardEditor({ source, initialVariantId = null, initialPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="canonical-card-title">
-      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
-        <header className="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
+      <div className="portal-dialog flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
+        <header className="portal-dialog-header flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
           <div>
             <h2 id="canonical-card-title" className="text-lg font-bold text-gray-950">
               {card.id ? card.displayName || 'Canonical card' : 'New canonical card'}
             </h2>
             <p className="text-xs text-gray-500">{readOnly ? `Read-only inspection · version ${card.cardVersion ?? 1}` : `Lifecycle: ${card.status} · changes are revisioned and publication requires another reviewer.`}</p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close canonical card editor" className="rounded p-1 text-gray-500 hover:bg-gray-100">
+          <button type="button" onClick={onClose} aria-label="Close canonical card editor" className="portal-dialog-close rounded p-1 text-gray-500 hover:bg-gray-100">
             <X className="h-5 w-5" />
           </button>
         </header>

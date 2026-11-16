@@ -52,21 +52,21 @@ export default function ProgrammingDetailModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="portal-dialog-header flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100">
           <div>
             <h3 className="font-bold text-lg text-gray-900">{String(identity?.name ?? 'Programming Method')}</h3>
-            <p className="text-sm text-indigo-700">{String(identity?.category ?? '')}</p>
+            <p className="text-sm text-vortex-red">{String(identity?.category ?? '')}</p>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
         </div>
-        <div className="flex flex-wrap gap-1 px-5 pt-3 border-b border-gray-100">
+        <div className="portal-section-tabs flex flex-wrap gap-1 px-5 pt-3 border-b border-gray-100">
           {TABS.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-vortex-red text-white' : 'text-gray-600 hover:bg-gray-100'}`}
             >
               {t.label}
             </button>
@@ -185,7 +185,7 @@ export default function ProgrammingDetailModal({
                     <div>
                       <div className="font-semibold text-sm text-gray-900">{label}</div>
                       {audience && (
-                        <div className="text-xs text-indigo-700 mt-0.5 capitalize">Audience: {audience}</div>
+                        <div className="text-xs text-vortex-red mt-0.5 capitalize">Audience: {audience}</div>
                       )}
                       {disclaimer && <p className="text-xs text-amber-700 mt-1">{disclaimer}</p>}
                       {coachingNotes && <p className="text-xs text-gray-500 mt-1">{coachingNotes}</p>}

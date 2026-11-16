@@ -127,13 +127,13 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="portal-dialog-header flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
           <div>
             <h3 className="font-bold text-lg">Session Setup</h3>
             <p className="text-xs text-gray-500">{steps[step]}</p>
           </div>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
+          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close text-gray-400 hover:text-gray-700"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-5 space-y-4">
           {step === 0 && (
@@ -254,7 +254,7 @@ export default function WorkoutSetupWizard({ workout, onApply, onComplete, onClo
         <div className="px-5 py-4 border-t border-gray-100 flex justify-between">
           <button type="button" disabled={step === 0} onClick={() => setStep((s) => s - 1)} className="text-sm text-gray-600 disabled:opacity-40">Back</button>
           {step < steps.length - 1 ? (
-            <button type="button" onClick={() => setStep((s) => s + 1)} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold">Next</button>
+            <button type="button" onClick={() => setStep((s) => s + 1)} className="portal-primary bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold">Next</button>
           ) : (
             <button type="button" onClick={finish} className="flex items-center gap-2 bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold">
               <Sparkles className="w-4 h-4" /> Apply to builder

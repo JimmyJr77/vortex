@@ -116,8 +116,8 @@ function StatusPill({ value, severity }: { value: string; severity?: string }) {
 
 function Panel({ title, description, action, children }: { title: string; description?: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+    <section className="portal-panel rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="portal-panel-header flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
         <div><h3 className="font-black text-slate-900">{title}</h3>{description ? <p className="mt-1 text-sm text-slate-500">{description}</p> : null}</div>
         {action}
       </div>
@@ -289,23 +289,23 @@ export default function AdminPayroll() {
 
   return (
     <div data-payroll-workspace className="space-y-5 pb-12">
-      <header className="overflow-hidden rounded-3xl bg-slate-950 text-white shadow-xl">
+      <header className="portal-panel overflow-hidden rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm">
         <div className="grid gap-6 px-6 py-7 lg:grid-cols-[1.3fr_0.7fr] lg:px-8">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-red-200"><WalletCards className="h-4 w-4" /> Payroll operations</div>
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-vortex-red"><WalletCards className="h-4 w-4" /> Payroll operations</div>
             <h1 className="text-3xl font-black tracking-tight">Hire, onboard, and manage your team.</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Employees, onboarding, schedules, time records, payroll previews, compliance sources, and accounting exports in one audit trail.</p>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">Employees, onboarding, schedules, time records, payroll previews, compliance sources, and accounting exports in one audit trail.</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center justify-between"><span className="text-sm font-semibold text-slate-300">Setup readiness</span><span className="text-2xl font-black">{data?.summary.setupScore ?? 0}%</span></div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-vortex-red" style={{ width: `${data?.summary.setupScore ?? 0}%` }} /></div>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center justify-between"><span className="text-sm font-semibold text-slate-600">Setup readiness</span><span className="text-2xl font-black">{data?.summary.setupScore ?? 0}%</span></div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-vortex-red" style={{ width: `${data?.summary.setupScore ?? 0}%` }} /></div>
             <p className="mt-3 text-xs leading-5 text-slate-400">Authorized ACH payments can be submitted from approved runs. Tax filings and payment settlement reconciliation remain separate.</p>
           </div>
         </div>
       </header>
 
-      <nav aria-label="Payroll sections" className="flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-        {VIEWS.map((item) => <button key={item.id} ref={view===item.id?activeViewRef:undefined} aria-current={view===item.id?'page':undefined} type="button" onClick={() => setView(item.id)} className={`whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-bold transition ${view === item.id ? 'bg-slate-950 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>{item.label}</button>)}
+      <nav aria-label="Payroll sections" className="portal-section-tabs flex gap-2 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+        {VIEWS.map((item) => <button key={item.id} ref={view===item.id?activeViewRef:undefined} aria-current={view===item.id?'page':undefined} type="button" onClick={() => setView(item.id)} className={`whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-bold transition ${view === item.id ? 'bg-red-50 text-vortex-red' : 'text-slate-600 hover:bg-slate-100'}`}>{item.label}</button>)}
       </nav>
 
       {error ? <div role="alert" className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" /><div><strong>Action needed.</strong> {error}</div></div> : null}

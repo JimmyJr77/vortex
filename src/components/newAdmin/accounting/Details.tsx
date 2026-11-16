@@ -13,7 +13,7 @@ function DetailSection({ title, children }: { title: string; children: ReactNode
   return <section className="space-y-3 border-t border-slate-200 pt-5"><h3 className="text-sm font-semibold text-slate-950">{title}</h3>{children}</section>
 }
 function AmountCard({ label, value, emphasis = false }: { label: string; value: number; emphasis?: boolean }) {
-  return <div className={`rounded-lg border p-3 ${emphasis ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-slate-50'}`}><p className={`text-xs ${emphasis ? 'text-slate-300' : 'text-slate-500'}`}>{label}</p><p className="mt-2 text-lg font-semibold tabular-nums">{amount(value)}</p></div>
+  return <div className={`rounded-lg border p-3 ${emphasis ? 'border-red-200 bg-red-50 text-red-950' : 'border-slate-200 bg-slate-50'}`}><p className={`text-xs ${emphasis ? 'text-red-800' : 'text-slate-500'}`}>{label}</p><p className="mt-2 text-lg font-semibold tabular-nums">{amount(value)}</p></div>
 }
 
 function AllocationRecord({ row, timezone, children }: { row: BillAllocation; timezone: string; children?: ReactNode }) {

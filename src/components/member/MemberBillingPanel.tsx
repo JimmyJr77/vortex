@@ -281,7 +281,7 @@ export default function MemberBillingPanel({
 
   if (billingLoading) {
     return (
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+      <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
         <div className="text-center py-12 text-gray-600">Loading your account…</div>
       </div>
     )
@@ -289,8 +289,8 @@ export default function MemberBillingPanel({
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <div className="mb-6">
+      <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="portal-panel-header mb-6">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <CreditCard className="w-7 h-7 text-vortex-red" />
             {period?.label ?? 'Current billing cycle'}
@@ -318,7 +318,7 @@ export default function MemberBillingPanel({
             <p className="text-xs uppercase tracking-wide text-gray-500">Payments</p>
             <p className="text-xl font-bold text-green-700">{formatMoney(totals?.paymentsCents ?? 0)}</p>
           </div>
-          <div className="rounded-xl border-2 border-black p-4 col-span-2 sm:col-span-1">
+          <div className="rounded-xl border border-gray-300 bg-gray-50 p-4 col-span-2 sm:col-span-1">
             <p className="text-xs uppercase tracking-wide text-gray-500">Balance due</p>
             <p className="text-xl font-bold text-black">{formatMoney((totals?.balanceDueCents ?? 0) + unpostedRecurringCents)}</p>
           </div>
@@ -501,8 +501,8 @@ export default function MemberBillingPanel({
         )}
       </div>
 
-      <div className="bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
-        <div className="mb-6">
+      <div className="portal-panel bg-white p-4 md:p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="portal-panel-header mb-6">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <CreditCard className="w-7 h-7 text-vortex-red" />
             Billing history

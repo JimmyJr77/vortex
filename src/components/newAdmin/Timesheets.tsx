@@ -29,7 +29,7 @@ export default function Timesheets({ revision, access }: { revision: number; acc
   const canManageCoaches = allowed(access, 'classes.manage')
   const showCoaches = canManageCoaches && tab === 'coaches'
   return <div className="space-y-4">
-    {canManageCoaches ? <nav aria-label="Timesheets tabs" className="flex gap-1 border-b border-gray-200">
+    {canManageCoaches ? <nav aria-label="Timesheets tabs" className="portal-section-tabs flex gap-1 border-b border-gray-200">
       {([['timesheets', 'Timesheets'], ['coaches', 'Coach Assignments']] as const).map(([id, label]) => <button key={id} type="button" aria-current={tab === id ? 'page' : undefined} onClick={() => setTab(id)} className={`px-5 py-3 text-sm font-semibold border-b-2 ${tab === id ? 'border-vortex-red text-gray-900' : 'border-transparent text-gray-500'}`}>{label}</button>)}
     </nav> : null}
     <div hidden={showCoaches}><WeeklyTimesheets revision={revision} /></div>

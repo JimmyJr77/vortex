@@ -64,10 +64,10 @@ export default function GameDetailModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
+      <div className="portal-dialog bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="portal-dialog-header flex items-start justify-between gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
           <div className="min-w-0">
-            <span className="text-[11px] uppercase tracking-wide text-indigo-700 font-semibold">
+            <span className="text-[11px] uppercase tracking-wide text-vortex-red font-semibold">
               {game ? gameTypeLabel(game.game_type) : 'Game'}
             </span>
             <h3 className="font-bold text-lg text-gray-900 truncate">{game?.name ?? preview?.name ?? 'Game'}</h3>
@@ -88,7 +88,7 @@ export default function GameDetailModal({
                 <Pencil className="w-4 h-4" /> Edit
               </button>
             )}
-            <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 p-1" aria-label="Close">
+            <button type="button" onClick={onClose} className="portal-dialog-close text-gray-400 hover:text-gray-700 p-1" aria-label="Close">
               <X className="w-5 h-5" />
             </button>
           </div>

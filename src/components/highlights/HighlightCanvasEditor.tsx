@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import PortalOverlay from '../portal/PortalOverlay'
 import { Rnd } from 'react-rnd'
 import {
   Trash2,
@@ -511,12 +511,11 @@ const HighlightCanvasEditor = ({ value, onChange }: HighlightCanvasEditorProps) 
     </div>
 
     {propertiesPanel &&
-      createPortal(
+      <PortalOverlay>
         <div className="fixed bottom-20 left-0 right-0 z-[210] flex justify-center px-4 pointer-events-none">
           <div className="pointer-events-auto w-full max-w-4xl">{propertiesPanel}</div>
-        </div>,
-        document.body,
-      )}
+        </div>
+      </PortalOverlay>}
     </>
   )
 }

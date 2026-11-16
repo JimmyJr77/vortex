@@ -108,7 +108,7 @@ export default function RosterPanel() {
                   </select>
                   <div className="flex gap-2">
                     <input type="text" value={m.note || ''} onChange={(e) => setRoster((cur) => cur.map((x) => x.id === m.id ? { ...x, note: e.target.value } : x))} placeholder="Coach note" className="min-w-0 flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-                    <button type="button" onClick={() => void saveNote(m, { note: m.note || null })} disabled={savingId === m.id} className="px-3 py-2 rounded-lg bg-gray-900 text-white text-sm disabled:opacity-60">Save</button>
+                    <button type="button" onClick={() => void saveNote(m, { note: m.note || null })} disabled={savingId === m.id} className="px-3 py-2 rounded-lg portal-primary bg-vortex-red text-white text-sm disabled:opacity-60">Save</button>
                   </div>
                 </div>
               ))}

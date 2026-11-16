@@ -297,8 +297,8 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
       </section>
 
       {editingCoach && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4">
+        <div className="portal-dialog-backdrop fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="portal-dialog bg-white rounded-xl max-w-md w-full p-6 space-y-4">
             <h3 className="text-lg font-bold">Edit Coach — {editingCoach.full_name}</h3>
             <p className="text-xs text-gray-500">
               Update coach bio here. For name, email, or password changes, use the Access tab.
@@ -323,8 +323,8 @@ export default function AdminCoaches({ isMasterAdmin = false }: AdminCoachesProp
       )}
 
       {deleteCoach && (
-        <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-md w-full p-6 space-y-4">
+        <div className="portal-dialog-backdrop fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+          <div className="portal-dialog bg-white rounded-xl max-w-md w-full p-6 space-y-4">
             <h3 className="text-lg font-bold text-red-600">Delete Coach</h3>
             <p className="text-sm text-gray-700">
               Permanently delete <strong>{deleteCoach.full_name}</strong> and all assignments?

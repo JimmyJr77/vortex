@@ -71,10 +71,10 @@ export default function FamilyEnrollmentCheckout({ memberToken, stripeEnabled, a
     } catch (caught) { setError(caught instanceof Error ? caught.message : 'Unable to complete checkout.') }
     finally { setBusy(false) }
   }
-  return <section className="space-y-5" aria-label="Family checkout">
+  return <section className="portal-panel space-y-5" aria-label="Family checkout">
     <h2 className="text-2xl font-bold">Review and pay for your family</h2>
     <p>All selected classes are included in one order and one payment.</p>
-    {orders.map(({ member, draft }) => <div key={member.id} className="rounded-lg border p-4">
+    {orders.map(({ member, draft }) => <div key={member.id} className="portal-panel rounded-lg border bg-white p-4">
       <div className="flex justify-between gap-3"><h3 className="font-semibold">{member.label}</h3>
         <button type="button" disabled={busy} className="text-vortex-red underline" onClick={() => onEdit(member.id)}>Edit classes</button></div>
       <ul>{draft.cart.map(item => <li key={item.cartKey}>{item.classLabel || item.packageLabel} {item.scheduleLabel && `· ${item.scheduleLabel}`} {item.lineType === 'slot' && `· starts ${item.enrollmentStartDate || draft.enrollmentStartDate}`}</li>)}</ul>

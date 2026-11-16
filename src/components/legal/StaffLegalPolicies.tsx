@@ -13,7 +13,7 @@ function PolicySignatureForm({ doc, portal, consentText, onSigned }: { doc: Lega
         .then(onSigned).catch(e => setError(e.message)).finally(() => setBusy(false))
     }}><label className="block text-sm font-semibold">Your full name<input required minLength={2} maxLength={200} autoComplete="name" value={name} onChange={e => setName(e.target.value)} className="mt-1 block w-full rounded border border-slate-400 p-2" /></label>
       <label className="flex items-start gap-2 text-sm"><input type="checkbox" required checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-1" /><span>{consentText}</span></label>
-      <button disabled={busy || !consent || name.trim().length < 2} className="rounded bg-slate-950 px-4 py-2 font-semibold text-white disabled:opacity-50">{busy ? 'Saving signature…' : 'Sign this document'}</button>
+      <button disabled={busy || !consent || name.trim().length < 2} className="portal-primary rounded bg-vortex-red px-4 py-2 font-semibold text-white disabled:opacity-50">{busy ? 'Saving signature…' : 'Sign this document'}</button>
     </form>}
     {error ? <p role="alert" className="text-red-800">{error}</p> : null}
   </article>
@@ -39,8 +39,8 @@ export default function StaffLegalPolicies({ portal }: { portal: LegalPortal }) 
     <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-slate-300 bg-white px-4 py-2 text-sm text-slate-950" aria-live="polite">
       {error ? <><p>{error}</p><button className="font-bold underline" onClick={() => void load()}>Retry policy check</button></> : <><p>{remaining ? `${remaining} staff policies require your signature.` : 'Staff legal policies and your signatures'}</p><button className="font-bold underline" onClick={() => setOpen(true)} disabled={!packet}>Review policies</button></>}
     </div>
-    {open ? <dialog ref={dialog} onCancel={() => setOpen(false)} onClose={() => setOpen(false)} aria-labelledby={`staff-legal-title-${portal}`} className="m-auto max-h-[90dvh] w-[min(95vw,56rem)] overflow-y-auto rounded-2xl p-5 text-slate-950 shadow-2xl backdrop:bg-black/50">
-      <div className="mb-4 flex items-start justify-between gap-4"><div><h2 id={`staff-legal-title-${portal}`} className="text-xl font-bold">Required staff legal policies</h2><p className="mt-1 text-sm">Read each document and sign individually. Your signature is recorded to your account.</p></div><button type="button" onClick={() => setOpen(false)} className="rounded border px-3 py-2">Close</button></div>
+    {open ? <dialog ref={dialog} onCancel={() => setOpen(false)} onClose={() => setOpen(false)} aria-labelledby={`staff-legal-title-${portal}`} className="portal-dialog m-auto max-h-[90dvh] w-[min(95vw,56rem)] overflow-y-auto rounded-2xl p-5 text-slate-950 shadow-2xl backdrop:bg-black/50">
+      <div className="portal-dialog-header mb-4 flex items-start justify-between gap-4 rounded-lg p-3"><div><h2 id={`staff-legal-title-${portal}`} className="text-xl font-bold">Required staff legal policies</h2><p className="mt-1 text-sm">Read each document and sign individually. Your signature is recorded to your account.</p></div><button type="button" onClick={() => setOpen(false)} className="rounded border px-3 py-2">Close</button></div>
       <div className="space-y-4">{packet?.documents.map(doc => <PolicySignatureForm key={`${doc.id}:${doc.sha256}`} doc={doc} portal={portal} consentText={packet.consentText} onSigned={setPacket} />)}</div>
       {packet && remaining === 0 ? <p role="status" className="mt-4 font-bold text-emerald-800">All three documents are signed. Thank you.</p> : null}
     </dialog> : null}

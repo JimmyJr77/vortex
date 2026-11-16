@@ -1232,10 +1232,10 @@ export default function GymnasticsEvaluationPanel() {
 
       {showTemplateSave && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
+          <div className="portal-dialog w-full max-w-md rounded-xl bg-white p-5 shadow-xl">
+            <div className="portal-dialog-header mb-4 flex items-center justify-between">
               <h3 className="font-semibold">Save evaluation form</h3>
-              <button type="button" onClick={() => setShowTemplateSave(false)}>
+              <button type="button" onClick={() => setShowTemplateSave(false)} className="portal-dialog-close" aria-label="Close save evaluation form">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -1259,10 +1259,10 @@ export default function GymnasticsEvaluationPanel() {
 
       {publishConfirmOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-white p-5 shadow-xl">
-            <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="portal-dialog w-full max-w-lg rounded-xl bg-white p-5 shadow-xl">
+            <div className="portal-dialog-header mb-3 flex items-center justify-between gap-3">
               <h3 className="text-lg font-semibold text-gray-900">Incomplete evaluation</h3>
-              <button type="button" onClick={() => setPublishConfirmOpen(false)} aria-label="Close">
+              <button type="button" onClick={() => setPublishConfirmOpen(false)} className="portal-dialog-close" aria-label="Close">
                 <X className="h-5 w-5" />
               </button>
             </div>

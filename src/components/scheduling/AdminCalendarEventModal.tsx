@@ -88,9 +88,9 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
       <div
         role="dialog"
         aria-modal="true"
-        className="relative bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        className="portal-dialog relative bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
       >
-        <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200">
+        <div className="portal-dialog-header flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200">
           <div>
             <h3 className="text-xl font-display font-bold text-black">{event.className}</h3>
             <p className="text-sm text-gray-600 mt-1">
@@ -101,14 +101,14 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+            className="portal-dialog-close p-2 rounded-lg hover:bg-gray-100 text-gray-600"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-6 py-4 space-y-6">
+        <div className="portal-dialog-body overflow-y-auto px-6 py-4 space-y-6">
           <dl>
             <DetailRow label="Program" value={event.programName || '—'} />
             <DetailRow

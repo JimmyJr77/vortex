@@ -663,8 +663,8 @@ export default function WaiversMembershipsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 pb-10 pt-below-site-header">
-      <div className="max-w-3xl mx-auto mt-8 md:mt-10 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
-        <div className="mb-6">
+      <div className="portal-panel max-w-3xl mx-auto mt-8 md:mt-10 bg-white rounded-2xl shadow-lg border border-gray-200 p-6 md:p-8">
+        <div className="portal-panel-header mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Waivers & Memberships</h1>
           <p className="text-sm text-gray-600 mt-1">
             {isClassEnrollmentMembershipPrompt

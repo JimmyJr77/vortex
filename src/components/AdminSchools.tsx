@@ -285,11 +285,11 @@ export default function AdminSchools() {
 
       {/* Roster modal */}
       {rosterSchool && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setRosterSchool(null)}>
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="portal-dialog-backdrop fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setRosterSchool(null)}>
+          <div className="portal-dialog bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="portal-dialog-header p-4 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-lg font-bold">{rosterSchool.name} — Students ({roster.length})</h3>
-              <button onClick={() => setRosterSchool(null)} className="text-gray-400 hover:text-gray-700">
+              <button onClick={() => setRosterSchool(null)} className="portal-dialog-close text-gray-400 hover:text-gray-700">
                 <X size={20} />
               </button>
             </div>

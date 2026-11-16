@@ -98,7 +98,7 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
 
   return (
     <main className="fixed inset-0 overflow-y-auto bg-gray-100 px-4 py-8 md:py-12" aria-labelledby="login-waivers-title">
-      <div className="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-5 shadow-lg md:p-8">
+      <div className="portal-panel mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-5 shadow-lg md:p-8">
         <FileText className="mb-4 h-9 w-9 text-vortex-red" aria-hidden="true" />
         <h1 ref={headingRef} id="login-waivers-title" tabIndex={-1} className="text-2xl font-bold text-gray-950 outline-none md:text-3xl">
           {status === 'ready' ? 'Please complete your waivers' : status === 'error' ? 'Unable to check your waivers' : 'Checking your waivers'}

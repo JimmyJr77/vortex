@@ -929,8 +929,8 @@ function AthleteEnrollment({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 md:px-5 md:py-5 space-y-4">
-        <div>
+      <div className="portal-panel rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 md:px-5 md:py-5 space-y-4">
+        <div className="portal-panel-header">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <LayoutGrid className="w-7 h-7 text-vortex-red" />
             Classes Offered

@@ -404,8 +404,8 @@ function ExerciseResearchModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/55 p-4" onClick={onClose}>
-      <div className="flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl" onClick={(event) => event.stopPropagation()}>
-        <header className="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4">
+      <div className="portal-dialog flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-white shadow-xl" onClick={(event) => event.stopPropagation()}>
+        <header className="portal-dialog-header flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-vortex-red">Exercise card research</p>
             <h3 className="mt-1 text-lg font-bold text-gray-950">{component.name}</h3>
@@ -413,7 +413,7 @@ function ExerciseResearchModal({
               Prescribed dose: {component.dose} · Library search: “{component.exerciseSearch}”
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close research">
+          <button type="button" onClick={onClose} className="portal-dialog-close rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close research">
             <X className="h-5 w-5" />
           </button>
         </header>
