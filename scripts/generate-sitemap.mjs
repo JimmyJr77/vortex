@@ -40,8 +40,6 @@ rmSync(join(publicDir, 'robots-gymnastics.txt'), { force: true })
 
 const robotsPolicy = `User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /admin
 `
 
 // Keep the fallback under a non-reserved filename. A physical public/robots.txt

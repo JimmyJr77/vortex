@@ -1,3 +1,5 @@
+import { getAvailablePortals, getLoggedInMemberAccount, getMemberSessionToken } from './portalSession'
+
 const VISITOR_COOKIE = '_vortex_vid'
 const SESSION_COOKIE = '_vortex_sid'
 const COOKIE_MAX_AGE_VISITOR = 365 * 24 * 60 * 60
@@ -9,7 +11,7 @@ const randomId = (prefix: string) =>
 const getCookie = (name: string): string | null => {
   if (typeof document === 'undefined') return null
   const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))
-  return match ? decodeURIComponent(match[1]) : null
+  try { return match ? decodeURIComponent(match[1]) : null } catch { return null }
 }
 
 const setCookie = (name: string, value: string, maxAge: number) => {
@@ -44,9 +46,17 @@ export const refreshSessionCookie = (allowCookie = true) => {
   setCookie(SESSION_COOKIE, id, COOKIE_MAX_AGE_SESSION)
 }
 
-export const isStaffSession = (): boolean => {
-  return (
-    localStorage.getItem('vortex_admin') === 'true' ||
-    Boolean(localStorage.getItem('vortex_member_token'))
-  )
+export function clearAnalyticsCookies() {
+  setCookie(VISITOR_COOKIE, '', 0)
+  setCookie(SESSION_COOKIE, '', 0)
+}
+
+export function isStaffSession(): boolean {
+  try {
+    if (localStorage.getItem('vortex_admin') === 'true') return true
+    if (!getMemberSessionToken()) return false
+    return getAvailablePortals(getLoggedInMemberAccount()).some(portal => portal === 'admin' || portal === 'coach')
+  } catch {
+    return false
+  }
 }

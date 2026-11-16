@@ -1,3 +1,4 @@
+import { trackConfirmation, trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2 } from 'lucide-react'
@@ -104,8 +105,12 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
   const purchasingMembership = includeMembership && !offer?.active
 
   const pay = async (registration: Awaited<ReturnType<typeof registerDropIn>>) => {
+    trackEvent('drop_in_checkout_start', '/drop-in')
     const checkout = await checkoutDropIn(registration.id)
-    if (checkout.status === 'confirmed') setBooking({ ...registration, status: 'confirmed' })
+    if (checkout.status === 'confirmed') {
+      trackConfirmation('drop_in_confirmed', '/drop-in', registration.id)
+      setBooking({ ...registration, status: 'confirmed' })
+    }
     else if (checkout.url) window.location.assign(checkout.url)
     else throw new Error('Payment is still being confirmed. Check again in a moment.')
   }
@@ -174,6 +179,7 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
         useFreeTrial, promoCode: useFreeTrial ? undefined : promoCode.trim() || undefined })
       if (registration.accountRequired) throw new Error('Please sign in again before completing this drop-in.')
       setBooking(registration)
+      if (registration.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', registration.id)
       if (registration.status === 'payment_pending') {
         if (registration.totalCents > dueCents) {
           setError(`The updated drop-in total is ${money(registration.totalCents)}. Review it before paying.`)

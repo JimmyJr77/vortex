@@ -1,4 +1,5 @@
 import { GA_MEASUREMENT_ID } from '../config/googleAnalytics'
+import { analyticsReferrer, publicAnalyticsPath } from './analyticsPaths'
 import { STUB_HOSTS } from '../config/stubSites'
 
 declare global {
@@ -28,7 +29,10 @@ export const initGoogleAnalyticsConsent = () => {
   })
 }
 
+let googleAnalyticsConsent = false
+
 export const updateGoogleConsent = (analytics: boolean, marketing: boolean) => {
+  googleAnalyticsConsent = analytics
   if (typeof window.gtag !== 'function') return
   window.gtag('consent', 'update', {
     analytics_storage: analytics ? 'granted' : 'denied',
@@ -36,7 +40,7 @@ export const updateGoogleConsent = (analytics: boolean, marketing: boolean) => {
     ad_user_data: marketing ? 'granted' : 'denied',
     ad_personalization: marketing ? 'granted' : 'denied',
   })
-  if (analytics || marketing) {
+  if ((analytics || marketing) && isProductionDomain()) {
     window.loadVortexAnalytics?.()
   }
 }
@@ -47,36 +51,32 @@ export const initGoogleAnalyticsLinker = () => {
   window.gtag('set', 'linker', { domains: LINKER_DOMAINS })
 }
 
-const isPreviewNoIndex = (): boolean => {
-  const robots = document.querySelector('meta[name="robots"]')?.getAttribute('content') ?? ''
-  return robots.includes('noindex')
-}
+const isProductionDomain = () => LINKER_DOMAINS.includes(window.location.hostname.replace(/^www\./, ''))
 
-/** Send a virtual page view for client-side route changes (SPA). */
-export const trackGooglePageView = (path: string) => {
-  if (typeof window.gtag !== 'function' || isPreviewNoIndex()) return
-
-  const pagePath = path.startsWith('/') ? path : `/${path}`
-  window.gtag('config', GA_MEASUREMENT_ID, {
-    page_path: pagePath,
-  })
-
-  // Mirror the virtual page view into the dataLayer so GTM tags can fire on
-  // SPA route changes via a Custom Event trigger on "spa_page_view".
-  window.dataLayer?.push({
-    event: 'spa_page_view',
+function safePageParams(path: string) {
+  const pagePath = publicAnalyticsPath(path)
+  return {
     page_path: pagePath,
     page_location: window.location.origin + pagePath,
-    page_title: document.title,
-  })
+    page_referrer: analyticsReferrer() ?? '',
+  }
+}
+
+/** Send exactly one GA4 page_view per tracked SPA pathname. */
+export const trackGooglePageView = (path: string) => {
+  if (typeof window.gtag !== 'function' || !isProductionDomain() || !googleAnalyticsConsent) return
+  const params = { ...safePageParams(path), page_title: document.title }
+  window.gtag('event', 'page_view', { ...params, send_to: GA_MEASUREMENT_ID })
+  window.dataLayer?.push({ event: 'spa_page_view', ...params })
 }
 
 export const trackGoogleEvent = (
   eventName: string,
+  path: string,
   params?: Record<string, unknown>,
 ) => {
-  if (typeof window.gtag !== 'function' || isPreviewNoIndex()) return
-  window.gtag('event', eventName, params ?? {})
+  if (typeof window.gtag !== 'function' || !isProductionDomain() || !googleAnalyticsConsent) return
+  window.gtag('event', eventName, { ...params, ...safePageParams(path), send_to: GA_MEASUREMENT_ID })
 }
 
 /**
@@ -86,7 +86,7 @@ export const trackGoogleEvent = (
  * events must go through here as well. Callers gate on analytics consent.
  */
 export const pushGtmEvent = (eventName: string, params?: Record<string, unknown>) => {
-  if (typeof window === 'undefined' || isPreviewNoIndex()) return
+  if (typeof window === 'undefined' || !isProductionDomain() || !googleAnalyticsConsent) return
   window.dataLayer?.push({ event: eventName, ...(params ?? {}) })
 }
 
@@ -100,6 +100,7 @@ const readCookie = (name: string): string | undefined => {
 
 /** GA4 client id from the _ga cookie (e.g. "GA1.1.123.456" -> "123.456"). */
 export const getGaClientId = (): string | undefined => {
+  if (!googleAnalyticsConsent) return undefined
   const raw = readCookie('_ga')
   if (!raw) return undefined
   const parts = raw.split('.')
@@ -114,6 +115,7 @@ export const getGaClientId = (): string | undefined => {
  * Measurement Protocol purchases joined to the originating browser session.
  */
 export const getGaSessionId = (): string | undefined => {
+  if (!googleAnalyticsConsent) return undefined
   const raw = readCookie(`_ga_${GA_MEASUREMENT_ID.replace(/^G-/, '')}`)
   if (!raw) return undefined
 

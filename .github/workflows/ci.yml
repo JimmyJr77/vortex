@@ -47,6 +47,11 @@ jobs:
       - name: Run launch checks
         run: npm run ci:checks
 
+      - name: Verify analytics ingestion and reports on disposable PostgreSQL
+        env:
+          ANALYTICS_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_migration_ci
+        run: node --test backend/analytics/__tests__/websiteReports.postgres.test.js
+
       - name: Verify billing worker connection recovery on disposable PostgreSQL
         env:
           BILLING_WORKER_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/vortex_migration_ci
@@ -74,15 +79,15 @@ jobs:
         # Timing assertions need an uncontended CPU on shared GitHub runners.
         run: npm test --prefix backend -- --test-concurrency=1
 
-      - name: Build frontend
-        run: npm run build
-
       - name: Install Playwright browser
         # Hosted Ubuntu runners already include Chromium's runtime libraries.
         # Avoid an apt mirror dependency just to install optional font packages.
         # The browser tests still fail if any required library is unavailable.
         timeout-minutes: 5
         run: npx playwright install chromium
+
+      - name: Build and verify SEO release output
+        run: npm run vercel-build
 
       - name: Run client-critical E2E smoke tests
         env:

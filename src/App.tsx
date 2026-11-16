@@ -1,15 +1,11 @@
 import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
-import Header from './components/Header'
 import HubSeo from './components/HubSeo'
-import ContactForm from './components/ContactForm'
-import Footer from './components/Footer'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
-import Login from './components/Login'
 import PortalTheme from './components/portal/PortalTheme'
-import { trackPageView, trackEngagement } from './utils/analytics'
-import { captureUtmFromLocation } from './utils/utmCapture'
+import { trackEngagement } from './utils/analytics'
+import PublicSiteAnalytics from './components/analytics/PublicSiteAnalytics'
 import { hasAdminSession } from './utils/api'
 import {
   bestPortalForAccount,
@@ -26,9 +22,11 @@ import {
 } from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
-import { useSiteHighlights } from './hooks/useSiteHighlights'
-import HighlightsModal from './components/HighlightsModal'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
+const Header = lazyWithRetry(() => import('./components/Header'))
+const Footer = lazyWithRetry(() => import('./components/Footer'))
+const ContactForm = lazyWithRetry(() => import('./components/ContactForm'))
+const Login = lazyWithRetry(() => import('./components/Login'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
 const NewPage = lazyWithRetry(() => import('./components/newpage/NewPage'))
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
@@ -71,9 +69,10 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
 }
 
 function App() {
-  const [isContactFormOpen, setIsContactFormOpen] = useState(false)
+  // Mount on first use, then retain each dialog's state across close and reopen.
+  const [isContactFormOpen, setIsContactFormOpen] = useState<boolean | null>(null)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isLoginOpen, setIsLoginOpen] = useState<boolean | null>(null)
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
@@ -90,20 +89,13 @@ function App() {
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
   const isModernPublicPage = isPublicRegistrationPage || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
-  const {
-    highlights,
-    isOpen: isHighlightsOpen,
-    close: closeHighlights,
-    hasHighlights,
-  } = useSiteHighlights({ autoOpen: false })
-
   // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
-    if (activePortal !== 'website' || isHighlightsOpen) return
+    if (activePortal !== 'website') return
     document.documentElement.style.overflow = ''
     document.body.style.overflow = ''
     document.body.style.paddingRight = ''
-  }, [activePortal, isHighlightsOpen, location.pathname])
+  }, [activePortal, location.pathname])
 
   // Scroll to top when navigating to a new page
   useEffect(() => {
@@ -140,9 +132,6 @@ function App() {
         clearPortalSession()
       }
     }
-
-    captureUtmFromLocation()
-    trackPageView(location.pathname)
   }, [location.pathname, location.search])
 
   // Embedded registration can sign a family in without changing the page.
@@ -334,7 +323,7 @@ function App() {
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         } else setIsLoginOpen(true)
       }} />}
-      {!isLandingPage && !isModernPublicPage && <Header
+      {!isLandingPage && !isModernPublicPage && <Suspense fallback={null}><Header
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         isLoggedIn={Boolean(member) || isAdmin}
@@ -343,9 +332,10 @@ function App() {
           const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
-      />}
+      /></Suspense>}
       <div id={isModernPublicPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
       <Suspense fallback={<PageLoader />}>
+      <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')]) || ['/schedule', '/scheduling'].some(path => Boolean(matchPath(path, location.pathname)))} />
         <Routes>
           <Route path="/" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
             if (member || isAdmin) {
@@ -405,32 +395,25 @@ function App() {
         </Routes>
       </Suspense>
       </div>
-      <ContactForm
+      {isContactFormOpen !== null && <Suspense fallback={null}><ContactForm
         isOpen={isContactFormOpen}
         onClose={() => setIsContactFormOpen(false)}
         title="Athlete Inquiry"
         inquiryVariant="athletics"
         inquirySource={inquirySourcePath}
-      />
+      /></Suspense>}
       {isModernPublicPage && <PublicSiteFooter />}
-      {!isLandingPage && !isModernPublicPage && <Footer
+      {!isLandingPage && !isModernPublicPage && <Suspense fallback={null}><Footer
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
-      />}
+      /></Suspense>}
 
-      <Login
+      {isLoginOpen !== null && <Suspense fallback={null}><Login
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
         onSuccess={handleAccountLoginSuccess}
-      />
+      /></Suspense>}
 
-      {hasHighlights && (
-        <HighlightsModal
-          highlights={highlights}
-          isOpen={isHighlightsOpen}
-          onClose={closeHighlights}
-        />
-      )}
       <CookieConsent />
     </div>
   )

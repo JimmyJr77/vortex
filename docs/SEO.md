@@ -1,6 +1,6 @@
 # Vortex SEO operations
 
-Updated: August 17, 2026
+Updated: November 16, 2026
 
 This is the source of truth for the current search architecture. The longer
 `SEO-AUDIT-2026.md` is a historical audit; use this document for deployments
@@ -11,25 +11,24 @@ and ongoing maintenance.
 | Site | Canonical origin | Redirected duplicate |
 |---|---|---|
 | Vortex Athletics | `https://vortexathletics.com` | `https://www.vortexathletics.com/*` |
-| Vortex Gymnastics | `https://www.vortex-gymnastics.com` | `https://vortex-gymnastics.com/*` |
+| Retired Vortex Gymnastics | `https://vortexathletics.com/` | Both `vortex-gymnastics.com` hosts |
 
 Do not mix these host forms in canonicals, Open Graph URLs, schema, sitemaps,
 internal links, GBP links, Search Console submissions, or citations.
 
 ## Search ownership
 
-- `vortexathletics.com` owns Vortex brand, youth sports performance, athletic
-  development, Fit & Flip, enrollment, classes/events, and contact intent.
-- `www.vortex-gymnastics.com` owns gymnastics program and age-group intent.
-- `/gymnastics`, `/campaigns/*`, legacy program slugs, and noncanonical hosts
-  permanently redirect to the relevant canonical page.
+- `vortexathletics.com` owns Vortex brand, gymnastics, Fit & Flip, youth athletic
+  development, enrollment, classes, events, the storefront, and contact intent.
+- `/gymnastics`, retired campaign routes, and legacy program slugs redirect
+  permanently to the relevant section of the unified homepage.
 - Placeholder sport domains remain `noindex, follow` until they have a real
   program, substantive content, and their own search strategy.
 - `/ninja` is `noindex, follow` while the program is on hold.
-- `/summer-camp-26` is `noindex, follow` because the final 2026 session ended
-  July 31, 2026. Replace it with a current seasonal page before indexing again.
-- Account, receipt, verification, admin, and inquiry utility routes receive an
-  `X-Robots-Tag` noindex directive at the HTTP layer.
+- `/summer-camp-26` redirects to the camp interest form. Index a seasonal
+  page once it contains a current offering.
+- Account, receipt, verification, payroll, admin, and inquiry utility pages
+  receive a noindex directive in the HTTP header or their dedicated app shell.
 
 ## Local entity source of truth
 
@@ -47,17 +46,16 @@ schema has the stable ID `https://vortexathletics.com/#location` on both sites.
 
 `npm run prebuild` writes:
 
-- `public/sitemap.xml` — athletics URLs only.
-- `public/sitemap-gymnastics.xml` — gymnastics URLs only.
+- `public/sitemap.xml` — canonical URLs on the primary domain. The retired
+  gymnastics sitemap redirects here.
 - `public/robots-hub.txt` — served as `/robots.txt` on the athletics host.
-- `public/robots-gymnastics.txt` — served as `/robots.txt` on the gymnastics host.
 - `public/robots-generic.txt` — safe fallback for other attached hosts; it does
   not advertise a cross-host sitemap. Do not create `public/robots.txt` because
   Vercel serves physical files before rewrites, bypassing host-specific routing.
 
-Preview URLs such as `?sport=gymnastics` are crawlable but carry `noindex` and
-a canonical. Do not block them in robots.txt: crawlers must fetch a URL to see
-its `noindex` directive.
+Sport preview URLs such as `?sport=soccer` are crawlable and carry a `noindex`
+HTTP response header. Crawlers must fetch a URL to see its `noindex`
+directive, so robots.txt allows crawling of these and other noindex pages.
 
 `scripts/seo-config.mjs` owns the sitemap and prerender route inventories.
 `SEO_CONTENT_LASTMOD` changes only when indexable content or search metadata
@@ -66,9 +64,8 @@ deployment.
 
 ## Metadata, content, and structured data
 
-- `src/config/hubSeo.ts` owns athletics titles, descriptions, canonicals, and
+- `src/config/hubSeo.ts` owns unified site titles, descriptions, canonicals, and
   route-level robots directives.
-- `src/config/gymnasticsSeo.ts` owns the gymnastics equivalents.
 - `src/components/SeoHead.tsx` renders canonical, robots, Open Graph, Twitter,
   and JSON-LD tags.
 - `src/utils/schema.ts` renders the shared Organization, WebSite, stable local
@@ -97,6 +94,11 @@ if an intentionally excluded page loses its noindex directive. The gate also
 protects the exact Google Business Profile NAP/map entity, consent-gated
 analytics, self-hosted fonts, permanent canonical-host redirects, real 404s,
 and cache policy for built assets and fonts.
+
+Prerender blocks network requests to the production API. Mark live catalog,
+account state, and loading UI with `data-prerender-dynamic` so the build
+excludes them from raw HTML. Keep a useful heading and intro on each browser
+snapshot. Client-only routes use `/_seo/spa.html` for the app entry point.
 
 Local verification:
 
@@ -151,17 +153,15 @@ These actions require access to Google and cannot be completed by a code build.
 
 ### Google Search Console
 
-1. Verify both domain properties.
-2. Submit exactly:
-   - `https://vortexathletics.com/sitemap.xml`
-   - `https://www.vortex-gymnastics.com/sitemap-gymnastics.xml`
-3. Remove or stop using submissions with the old host forms.
-4. Inspect and request indexing for:
+1. Verify the primary domain property.
+2. Submit `https://vortexathletics.com/sitemap.xml` and remove retired sitemap
+   submissions.
+3. Inspect and request indexing for:
    - `https://vortexathletics.com/`
-   - `https://vortexathletics.com/vortex-athletics`
-   - `https://www.vortex-gymnastics.com/`
-   - `https://www.vortex-gymnastics.com/beginner-gymnastics`
-5. Confirm Google-selected canonical equals the declared canonical after the
+   - `https://vortexathletics.com/enroll`
+   - `https://vortexathletics.com/drop-in`
+   - `https://vortexathletics.com/contact`
+4. Confirm Google-selected canonical equals the declared canonical after the
    next crawl. Monitor Page Indexing, Core Web Vitals, and non-brand queries.
 
 ### Google Business Profile

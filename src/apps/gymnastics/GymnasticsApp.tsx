@@ -6,8 +6,8 @@ import GymnasticsSeo from './GymnasticsSeo'
 import ContactForm from '../../components/ContactForm'
 import Footer from '../../components/Footer'
 import Login from '../../components/Login'
-import { trackPageView, trackEngagement } from '../../utils/analytics'
-import { captureUtmFromLocation } from '../../utils/utmCapture'
+import { trackEngagement } from '../../utils/analytics'
+import PublicSiteAnalytics from '../../components/analytics/PublicSiteAnalytics'
 import CookieConsent from '../../components/CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
@@ -123,9 +123,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       }
     }
 
-    captureUtmFromLocation()
-    trackPageView(location.pathname, { googleAnalytics: !isPreview })
-  }, [location.pathname, isPreview])
+  }, [])
 
   // Restore admin session when switching into Admin from a shared member login.
   useEffect(() => {
@@ -262,6 +260,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   return (
     <div className="min-h-screen bg-white relative">
+      <PublicSiteAnalytics disabled={isPreview} />
       <GymnasticsSeo isPreview={isPreview} />
       <GymnasticsHeader
         onContactClick={handleContactClick}

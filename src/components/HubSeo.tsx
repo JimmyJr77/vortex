@@ -5,17 +5,9 @@ import SeoHead from './SeoHead'
 
 const HubSeo = () => {
   const { pathname } = useLocation()
-  const seo = getHubSeoForPath(pathname)
-  // Match the unified homepage’s visible hero poster.
-  const preloadImage =
-    pathname === '/'
-      ? '/fit-and-flip-card.webp'
-      : pathname === '/vortex-athletics'
-        ? '/main_hero_bg-1600.webp'
-        : undefined
-  return (
-    <SeoHead {...seo} schema={getHubSchema(pathname)} preloadImage={preloadImage} />
-  )
+  const path = pathname.toLowerCase().replace(/\/+$/, '') || '/'
+  const seo = getHubSeoForPath(path)
+  return <SeoHead {...seo} schema={getHubSchema(path)} />
 }
 
 export default HubSeo

@@ -9,7 +9,8 @@ import Login from '../Login'
 import StubHeader from './StubHeader'
 import { getStubSeo, type StubSiteConfig } from '../../config/stubSites'
 import { getHubSiteUrl } from '../../utils/crossDomainConsent'
-import { trackPageView } from '../../utils/analytics'
+import PublicSiteAnalytics from '../analytics/PublicSiteAnalytics'
+import CookieConsent from '../CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import {
   getAvailablePortals,
@@ -101,10 +102,6 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     }
   }, [])
 
-  useEffect(() => {
-    trackPageView(window.location.pathname, { googleAnalytics: !isPreview })
-  }, [isPreview])
-
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
     setWaiversCheckedToken(null)
     setSportSiteContext(config.key)
@@ -171,6 +168,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <PublicSiteAnalytics disabled={isPreview} />
+      {!isPreview && <CookieConsent />}
       <SeoHead {...seo} />
       <StubHeader
         config={config}

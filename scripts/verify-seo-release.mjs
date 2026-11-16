@@ -4,14 +4,20 @@ import {
   GYMNASTICS_ORIGIN,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
+  HUB_PRERENDER_PATHS,
   HUB_SITEMAP_ENTRIES,
   SEO_CONTENT_LASTMOD,
   SITE_NAME,
+  SPA_ONLY_PATHS,
+  SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
 } from './seo-config.mjs'
 
 const root = process.cwd()
 const live = process.argv.includes('--live')
+const legacyLandingRedirects = JSON.parse(
+  readFileSync(join(root, 'src/config/publicLandingRedirects.json'), 'utf8'),
+)
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -182,8 +188,14 @@ const verifyHtml = (
     .map((tag) => attribute(tag, 'href'))
     .filter((href) => /fonts\.(?:googleapis|gstatic)\.com/i.test(href))
   const anchorBlocks = [...html.matchAll(/<a\b[^>]*>[\s\S]*?<\/a>/gi)].map((match) => match[0])
+  const rawVideoSources = [...html.matchAll(/<video\b[^>]*>[\s\S]*?<\/video>/gi)]
+    .flatMap(([video]) => [...tags(video, 'video'), ...tags(video, 'source')])
+    .map((tag) => attribute(tag, 'src'))
+    .filter(Boolean)
 
   if (!label.startsWith('live ')) verifyLocalAssets(label, html)
+  assert(!/\sdata-prerender-dynamic(?:=|\s|>)/i.test(html), `${label}: raw HTML contains live data or a temporary UI state`)
+  assert(rawVideoSources.length === 0, `${label}: raw HTML would load a video before the app can defer playback`)
 
   assert(htmlTags.length === 1, `${label}: expected exactly one html element`)
   assert(attribute(htmlTags[0] ?? '', 'lang').toLowerCase().startsWith('en'), `${label}: html lang must be English`)
@@ -252,6 +264,17 @@ const verifyHtml = (
     assert(h1s[0] === 'Built for more.', `${label}: the primary homepage must render the new unified design`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
+    for (const path of ['/enroll', '/drop-in', '/store', '/contact']) {
+      assert(anchorBlocks.some((tag) => new URL(attribute(tag, 'href') || '#', HUB_ORIGIN).href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing a crawlable link to ${path}`)
+    }
+    const pageIds = [...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1])
+    for (const destination of new Set(Object.values(legacyLandingRedirects))) {
+      const { pathname, hash } = new URL(destination, HUB_ORIGIN)
+      if (pathname === '/' && hash) {
+        assert(pageIds.includes(hash.slice(1)), `${label}: a legacy redirect points to missing section ${hash}`)
+      }
+    }
   }
 
   if (requireH1) {
@@ -365,8 +388,8 @@ for (const set of expectedSets) {
 
   const hostRobots = readFileSync(join(root, set.robotsPath), 'utf8')
   assert(
-    !/^Disallow:\s*\/\*\?sport=/mi.test(hostRobots),
-    `${set.robotsPath}: preview URLs must remain crawlable so search engines can see noindex`,
+    !/^Disallow:\s*\S+/mi.test(hostRobots),
+    `${set.robotsPath}: noindex URLs must remain crawlable so search engines can see noindex`,
   )
   assert(
     new RegExp(`^Sitemap:\\s*${escapeRegex(set.remoteSitemap)}\\s*$`, 'mi').test(hostRobots),
@@ -401,8 +424,8 @@ for (const set of expectedSets) {
       const remoteRobots = await robotsResponse.text()
       assert(remoteRobots.includes(set.remoteSitemap), `${set.label} live robots.txt is missing its sitemap`)
       assert(
-        !/^Disallow:\s*\/\*\?sport=/mi.test(remoteRobots),
-        `${set.label} live robots.txt blocks preview URLs from exposing their noindex directive`,
+        !/^Disallow:\s*\S+/mi.test(remoteRobots),
+        `${set.label} live robots.txt blocks noindex URLs from exposing their directive`,
       )
       for (const otherSet of expectedSets.filter((candidate) => candidate !== set)) {
         assert(!remoteRobots.includes(otherSet.remoteSitemap), `${set.label} live robots.txt contains a cross-host sitemap`)
@@ -420,7 +443,18 @@ for (const set of expectedSets) {
       if (!response.ok) continue
       const contentType = response.headers.get('content-type') || ''
       assert(contentType.includes('text/html'), `${canonical}: expected HTML, received ${contentType}`)
+      assert(!/\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''), `${canonical}: HTTP headers contain noindex`)
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
+    }
+
+    for (const path of ['/admin', '/?sport=soccer', ...SPA_ONLY_PATHS]) {
+      const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
+      if (path === '/admin' && response.status === 404) continue
+      assert(response.ok, `${path}: returned HTTP ${response.status}`)
+      const headers = response.headers.get('x-robots-tag') ?? ''
+      const robots = metaValues(await response.text(), 'name', 'robots')
+      assert(/\bnoindex\b/i.test(headers) || robots.some((value) => /\bnoindex\b/i.test(value)),
+        `${path}: expected a noindex directive before JavaScript runs`)
     }
 
     const notFoundUrl = `${set.origin}/__seo-release-404-check__`
@@ -545,10 +579,9 @@ assert(
 )
 const genericRobots = readFileSync(join(root, 'public/robots-generic.txt'), 'utf8')
 assert(!/^Sitemap:/mi.test(genericRobots), 'generic robots fallback must not advertise a cross-host sitemap')
-assert(/^Disallow:\s*\/admin$/mi.test(genericRobots), 'generic robots fallback must disallow /admin')
 assert(
-  !/^Disallow:\s*\/\*\?sport=/mi.test(genericRobots),
-  'generic robots fallback must leave noindex preview URLs crawlable',
+  !/^Disallow:\s*\S+/mi.test(genericRobots),
+  'generic robots fallback must leave noindex URLs crawlable',
 )
 
 const publicSitemapFiles = readdirSync(join(root, 'public'))
@@ -592,6 +625,24 @@ const redirectFor = (host, source, destination) =>
       redirect.permanent === true &&
       redirect.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
   )
+const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
+  header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
+)
+for (const [source, path] of Object.entries(legacyLandingRedirects)) {
+  const destination = new URL(path, HUB_ORIGIN).href
+  for (const host of ['vortexathletics.com', 'www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex-gymnastics.com']) {
+    assert(redirectFor(host, source, destination), `vercel.json: missing permanent redirect from ${host}${source} to ${destination}`)
+  }
+}
+assert(
+  headers.some(rule => rule.source === '/:path*' && hasNoindexHeader(rule) &&
+    rule.has?.some(condition => condition.type === 'query' && condition.key === 'sport')),
+  'vercel.json: public URLs with a sport preview query must have a noindex header',
+)
+for (const source of ['/admin', '/admin.html', '/employee/payroll/:path*']) {
+  assert(headers.some(rule => rule.source === source && hasNoindexHeader(rule)),
+    `vercel.json: ${source} must have a noindex header`)
+}
 assert(
   redirectFor('www.vortexathletics.com', '/:path*', `${HUB_ORIGIN}/:path*`),
   'vercel.json: www athletics canonical-host redirect is missing',
@@ -661,31 +712,33 @@ for (const source of ['/assets/(.*)', '/fonts/(.*)']) {
   )
 }
 
-const spaOnlyPaths = [
-  '/employee/payroll',
-  '/employee/payroll/preparer',
-  '/copy',
-  '/store',
-  '/signup/family',
-  '/signup/invite',
-  '/signup/lead',
-  '/verify-email',
-  '/registration/receipt',
-  '/waivers-memberships',
-  '/camp_interest',
-  '/camp_interest/thank-you',
-]
-for (const path of spaOnlyPaths) {
+const shellFile = join(root, 'dist', SPA_SHELL_PATH)
+assert(existsSync(shellFile), `dist: missing client-only shell ${SPA_SHELL_PATH}`)
+if (existsSync(shellFile)) {
+  const shell = readFileSync(shellFile, 'utf8')
+  assert(metaValues(shell, 'name', 'robots').some(value => /\bnoindex\b/i.test(value)),
+    'client-only shell: noindex meta is missing')
+  assert(linkValues(shell, 'canonical').length === 0 && h1Values(shell).length === 0 && jsonLdValues(shell).length === 0,
+    'client-only shell: inherited crawlable page content or metadata')
+  assert(tags(shell, 'script').some(tag => attribute(tag, 'type') === 'module' && attribute(tag, 'src')),
+    'client-only shell: application script is missing')
+}
+assert(!rewrites.some(rewrite => rewrite.destination === '/index.html'), 'vercel.json: do not rewrite client-only URLs to the indexable homepage')
+for (const path of HUB_PRERENDER_PATHS.filter(path => path !== '/')) {
+  assert(rewrites.some(rewrite => rewrite.source === path && rewrite.destination === `${path}/index.html`),
+    `vercel.json: ${path} must serve its own prerendered page`)
+}
+for (const path of SPA_ONLY_PATHS) {
   assert(
     rewrites.some(
-      (rewrite) => rewrite.source === path && rewrite.destination === '/index.html',
+      (rewrite) => rewrite.source === path && rewrite.destination === SPA_SHELL_PATH,
     ),
     `vercel.json: client-only route ${path} is missing its explicit SPA rewrite`,
   )
 }
-for (const rewrite of rewrites.filter((rewrite) => rewrite.destination === '/index.html')) {
+for (const rewrite of rewrites.filter((rewrite) => rewrite.destination === SPA_SHELL_PATH)) {
   assert(
-    spaOnlyPaths.includes(rewrite.source),
+    SPA_ONLY_PATHS.includes(rewrite.source),
     `vercel.json: unexpected SPA rewrite ${rewrite.source}; only explicit client-only routes are allowed to prevent soft 404s`,
   )
 }
@@ -697,7 +750,8 @@ if (failures.length) {
 }
 
 const routeCount = expectedSets.reduce((total, set) => total + set.entries.length, 0)
-const noindexCount = expectedSets.reduce((total, set) => total + set.noindexPaths.length, 0) + STUB_SEO_ENTRIES.length
+const noindexCount = expectedSets.reduce((total, set) => total + set.noindexPaths.length, 0) +
+  STUB_SEO_ENTRIES.length + SPA_ONLY_PATHS.length
 console.log(
   `SEO release verification passed (${routeCount} indexable routes, ${noindexCount} noindex routes${live ? ', including live production' : ''}).`,
 )

@@ -33,7 +33,7 @@ import {
 } from '../utils/schedulingApi'
 import { getApiUrl } from '../utils/api'
 import { getLoggedInMemberEmail, getMemberSessionToken, loginMemberWithCredentials, persistMemberSession, type PortalAccount } from '../utils/portalSession'
-import { trackEvent } from '../utils/analyticsClient'
+import { flushEvents, trackEvent } from '../utils/analyticsClient'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
@@ -1353,6 +1353,8 @@ const SchedulingSignupEmbed = ({
         if (checkout.url) {
           if (checkoutAccount.member) persistMemberSession(checkoutAccount.token, checkoutAccount.member)
           if (checkout.pendingEnrollmentId != null) storePendingEnrollmentId(checkout.pendingEnrollmentId)
+          trackEvent('begin_checkout', window.location.pathname, { properties: { checkout_type: 'enrollment', method: 'card' } })
+          void flushEvents({ useBeacon: true })
           window.location.assign(checkout.url)
           return
         }
@@ -1364,6 +1366,9 @@ const SchedulingSignupEmbed = ({
         throw new Error('Unable to start card payment. Review your enrollment in the Member Portal.')
       }
       const result = await submitSchedulingSignupBatch(payload)
+      if (result.signups.some(signup => signup.status === 'confirmed')) {
+        trackEvent('enrollment_confirmed', '/enroll', { properties: { method: 'account', checkout_type: 'enrollment' } })
+      }
       setSignupResults(result.signups)
       setSignupResult(result.signups[0] ?? null)
       trackEvent('class_signup_submitted', window.location.pathname, {

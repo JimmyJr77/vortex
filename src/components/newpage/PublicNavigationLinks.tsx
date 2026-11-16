@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays } from 'lucide-react'
 
 const navigation = [
-  { label: 'Our programs', to: '/#programs' },
-  { label: 'Free trial', to: '/#free-trial' },
-  { label: 'The triad', to: '/#triad' },
-  { label: 'Our approach', to: '/#approach' },
-  { label: 'Visit us', to: '/#visit', mobileOnly: true },
-  { label: 'Schedule', to: '/read-board#schedule', calendar: true },
+  { label: 'Our programs', key: 'programs', to: '/#programs' },
+  { label: 'Free trial', key: 'free_trial_section', to: '/#free-trial' },
+  { label: 'The triad', key: 'triad', to: '/#triad' },
+  { label: 'Our approach', key: 'approach', to: '/#approach' },
+  { label: 'Visit us', key: 'visit', to: '/#visit', mobileOnly: true },
+  { label: 'Schedule', key: 'schedule', to: '/read-board#schedule', calendar: true },
 ]
 
 /** The homepage and public booking pages always use the same navigation. */
@@ -16,6 +16,8 @@ export default function PublicNavigationLinks({ mobile = false, onNavigate }: { 
     <Link
       key={item.to}
       to={item.to}
+      data-analytics-cta={item.key}
+      data-analytics-section="navigation"
       onClick={onNavigate}
       className={item.calendar && !mobile ? 'np-nav-schedule' : undefined}
       aria-label={item.calendar ? item.label : undefined}

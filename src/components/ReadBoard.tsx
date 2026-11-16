@@ -46,19 +46,14 @@ const ReadBoard = () => {
     <div className="np-browse-page">
       <section className="np-browse-hero">
         <div className="np-browse-container">
-          <motion.div
-            className="np-browse-intro"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <div className="np-browse-intro">
             <p className="np-browse-eyebrow">Find your next step</p>
             <h1>Classes &amp; schedules.</h1>
             <p className="np-browse-description">
-              Find their program. Make room for progress. Explore our classes,
-              training times, and everything happening at Vortex.
+              Explore youth gymnastics and Fit &amp; Flip classes, training schedules,
+              camps, and events at Vortex Athletics in Bowie, MD.
             </p>
-          </motion.div>
+          </div>
 
           <nav className="np-browse-tabs" aria-label="Browse classes and updates">
               {TAB_LABELS.map(({ id, label }) => (
@@ -83,10 +78,12 @@ const ReadBoard = () => {
         </div>
       </section>
 
-      {activeTab === 'classes' && <ReadBoardClassesTab />}
-      {activeTab === 'schedule' && <ReadBoardScheduleTab />}
-      {activeTab === 'events' && <ReadBoardEventsTab />}
-      {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
+      <div data-prerender-dynamic="">
+        {activeTab === 'classes' && <ReadBoardClassesTab />}
+        {activeTab === 'schedule' && <ReadBoardScheduleTab />}
+        {activeTab === 'events' && <ReadBoardEventsTab />}
+        {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
+      </div>
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { Fragment, Suspense, useCallback, useEffect, useState } from 'react'
 import { BookOpen, ContactRound, CreditCard, Inbox, RefreshCw, Users, ReceiptText, ChartNoAxesCombined, Home, Menu, X, Clock3, DollarSign } from 'lucide-react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -150,7 +151,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
           <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="new-admin-navigation" onClick={() => setNavOpen(open => !open)}>
             {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
           </button>
-          <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+          <img className="portal-brand" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
           <div className="portal-header-heading"><h1 className="portal-title">Admin workspace</h1></div>
         </div>
         <PortalNavButtons activePortal="new-admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} notifications={<NotificationBell apiPrefix="admin" />} />

@@ -1,3 +1,6 @@
+import { flushEvents, trackConfirmation, trackEvent } from '../../utils/analyticsClient'
+import { CONSENT_CHANGED, getActiveConsent } from '../../utils/consent'
+import { isStaffSession } from '../../utils/visitorId'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, CreditCard, Minus, PackageCheck, Plus, ReceiptText, ShoppingBag, X } from 'lucide-react'
 import {
@@ -5,6 +8,7 @@ import {
   fetchMemberStoreOrders,
   fetchMemberStoreProducts,
   fetchPublicStoreProducts,
+  fetchStoreOrderConfirmation,
   type StoreCartLine,
   type StoreOrder,
   type StorePaymentMethod,
@@ -16,6 +20,12 @@ interface StorefrontProps {
   memberName?: string | null
   onSignIn?: () => void
   mode?: 'public' | 'member'
+}
+
+const pendingCheckoutKey = 'vortex:pending-store-order'
+
+function clearPendingCheckout() {
+  try { sessionStorage.removeItem(pendingCheckoutKey) } catch { /* storage can be unavailable */ }
 }
 
 const formatMoney = (cents: number) => `$${(cents / 100).toFixed(2)}`
@@ -52,6 +62,49 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
 
   useEffect(() => { void loadProducts() }, [memberToken, mode])
 
+  useEffect(() => {
+    if (mode !== 'public' || !memberToken) return
+    const params = new URLSearchParams(window.location.search)
+    if (!getActiveConsent().analytics || params.get('store') === 'cancelled') return clearPendingCheckout()
+    const sessionId = params.get('session_id')
+    if (params.get('store') !== 'success' || !sessionId || isStaffSession()) return
+    let orderId: number
+    try { orderId = Number(sessionStorage.getItem(pendingCheckoutKey)) } catch { return }
+    if (!Number.isSafeInteger(orderId) || orderId <= 0) return
+
+    const controller = new AbortController()
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const cancel = () => {
+      controller.abort()
+      clearTimeout(timer)
+    }
+    const onConsentChanged = () => {
+      if (!getActiveConsent().analytics) {
+        clearPendingCheckout()
+        cancel()
+      }
+    }
+    const check = async (attempt: number) => {
+      try {
+        const { confirmed } = await fetchStoreOrderConfirmation(memberToken, orderId, sessionId, controller.signal)
+        if (controller.signal.aborted) return
+        if (confirmed) {
+          trackConfirmation('store_purchase', '/store', orderId)
+          clearPendingCheckout()
+          return
+        }
+        if (attempt < 2) timer = setTimeout(() => { void check(attempt + 1) }, 3000 * (attempt + 1))
+      } catch { /* The webhook remains the authoritative order record. */ }
+    }
+    // The zero-delay timer also avoids an extra request from StrictMode's effect replay.
+    timer = setTimeout(() => { void check(0) }, 0)
+    window.addEventListener(CONSENT_CHANGED, onConsentChanged)
+    return () => {
+      cancel()
+      window.removeEventListener(CONSENT_CHANGED, onConsentChanged)
+    }
+  }, [memberToken, mode])
+
   const cartItems = useMemo(() => products.flatMap((product) => {
     const quantity = cart[product.id] ?? 0
     return quantity > 0 ? [{ product, quantity }] : []
@@ -62,6 +115,9 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
   const updateQuantity = (product: StoreProduct, quantity: number) => {
     const maximum = product.inventoryQuantity ?? 20
     const next = Math.max(0, Math.min(maximum, quantity))
+    if (mode === 'public' && next > (cart[product.id] ?? 0)) {
+      trackEvent('store_add_to_cart', '/store', { properties: { target: product.category } })
+    }
     setCart((current) => {
       const result = { ...current }
       if (next === 0) delete result[product.id]
@@ -76,6 +132,7 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
       return
     }
     if (cartItems.length === 0) return
+    if (mode === 'public') trackEvent('store_checkout_start', '/store', { properties: { method: paymentMethod } })
     setCheckoutLoading(true)
     setError(null)
     try {
@@ -86,8 +143,15 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
         discountCode: discountCode.trim() || undefined,
       })
       if (order.stripeCheckoutUrl) {
+        if (mode === 'public' && getActiveConsent().analytics && !isStaffSession()) {
+          try { sessionStorage.setItem(pendingCheckoutKey, String(order.id)) } catch { /* storage can be unavailable */ }
+          void flushEvents({ useBeacon: true })
+        }
         window.location.assign(order.stripeCheckoutUrl)
         return
+      }
+      if (mode === 'public' && (order.status === 'placed' || order.status === 'fulfilled')) {
+        trackConfirmation('store_purchase', '/store', order.id, { method: paymentMethod })
       }
       setConfirmation(order)
       setCart({})
@@ -110,7 +174,7 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
             </div>
             <h1 className="font-display text-4xl font-bold md:text-5xl">{memberName ? `Gear for ${memberName}.` : 'Gear for training days.'}</h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-gray-300 md:text-base">
-              Clean essentials for Vortex athletes. Every order is pickup only at the gym — no shipping, no wait at home.
+              Shop training gear and essentials for Vortex athletes. Pick up your order at our gym in Bowie, MD.
             </p>
           </div>
           <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-gray-200">
@@ -121,7 +185,7 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
       </section>
 
       {confirmation && (
-        <div className="flex items-start justify-between gap-4 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-green-900">
+        <div className="flex items-start justify-between gap-4 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-green-900" data-prerender-dynamic="">
           <div className="flex gap-3">
             <Check className="mt-0.5 h-5 w-5 shrink-0" />
             <div><strong>Order {confirmation.orderNumber} is confirmed.</strong><p className="mt-1 text-sm">Your receipt is on its way to {confirmation.purchaserEmail || 'your email'}. Pick it up at the gym.</p></div>
@@ -129,9 +193,9 @@ export default function Storefront({ memberToken = null, memberName = null, onSi
           <button type="button" onClick={() => setConfirmation(null)} aria-label="Dismiss confirmation"><X className="h-4 w-4" /></button>
         </div>
       )}
-      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" data-prerender-dynamic="">{error}</div>}
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]" data-prerender-dynamic="">
         <section>
           <div className="mb-5 flex items-end justify-between gap-4">
             <div><h2 className="font-display text-2xl font-bold text-gray-950">Shop the store</h2><p className="mt-1 text-sm text-gray-600">Simple, durable, and ready for the gym.</p></div>

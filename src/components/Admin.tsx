@@ -1,3 +1,4 @@
+import brandLogo from '../assets/vortex-athletics-gymnastics-logo.webp'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
@@ -310,7 +311,7 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
             <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="legacy-admin-navigation" onClick={() => setNavOpen((o) => !o)}>
               {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <img className="portal-brand" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
             <div className="portal-header-heading"><h1 className="portal-title">Legacy admin</h1></div>
           </div>
           <PortalNavButtons

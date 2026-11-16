@@ -105,6 +105,15 @@ export async function fetchMemberStoreOrders(token: string): Promise<StoreOrder[
   return parseResponse<StoreOrder[]>(response)
 }
 
+export async function fetchStoreOrderConfirmation(token: string, orderId: number, sessionId: string, signal: AbortSignal) {
+  const params = new URLSearchParams({ session_id: sessionId })
+  const response = await fetch(`${getApiUrl()}/api/members/store/orders/${orderId}/confirmation?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal,
+  })
+  return parseResponse<{ confirmed: boolean }>(response)
+}
+
 export async function checkoutMemberStoreOrder(
   token: string,
   payload: { items: StoreCartLine[]; paymentMethod: StorePaymentMethod; discountCode?: string },

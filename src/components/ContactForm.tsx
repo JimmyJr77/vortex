@@ -88,9 +88,9 @@ const ContactForm = ({
   }, [isOpen, embedded, inquiryVariant, inquirySource])
 
   /** GA4-standard lead conversion; fires only after the backend confirms the inquiry. */
-  const fireGenerateLead = () => {
+  const fireGenerateLead = (sourcePath: string) => {
     const params = leadParams()
-    trackEvent('generate_lead', inquirySource || window.location.pathname, {
+    trackEvent('generate_lead', sourcePath, {
       properties: params,
     })
     if (getActiveConsent().analytics) {
@@ -190,20 +190,22 @@ const ContactForm = ({
       const result = await response.json()
 
       if (result.success) {
+        const sourcePath = inquirySource || window.location.pathname
+        fireGenerateLead(sourcePath)
         if (newsletter) {
-          try {
-            await fetch(`${apiUrl}/api/newsletter`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: formData.email }),
-              signal: AbortSignal.timeout(5000),
-            })
-          } catch (error) {
+          void fetch(`${apiUrl}/api/newsletter`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: formData.email }),
+            signal: AbortSignal.timeout(5000),
+          }).then(async response => {
+            if (response.ok && (await response.json()).success === true) {
+              trackEvent('newsletter_signup', sourcePath, { properties: { form_name: 'contact' } })
+            }
+          }).catch(error => {
             console.error('Newsletter subscription error:', error)
-          }
+          })
         }
-
-        fireGenerateLead()
         setIsSubmitted(true)
       } else {
         const errorMessage =

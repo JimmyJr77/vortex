@@ -1,3 +1,4 @@
+import brandLogo from '../assets/vortex-athletics-gymnastics-logo.webp'
 import { useEffect, useId, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, Eye, EyeOff, X, Lock, Mail } from 'lucide-react'
 import { getApiUrl } from '../utils/api'
@@ -117,7 +118,7 @@ export default function Login({ isOpen, onClose, onSuccess }: LoginProps) {
     >
       <div className="np-account-login-header">
         <div className="np-account-login-brand-row">
-          <img className="np-account-login-logo" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+          <img className="np-account-login-logo" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
           <button type="button" className="np-account-login-close" onClick={onClose} aria-label="Close account login"><X size={20} aria-hidden="true" /></button>
         </div>
         <h2 id={id + '-title'}>{forgotMode ? 'Reset Account Password' : 'Account Login'}</h2>

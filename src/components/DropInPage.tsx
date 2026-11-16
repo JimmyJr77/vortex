@@ -1,3 +1,4 @@
+import { trackConfirmation, trackEvent } from '../utils/analyticsClient'
 import TextInput from './common/TextInput'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
@@ -79,7 +80,10 @@ export default function DropInPage() {
     if (bookingId <= 0 || !checkoutSessionId || !memberToken) return
     let active = true
     void checkoutDropIn(bookingId, checkoutSessionId).then((checkout) => {
-      if (active) setPaymentStatus(checkout.status)
+      if (active) {
+        setPaymentStatus(checkout.status)
+        if (checkout.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', bookingId)
+      }
     }).catch((error) => { if (active) setPaymentError(error.message) })
     return () => { active = false }
   }, [bookingId, checkoutSessionId, memberToken])
@@ -88,10 +92,14 @@ export default function DropInPage() {
     setPaymentBusy(true)
     setPaymentError(null)
     try {
+      if (!checkoutSessionId) trackEvent('drop_in_checkout_start', '/drop-in')
       const checkout = await checkoutDropIn(id, checkoutSessionId ?? undefined)
       setPaymentStatus(checkout.status)
       if (checkout.url) window.location.assign(checkout.url)
-      else if (checkout.status === 'confirmed') setResult((current) => current ? { ...current, status: 'confirmed' } : null)
+      else if (checkout.status === 'confirmed') {
+        trackConfirmation('drop_in_confirmed', '/drop-in', id)
+        setResult((current) => current ? { ...current, status: 'confirmed' } : null)
+      }
       else setPaymentError('Payment is still being confirmed. Check again in a moment.')
     } catch (error) {
       setPaymentError(error instanceof Error ? error.message : 'Unable to open checkout.')
@@ -151,6 +159,7 @@ export default function DropInPage() {
   const hasFilters = searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
   const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
   const selectSession = (session: DropInSession) => {
+    trackEvent('drop_in_start', '/drop-in')
     setResult(null)
     setError(null)
     if (!memberToken) {
@@ -172,7 +181,11 @@ export default function DropInPage() {
     event.preventDefault()
     if (!selected) return
     setSubmitting(true); setError(null)
-    try { setResult(await registerDropIn({ slotGroupId: selected.slotGroupId, classDate: selected.date, ...form })) }
+    try {
+      const booking = await registerDropIn({ slotGroupId: selected.slotGroupId, classDate: selected.date, ...form })
+      if (booking.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', booking.id)
+      setResult(booking)
+    }
     catch (err) { setError(err instanceof Error ? err.message : 'Registration failed') }
     finally { setSubmitting(false) }
   }
@@ -217,7 +230,7 @@ export default function DropInPage() {
       </div>
     </section>
 
-    <section className="np-drop-in-container np-drop-in-content">
+    <section className="np-drop-in-container np-drop-in-content" data-prerender-dynamic="">
       {bookingId > 0 && (
         <div className="mb-8 rounded-xl border bg-white p-5" aria-live="polite">
           <h2 className="text-lg font-bold">{paymentStatus === 'confirmed' ? 'Drop-in confirmed' : 'Drop-in payment'}</h2>
