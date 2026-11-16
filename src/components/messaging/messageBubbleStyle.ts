@@ -43,6 +43,6 @@ export function messageBubbleClassName(message: MessageRow, ownMessage: boolean)
   const corner = ownMessage ? 'rounded-tr-md' : 'rounded-tl-md'
   if (message.deleted_at) return `${base} ${corner} border-slate-200 !bg-slate-100 text-slate-600`
   if (message.is_critical) return `${base} ${corner} border-red-300 bg-red-50 text-slate-900`
-  if (ownMessage) return `${base} ${corner} border-slate-200 !bg-slate-100 text-slate-900`
-  return `${base} ${corner} border-slate-200 bg-white text-slate-900`
+  if (ownMessage) return `${base} ${corner} border-blue-100 !bg-blue-50 text-slate-900`
+  return `${base} ${corner} border-slate-200 !bg-slate-100 text-slate-900`
 }
