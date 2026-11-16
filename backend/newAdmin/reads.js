@@ -2,6 +2,7 @@ import { sortClasses } from './classSorting.js'
 import { classRosterForForm } from './classRoster.js'
 import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
 import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
+import { scheduleCountsSql, scheduleSignupCountSql } from '../scheduling/scheduleCapacity.js'
 import { id, inputError, pagination, pageResult, searchValue, memberRow, date } from './common.js'
 
 const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display_name AS program_name,
@@ -9,23 +10,17 @@ const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display
   (p.archived IS TRUE OR pr.archived IS TRUE) AS archived,
   to_jsonb(pr) AS pricing_program,to_jsonb(sf) AS pricing_form,
   p.is_active AND NOT COALESCE(p.archived,FALSE) AS is_active,sf.id AS form_id,
-  COALESCE(cap.capacity,0)::int AS capacity,COALESCE(en.enrolled_count,0)::int AS enrolled_count,
-  COALESCE(en.waitlist_count,0)::int AS waitlist_count,
-  (SELECT COUNT(*)::int FROM scheduling_signup hold WHERE hold.form_id=sf.id AND hold.status='pending_setup' AND hold.reserved_until>now()) AS reserved_count
+  COALESCE(cap.capacity,0)::int AS capacity,COALESCE(cap.enrolled_count,0)::int AS enrolled_count,
+  COALESCE(cap.waitlist_count,0)::int AS waitlist_count,COALESCE(cap.reserved_count,0)::int AS reserved_count
   FROM program p JOIN facility facility_row ON facility_row.id=p.facility_id LEFT JOIN programs pr ON pr.id=p.programs_id AND pr.facility_id=p.facility_id
   LEFT JOIN LATERAL (SELECT f.* FROM scheduling_form f WHERE f.program_id=p.id AND f.deleted_at IS NULL ORDER BY f.is_active DESC,f.id DESC LIMIT 1) sf ON TRUE
-  LEFT JOIN LATERAL (SELECT SUM(g.max_participants) AS capacity FROM scheduling_slot_group g
+  LEFT JOIN LATERAL (SELECT SUM(g.max_participants) AS capacity,
+    SUM(${scheduleSignupCountSql('g.id')}) AS enrolled_count,
+    SUM(${scheduleSignupCountSql('g.id', 'waitlisted')}) AS waitlist_count,
+    SUM(pending_registration_holds(g.id)) AS reserved_count FROM scheduling_slot_group g
     LEFT JOIN scheduling_offering o ON o.id=g.offering_id
     WHERE g.form_id=sf.id AND sf.is_active=TRUE AND g.is_active=TRUE AND (g.offering_id IS NULL OR o.is_selected=TRUE)
-      AND COALESCE(o.end_date,g.active_end,sf.end_date,'infinity'::date) >= (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(facility_row.timezone,''),'America/New_York'))::date) cap ON TRUE
-  LEFT JOIN LATERAL (SELECT COUNT(*) FILTER (WHERE s.status='confirmed') AS enrolled_count,
-    COUNT(*) FILTER (WHERE s.status='waitlisted') AS waitlist_count FROM scheduling_signup s
-    JOIN member m ON m.id=s.member_id AND m.facility_id=p.facility_id
-    JOIN scheduling_slot_group g ON g.id=s.slot_group_id AND g.form_id=sf.id
-    LEFT JOIN scheduling_offering o ON o.id=g.offering_id
-    WHERE s.form_id=sf.id AND s.archived_at IS NULL AND s.orphaned_at IS NULL
-      AND sf.is_active=TRUE AND g.is_active=TRUE AND (g.offering_id IS NULL OR o.is_selected=TRUE)
-      AND COALESCE(o.end_date,g.active_end,sf.end_date,'infinity'::date) >= (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(facility_row.timezone,''),'America/New_York'))::date) en ON TRUE`
+      AND COALESCE(o.end_date,g.active_end,sf.end_date,'infinity'::date) >= (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(facility_row.timezone,''),'America/New_York'))::date) cap ON TRUE`
 
 const classRow = row => {
   const pricing = resolveEffectiveFormPricing(hydrateProgramPricingRow(row.pricing_program),row.pricing_form)
@@ -70,19 +65,15 @@ export async function classDetail(db,facilityId,classId,query={}) {
   if (!item.formId) return {class:item,groups:[],roster:pageResult([],0,paging)}
   const [groups,slots,roster]=await Promise.all([
     db.query(`SELECT g.id,g.max_participants,g.active_start,g.active_end,g.offering_id,g.is_active,COUNT(*) OVER()::int AS group_total,
-      COUNT(s.id) FILTER (WHERE s.status='confirmed')::int AS enrolled_count,
-      COUNT(s.id) FILTER (WHERE s.status='waitlisted')::int AS waitlist_count,pending_registration_holds(g.id) AS reserved_count
-      FROM scheduling_slot_group g LEFT JOIN scheduling_signup s ON s.slot_group_id=g.id
-       AND s.archived_at IS NULL AND s.orphaned_at IS NULL
-       AND EXISTS (SELECT 1 FROM member m WHERE m.id=s.member_id AND m.facility_id=$2)
-      WHERE g.form_id=$1 GROUP BY g.id ORDER BY g.id LIMIT 100`,[item.formId,facilityId]),
+      ${scheduleCountsSql('g.id')}
+      FROM scheduling_slot_group g WHERE g.form_id=$1 ORDER BY g.id LIMIT 100`,[item.formId]),
     db.query(`SELECT ts.id,ts.slot_group_id,ts.day_of_week,ts.week_letter,ts.specific_date,ts.start_time,ts.end_time,ts.schedule_mode,ts.is_active,COUNT(*) OVER()::int AS slot_total
       FROM scheduling_time_slot ts JOIN scheduling_slot_group g ON g.id=ts.slot_group_id
       WHERE g.form_id=$1 ORDER BY g.id,ts.day_of_week,ts.start_time,ts.id LIMIT 1000`,[item.formId]),
     classRosterForForm(db,facilityId,item.formId,query),
   ])
   return {class:item,scheduleTruncated:Number(groups.rows[0]?.group_total||0)>groups.rows.length||Number(slots.rows[0]?.slot_total||0)>slots.rows.length,
-    groups:groups.rows.map(g=>({id:Number(g.id),isActive:g.is_active,capacity:Number(g.max_participants),enrolledCount:Number(g.enrolled_count),waitlistCount:Number(g.waitlist_count),reservedCount:Number(g.reserved_count || 0),activeStart:date(g.active_start),activeEnd:date(g.active_end),offeringId:g.offering_id==null?null:Number(g.offering_id),
+    groups:groups.rows.map(g=>({id:Number(g.id),isActive:g.is_active,capacity:Number(g.max_participants),enrolledCount:Number(g.signup_count),waitlistCount:Number(g.waitlist_count),reservedCount:Number(g.reserved_count || 0),activeStart:date(g.active_start),activeEnd:date(g.active_end),offeringId:g.offering_id==null?null:Number(g.offering_id),
     slots:slots.rows.filter(s=>Number(s.slot_group_id)===Number(g.id)).map(s=>({id:Number(s.id),dayOfWeek:s.day_of_week,weekLetter:s.week_letter,specificDate:date(s.specific_date),startTime:s.start_time,endTime:s.end_time,scheduleMode:s.schedule_mode,isActive:s.is_active}))})),
     roster}
 }

@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit'
 import { fileURLToPath } from 'node:url'
 import { id, inputError } from './common.js'
 import { resolveSlotActiveDates } from '../scheduling/slotActiveDates.js'
+import { scheduleSignupCountSql } from '../scheduling/scheduleCapacity.js'
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 const dayIndex = row => row.datesTbd || row.dayOfWeek == null ? 7 : (Number(row.dayOfWeek) + 6) % 7
@@ -23,7 +24,7 @@ export async function loadScheduleExport(db, facilityId, now = new Date()) {
     g.active_start::text AS group_start,g.active_end::text AS group_end,g.dates_tbd AS group_tbd,
     g.offering_id,g.inherits_offering_dates,o.start_date::text AS offering_start,o.end_date::text AS offering_end,
     f.start_date::text AS form_start,f.end_date::text AS form_end,g.max_participants AS capacity,
-    (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.slot_group_id=g.id AND s.status='confirmed') AS enrolled,
+    ${scheduleSignupCountSql('g.id')} AS enrolled,
     pending_registration_holds(g.id) AS reserved
     FROM program p JOIN facility loc ON loc.id=p.facility_id
     LEFT JOIN programs pr ON pr.id=p.programs_id AND pr.facility_id=p.facility_id

@@ -406,8 +406,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
            (now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date::text AS facility_date,
            (((now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date + INTERVAL '2 months')::date)::text AS booking_end_date,
            CASE WHEN sf.class_monthly_price_cents IS NOT NULL THEN '[]'::jsonb ELSE COALESCE(sf.class_program_pricing->'pricing_cost_options',top.pricing_cost_options,'[]'::jsonb) END AS pricing_options,
-           COALESCE(sf.class_monthly_price_cents,(sf.class_program_pricing->>'pricing_slot_cost_monthly_cents')::integer,CASE WHEN sf.class_program_pricing IS NULL THEN top.pricing_slot_cost_monthly_cents END,sf.slot_cost_monthly_cents,0) AS fallback_monthly_cents,
-           (SELECT COUNT(*) FROM scheduling_signup s WHERE s.slot_group_id=sg.id AND s.status='confirmed')::int AS monthly_enrolled
+           COALESCE(sf.class_monthly_price_cents,(sf.class_program_pricing->>'pricing_slot_cost_monthly_cents')::integer,CASE WHEN sf.class_program_pricing IS NULL THEN top.pricing_slot_cost_monthly_cents END,sf.slot_cost_monthly_cents,0) AS fallback_monthly_cents
       FROM scheduling_slot_group sg
       JOIN scheduling_form sf ON sf.id=sg.form_id AND sf.deleted_at IS NULL
       JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id
@@ -718,6 +717,7 @@ export function registerDropInRoutes(app, pool) {
       await client.query('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE', [slotGroupId])
       const slot = await client.query(`
         SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
+               pending_registration_holds(sg.id) AS registration_holds,
                COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
                ts.start_time, ts.end_time,
                sg.dates_tbd, ts.day_of_week, ts.specific_date, p.is_trial_assessment,
@@ -782,8 +782,10 @@ export function registerDropInRoutes(app, pool) {
             totalCents: Number(existingBooking.amount_cents), accountRequired: false, signupUrl: null } })
         }
       }
-      const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, ACTIVE_REGISTRATION_STATUSES])
-      if (Number(slot.rows[0].monthly_enrolled) + Number(existing.rows[0].count) >= Number(slot.rows[0].max_participants)) {
+      const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, [...ACTIVE_REGISTRATION_STATUSES, 'attended']])
+      const { max_participants, monthly_enrolled, registration_holds } = slot.rows[0]
+      const occupied = Number(monthly_enrolled) + Number(existing.rows[0].count) + Number(registration_holds ?? 0)
+      if (occupied >= Number(max_participants)) {
         await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'That class is full.' })
       }
       if (useFreeTrial && !benefits.trialAvailable) { await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'The one-time free trial has already been used.' }) }

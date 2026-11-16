@@ -1,4 +1,5 @@
 import { expandCalendarRange } from './calendarExpansion.js'
+import { scheduleCountsSql } from './scheduleCapacity.js'
 
 function formatDateOnly(value) {
   if (value == null || value === '') return null
@@ -104,6 +105,7 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
     SELECT
       ts.*,
       sg.is_active AS sg_is_active,
+      sg.max_participants AS sg_max_participants,
       sg.active_start AS sg_active_start,
       sg.active_end AS sg_active_end,
       sg.dates_tbd AS sg_dates_tbd,
@@ -129,18 +131,7 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
       p.skill_requirements,
       COALESCE(pr.abridged_name, pr.display_name) AS program_name,
       sg.offering_id,
-      COALESCE((
-        SELECT COUNT(*)::int
-        FROM scheduling_signup s
-        WHERE s.slot_group_id = sg.id
-          AND s.status = 'confirmed'
-      ), 0) AS signup_count,
-      COALESCE((
-        SELECT COUNT(*)::int
-        FROM scheduling_signup s
-        WHERE s.slot_group_id = sg.id
-          AND s.status = 'waitlisted'
-      ), 0) AS waitlist_count
+      ${scheduleCountsSql('sg.id')}
     FROM scheduling_time_slot ts
     JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
     JOIN scheduling_form sf ON sf.id = ts.form_id

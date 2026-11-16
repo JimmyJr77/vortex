@@ -141,7 +141,7 @@ function ClassDetail({ id, access, revision, onBack, onMember, onChanged, onEdit
           const selected = selection?.groupId === group.id && selection.slotId === slot.id
           return <button type="button" key={slot.id} aria-pressed={selected} onClick={() => selectSchedule({ groupId: group.id, slotId: slot.id, label: `Schedule #${group.id} · ${label}` })} className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${selected ? 'border-vortex-red bg-vortex-red text-white' : 'border-slate-200 bg-white hover:border-vortex-red'}`}>{label}</button>
         })}</div>
-        <p className="my-3 text-sm text-slate-600">{group.enrolledCount} enrolled · {group.reservedCount || 0} reserved · {group.waitlistCount} waiting</p>
+        <p className="my-3 text-sm text-slate-600">{group.enrolledCount} enrolled · {group.reservedCount || 0} reserved · {Math.max(0, group.capacity - group.enrolledCount - (group.reservedCount || 0))} open · {group.waitlistCount} waiting</p>
         {allowed(access, 'scheduling.manage') ? <Capacity group={group} onChanged={onChanged} /> : <p className="text-sm">Capacity: {group.capacity}</p>}
       </div>)}</div> : <Empty>No schedules have been created for this class.</Empty>}
     </section>

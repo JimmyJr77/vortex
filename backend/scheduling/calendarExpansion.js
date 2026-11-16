@@ -1,4 +1,5 @@
 import { buildOfferingByIdFromRows, formatDateOnly, resolveSlotActiveDates } from './slotActiveDates.js'
+import { scheduleCapacity } from './scheduleCapacity.js'
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -105,8 +106,7 @@ function mapRowToContext(row, offeringById = null) {
     ageMax: row.age_max != null ? Number(row.age_max) : null,
     skillRequirements: row.skill_requirements || null,
     offeringId: offeringId != null ? Number(offeringId) : null,
-    maxParticipants: row.max_participants != null ? Number(row.max_participants) : 0,
-    signupCount: row.signup_count != null ? Number(row.signup_count) : 0,
+    capacity: scheduleCapacity(row.sg_max_participants ?? row.max_participants ?? 0, row.signup_count ?? 0, row.reserved_count),
     waitlistCount: row.waitlist_count != null ? Number(row.waitlist_count) : 0,
     offeringLabel: row.offering_label || null,
     offeringStartDate: offeringStart,
@@ -157,11 +157,8 @@ function buildEventPayload(ctx, date, weekLetter) {
     offeringId: ctx.offeringId,
     slotGroupId: ctx.slotGroupId,
     timeSlotId: ctx.timeSlotId,
-    maxParticipants: ctx.maxParticipants,
-    signupCount: ctx.signupCount,
+    ...ctx.capacity,
     waitlistCount: ctx.waitlistCount,
-    spotsRemaining: Math.max(0, ctx.maxParticipants - ctx.signupCount),
-    isFull: ctx.signupCount >= ctx.maxParticipants,
     offeringLabel: ctx.offeringLabel,
     offeringStartDate: ctx.offeringStartDate,
     offeringEndDate: ctx.offeringEndDate,
@@ -190,11 +187,8 @@ function buildTbdPayload(ctx) {
     offeringLabel: ctx.offeringLabel,
     slotGroupId: ctx.slotGroupId,
     timeSlotId: ctx.timeSlotId,
-    maxParticipants: ctx.maxParticipants,
-    signupCount: ctx.signupCount,
+    ...ctx.capacity,
     waitlistCount: ctx.waitlistCount,
-    spotsRemaining: Math.max(0, ctx.maxParticipants - ctx.signupCount),
-    isFull: ctx.signupCount >= ctx.maxParticipants,
     formActive: ctx.formActive,
     enrollVisible: ctx.enrollVisible,
     classActive: ctx.classActive,

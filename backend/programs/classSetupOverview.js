@@ -16,6 +16,7 @@ import {
   resolveEffectiveFormPricing,
 } from './pricingDefaults.js'
 import { buildGroupDisplayLabel, buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
+import { scheduleCapacity, scheduleSignupCountSql } from '../scheduling/scheduleCapacity.js'
 
 function resolveStatus({ classArchived, programArchived, classIsActive, programIsActive }) {
   if (classArchived || programArchived) return 'Legacy'
@@ -44,8 +45,7 @@ function mapSlotGroupRow(row, scheduleLabel, slots = []) {
     slotGroupId: Number(row.id),
     formId: Number(row.form_id),
     offeringId: row.offering_id != null ? Number(row.offering_id) : null,
-    maxParticipants: Number(row.max_participants ?? 0),
-    signupCount: Number(row.signup_count ?? 0),
+    ...scheduleCapacity(row.max_participants ?? 0, row.signup_count ?? 0, row.reserved_count),
     activeStart,
     activeEnd,
     datesTbd: Boolean(row.dates_tbd),
@@ -264,13 +264,8 @@ export async function buildClassSetupOverview(pool) {
           sg.active_start,
           sg.active_end,
           sg.dates_tbd,
-          COALESCE((
-            SELECT COUNT(*)::int FROM scheduling_signup s
-            WHERE s.slot_group_id = sg.id
-              AND s.status = 'confirmed'
-              AND s.orphaned_at IS NULL
-              AND s.archived_at IS NULL
-          ), 0) AS signup_count
+          ${scheduleSignupCountSql('sg.id')} AS signup_count,
+          pending_registration_holds(sg.id) AS reserved_count
         FROM scheduling_slot_group sg
         WHERE sg.form_id = ANY($1::int[])
         ORDER BY sg.form_id, sg.id

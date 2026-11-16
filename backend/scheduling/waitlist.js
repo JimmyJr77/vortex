@@ -2,6 +2,7 @@ import { billConfirmedRegistration } from './registrationBilling.js'
 import { buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { persistEnrollmentPauseBilling } from './pauseEnrollmentBilling.js'
 import { recordBillingActivity } from '../billing/billingActivity.js'
+import { scheduleSignupCountSql } from './scheduleCapacity.js'
 
 async function activateWaitlistBilling(db, signup) {
   const context = (await db.query(`SELECT m.facility_id,a.id AS account_id,
@@ -98,7 +99,7 @@ export async function promoteFromWaitlist(client, slotGroupId, slotsToFill, { bi
   if (slotsToFill <= 0) return []
 
   const capacity = await client.query(`SELECT GREATEST(0,g.max_participants-
-    (SELECT COUNT(*)::int FROM scheduling_signup s WHERE s.slot_group_id=g.id AND s.status='confirmed')-
+    ${scheduleSignupCountSql('g.id')}-
     pending_registration_holds(g.id)) AS available FROM scheduling_slot_group g WHERE g.id=$1 FOR UPDATE`,[slotGroupId])
   slotsToFill = Math.min(slotsToFill,Number(capacity.rows[0]?.available ?? 0))
   if (slotsToFill <= 0) return []
@@ -147,7 +148,7 @@ export async function demoteToWaitlist(client, slotGroupId, slotsToRemove) {
   const confirmed = await client.query(
     `
     SELECT id FROM scheduling_signup
-    WHERE slot_group_id = $1 AND status = 'confirmed'
+    WHERE slot_group_id = $1 AND status = 'confirmed' AND archived_at IS NULL AND orphaned_at IS NULL
     ORDER BY created_at DESC, id DESC
     LIMIT $2
     FOR UPDATE
@@ -174,7 +175,7 @@ export async function demoteToWaitlist(client, slotGroupId, slotsToRemove) {
  */
 export async function rebalanceCapacity(client, slotGroupId, oldMax, newMax) {
   const countRes = await client.query(
-    `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE slot_group_id = $1 AND status = 'confirmed'`,
+    `SELECT ${scheduleSignupCountSql('$1')} AS c`,
     [slotGroupId],
   )
   const confirmedCount = Number(countRes.rows[0].c)

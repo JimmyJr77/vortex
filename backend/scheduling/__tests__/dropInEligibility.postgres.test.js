@@ -5,6 +5,10 @@ import pg from 'pg'
 import { registerDropInRoutes } from '../dropIns.js'
 import { bookMemberFreeTrial } from '../freeTrials.js'
 import { listPublicClassesOffered } from '../../programs/listPublicClassesOffered.js'
+import { createSchedulingHandlers } from '../handlers.js'
+import { loadSchedulingCalendar } from '../calendarQuery.js'
+import { classDetail } from '../../newAdmin/reads.js'
+import { loadScheduleExport } from '../../newAdmin/scheduleExport.js'
 
 const url = process.env.NEW_ADMIN_TEST_DATABASE_URL
 if (url && (!['localhost', '127.0.0.1'].includes(new URL(url).hostname)
@@ -141,6 +145,73 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     assert.ok(inactiveSiblingSessions.some(row => row.date === rotationDates.b))
     const inactiveDenied = await request('post', '/api/public/drop-ins/register', { ...guest, slotGroupId: rotatingGroup, classDate: rotationDates.a })
     assert.equal(inactiveDenied.status, 400, inactiveDenied.message)
+  } finally {
+    await db.query('ROLLBACK')
+    await db.end()
+  }
+})
+
+test('a confirmed future start fills recurring capacity now and dated capacity from its first class', { skip: !url }, async () => {
+  const db = new pg.Client({ connectionString: url })
+  await db.connect()
+  const one = async (sql, values = []) => (await db.query(sql, values)).rows[0]
+  try {
+    await db.query('BEGIN')
+    const { id: facility } = await one("INSERT INTO facility(name,timezone) VALUES('Capacity test','America/New_York') RETURNING id")
+    const { id: program } = await one("INSERT INTO programs(facility_id,name,display_name,exclude_from_drop_ins) VALUES($1,'CAPACITY_TEST','Capacity test',FALSE) RETURNING id", [facility])
+    const { id: klass } = await one(`INSERT INTO program(facility_id,category,programs_id,name,display_name)
+      VALUES($1,'GYMNASTICS',$2,'CAPACITY_TEST','Capacity test') RETURNING id`, [facility, program])
+    const { id: form } = await one(`INSERT INTO scheduling_form(program_id,programs_id,title,is_active)
+      VALUES($1,$2,'Capacity test',TRUE) RETURNING id`, [klass, program])
+    const { id: group } = await one(`INSERT INTO scheduling_slot_group(form_id,schedule_mode,max_participants,dates_tbd,is_active)
+      VALUES($1,'date',2,FALSE,TRUE) RETURNING id`, [form])
+    const dates = await one("SELECT ((now() AT TIME ZONE 'America/New_York')::date + 7)::text AS before, ((now() AT TIME ZONE 'America/New_York')::date + 14)::text AS start")
+    const { id: slot } = await one(`INSERT INTO scheduling_time_slot(form_id,slot_group_id,schedule_mode,specific_date,start_time,end_time,max_participants,dates_tbd,is_active)
+      VALUES($1,$2,'date',$3,'18:00','19:30',12,FALSE,TRUE),($1,$2,'date',$4,'18:00','19:30',12,FALSE,TRUE) RETURNING id`,
+    [form, group, dates.start, dates.before])
+    const { id: member } = await one("INSERT INTO member(facility_id,first_name,last_name,is_active) VALUES($1,'Future','Athlete',TRUE) RETURNING id", [facility])
+    const { id: enrollment } = await one(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,member_id,first_name,last_name,email,status,enrollment_start_date)
+      VALUES($1,$2,$3,$4,'Future','Athlete','future@example.test','confirmed',$5) RETURNING id`, [form, group, slot, member, dates.start])
+    await db.query(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status,enrollment_start_date,reserved_until)
+      VALUES($1,$2,$3,'Reserved','Athlete','hold@example.test','pending_setup',$4,now()+INTERVAL '3 weeks')`, [form, group, slot, dates.start])
+
+    let formPayload
+    await createSchedulingHandlers(db).getPublicForm({ params: { id: form }, query: {} }, {
+      status() { return this }, json(body) { formPayload = body; return this },
+    })
+    assert.equal(formPayload.success, true, formPayload.message)
+    const [schedule] = formPayload.data.slotGroups
+    const expectFullSchedule = row => assert.deepEqual(
+      [row.maxParticipants, row.signupCount, row.reservedCount, row.spotsRemaining, row.isFull], [2, 1, 1, 0, true],
+    )
+    expectFullSchedule(schedule)
+    assert.equal(schedule.occurrences.length, 2)
+    schedule.occurrences.forEach(expectFullSchedule)
+    formPayload.data.timeSlots.forEach(expectFullSchedule)
+
+    const calendar = await loadSchedulingCalendar(db, { programId: Number(klass), startDate: dates.before, endDate: dates.start })
+    assert.equal(calendar.events.length, 2)
+    calendar.events.forEach(expectFullSchedule)
+    const admin = await classDetail(db, facility, klass)
+    assert.deepEqual([admin.class.enrolledCount, admin.groups[0].enrolledCount, admin.groups[0].reservedCount], [1, 1, 1])
+    assert.ok(admin.roster.rows.some(row => row.id === Number(enrollment) && row.startDate === dates.start))
+    const exported = (await loadScheduleExport(db, facility)).rows.filter(row => row.groupId === Number(group))
+    assert.equal(exported.length, 2)
+    for (const row of exported) assert.deepEqual([row.enrolled, row.reserved, row.available], [1, 1, 0])
+
+    const request = routesFor(db)
+    const catalog = await request('get', '/api/public/drop-ins')
+    assert.equal(catalog.status, 200, catalog.message)
+    const sessions = catalog.data.sessions.filter(row => row.slotGroupId === Number(group))
+    assert.deepEqual(sessions.map(row => [row.date, row.monthlyEnrolled, row.spotsRemaining]), [
+      [dates.before, 0, 1], [dates.start, 1, 0],
+    ])
+    const denied = await request('post', '/api/public/drop-ins/register', {
+      firstName: 'Trial', lastName: 'Athlete', email: `capacity-${facility}@example.test`,
+      slotGroupId: Number(group), classDate: dates.start, useFreeTrial: true,
+    })
+    assert.equal(denied.status, 409, denied.message)
+    assert.match(denied.message, /full/)
   } finally {
     await db.query('ROLLBACK')
     await db.end()

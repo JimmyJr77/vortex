@@ -1,4 +1,5 @@
 import { prepareDatedEnrollmentAction, processDueEnrollmentActions } from './datedEnrollmentActions.js'
+import { scheduleCapacity, scheduleCountsSql, scheduleSignupCountSql } from './scheduleCapacity.js'
 import { resolveAdminSignupResponses } from './adminSignupContact.js'
 import { recordBillingActivity } from '../billing/billingActivity.js'
 import { createEnrollmentPriceAdjustment } from '../billing/customerBillingAdjustments.js'
@@ -236,8 +237,7 @@ export async function insertSignupForMember(
   const lock = await client.query(
     `
     SELECT sg.max_participants,
-      (SELECT COUNT(*)::int FROM scheduling_signup s
-       WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') + pending_registration_holds(sg.id,$3) AS signup_count
+      ${scheduleSignupCountSql('sg.id')} + pending_registration_holds(sg.id,$3) AS signup_count
     FROM scheduling_slot_group sg
     WHERE sg.id = $1 AND sg.form_id = $2 AND sg.is_active = TRUE
     FOR UPDATE OF sg
@@ -805,8 +805,7 @@ function mapSlotRow(
   groupRow = null,
   siblingRows = null,
 ) {
-  const max = Number(row.max_participants)
-  const count = Number(signupCount)
+  const availability = scheduleCapacity(groupRow?.max_participants ?? row.max_participants, signupCount, groupRow?.reserved_count)
   let dates = resolveSlotActiveDates(row, form, offeringById)
   if (
     groupRow?.inherits_offering_dates &&
@@ -828,10 +827,7 @@ function mapSlotRow(
     specificDate: formatDateOnly(row.specific_date),
     startTime: formatTime(row.start_time),
     endTime: formatTime(row.end_time),
-    maxParticipants: max,
-    signupCount: count,
-    spotsRemaining: Math.max(0, max - count),
-    isFull: count >= max,
+    ...availability,
     activeStart: dates.activeStart,
     activeEnd: dates.activeEnd,
     datesTbd: dates.datesTbd,
@@ -850,24 +846,20 @@ function mapSlotGroupRow(
   waitlistCount = 0,
   offeringById = null,
 ) {
-  const max = Number(groupRow.max_participants)
-  const count = Number(signupCount)
+  const availability = scheduleCapacity(groupRow.max_participants, signupCount, groupRow.reserved_count)
   const waitlist = Number(waitlistCount)
   const dates = resolveSlotActiveDates(groupRow, form, offeringById)
   const sortedOccurrenceRows = sortOccurrenceRows(occurrenceRows || [])
   const occurrences = sortedOccurrenceRows.map((row) =>
-    mapSlotRow(row, 0, form, offeringById, groupRow, sortedOccurrenceRows),
+    mapSlotRow(row, availability.signupCount, form, offeringById, groupRow, sortedOccurrenceRows),
   )
   return {
     id: Number(groupRow.id),
     formId: Number(groupRow.form_id),
     offeringId: groupRow.offering_id != null ? Number(groupRow.offering_id) : null,
     scheduleMode: groupRow.schedule_mode || 'day',
-    maxParticipants: max,
-    signupCount: count,
+    ...availability,
     waitlistCount: waitlist,
-    spotsRemaining: Math.max(0, max - count),
-    isFull: count >= max,
     hasWaitlist: waitlist > 0,
     activeStart: dates.activeStart,
     activeEnd: dates.activeEnd,
@@ -878,6 +870,17 @@ function mapSlotGroupRow(
     displayLabel: buildGroupDisplayLabel(sortedOccurrenceRows),
     occurrences,
   }
+}
+
+async function mapUpdatedSlot(pool, row, form = null) {
+  if (row.slot_group_id != null) {
+    const group = (await pool.query(`SELECT sg.*, ${scheduleCountsSql('sg.id')}
+      FROM scheduling_slot_group sg WHERE sg.id = $1`, [row.slot_group_id])).rows[0]
+    if (group) return mapSlotRow(row, group.signup_count, form, null, group)
+  }
+  const { rows: [count] } = await pool.query(`SELECT COUNT(*)::int AS enrolled FROM scheduling_signup
+    WHERE time_slot_id = $1 AND status = 'confirmed' AND orphaned_at IS NULL AND archived_at IS NULL`, [row.id])
+  return mapSlotRow(row, count.enrolled, form)
 }
 
 function filterSlotRowsByVisibility(rows, _form, includeInactive) {
@@ -1108,15 +1111,7 @@ async function loadFormDetail(
 
   const groupsRes = await pool.query(
     `
-    SELECT sg.*,
-      COALESCE((
-        SELECT COUNT(*)::int FROM scheduling_signup s
-        WHERE s.slot_group_id = sg.id AND s.status = 'confirmed'
-      ), 0) AS signup_count,
-      COALESCE((
-        SELECT COUNT(*)::int FROM scheduling_signup s
-        WHERE s.slot_group_id = sg.id AND s.status = 'waitlisted'
-      ), 0) AS waitlist_count
+    SELECT sg.*, ${scheduleCountsSql('sg.id')}
     FROM scheduling_slot_group sg
     WHERE ${groupWhere}
     ORDER BY sg.id
@@ -3988,10 +3983,6 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
             return res.status(404).json({ success: false, message: 'Time slot not found' })
           }
           const formRes = await pool.query('SELECT * FROM scheduling_form WHERE id = $1', [result.rows[0].form_id])
-          const signupRes = await pool.query(
-            `SELECT COUNT(*)::int AS c FROM scheduling_signup WHERE time_slot_id = $1 AND status = 'confirmed'`,
-            [req.params.id],
-          )
           try {
             const schedMsg = await notifyTimeSlotScheduleChange(pool, {
               timeSlotId: Number(req.params.id),
@@ -4011,7 +4002,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
           }
           return res.json({
             success: true,
-            data: mapSlotRow(result.rows[0], signupRes.rows[0].c, formRes.rows[0]),
+            data: await mapUpdatedSlot(pool, result.rows[0], formRes.rows[0]),
           })
         }
 
@@ -4031,7 +4022,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         if (result.rows.length === 0) {
           return res.status(404).json({ success: false, message: 'Time slot not found' })
         }
-        res.json({ success: true, data: mapSlotRow(result.rows[0], 0) })
+        res.json({ success: true, data: await mapUpdatedSlot(pool, result.rows[0]) })
       } catch (err) {
         console.error('[scheduling] updateTimeSlot:', err)
         res.status(500).json({ success: false, message: 'Failed to update time slot' })
@@ -4683,8 +4674,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
               const capRes = await client.query(
                 `
                 SELECT sg.max_participants,
-                  (SELECT COUNT(*)::int FROM scheduling_signup s
-                   WHERE s.slot_group_id = sg.id AND s.status = 'confirmed') + pending_registration_holds(sg.id) AS signup_count
+                  ${scheduleSignupCountSql('sg.id')} + pending_registration_holds(sg.id) AS signup_count
                 FROM scheduling_slot_group sg
                 WHERE sg.id = $1
                 `,
@@ -5072,15 +5062,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
           'SELECT * FROM scheduling_time_slot WHERE slot_group_id = $1 ORDER BY id',
           [req.params.id],
         )
-        const countRes = await pool.query(
-          `
-          SELECT
-            (SELECT COUNT(*)::int FROM scheduling_signup WHERE slot_group_id = $1 AND status = 'confirmed') AS signup_count,
-            (SELECT COUNT(*)::int FROM scheduling_signup WHERE slot_group_id = $1 AND status = 'waitlisted') AS waitlist_count
-          `,
-          [req.params.id],
-        )
-        const updatedGroup = await pool.query('SELECT * FROM scheduling_slot_group WHERE id = $1', [
+        const updatedGroup = await pool.query(`SELECT sg.*, ${scheduleCountsSql('sg.id')} FROM scheduling_slot_group sg WHERE sg.id = $1`, [
           req.params.id,
         ])
 
@@ -5089,9 +5071,9 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
           data: mapSlotGroupRow(
             updatedGroup.rows[0],
             occurrencesRes.rows,
-            countRes.rows[0].signup_count,
+            updatedGroup.rows[0].signup_count,
             formRes.rows[0],
-            countRes.rows[0].waitlist_count,
+            updatedGroup.rows[0].waitlist_count,
           ),
         })
       } catch (err) {
