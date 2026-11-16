@@ -29,8 +29,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Absolute URLs so the shared footer links correctly from both the hub
-  // (vortexathletics.com) and the gymnastics (vortex-gymnastics.com) apps.
+  // Public program links return to the unified landing page.
   const quickLinks: { name: string; href: string; onHold?: boolean }[] = [
     { name: 'Gymnastics', href: getGymnasticsSiteUrl() },
     {
@@ -39,10 +38,10 @@ const Footer = ({ onLoginClick }: FooterProps) => {
       onHold: NINJA_PROGRAM_ON_HOLD,
     },
     {
-      name: 'Athleticism Accelerator',
-      href: getHubSiteUrl('/vortex-athletics'),
+      name: 'The Triad of Athleticism',
+      href: getHubSiteUrl('/#triad'),
     },
-    { name: 'Fit & Flip', href: getHubSiteUrl('/fit-and-flip') },
+    { name: 'Fit & Flip', href: getHubSiteUrl('/#fit-flip') },
     { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
     { name: 'Drop-In Classes', href: getHubSiteUrl('/drop-in') },
     { name: 'Store', href: getHubSiteUrl('/store') },
@@ -90,8 +89,8 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                 transition={{ delay: 0.1, duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                Transforming youth athletes into champions through cutting-edge gymnastics training, 
-                advanced technology, and a relentless competitive mindset.
+                Purposeful gymnastics and athletic development that build strength,
+                explosiveness, and body control. Built for every athlete.
               </motion.p>
 
               <motion.div

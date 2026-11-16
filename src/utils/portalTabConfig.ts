@@ -43,6 +43,7 @@ export const DEFAULT_COACH_PORTAL_NAV_LAYOUT: PortalNavLayoutItem[] = [
   { type: 'tab', key: 'reviews' },
   { type: 'tab', key: 'insights' },
   { type: 'section', id: 'administrative', label: 'Administrative' },
+  { type: 'tab', key: 'trial-assessments' },
   { type: 'tab', key: 'faqs' },
   { type: 'tab', key: 'preferences' },
 ]
@@ -216,6 +217,7 @@ export const COACH_PORTAL_TAB_OPTIONS: Array<{ key: CoachTab; label: string; loc
   { key: 'flip-fit', label: 'Fit & Flip' },
   { key: 'challenges', label: 'Challenges' },
   { key: 'gymnastics-evaluations', label: 'Evaluation Form' },
+  { key: 'trial-assessments', label: 'Trial Assessments' },
   { key: 'skills', label: 'Skill Tree' },
   { key: 'assign', label: 'Assign' },
   { key: 'reviews', label: 'Form Review' },
@@ -255,6 +257,7 @@ export const COACH_PORTAL_HOME_CARD_COPY: Record<
   programs: { title: 'ABC Progressions', description: 'Browse and build structured athletic progressions.' },
   'flip-fit': { title: 'Fit & Flip', description: 'Build and manage the 12-week athlete development schedule.' },
   challenges: { title: 'Challenges', description: 'Run scored competitions.' },
+  'trial-assessments': { title: 'Trial Assessments', description: 'Set the days, times, and capacity for free gymnastics assessments.' },
   'gymnastics-evaluations': { title: 'Evaluation Form', description: 'Score gymnastics movements and publish athlete focus reports.' },
   skills: { title: 'Skill Tree', description: 'Prerequisite progressions and mastery.' },
   assign: { title: 'Assign & Share', description: 'Push plans to athletes.' },

@@ -824,6 +824,22 @@ export async function buildSignupOrderPreview(
     }
   }
 
+  // Resolve every supplied identifier independently so a mismatched ordinary
+  // form cannot disguise an assessment group or time slot before checkout.
+  if (slotSignups.length) {
+    const ids = field => [...new Set(slotSignups.map(entry => Number(entry[field])).filter(id => Number.isSafeInteger(id) && id > 0))]
+    const assessment = await pool.query(`SELECT 1 FROM scheduling_form sf JOIN program p ON p.id = sf.program_id
+      WHERE p.is_trial_assessment = TRUE AND (
+        sf.id = ANY($1::bigint[])
+        OR sf.id IN (SELECT form_id FROM scheduling_slot_group WHERE id = ANY($2::bigint[]))
+        OR sf.id IN (SELECT form_id FROM scheduling_time_slot WHERE id = ANY($3::bigint[]))
+        OR sf.id IN (SELECT sg.form_id FROM scheduling_time_slot ts JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id WHERE ts.id = ANY($3::bigint[]))
+      ) LIMIT 1`, [ids('formId'), ids('slotGroupId'), ids('timeSlotId')])
+    if (assessment.rows.length) throw Object.assign(new Error('Trial Assessments must be booked through the free-trial signup. No paid enrollment is required.'), {
+      statusCode: 400, code: 'TRIAL_ASSESSMENT_REQUIRES_FREE_TRIAL',
+    })
+  }
+
   // Administrative class moves price the destination against the household as
   // it will exist after the source enrollment leaves.  Keeping the exclusion
   // here (rather than faking a second enrollment) preserves the same pricing
@@ -879,6 +895,7 @@ export async function buildSignupOrderPreview(
       formRows.set(Number(row.id), row)
     }
   }
+
 
   const slotGroupIds = new Set([
     ...householdExisting.map((e) => e.slotGroupId),

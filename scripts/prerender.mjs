@@ -10,9 +10,6 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_OG_IMAGE,
-  GYMNASTICS_HOST_PAGES,
-  GYMNASTICS_NOINDEX_PRERENDER_PATHS,
-  GYMNASTICS_PRERENDER_PATHS,
   HUB_PRERENDER_PATHS,
   SITE_NAME,
   STUB_SEO_ENTRIES,
@@ -78,18 +75,6 @@ ${robotsTag}    <meta property="og:title" content="${escapeAttr(title)}" />
 `
 }
 
-/**
- * Remove any `noindex`/`nofollow` robots meta from a prerendered snapshot.
- * Gymnastics pages are rendered via the `?sport=gymnastics` preview override,
- * which the app treats as a preview (noindex). On the real domain the client
- * renders them as indexable, so the static snapshot must not ship noindex.
- */
-const stripNoindexRobots = (html) =>
-  html.replace(
-    /<meta[^>]*name=["']robots["'][^>]*content=["'][^"']*noindex[^"']*["'][^>]*>\s*/gi,
-    '',
-  )
-
 const injectSeoIntoHtml = (html, seo) => {
   let output = html.replace(/<title>.*?<\/title>/i, `<title>${escapeAttr(seo.title)}</title>`)
   output = output.replace(
@@ -111,11 +96,7 @@ const generateStubHostHtml = () => {
   const seoDir = join(distDir, '_seo')
   mkdirSync(seoDir, { recursive: true })
 
-  const comingSoonStubs = STUB_SEO_ENTRIES.filter(
-    (stub) => stub.host !== 'vortex-gymnastics.com',
-  )
-
-  for (const stub of comingSoonStubs) {
+  for (const stub of STUB_SEO_ENTRIES) {
     const html = injectSeoIntoHtml(baseHtml, {
       title: stub.title,
       description: stub.description,
@@ -125,37 +106,6 @@ const generateStubHostHtml = () => {
     const outPath = join(seoDir, `${stub.host}.html`)
     writeFileSync(outPath, html, 'utf8')
     console.log(`[prerender] Wrote ${outPath}`)
-  }
-}
-
-/**
- * Write baseline _gym/*.html files (gymnastics homepage + read-board) using
- * string injection, WITHOUT Chromium. The vercel.json host rules for
- * vortex-gymnastics.com point at these files, so they must always exist even if
- * the Chromium snapshot step is unavailable (e.g. browser install failed on the
- * build host). The Chromium pass overwrites them with full-content snapshots.
- */
-const generateGymHostBaseline = () => {
-  const indexPath = join(distDir, 'index.html')
-  if (!existsSync(indexPath)) {
-    console.warn('[prerender] dist/index.html not found, skipping _gym baseline')
-    return
-  }
-
-  const baseHtml = readFileSync(indexPath, 'utf8')
-  for (const page of GYMNASTICS_HOST_PAGES) {
-    const html = injectSeoIntoHtml(baseHtml, {
-      title: page.title,
-      description: page.description,
-      canonical: page.canonical,
-      siteName: page.siteName,
-      ogImage: page.ogImage,
-      ogImageAlt: page.ogImageAlt,
-    })
-    const outPath = join(distDir, page.outFile)
-    mkdirSync(dirname(outPath), { recursive: true })
-    writeFileSync(outPath, html, 'utf8')
-    console.log(`[prerender] Wrote baseline ${outPath}`)
   }
 }
 
@@ -268,21 +218,6 @@ const prerenderAppRoutes = async () => {
           routePath === '/'
             ? join(distDir, 'index.html')
             : join(distDir, routePath.replace(/^\//, ''), 'index.html'),
-        stripNoindex: false,
-      })),
-      // Gymnastics routes (vortex-gymnastics.com) render via the ?sport override.
-      // These paths do not collide with hub paths, so they get their own dir.
-      ...GYMNASTICS_PRERENDER_PATHS.map((routePath) => ({
-        url: `${previewOrigin}${routePath}?sport=gymnastics`,
-        outFile: join(distDir, routePath.replace(/^\//, ''), 'index.html'),
-        stripNoindex: !GYMNASTICS_NOINDEX_PRERENDER_PATHS.includes(routePath),
-      })),
-      // Gymnastics routes whose paths collide with the hub (/, /read-board):
-      // snapshot into dedicated _gym/* files served via host rules.
-      ...GYMNASTICS_HOST_PAGES.map((page) => ({
-        url: `${previewOrigin}${page.path}?sport=gymnastics`,
-        outFile: join(distDir, page.outFile),
-        stripNoindex: true,
       })),
     ]
 
@@ -308,8 +243,7 @@ const prerenderAppRoutes = async () => {
           // committed render. Do not wait for background API polling to idle.
           await page.waitForTimeout(250)
           const pageTitle = await page.title()
-          let html = dedupeHeadTags(await page.content(), pageTitle)
-          if (target.stripNoindex) html = stripNoindexRobots(html)
+          const html = dedupeHeadTags(await page.content(), pageTitle)
           snapshots.push({ outFile: target.outFile, html })
           lastError = null
           break
@@ -362,7 +296,6 @@ const main = async () => {
   }
 
   generateStubHostHtml()
-  generateGymHostBaseline()
   await prerenderAppRoutes()
   console.log('[prerender] Done')
 }

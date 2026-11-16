@@ -1,6 +1,6 @@
 import type { StubSiteConfig } from '../config/stubSites'
 import { HUB_URL, STUB_SITES } from '../config/stubSites'
-import { appendCrossDomainConsentId } from './crossDomainConsent'
+import { appendCrossDomainConsentId, getHubSiteUrl } from './crossDomainConsent'
 
 const isLocalDevHost = (): boolean => {
   if (typeof window === 'undefined') return false
@@ -10,10 +10,16 @@ const isLocalDevHost = (): boolean => {
 
 /** Production stub sport domain URL; localhost uses ?sport= for preview. */
 export function getStubSportSiteUrl(sportKey: string, path = '/'): string {
+  const normalized = path.startsWith('/') ? path : `/${path}`
+  // Gymnastics is part of the primary site; retain functional deep links.
+  if (sportKey === 'gymnastics') {
+    const target = normalized === '/' ? '/#gymnastics' : normalized
+    if (typeof window !== 'undefined' && (isLocalDevHost() || window.location.hostname.replace(/^www\./, '') === 'vortexathletics.com')) return target
+    return getHubSiteUrl(target)
+  }
+
   const entry = Object.values(STUB_SITES).find((s) => s.key === sportKey)
   if (!entry) return '/'
-
-  const normalized = path.startsWith('/') ? path : `/${path}`
 
   if (import.meta.env.DEV && isLocalDevHost()) {
     if (normalized === '/') {
@@ -33,6 +39,7 @@ export const getSportBrandName = (sportLabel: string): string =>
 
 /** Sport site home URL (production domain or current origin on that host). */
 export const getSportHomeUrl = (config: StubSiteConfig): string => {
+  if (config.key === 'gymnastics') return getStubSportSiteUrl('gymnastics')
   if (typeof window !== 'undefined') {
     const host = window.location.hostname.replace(/^www\./, '')
     if (host === config.canonicalHost.replace(/^www\./, '')) {

@@ -3,41 +3,26 @@ export interface Faq {
   answer: string
 }
 
-/** Home/FAQ content. Rendered visibly on the homepage AND used for FAQPage schema. */
+/** Shared visible homepage content and FAQPage structured data. */
 export const HOME_FAQS: Faq[] = [
   {
-    question: 'Where are you located?',
-    answer:
-      'Our facility is located at 4961 Tesla Dr Suite E, Bowie, MD 20715. We serve athletes across Bowie and central Maryland, including Crofton, Mitchellville, Upper Marlboro, and Prince George\u2019s and Anne Arundel Counties.',
+    question: "What is the difference between Gymnastics and Fit & Flip?",
+    answer: "Gymnastics is the traditional pathway for learning and progressing in gymnastics skills, with foundations across its disciplines. Fit & Flip is our athletic development program: strength, explosiveness, and gymnastics-inspired tumbling and body control. Both develop capable athletes; the starting point is your athlete’s goal.",
   },
   {
-    question: 'What ages do you serve?',
-    answer:
-      "We offer programs for athletes of all ages, from preschoolers (2-5 years) to adults. Our training is tailored to each age group's developmental needs.",
+    question: "Does my child have to compete to train seriously?",
+    answer: "No. Our developmental and team gymnastics pathways share a commitment to meaningful, high-quality development. Only team athletes compete. Developmental athletes still work toward real skill progression, strength, and confidence.",
   },
   {
-    question: 'Do I need gymnastics experience to register for gymnastics classes?',
-    answer:
-      'No prior gymnastics experience is required! Our programs will teach your athlete fundamentals, reinforce proper technique, and press toward advanced skills as the athlete progresses.',
+    question: "Is Fit & Flip only for gymnasts?",
+    answer: "No. Fit & Flip serves cheerleaders, acro athletes, dancers, gymnasts, and athletes from field, court, and other sports. Body control connects the strength and explosiveness work, helping athletes become more capable movers overall.",
   },
   {
-    question: 'Is Vortex solely a gymnastics studio?',
-    answer:
-      'No. We offer a lot more than just gymnastics. Vortex is a full athletic development studio. We recognize, however, that gymnastics are a core component to athleticism and incorporate tumbling and body awareness into our strength, conditioning, and fitness regimens.',
+    question: "Can an athlete do both programs?",
+    answer: "Yes. Gymnasts who want an additional emphasis on strength and explosiveness can use Fit & Flip to complement their gymnastics training. Talk with our team about an appropriate starting point and schedule.",
   },
   {
-    question: 'What makes Vortex different from other gyms?',
-    answer:
-      'Vortex combines rigorous gymnastics training with cutting-edge technology (high-speed cameras, force plates, AI analysis) and a science-backed approach to develop all 8 tenets of athleticism. We focus on transforming athletes, not just training them.',
-  },
-  {
-    question: 'What programs do you offer?',
-    answer:
-      'We offer competitive teams in Trampoline & Tumbling, Artistic Gymnastics, and Rhythmic Gymnastics, plus youth sports performance training, Fit & Flip, developmental classes, drop-in options, and private coaching. Ninja classes are temporarily on hold.',
-  },
-  {
-    question: 'What is the "Fail your way to success" mindset?',
-    answer:
-      'We teach children to find fun in overcoming adversity and achieving success through a competitive edge. Our athletes are simultaneously pushed and cared for, learning resilience that fuels excellence in every aspect of life.',
+    question: "Where should a beginner start?",
+    answer: "Choose Gymnastics if the goal is to learn gymnastics. Choose Fit & Flip if the goal is athletic development or stronger tumbling for another sport. You do not need to arrive as an elite athlete—we build from your current ability. Our team can help with placement.",
   },
 ]

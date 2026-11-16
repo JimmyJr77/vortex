@@ -1,13 +1,13 @@
-import { buildCanonical, type SeoMeta } from '../utils/seo'
+import { buildCanonical, HUB_ORIGIN, SITE_NAME, type SeoMeta } from '../utils/seo'
 
-/** Canonical gymnastics origin. Production redirects the apex host to www. */
-export const GYMNASTICS_ORIGIN = 'https://www.vortex-gymnastics.com'
-export const GYMNASTICS_SITE_NAME = 'Vortex Gymnastics'
+/** Legacy gymnastics components share the unified website's canonical origin. */
+export const GYMNASTICS_ORIGIN = HUB_ORIGIN
+export const GYMNASTICS_SITE_NAME = SITE_NAME
 
-/** Header wordmark on vortex-gymnastics.com (wide banner). */
+/** Legacy gymnastics wordmark retained for archived components. */
 export const GYMNASTICS_HEADER_LOGO = '/vortex-gymnastics-logo.webp'
 
-/** Per-origin Open Graph image so gymnastics shares use gymnastics branding. */
+/** Legacy gymnastics artwork is served from the primary website. */
 export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex-gymnastics-og.jpg`
 export const GYMNASTICS_OG_IMAGE_ALT =
   'A Vortex Gymnastics athlete training on a trampoline in Bowie, Maryland'

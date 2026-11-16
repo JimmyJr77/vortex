@@ -13,6 +13,9 @@ import {
   bestPortalForAccount,
   clearPortalSession,
   getAvailablePortals,
+  getLoggedInMemberAccount,
+  getMemberSessionToken,
+  PORTAL_SESSION_CHANGED,
   persistAdminSessionFromAccount,
   persistMemberSession,
   updateMemberSessionCredentials,
@@ -20,19 +23,17 @@ import {
   type PortalId,
 } from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
+import publicLandingRedirects from './config/publicLandingRedirects.json'
 import { useSiteHighlights } from './hooks/useSiteHighlights'
 import HighlightsModal from './components/HighlightsModal'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
-const AthleticismAccelerator = lazyWithRetry(() => import('./components/AthleticismAccelerator'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
 const NewPage = lazyWithRetry(() => import('./components/newpage/NewPage'))
-const SummerAthleticTraining = lazyWithRetry(() => import('./components/SummerAthleticTraining'))
-const StrengthFitness = lazyWithRetry(() => import('./components/StrengthFitness'))
-const Sports = lazyWithRetry(() => import('./components/Sports'))
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
-const Value = lazyWithRetry(() => import('./components/Value'))
 const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
+const CampInterestPage = lazyWithRetry(() => import('./apps/gymnastics/pages/CampInterestPage'))
+const CampInterestThankYouPage = lazyWithRetry(() => import('./apps/gymnastics/pages/CampInterestThankYouPage'))
 const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupFamilyPage'))
 const SignupLeadPage = lazyWithRetry(() => import('./components/signup/SignupLeadPage'))
 const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupInvitePage'))
@@ -61,6 +62,12 @@ function PageLoader() {
   )
 }
 
+function PublicLandingRedirect({ destination }: { destination: string }) {
+  const location = useLocation()
+  const [pathname, anchor] = destination.split('#')
+  return <Navigate to={{ pathname: pathname || '/', search: location.search, hash: anchor ? `#${anchor}` : location.hash }} replace />
+}
+
 function App() {
   const [isContactFormOpen, setIsContactFormOpen] = useState(false)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
@@ -78,11 +85,10 @@ function App() {
   })
   const location = useLocation()
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
-  const isNewPage = Boolean(matchPath('/newpage', location.pathname))
+  const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const {
     highlights,
     isOpen: isHighlightsOpen,
-    open: openHighlights,
     close: closeHighlights,
     hasHighlights,
   } = useSiteHighlights({ autoOpen: false })
@@ -97,8 +103,10 @@ function App() {
 
   // Scroll to top when navigating to a new page
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [location.pathname])
+    // Section links are positioned by the landing page once its lazy content
+    // has mounted. Do not overwrite that position during the route transition.
+    if (!location.hash) window.scrollTo(0, 0)
+  }, [location.pathname, location.hash])
 
   useEffect(() => {
     // Admin portal requires both flag and JWT (see Login.tsx)
@@ -106,18 +114,21 @@ function App() {
 
     // Restore member session from storage. Do not force activePortal back to
     // "website" on every location change — that kicks users out of admin/coach/
-    // member while they are still logged in. Stripe returns are the exception.
+    // member while they are still logged in. Explicit portal links and Stripe
+    // returns are the exception.
     const storedToken = localStorage.getItem('vortex_member_token')
     const storedMember = localStorage.getItem('vortex_member')
 
     if (storedToken && storedMember) {
       try {
+        const storedAccount = JSON.parse(storedMember) as PortalAccount
         setMemberToken(storedToken)
-        setMember(JSON.parse(storedMember) as PortalAccount)
+        setMember(storedAccount)
         const returnParams = new URLSearchParams(location.search)
-        const isStripeReturn = returnParams.has('billing') || returnParams.has('enrollment')
-        if (isStripeReturn) {
-          setActivePortal('member')
+        const isBillingReturn = returnParams.has('billing') || returnParams.has('enrollment')
+        const isPortalReturn = isBillingReturn || returnParams.get('login') === '1'
+        if (isPortalReturn) {
+          setActivePortal(isBillingReturn ? 'member' : bestPortalForAccount(storedAccount))
           setShowMemberDashboard(true)
         }
       } catch (error) {
@@ -129,6 +140,18 @@ function App() {
     captureUtmFromLocation()
     trackPageView(location.pathname)
   }, [location.pathname, location.search])
+
+  // Embedded registration can sign a family in without changing the page.
+  useEffect(() => {
+    const syncSession = () => {
+      setMemberToken(getMemberSessionToken())
+      setMember(getLoggedInMemberAccount())
+      setIsAdmin(hasAdminSession())
+      setWaiversCheckedToken(null)
+    }
+    window.addEventListener(PORTAL_SESSION_CHANGED, syncSession)
+    return () => window.removeEventListener(PORTAL_SESSION_CHANGED, syncSession)
+  }, [])
 
   // If the user selected Admin but the admin flag/token was missing, restore it
   // from the shared member session instead of falling through to the public site.
@@ -242,7 +265,7 @@ function App() {
 
   // Check required waivers for restored member sessions. Lead registration
   // uses the invited family's own sign-in and waiver steps.
-  if (!isLeadRegistration && !(isNewPage && activePortal === 'website') && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
+  if (!isLeadRegistration && !(isLandingPage && activePortal === 'website') && memberToken && availablePortals.includes('member') && waiversCheckedToken !== memberToken) {
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
@@ -299,8 +322,8 @@ function App() {
   // Otherwise show normal website
   return (
     <div className="min-h-screen bg-white relative">
-      {!isNewPage && <HubSeo />}
-      {!isNewPage && <Header
+      {!isLandingPage && <HubSeo />}
+      {!isLandingPage && <Header
         onContactClick={handleContactClick}
         onAdminLoginClick={() => setIsLoginOpen(true)}
         isLoggedIn={Boolean(member) || isAdmin}
@@ -312,52 +335,20 @@ function App() {
       />}
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          <Route path="/newpage" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+          <Route path="/" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
             if (member || isAdmin) {
               const portals = getAvailablePortals(member)
               const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
               switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
             } else setIsLoginOpen(true)
           }} />} />
-          <Route 
-            path="/" 
-            element={
-              <Sports />
-            }
-          />
-          <Route
-            path="/sports"
-            element={<Navigate to="/" replace />}
-          />
-          <Route
-            path="/vortex-athletics"
-            element={
-              <AthleticismAccelerator
-                onHighlightsClick={hasHighlights ? openHighlights : undefined}
-              />
-            }
-          />
-          <Route
-            path="/athleticism-accelerator"
-            element={<Navigate to="/vortex-athletics" replace />}
-          />
+          {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />
-          <Route path="/summer-athletic-training" element={<SummerAthleticTraining />} />
-          <Route
-            path="/fit-and-flip"
-            element={<StrengthFitness onSignUpClick={handleContactClick} />}
-          />
-          <Route
-            path="/strength-conditioning"
-            element={<Navigate to="/fit-and-flip" replace />}
-          />
+          <Route path="/camp_interest" element={<CampInterestPage />} />
+          <Route path="/camp_interest/thank-you" element={<CampInterestThankYouPage />} />
           <Route 
             path="/ninja" 
             element={<Ninja onSignUpClick={handleContactClick} />} 
-          />
-          <Route 
-            path="/value" 
-            element={<Value />} 
           />
           <Route 
             path="/read-board" 
@@ -408,7 +399,7 @@ function App() {
         inquiryVariant="athletics"
         inquirySource={inquirySourcePath}
       />
-      {!isNewPage && <Footer
+      {!isLandingPage && <Footer
         onContactClick={handleContactClick} 
         onLoginClick={() => setIsLoginOpen(true)}
       />}

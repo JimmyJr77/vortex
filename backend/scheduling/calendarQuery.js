@@ -74,6 +74,7 @@ export async function loadSchedulingCalendar(pool, options) {
   if (publicOnly) {
     filters.push('sf.is_active = TRUE')
     filters.push('p.is_active = TRUE')
+    filters.push('COALESCE(p.is_trial_assessment, FALSE) = FALSE')
   } else if (formActive === 'active') {
     filters.push('p.is_active = TRUE')
   } else if (formActive === 'inactive') {
@@ -173,6 +174,7 @@ export async function loadPublicSchedulingClasses(pool) {
       AND sf.program_id IS NOT NULL
       AND p.archived = FALSE
       AND p.is_active = TRUE
+      AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
       AND (pr.id IS NULL OR pr.archived = FALSE)
     ORDER BY pr.display_name NULLS LAST, p.display_name
     `,

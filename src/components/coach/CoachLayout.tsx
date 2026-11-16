@@ -31,6 +31,7 @@ const InsightsPanel = lazyWithRetry(() => import('./InsightsPanel'))
 const SkillTreePanel = lazyWithRetry(() => import('./SkillTreePanel'))
 const MessagesPanel = lazyWithRetry(() => import('./MessagesPanel'))
 const FormReviewPanel = lazyWithRetry(() => import('./FormReviewPanel'))
+const TrialAssessmentSchedulePanel = lazyWithRetry(() => import('./TrialAssessmentSchedulePanel'))
 const GymnasticsEvaluationPanel = lazyWithRetry(() => import('./GymnasticsEvaluationPanel'))
 
 export type CoachTab =
@@ -54,6 +55,7 @@ export type CoachTab =
   | 'reviews'
   | 'preferences'
   | 'gymnastics-evaluations'
+  | 'trial-assessments'
 
 interface CoachAccount {
   fullName?: string
@@ -83,6 +85,7 @@ const NAV: Array<{ tab: CoachTab; label: string; icon: typeof Home }> = [
   { tab: 'programs', label: 'ABC Progressions', icon: CalendarRange },
   { tab: 'flip-fit', label: 'Fit & Flip', icon: CalendarRange },
   { tab: 'challenges', label: 'Challenges', icon: Trophy },
+  { tab: 'trial-assessments', label: 'Trial Assessments', icon: CalendarDays },
   { tab: 'gymnastics-evaluations', label: 'Evaluation Form', icon: ClipboardCheck },
   { tab: 'skills', label: 'Skill Tree', icon: GitBranch },
   { tab: 'assign', label: 'Assign', icon: Send },
@@ -185,6 +188,8 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
         return <FlipFitSchedulePanel />
       case 'challenges':
         return <ChallengeBuilder />
+      case 'trial-assessments':
+        return <TrialAssessmentSchedulePanel />
       case 'gymnastics-evaluations':
         return <GymnasticsEvaluationPanel />
       case 'skills':

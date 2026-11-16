@@ -63,7 +63,7 @@ export const webSiteSchema = (origin: string): JsonLd => ({
   '@type': 'WebSite',
   '@id': `${origin}/#website`,
   url: rootUrl(origin),
-  name: origin === GYMNASTICS_ORIGIN ? 'Vortex Gymnastics' : SITE_NAME,
+  name: SITE_NAME,
   publisher: { '@id': `${HUB_ORIGIN}/#organization` },
 })
 
@@ -87,7 +87,7 @@ const localServiceCatalog = () => ({
   })),
 })
 
-/** One stable local entity shared by both sites, matching the Google profile. */
+/** One stable local entity for the unified site, matching the Google profile. */
 export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'SportsActivityLocation',
@@ -97,7 +97,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   url: rootUrl(HUB_ORIGIN),
   mainEntityOfPage: rootUrl(pageOrigin),
   description:
-    'Youth sports performance training and gymnastics classes for children and teens in Bowie, Maryland, including speed, agility, strength, conditioning, tumbling, and competitive gymnastics.',
+    'Gymnastics and Fit & Flip athletic development for children and teens in Bowie, Maryland, built around strength, explosiveness, and body control.',
   image: DEFAULT_OG_IMAGE,
   telephone: phoneE164,
   email: TEAM_EMAIL,
@@ -129,7 +129,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   ],
   parentOrganization: { '@id': `${HUB_ORIGIN}/#organization` },
   hasOfferCatalog: localServiceCatalog(),
-  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, rootUrl(GYMNASTICS_ORIGIN)],
+  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
   potentialAction: {
     '@type': 'ReserveAction',
     target: `${HUB_ORIGIN}${ENROLL_PATH}`,

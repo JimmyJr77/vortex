@@ -87,7 +87,7 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
         submitterRole,
         newsletter: false,
         ...(interests.length ? { interests } : {}),
-        inquirySource: '/newpage',
+        inquirySource: window.location.pathname,
         message: `Program interest: ${programLabels[selectedProgram]}${message ? `\n\n${message}` : ''}`,
       }
       const capabilities = await getRegistrationApiCapabilities()

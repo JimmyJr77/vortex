@@ -1503,6 +1503,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
             AND sf.program_id IS NOT NULL
             AND p.archived = FALSE
             AND p.is_active = TRUE
+            AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
             AND p.${schema.programFkColumn} IS NOT NULL
             AND pr.archived = FALSE
             ${parentProgramActiveClause}
@@ -1540,6 +1541,10 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
     async getPublicForm(req, res) {
       try {
         const formId = Number(req.params.id)
+
+        const assessment = await pool.query(`SELECT 1 FROM scheduling_form sf JOIN program p ON p.id = sf.program_id
+          WHERE sf.id = $1 AND p.is_trial_assessment = TRUE`, [formId])
+        if (assessment.rows.length) return res.status(400).json({ success: false, message: 'Book this Trial Assessment through the free-trial signup at /newpage.' })
 
         if (req.query.fromEvent === '1') {
           const formRes = await pool.query(
@@ -1657,6 +1662,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
                 AND class_event.${schema.programFkColumn} = $1
                 AND COALESCE(class_event.archived, FALSE) = FALSE
                 AND COALESCE(class_event.is_active, TRUE) = TRUE
+                AND COALESCE(class_event.is_trial_assessment, FALSE) = FALSE
                 AND COALESCE(pr.archived, FALSE) = FALSE
                 ${activeParentClause}
                 AND EXISTS (

@@ -3,7 +3,9 @@ import crypto from 'crypto'
 import { prepareFamilyEnrollmentCheckout } from './familyEnrollmentCheckout.js'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { loadCanonicalAccessContext } from './accessContext.js'
+import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from './accessContext.js'
+import { resolveJwtSecret } from '../auth/jwtSecret.js'
+import { bookMemberFreeTrial, validateTrialSelection } from '../scheduling/freeTrials.js'
 import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
 import { normalizeOptionalPhoneNumber, normalizePhoneNumber, normalizeUpdatedPhoneNumber, PHONE_FORMAT_ERROR } from '../phoneNumbers.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
@@ -604,6 +606,7 @@ function formatSignupPriceLabel(cents, costUnit) {
  */
 function sqlClassHasSignupSlots(programAlias) {
   return `
+    COALESCE(${programAlias}.is_trial_assessment, FALSE) = FALSE AND
     EXISTS (
       SELECT 1
       FROM scheduling_form sf
@@ -639,6 +642,7 @@ async function loadClassEnrollmentCatalog(pool, classEventId, currentOnly = fals
       INNER JOIN program p ON p.id = sf.program_id
       INNER JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
       WHERE sf.program_id = $1
+        AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
         AND sf.deleted_at IS NULL
         ${currentOnly ? 'AND sf.is_active=TRUE' : ''}
         AND COALESCE(p.archived, FALSE) = FALSE
@@ -1191,6 +1195,13 @@ export async function processFamilySignup(client, payload, options = {}) {
   const additionalMembers = Array.isArray(payload.additionalMembers) ? payload.additionalMembers : []
   const enrollments = Array.isArray(payload.enrollments) ? payload.enrollments : []
   const waivers = payload.waivers || {}
+  const freeTrial = payload.freeTrial == null ? null : validateTrialSelection(payload.freeTrial, { requireMemberIndex: true })
+  if (freeTrial && (enrollments.length || payload.pendingDropInId != null)) {
+    throw new Error('A free trial must be registered separately from paid enrollments or another drop-in.')
+  }
+  if (freeTrial && !additionalMembers[freeTrial.memberIndex - 1]) {
+    throw new Error('Choose a child in the family for this free trial.')
+  }
 
   if (!primaryAdultInput?.firstName || !primaryAdultInput?.lastName) {
     throw new Error('Primary adult first and last name are required.')
@@ -1378,11 +1389,6 @@ export async function processFamilySignup(client, payload, options = {}) {
     if (receipt) enrollmentReceipts.push(receipt)
   }
 
-  const completedDropIn = await finalizePendingDropIn(client, payload.pendingDropInId, {
-    primaryEmail,
-    createdMembers,
-  })
-
   await recordSignupWaiverAcceptances(client, {
     candidateMemberIds: allMemberIds,
     acceptedTemplateIds,
@@ -1395,6 +1401,13 @@ export async function processFamilySignup(client, payload, options = {}) {
     userAgent,
     asOfDate: signupDate,
   })
+
+  const completedDropIn = freeTrial
+    ? await bookMemberFreeTrial(client, freeTrial, {
+      memberId: memberIdByClientIndex[freeTrial.memberIndex], facilityId,
+      contactEmail: primaryEmail, contactPhone: primaryPhone,
+    })
+    : await finalizePendingDropIn(client, payload.pendingDropInId, { primaryEmail, createdMembers })
 
   return {
     familyId,
@@ -1409,6 +1422,42 @@ export async function processFamilySignup(client, payload, options = {}) {
     pendingEnrollments,
     completedDropIn,
   }
+}
+
+/** Runs within the caller's transaction so an unsuccessful trial never leaves a partial waiver signature. */
+export async function processExistingFamilyFreeTrial(client, payload, { signerMemberId, facilityId, ipAddress = null, userAgent = null }) {
+  const selection = validateTrialSelection(payload)
+  if ((Array.isArray(payload.enrollments) && payload.enrollments.length) || payload.pendingDropInId != null) {
+    throw new Error('A free trial must be registered separately from paid enrollments or another drop-in.')
+  }
+  const memberId = Number(payload.memberId)
+  if (!Number.isSafeInteger(memberId) || memberId <= 0 || memberId === Number(signerMemberId)) {
+    throw Object.assign(new Error('Choose a child in your family for this free trial.'), { statusCode: 403 })
+  }
+  const signupDate = await resolveFacilitySignupDate(client, facilityId)
+  const authorizedIds = await resolveSignupWaiverTargetMemberIds(client, {
+    facilityId, signerMemberId, candidateMemberIds: [memberId], asOfDate: signupDate,
+  })
+  if (!authorizedIds.includes(memberId)) {
+    throw Object.assign(new Error('Only this child’s authorized parent or guardian may book and sign their free trial.'), { statusCode: 403 })
+  }
+  const signer = (await client.query(
+    'SELECT email, phone FROM member WHERE id = $1 AND facility_id = $2 AND is_active = TRUE',
+    [signerMemberId, facilityId],
+  )).rows[0]
+  if (!signer || !normalizeSignupEmail(signer.email)) throw new Error('Your guardian account needs a valid contact email before booking.')
+  const waivers = payload.waivers || {}
+  const signatureName = String(waivers.signatureName || '').trim()
+  if (!signatureName) throw new Error('Waiver signature name is required.')
+  await recordSignupWaiverAcceptances(client, {
+    candidateMemberIds: [memberId], acceptedTemplateIds: waivers.acceptedTemplateIds,
+    facilityId, signerMemberId, signatureName, comments: waivers.comments ?? null,
+    paymentPolicyAcknowledged: waivers.paymentPolicyAcknowledged === true,
+    ipAddress, userAgent, asOfDate: signupDate,
+  })
+  return bookMemberFreeTrial(client, selection, {
+    memberId, facilityId, contactEmail: signer.email, contactPhone: signer.phone,
+  })
 }
 
 function tokenFrom(req) {
@@ -1765,6 +1814,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           LEFT JOIN program p ON p.id = sf.program_id
           LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
           WHERE sf.id = $1 AND sf.deleted_at IS NULL
+            AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
         `,
         [formId],
       )
@@ -1794,6 +1844,7 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
           SELECT p.id, p.name, p.display_name, p.programs_id
           FROM program p
           WHERE COALESCE(p.is_active, TRUE) = TRUE
+            AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
           ORDER BY COALESCE(p.display_name, p.name), p.id
           LIMIT 200
         `,
@@ -1834,6 +1885,38 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
     } catch (error) {
       console.error('[signup] GET /api/signup/waivers failed:', error.message)
       res.status(500).json({ success: false, message: error.message })
+    }
+  })
+
+  app.post('/api/members/free-trials/register', async (req, res) => {
+    let client
+    try {
+      const token = tokenFrom(req)
+      if (!token) return res.status(401).json({ success: false, message: 'Sign in to book a trial for your child.' })
+      let decoded
+      try { decoded = jwt.verify(token, jwtSecret || resolveJwtSecret()) } catch {
+        return res.status(401).json({ success: false, message: 'Please sign in again to book your trial.' })
+      }
+      const userId = await resolveCanonicalTokenUserId(pool, decoded)
+      const access = userId == null ? null : await loadCanonicalAccessContext(pool, userId)
+      if (!access?.isActive || !access.portalAccess.member || !access.memberId || !access.facilityId) {
+        return res.status(403).json({ success: false, message: 'An active parent or guardian Member Portal account is required.' })
+      }
+      client = await pool.connect()
+      await client.query('BEGIN')
+      const result = await processExistingFamilyFreeTrial(client, req.body, {
+        signerMemberId: access.memberId, facilityId: access.facilityId,
+        ipAddress: req.ip, userAgent: req.get('user-agent') ?? null,
+      })
+      await client.query('COMMIT')
+      void sendDropInConfirmationNotifications(pool, result.id).catch(error => console.warn('[free-trials] confirmation failed:', error.message))
+      return res.json({ success: true, data: result })
+    } catch (error) {
+      if (client) await client.query('ROLLBACK')
+      const formatted = formatSignupError(error)
+      return res.status(error.statusCode || (error.code === '23505' ? 409 : 400)).json({ success: false, message: formatted.message })
+    } finally {
+      client?.release()
     }
   })
 

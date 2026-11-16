@@ -30,6 +30,7 @@ export const COACH_PORTAL_TAB_KEYS = [
   'flip-fit',
   'challenges',
   'gymnastics-evaluations',
+  'trial-assessments',
   'skills',
   'assign',
   'reviews',
@@ -61,6 +62,7 @@ export const DEFAULT_COACH_PORTAL_NAV_LAYOUT = [
   { type: 'tab', key: 'reviews' },
   { type: 'tab', key: 'insights' },
   { type: 'section', id: 'administrative', label: 'Administrative' },
+  { type: 'tab', key: 'trial-assessments' },
   { type: 'tab', key: 'faqs' },
   { type: 'tab', key: 'preferences' },
 ]
@@ -104,6 +106,7 @@ export const COACH_PORTAL_TAB_LABELS = {
   'flip-fit': 'Fit & Flip',
   challenges: 'Challenges',
   'gymnastics-evaluations': 'Evaluation Form',
+  'trial-assessments': 'Trial Assessments',
   skills: 'Skill Tree',
   assign: 'Assign',
   reviews: 'Form Review',

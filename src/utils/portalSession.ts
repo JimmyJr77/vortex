@@ -1,5 +1,7 @@
 import { MEMBER_ENROLLMENT_DRAFT_PREFIX } from './memberEnrollmentDrafts'
 
+export const PORTAL_SESSION_CHANGED = 'vortex:portal-session-changed'
+
 export type PortalRole = string | { role?: string }
 export type PortalId = 'website' | 'admin' | 'new-admin' | 'coach' | 'member'
 
@@ -60,11 +62,13 @@ export function clearPortalSession(): void {
   localStorage.removeItem('adminToken')
   localStorage.removeItem('vortex-admin-info')
   localStorage.removeItem('vortex-admin-id')
+  window.dispatchEvent(new Event(PORTAL_SESSION_CHANGED))
 }
 
 export function persistMemberSession(token: string, account: PortalAccount): void {
   localStorage.setItem('vortex_member_token', token)
   localStorage.setItem('vortex_member', JSON.stringify(account))
+  window.dispatchEvent(new Event(PORTAL_SESSION_CHANGED))
 }
 
 export function updateMemberSessionCredentials(

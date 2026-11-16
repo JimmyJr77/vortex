@@ -55,6 +55,7 @@ import { initMarketingTables } from './marketing/initTables.js'
 import { registerMarketingRoutes } from './marketing/registerRoutes.js'
 import { initSchedulingTables } from './scheduling/initTables.js'
 import { registerSchedulingRoutes } from './scheduling/registerRoutes.js'
+import { registerTrialAssessmentScheduleRoutes, registerAssessmentAdminScheduleGuards } from './scheduling/trialAssessmentSchedule.js'
 import { initDropInTables, registerDropInRoutes } from './scheduling/dropIns.js'
 import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
 import { registerCampRegistrationRoutes } from './campRegistrations/registerRoutes.js'
@@ -2661,6 +2662,8 @@ registerAdminAccountReadRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerNewAdminRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerAnalyticsRoutes(app, pool)
 registerMarketingRoutes(app, pool)
+registerAssessmentAdminScheduleGuards(app, pool)
+registerTrialAssessmentScheduleRoutes(app, pool, { jwtSecret: JWT_SECRET })
 registerSchedulingRoutes(app, pool)
 registerDropInRoutes(app, pool)
 registerProgramsPublicRoutes(app, pool)

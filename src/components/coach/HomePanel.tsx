@@ -37,6 +37,7 @@ const CARD_ICONS: Record<Exclude<CoachTab, 'home'>, ComponentType<{ className?: 
   'flip-fit': CalendarRange,
   challenges: Trophy,
   'gymnastics-evaluations': ClipboardCheck,
+  'trial-assessments': CalendarDays,
   skills: GitBranch,
   assign: Send,
   messages: MessageSquare,

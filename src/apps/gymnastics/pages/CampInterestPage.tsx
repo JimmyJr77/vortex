@@ -1,6 +1,6 @@
 import SummerCampInquiryForm from '../components/SummerCampInquiryForm'
 import SeoHead from '../../../components/SeoHead'
-import { GYMNASTICS_ORIGIN } from '../../../config/gymnasticsSeo'
+import { HUB_ORIGIN } from '../../../utils/seo'
 
 const CampInterestPage = () => {
   return (
@@ -8,7 +8,7 @@ const CampInterestPage = () => {
       <SeoHead
         title="Summer Camp Inquiry | Vortex Gymnastics, Bowie MD"
         description="Tell us about your camper's interest in Vortex Gymnastics Summer Camp. We'll follow up with everything you need to get registered."
-        canonical={`${GYMNASTICS_ORIGIN}/camp_interest`}
+        canonical={`${HUB_ORIGIN}/camp_interest`}
         robots="noindex, follow"
       />
       <section className="bg-gray-50 pt-below-site-header pb-16 px-4">

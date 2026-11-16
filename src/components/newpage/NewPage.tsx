@@ -1,14 +1,21 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
 import { BUSINESS_NAP, GOOGLE_MAPS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
+import { getHubSeoForPath } from '../../config/hubSeo'
+import { HOME_FAQS } from '../../config/faqs'
+import { getHubSchema } from '../../utils/schema'
 import NewPageInquiry from './NewPageInquiry'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import './NewPage.css'
+import './NewPageFreeTrial.css'
+
+const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
 
 type Program = 'gymnastics' | 'fit-flip'
-type Overlay = Program | 'finder' | 'inquiry' | 'video' | 'live' | null
+type Overlay = Program | 'finder' | 'inquiry' | 'video' | 'live' | 'trial' | null
 
 const programs = {
   gymnastics: {
@@ -44,13 +51,7 @@ const goals = [
   { title: 'Add strength and power to my gymnastics', subtitle: 'Extra physical development for current gymnasts', program: 'fit-flip' as Program, text: 'Add Fit & Flip alongside gymnastics. Give strength, explosiveness, and body control dedicated attention to support your gymnastics development.' },
 ] as const
 
-const faqs = [
-  ['What is the difference between Gymnastics and Fit & Flip?', 'Gymnastics is the traditional pathway for learning and progressing in gymnastics skills, with foundations across its disciplines. Fit & Flip is our athletic development program: strength, explosiveness, and gymnastics-inspired tumbling and body control. Both develop capable athletes; the starting point is your athlete’s goal.'],
-  ['Does my child have to compete to train seriously?', 'No. Our developmental and team gymnastics pathways share a commitment to meaningful, high-quality development. Only team athletes compete. Developmental athletes still work toward real skill progression, strength, and confidence.'],
-  ['Is Fit & Flip only for gymnasts?', 'No. Fit & Flip serves cheerleaders, acro athletes, dancers, gymnasts, and athletes from field, court, and other sports. Body control connects the strength and explosiveness work, helping athletes become more capable movers overall.'],
-  ['Can an athlete do both programs?', 'Yes. Gymnasts who want an additional emphasis on strength and explosiveness can use Fit & Flip to complement their gymnastics training. Talk with our team about an appropriate starting point and schedule.'],
-  ['Where should a beginner start?', 'Choose Gymnastics if the goal is to learn gymnastics. Choose Fit & Flip if the goal is athletic development or stronger tumbling for another sport. You do not need to arrive as an elite athlete—we build from your current ability. Our team can help with placement.'],
-] as const
+const faqs = HOME_FAQS.map(({ question, answer }) => [question, answer] as const)
 
 function Brand() {
   return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><img src="/red_vortex.png" width="42" height="42" alt="" /><span>VORTEX<small>ATHLETICS & GYMNASTICS</small></span></a>
@@ -88,9 +89,19 @@ function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = fal
 }
 
 export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; isLoggedIn: boolean }) {
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      const id = hash.slice(1)
+      document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
   const [menuOpen, setMenuOpen] = useState(false)
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [inquiryProgram, setInquiryProgram] = useState<Program | undefined>()
+  const [trialProgram, setTrialProgram] = useState<Program | undefined>()
   const [selectedGoal, setSelectedGoal] = useState<number | null>(null)
   const [activeTriad, setActiveTriad] = useState(0)
   const [motionPaused, setMotionPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData))
@@ -135,21 +146,26 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     setOverlay('inquiry')
   }
 
+  function openTrial(program?: Program) {
+    setTrialProgram(program)
+    setOverlay('trial')
+  }
+
   const selectedTriad = triad[activeTriad]
   const currentProgram = overlay === 'gymnastics' || overlay === 'fit-flip' ? programs[overlay] : null
-  const dialogLabel = overlay === 'inquiry' ? 'np-inquiry-title' : 'np-dialog-title'
+  const dialogLabel = overlay === 'inquiry' ? 'np-inquiry-title' : overlay === 'trial' ? 'np-trial-title' : 'np-dialog-title'
 
   return (
     <div className={`np-page${motionPaused ? ' np-motion-paused' : ''}`} id="top">
-      <SeoHead title="Gymnastics & Athletic Development | Vortex" description="Real gymnastics development. Athletic training built around strength, explosiveness, and body control. Find your path at Vortex in Bowie, Maryland." canonical="https://vortexathletics.com/newpage" robots="noindex, nofollow" preloadImage="/fit-and-flip-card.webp" />
+      <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} preloadImage="/fit-and-flip-card.webp" />
       <a className="np-skip" href="#main">Skip to content</a>
       <header className="np-header">
         <div className="np-container np-nav">
           <Brand />
-          <nav className="np-desktop-nav" aria-label="Main navigation"><a href="#programs">Our programs</a><a href="#triad">The triad</a><a href="#approach">Our approach</a><a href="#visit">Visit us</a></nav>
-          <div className="np-nav-actions"><button className="np-login" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" onClick={() => setOverlay('finder')}>Find your fit <ArrowUpRight size={16} /></button><button className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
+          <nav className="np-desktop-nav" aria-label="Main navigation"><a href="#programs">Our programs</a><a href="#free-trial">Free trial</a><a href="#triad">The triad</a><a href="#approach">Our approach</a></nav>
+          <div className="np-nav-actions"><button className="np-login" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" onClick={() => openTrial()}>Try a free class <ArrowUpRight size={16} /></button><button className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
         </div>
-        {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation">{[['Our programs', '#programs'], ['The triad', '#triad'], ['Our approach', '#approach'], ['Visit us', '#visit']].map(([label, href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}<ArrowUpRight size={18} /></a>)}<button onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
+        {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation">{[['Our programs', '#programs'], ['Free trial', '#free-trial'], ['The triad', '#triad'], ['Our approach', '#approach'], ['Visit us', '#visit']].map(([label, href]) => <a key={href} href={href} onClick={() => setMenuOpen(false)}>{label}<ArrowUpRight size={18} /></a>)}<button onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
       </header>
 
       <main id="main">
@@ -180,11 +196,27 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
         <section className="np-section np-container" id="programs">
           <div className="np-section-heading"><div><p className="np-eyebrow">01 / FIND YOUR PATH</p><h2>Two programs.<br /><span>One higher standard.</span></h2></div><p>Different goals. The same belief: every athlete deserves purposeful coaching and the opportunity to grow.</p></div>
-          <div className="np-program-grid">{(Object.entries(programs) as [Program, typeof programs[Program]][]).map(([id, program], index) => <article className="np-program" key={id}>
+          <div className="np-program-grid">{(Object.entries(programs) as [Program, typeof programs[Program]][]).map(([id, program], index) => <article className="np-program" id={id} key={id}>
             <button className="np-program-image" onClick={() => setOverlay(id)} aria-label={`Explore ${program.name}`}><img src={program.image} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
             <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><button className="np-program-link" onClick={() => setOverlay(id)}>Explore {program.name}<ArrowUpRight size={21} /></button></div>
           </article>)}</div>
           <div className="np-path-help"><span>Not sure where to begin? Start with your athlete’s goals.</span><button className="np-text-button" onClick={() => setOverlay('finder')}>Find your fit <ArrowRight size={18} /></button></div>
+        </section>
+
+        <section className="np-container np-trial-section" id="free-trial" aria-labelledby="np-free-trial-heading">
+          <div className="np-trial-invitation">
+            <div>
+              <p className="np-eyebrow">A FIRST STEP. A NEW POSSIBILITY.</p>
+              <h2 id="np-free-trial-heading">Their next chapter.<br /><span>First class on us.</span></h2>
+              <p>Experience Gymnastics or Fit & Flip with a free trial class. Choose the right age group, find a day that works, and come see what your athlete can do.</p>
+              <button className="np-button" onClick={() => openTrial()}>Book a free trial <ArrowUpRight size={18} /></button>
+            </div>
+            <div className="np-trial-invitation-points">
+              <div><span>01</span><div><strong>Find their fit.</strong><p>Choose Gymnastics or Fit & Flip and enter your child’s age.</p></div></div>
+              <div><span>02</span><div><strong>Choose their first day.</strong><p>See available classes, enrolled athletes, and open places.</p></div></div>
+              <div><span>03</span><div><strong>Register. Then come train.</strong><p>Complete the family details and waivers. Your one-time trial is $0.</p></div></div>
+            </div>
+          </div>
         </section>
 
         <section className="np-triad-section" id="triad"><div className="np-container np-section">
@@ -201,16 +233,17 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
         <section className="np-difference"><div className="np-container np-difference-grid"><div><p className="np-eyebrow">THE VORTEX DIFFERENCE</p><h2>Power is only<br />part of the picture.</h2><p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p><button className="np-button np-button-white" onClick={() => setOverlay('fit-flip')}>Discover Fit & Flip <ArrowUpRight size={18} /></button></div><div className="np-difference-image"><img src="/calisthenics.jpeg" alt="An athlete practicing a controlled handstand at Vortex" width="1536" height="1024" loading="lazy" /><span>CONTROL CHANGES EVERYTHING.</span></div></div></section>
 
-        <section className="np-container np-section np-faq"><div><p className="np-eyebrow">A LITTLE CLARITY</p><h2>Good questions.<br /><span>Clear answers.</span></h2><p>Choosing a program should feel simple.<br />We’re here to help you find the right fit.</p><button className="np-text-button" onClick={() => openInquiry()}>Talk to our team <ArrowUpRight size={18} /></button></div><div className="np-faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<Plus size={20} /></summary><p>{answer}</p></details>)}</div></section>
+        <section className="np-container np-section np-faq" id="faq"><div><p className="np-eyebrow">A LITTLE CLARITY</p><h2>Good questions.<br /><span>Clear answers.</span></h2><p>Choosing a program should feel simple.<br />We’re here to help you find the right fit.</p><button className="np-text-button" onClick={() => openInquiry()}>Talk to our team <ArrowUpRight size={18} /></button></div><div className="np-faq-list">{faqs.map(([question, answer]) => <details key={question}><summary>{question}<Plus size={20} /></summary><p>{answer}</p></details>)}</div></section>
 
         <section className="np-visit" id="visit"><div className="np-container np-visit-inner"><p className="np-eyebrow">YOUR NEXT LEVEL STARTS HERE</p><h2>Let’s build<br /><span>what’s next.</span></h2><p>A first skill. A stronger takeoff. A more complete athlete.<br />Find the right path at Vortex.</p><div className="np-visit-buttons"><button className="np-button" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button><button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button></div><a className="np-address" href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">{BUSINESS_NAP.streetAddress} · {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}<ArrowUpRight size={16} /></a></div></section>
       </main>
 
       <footer className="np-footer np-container"><div className="np-footer-main"><div><Brand /><p>Gymnastics. Athletic development.<br />Built for more.</p></div><div><span className="np-footer-label">COME TRAIN WITH US</span><a href={`tel:${TEAM_PHONE_E164}`}>{TEAM_PHONE}</a><a href={`mailto:${TEAM_EMAIL}`}>{TEAM_EMAIL}</a></div><div><span className="np-footer-label">STAY CONNECTED</span><a href={SOCIAL_PROFILES[0]} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={14} /></a><a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">YouTube <ArrowUpRight size={14} /></a></div><a className="np-back-top" href="#top">Back to top <ArrowUpRight size={17} /></a></div><div className="np-footer-bottom"><span>© {new Date().getFullYear()} Vortex Athletics and Gymnastics</span><div><Link to="/privacy-policy">Privacy</Link><Link to="/terms-of-service">Terms</Link><button onClick={() => setMotionPaused(!motionPaused)}>{motionPaused ? 'Enable motion' : 'Pause motion'}</button></div></div></footer>
 
-      {overlay && <dialog ref={dialogRef} className={`np-dialog ${overlay === 'video' || overlay === 'live' ? 'np-dialog-video' : ''}`} aria-labelledby={dialogLabel} onCancel={() => setOverlay(null)} onClick={event => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) setOverlay(null) } }}><button className="np-dialog-close" aria-label="Close dialog" onClick={() => setOverlay(null)}><X size={22} /></button>
-        {currentProgram && <><img className="np-dialog-image" src={currentProgram.image} alt={currentProgram.alt} /><div className="np-dialog-content"><p className="np-eyebrow">{currentProgram.eyebrow}</p><h2 id="np-dialog-title">{currentProgram.name}</h2><p>{currentProgram.detail}</p><ul className="np-dialog-points">{currentProgram.points.map(point => <li key={point}><Check size={18} /><span>{point}</span></li>)}</ul>{overlay === 'gymnastics' && <div className="np-pathways"><div><strong>Developmental</strong><span>Learn. Progress. Grow.</span><p>Purposeful training without competition.</p></div><div><strong>Team</strong><span>Develop. Prepare. Compete.</span><p>The same focus on growth, with competition.</p></div></div>}<div className="np-dialog-actions"><Link className="np-button" to={currentProgram.href}>Browse classes & enroll <ArrowUpRight size={17} /></Link><button className="np-text-button" onClick={() => openInquiry(overlay as Program)}>Ask about this program <ArrowRight size={17} /></button></div></div></>}
+      {overlay && <dialog ref={dialogRef} className={`np-dialog ${overlay === 'trial' ? 'np-dialog-trial' : overlay === 'video' || overlay === 'live' ? 'np-dialog-video' : ''}`} aria-labelledby={dialogLabel} onCancel={() => setOverlay(null)} onClick={event => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) setOverlay(null) } }}><button className="np-dialog-close" aria-label="Close dialog" onClick={() => setOverlay(null)}><X size={22} /></button>
+        {currentProgram && <><img className="np-dialog-image" src={currentProgram.image} alt={currentProgram.alt} /><div className="np-dialog-content"><p className="np-eyebrow">{currentProgram.eyebrow}</p><h2 id="np-dialog-title">{currentProgram.name}</h2><p>{currentProgram.detail}</p><ul className="np-dialog-points">{currentProgram.points.map(point => <li key={point}><Check size={18} /><span>{point}</span></li>)}</ul>{overlay === 'gymnastics' && <div className="np-pathways"><div><strong>Developmental</strong><span>Learn. Progress. Grow.</span><p>Purposeful training without competition.</p></div><div><strong>Team</strong><span>Develop. Prepare. Compete.</span><p>The same focus on growth, with competition.</p></div></div>}<div className="np-dialog-actions"><button className="np-button" onClick={() => openTrial(overlay as Program)}>Try a free class <ArrowUpRight size={17} /></button><Link className="np-text-button" to={currentProgram.href}>Browse classes & enroll <ArrowUpRight size={17} /></Link><button className="np-text-button" onClick={() => openInquiry(overlay as Program)}>Ask about this program <ArrowRight size={17} /></button></div></div></>}
         {overlay === 'finder' && <div className="np-dialog-content np-finder"><p className="np-eyebrow">A GOOD PLACE TO START</p><h2 id="np-dialog-title">What’s their next goal?</h2><p>Tell us what your athlete is working toward.</p><div className="np-goal-options">{goals.map((goal, index) => <button key={goal.title} className={selectedGoal === index ? 'is-selected' : ''} aria-pressed={selectedGoal === index} onClick={() => setSelectedGoal(index)}><span><strong>{goal.title}</strong><small>{goal.subtitle}</small></span>{selectedGoal === index ? <Check size={20} /> : <ArrowUpRight size={20} />}</button>)}</div>{selectedGoal !== null && <div ref={recommendationRef} className="np-recommendation" aria-live="polite"><p className="np-eyebrow">YOUR STARTING POINT</p><h3>{programs[goals[selectedGoal].program].name}</h3><p>{goals[selectedGoal].text}</p><div className="np-dialog-actions"><button className="np-button" onClick={() => setOverlay(goals[selectedGoal].program)}>Explore the program <ArrowRight size={17} /></button><button className="np-text-button" onClick={() => openInquiry(goals[selectedGoal].program)}>Talk to our team</button></div></div>}</div>}
+        {overlay === 'trial' && <Suspense fallback={<div className="np-trial-flow"><h2 id="np-trial-title">Loading trial signup…</h2></div>}><NewPageFreeTrial initialProgram={trialProgram} onDone={() => setOverlay(null)} /></Suspense>}
         {overlay === 'inquiry' && <div className="np-dialog-content"><NewPageInquiry program={inquiryProgram} onDone={() => setOverlay(null)} /></div>}
         {overlay === 'video' && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">See the work in motion.</h2><TrainingVideo full paused={false} /><p>Strength. Explosiveness. Body control. Built together.</p>{liveTrainingEmbedUrl && <button className="np-button" onClick={() => setOverlay('live')}>Watch live <Play size={16} /></button>}</div>}
         {overlay === 'live' && liveTrainingEmbedUrl && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">Live from Vortex.</h2><iframe className="np-live-stream" src={liveTrainingEmbedUrl} title="Vortex live training stream" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /><button className="np-text-button" onClick={() => setOverlay('video')}>Back to the training film <ArrowRight size={17} /></button></div>}

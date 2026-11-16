@@ -108,6 +108,7 @@ export async function listPublicClassesOffered(pool) {
     LEFT JOIN ${schema.programsTable} pr ON pr.id = p.${schema.programFkColumn}
     WHERE p.archived = FALSE
       AND p.is_active = TRUE
+      AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
       AND p.${schema.programFkColumn} IS NOT NULL
       AND pr.archived = FALSE
       ${programActiveColumn.rows.length > 0 ? 'AND COALESCE(pr.is_active, TRUE) = TRUE' : ''}

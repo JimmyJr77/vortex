@@ -1,9 +1,7 @@
-import { writeFileSync } from 'node:fs'
+import { rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  GYMNASTICS_ORIGIN,
-  GYMNASTICS_SITEMAP_ENTRIES,
   HUB_ORIGIN,
   HUB_SITEMAP_ENTRIES,
   SEO_CONTENT_LASTMOD,
@@ -24,15 +22,6 @@ const hubUrls = HUB_SITEMAP_ENTRIES.map((entry) => {
   return urlEntry(`${HUB_ORIGIN}${path}`, entry.priority, entry.changefreq)
 })
 
-const gymnasticsUrls = GYMNASTICS_SITEMAP_ENTRIES.map((entry) => {
-  const path = entry.path === '/' ? '' : entry.path
-  return urlEntry(
-    `${GYMNASTICS_ORIGIN}${path}`,
-    entry.priority,
-    entry.changefreq,
-  )
-})
-
 const wrapUrlset = (urls) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -43,10 +32,11 @@ ${urls.join('\n')}
 // sport domains are intentionally excluded until each has its own substantive
 // content and same-origin sitemap.
 const hubSitemap = wrapUrlset(hubUrls)
-const gymnasticsSitemap = wrapUrlset(gymnasticsUrls)
 
 writeFileSync(join(publicDir, 'sitemap.xml'), hubSitemap, 'utf8')
-writeFileSync(join(publicDir, 'sitemap-gymnastics.xml'), gymnasticsSitemap, 'utf8')
+// The old domain and sitemap URL redirect to the primary sitemap.
+rmSync(join(publicDir, 'sitemap-gymnastics.xml'), { force: true })
+rmSync(join(publicDir, 'robots-gymnastics.txt'), { force: true })
 
 const robotsPolicy = `User-agent: *
 Allow: /
@@ -62,12 +52,4 @@ writeFileSync(
   `${robotsPolicy}\nSitemap: ${HUB_ORIGIN}/sitemap.xml\n`,
   'utf8',
 )
-writeFileSync(
-  join(publicDir, 'robots-gymnastics.txt'),
-  `${robotsPolicy}\nSitemap: ${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml\n`,
-  'utf8',
-)
-console.log(
-  `Generated sitemap.xml with ${hubUrls.length} URLs and ` +
-    `sitemap-gymnastics.xml with ${gymnasticsUrls.length} URLs, plus host-specific robots files`,
-)
+console.log(`Generated one primary sitemap with ${hubUrls.length} URLs and robots files for the primary and coming-soon sites`)

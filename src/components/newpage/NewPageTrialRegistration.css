@@ -1,0 +1,81 @@
+.np-trial-registration {
+  --trial-red: #c9232c;
+  width: 100%;
+  min-width: 0;
+  color: #1b1b1c;
+  font: 400 15px/1.6 Inter, ui-sans-serif, system-ui, sans-serif;
+}
+.np-trial-registration *, .np-trial-registration *::before, .np-trial-registration *::after { box-sizing: border-box; }
+.np-trial-registration h2 { font-size: 22px; line-height: 1.25; letter-spacing: -.04em; }
+.np-trial-registration h3 { font-size: 18px; line-height: 1.35; letter-spacing: -.025em; }
+.np-trial-registration h4 { font-size: 16px; }
+.np-trial-registration button, .np-trial-registration a { -webkit-tap-highlight-color: transparent; }
+.np-trial-registration button { min-height: 48px; font-size: 14px; }
+.np-trial-registration button:disabled { cursor: not-allowed; opacity: .5; }
+.np-trial-registration :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid #d9d9d5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #1b1b1c;
+  font: inherit;
+  font-size: 16px;
+}
+.np-trial-registration input[type='checkbox'], .np-trial-registration input[type='radio'] { width: 19px; height: 19px; flex-shrink: 0; accent-color: var(--trial-red); }
+.np-trial-registration input.pr-12 { padding-right: 48px; }
+.np-trial-registration :is(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #c9232c66; outline-offset: 3px; }
+.np-trial-registration label { font-size: 14px; }
+.np-trial-registration label:has(input[type='checkbox']) { min-height: 44px; align-items: flex-start; }
+.np-trial-registration .text-xs { font-size: 13px; }
+.np-trial-registration .text-vortex-red { color: var(--trial-red); }
+.np-trial-registration .bg-vortex-red { background: var(--trial-red); }
+.np-trial-registration .bg-gray-50, .np-trial-registration .bg-gray-100 { background: #f5f5f3; }
+.np-trial-registration .border-gray-200, .np-trial-registration .border-gray-300 { border-color: #deded9; }
+.np-trial-booking-summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px; background: #f5f5f3; border: 1px solid #e4e4df; border-radius: 16px; margin: 12px 0 20px; }
+.np-trial-booking-summary > div { min-width: 0; }
+.np-trial-booking-summary h3 { margin: 5px 0 8px; }
+.np-trial-booking-summary p { margin: 0; font-size: 14px; color: #5e5e5c; }
+.np-trial-booking-summary > strong { display: flex; flex-direction: column; flex-shrink: 0; font-size: 28px; line-height: 1.2; text-align: right; }
+.np-trial-booking-summary > strong span { max-width: 85px; margin-top: 6px; font-size: 12px; line-height: 1.45; font-weight: 500; color: #6c6c68; }
+.np-trial-eyebrow { text-transform: uppercase; font-size: 10px; letter-spacing: .14em; font-weight: 750; color: var(--trial-red); }
+.np-trial-registration-intro { margin: 0 0 20px; color: #62625e; font-size: 14px; }
+.np-trial-account-choice { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; margin: 0 0 24px; background: #f1f1ee; border-radius: 12px; }
+.np-trial-account-choice button { border: 1px solid transparent; border-radius: 8px; padding: 8px; color: #686863; font-weight: 650; background: transparent; }
+.np-trial-account-choice button[aria-pressed='true'] { color: #1b1b1c; background: #fff; border-color: #dfdfda; box-shadow: 0 2px 4px #1b1b1c08; }
+.np-trial-text-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 8px 0; background: transparent; border: none; color: var(--trial-red); font-weight: 650; text-decoration: none; }
+.np-trial-primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px 16px; border: 1px solid var(--trial-red); border-radius: 10px; background: var(--trial-red); color: #fff; font-weight: 700; }
+.np-trial-form { display: flex; flex-direction: column; gap: 9px; }
+.np-trial-form h3 { margin-bottom: 8px; }
+.np-trial-form > label:not(:first-child) { margin-top: 8px; font-weight: 600; }
+.np-trial-form > .np-trial-primary-button { margin-top: 12px; }
+.np-trial-registration-error { margin: 16px 0; padding: 14px 16px; border: 1px solid #edb8bb; border-radius: 10px; background: #fff1f1; color: #9b1921; overflow-wrap: anywhere; }
+.np-trial-registration-loading { display: flex; gap: 12px; align-items: center; padding: 24px 0; color: #62625e; }
+.np-trial-family-heading { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 20px 0 12px; }
+.np-trial-child-options { display: grid; gap: 10px; min-width: 0; padding: 0; margin: 0 0 12px; border: none; }
+.np-trial-child-options legend { padding: 0 0 8px; color: #62625e; font-size: 14px; }
+.np-trial-child-options > label { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 14px 16px; border: 1px solid #deded9; border-radius: 12px; }
+.np-trial-child-options > label.is-selected { border-color: var(--trial-red); background: #fff6f6; }
+.np-trial-child-options > label span { display: flex; flex-direction: column; }
+.np-trial-child-options > label span span { color: #62625e; font-size: 13px; }
+.np-trial-add-child { margin-top: 16px; border: 1px solid #deded9; padding: 20px; border-radius: 16px; background: #f5f5f3; }
+.np-trial-legal-checkbox { display: flex; gap: 10px; }
+.np-trial-legal-checkbox input { margin-top: 3px; }
+.np-trial-potty-confirmation { display: flex; gap: 12px; padding: 16px; border: 1px solid #deded9; border-radius: 12px; background: #f5f5f3; }
+.np-trial-potty-confirmation input { margin-top: 3px; }
+.np-trial-button-row { display: flex; gap: 20px; justify-content: space-between; margin-top: 8px; }
+.np-trial-button-row .np-trial-primary-button { width: auto; }
+.np-trial-member-waivers { display: grid; gap: 20px; margin-top: 24px; padding-top: 24px; border-top: 1px solid #deded9; }
+.np-trial-confirmed { padding: 16px 0 12px; text-align: center; }
+.np-trial-confirmed h3 { font-size: 27px; margin: 16px 0 12px; }
+.np-trial-confirmed p { color: #62625e; margin: 10px 0; }
+.np-trial-confirmed-icon { display: inline-flex; align-items: center; justify-content: center; height: 56px; width: 56px; border-radius: 50%; background: #eef3ed; color: #376335; }
+@media (max-width: 420px) {
+  .np-trial-booking-summary { padding: 16px; }
+  .np-trial-registration .p-4 { padding: 12px; }
+  .np-trial-registration .flex.justify-between.pt-2 { gap: 8px; }
+  .np-trial-registration .flex.justify-between.pt-2 button { padding-inline: 10px; font-size: 13px; }
+}

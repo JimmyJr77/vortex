@@ -1,10 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import {
-  GYMNASTICS_HOST_PAGES,
-  GYMNASTICS_NOINDEX_PRERENDER_PATHS,
   GYMNASTICS_ORIGIN,
-  GYMNASTICS_SITEMAP_ENTRIES,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
   HUB_SITEMAP_ENTRIES,
@@ -140,23 +137,9 @@ const expectedSets = [
     entries: HUB_SITEMAP_ENTRIES,
     noindexPaths: HUB_NOINDEX_PRERENDER_PATHS,
   },
-  {
-    label: 'gymnastics',
-    origin: GYMNASTICS_ORIGIN,
-    sitemapPath: 'public/sitemap-gymnastics.xml',
-    robotsPath: 'public/robots-gymnastics.txt',
-    remoteSitemap: `${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml`,
-    remoteRobots: `${GYMNASTICS_ORIGIN}/robots.txt`,
-    entries: GYMNASTICS_SITEMAP_ENTRIES,
-    noindexPaths: GYMNASTICS_NOINDEX_PRERENDER_PATHS,
-  },
 ]
 
-const distFileFor = (origin, path) => {
-  if (origin === GYMNASTICS_ORIGIN) {
-    const hostPage = GYMNASTICS_HOST_PAGES.find((page) => page.path === path)
-    if (hostPage) return join(root, 'dist', hostPage.outFile)
-  }
+const distFileFor = (path) => {
   return path === '/'
     ? join(root, 'dist/index.html')
     : join(root, 'dist', path.replace(/^\//, ''), 'index.html')
@@ -235,9 +218,7 @@ const verifyHtml = (
     ogImageAlts.length === 1 && ogImageAlts[0].trim(),
     `${label}: expected one non-empty og:image:alt`,
   )
-  const expectedSiteName = canonical.startsWith(GYMNASTICS_ORIGIN)
-    ? 'Vortex Gymnastics'
-    : SITE_NAME
+  const expectedSiteName = SITE_NAME
   assert(
     ogSiteNames.length === 1 && ogSiteNames[0] === expectedSiteName,
     `${label}: og:site_name is ${ogSiteNames[0] || 'missing'}, expected ${expectedSiteName}`,
@@ -266,6 +247,12 @@ const verifyHtml = (
     !anchorBlocks.some((anchor) => /\btabindex=["']0["']/i.test(anchor)),
     `${label}: a link must not contain another keyboard focus target`,
   )
+
+  if (normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN) && shouldIndex) {
+    assert(h1s[0] === 'Built for more.', `${label}: the primary homepage must render the new unified design`)
+    assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
+    assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
+  }
 
   if (requireH1) {
     assert(h1s.length === 1 && h1s[0], `${label}: expected exactly one non-empty H1, found ${h1s.length}`)
@@ -304,8 +291,7 @@ const verifyHtml = (
     assert(types.includes('WebSite'), `${label}: WebSite JSON-LD is missing`)
 
     if (
-      normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN) ||
-      normalizedUrl(canonical) === normalizedUrl(GYMNASTICS_ORIGIN)
+      normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN)
     ) {
       const location = parsed.find((item) => item?.['@type'] === 'SportsActivityLocation')
       assert(location, `${label}: SportsActivityLocation JSON-LD is missing`)
@@ -363,14 +349,14 @@ for (const set of expectedSets) {
 
   for (const entry of set.entries) {
     const canonical = canonicalFor(set.origin, entry.path)
-    const file = distFileFor(set.origin, entry.path)
+    const file = distFileFor(entry.path)
     assert(existsSync(file), `${set.label}${entry.path}: prerendered file is missing (${file})`)
     if (existsSync(file)) verifyHtml(`${set.label}${entry.path}`, readFileSync(file, 'utf8'), canonical)
   }
 
   for (const path of set.noindexPaths) {
     const canonical = canonicalFor(set.origin, path)
-    const file = distFileFor(set.origin, path)
+    const file = distFileFor(path)
     assert(existsSync(file), `${set.label}${path}: noindex prerender is missing (${file})`)
     if (existsSync(file)) {
       verifyHtml(`${set.label}${path}`, readFileSync(file, 'utf8'), canonical, { shouldIndex: false })
@@ -463,7 +449,12 @@ if (live) {
     {
       label: 'gymnastics apex host',
       sourceOrigin: 'https://vortex-gymnastics.com',
-      canonicalOrigin: GYMNASTICS_ORIGIN,
+      canonicalOrigin: HUB_ORIGIN,
+    },
+    {
+      label: 'gymnastics www host',
+      sourceOrigin: GYMNASTICS_ORIGIN,
+      canonicalOrigin: HUB_ORIGIN,
     },
   ]
   for (const check of hostRedirectChecks) {
@@ -488,7 +479,9 @@ if (live) {
 
   for (const [source, destination] of [
     [`${HUB_ORIGIN}/sitemap-gymnastics.xml`, `${HUB_ORIGIN}/sitemap.xml`],
-    [`${GYMNASTICS_ORIGIN}/sitemap.xml`, `${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml`],
+    [`${GYMNASTICS_ORIGIN}/sitemap.xml`, `${HUB_ORIGIN}/sitemap.xml`],
+    [`${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml`, `${HUB_ORIGIN}/sitemap.xml`],
+    ['https://vortex-gymnastics.com/sitemap.xml', `${HUB_ORIGIN}/sitemap.xml`],
   ]) {
     const response = await fetch(source, { redirect: 'follow' })
     assert(response.ok, `${source}: sitemap consolidation returned HTTP ${response.status}`)
@@ -514,7 +507,7 @@ if (live) {
 
   for (const url of [
     `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
-    `${GYMNASTICS_ORIGIN}/vortex-gymnastics-og.jpg`,
+    `${HUB_ORIGIN}/vortex-gymnastics-og.jpg`,
   ]) {
     const response = await fetch(url, { redirect: 'follow' })
     const cacheControl = (response.headers.get('cache-control') ?? '').toLowerCase()
@@ -538,7 +531,7 @@ assert(
 const publicSitemapFiles = readdirSync(join(root, 'public'))
   .filter((file) => /^sitemap.*\.xml$/i.test(file))
   .sort()
-const expectedPublicSitemapFiles = ['sitemap-gymnastics.xml', 'sitemap.xml']
+const expectedPublicSitemapFiles = ['sitemap.xml']
 assert(
   JSON.stringify(publicSitemapFiles) === JSON.stringify(expectedPublicSitemapFiles),
   `public/: unexpected sitemap copies found (${publicSitemapFiles.join(', ')})`,
@@ -574,29 +567,29 @@ const redirectFor = (host, source, destination) =>
       redirect.source === source &&
       redirect.destination === destination &&
       redirect.permanent === true &&
-      redirect.has?.some((condition) => condition.type === 'host' && condition.value === host),
+      redirect.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
   )
 assert(
   redirectFor('www.vortexathletics.com', '/:path*', `${HUB_ORIGIN}/:path*`),
   'vercel.json: www athletics canonical-host redirect is missing',
 )
 assert(
-  redirectFor('vortex-gymnastics.com', '/:path*', `${GYMNASTICS_ORIGIN}/:path*`),
-  'vercel.json: apex gymnastics canonical-host redirect is missing',
+  ['vortex-gymnastics.com', 'www.vortex-gymnastics.com'].every(host => redirectFor(host, '/:path*', `${HUB_ORIGIN}/:path*`)),
+  'vercel.json: both gymnastics hosts must redirect to the primary website',
 )
 assert(
   !redirects.some((redirect) => redirect.destination?.startsWith('https://www.vortexathletics.com')),
   'vercel.json: a redirect still targets noncanonical www.vortexathletics.com',
 )
 assert(
-  !redirects.some((redirect) => redirect.destination?.startsWith('https://vortex-gymnastics.com')),
-  'vercel.json: a redirect still targets noncanonical apex vortex-gymnastics.com',
+  !redirects.some((redirect) => /^https:\/\/(?:www\.)?vortex-gymnastics\.com/.test(redirect.destination ?? '')),
+  'vercel.json: a redirect still targets the retired gymnastics website',
 )
 for (const [host, source, destination] of [
   ['vortexathletics.com', '/sitemap-gymnastics.xml', `${HUB_ORIGIN}/sitemap.xml`],
   ['www.vortexathletics.com', '/sitemap-gymnastics.xml', `${HUB_ORIGIN}/sitemap.xml`],
-  ['vortex-gymnastics.com', '/sitemap.xml', `${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml`],
-  ['www.vortex-gymnastics.com', '/sitemap.xml', `${GYMNASTICS_ORIGIN}/sitemap-gymnastics.xml`],
+  ['vortex-gymnastics.com', '/sitemap-gymnastics.xml', `${HUB_ORIGIN}/sitemap.xml`],
+  ['www.vortex-gymnastics.com', '/sitemap-gymnastics.xml', `${HUB_ORIGIN}/sitemap.xml`],
 ]) {
   assert(
     redirectFor(host, source, destination),
@@ -608,10 +601,12 @@ const robotsRouteFor = (host, dest) =>
     (rewrite) =>
       rewrite.source === '/robots.txt' &&
       rewrite.destination === dest &&
-      rewrite.has?.some((condition) => condition.type === 'host' && condition.value === host),
+      rewrite.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
   )
 assert(robotsRouteFor('vortexathletics.com', '/robots-hub.txt'), 'vercel.json: hub robots routing is missing')
-assert(robotsRouteFor('www.vortex-gymnastics.com', '/robots-gymnastics.txt'), 'vercel.json: gymnastics robots routing is missing')
+assert(!rewrites.some(rewrite => /(?:_gym|robots-gymnastics)/.test(rewrite.destination ?? '')), 'vercel.json: retired gymnastics HTML/robots rewrites must be removed')
+assert(!existsSync(join(root, 'public/robots-gymnastics.txt')), 'public/: retired gymnastics robots file remains')
+assert(!existsSync(join(root, 'dist/_gym')), 'dist/: retired gymnastics snapshots remain')
 assert(
   rewrites.some(
     (rewrite) =>

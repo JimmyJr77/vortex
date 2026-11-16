@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'luci
 import ScheduleOptionCheckboxGrid from './ScheduleOptionCheckboxGrid'
 import { groupScheduleOptions } from './scheduleOptionGrouping'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
-import { loginMemberWithCredentials } from '../../utils/portalSession'
+import { loginMemberWithCredentials, persistMemberSession } from '../../utils/portalSession'
 import { cleanPhoneNumber, formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
 import { maybeSuggestUsername } from '../../utils/signupUsername'
@@ -234,7 +234,21 @@ export interface LeadRegistrationSetup {
   focusedSelection?: number | null
 }
 
+export interface FreeTrialSignupSelection {
+  program: 'gymnastics' | 'fit-flip'
+  age: number
+  slotGroupId: number
+  classDate: string
+  className: string
+  startTime: string
+  endTime: string
+  gymnasticsTrack?: 'mommy-me' | 'preschool' | 'beginner' | 'experienced'
+  pottyTrained?: boolean
+  experience?: 'none' | 'experienced'
+}
+
 interface FamilySignupWizardProps {
+  freeTrial?: FreeTrialSignupSelection
   leadRegistration?: LeadRegistrationSetup
   mode?: WizardMode
   editMemberId?: number | null
@@ -286,12 +300,14 @@ export default function FamilySignupWizard({
   onCancel,
   pendingDropInId = null,
   leadRegistration,
+  freeTrial,
 }: FamilySignupWizardProps) {
   const apiUrl = getApiUrl()
   const isAdmin = mode === 'admin'
   const isAdminEdit = mode === 'admin-edit'
   const isMinorStart = mode === 'minor-start'
   const isWaiversMemberships = mode === 'waivers-memberships'
+  const isFreeTrial = mode === 'public' && Boolean(freeTrial)
 
   const [step, setStep] = useState(isAdmin ? 0 : 1)
   const [accountLoaded, setAccountLoaded] = useState(!isAdminEdit)
@@ -307,7 +323,7 @@ export default function FamilySignupWizard({
     phone: formatPhoneForDisplay(leadRegistration?.guardian.phone),
     username: leadRegistration?.username || '',
   }))
-  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children ?? []).map((child) => ({
+  const [additionalMembers, setAdditionalMembers] = useState<SignupMemberForm[]>(() => (leadRegistration?.children ?? (isFreeTrial ? [emptyMember()] : [])).map((child) => ({
     ...emptyMember(),
     firstName: child.firstName ?? '',
     lastName: child.lastName ?? '',
@@ -333,7 +349,7 @@ export default function FamilySignupWizard({
   const [enrollPrefill, setEnrollPrefill] = useState<EnrollPrefill | null>(null)
   const prefillApplied = useRef(false)
   const [publicCartSelections] = useState(() =>
-    mode === 'public' && !returnTo && !leadRegistration ? loadPublicEnrollmentCart() : [],
+    mode === 'public' && !returnTo && !leadRegistration && !isFreeTrial ? loadPublicEnrollmentCart() : [],
   )
   const publicCartApplied = useRef(false)
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
@@ -342,6 +358,7 @@ export default function FamilySignupWizard({
   const [signatureName, setSignatureName] = useState('')
   const [comments, setComments] = useState('')
   const [paymentPolicyAcknowledged, setPaymentPolicyAcknowledged] = useState(false)
+  const [trialPottyTrainedConfirmed, setTrialPottyTrainedConfirmed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [invalidField, setInvalidField] = useState<string | null>(null)
@@ -350,6 +367,10 @@ export default function FamilySignupWizard({
   const [suggestions] = useState(() => enrollments.map(row => ({ ...row, selectedSlotKeys: [...row.selectedSlotKeys] })))
   const fieldProps = (member: SignupMemberForm, field: keyof SignupMemberForm) => ({
     'data-field': `${member.clientId}:${field}`,
+    'aria-label': ({ firstName: 'First name', lastName: 'Last name', email: 'Email', phone: 'Phone number',
+      addressStreet: 'Street address', addressCity: 'City', addressState: 'State', addressZip: 'ZIP code',
+      username: 'Username', password: 'Password', confirmPassword: 'Confirm password', gender: 'Gender',
+    } as Partial<Record<keyof SignupMemberForm, string>>)[field],
     'aria-invalid': invalidField === `${member.clientId}:${field}` || undefined,
     'aria-describedby': invalidField === `${member.clientId}:${field}` ? 'signup-error' : undefined,
   })
@@ -387,12 +408,12 @@ export default function FamilySignupWizard({
     if (leadRegistration) setWaivers(leadRegistration.waivers)
     try {
       const [programsRes, waiversRes] = await Promise.all([
-        fetch(`${apiUrl}/api/signup/catalog/programs`),
+        isFreeTrial ? Promise.resolve(null) : fetch(`${apiUrl}/api/signup/catalog/programs`),
         leadRegistration ? Promise.resolve(null) : fetch(`${apiUrl}/api/signup/waivers`),
       ])
-      const programsData = await programsRes.json()
+      const programsData = programsRes ? await programsRes.json() : { data: [] }
       const waiversData = waiversRes ? await waiversRes.json() : { data: leadRegistration?.waivers ?? [] }
-      if (!programsRes.ok) {
+      if (programsRes && !programsRes.ok) {
         throw new Error(programsData.message || 'Failed to load programs')
       }
       if (waiversRes && !waiversRes.ok) {
@@ -403,7 +424,7 @@ export default function FamilySignupWizard({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load programs or waivers.')
     }
-  }, [apiUrl, leadRegistration])
+  }, [apiUrl, leadRegistration, isFreeTrial])
 
   useEffect(() => {
     void loadCatalogAndWaivers()
@@ -503,7 +524,7 @@ export default function FamilySignupWizard({
   }, [isAdminEdit, accountLoaded, primaryAdult.memberId])
 
   useEffect(() => {
-    if (!returnTo) return
+    if (!returnTo || isFreeTrial) return
     try {
       const url = new URL(returnTo, window.location.origin)
       const formId = url.searchParams.get('form')
@@ -533,7 +554,7 @@ export default function FamilySignupWizard({
     } catch {
       // ignore invalid return URL
     }
-  }, [returnTo, apiUrl])
+  }, [returnTo, apiUrl, isFreeTrial])
 
   const loadClassesForProgram = useCallback(async (programsId: number) => {
     if (classesByProgram[programsId]) return
@@ -751,7 +772,7 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" autoComplete="given-name" required {...fieldProps(member, 'firstName')} value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" autoComplete="family-name" required {...fieldProps(member, 'lastName')} value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} onBlur={() => void handleNameBlur()} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="email" placeholder="Email *" autoComplete="email" required {...fieldProps(member, 'email')} value={member.email} readOnly={Boolean(leadRegistration)} onChange={(e) => onChange({ email: e.target.value })} />
-      <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-label="Phone number" aria-required="true" autoComplete="tel" required {...fieldProps(member, 'phone')} value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
+      <TextInput className="h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-required="true" autoComplete="tel" required {...fieldProps(member, 'phone')} value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
       <input className="md:col-span-2 h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Street address *" autoComplete="address-line1" required {...fieldProps(member, 'addressStreet')} value={member.addressStreet} onChange={(e) => { onChange({ addressStreet: e.target.value }) }} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="City *" autoComplete="address-level2" required {...fieldProps(member, 'addressCity')} value={member.addressCity} onChange={(e) => { onChange({ addressCity: e.target.value }) }} />
       <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" autoComplete="address-level1" required {...fieldProps(member, 'addressState')} value={member.addressState} onChange={(e) => { onChange({ addressState: e.target.value }) }}>
@@ -762,7 +783,7 @@ export default function FamilySignupWizard({
       </select>
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="ZIP *" autoComplete="postal-code" required {...fieldProps(member, 'addressZip')} value={member.addressZip} onChange={(e) => { onChange({ addressZip: e.target.value }) }} />
       <SignupBirthdayField invalid={invalidField === `${member.clientId}:dateOfBirth`} id={`${fieldIdPrefix}-birthday`} value={member.dateOfBirth} onChange={(dateOfBirth) => onChange({ dateOfBirth })} />
-      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" required aria-label="Gender" {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" required {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
         <option value="">Gender *</option>
         <option value="female">Female</option>
         <option value="male">Male</option>
@@ -790,7 +811,7 @@ export default function FamilySignupWizard({
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="First name *" autoComplete="given-name" {...fieldProps(member, 'firstName')} value={member.firstName} onChange={(e) => onChange({ firstName: e.target.value })} />
       <input className="h-10 rounded-lg border border-gray-300 px-3 text-sm" placeholder="Last name *" autoComplete="family-name" {...fieldProps(member, 'lastName')} value={member.lastName} onChange={(e) => onChange({ lastName: e.target.value })} />
       <SignupBirthdayField invalid={invalidField === `${member.clientId}:dateOfBirth`} id={`${fieldIdPrefix}-birthday`} value={member.dateOfBirth} onChange={(dateOfBirth) => onChange({ dateOfBirth })} />
-      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" required aria-label="Gender" {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+      <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm self-end" required {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
         <option value="">Gender *</option>
         <option value="female">Female</option>
         <option value="male">Male</option>
@@ -862,10 +883,10 @@ export default function FamilySignupWizard({
           )}
         </div>
         <div className="self-end">
-          <TextInput className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" aria-label="Phone number" autoComplete="tel" {...fieldProps(member, 'phone')} value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
+          <TextInput className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm" type="tel" autoComplete="tel" {...fieldProps(member, 'phone')} value={member.phone} onChange={(e) => onChange({ phone: e.target.value })} />
         </div>
         <SignupBirthdayField invalid={invalidField === `${member.clientId}:dateOfBirth`} id={`${fieldIdPrefix}-birthday`} value={member.dateOfBirth} onChange={(dateOfBirth) => onChange({ dateOfBirth })} />
-        <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" required aria-label="Gender" {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
+        <select className="h-10 rounded-lg border border-gray-300 px-3 text-sm" required {...fieldProps(member, 'gender')} value={member.gender} onChange={(e) => onChange({ gender: e.target.value })}>
           <option value="">Gender *</option>
           <option value="female">Female</option>
           <option value="male">Male</option>
@@ -966,12 +987,14 @@ export default function FamilySignupWizard({
   const usesParentContactEmail = (member: SignupMemberForm) => (member.emailSource ?? 'parent') === 'parent'
 
   const validateFamilyMembersStep = (members: SignupMemberForm[] = additionalMembers) => {
+    if (isFreeTrial && members.length !== 1) return 'Add the child who will attend this free trial.'
     for (const member of members) {
       if (!member.firstName.trim() || !member.lastName.trim()) return invalid(member, !member.firstName.trim() ? 'firstName' : 'lastName', 'Each family member needs a first and last name.')
       if (!member.dateOfBirth) return invalid(member, 'dateOfBirth', `Date of birth is required for ${member.firstName || 'each member'}.`)
       if (!member.gender) return invalid(member, 'gender', `Gender is required for ${member.firstName || 'each family member'}.`)
       if (member.phone && !isCompletePhoneNumber(member.phone)) return invalid(member, 'phone', `Enter a 10-digit phone number for ${member.firstName}.`)
       const minor = Boolean(member.dateOfBirth) && !isAdult(member.dateOfBirth)
+      if (isFreeTrial && !minor) return invalid(member, 'dateOfBirth', 'This trial is for a child under 18. Enter your child’s date of birth.')
       if (usesParentContactEmail(member)) {
         if (!minor) {
           return invalid(member, 'emailSource', `${member.firstName} must have their own email address (adults cannot share a parent email).`)
@@ -994,6 +1017,10 @@ export default function FamilySignupWizard({
         if (new TextEncoder().encode(member.password).length > 72) return invalid(member, 'password', `Choose a password of 72 bytes or fewer for ${member.firstName || 'each member'}.`)
         if (member.password !== member.confirmPassword) return invalid(member, 'confirmPassword', `Passwords do not match for ${member.firstName || 'each member'}.`)
       }
+    }
+    if (isFreeTrial && freeTrial?.gymnasticsTrack === 'mommy-me' && !trialPottyTrainedConfirmed) {
+      setInvalidField('trial-potty-trained')
+      return 'A parent or legal guardian must confirm that their child is potty trained for Mommy & Me.'
     }
     return null
   }
@@ -1201,12 +1228,19 @@ export default function FamilySignupWizard({
         addressState: primaryAdult.addressState,
         addressZip: primaryAdult.addressZip,
       })),
-      enrollments: buildEnrollmentSubmitRows(),
+      enrollments: isFreeTrial ? [] : buildEnrollmentSubmitRows(),
+      ...(isFreeTrial && freeTrial ? { freeTrial: {
+        slotGroupId: freeTrial.slotGroupId, classDate: freeTrial.classDate,
+        program: freeTrial.program, age: freeTrial.age, memberIndex: 1,
+        gymnasticsTrack: freeTrial.gymnasticsTrack,
+        pottyTrained: freeTrial.gymnasticsTrack === 'mommy-me' ? trialPottyTrainedConfirmed : freeTrial.pottyTrained,
+        experience: freeTrial.experience,
+      } } : {}),
       waivers: {
         signatureName,
         comments,
         acceptedTemplateIds: checkedTemplateIds,
-        paymentPolicyAcknowledged,
+        paymentPolicyAcknowledged: isFreeTrial ? agreeAll && waivers.some(waiver => waiver.waiver_type === 'PAYMENT_POLICY' && checkedTemplateIds.includes(waiver.id)) : paymentPolicyAcknowledged,
       },
       pendingDropInId: pendingDropInId && /^\d+$/.test(pendingDropInId) ? Number(pendingDropInId) : null,
     }
@@ -1344,7 +1378,23 @@ export default function FamilySignupWizard({
             body: JSON.stringify(leadRegistration ? { ...payload, token: leadRegistration.token, session: leadRegistration.session } : payload),
           })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Signup failed')
+      if (!res.ok || data.success === false) throw new Error(data.message || 'Signup failed')
+      if (isFreeTrial) {
+        const booking = data.data?.completedDropIn
+        if (booking?.status !== 'confirmed' || booking?.benefitType !== 'free_trial' || booking?.totalCents !== 0) {
+          setSuccessMessage('Your account was created, but we could not confirm the free trial. Please contact Vortex before attending.')
+          setSuccessDestination('/?login=1')
+          return
+        }
+        const login = await loginMemberWithCredentials(apiUrl, {
+          emailOrUsername: primaryAdult.username, password: primaryAdult.password,
+        }).catch(() => null)
+        if (login) persistMemberSession(login.token, login.member)
+        setSuccessMessage('Your free trial is confirmed. No payment is due.')
+        setSuccessDestination('/?login=1')
+        onComplete?.(data.data)
+        return
+      }
       if (leadRegistration) {
         const login = await loginMemberWithCredentials(apiUrl, {
           emailOrUsername: primaryAdult.username,
@@ -1406,9 +1456,9 @@ export default function FamilySignupWizard({
     }
   }
 
-  const maxStep = isMinorStart ? 2 : isWaiversMemberships ? 3 : 4
+  const maxStep = isMinorStart ? 2 : isWaiversMemberships || isFreeTrial ? 3 : 4
   const enrollmentStep = isMinorStart ? 2 : 3
-  const waiverStep = isWaiversMemberships ? 3 : 4
+  const waiverStep = isWaiversMemberships || isFreeTrial ? 3 : 4
 
   if (isAdminEdit && !accountLoaded) {
     return (
@@ -1461,7 +1511,7 @@ export default function FamilySignupWizard({
         setLoading(false)
       }
     }
-    if (step === enrollmentStep && !isWaiversMemberships) {
+    if (step === enrollmentStep && !isWaiversMemberships && !isFreeTrial) {
       const err = validateEnrollmentStep()
       if (err) {
         setError(err)
@@ -1683,7 +1733,7 @@ export default function FamilySignupWizard({
   if (successMessage) {
     return (
       <div className="rounded-xl border border-green-200 bg-green-50 p-6 text-center space-y-3">
-        <h3 className="text-lg font-bold text-green-800">Success</h3>
+        <h3 className="text-lg font-bold text-green-800">{isFreeTrial ? 'Registration update' : 'Success'}</h3>
         <p className="text-sm text-green-700">{successMessage}</p>
         {!isAdmin && <a href={successDestination} className="mt-4 inline-block font-semibold text-vortex-red">Continue to member portal</a>}
         {onCancel && (
@@ -1705,14 +1755,14 @@ export default function FamilySignupWizard({
               ? 'Youth signup — invite a parent'
               : isAdmin
                 ? 'Create Vortex account'
-                : 'Join Vortex Athletics'}
+                : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
           Step {step} of {maxStep} —{' '}
           {step === 0 && isAdmin && 'Family setup'}
           {step === 1 && (isMinorStart ? 'Athlete info' : 'Primary adult')}
-          {step === 2 && (isMinorStart ? 'Enrollment & send invite' : 'Family members')}
-          {step === 3 && !isMinorStart && !isWaiversMemberships && 'Enrollment'}
+          {step === 2 && (isMinorStart ? 'Enrollment & send invite' : isFreeTrial ? 'Your child' : 'Family members')}
+          {step === 3 && !isMinorStart && !isWaiversMemberships && !isFreeTrial && 'Enrollment'}
           {step === waiverStep && !isMinorStart && 'Waivers'}
         </p>
       </div>
@@ -1760,7 +1810,7 @@ export default function FamilySignupWizard({
 
       {step === 1 && !isMinorStart && (
         <div className="rounded-xl border border-gray-200 p-4">
-          <h3 className="font-semibold text-gray-900 mb-3">Primary adult (parent/guardian or adult athlete)</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">{isFreeTrial ? 'Parent or legal guardian (18+)' : 'Primary adult (parent/guardian or adult athlete)'}</h3>
           {renderMemberFields(primaryAdult, (updates) => setPrimaryAdult((prev) => ({ ...prev, ...updates })), { fieldIdPrefix: 'primary' })}
         </div>
       )}
@@ -1803,8 +1853,8 @@ export default function FamilySignupWizard({
             </section>
           )}
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Additional family members</h3>
-            {!isAdminEdit && (
+            <h3 className="font-semibold text-gray-900">{isFreeTrial ? 'The trial athlete' : 'Additional family members'}</h3>
+            {!isAdminEdit && !isFreeTrial && (
             <button
               type="button"
               onClick={() => {
@@ -1842,9 +1892,9 @@ export default function FamilySignupWizard({
               <div key={member.clientId} className="rounded-xl border border-gray-200 p-4 space-y-3">
                 <div className="flex justify-between items-center">
                   <h4 className="font-medium text-gray-800">
-                    Family member {memberNumber}{isInvitedChild ? ` · Child ${index + 1}` : ''}
+                    {isFreeTrial ? 'Your child' : `Family member ${memberNumber}`}{isInvitedChild ? ` · Child ${index + 1}` : ''}
                   </h4>
-                  {!isInvitedChild && (
+                  {!isInvitedChild && !isFreeTrial && (
                     <button type="button" aria-label={`Remove family member ${memberNumber}`} onClick={() => setAdditionalMembers((prev) => prev.filter((m) => m.clientId !== member.clientId))} className="text-gray-500 hover:text-red-600">
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -1858,12 +1908,19 @@ export default function FamilySignupWizard({
               </div>
             )
           })}
+          {isFreeTrial && freeTrial?.gymnasticsTrack === 'mommy-me' && <label className="np-trial-potty-confirmation">
+            <input type="checkbox" required checked={trialPottyTrainedConfirmed} onChange={event => setTrialPottyTrainedConfirmed(event.target.checked)}
+              data-field="trial-potty-trained" aria-invalid={invalidField === 'trial-potty-trained' || undefined}
+              aria-describedby={invalidField === 'trial-potty-trained' ? 'signup-error' : undefined} />
+            <span>I am this child’s parent or legal guardian and confirm that my child is potty trained. This is required for Mommy &amp; Me.</span>
+          </label>}
         </div>
       )}
 
-      {step === enrollmentStep && !isWaiversMemberships && renderEnrollmentSection()}
+      {step === enrollmentStep && !isWaiversMemberships && !isFreeTrial && renderEnrollmentSection()}
 
       {step === waiverStep && !isMinorStart && (
+        <>
         <WaiverSigningBlock
           invalidField={invalidField}
           waivers={waivers}
@@ -1878,6 +1935,10 @@ export default function FamilySignupWizard({
           paymentPolicyAcknowledged={paymentPolicyAcknowledged}
           onPaymentPolicyAcknowledgedChange={setPaymentPolicyAcknowledged}
         />
+        {isFreeTrial && waivers.length === 0 && <button type="button" onClick={() => void loadCatalogAndWaivers()} className="font-semibold text-vortex-red">
+          Try loading waivers again
+        </button>}
+        </>
       )}
 
       <div className="flex justify-between pt-2">
@@ -1902,7 +1963,7 @@ export default function FamilySignupWizard({
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : 'Create account') : 'Continue'}
+            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
             {step < maxStep && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

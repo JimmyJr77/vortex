@@ -2,17 +2,13 @@
 
 // Update only when indexable page content or search metadata changes. A stable,
 // truthful date is better than rewriting every <lastmod> on every deployment.
-export const SEO_CONTENT_LASTMOD = '2026-08-17'
+export const SEO_CONTENT_LASTMOD = '2026-11-15'
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/vortex-athletics', priority: '0.9', changefreq: 'weekly' },
-  { path: '/fit-and-flip', priority: '0.8', changefreq: 'weekly' },
-  { path: '/summer-athletic-training', priority: '0.9', changefreq: 'weekly' },
-  { path: '/value', priority: '0.7', changefreq: 'monthly' },
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
@@ -33,99 +29,8 @@ export const HUB_PRERENDER_PATHS = [
 export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex-athletics-og.jpg`
 export const SITE_NAME = 'Vortex Athletics'
 
-/** Canonical gymnastics origin. Production redirects the apex host to www. */
+/** Retired domain retained only to verify redirects to the unified website. */
 export const GYMNASTICS_ORIGIN = 'https://www.vortex-gymnastics.com'
-export const GYMNASTICS_SITE_NAME = 'Vortex Gymnastics'
-
-/**
- * Indexable gymnastics routes (vortex-gymnastics.com) for the sitemap.
- * `/gymnastics` (canonical -> `/`) and `/campaigns/*` (noindex duplicates) are
- * intentionally excluded so only canonical URLs are submitted.
- */
-export const GYMNASTICS_SITEMAP_ENTRIES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly' },
-  { path: '/beginner-gymnastics', priority: '0.9', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics-early', priority: '0.8', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics-6-12', priority: '0.8', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics-13-18', priority: '0.8', changefreq: 'monthly' },
-  { path: '/read-board', priority: '0.8', changefreq: 'daily' },
-  { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
-  { path: '/homeschool-gymnastics', priority: '0.9', changefreq: 'monthly' },
-  { path: '/acro-gymnastics', priority: '0.8', changefreq: 'monthly' },
-  { path: '/artistic-gymnastics', priority: '0.8', changefreq: 'monthly' },
-  { path: '/rhythmic-gymnastics', priority: '0.8', changefreq: 'monthly' },
-  { path: '/trampoline-tumbling', priority: '0.8', changefreq: 'monthly' },
-  { path: '/aerobic-gymnastics', priority: '0.8', changefreq: 'monthly' },
-]
-
-/**
- * Gymnastics routes to prerender for the vortex-gymnastics.com host.
- * Excludes `/` and `/read-board` because those static files collide with the
- * hub build (same dist output served to both domains); the client corrects
- * those on the gymnastics domain. Excludes `/campaigns/*` (canonicalized /
- * noindex duplicates). Rendered via the `?sport=gymnastics` host override.
- */
-export const GYMNASTICS_PRERENDER_PATHS = [
-  '/beginner-gymnastics',
-  '/homeschool-gymnastics',
-  '/artistic-gymnastics-early',
-  '/artistic-gymnastics-6-12',
-  '/artistic-gymnastics-13-18',
-  '/summer-camp-26',
-  '/acro-gymnastics',
-  '/artistic-gymnastics',
-  '/rhythmic-gymnastics',
-  '/trampoline-tumbling',
-  '/aerobic-gymnastics',
-]
-
-export const GYMNASTICS_NOINDEX_PRERENDER_PATHS = ['/summer-camp-26']
-
-/**
- * Gymnastics routes whose paths collide with the hub build (`/`, `/read-board`).
- * They are prerendered into dedicated `_gym/*` files and served to the
- * vortex-gymnastics.com host via host-based rules in vercel.json. `outFile` is
- * relative to dist/. Titles/descriptions must mirror src/config/gymnasticsSeo.ts.
- */
-export const GYMNASTICS_OG_IMAGE = `${GYMNASTICS_ORIGIN}/vortex-gymnastics-og.jpg`
-export const GYMNASTICS_OG_IMAGE_ALT =
-  'A Vortex Gymnastics athlete training on a trampoline in Bowie, Maryland'
-
-export const GYMNASTICS_HOST_PAGES = [
-  {
-    path: '/',
-    outFile: '_gym/index.html',
-    title: 'Gymnastics Classes in Bowie, MD | Vortex Gymnastics',
-    description:
-      'Gymnastics classes for all ages in Bowie, MD - preschool to competitive, taught by expert coaches. Book a free trial class today.',
-    canonical: GYMNASTICS_ORIGIN,
-    siteName: GYMNASTICS_SITE_NAME,
-    ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: GYMNASTICS_OG_IMAGE_ALT,
-  },
-  {
-    path: '/read-board',
-    outFile: '_gym/read-board.html',
-    title: 'Gymnastics Classes, Camps & Events | Bowie, MD',
-    description:
-      'Upcoming gymnastics classes, camps, and open gyms at Vortex Gymnastics in Bowie, MD. Register your athlete today.',
-    canonical: `${GYMNASTICS_ORIGIN}/read-board`,
-    siteName: GYMNASTICS_SITE_NAME,
-    ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: GYMNASTICS_OG_IMAGE_ALT,
-  },
-  {
-    path: '/drop-in',
-    outFile: '_gym/drop-in.html',
-    title: 'Gymnastics Drop-In Classes in Bowie, MD | Vortex',
-    description:
-      'Book one available gymnastics class in Bowie, MD without monthly enrollment. Browse live dates, age groups, levels, and drop-in openings.',
-    canonical: `${GYMNASTICS_ORIGIN}/drop-in`,
-    siteName: GYMNASTICS_SITE_NAME,
-    ogImage: GYMNASTICS_OG_IMAGE,
-    ogImageAlt: 'Vortex Gymnastics drop-in classes in Bowie, Maryland',
-  },
-]
 
 /** Coming-soon sport domains only (not vortex-gymnastics.com) */
 /** @type {{ host: string, title: string, description: string, canonical: string, robots: string }[]} */

@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './index.css'
+import publicLandingRedirects from './config/publicLandingRedirects.json'
+import { HUB_ORIGIN } from './utils/seo'
 import {
   isStubPreviewOnNonStubHost,
   resolveStubSite,
@@ -21,9 +23,8 @@ import { clearChunkReloadFlag, initChunkLoadRecovery, lazyWithRetry } from './ut
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage.tsx'))
 const ComingSoon = lazyWithRetry(() => import('./components/stub/ComingSoon.tsx'))
 const App = lazyWithRetry(() => import('./App.tsx'))
-const GymnasticsApp = lazyWithRetry(() => import('./apps/gymnastics/GymnasticsApp.tsx'))
 
-const appLoader = <div className="min-h-screen bg-black" aria-busy="true" />
+const appLoader = <div className="min-h-screen bg-white" aria-busy="true" />
 
 /**
  * Production route snapshots contain a complete SEO head for non-JavaScript
@@ -102,21 +103,17 @@ const stubPreview = stubSite
   ? isStubPreviewOnNonStubHost(window.location.hostname, window.location.search)
   : false
 
-if (stubSite?.key === 'gymnastics') {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <ChunkLoadErrorBoundary>
-        <HelmetProvider>
-          <Suspense fallback={appLoader}>
-            <BrowserRouter>
-              <GymnasticsApp isPreview={stubPreview} />
-            </BrowserRouter>
-          </Suspense>
-        </HelmetProvider>
-      </ChunkLoadErrorBoundary>
-    </StrictMode>,
-  )
-} else if (stubSite) {
+// Vercel handles this before serving HTML. Keep the same canonical redirect
+// for alternate/static hosting so this domain never renders a separate app.
+const isLegacyGymnasticsHost = /^(www\.)?vortex-gymnastics\.com$/i.test(window.location.hostname)
+if (isLegacyGymnasticsHost) {
+  const path = window.location.pathname.replace(/\/$/, '') || '/'
+  const destination = (publicLandingRedirects as Record<string, string>)[path] || path
+  const target = new URL(destination, HUB_ORIGIN)
+  target.search = window.location.search
+  if (!target.hash) target.hash = window.location.hash
+  window.location.replace(target.href)
+} else if (stubSite && stubSite.key !== 'gymnastics') {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <ChunkLoadErrorBoundary>
