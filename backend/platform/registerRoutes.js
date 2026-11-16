@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { registerStaffLegalRoutes } from '../legal/registerRoutes.js'
 import { registerFloorPlannerRoutes } from './floorPlannerRoutes.js'
+import { captureDeletionTarget, assertNoUnexpectedDeleteReferences } from '../members/deletionReferences.js'
 import bcrypt from 'bcryptjs'
 import { assertUsernameIsNotReserved, validateSignupUsername } from './familySignup.js'
 import { normalizeOptionalPhoneNumber, normalizeUpdatedPhoneNumber, phoneSearchPattern } from '../phoneNumbers.js'
@@ -805,7 +806,20 @@ async function deleteAppUserCompletely(client, userId, facilityId) {
     )
   }
 
-  await client.query('DELETE FROM coach_class_assignment WHERE coach_user_id = $1', [userId])
+  // Only this login's credentials and access configuration may be removed.
+  // Assignments, business evidence, and attribution must survive even when a
+  // foreign key would otherwise silently cascade or clear the author link.
+  const targets = [await captureDeletionTarget(client, 'public.app_user', 'id=$1 AND facility_id=$2', [userId, facilityId])]
+  const loginOwnedTables = ['public.app_user_role', 'public.app_user_permission_override',
+    'public.admin_profile', 'public.coach_profile', 'public.email_verification_token']
+  const { rows: present } = await client.query(
+    'SELECT name FROM unnest($1::text[]) name WHERE to_regclass(name) IS NOT NULL', [loginOwnedTables],
+  )
+  for (const { name } of present) {
+    if (!loginOwnedTables.includes(name)) continue
+    targets.push(await captureDeletionTarget(client, name, 'user_id=$1', [userId]))
+  }
+  await assertNoUnexpectedDeleteReferences(client, targets, { allowedNullReferences: [] })
   await client.query('DELETE FROM app_user WHERE id = $1 AND facility_id = $2', [userId, facilityId])
 }
 

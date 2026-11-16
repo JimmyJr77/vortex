@@ -9,6 +9,7 @@ import { generateTemporaryPassword } from '../scheduling/tempPasswordEmail.js'
 import { processFamilySignup } from '../platform/familySignup.js'
 import { normalizeEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 import { inquiryInput } from './leadInquiry.js'
+import { leadInput, updateLead } from './leads.js'
 import { id, inputError } from './common.js'
 
 const digest = value => crypto.createHash('sha256').update(String(value)).digest('hex')
@@ -90,7 +91,64 @@ export async function validateLeadSelections(db, facilityId, children, selection
 }
 
 export function invitationSummary(invite) {
-  return { id: Number(invite.id), username: invite.suggested_username, email: invite.invitee_email, status: invite.used_at ? 'completed' : new Date(invite.expires_at) <= new Date() ? 'expired' : invite.delivery_status, expiresAt: invite.expires_at, selections: invite.pending_payload.selections, children: invite.pending_payload.children }
+  return { id: Number(invite.id), username: invite.suggested_username, email: invite.invitee_email, status: invite.used_at ? 'completed' : new Date(invite.expires_at) <= new Date() ? 'expired' : invite.delivery_status, expiresAt: invite.expires_at, selections: invite.pending_payload.selections, children: invite.pending_payload.children,
+    guardian: invite.pending_payload.guardian, instructions: invite.pending_payload.instructions || '', revision: invite.pending_payload.revision || 0 }
+}
+
+export async function updateLeadInvitation(pool, { facilityId, inviteId, body, canReserve = false }, dependencies = {}) {
+  const db = await pool.connect()
+  try {
+    await db.query('BEGIN')
+    const reference = (await db.query("SELECT registration_id FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration'", [id(inviteId), facilityId])).rows[0]
+    if (!reference) throw inputError('Invitation not found.', 404)
+    // Use the same lead -> invitation -> ordered class locks as registration completion.
+    const lead = (await db.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE', [reference.registration_id, facilityId])).rows[0]
+    const invite = (await db.query("SELECT * FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration' FOR UPDATE", [id(inviteId), facilityId])).rows[0]
+    if (!invite) throw inputError('Invitation not found.', 404)
+    if (invite.used_at || new Date(invite.expires_at) <= new Date()) throw inputError('This invitation is completed or expired.', 409)
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) throw inputError('This lead already has an account or is no longer open.', 409)
+    const revision = invite.pending_payload.revision || 0
+    if (!Number.isInteger(body.revision) || body.revision !== revision) throw inputError('This invitation changed. Close and reopen it before editing.', 409)
+    const children = inquiryInput({ campers: body.children }).campers
+    const selections = await validateLeadSelections(db, facilityId, children, body.selections)
+    if (!canReserve && [...invite.pending_payload.selections, ...selections].some(item => item.kind === 'reserved')) throw inputError('Scheduling permission is required to change an invitation with reserved classes.', 403)
+    const holdDays = Number(body.holdDays)
+    if (!Number.isInteger(holdDays) || holdDays < 1 || holdDays > 30) throw inputError('Choose a registration deadline from 1 to 30 days.')
+    const instructions = String(body.instructions || '').trim()
+    if (instructions.length > 4000) throw inputError('Instructions must be at most 4,000 characters.')
+    if (!body.guardian || typeof body.guardian !== 'object' || Array.isArray(body.guardian)) throw inputError('Enter the contact details.')
+    const contact = leadInput(body.guardian, { currentPhone: lead.phone })
+    const email = normalizeSignupEmail(contact.email)
+    if (!email) throw inputError('Enter a valid contact email address.')
+    const conflict = await db.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
+    if (conflict.rows.length) throw inputError('This email already has an account. Link the verified existing member instead of creating another login.', 409)
+    const guardian = { firstName: contact.firstName, lastName: contact.lastName, email, phone: contact.phone || '' }
+    const holds = (await db.query('SELECT slot_group_id FROM scheduling_signup WHERE account_invite_id=$1 AND status=\'pending_setup\'', [invite.id])).rows
+    const groups = [...new Set([...holds.map(row => Number(row.slot_group_id)), ...selections.filter(item => item.kind === 'reserved').map(item => item.slotGroupId)])].sort((a,b) => a-b)
+    if (groups.length) await db.query('SELECT id FROM scheduling_slot_group WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE', [groups])
+    await db.query("UPDATE scheduling_signup SET status='cancelled',reserved_until=NULL WHERE account_invite_id=$1 AND status='pending_setup'", [invite.id])
+    // Rotate the link on every edit so an already-open registration cannot submit stale selections.
+    const token = crypto.randomBytes(32).toString('hex')
+    const password = generateTemporaryPassword(16)
+    const payload = { ...invite.pending_payload, guardian, children, selections, instructions, revision: revision + 1, passwordCiphertext: encryptAccountInviteToken(password) }
+    const saved = (await db.query(`UPDATE account_invite SET pending_payload=$2::jsonb,invitee_email=$3,expires_at=now()+($4::int*interval '1 day'),
+      token_hash=$5,token_ciphertext=$6,temporary_password_hash=$7,delivery_status='pending' WHERE id=$1 RETURNING *`,
+    [invite.id, JSON.stringify(payload), email, holdDays, digest(token), encryptAccountInviteToken(token), await bcrypt.hash(password, 10)])).rows[0]
+    for (const item of selections.filter(item => item.kind === 'reserved')) {
+      const child = children[item.childIndex]
+      const hold = await db.query(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status,enrollment_start_date,account_invite_id,invite_child_index,reserved_until)
+        VALUES($1,$2,$3,$4,$5,$6,'pending_setup',$7,$8,$9,$10)
+        ON CONFLICT(account_invite_id,invite_child_index,slot_group_id) WHERE account_invite_id IS NOT NULL
+        DO UPDATE SET form_id=EXCLUDED.form_id,time_slot_id=EXCLUDED.time_slot_id,first_name=EXCLUDED.first_name,last_name=EXCLUDED.last_name,
+          email=EXCLUDED.email,status='pending_setup',enrollment_start_date=EXCLUDED.enrollment_start_date,reserved_until=EXCLUDED.reserved_until
+        RETURNING id`, [item.schedulingFormId, item.slotGroupId, item.timeSlotId, child?.firstName || '', child?.lastName || '', email, item.enrollmentStartDate, invite.id, item.childIndex, saved.expires_at])
+      item.holdSignupId = Number(hold.rows[0].id)
+    }
+    await db.query("UPDATE account_invite SET pending_payload=jsonb_set(pending_payload,'{selections}',$2::jsonb) WHERE id=$1", [invite.id, JSON.stringify(selections)])
+    await updateLead(db, facilityId, lead.id, { ...guardian, inquiry: { campers: children } }, lead.phone)
+    await db.query('COMMIT')
+  } catch (error) { await db.query('ROLLBACK'); if (error.code === 'P0001') error.statusCode=409; throw error } finally { db.release() }
+  return deliverLeadInvitation(pool, { facilityId, inviteId, resend: true }, dependencies)
 }
 
 export async function createLeadInvitation(pool, { facilityId, leadId, userId, body }, dependencies = {}) {

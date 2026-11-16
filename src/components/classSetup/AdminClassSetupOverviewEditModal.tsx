@@ -38,7 +38,7 @@ const AdminClassSetupOverviewEditModal = ({
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             {subtitle && <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>}
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="portal-dialog-close p-1 rounded hover:bg-gray-100 text-gray-500">
+          <button type="button" onClick={onClose} disabled={saving} aria-label="Close" className="portal-dialog-close p-1 rounded hover:bg-gray-100 text-gray-500 disabled:opacity-50">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -48,6 +48,7 @@ const AdminClassSetupOverviewEditModal = ({
           <button
             type="button"
             onClick={onClose}
+            disabled={saving}
             className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg"
           >
             Cancel

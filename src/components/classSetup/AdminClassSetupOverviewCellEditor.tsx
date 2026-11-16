@@ -31,7 +31,9 @@ import {
 import {
   type ClassSetupOverviewRow,
   type ClassSetupOverviewScheduleLine,
+  type ClassDropInEditScope,
   archiveClassSetupSchedule,
+  saveClassSetupDropIns,
 } from '../../utils/classSetupOverviewApi'
 import { type OverviewColumnId } from './overviewColumns'
 
@@ -104,6 +106,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   const [programOptionsLoading, setProgramOptionsLoading] = useState(false)
   const [primarySportId, setPrimarySportId] = useState<number | null>(null)
   const [allowDropIns, setAllowDropIns] = useState(true)
+  const [dropInScope, setDropInScope] = useState<ClassDropInEditScope>('class')
   const [skillLevel, setSkillLevel] = useState<string>('')
   const [statusValue, setStatusValue] = useState<'Active' | 'Inactive' | 'Legacy'>('Active')
   const [pricingDraft, setPricingDraft] = useState<ProgramPricingOption[]>([])
@@ -120,7 +123,8 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     setTextValue('')
     setSelectedProgramsId(row.programsId)
     setPrimarySportId(row.primarySportId)
-    setAllowDropIns(!row.excludeFromDropIns)
+    setAllowDropIns(!(target?.line?.excludeFromDropIns ?? row.excludeFromDropIns))
+    setDropInScope('class')
     setSkillLevel(row.skillLevel ?? '')
     setStatusValue(target?.line?.isActive === false ? 'Inactive' : row.status)
     const options = normalizeProgramPricingOptions(row.pricingCostOptions)
@@ -223,7 +227,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
   }, [columnId])
 
   const handleSave = async () => {
-    if (!row || !columnId) return
+    if (!row || !columnId || saving) return
     const archiving = columnId === 'status' && (target?.line ? statusValue !== 'Active' : statusValue === 'Legacy')
     if (archiving && !await confirmArchive(target?.line ? `${row.className} · ${target.line.days} · ${target.line.times}` : row.className)) return
     if (
@@ -231,6 +235,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       columnId !== 'className' &&
       columnId !== 'classDescription' &&
       columnId !== 'classNotes' &&
+      columnId !== 'excludeFromDropIns' &&
       columnId !== 'status'
     ) {
       setError('This class has no parent program.')
@@ -240,7 +245,6 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
     const programLevelColumns: OverviewColumnId[] = [
       'primarySport',
       'programDescription',
-      'excludeFromDropIns',
       // Program defaults only — class overrides are saved on the scheduling form.
       ...(row.pricingOverridesProgram ? [] : (['costPerMonth'] as OverviewColumnId[])),
     ]
@@ -272,8 +276,14 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
           await updateTopProgram(row.programsId, { description: textValue.trim() || null })
           break
         case 'excludeFromDropIns':
-          if (row.programsId == null) throw new Error('Missing program')
-          await updateTopProgram(row.programsId, { excludeFromDropIns: !allowDropIns })
+          if (target?.line?.slotGroupId != null && target.line.timeSlotId == null) {
+            throw new Error('This schedule line has no editable identity. Refresh Class Master.')
+          }
+          await saveClassSetupDropIns(row.classId, {
+            allowDropIns,
+            scope: dropInScope,
+            ...(target?.line?.timeSlotId != null ? { timeSlotId: target.line.timeSlotId } : {}),
+          })
           break
         case 'className':
           await updateClassEvent(row.classId, { displayName: textValue.trim() })
@@ -468,16 +478,34 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
             <span>
               <span className="block text-sm font-medium text-gray-900">Allow Drop-ins</span>
               <span className="mt-1 block text-xs text-gray-500">
-                Yes adds this program’s classes to the drop-in course enrollment list. No removes them.
+                Allow the selected classes to appear in the drop-in enrollment list.
               </span>
             </span>
           </label>
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            This is a program-level setting. Saving it will apply to all classes in <strong>{row.programName}</strong>.
+          <label className="block text-sm font-medium text-gray-700">
+            Apply change to
+            <select
+              value={dropInScope}
+              onChange={(event) => setDropInScope(event.target.value as ClassDropInEditScope)}
+              className="mt-1 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-sm"
+            >
+              <option value="class">Just this class</option>
+              <option value="matching" disabled={row.programsId == null}>All matching classes</option>
+              <option value="program" disabled={row.programsId == null}>All classes in this program</option>
+            </select>
+          </label>
+          <p className="text-sm text-gray-600" aria-live="polite">
+            {dropInScope === 'class'
+              ? target?.line?.timeSlotId != null
+                ? `Only ${row.className} · ${target.line.days} · ${target.line.times}. Other schedule rows stay unchanged.`
+                : `Only ${row.className}.`
+              : dropInScope === 'matching'
+                ? `Every schedule for classes named “${row.className}” in “${row.programName}”.`
+                : `Every class and schedule in “${row.programName}”, including the default for new classes.`}
           </p>
         </div>
       )
-      saveDisabled = allowDropIns === !row.excludeFromDropIns
+      saveDisabled = dropInScope === 'class' && allowDropIns === !(target?.line?.excludeFromDropIns ?? row.excludeFromDropIns)
       break
     case 'skillLevel':
       body = (
@@ -650,7 +678,7 @@ const AdminClassSetupOverviewCellEditor = ({ target, onClose, onSaved }: Props) 
       wide={wide}
       hideFooter={hideFooter}
     >
-      {body}
+      <fieldset disabled={saving} className="min-w-0">{body}</fieldset>
     </AdminClassSetupOverviewEditModal>
   )
 }

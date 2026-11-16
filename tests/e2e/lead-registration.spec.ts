@@ -64,6 +64,93 @@ test('conversion supports partial child details and optional dates for every lin
   })
 })
 
+test('staff edit a sent registration invitation, preserve drafts on errors, and retry updated email delivery', async ({ page }) => {
+  const updates: Record<string, unknown>[] = []
+  let rejectEdit = true
+  let sends = 0
+  let invitation = {
+    id: 8, status: 'sent', username: 'jordanr', email: 'parent@example.test', expiresAt: '2099-12-01', revision: 0,
+    guardian: { firstName: 'Jordan', lastName: 'Rivera', email: 'parent@example.test', phone: '202-555-0101' },
+    children: [{ firstName: 'Casey', lastName: 'Rivera', dateOfBirth: '2016-01-01', gender: 'female' }],
+    instructions: 'Original instructions',
+    selections: [{ kind: 'reserved', childIndex: 0, programsId: 1, classEventId: 2, timeSlotId: 3, slotGroupId: 4,
+      enrollmentStartDate: '2027-01-01', label: 'Gymnastics / Foundations', childName: 'Casey' }],
+  }
+  await page.addInitScript(() => { localStorage.setItem('vortex_admin', 'true'); localStorage.setItem('adminToken', 'fixture'); localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, isMaster: false })); localStorage.setItem('vortex_admin_portal', 'new-admin') })
+  await page.route('**/api/**', async route => {
+    const path = new URL(route.request().url()).pathname
+    let data: unknown = []
+    if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: ['members.view', 'members.edit', 'scheduling.manage'], roles: ['ADMIN'], user: { id: 1 } }
+    if (path.endsWith('/new-admin/families')) data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 1 }
+    if (path.endsWith('/leads')) data = { rows: [{ id: 7, firstName: 'Jordan', lastName: 'Rivera', email: invitation.email, status: 'qualified', contacted: true, followUp: false, invitation: { id: 8, status: invitation.status }, inquiry: { campers: [] } }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    if (path.endsWith('/lead-registration/catalog')) data = [
+      { programs_id: 1, program_name: 'Gymnastics', class_id: 2, class_name: 'Foundations', form_id: 4, slot_id: 3, group_id: 4, day_of_week: 1, start_time: '16:00', end_time: '17:00', max_participants: 1, occupied: 1 },
+      { programs_id: 1, program_name: 'Gymnastics', class_id: 5, class_name: 'Intermediate', form_id: 6, slot_id: 7, group_id: 8, day_of_week: 2, start_time: '17:00', end_time: '18:00', max_participants: 10, occupied: 3 },
+    ]
+    if (path.endsWith('/lead-registration/8')) {
+      if (route.request().method() === 'PATCH') {
+        const body = route.request().postDataJSON()
+        updates.push(body)
+        if (rejectEdit) { rejectEdit = false; return route.fulfill({ status: 409, json: { success: false, message: 'That class just filled. Choose another time.' } }) }
+        invitation = { ...invitation, ...body, email: body.guardian.email, revision: 1, status: 'failed', selections: body.selections.map((item: object) => ({ ...item, label: 'Gymnastics / Intermediate', childName: 'Casey Updated' })) }
+      }
+      data = invitation
+    }
+    if (path.endsWith('/lead-registration/8/send')) { sends++; invitation.status = 'sent'; data = invitation }
+    await route.fulfill({ json: { success: true, data } })
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Leads', exact: true }).click()
+  await page.getByRole('button', { name: 'Registration invitation', exact: true }).click()
+  let dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('heading', { name: 'Registration email sent' })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Edit', exact: true }).click()
+  await expect(dialog.getByLabel('Child 1 first name')).toHaveValue('Casey')
+  await expect(dialog.getByLabel('Instructions for the parent')).toHaveValue('Original instructions')
+  await expect(dialog.getByRole('combobox', { name: 'Class time', exact: true })).toHaveValue('3')
+  await expect(dialog.getByRole('combobox', { name: 'Class time', exact: true }).locator('option[value="3"]')).toBeEnabled()
+  await dialog.getByLabel('Instructions for the parent').fill('Discard this edit')
+  await dialog.getByRole('button', { name: 'Cancel edit', exact: true }).click()
+  expect(updates).toHaveLength(0)
+  await dialog.getByRole('button', { name: 'Edit', exact: true }).click()
+  await expect(dialog.getByLabel('Instructions for the parent')).toHaveValue('Original instructions')
+  await dialog.getByLabel('Contact first name').fill('Jordan Updated')
+  await dialog.getByLabel('Contact email').fill('updated@example.test')
+  await dialog.getByLabel('Child 1 first name').fill('Casey Updated')
+  await dialog.getByRole('combobox', { name: 'Class', exact: true }).selectOption('5')
+  await dialog.getByRole('combobox', { name: 'Class time', exact: true }).selectOption('7')
+  await dialog.getByLabel('Enrollment start date').fill('2027-02-01')
+  await dialog.getByLabel('Instructions for the parent').fill('Please review your updated class.')
+  await dialog.getByLabel('Days to finish registration').fill('14')
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await dialog.getByRole('button', { name: 'Send updated registration request' }).click()
+  await expect(dialog.getByRole('alert')).toContainText('That class just filled')
+  await expect(dialog.getByLabel('Contact email')).toHaveValue('updated@example.test')
+  await expect(dialog.getByRole('combobox', { name: 'Class', exact: true })).toHaveValue('5')
+  await dialog.getByRole('button', { name: 'Send updated registration request' }).click()
+  await expect(dialog.getByRole('heading', { name: 'Invitation saved — email not sent' })).toBeVisible()
+  await expect(dialog).toContainText('Gymnastics / Intermediate')
+  expect(updates).toHaveLength(2)
+  expect(updates[1]).toMatchObject({ revision: 0, holdDays: 14, guardian: { firstName: 'Jordan Updated', email: 'updated@example.test' }, children: [{ firstName: 'Casey Updated' }],
+    selections: [{ kind: 'reserved', childIndex: 0, programsId: 1, classEventId: 5, timeSlotId: 7, enrollmentStartDate: '2027-02-01' }], instructions: 'Please review your updated class.' })
+  await dialog.getByRole('button', { name: 'Retry sending email' }).click()
+  await expect(dialog).toBeHidden()
+  expect(sends).toBe(1)
+  await page.getByRole('button', { name: 'Registration invitation', exact: true }).click()
+  dialog = page.getByRole('dialog')
+  await dialog.getByRole('button', { name: 'Edit', exact: true }).click()
+  await expect(dialog.getByLabel('Child 1 first name')).toHaveValue('Casey Updated')
+  await expect(dialog.getByRole('combobox', { name: 'Class', exact: true })).toHaveValue('5')
+  await expect(dialog.getByLabel('Contact email')).toHaveValue('updated@example.test')
+  await dialog.getByRole('button', { name: 'Cancel edit', exact: true }).click()
+  await dialog.getByRole('button', { name: 'Done', exact: true }).click()
+  invitation.status = 'completed'
+  await page.getByRole('button', { name: 'Registration invitation', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Account setup completed' })).toBeVisible()
+  await expect(page.getByRole('dialog').getByRole('button', { name: 'Edit', exact: true })).toHaveCount(0)
+})
+
 for (const removeSuggested of [false, true]) {
 test(`invited parent completes registration with ${removeSuggested ? 'removed' : 'original'} coach suggestions`,async({page})=>{
   let completion:Record<string,unknown>|null=null

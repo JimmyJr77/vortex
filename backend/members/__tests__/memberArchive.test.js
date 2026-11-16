@@ -126,7 +126,7 @@ test('setMemberArchived rolls back and does not update a blocked member', async 
   assert.equal(queries.some((sql) => sql.includes('UPDATE member')), false)
 })
 
-test('setMemberArchived changes record lifecycle without mutating portal access', async () => {
+test('setMemberArchived changes record lifecycle without mutating portal access or billing ownership', async () => {
   const queries = []
   const updatedMember = { ...member, is_active: false }
   const client = {
@@ -138,7 +138,6 @@ test('setMemberArchived changes record lifecycle without mutating portal access'
         return { rows: [] }
       }
       if (sql.includes('FROM family_billing_account fba')) return { rows: [] }
-      if (sql.includes('UPDATE family_billing_account')) return { rows: [] }
       if (sql.includes('UPDATE member')) return { rows: [updatedMember] }
       throw new Error(`Unexpected query: ${sql}`)
     },
@@ -154,4 +153,5 @@ test('setMemberArchived changes record lifecycle without mutating portal access'
   const memberUpdate = queries.find((entry) => entry.sql.includes('UPDATE member'))
   assert.deepEqual(memberUpdate.params.slice(0, 2), [false, 75])
   assert.equal(queries.some((entry) => entry.sql.includes('UPDATE app_user')), false)
+  assert.equal(queries.some((entry) => entry.sql.includes('UPDATE family_billing_account')), false)
 })

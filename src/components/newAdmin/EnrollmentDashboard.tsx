@@ -86,7 +86,7 @@ function EnrollmentTrend({ data, population, setPopulation }: {
       ? first.value + averageGrowth * (index - first.index) : null,
   }))
   const hasData = total ? recorded.length > 0 : months.some(row => row.newFamilies != null)
-  const latest = data.months.at(-1)
+  const latest = months.at(-1)
   const quarters = students ? data.studentQuarters : data.quarters
   return <>
     {quarters?.length ? <QuarterlyCards quarters={quarters} title={title} noun={noun} /> : null}
@@ -107,7 +107,7 @@ function EnrollmentTrend({ data, population, setPopulation }: {
         </div>
       </div>
       {total ? <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <MetricCard label="Total current members" value={number(data.current?.students)} color="text-blue-700" detail={`Unique currently enrolled students, including paused enrollments · As of ${data.asOf}`} />
+        <MetricCard label={`Total current ${noun}`} value={number(students ? data.current?.students : data.current?.families)} color="text-blue-700" detail={`Unique currently enrolled ${noun}, including paused enrollments · As of ${data.asOf}`} />
         <MetricCard label="Average monthly growth" value={averageGrowth == null ? 'Unavailable' : `${averageGrowth > 0 ? '+' : ''}${number(averageGrowth, 1)}`} color="text-emerald-700" detail={`${noun} per month · Change from first to latest recorded total ÷ elapsed months${latest?.partial ? ' · Includes the current partial month' : ''}`} />
       </div> : null}
       {!hasData ? <p className="py-12 text-center text-sm text-slate-500">No enrollment history is available for this year.</p> : view === 'Table' ? <div className="mt-5 overflow-x-auto">

@@ -168,6 +168,11 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
   await client.query(`UPDATE drop_in_registration SET status = 'cancelled', updated_at = now()
     WHERE member_id = $1 AND benefit_type = 'free_trial' AND status = 'account_required' AND expires_at <= now()`, [memberId])
 
+  // Wait for any scoped eligibility edit, then take a fresh statement snapshot.
+  await client.query(`SELECT sg.id FROM scheduling_slot_group sg
+    JOIN scheduling_form sf ON sf.id=sg.form_id
+    JOIN program p ON p.id=sf.program_id
+    WHERE sg.id=$1 AND p.facility_id=$2 FOR UPDATE OF sg`, [selection.slotGroupId, facilityId])
   const rows = (await client.query(
     `SELECT sg.id AS slot_group_id, sg.form_id, sg.max_participants, sg.dates_tbd,
             ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
@@ -193,7 +198,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
       WHERE sg.id = $1 AND top.facility_id = $3 AND p.facility_id = $3 AND sg.is_active = TRUE
         AND COALESCE(p.is_active, TRUE) = TRUE AND COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(top.is_active, TRUE) = TRUE AND COALESCE(top.archived, FALSE) = FALSE
-        AND COALESCE(top.exclude_from_drop_ins, FALSE) = FALSE
+        AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) = FALSE
       FOR UPDATE OF sg`,
     [selection.slotGroupId, selection.classDate, facilityId],
   )).rows

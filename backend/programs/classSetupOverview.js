@@ -54,6 +54,7 @@ function mapSlotGroupRow(row, scheduleLabel, slots = []) {
       timeSlotId: Number(slot.id),
       isActive: slot.is_active !== false,
       scheduleLabel: buildSlotDisplayLabel(slot, { siblingRows: slots }),
+      excludeFromDropIns: slot.exclude_from_drop_ins ?? null,
     })),
   }
 }
@@ -191,7 +192,7 @@ export async function buildClassSetupOverview(pool) {
         pr.display_name AS program_name,
         ${programDescriptionSelect}
         pr.archived AS program_archived,
-        COALESCE(pr.exclude_from_drop_ins, FALSE) AS exclude_from_drop_ins,
+        COALESCE(p.exclude_from_drop_ins, pr.exclude_from_drop_ins, FALSE) AS exclude_from_drop_ins,
         ${programIsActiveSelect}
         primary_dt.id AS primary_sport_id,
         primary_dt.name AS primary_sport_name,
@@ -282,7 +283,7 @@ export async function buildClassSetupOverview(pool) {
     if (groupIds.length) {
       const slotsRes = await pool.query(
         `
-          SELECT id, is_active, slot_group_id, week_letter, schedule_mode, specific_date, day_of_week, start_time, end_time
+          SELECT id, is_active, slot_group_id, week_letter, schedule_mode, specific_date, day_of_week, start_time, end_time, exclude_from_drop_ins
           FROM scheduling_time_slot
           WHERE slot_group_id = ANY($1::int[])
           ORDER BY slot_group_id, week_letter NULLS LAST, day_of_week NULLS LAST,

@@ -12,6 +12,8 @@ export interface PublicClassOffered {
   skillRequirements: string | null
   formId: number | null
   enrollVisible?: boolean
+  /** True only when all scheduled times are excluded (or the unscheduled class is excluded). */
+  excludeFromDropIns?: boolean
   signupUrl: string | null
 }
 

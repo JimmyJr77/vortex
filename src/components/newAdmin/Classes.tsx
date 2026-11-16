@@ -1,6 +1,7 @@
 import { confirmArchive } from '../../utils/confirmArchive'
 import { Suspense, useMemo, useState, type FormEvent } from 'react'
-import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, Plus, Search } from 'lucide-react'
+import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, Download, Plus, Search } from 'lucide-react'
+import { adminApiRequest } from '../../utils/api'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { archiveClassEvent, type ClassEventFormData } from '../../utils/programsApi'
 import ClassRoster, { type RosterRow, type ScheduleSelection } from './ClassRoster'
@@ -43,6 +44,29 @@ export default function Classes(props: ClassesProps) {
 }
 
 function ClassesList({ access, revision, onMember, showArchived, onToggleArchived }: ClassesProps & ArchiveVisibility) {
+  const [downloading, setDownloading] = useState(false)
+  const [downloadError, setDownloadError] = useState<string | null>(null)
+  const downloadSchedule = async () => {
+    setDownloading(true)
+    setDownloadError(null)
+    try {
+      const response = await adminApiRequest('/api/admin/new-admin/classes/schedule.pdf', { cache: 'no-store' })
+      if (!response.ok) {
+        const body = await response.json().catch(() => null)
+        throw new Error(body?.message || 'Unable to download the schedule. Please try again.')
+      }
+      if (!response.headers.get('content-type')?.includes('application/pdf')) throw new Error('Unable to download the schedule. Please try again.')
+      const url = URL.createObjectURL(await response.blob())
+      const link = document.createElement('a')
+      link.href = url
+      link.download = response.headers.get('content-disposition')?.match(/filename="([^"]+)"/)?.[1] || 'vortex-class-schedule.pdf'
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    } catch (error) { setDownloadError(error instanceof Error ? error.message : 'Unable to download the schedule.') }
+    finally { setDownloading(false) }
+  }
   const [query, setQuery] = useState('')
   const search = useSearch(query)
   const [page, setPage] = useState(1)
@@ -70,6 +94,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
       <div><h2 className="text-2xl font-bold">Classes & schedules</h2><p className="mt-1 text-sm text-slate-500">Capacity, schedules, and enrolled members in one place.</p></div>
       <div className="flex flex-wrap gap-2">
+        <button className={button} disabled={downloading} onClick={() => void downloadSchedule()} title="Download all active schedules by day and by class, with available student places"><Download className="h-4 w-4" />{downloading ? 'Preparing PDF…' : 'Download schedule'}</button>
         {id == null ? <ArchiveVisibilityButton showArchived={showArchived} onToggleArchived={() => { setPage(1); onToggleArchived() }} /> : null}
         {canManage ? <>
           <button className={button} onClick={() => setProgramMode('edit')}>Edit program</button>
@@ -78,6 +103,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
         </> : null}
       </div>
     </div>
+    <ErrorNotice message={downloadError} onRetry={() => void downloadSchedule()} />
     {id != null ? <ClassDetail key={id} id={id} access={access} revision={revision + version} onBack={() => setId(null)} onMember={onMember} onChanged={refresh} onEdit={openEdit} /> : <><label className="mb-4 block max-w-xl text-sm font-medium"><span className="flex items-center gap-2"><Search className="h-4 w-4" />Search classes</span><input className={input} value={query} onChange={event => { setQuery(event.target.value); setPage(1) }} placeholder="Class or program name" /></label><ErrorNotice message={data.error} onRetry={refresh} />{data.loading ? <Loading label="Loading classes…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{classColumns.map(column => <th className={cell} key={column.key} aria-sort={sort === column.key ? direction === 'asc' ? 'ascending' : 'descending' : 'none'}><button type="button" className="inline-flex items-center gap-1 whitespace-nowrap font-semibold uppercase hover:text-vortex-red" onClick={() => sortBy(column.key)}>{column.label}{sort === column.key ? direction === 'asc' ? <ArrowUp aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowDown aria-hidden="true" className="h-3.5 w-3.5" /> : <ArrowUpDown aria-hidden="true" className="h-3.5 w-3.5" />}</button></th>)}<th className={cell}>Actions</th></tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(row => <tr key={row.id}><td className={cell}>{row.programName || 'Unassigned'}</td><td className={cell}><button className="font-semibold underline decoration-slate-300 underline-offset-4 hover:text-red-700" disabled={!allowed(access, 'members.view')} onClick={() => setId(row.id)}>{row.name}</button><p className="mt-1 text-xs text-slate-500">Class #{row.id}</p></td><td className={cell}>{row.costAmountCents == null ? 'Not set' : `${(row.costAmountCents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} / ${(row.costUnit || 'per_month').replace('per_', '')}`}</td><td className={`${cell} min-w-56`}>{row.schedules?.length ? row.schedules.map(slot => <p key={slot.id} className="whitespace-nowrap">{slot.specificDate || ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][slot.dayOfWeek]}{slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · {formatTime(slot.startTime)}–{formatTime(slot.endTime)}{slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}</p>) : 'No available schedules'}</td><td className={cell}>{row.enrolledCount}</td><td className={cell}>{row.capacity}</td><td className={cell}>{row.waitlistCount}</td><td className={cell}><Status value={row.archived ? 'archived' : row.isActive ? 'active' : 'inactive'} /></td><td className={cell}>{canManage && <button className={button} aria-label={`Edit class: ${row.name}`} onClick={() => openEdit(row)}>Edit class</button>}</td></tr>)}</tbody></table> : <Empty>No classes match this search.</Empty>}<Pager data={data.data} onPage={setPage} /></div> : null}</>}
     {create ? <ClassCreator onClose={() => setCreate(false)} onSaved={() => { setCreate(false); refresh() }} /> : null}
     {edit && editing ? <Suspense fallback={<Loading />}><ClassModal open editing={editing} programsId={edit.programsId ?? 0} programsDisplayName={edit.programName ?? undefined} lockProgram hideSportTags pricingFields={<ClassPriceFields value={monthlyPrice} onChange={setMonthlyPrice} legacyUnit={edit.costUnit !== 'per_month' ? edit.costUnit : undefined} />} saveClass={async (_programId, details) => { await request(`/api/admin/new-admin/classes/${edit.id}`, { method: 'PUT', body: JSON.stringify({ ...details, ...(monthlyPrice !== '' && Math.round(Number(monthlyPrice) * 100) !== edit.monthlyPriceCents ? { monthlyPriceCents: Math.round(Number(monthlyPrice) * 100) } : {}) }) }) }} onClose={() => setEdit(null)} onSaved={refresh} /></Suspense> : null}

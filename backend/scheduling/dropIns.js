@@ -400,7 +400,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
            p.id AS class_id, p.display_name AS class_name, p.description AS class_description, p.skill_level,
            p.age_min, p.age_max, p.is_trial_assessment,
            to_jsonb(sf) AS pricing_form, to_jsonb(top) AS pricing_program, top.id AS program_id, top.display_name AS program_name, top.description AS program_description,
-           COALESCE(top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
+           COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
            primary_dt.name AS sport_name, top.facility_id, COALESCE(NULLIF(facility.timezone, ''), 'America/New_York') AS time_zone,
            (now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date::text AS facility_date,
            (((now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date + INTERVAL '2 months')::date)::text AS booking_end_date,
@@ -421,7 +421,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
        ${includeTrialOnly ? '' : 'AND COALESCE(p.is_trial_assessment, FALSE)=FALSE'}
        AND COALESCE(top.is_active, TRUE)=TRUE
        AND COALESCE(top.archived, FALSE)=FALSE
-       ${includeExcluded ? '' : 'AND COALESCE(top.exclude_from_drop_ins, FALSE)=FALSE'}
+       ${includeExcluded ? '' : 'AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE)=FALSE'}
      ORDER BY primary_dt.name, top.display_name, p.display_name,
               ts.day_of_week, ts.specific_date, ts.start_time
   `)
@@ -501,6 +501,10 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
         excludedFromDropIns: Boolean(row.excluded_from_drop_ins), isTrialAssessment: Boolean(row.is_trial_assessment),
         monthlyCents, ...price,
       })
+    } else if (!row.excluded_from_drop_ins) {
+      // Admin catalogs include excluded slots too. A class remains available if
+      // any of its scheduled times permits drop-ins.
+      classesById.get(Number(row.class_id)).excludedFromDropIns = false
     }
     for (const date of dates) {
       if (activeDates.datesTbd) continue
@@ -552,7 +556,7 @@ async function loadDropInClassInventory(pool) {
   const result = await pool.query(
     `SELECT p.id AS "classId", p.display_name AS "className",
             top.id AS "programId", top.display_name AS "programName",
-            COALESCE(top.exclude_from_drop_ins, FALSE) AS "excludedFromDropIns",
+            BOOL_AND(COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE)) AS "excludedFromDropIns",
             sf.id AS "formId",
             COUNT(DISTINCT offering.id)::int AS "offeringCount",
             COUNT(DISTINCT sg.id)::int AS "slotGroupCount",
@@ -564,11 +568,12 @@ async function loadDropInClassInventory(pool) {
          ON sf.program_id = p.id AND sf.deleted_at IS NULL
        LEFT JOIN scheduling_offering offering ON offering.form_id = sf.id
        LEFT JOIN scheduling_slot_group sg ON sg.form_id = sf.id AND sg.is_active = TRUE
+       LEFT JOIN scheduling_time_slot ts ON ts.slot_group_id = sg.id AND ts.is_active = TRUE
        LEFT JOIN scheduling_signup signup ON signup.slot_group_id = sg.id
       WHERE COALESCE(p.archived, FALSE) = FALSE
         AND COALESCE(top.archived, FALSE) = FALSE
       GROUP BY p.id, p.display_name, top.id, top.display_name,
-               top.exclude_from_drop_ins, sf.id
+               p.exclude_from_drop_ins, top.exclude_from_drop_ins, sf.id
       ORDER BY top.display_name, p.display_name, sf.id`,
   )
   return result.rows
@@ -709,6 +714,9 @@ export function registerDropInRoutes(app, pool) {
       }
       if (member && memberId != null) await assertCurrentMemberWaivers(client, Number(member.id), member.facility_id)
       const benefits = await memberBenefits(client, member)
+      // Scoped eligibility edits lock the same group. Read eligibility in a new
+      // statement after the lock so a waiting booking sees the committed edit.
+      await client.query('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE', [slotGroupId])
       const slot = await client.query(`
         SELECT sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
                sg.dates_tbd, ts.day_of_week, ts.specific_date, p.is_trial_assessment,
@@ -745,7 +753,7 @@ export function registerDropInRoutes(app, pool) {
            AND COALESCE(p.archived, FALSE)=FALSE
            AND COALESCE(top.is_active, TRUE)=TRUE
            AND COALESCE(top.archived, FALSE)=FALSE
-           AND COALESCE(top.exclude_from_drop_ins, FALSE)=FALSE
+           AND COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE)=FALSE
          FOR UPDATE OF sg`, [slotGroupId, classDate])
       if (!slot.rows[0]) { await client.query('ROLLBACK'); return res.status(404).json({ success: false, message: 'Class not found.' }) }
       if (slot.rows.some(row => row.is_trial_assessment)) {

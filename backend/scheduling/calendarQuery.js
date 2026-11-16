@@ -50,9 +50,14 @@ export function parseCalendarDateRange(query) {
  * }} options
  */
 export async function loadSchedulingCalendar(pool, options) {
+  const rows = await loadSchedulingCalendarRows(pool, options)
+  return expandCalendarRange({ startDate: options.startDate, endDate: options.endDate, rows })
+}
+
+// Share the exact calendar context with reports that need the first occurrence
+// of an enrollment, including offering inheritance and alternating weeks.
+export async function loadSchedulingCalendarRows(pool, options = {}) {
   const {
-    startDate,
-    endDate,
     programsId = null,
     programId = null,
     formActive = 'all',
@@ -148,7 +153,7 @@ export async function loadSchedulingCalendar(pool, options) {
     params,
   )
 
-  return expandCalendarRange({ startDate, endDate, rows: result.rows })
+  return result.rows
 }
 
 /**

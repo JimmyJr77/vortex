@@ -16,7 +16,7 @@ export interface ClassSetupOffering {
 }
 
 export interface ClassSetupSlotGroup {
-  scheduleLines?: { timeSlotId: number; isActive: boolean; scheduleLabel: string }[]
+  scheduleLines?: { timeSlotId: number; isActive: boolean; scheduleLabel: string; excludeFromDropIns?: boolean | null }[]
   slotGroupId: number
   formId: number
   offeringId: number | null
@@ -84,6 +84,19 @@ export async function archiveClassSetupSchedule(classId: number, timeSlotId: num
   const res = await adminApiRequest(`/api/admin/programs/${classId}/time-slots/${timeSlotId}/archive`, {
     method: 'PATCH',
     body: JSON.stringify({ archived }),
+  })
+  await parseJson(res)
+}
+
+export type ClassDropInEditScope = 'class' | 'matching' | 'program'
+
+export async function saveClassSetupDropIns(
+  classId: number,
+  change: { allowDropIns: boolean; scope: ClassDropInEditScope; timeSlotId?: number },
+): Promise<void> {
+  const res = await adminApiRequest(`/api/admin/new-admin/classes/${classId}/drop-ins`, {
+    method: 'PATCH',
+    body: JSON.stringify(change),
   })
   await parseJson(res)
 }
@@ -176,6 +189,7 @@ export function formatScheduleCell(
 export interface ClassSetupOverviewScheduleLine {
   timeSlotId?: number
   isActive?: boolean
+  excludeFromDropIns?: boolean
   slotGroupId: number | null
   activeDates: string
   days: string
@@ -202,7 +216,7 @@ export function expandScheduleLines(row: ClassSetupOverviewRow): ClassSetupOverv
   return row.slotGroups.flatMap((group) =>
     (group.scheduleLines?.length
       ? group.scheduleLines.flatMap((slot) => scheduleLinesForSlotGroup({ ...group, scheduleLabel: slot.scheduleLabel }, row.offerings)
-        .map((line) => ({ ...line, timeSlotId: slot.timeSlotId, isActive: slot.isActive })))
+        .map((line) => ({ ...line, timeSlotId: slot.timeSlotId, isActive: slot.isActive, excludeFromDropIns: slot.excludeFromDropIns ?? row.excludeFromDropIns })))
       : scheduleLinesForSlotGroup(group, row.offerings)).map((line) => ({
       slotGroupId: group.slotGroupId,
       ...line,
