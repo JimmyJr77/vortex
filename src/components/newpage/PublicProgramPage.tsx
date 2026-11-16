@@ -60,6 +60,15 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                 ))}
               </div>
             )}
+            {section.links && (
+              <div className="np-program-page-actions">
+                {section.links.map(({ href, label, analyticsKey }) => (
+                  <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
+                    {label} <ArrowUpRight size={16} aria-hidden="true" />
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
         ))}
 

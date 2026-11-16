@@ -1,4 +1,5 @@
 import type { Faq } from './faqs'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
 
@@ -7,6 +8,7 @@ type ProgramSection = {
   heading: string
   description: string
   topics?: readonly { id: string; heading: string; description: string }[]
+  links?: readonly { href: string; label: string; analyticsKey: string }[]
 }
 
 type PublicProgram = {
@@ -82,9 +84,9 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     name: 'Fit & Flip Youth Athletic Training',
     path: '/fit-and-flip',
     title: 'Youth Sports Performance Training in Bowie, MD | Vortex',
-    description: 'Fit & Flip is youth athletic training in Bowie, MD. Kids and teens build strength, explosiveness, and body control for sports, cheer, dance, and tumbling.',
+    description: 'Fit & Flip offers youth fitness and sports performance training in Bowie, MD. Beginners and young athletes build strength, power, and body control.',
     heading: 'Youth athletic training in Bowie, MD',
-    intro: 'Fit & Flip helps young athletes get stronger, move more explosively, and stay in control. Coached strength and power work meets gymnastics-inspired movement in a class built for athletes across sports.',
+    intro: 'Fit & Flip is a coached fitness class for kids and teens. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
     image: '/fit-and-flip-card.webp',
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
@@ -109,12 +111,27 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       },
       {
         id: 'training-fit',
-        heading: 'Getting started with youth fitness training',
-        description: 'Fit & Flip’s Cyclones groups are ages 8–11 and 12–15. Browse class details and experience levels in the catalog, or use the Fit & Flip free trial finder to look for an opening in your athlete’s age group.',
+        heading: 'Youth fitness for beginners',
+        description:
+          'If your child is looking for a way to get active or build confidence with movement, start with the basics. A coach might use a bodyweight squat to practice lowering with control or a small jump to practice balancing on landing. As your child gets comfortable with the movement, the coach can give them a more challenging version.',
+        topics: [
+          {
+            id: 'first-fit-flip-class',
+            heading: 'Find a first class',
+            description:
+              'The Fit & Flip free trial finder shows current openings for the Cyclones age groups, 8–11 and 12–15. Choose Fit & Flip and enter your child’s age. If dates are unavailable or your child falls outside those age groups, contact Vortex for help finding a starting point.',
+          },
+        ],
+        links: [
+          { href: '/#free-trial', label: 'Look for a Fit & Flip trial', analyticsKey: 'free_trial_section' },
+          { href: '/contact', label: 'Ask about class options', analyticsKey: 'inquire' },
+          { href: ATHLETIC_DEVELOPMENT_GUIDE.path, label: 'Read the parent guide to athletic development', analyticsKey: 'read_athletic_development_guide' },
+        ],
       },
     ],
     faqs: [
       { question: 'What is youth sports performance training?', answer: 'It is coached physical development that supports skills across sports. Fit & Flip combines strength work, explosive movement, and gymnastics-inspired body control so athletes practice creating and managing force.' },
+      { question: 'Can my child start Fit & Flip without playing a sport?', answer: 'Yes. Kids who are new to organized sports can use Fit & Flip to build basic strength, coordination, and confidence with movement. Check the class age and experience level in the live catalog or try the free trial finder.' },
       { question: 'Does my athlete need to be a gymnast?', answer: 'Fit & Flip is open to athletes from a range of sports. Coaches use gymnastics-inspired exercises alongside strength and power work. Check the age and level for the class you are considering.' },
       { question: 'When should my child choose youth gymnastics instead?', answer: 'Start with youth gymnastics if the goal is to learn and progress in gymnastics skills. Choose Fit & Flip if the main goal is physical development for a sport or additional strength, power, and body control for tumbling.' },
     ],

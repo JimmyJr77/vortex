@@ -107,7 +107,7 @@ export default function AthleticDevelopmentGuide() {
         <aside className="athletic-guide-next" aria-labelledby="athletic-guide-next-title">
           <h2 id="athletic-guide-next-title">See how Vortex approaches training</h2>
           <p>
-            Fit &amp; Flip in Bowie, Maryland combines coached strength work, explosive movement, and
+            <Link to="/fit-and-flip" data-analytics-cta="explore_fit-flip" data-analytics-section="athletic_development_guide">Fit &amp; Flip in Bowie, Maryland</Link> combines coached strength work, explosive movement, and
             gymnastics-inspired body control. In our training approach, athletes prepare for the movements
             they’ll practice and work toward harder versions as their technique becomes more consistent.
           </p>

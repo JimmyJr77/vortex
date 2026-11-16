@@ -335,18 +335,18 @@ const verifyHtml = (
   }
 
   const guideCanonical = canonicalFor(HUB_ORIGIN, YOUTH_ATHLETIC_GUIDE_PATH)
-  if (shouldIndex && (canonical === HUB_ORIGIN || canonical === guideCanonical)) {
-    const content = (canonical === HUB_ORIGIN
-      ? html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)
-      : html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i))?.[0] ?? ''
-    const links = tags(content, 'a')
-      .map((tag) => attribute(tag, 'href'))
-      .filter(Boolean)
-      .map((href) => new URL(href, HUB_ORIGIN))
-    if (canonical === HUB_ORIGIN) {
+  const fitAndFlipCanonical = canonicalFor(HUB_ORIGIN, '/fit-and-flip')
+  if (shouldIndex && [HUB_ORIGIN, guideCanonical, fitAndFlipCanonical].includes(canonical)) {
+    const content = (canonical === guideCanonical
+      ? html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)
+      : html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i))?.[0] ?? ''
+    const links = anchorUrls(content)
+    if (canonical !== guideCanonical) {
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
     } else {
+      assert(links.some((url) => url.href === fitAndFlipCanonical),
+        `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(
         links.some((url) =>
           url.origin === HUB_ORIGIN &&
