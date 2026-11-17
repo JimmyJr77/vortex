@@ -702,7 +702,10 @@ for (const set of expectedSets) {
 
     for (const path of ['/admin', '/?sport=soccer', ...SPA_ONLY_PATHS]) {
       const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
-      if (path === '/admin' && response.status === 404) continue
+      if (path === '/admin' && response.status === 404) {
+        await response.body?.cancel()
+        continue
+      }
       assert(response.ok, `${path}: returned HTTP ${response.status}`)
       if (path === '/?sport=soccer') {
         assert(response.url === `${set.origin}${path}`, `${path}: redirect changed the sport preview URL`)
@@ -715,6 +718,7 @@ for (const set of expectedSets) {
 
     const notFoundUrl = `${set.origin}/__seo-release-404-check__`
     const notFoundResponse = await fetch(notFoundUrl, { redirect: 'manual' })
+    await notFoundResponse.body?.cancel()
     assert(
       notFoundResponse.status === 404,
       `${set.label} unknown route returned HTTP ${notFoundResponse.status}; expected a real 404`,
@@ -746,6 +750,7 @@ if (live) {
     let current = source
     for (let hop = 0; hop < 3; hop += 1) {
       const response = await fetch(current, { redirect: 'manual' })
+      await response.body?.cancel()
       const location = response.headers.get('location')
       let next
       try {
@@ -818,6 +823,7 @@ if (live) {
   await Promise.all(HUB_PRERENDER_PATHS.map((path) => verifyTrackedRedirect(snapshotAliasFor(path), path)))
   for (const path of ['/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml']) {
     const response = await fetch(new URL(path, HUB_ORIGIN), { redirect: 'manual' })
+    await response.body?.cancel()
     assert(response.status === 404, `${path}: expected HTTP 404 for an unknown snapshot file, received ${response.status}`)
   }
 
@@ -828,6 +834,7 @@ if (live) {
     ['https://vortex-gymnastics.com/sitemap.xml', `${HUB_ORIGIN}/sitemap.xml`],
   ]) {
     const response = await fetch(source, { redirect: 'follow' })
+    await response.body?.cancel()
     assert(response.ok, `${source}: sitemap consolidation returned HTTP ${response.status}`)
     assert(
       normalizedUrl(response.url) === normalizedUrl(destination),
@@ -841,6 +848,7 @@ if (live) {
   ]
   for (const url of immutableAssets) {
     const response = await fetch(url, { redirect: 'follow' })
+    await response.body?.cancel()
     const cacheControl = (response.headers.get('cache-control') ?? '').toLowerCase()
     assert(response.ok, `${url}: static asset returned HTTP ${response.status}`)
     assert(
@@ -854,6 +862,7 @@ if (live) {
     `${HUB_ORIGIN}/vortex-gymnastics-og.jpg`,
   ]) {
     const response = await fetch(url, { redirect: 'follow' })
+    await response.body?.cancel()
     const cacheControl = (response.headers.get('cache-control') ?? '').toLowerCase()
     assert(response.ok, `${url}: social image returned HTTP ${response.status}`)
     assert(!cacheControl.includes('no-store'), `${url}: public social image must not use no-store`)
