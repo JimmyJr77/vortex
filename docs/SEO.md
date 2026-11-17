@@ -240,6 +240,13 @@ for HTTP 301 on sample pages.
 - Mirror the exact NAP and canonical website on Bing Places, Apple Business
   Connect, Facebook, Yelp, relevant gymnastics/youth directories, and local
   Bowie/Prince George's/Anne Arundel listings.
+- On November 17, 2026, the GymnasticsUS listing used “A4 Gymnastic (VORTEX
+  ATHLETICS LLC),” and the Zoomies listing left out Suite E and categorized
+  Vortex as an open gym. Both pointed to the canonical website. The Nextdoor
+  business profile matched the address and phone, with an empty website field.
+  [GymnasticsUS listing](https://gymnasticsus.com/gyms/gym-a4-gymnastic-vortex-athletics-llc-bowie-md)
+  · [Zoomies listing](https://zoomieskids.com/places/us/md/bowie/vortex-athletics)
+  · [Nextdoor profile](https://nextdoor.com/pages/vortex-athletics-gymnastics-bowie-md/)
 - Connect GA4 and Search Console. Report calls, directions, inquiries, trials,
   and enrollments—not rankings alone.
 - Record a 28-day Search Console baseline before release or as soon as possible

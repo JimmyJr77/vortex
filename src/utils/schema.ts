@@ -4,6 +4,7 @@ import {
   BUSINESS_HOURS,
   BUSINESS_NAP,
   GOOGLE_MAPS_URL,
+  NEXTDOOR_LOCATION_URL,
   SOCIAL_PROFILES,
   TEAM_EMAIL,
 } from '../config/contact'
@@ -140,7 +141,7 @@ const sportsActivityLocationSchema = ({ includeCatalog = false } = {}): JsonLd =
   ],
   parentOrganization: { '@id': `${HUB_ORIGIN}/#organization` },
   ...(includeCatalog ? { hasOfferCatalog: localServiceCatalog() } : {}),
-  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
+  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, NEXTDOOR_LOCATION_URL],
   potentialAction: {
     '@type': 'ReserveAction',
     target: `${HUB_ORIGIN}${ENROLL_PATH}`,

@@ -362,6 +362,16 @@ const verifyHtml = (
       `${label}: the homepage heading must identify the programs and Bowie location`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
+    const visit = html.match(/<section\b[^>]*\sid=["']visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const visitLinks = anchorUrls(visit)
+    assert(/<address\b[^>]*>4961 Tesla Dr Suite E/i.test(visit) && visit.includes('Mon-Fri: 4:00-8:30 PM') &&
+      visit.includes('Sat: 9:00 AM-12:00 PM') && visit.includes('Sunday: Closed'),
+      `${label}: the homepage visit section must show the published address and hours`)
+    assert(visitLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/read-board#schedule')),
+      `${label}: the homepage visit section must link to the class schedule`)
+    assert(visitLinks.some((url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
+      url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM'),
+      `${label}: the homepage visit section must link to directions for the verified gym`)
     const pageLinks = anchorUrls(html)
     for (const path of ['/enroll', '/drop-in', '/store', '/contact']) {
       assert(pageLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
@@ -658,6 +668,8 @@ const verifyHtml = (
         location?.hasMap === 'https://www.google.com/maps?cid=15262285316302188709',
         `${label}: local business map entity is incorrect`,
       )
+      assert(location?.sameAs?.includes('https://nextdoor.com/pages/vortex-athletics-gymnastics-bowie-md/'),
+        `${label}: the local business should reference its verified Nextdoor listing`)
       assert(location?.areaServed === 'Bowie, MD', `${label}: the facility must describe where classes are held`)
       if (pagePath === '/') {
         const items = location?.hasOfferCatalog?.itemListElement ?? []

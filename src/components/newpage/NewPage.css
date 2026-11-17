@@ -907,11 +907,12 @@
   justify-content: center;
 }
 .np-visit h2 {
-  font-size: 77px;
+  font-size: clamp(2.25rem, 6vw, 4.75rem);
   line-height: 1.03;
-  letter-spacing: -4.5px;
+  letter-spacing: -.055em;
   font-weight: 500;
   margin: 24px 0;
+  text-wrap: balance;
 }
 .np-visit h2>span {
   color: var(--np-red);
@@ -935,14 +936,40 @@
 .np-button-outline:hover {
   background: #e7eae1;
 }
-.np-address {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  font-size: 10px;
+.np-visit-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 16px;
+  width: min(100%, 38rem);
+  margin: 28px auto 0;
+  text-align: left;
+}
+.np-visit-details > div {
+  padding: 18px 20px;
+  border: 1px solid var(--np-line);
+  border-radius: 6px;
+  background: #fff;
+}
+.np-visit-details h3 {
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: 650;
+}
+.np-visit-details address,
+.np-visit-details ul {
   color: var(--np-muted);
-  margin-top: 41px;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.np-visit-details ul {
+  list-style: none;
+}
+.np-visit-details a.np-text-button {
+  min-height: 44px;
+  margin-top: 4px;
+  text-decoration: underline;
+  text-underline-offset: .2em;
 }
 .np-footer {
   padding-top: 48px;
@@ -1749,10 +1776,6 @@
     padding-top: 61px;
     padding-bottom: 45px;
   }
-  .np-visit h2 {
-    font-size: 62px;
-    letter-spacing: -3.5px;
-  }
   .np-visit p:not(.np-eyebrow) {
     font-size: 12px;
   }
@@ -1763,16 +1786,6 @@
     font-size: 10px;
     padding: 14px 15px;
     gap: 12px;
-  }
-  .np-address {
-    font-size: 9px;
-    line-height: 1.8;
-    align-items: center;
-    gap: 7px;
-    margin-top: 32px;
-  }
-  .np-address svg {
-    flex-shrink: 0;
   }
   .np-footer {
     padding-top: 37px;
@@ -2168,10 +2181,6 @@
     line-height: 1.8;
     padding-right: 0;
   }
-  .np-visit h2 {
-    font-size: 60px;
-    letter-spacing: -3px;
-  }
   .np-visit p:not(.np-eyebrow) {
     font-size: 14px;
     line-height: 1.8;
@@ -2185,11 +2194,6 @@
     min-height: 50px;
     padding: 14px 20px;
     gap: 20px;
-  }
-  .np-address {
-    font-size: 12px;
-    line-height: 1.8;
-    min-height: 44px;
   }
   .np-footer-main>div:first-child {
     display: block;
@@ -2412,7 +2416,6 @@
     font-size: 13px!important;
   }
   .np-tags>span,
-  .np-address,
   .np-back-top,
   .np-footer-bottom,
   .np-pathways span,

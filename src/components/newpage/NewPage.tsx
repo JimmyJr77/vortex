@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
 import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
-import { BUSINESS_NAP, GOOGLE_MAPS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
 import PublicNavigationLinks from './PublicNavigationLinks'
@@ -277,7 +277,39 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
         <ParallaxGym paused={motionPaused} />
 
-        <section className="np-visit" id="visit"><div className="np-container np-visit-inner"><p className="np-eyebrow">YOUR NEXT LEVEL STARTS HERE</p><h2>Let’s build<br /><span>what’s next.</span></h2><p>A first skill. A stronger takeoff. A more complete athlete.<br />Find the right path at Vortex.</p><div className="np-visit-buttons"><button className="np-button" data-analytics-cta="program_finder" data-analytics-section="visit" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button><button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button></div><a className="np-address" href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">{BUSINESS_NAP.streetAddress} · {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}<ArrowUpRight size={16} /></a></div></section>
+        <section className="np-visit" id="visit" aria-labelledby="np-visit-heading">
+          <div className="np-container np-visit-inner">
+            <p className="np-eyebrow">{BUSINESS_NAP.name}</p>
+            <h2 id="np-visit-heading">Visit Vortex in <span>Bowie, MD</span></h2>
+            <p>Find youth and adult gymnastics and Fit &amp; Flip training near Routes 50 and 3.</p>
+            <div className="np-visit-details">
+              <div>
+                <h3>Address</h3>
+                <address>
+                  {BUSINESS_NAP.streetAddress}<br />
+                  {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
+                </address>
+                <a className="np-text-button" href={GOOGLE_DIRECTIONS_URL} target="_blank" rel="noreferrer" data-analytics-cta="get_directions" data-analytics-section="visit">
+                  Get directions <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              </div>
+              <div>
+                <h3>Facility hours</h3>
+                <ul>
+                  {BUSINESS_HOURS.map(({ label }) => <li key={label}>{label}</li>)}
+                  <li>Sunday: Closed</li>
+                </ul>
+                <Link className="np-text-button" to="/read-board#schedule" data-analytics-cta="schedule" data-analytics-section="visit">
+                  See the class schedule <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+            </div>
+            <div className="np-visit-buttons">
+              <button className="np-button" data-analytics-cta="program_finder" data-analytics-section="visit" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button>
+              <button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="np-footer np-container">
