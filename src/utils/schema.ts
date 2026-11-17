@@ -8,6 +8,8 @@ import {
   TEAM_EMAIL,
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from '../config/athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -15,6 +17,7 @@ import { SUMMER_CAMP_FAQS } from '../config/summerCampFaqs'
 import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { ENROLL_PATH } from '../config/enrollSites'
+import { PUBLIC_PROGRAMS } from '../config/publicPrograms'
 import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
 
 /** Any JSON-LD object (loosely typed; serialized into a <script> tag). */
@@ -69,10 +72,11 @@ export const webSiteSchema = (origin: string): JsonLd => ({
 
 const localServiceCatalog = () => ({
   '@type': 'OfferCatalog',
-  name: 'Youth athletics and gymnastics programs',
+  name: 'Athletics and gymnastics programs',
   itemListElement: [
     'Youth Sports Performance Training',
     'Gymnastics Classes',
+    'Adult Gymnastics',
     'Beginner Gymnastics',
     'Artistic Gymnastics',
     'Rhythmic Gymnastics',
@@ -97,7 +101,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
   url: rootUrl(HUB_ORIGIN),
   mainEntityOfPage: rootUrl(pageOrigin),
   description:
-    'Gymnastics and Fit & Flip athletic development for children and teens in Bowie, Maryland, built around strength, explosiveness, and body control.',
+    'Youth and adult gymnastics plus Fit & Flip athletic development at Vortex Athletics and Gymnastics in Bowie, Maryland.',
   image: DEFAULT_OG_IMAGE,
   telephone: phoneE164,
   email: TEAM_EMAIL,
@@ -244,9 +248,19 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
 
   const url = buildCanonical(HUB_ORIGIN, pathname)
+  const program = Object.values(PUBLIC_PROGRAMS).find(({ path }) => path === pathname)
+  if (program) {
+    return [
+      ...schema,
+      sportsActivityLocationSchema(HUB_ORIGIN),
+      breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, program.name, pathname)]),
+      serviceSchema({ name: program.name, description: program.description, url }),
+      faqPageSchema(program.faqs),
+    ]
+  }
+
   const breadcrumbName: Record<string, string> = {
     '/ninja': 'Kids Ninja Classes',
-    '/fit-and-flip': 'Fit & Flip Athletic Training',
     '/vortex-athletics': 'Vortex Athletics',
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
@@ -254,6 +268,8 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/enroll': 'Classes & Enrollment',
     '/drop-in': 'Drop-In Classes',
     '/contact': 'Contact & Location',
+    [ATHLETIC_DEVELOPMENT_GUIDE.path]: 'Youth Athletic Development Guide',
+    [BOWIE_YOUTH_SPORTS_GUIDE.path]: 'Bowie Youth Sports Guide',
     '/support': 'Customer Support',
     '/store': 'Vortex Athletics Store',
     '/privacy-policy': 'Privacy Policy',
@@ -299,16 +315,6 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       }),
     )
   }
-  if (pathname === '/fit-and-flip') {
-    schema.push(
-      serviceSchema({
-        name: 'Fit & Flip Foundational Athletic Training',
-        description:
-          'Foundational athletics training combining advanced athletic development with tumbling, coordination, and body control in 1.5-hour blocks.',
-        url,
-      }),
-    )
-  }
   if (pathname === '/drop-in') {
     schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
     schema.push(faqPageSchema(DROP_IN_FAQS))
@@ -323,6 +329,20 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
   if (pathname === '/contact') {
     schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+  }
+  const guide = [ATHLETIC_DEVELOPMENT_GUIDE, BOWIE_YOUTH_SPORTS_GUIDE].find(({ path }) => path === pathname)
+  if (guide) {
+    schema.push({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      mainEntityOfPage: url,
+      headline: guide.heading,
+      description: guide.description,
+      image: `${HUB_ORIGIN}${guide.image}`,
+      author: { '@id': `${HUB_ORIGIN}/#organization` },
+      publisher: { '@id': `${HUB_ORIGIN}/#organization` },
+      inLanguage: 'en-US',
+    })
   }
 
   return schema

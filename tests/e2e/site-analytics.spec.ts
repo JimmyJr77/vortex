@@ -67,8 +67,9 @@ test('uses explicit analytics consent, preserves campaign labels and records one
   })
   expect(JSON.stringify(landing)).not.toMatch(/secret|private-token|visitor@|session_id/)
 
-  const programs = page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Our programs' })
-  await programs.click()
+  const navigation = page.getByRole('navigation', { name: 'Main navigation' })
+  await navigation.locator('summary', { hasText: 'Our programs' }).click()
+  await navigation.getByRole('link', { name: 'All programs', exact: true }).click()
   await page.getByRole('button', { name: 'Explore Gymnastics' }).first().click()
   await expect(page.getByRole('dialog', { name: 'Gymnastics' })).toBeVisible()
   await page.getByRole('button', { name: 'Close dialog' }).click()

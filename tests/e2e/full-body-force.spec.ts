@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { openCoachPortalFromHomepage } from './fixtures/publicPortal'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 
 type SavedExercise = {
@@ -48,9 +49,7 @@ async function openAccelerator(page: Page) {
     } : []
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) })
   })
-  await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
+  await openCoachPortalFromHomepage(page)
   await expect(page.getByRole('button', { name: /Custom Programs View custom athletic plans by class/ })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()

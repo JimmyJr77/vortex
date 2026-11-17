@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { openCoachPortalFromHomepage } from './fixtures/publicPortal'
 
 test('coach portal uses the canonical planning navigation and separated collections', async ({ page }) => {
   await page.addInitScript(() => {
@@ -26,11 +27,9 @@ test('coach portal uses the canonical planning navigation and separated collecti
     })
   })
 
-  await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'VORTEX COACH' })).toBeVisible()
+  await openCoachPortalFromHomepage(page)
 
-  const nav = page.locator('nav').first()
+  const nav = page.getByRole('navigation', { name: 'Coach navigation', exact: true })
   await expect(nav.getByRole('heading', { level: 2 })).toHaveText([
     'Session Design',
     'Training Plans',
@@ -56,6 +55,7 @@ test('coach portal uses the canonical planning navigation and separated collecti
     'Assign',
     'Form Review',
     'Insights',
+    'Trial Assessments',
     'FAQ library',
     'Preferences',
   ])

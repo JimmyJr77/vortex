@@ -62,6 +62,28 @@ continues to use `GOOGLE_APPLICATION_CREDENTIALS_JSON`.
 
 Admins can run **Sync GA4 / GSC** in the portal (`POST /api/admin/analytics/sync`) to refresh the latest 28 days of external data. First-party traffic and engagement reports read directly from stored events.
 
+In **Marketing & SEO**, select **Check search visibility** for a live Search
+Console report on the six Vortex search topics. It queries each topic separately
+over 28 finalized Pacific dates, so the dashboard’s cached top-keyword limit
+does not determine which topics appear. The selected dashboard filters apply to
+the cached reports. The topic report uses the configured Search Console property
+and its own fixed date window.
+
+Choose **Queries without the Vortex name** to exclude searches that mention
+Vortex or the current or retired site name. Use the same scope when comparing
+time periods. Searches for program names such as Fit & Flip can still appear.
+
+Choose **Top reported pages by clicks** to see up to five pages per topic for
+the same date window and query scope. Google typically attributes performance to
+its selected canonical URL. These rows represent Google's reported pages and
+should be compared with the intended program pages. Query strings and unknown
+paths are hidden in the report.
+
+An empty topic means Google returned no reportable data for its query filter.
+Google can omit some search terms, and topic filters overlap, so do not add the
+topic counts together. The report shows missing configuration and provider
+errors separately from empty results.
+
 ## Cached tables
 
 - `analytics_daily_traffic` — daily sessions/users/page views (first-party rollup + GA4 when configured)

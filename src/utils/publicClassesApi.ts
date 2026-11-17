@@ -20,6 +20,7 @@ export interface PublicClassOffered {
 export interface PublicProgramOffered {
   id: number
   displayName: string
+  enrollmentSortOrder?: number | null
   description: string | null
   primarySportName?: string | null
   excludeFromDropIns?: boolean

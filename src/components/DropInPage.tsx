@@ -226,7 +226,11 @@ export default function DropInPage() {
         <p className="np-drop-in-eyebrow">Gymnastics &amp; athletic development · Bowie, MD</p>
         <h1>Drop-in classes.</h1>
         <p className="np-drop-in-intro">
-          Keep growing, one class at a time. Find an available drop-in or schedule a make-up class that fits your week.
+          Find an available single-day class or schedule a make-up. See{' '}
+          <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link> and{' '}
+          <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link> for age groups and starting levels.
+          {' '}For Typhoons, check{' '}
+          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>.
         </p>
         <p className="np-drop-in-hero-note">Free trials are available for select class times. Member discounts apply, and all members get 4 free drop-ins per year.</p>
       </div>

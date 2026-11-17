@@ -4,11 +4,17 @@
 // truthful date is better than rewriting every <lastmod> on every deployment.
 export const SEO_CONTENT_LASTMOD = '2026-11-16'
 
+export const YOUTH_ATHLETIC_GUIDE_PATH = '/blog/athletic-development-young-athletes'
+export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = '/blog/youth-sports-bowie'
+
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
+export const HUB_PROGRAM_PATHS = ['/gymnastics', '/fit-and-flip', '/adult-gymnastics']
+
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  ...HUB_PROGRAM_PATHS.map((path) => ({ path, priority: '0.8', changefreq: 'monthly' })),
   { path: '/read-board', priority: '0.8', changefreq: 'daily' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
@@ -17,6 +23,8 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
+  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openCoachPortalFromHomepage } from './fixtures/publicPortal'
 
 function addIsoDays(isoDate: string, days: number) {
   const date = new Date(`${isoDate}T00:00:00.000Z`)
@@ -114,8 +115,7 @@ async function openMockedCoachPortal(
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data: [] }) })
   })
 
-  await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
+  await openCoachPortalFromHomepage(page)
 }
 
 test.describe('Fit & Flip Schedule', () => {
@@ -128,7 +128,7 @@ test.describe('Fit & Flip Schedule', () => {
     await openMockedCoachPortal(page)
     await page.getByRole('button', { name: 'Fit & Flip', exact: true }).click()
 
-    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
     await expect(page.getByText('60', { exact: true }).first()).toBeVisible()
     await expect(page.getByText('Ages 12–14 · Foundation')).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Two athlete sets, one shared tumbling period' })).toBeVisible()
@@ -255,7 +255,7 @@ test.describe('Fit & Flip Schedule', () => {
     await page.getByRole('button', { name: 'Open navigation menu', exact: true }).click()
     await page.locator('nav').getByRole('button', { name: 'Fit & Flip', exact: true }).press('Enter')
 
-    await expect(page.getByRole('heading', { name: 'Flip & Fit Schedule' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Fit & Flip Schedule' })).toBeVisible()
     await expect(page.getByRole('button', { name: '12-14', exact: true })).toBeVisible()
     await expect(page.getByRole('combobox', { name: 'Week', exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: /^Open exercise card for / }).first()).toBeVisible()

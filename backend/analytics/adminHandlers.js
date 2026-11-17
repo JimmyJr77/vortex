@@ -7,7 +7,7 @@ import {
   recordUtmAttribution,
 } from './helpers.js'
 import { syncExternalAnalytics } from './syncExternal.js'
-import { isSearchConsoleConfigured } from './gscClient.js'
+import { getSearchConsoleTopics, isSearchConsoleConfigured } from './gscClient.js'
 import { getBusinessOutcomes } from './businessOutcomes.js'
 import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
 import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
@@ -435,6 +435,24 @@ export function createAdminAnalyticsHandlers(pool) {
     }
   }
 
+  const getSeoTopics = async (req, res) => {
+    res.set('Cache-Control', 'no-store')
+    const scope = req.query?.scope ?? 'all'
+    if (scope !== 'all' && scope !== 'without_vortex') {
+      return res.status(400).json({ success: false, message: 'Unknown Search Console query scope' })
+    }
+    const view = req.query?.view ?? 'totals'
+    if (view !== 'totals' && view !== 'pages') {
+      return res.status(400).json({ success: false, message: 'Unknown Search Console report type' })
+    }
+    try {
+      res.json({ success: true, data: await getSearchConsoleTopics(undefined, scope, view) })
+    } catch {
+      console.error('[analytics/seo/topics] Unexpected report failure')
+      res.status(500).json({ success: false, message: 'Could not load the Search Console topic report' })
+    }
+  }
+
   const postSync = async (req, res) => {
     try {
       const result = await syncExternalAnalytics(pool)
@@ -603,6 +621,7 @@ export function createAdminAnalyticsHandlers(pool) {
     getConversion,
     exportReport,
     getSeo,
+    getSeoTopics,
     postSync,
     listCompetitors,
     createCompetitor,

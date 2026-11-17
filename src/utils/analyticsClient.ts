@@ -77,7 +77,7 @@ export function trackOutboundClickEvent(name: string, path: string, properties?:
 }
 
 const programPaths = new Set([
-  '/ninja', '/vortex-athletics', '/summer-athletic-training', '/fit-and-flip', '/gymnastics', '/artistic-gymnastics',
+  '/ninja', '/vortex-athletics', '/summer-athletic-training', '/fit-and-flip', '/gymnastics', '/adult-gymnastics', '/artistic-gymnastics',
   '/artistic-gymnastics-early', '/artistic-gymnastics-6-12', '/artistic-gymnastics-13-18', '/summer-camp-26',
   '/acro-gymnastics', '/rhythmic-gymnastics', '/trampoline-tumbling', '/aerobic-gymnastics',
 ])
