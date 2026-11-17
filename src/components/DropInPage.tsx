@@ -283,7 +283,7 @@ export default function DropInPage() {
           </>}
         </p> : <>
           <p className="np-drop-in-intro">
-            Find an available single-day class or schedule a make-up. Compare weekly times and tuition for{' '}
+            Reserve one scheduled, coach-led class or schedule a make-up. Compare weekly times and tuition for{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[DEVELOPMENTAL_GYMNASTICS_PROGRAM].programHref}>youth gymnastics</Link>,{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[FIT_AND_FLIP_BOOKING_PROGRAM].programHref}>Fit &amp; Flip youth fitness</Link>, or{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[ADULT_BOOKING_PROGRAM].programHref}>adult gymnastics</Link>.

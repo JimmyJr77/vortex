@@ -51,6 +51,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
+            <li><a href="#lower-cost-youth-sports">Lower-cost youth sports and fitness</a></li>
           </ul>
         </nav>
 
@@ -278,6 +279,28 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.pgparks.com/things-to-do/disability-services">See county accommodation requests</a>
             </li>
           </ul>
+        </section>
+
+        <section id="lower-cost-youth-sports">
+          <h2>Where to find lower-cost youth sports and fitness</h2>
+          <ul>
+            <li>
+              <strong>Bowie City Gymnasium and Ice Arena.</strong> Families who live within city limits and
+              receive a qualifying benefit can apply for 50% off eligible city-run youth camps and classes
+              at these facilities.{' '}
+              <a href="https://www.cityofbowie.org/2987/Reduced-Fees-Program">Check Bowie’s reduced-fee eligibility and application</a>
+            </li>
+            <li>
+              <strong>Prince George’s County recreation.</strong> County residents experiencing financial hardship
+              can apply for help with eligible recreation programs that cost more than $35, including some
+              gymnastics classes and group swim lessons. The county excludes sports team registrations and
+              programs run by Boys &amp; Girls Clubs.{' '}
+              <a href="https://www.pgparks.com/things-to-do/fee-assistance-scholarships">Check county fee assistance and how to apply</a>
+            </li>
+          </ul>
+          <p className="mt-4">
+            At Vortex, eligible athletes ages 8–15 can <Link to="/fit-and-flip#training-fit">look for a free Fit &amp; Flip trial</Link>.
+          </p>
         </section>
 
         <aside className="athletic-guide-next" aria-labelledby="bowie-youth-sports-next">

@@ -56,7 +56,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: PUBLIC_TRAINING_VIDEO.path, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17',
     video: PUBLIC_TRAINING_VIDEO },
   { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
-  { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
+  { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-17' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17', images: [
     searchPhotos.facility, searchPhotos.homepageGallery.springFloor.src,

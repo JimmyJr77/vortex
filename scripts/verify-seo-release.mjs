@@ -968,6 +968,13 @@ const verifyHtml = (
       winterLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
       hasDropInProgramLink(winterLinks, 'Fit & Flip'),
       `${label}: missing crawlable links to the winter youth sports options`)
+    const lowerCost = content.match(/<section\b[^>]*\sid=["']lower-cost-youth-sports["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const lowerCostLinks = anchorUrls(lowerCost)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#lower-cost-youth-sports') &&
+      lowerCostLinks.some(url => url.href === 'https://www.cityofbowie.org/2987/Reduced-Fees-Program') &&
+      lowerCostLinks.some(url => url.href === 'https://www.pgparks.com/things-to-do/fee-assistance-scholarships') &&
+      lowerCostLinks.some(url => url.href === `${fitAndFlipCanonical}#training-fit`),
+      `${label}: missing links to city and county recreation fee assistance or the Fit & Flip trial finder`)
     const training = content.match(/<section\b[^>]*\sid=["']compare-athletic-training["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const trainingLinks = anchorUrls(training)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#compare-athletic-training') &&

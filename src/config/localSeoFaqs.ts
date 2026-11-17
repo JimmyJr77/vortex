@@ -4,7 +4,7 @@ export const DROP_IN_FAQS: Faq[] = [
   {
     question: 'Can I book just one class for myself or my child?',
     answer:
-      'Yes. Choose an available youth gymnastics, Fit & Flip, or adult gymnastics date for the person attending. A drop-in reserves only that class.',
+      'Yes. A drop-in reserves one scheduled, coach-led class. Choose an available youth gymnastics, Fit & Flip, or adult gymnastics date for the person attending.',
   },
   {
     question: 'Which drop-in dates accept a free trial?',
