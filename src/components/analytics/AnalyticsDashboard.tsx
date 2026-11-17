@@ -22,6 +22,7 @@ import {
   Target,
 } from 'lucide-react'
 import DateRangeFilter from './DateRangeFilter'
+import SearchConsoleTopics from './SearchConsoleTopics'
 import { EngagementReport, FunnelReport, TrafficReport } from './WebsiteReports'
 import {
   buildRangeFromPreset,
@@ -526,6 +527,12 @@ export default function AnalyticsDashboard() {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {tab === 'seo' && (
+        <div className="mb-6">
+          <SearchConsoleTopics />
         </div>
       )}
 

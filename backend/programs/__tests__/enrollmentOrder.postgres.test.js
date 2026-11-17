@@ -46,6 +46,7 @@ test('enrollment catalog order persists for public readers, scopes edits, and se
     const publicResult=await listPublicClassesOffered(db)
     const visible=publicResult.programs.filter(row=>[team,development].includes(row.id))
     assert.deepEqual(visible.map(row=>row.id),[team,development])
+    assert.deepEqual(visible.map(row=>row.enrollmentSortOrder),[0,1])
     assert.deepEqual(visible[1].classes.map(row=>row.id),classIds)
     await db.query(migration)
     assert.deepEqual((await loadEnrollmentOrder(db,facility)).programs[1].classes.map(row=>row.id),classIds,'migration must not reset saved admin order')

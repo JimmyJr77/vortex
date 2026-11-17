@@ -44,6 +44,7 @@ export async function listPublicClassesOffered(pool) {
     SELECT
       p.id,
       p.display_name AS "displayName",
+      p.enrollment_sort_order AS "enrollmentSortOrder",
       ${hasDescription ? 'p.description' : 'NULL AS description'},
       COALESCE(p.pricing_cost_options, '[]'::jsonb) AS "pricingCostOptions",
       COALESCE(p.pricing_cost_amount_cents, p.pricing_slot_cost_monthly_cents, 0) AS "pricingCostAmountCents",
@@ -160,6 +161,7 @@ export async function listPublicClassesOffered(pool) {
       return {
         id: Number(prog.id),
         displayName: prog.displayName,
+        enrollmentSortOrder: prog.enrollmentSortOrder ?? null,
         description: prog.description ?? null,
         primarySportName: prog.primarySportName ?? null,
         excludeFromDropIns: Boolean(prog.excludeFromDropIns),

@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { openCoachPortalFromHomepage } from './fixtures/publicPortal'
 import { DISCIPLINE_PREPARATION_ROUTINES } from '../../src/coach/preparation/routines'
 import { preparationTimeline } from '../../src/coach/preparation/types'
 
@@ -12,9 +13,7 @@ async function openPreparation(page: Page) {
     const data = path === '/api/coach/portal-config' ? { hiddenTabs: [], tabOrder: ['home', 'library', 'workout'] } : []
     await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) })
   })
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Member Portal', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'VORTEX COACH', exact: true })).toBeVisible()
+  await openCoachPortalFromHomepage(page)
   await expect(page.getByRole('button', { name: 'Prepare & Access Choose and inspect the preparation routine for a training day.', exact: true })).toBeVisible()
   const menu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
   if (await menu.isVisible()) await menu.click()
