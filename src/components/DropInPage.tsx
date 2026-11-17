@@ -20,7 +20,7 @@ const DropInSignup = lazy(() => import('./signup/DropInSignup'))
 const SCOPED_DROP_IN_COPY = {
   [ADULT_BOOKING_PROGRAM]: {
     heading: 'Adult gymnastics drop-ins.',
-    intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie.',
+    intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie. Registration shows whether you can apply your one-time free trial to the selected date.',
     programHref: '/adult-gymnastics',
     programLink: 'adult gymnastics class times',
     datesHeading: 'Available Typhoons drop-in dates',

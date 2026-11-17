@@ -33,8 +33,10 @@ internal links, GBP links, Search Console submissions, or citations.
   relevant youth gymnastics section. Legacy sports performance and conditioning
   slugs redirect to Fit & Flip. The retired gymnastics host transfers equivalent
   paths to the athletics domain.
-- The adult program page links to live Typhoons enrollment and offers contact
-  help. The main public trial flow serves children and teens.
+- The adult program page links to recurring Typhoons enrollment and to the
+  adult drop-in calendar. Typhoons drop-in registration offers a one-time
+  trial when the date and athlete qualify. The homepage trial finder serves
+  children and teens.
 - Placeholder sport domains remain `noindex, follow` until they have a real
   program, substantive content, and their own search strategy.
 - `/ninja` is `noindex, follow` while the program is on hold.

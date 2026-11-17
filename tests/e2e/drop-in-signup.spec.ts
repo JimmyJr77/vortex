@@ -29,7 +29,7 @@ const adultDropInClass = {
   programId: 8, programName: adultProgram, skillLevel: null, ageMin: 18, ageMax: null,
 }
 const adultSession = {
-  ...session, ...adultDropInClass, slotGroupId: 201, startTime: '19:00', endTime: '20:30',
+  ...session, ...adultDropInClass, slotGroupId: 201, startTime: '19:00', endTime: '20:30', allowsFreeTrial: true,
 }
 const fitFlipDropInClass = {
   ...dropInClass, formId: 7, classId: 14, className: 'Cyclones (8-11)',
@@ -197,7 +197,10 @@ test('adult drop-in dates stay scoped through guest signup and cancellation', as
   const { submitted } = await mockDropInApi(page, { includeAdultClass: true })
   await page.goto('/adult-gymnastics')
   await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
-  const findDates = page.getByRole('link', { name: 'See Typhoons drop-in dates', exact: true })
+  await page.getByText('Can I try adult gymnastics for free?', { exact: true }).click()
+  await expect(page.getByText(/If the date qualifies and you have an unused one-time free trial/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Register yourself and sign your waiver' })).toBeVisible()
+  const findDates = page.getByRole('link', { name: 'Check Typhoons dates and prices', exact: true })
   await expect(findDates).toHaveAttribute('href', adultDropInUrl)
   await findDates.click()
   await expect(page).toHaveURL(adultDropInUrl)
@@ -206,6 +209,7 @@ test('adult drop-in dates stay scoped through guest signup and cancellation', as
   const dateOption = page.getByRole('button', { name: /Typhoons \(Adult\).*Jan 12, 2027.*7:00 PM.*8:30 PM/ })
   const youthClass = page.getByRole('button', { name: /Beginner Gymnastics/ })
   await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
+  await expect(page.getByText(/Registration shows whether you can apply your one-time free trial/)).toBeVisible()
   await expect(availableDates).toBeVisible()
   await expect(youthClass).toHaveCount(0)
   await expect(page.getByRole('button', { name: /Typhoons \(Adult\).*Jan (19|26), 2027/ })).toHaveCount(0)
@@ -231,6 +235,7 @@ test('adult membership checkout returns to the selected drop-in and keeps Typhoo
   await signedIn(page)
   const { submitted } = await mockDropInApi(page, { includeAdultClass: true })
   await page.goto(`${adultDropInUrl}&signupSlot=201&signupDate=${classDate}&athlete=102`)
+  await expect(page.getByRole('checkbox', { name: /Use my one-time free trial/ })).toBeChecked()
   await page.getByRole('radio', { name: /Add yearly membership/ }).check()
   await page.getByRole('button', { name: 'Continue to payment', exact: true }).click()
   await expect(page).toHaveURL('/mock-membership-card-payment')

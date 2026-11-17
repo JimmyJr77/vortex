@@ -404,6 +404,11 @@ const verifyHtml = (
     }
     if (pagePath === '/adult-gymnastics') {
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
+      const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']adult-availability["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(/<h2\b[^>]*>Plan your first adult gymnastics class<\/h2>/i.test(firstVisit) && /select yourself as the participant/i.test(firstVisit),
+        `${label}: missing adult registration and first-visit guidance`)
+      assert(hasDropInProgramLink(anchorUrls(firstVisit), 'Adult Fitness & Acrobatics'),
+        `${label}: adult first-visit guidance must link to the Typhoons drop-in schedule`)
     }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
@@ -563,6 +568,16 @@ const verifyHtml = (
     })
     assert(types.includes('Organization'), `${label}: Organization JSON-LD is missing`)
     assert(types.includes('WebSite'), `${label}: WebSite JSON-LD is missing`)
+
+    if (pagePath === '/adult-gymnastics') {
+      const question = 'Can I try adult gymnastics for free?'
+      const faq = parsed.find((item) => item?.['@type'] === 'FAQPage')
+      const answer = faq?.mainEntity?.find((item) => item.name === question)?.acceptedAnswer?.text
+      const visibleFaq = [...html.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/gi)]
+        .find(([entry]) => entry.includes(question))?.[0] ?? ''
+      assert(answer && /date qualifies/i.test(answer) && /unused one-time free trial/i.test(answer) &&
+        decodeHtml(visibleFaq).includes(answer), `${label}: the visible adult trial eligibility answer must match FAQ structured data`)
+    }
 
     if (HUB_ARTICLE_PATHS.includes(pagePath)) {
       const article = parsed.find((item) => item?.['@type'] === 'Article')
