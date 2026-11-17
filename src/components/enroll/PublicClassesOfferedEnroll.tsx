@@ -5,7 +5,7 @@ import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import { matchesPublicBookingSearch } from '../../utils/publicBookingPrograms'
 import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
-  formatAgeRange,
+  formatPublicAgeRange,
   formatSkillLevel,
   type ClassSkillLevelFilter,
 } from '../../utils/classDisplayUtils'
@@ -605,7 +605,7 @@ export default function PublicClassesOfferedEnroll({
                     <h3 className="text-base font-bold text-gray-900" tabIndex={focused ? -1 : undefined}
                       ref={focused ? linkedClassHeadingRef : undefined}>{classItem.label}</h3>
                     <div className="np-enrollment-class-meta mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                      <span>Age: {formatAgeRange(classItem.ageMin, classItem.ageMax)}</span>
+                      <span>Age: {formatPublicAgeRange(classItem.ageMin, classItem.ageMax)}</span>
                       <span>Level: {formatSkillLevel(classItem.skillLevel)}</span>
                     </div>
                     {classItem.description && <p className="text-sm text-gray-600 mt-1">{classItem.description}</p>}

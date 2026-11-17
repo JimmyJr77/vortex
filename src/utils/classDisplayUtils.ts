@@ -3,6 +3,12 @@ export function formatAgeRange(ageMin: number | null, ageMax: number | null): st
   return `${ageMin ?? 'Any'} – ${ageMax ?? 'Any'}`
 }
 
+export function formatPublicAgeRange(ageMin: number | null, ageMax: number | null): string {
+  if (ageMin != null && ageMax == null) return `${ageMin}+`
+  if (ageMin == null && ageMax != null) return `${ageMax} and under`
+  return formatAgeRange(ageMin, ageMax)
+}
+
 /** Skill level enum values — order matches admin ClassEventModal skill level dropdown. */
 export const CLASS_SKILL_LEVEL_CHOICES = [
   { value: 'EARLY_STAGE' as const, label: 'Early stage' },

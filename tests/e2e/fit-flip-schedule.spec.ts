@@ -190,7 +190,7 @@ test('uses verified program descriptions on the public class board and team enro
   await expect(boardTeam.getByText(teamPlacement)).toBeVisible()
   await expect(boardTeam.getByText(staleTeamProgramDescription)).toHaveCount(0)
   await expect(boardTeam.getByText(staleTeamClassDescription)).toHaveCount(0)
-  await expect(boardTeam.getByText(/Age:.*6 – Any/)).toBeVisible()
+  await expect(boardTeam.getByText(/Age:\s*6\+/)).toBeVisible()
   await expect(boardTeam.getByText(/Requirements:.*Evaluation is required\./)).toBeVisible()
 
   const signup = boardTeam.getByRole('link', { name: 'Sign Up', exact: true })
@@ -203,7 +203,7 @@ test('uses verified program descriptions on the public class board and team enro
   await expect(enrollmentTeam.getByText(staleTeamClassDescription)).toHaveCount(0)
   const teamClass = enrollmentTeam.locator('.np-enrollment-class')
   await expect(teamClass.getByRole('heading', { name: teamName })).toBeFocused()
-  await expect(teamClass.getByText('Age: 6 – Any')).toBeVisible()
+  await expect(teamClass.getByText('Age: 6+', { exact: true })).toBeVisible()
   await expect(teamClass.getByText('Evaluation is required.')).toBeVisible()
 })
 

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
-import { formatAgeRange, formatSkillLevel } from '../../utils/classDisplayUtils'
+import { formatPublicAgeRange, formatSkillLevel } from '../../utils/classDisplayUtils'
 
 interface ClassesOfferedListProps {
   programs: PublicProgramOffered[]
@@ -53,7 +53,7 @@ const ClassesOfferedList = ({
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
                     <span>
                       <span className="font-medium text-gray-800">Age: </span>
-                      {formatAgeRange(classItem.ageMin, classItem.ageMax)}
+                      {formatPublicAgeRange(classItem.ageMin, classItem.ageMax)}
                     </span>
                     <span>
                       <span className="font-medium text-gray-800">Skill level: </span>
