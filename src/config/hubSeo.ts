@@ -3,6 +3,7 @@ import { BUSINESS_FACILITY_PHOTO, BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from '.
 import guideIndex from './publicGuideIndex.json'
 import { PUBLIC_GUIDES } from './publicGuides'
 import { PUBLIC_PROGRAMS } from './publicPrograms'
+import searchPhotos from './publicSearchPhotos.json'
 import trainingVideo from './publicTrainingVideo.json'
 
 export interface HubRouteSeo {
@@ -11,6 +12,7 @@ export interface HubRouteSeo {
   description: string
   ogImage?: string
   ogImageAlt?: string
+  ogType?: SeoMeta['ogType']
   robots?: string
 }
 
@@ -23,11 +25,17 @@ export const HUB_HOME_SEO: HubRouteSeo = {
   ogImageAlt: 'Vortex Athletics gymnastics and athletic development in Bowie, Maryland',
 }
 
+const LARGE_IMAGE_PREVIEW = 'max-image-preview:large'
+const wideGuideImages = new Set([
+  searchPhotos.plyometrics, searchPhotos.preschoolGymnastics, searchPhotos.tumbling, BUSINESS_FACILITY_PHOTO.src,
+])
+
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
-  ...Object.values(PUBLIC_PROGRAMS).map(({ path, title, description, image, imageAlt }) => ({
+  ...Object.values(PUBLIC_PROGRAMS).map(({ path, title, description, image, imageAlt, imageWidth }) => ({
     path, title, description,
     ...(image ? { ogImage: new URL(image, HUB_ORIGIN).href, ogImageAlt: imageAlt } : {}),
+    robots: imageWidth >= 1200 ? LARGE_IMAGE_PREVIEW : undefined,
   })),
   {
     path: '/ninja',
@@ -61,6 +69,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
       `Get directions to Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. See gym photos, check hours, and ask about your first class.`,
     ogImage: `${HUB_ORIGIN}${BUSINESS_FACILITY_PHOTO.src}`,
     ogImageAlt: BUSINESS_FACILITY_PHOTO.alt,
+    robots: LARGE_IMAGE_PREVIEW,
   },
   { path: guideIndex.path, title: guideIndex.title, description: guideIndex.description },
   {
@@ -72,6 +81,8 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   },
   ...PUBLIC_GUIDES.map(({ path, title, description, image, imageAlt }) => ({
     path, title, description, ogImage: `${HUB_ORIGIN}${image}`, ogImageAlt: imageAlt,
+    ogType: 'article' as const,
+    robots: wideGuideImages.has(image) ? LARGE_IMAGE_PREVIEW : undefined,
   })),
   {
     path: '/support',
@@ -117,6 +128,7 @@ export const getHubSeoForPath = (pathname: string): SeoMeta => {
     canonical: buildCanonical(HUB_ORIGIN, route.path),
     ogImage: route.ogImage,
     ogImageAlt: route.ogImageAlt,
+    ogType: route.ogType,
     robots: route.robots,
   }
 }

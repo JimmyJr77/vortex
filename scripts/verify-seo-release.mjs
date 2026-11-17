@@ -774,6 +774,9 @@ const verifyHtml = (
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const firstClassLinks = anchorUrls(firstClass)
+      assert(pageIds.has('compare-cyclones-classes') &&
+        firstClassLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#gymnastics-level-intermediate`),
+        `${label}: the two Cyclones programs must be distinguishable from the Fit & Flip first-class section`)
       for (const hash of ['#fitness-without-a-team', '#high-school-sports-training']) {
         assert(firstClassLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}${hash}`),
           `${label}: Fit & Flip age guidance must link to the local options at ${hash}`)
@@ -899,6 +902,20 @@ const verifyHtml = (
 
   if (shouldIndex) {
     assert(!robots.some((value) => /noindex/i.test(value)), `${label}: indexable route contains noindex`)
+    if (pageUrl.origin === HUB_ORIGIN) {
+      const graphTypes = metaValues(html, 'property', 'og:type')
+      const expectedType = HUB_ARTICLE_PATHS.includes(pagePath) ? 'article' : 'website'
+      assert(graphTypes.length === 1 && graphTypes[0] === expectedType,
+        `${label}: expected one Open Graph type of ${expectedType}`)
+      const largePhotoPaths = [
+        '/gymnastics', '/adult-gymnastics', '/contact', YOUTH_ATHLETIC_GUIDE_PATH,
+        PRESCHOOL_GYMNASTICS_GUIDE_PATH, GYMNASTICS_VS_TUMBLING_GUIDE_PATH, RETURNING_TO_GYMNASTICS_GUIDE_PATH,
+      ]
+      if (largePhotoPaths.includes(pagePath)) {
+        assert(robots.length === 1 && /(?:^|,)\s*max-image-preview:large(?:,|$)/i.test(robots[0]),
+          `${label}: the representative full-size photo must allow large image previews`)
+      }
+    }
     if (titles[0] && !label.startsWith('live ')) {
       rememberUnique(indexedTitles, titles[0].toLowerCase(), label, 'title')
     }
@@ -1096,6 +1113,9 @@ const verifyHtml = (
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const teen = html.match(/<article\b[^>]*\sid=["']teen["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const intermediate = html.match(/<article\b[^>]*\sid=["']gymnastics-level-intermediate["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    assert(anchorUrls(intermediate).some(url => url.href === `${fitAndFlipCanonical}#compare-cyclones-classes`),
+      `${label}: intermediate Cyclones readers must have a direct link to compare Fit & Flip`)
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const disciplines = html.match(/<section\b[^>]*\sid=["']disciplines["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''

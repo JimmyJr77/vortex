@@ -11,6 +11,7 @@ interface EnrollmentStartDateFieldProps {
   label?: string
   helpText?: string
   required?: boolean
+  minDate?: string
 }
 
 export default function EnrollmentStartDateField({
@@ -23,6 +24,7 @@ export default function EnrollmentStartDateField({
   label = 'Enrollment start date',
   helpText = 'Choose the date you want the class enrollment to take effect.',
   required = true,
+  minDate = getTodayDateString(),
 }: EnrollmentStartDateFieldProps) {
   const helpId = `${id}-help`
   const errorId = `${id}-error`
@@ -37,7 +39,7 @@ export default function EnrollmentStartDateField({
         id={id}
         type="date"
         required={required}
-        min={getTodayDateString()}
+        min={minDate}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         aria-invalid={Boolean(error)}

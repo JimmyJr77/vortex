@@ -90,6 +90,20 @@ test.describe('Client-critical smoke flows', () => {
       .toHaveAttribute('href', 'https://www.pgparks.com/things-to-do/disability-services#disability')
   })
 
+  test('families can distinguish the two Cyclones programs', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/gymnastics#gymnastics-level-intermediate')
+    const intermediate = page.locator('#gymnastics-level-intermediate')
+    await intermediate.getByRole('link', { name: 'Compare both Cyclones programs' }).click()
+    await expect(page).toHaveURL('/fit-and-flip#compare-cyclones-classes')
+    const comparison = page.locator('#compare-cyclones-classes')
+    await expect(comparison.getByRole('heading', { name: 'Which Cyclones class should I choose?' })).toBeInViewport()
+    await expect(comparison.getByText(/welcomes beginners ages 8–11 and 12–15/)).toBeVisible()
+    await comparison.getByRole('link', { name: 'Check the intermediate gymnastics Cyclones skills' }).click()
+    await expect(page).toHaveURL('/gymnastics#gymnastics-level-intermediate')
+    await expect(intermediate.getByRole('heading', { name: 'Intermediate Cyclones' })).toBeInViewport()
+  })
+
   test('Fit & Flip links families to fitness alternatives by age', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/fit-and-flip#fit-flip-trial-age')

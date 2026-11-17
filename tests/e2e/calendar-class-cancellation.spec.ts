@@ -89,6 +89,68 @@ test.describe('public mobile calendar', () => {
   })
 })
 
+for (const timezoneId of ['America/New_York', 'Asia/Tokyo', 'UTC']) {
+  test.describe(`public class dates in ${timezoneId}`, () => {
+    test.use({ timezoneId })
+
+    test('keeps Bowie’s current class date through calendar, enrollment and drop-ins', async ({ page }) => {
+      // The date has rolled into December in Tokyo and UTC, but the class has yet to start in Bowie.
+      const classDate = '2026-11-30'
+      await page.clock.setFixedTime(new Date('2026-12-01T01:00:00Z'))
+      const event = { ...eventFor(31, classDate), startTime: '20:30', endTime: '21:30', enrollVisible: true }
+      const slot = {
+        ...event, id: event.timeSlotId, scheduleMode: 'day', dayOfWeek: 1, dayName: 'Monday', isActive: true,
+      }
+      await page.route('**/api/**', route => {
+        const request = route.request()
+        const url = new URL(request.url())
+        expect(request.method()).toBe('GET')
+        const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
+        if (url.pathname === '/api/scheduling/calendar') {
+          const startDate = url.searchParams.get('startDate')!
+          const endDate = url.searchParams.get('endDate')!
+          return json({ year: 2026, month: 11, startDate, endDate, events: classDate >= startDate && classDate <= endDate ? [event] : [], tbdPatterns: [] })
+        }
+        if (url.pathname === `/api/scheduling/forms/${event.formId}`) {
+          return json({
+            id: event.formId, title: event.className, isActive: true, timeSlots: [slot],
+            slotGroups: [{
+              id: event.slotGroupId, formId: event.formId, scheduleMode: 'day',
+              isActive: true, spotsRemaining: event.spotsRemaining, occurrences: [slot],
+            }],
+          })
+        }
+        if (url.pathname === '/api/public/classes-offered') return json({ programs: [] })
+        if (url.pathname === '/api/public/drop-ins') return json({ sessions: [] })
+        return json([])
+      })
+
+      await page.goto('/read-board#schedule')
+      const calendar = page.locator('#schedule [data-prerender-dynamic]')
+      await expect(calendar.getByRole('heading', { name: 'November 2026', exact: true })).toBeVisible()
+      await calendar.getByRole('button', { name: 'day', exact: true }).press('Enter')
+      await expect(calendar.getByRole('heading', { name: 'Monday, November 30, 2026', exact: true })).toBeVisible()
+      const signup = calendar.getByRole('link', { name: 'Sign Up', exact: true })
+      await expect(signup).toHaveAttribute('href', `/enroll?form=41&slotGroupId=51&timeSlotId=31&enrollmentStartDate=${classDate}`)
+      await signup.press('Enter')
+
+      const start = page.getByLabel('Enrollment start date')
+      await expect(start).toHaveValue(classDate)
+      await expect(start).toHaveAttribute('min', classDate)
+      expect(await start.evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(true)
+      await page.reload()
+      await expect(start).toHaveValue(classDate)
+      await expect(start).toHaveAttribute('min', classDate)
+
+      await page.goto('/drop-in')
+      const dropIn = page.getByLabel('Drop-in date')
+      await expect(dropIn).toHaveAttribute('min', classDate)
+      await dropIn.fill(classDate)
+      expect(await dropIn.evaluate((input: HTMLInputElement) => input.validity.valid)).toBe(true)
+    })
+  })
+}
+
 async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDates: string[] = []) {
   await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z'))
   await page.addInitScript(() => {

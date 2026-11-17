@@ -12,6 +12,7 @@ import {
   isAdultBookingProgram, isAdultBookingSearch, matchesPublicBookingSearch,
 } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
+import { getEasternDateString } from '../utils/dateUtils'
 import { getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, classMatchesPublicAge, formatPublicAgeRange, formatSkillLevel, parsePublicClassAge, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
@@ -383,6 +384,7 @@ export default function DropInPage() {
             )}
             <EnrollmentStartDateField
               id="drop-in-date"
+              minDate={getEasternDateString()}
               label="Drop-in date"
               value={dropInDate}
               onChange={updateDropInDate}

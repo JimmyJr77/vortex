@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { addDays, monthRange, parseDateString, toDateString, type CalendarView } from './calendarDateUtils'
 
-export function useCalendarNavigation(initialView: CalendarView = 'month') {
-  const now = new Date()
-  const today = toDateString(now)
+export function useCalendarNavigation(initialView: CalendarView = 'month', today = toDateString(new Date())) {
+  const now = parseDateString(today)
   const [view, setView] = useState<CalendarView>(initialView)
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth() + 1)

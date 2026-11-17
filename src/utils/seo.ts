@@ -12,6 +12,7 @@ export interface SeoMeta {
   siteName?: string
   ogImage?: string
   ogImageAlt?: string
+  ogType?: 'website' | 'article'
   robots?: string
 }
 

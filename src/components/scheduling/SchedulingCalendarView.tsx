@@ -106,6 +106,7 @@ export interface SchedulingCalendarViewProps {
   year: number
   month: number
   focusDate: string
+  today?: string
   onViewChange: (view: CalendarView) => void
   onGoBack: () => void
   onGoForward: () => void
@@ -134,6 +135,7 @@ const SchedulingCalendarView = ({
   year,
   month,
   focusDate,
+  today = toDateString(new Date()),
   onViewChange,
   onGoBack,
   onGoForward,
@@ -145,7 +147,6 @@ const SchedulingCalendarView = ({
   onRetry,
   theme = 'light',
 }: SchedulingCalendarViewProps) => {
-  const today = toDateString(new Date())
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set())
   const [eventPreview, setEventPreview] = useState<{
     event: SchedulingCalendarEvent

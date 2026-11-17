@@ -39,6 +39,7 @@ import {
 } from '../signup/signupEnrollmentUtils'
 import ScheduleOptionCheckboxGrid from '../signup/ScheduleOptionCheckboxGrid'
 import { groupScheduleOptions } from '../signup/scheduleOptionGrouping'
+import { getEasternDateString } from '../../utils/dateUtils'
 import EnrollmentStartDateField from './EnrollmentStartDateField'
 import ParticipantAgeField from './ParticipantAgeField'
 
@@ -500,6 +501,7 @@ export default function PublicClassesOfferedEnroll({
   const startDateField = (
     <EnrollmentStartDateField
       id="public-enrollment-start-date"
+      minDate={getEasternDateString()}
       value={enrollmentStartDate}
       onChange={(value) => {
         setEnrollmentStartDate(value)

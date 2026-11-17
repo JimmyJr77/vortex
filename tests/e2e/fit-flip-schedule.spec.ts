@@ -102,6 +102,34 @@ test('shows the current Eastern schedule by age and keeps the enrollment link on
   await expect(page.getByText(younger, { exact: true })).toHaveCount(0)
 })
 
+test('marks a recurring time full only when every matching group is confirmed full', async ({ page }) => {
+  await mockSchedule(page)
+  await page.route('**/api/scheduling/forms/30', route => route.fulfill({
+    json: { success: true, data: {
+      id: 30, programsId: 9, isActive: true, startDate: currentDay, endDate: currentDay,
+      slotGroups: [
+        { ...recurringGroup(30, 1, 1, 2, '18:00', '19:30'), isFull: true },
+        { ...recurringGroup(30, 2, 1, 2, '18:00', '19:30'), isFull: true },
+        { ...recurringGroup(30, 3, 1, 3, '18:00', '19:30'), isFull: true },
+        { ...recurringGroup(30, 4, 1, 3, '18:00', '19:30'), isFull: false },
+        { ...recurringGroup(30, 5, 1, 4, '18:00', '19:30'), isFull: true },
+        recurringGroup(30, 6, 1, 4, '18:00', '19:30'),
+      ],
+    } },
+  }))
+
+  await page.goto('/fit-and-flip#fit-flip-schedule')
+  const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+  const times = schedule.locator('.np-recurring-schedule > ul > li').filter({ hasText: younger }).getByRole('listitem')
+  await expect(times).toHaveText([
+    'Tuesday · 6:00 PM – 7:30 PM · Full',
+    'Wednesday · 6:00 PM – 7:30 PM',
+    'Thursday · 6:00 PM – 7:30 PM',
+  ])
+  await expect(schedule.getByText(/check enrollment for another time or waitlist options/i)).toBeVisible()
+  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
+})
+
 test('keeps the healthy Fit & Flip group visible when the other form fails', async ({ page }) => {
   await mockSchedule(page, [30])
   await page.goto('/fit-and-flip')

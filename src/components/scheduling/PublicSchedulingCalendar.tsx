@@ -5,6 +5,7 @@ import {
   type PublicSchedulingClassOption,
   type SchedulingCalendarMonth,
 } from '../../utils/schedulingApi'
+import { getEasternDateString } from '../../utils/dateUtils'
 import SchedulingCalendarView from './SchedulingCalendarView'
 import { dateRangeForView } from './calendarDateUtils'
 import { useCalendarNavigation } from './useCalendarNavigation'
@@ -14,7 +15,8 @@ interface PublicSchedulingCalendarProps {
 }
 
 const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarProps) => {
-  const nav = useCalendarNavigation()
+  const today = getEasternDateString()
+  const nav = useCalendarNavigation('month', today)
   const [classOptions, setClassOptions] = useState<PublicSchedulingClassOption[]>([])
   const [classFilterId, setClassFilterId] = useState<number | 'none'>('none')
   const [calendar, setCalendar] = useState<SchedulingCalendarMonth | null>(null)
@@ -78,6 +80,7 @@ const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarPr
       year={nav.year}
       month={nav.month}
       focusDate={nav.focusDate}
+      today={today}
       onViewChange={nav.handleViewChange}
       onGoBack={nav.goBack}
       onGoForward={nav.goForward}

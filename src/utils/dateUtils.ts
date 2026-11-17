@@ -239,6 +239,16 @@ export function getTodayDateString(): string {
   return `${year}-${month}-${day}`
 }
 
+const easternDateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+})
+
+/** The calendar date in Eastern time, independent of the visitor’s local date. */
+export function getEasternDateString(now = new Date()): string {
+  const { year, month, day } = Object.fromEntries(easternDateFormatter.formatToParts(now).map(({ type, value }) => [type, value]))
+  return `${year}-${month}-${day}`
+}
+
 /** Relative time label for timestamps (e.g. "3 days ago"). */
 export function formatTimeSince(date: string | null | undefined): string {
   if (!date) return 'Never'

@@ -19,6 +19,7 @@ const SeoHead = ({
   siteName = SITE_NAME,
   ogImage = DEFAULT_OG_IMAGE,
   ogImageAlt = SITE_NAME,
+  ogType = 'website',
   robots,
   schema,
   preloadImage,
@@ -47,7 +48,7 @@ const SeoHead = ({
       <meta property="og:url" content={canonical} />
       <meta property="og:image" content={ogImage} />
       <meta property="og:image:alt" content={ogImageAlt} />
-      <meta property="og:type" content="website" />
+      <meta property="og:type" content={ogType} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:site_name" content={siteName} />
 

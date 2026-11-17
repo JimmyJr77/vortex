@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
+import { getEasternDateString } from '../../utils/dateUtils'
 import { DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import { publicEnrollmentPricingOptions } from '../../utils/programPricingOptions'
@@ -14,14 +15,15 @@ import { sortOccurrences } from '../../utils/slotSort'
 import { programUsesWeeklyTierPricing } from '../../utils/weeklyTierPricing'
 import PublicClassPricing, { type RecurringPriceClass } from './PublicClassPricing'
 
-type ClassTimes = RecurringPriceClass & { skillLevel: string | null; skillRequirements: string | null; times: string[] }
+type ClassTimes = RecurringPriceClass & {
+  skillLevel: string | null
+  skillRequirements: string | null
+  times: { label: string; isFull: boolean }[]
+}
 type ScheduleState =
   | { status: 'loading' | 'unavailable' }
   | { status: 'loaded'; classes: ClassTimes[]; usesClassTuition: boolean }
 
-const easternDate = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
-})
 const NO_CLASSES: readonly ClassTimes[] = []
 
 function includesDate(date: string, start?: string | null, end?: string | null) {
@@ -33,8 +35,7 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
   const program = getRecurringBookingProgram(programs, programName)
   if (!program) return { status: 'loaded', classes: [], usesClassTuition: false }
 
-  const dateParts = easternDate.formatToParts(new Date())
-  const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type)?.value).join('-')
+  const today = getEasternDateString()
   const timesByClass = await Promise.allSettled(program.classes.map(async ({
     id: classId, formId, displayName, skillLevel, skillRequirements, excludeFromDropIns,
   }) => {
@@ -51,16 +52,21 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
       .filter((group) => group.formId === formId && group.isActive && !group.datesTbd &&
         group.scheduleMode === 'day' && includesDate(today, group.activeStart, group.activeEnd) &&
         (group.offeringId == null ? offerings.length === 0 : currentOfferingIds.has(group.offeringId)))
-      .map(({ id, offeringId, occurrences }) => ({
-        id, offeringId,
+      .map(({ id, offeringId, isFull, occurrences }) => ({
+        id, offeringId, isFull,
         slots: occurrences.filter(slot => slot.formId === formId && slot.isActive && !slot.datesTbd &&
           slot.scheduleMode === 'day' && includesDate(today, slot.activeStart, slot.activeEnd) &&
           (slot.dayName || slot.dayOfWeek != null) && slot.startTime && slot.endTime),
       })).filter(group => group.slots.length > 0)
-    const slots = groups.flatMap(group => group.slots)
+    const slots = groups.flatMap(({ slots, isFull }) =>
+      slots.map(slot => ({ ...slot, groupIsFull: isFull === true })))
     const includeWeek = slotGroupHasMultipleWeekLetters(slots)
-    const times = Array.from(new Set(sortOccurrences(slots).map((slot) =>
-      formatSchedulingOccurrenceLabel(slot, { includeWeek }))))
+    const fullByLabel = new Map<string, boolean>()
+    for (const slot of sortOccurrences(slots)) {
+      const label = formatSchedulingOccurrenceLabel(slot, { includeWeek })
+      fullByLabel.set(label, (fullByLabel.get(label) ?? true) && slot.groupIsFull)
+    }
+    const times = Array.from(fullByLabel, ([label, isFull]) => ({ label, isFull }))
     return times.length ? {
       classId, formId, name: displayName, skillLevel, skillRequirements: skillRequirements?.trim() || null, times, groups,
       excludeFromDropIns: excludeFromDropIns ?? program.excludeFromDropIns,
@@ -121,7 +127,16 @@ export default function PublicRecurringSchedule({ programName, scheduleId }: {
         <>
           <ul className={isDevelopmentalGymnastics ? 'np-recurring-schedule-groups' : undefined}>
             {schedule.classes.map(({ formId, name, times, skillLevel, skillRequirements }) => {
-              const timeList = <ul>{times.map((time) => <li key={time}>{time}</li>)}</ul>
+              const timeList = (
+                <ul>
+                  {times.map(({ label, isFull }) => (
+                    <li key={label}>
+                      {label}
+                      {isFull && <span className="font-semibold text-amber-800"> · Full</span>}
+                    </li>
+                  ))}
+                </ul>
+              )
               return (
                 <li key={formId}>
                   {isDevelopmentalGymnastics ? (
@@ -135,7 +150,12 @@ export default function PublicRecurringSchedule({ programName, scheduleId }: {
               )
             })}
           </ul>
-          <p>All times Eastern. Check enrollment for dates and availability.</p>
+          <p>
+            All times Eastern.{' '}
+            {schedule.classes.some(({ times }) => times.some(({ isFull }) => isFull))
+              ? 'If a time is full, check enrollment for another time or waitlist options.'
+              : 'Check enrollment for dates and availability.'}
+          </p>
         </>
       ) : (
         <p>Check enrollment for current class times or contact Vortex for help.</p>

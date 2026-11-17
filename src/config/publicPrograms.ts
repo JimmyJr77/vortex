@@ -165,6 +165,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'gymnastics-level-intermediate',
             heading: 'Intermediate Cyclones',
             description: 'Coaches look for forward and backward rolls, a handstand, a cartwheel, a round-off, a front limber, and a kickover from a bridge. They also check split readiness. A cartwheel gives the coach one skill to build on as they check the rest.',
+            link: { href: '/fit-and-flip#compare-cyclones-classes', label: 'Compare both Cyclones programs', analyticsKey: 'compare_cyclones_programs' },
           },
           {
             id: 'gymnastics-level-advanced',
@@ -403,6 +404,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description:
               'Beginners can try a regular 90-minute Cyclones class without prior sports or gymnastics experience. Choose an available trial or drop-in date, or browse recurring classes for a weekly option.',
             link: { href: '/fit-and-flip#fit-flip-class-pricing', label: 'Compare monthly and drop-in prices', analyticsKey: 'compare_fit_flip_class_prices' },
+          },
+          {
+            id: 'compare-cyclones-classes',
+            heading: 'Which Cyclones class should I choose?',
+            description: 'Fit & Flip Cyclones welcomes beginners ages 8–11 and 12–15 for strength, jumps, and body control. Developmental gymnastics Cyclones is the intermediate level for gymnasts who can already demonstrate the entry skills with control.',
+            link: { href: '/gymnastics#gymnastics-level-intermediate', label: 'Check the intermediate gymnastics Cyclones skills', analyticsKey: 'read_gymnastics_placement' },
           },
           {
             id: 'fit-flip-trial-age',

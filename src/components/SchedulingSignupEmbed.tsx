@@ -38,7 +38,7 @@ import { flushEvents, trackEvent } from '../utils/analyticsClient'
 import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
-import { formatDateShort } from '../utils/dateUtils'
+import { formatDateShort, getEasternDateString } from '../utils/dateUtils'
 
 function formatTimeLabel(time: string) {
   const [h, m] = time.split(':').map(Number)
@@ -1586,6 +1586,7 @@ const SchedulingSignupEmbed = ({
         <div className={sectionClass}>
           <EnrollmentStartDateField
             id={`direct-enrollment-start-date-${formId}`}
+            minDate={getEasternDateString()}
             value={enrollmentStartDate}
             onChange={(value) => {
               setEnrollmentStartDate(value)
