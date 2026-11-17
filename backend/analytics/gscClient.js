@@ -103,6 +103,7 @@ export async function syncGscRankings(pool) {
 }
 
 const YOUTH = "(?:youth|kids?['’]?|child(?:ren|['’]s)?|teens?|juniors?)"
+const VORTEX_NAME_QUERY = String.raw`(?i)(?:^|[^a-z0-9])vortex(?:athletics|gymnastics)?(?:$|[^a-z0-9])`
 
 function youthQueryExpression(activity) {
   return `(?i)\\b(?:${YOUTH}[ -]+${activity}|${activity}(?:[ -]+class(?:es)?)?[ -]+for[ -]+${YOUTH})\\b`
@@ -158,19 +159,21 @@ function searchConsoleErrorReason(error) {
     : 'provider_error'
 }
 
-async function fetchTopic(searchconsole, siteUrl, window, { id, label, expression }) {
+async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope }, { id, label, expression }) {
+  const filters = [{ dimension: 'query', operator: 'includingRegex', expression }]
+  if (scope === 'without_vortex') {
+    filters.push({ dimension: 'query', operator: 'excludingRegex', expression: VORTEX_NAME_QUERY })
+  }
   try {
     const { data } = await searchconsole.searchanalytics.query({
       siteUrl,
       requestBody: {
-        startDate: window.startDate,
-        endDate: window.endDate,
+        startDate,
+        endDate,
         type: 'web',
         dataState: 'final',
         aggregationType: 'byProperty',
-        dimensionFilterGroups: [{ groupType: 'and', filters: [{
-          dimension: 'query', operator: 'includingRegex', expression,
-        }] }],
+        dimensionFilterGroups: [{ groupType: 'and', filters }],
         rowLimit: 1,
       },
     }, { timeout: 10000, retry: false })
@@ -197,8 +200,8 @@ async function fetchTopic(searchconsole, siteUrl, window, { id, label, expressio
 }
 
 /** Fetch the provider's property-level aggregate for each search topic independently. */
-export async function getSearchConsoleTopics(now = new Date()) {
-  const window = topicDateWindow(now)
+export async function getSearchConsoleTopics(now = new Date(), scope = 'all') {
+  const window = { ...topicDateWindow(now), scope }
   const unavailable = (status, reason) => ({
     ...window, status, reason,
     topics: SEARCH_TOPICS.map(({ id, label }) => ({ id, label, status: 'unavailable', metrics: null })),

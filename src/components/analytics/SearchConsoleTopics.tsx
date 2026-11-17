@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { fetchSearchConsoleTopics, type SearchConsoleTopicReport } from '../../utils/analyticsApi'
+import { fetchSearchConsoleTopics, type SearchConsoleQueryScope, type SearchConsoleTopicReport } from '../../utils/analyticsApi'
 
 const number = new Intl.NumberFormat('en-US')
 const percent = new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 1 })
@@ -55,6 +55,7 @@ function TopicTable({ topics }: Pick<SearchConsoleTopicReport, 'topics'>) {
 }
 
 export default function SearchConsoleTopics() {
+  const [scope, setScope] = useState<SearchConsoleQueryScope>('all')
   const [report, setReport] = useState<SearchConsoleTopicReport | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -63,7 +64,7 @@ export default function SearchConsoleTopics() {
     setLoading(true)
     setError(false)
     try {
-      setReport(await fetchSearchConsoleTopics())
+      setReport(await fetchSearchConsoleTopics(scope))
     } catch {
       setReport(null)
       setError(true)
@@ -81,10 +82,23 @@ export default function SearchConsoleTopics() {
             A 28-day report of Google web searches for the Search Console property, using finalized Pacific dates.
           </p>
         </div>
-        <button type="button" onClick={loadTopics} disabled={loading}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 disabled:opacity-60">
-          {loading ? 'Checking Search Console…' : 'Check search visibility'}
-        </button>
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="flex flex-col gap-1 text-sm font-medium text-gray-900">
+            Search queries
+            <select value={scope} disabled={loading} onChange={event => {
+              setScope(event.currentTarget.value === 'without_vortex' ? 'without_vortex' : 'all')
+              setReport(null)
+              setError(false)
+            }} className="rounded-md border border-gray-300 bg-white px-3 py-2 disabled:opacity-60">
+              <option value="all">All matching queries</option>
+              <option value="without_vortex">Queries without the Vortex name</option>
+            </select>
+          </label>
+          <button type="button" onClick={loadTopics} disabled={loading}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 disabled:opacity-60">
+            {loading ? 'Checking Search Console…' : 'Check search visibility'}
+          </button>
+        </div>
       </div>
 
       <div aria-busy={loading} className="mt-3 space-y-3">
@@ -103,6 +117,7 @@ export default function SearchConsoleTopics() {
             <TopicTable topics={report.topics} />
             <p className="text-xs text-gray-600">
               Topics can overlap. Google omits some search terms, even when a topic has no reported data.
+              {report.scope === 'without_vortex' && ' Searches for program names such as Fit & Flip can still appear.'}
             </p>
           </>
         )}

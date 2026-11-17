@@ -180,8 +180,10 @@ export interface SeoData {
 }
 
 export type SearchConsoleTopicFailure = 'access_denied' | 'provider_error'
+export type SearchConsoleQueryScope = 'all' | 'without_vortex'
 
 export interface SearchConsoleTopicReport {
+  scope?: SearchConsoleQueryScope
   status: 'ok' | 'partial' | 'unconfigured' | 'error'
   reason?: 'missing_property' | 'missing_credentials' | SearchConsoleTopicFailure
   startDate: string
@@ -201,13 +203,15 @@ export interface SearchConsoleTopicReport {
   }>
 }
 
-export async function fetchSearchConsoleTopics(): Promise<SearchConsoleTopicReport> {
-  const response = await adminApiRequest('/api/admin/analytics/seo/topics')
+export async function fetchSearchConsoleTopics(scope: SearchConsoleQueryScope = 'all'): Promise<SearchConsoleTopicReport> {
+  const query = scope === 'all' ? '' : `?scope=${scope}`
+  const response = await adminApiRequest(`/api/admin/analytics/seo/topics${query}`)
   const result = await response.json()
-  if (!response.ok || !result.success) {
+  const report: SearchConsoleTopicReport | undefined = result.data
+  if (!response.ok || !result.success || !report || (report.scope ?? 'all') !== scope) {
     throw new Error('Could not load the Search Console topic report.')
   }
-  return result.data
+  return report
 }
 
 export interface CompetitorRow {

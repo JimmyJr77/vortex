@@ -52,11 +52,13 @@ test('analytics admins can filter reports and check Google search visibility', a
         if (topicRequests === 1) {
           data = { status: 'unconfigured', reason: 'missing_credentials', startDate, endDate, timeZone, topics: [] }
         } else {
+          const filtered = topicRequests === 4
           data = {
             status: 'partial', startDate, endDate, timeZone,
+            ...(filtered ? { scope: 'without_vortex' } : {}),
             topics: [
               { id: 'youth-athletics', label: 'Youth Athletics', status: 'reported', metrics: {
-                clicks: 2, impressions: 25, ctr: 0.08, position: 7.2,
+                clicks: filtered ? 1 : 2, impressions: filtered ? 10 : 25, ctr: filtered ? 0.1 : 0.08, position: 7.2,
               } },
               { id: 'youth-gymnastics', label: 'Youth Gymnastics', status: 'no_data', metrics: null },
               { id: 'adult-gymnastics', label: 'Adult Gymnastics', status: 'error', reason: 'provider_error', metrics: null },
@@ -108,4 +110,15 @@ test('analytics admins can filter reports and check Google search visibility', a
   await expect(table.getByRole('row').filter({ hasText: 'Youth Gymnastics' })).toContainText('No data reported')
   await expect(table.getByRole('row').filter({ hasText: 'Adult Gymnastics' })).toContainText('Query unavailable')
   expect(topicRequests).toBe(2)
+
+  await page.getByLabel('Search queries').selectOption('without_vortex')
+  await expect(table).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not load the Search Console topic report.' })).toBeVisible()
+  await expect(table).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Athletics' })).toContainText('10%')
+  await expect(page.getByText(/Searches for program names such as Fit & Flip can still appear/)).toBeVisible()
+  expect(reportRequests.filter(url => url.pathname.endsWith('/seo/topics')).map(url => url.searchParams.get('scope')))
+    .toEqual([null, null, 'without_vortex', 'without_vortex'])
 })

@@ -32,6 +32,7 @@ test('reports the exact missing Search Console setting without making any provid
   configure(t, {})
   const factory = t.mock.method(google, 'searchconsole', () => assert.fail('Unexpected provider access'))
   const report = await getSearchConsoleTopics(NOW)
+  assert.equal(report.scope, 'all')
   assert.equal(report.status, 'unconfigured')
   assert.equal(report.reason, 'missing_property')
   assert.deepEqual(report.topics.map(topic => [topic.id, topic.status, topic.metrics]),
@@ -47,7 +48,25 @@ test('reports the exact missing Search Console setting without making any provid
   })
   assert.equal(headers.get('Cache-Control'), 'no-store')
   assert.equal(response.success, true)
+  assert.equal(response.data.scope, 'all')
   assert.equal(response.data.reason, 'missing_credentials')
+  await handlers.getSeoTopics({ query: { scope: 'without_vortex' } }, {
+    set() {},
+    json: value => { response = value },
+  })
+  assert.equal(response.data.scope, 'without_vortex')
+  assert.equal(response.data.reason, 'missing_credentials')
+  for (const scope of ['other', ['all', 'without_vortex']]) {
+    let status
+    const res = {
+      set() {},
+      status: value => { status = value; return res },
+      json: value => { response = value },
+    }
+    await handlers.getSeoTopics({ query: { scope } }, res)
+    assert.equal(status, 400)
+    assert.equal(response.success, false)
+  }
   assert.equal(factory.mock.callCount(), 0)
 })
 
@@ -84,6 +103,7 @@ test('measures each topic independently using finalized Pacific data and preserv
     })
     const [{ groupType, filters: [{ dimension, operator, expression }] }] = dimensionFilterGroups
     assert.equal(groupType, 'and')
+    assert.equal(dimensionFilterGroups[0].filters.length, 1)
     assert.equal(dimension, 'query')
     assert.equal(operator, 'includingRegex')
     assert.ok(expression.startsWith('(?i)'))
@@ -103,6 +123,37 @@ test('measures each topic independently using finalized Pacific data and preserv
   assert.equal(report.topics[3].reason, 'provider_error')
   assert.equal(report.topics[4].reason, 'access_denied')
   assert.ok(!JSON.stringify(report).includes('private provider response'))
+})
+
+test('excludes the Vortex name alongside each topic filter when requested', async t => {
+  configure(t, { GSC_SITE_URL: PROPERTY, GOOGLE_APPLICATION_CREDENTIALS_JSON: '{}' })
+  const query = t.mock.fn(async () => ({ data: { rows: [] } }))
+  t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
+
+  const report = await getSearchConsoleTopics(NOW, 'without_vortex')
+  assert.equal(report.scope, 'without_vortex')
+  assert.equal(report.status, 'ok')
+  assert.ok(report.topics.every(topic => topic.status === 'no_data'))
+  assert.equal(query.mock.callCount(), TOPICS.length)
+  for (const [index, { arguments: [request] }] of query.mock.calls.entries()) {
+    const groups = request.requestBody.dimensionFilterGroups
+    assert.equal(groups.length, 1)
+    const [{ groupType, filters }] = groups
+    assert.equal(groupType, 'and')
+    assert.deepEqual(filters.map(({ dimension, operator }) => [dimension, operator]), [
+      ['query', 'includingRegex'], ['query', 'excludingRegex'],
+    ])
+    assert.match(TOPICS[index][1], new RegExp(filters[0].expression.slice(4), 'i'))
+    const exclusion = filters[1].expression
+    assert.ok(exclusion.startsWith('(?i)'))
+    const regex = new RegExp(exclusion.slice(4), 'i')
+    for (const branded of ['Vortex Athletics youth sports', 'VORTEXATHLETICS.COM adult gymnastics', 'vortex_gymnastics for kids', 'vortexgymnastics.com']) {
+      assert.match(branded, regex)
+    }
+    for (const query of ['adult gymnastics in Bowie', 'Fit & Flip youth fitness', 'supervortex gymnastics', 'youth sports vortexes']) {
+      assert.doesNotMatch(query, regex)
+    }
+  }
 })
 
 test('distinguishes property access rejection from a successful provider query with no published topic data', async t => {
