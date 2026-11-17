@@ -109,6 +109,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         id: 'choose-a-class',
         heading: 'Who Fit & Flip is for',
         description: 'Field and court athletes can use Fit & Flip to complement their youth sports practice. Cheer, acro, dance, and tumbling athletes can work on the strength and takeoff behind their skills. Gymnasts can add more time for strength and power alongside their gymnastics classes.',
+        topics: [
+          {
+            id: 'speed-agility',
+            heading: 'Speed and agility for youth sports',
+            description: 'Coaches can use short starts to practice the first few steps and stopping drills to teach athletes how to slow down with control. As athletes get comfortable, a coach might cue them to start toward a cone or change direction on the move.',
+          },
+        ],
       },
       {
         id: 'training-fit',
