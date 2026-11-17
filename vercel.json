@@ -168,6 +168,24 @@
       "permanent": true
     },
     {
+      "source": "/index.html",
+      "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
+      "destination": "https://vortexathletics.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:page(gymnastics|fit-and-flip|adult-gymnastics|read-board|enroll|drop-in|contact|support|store|privacy-policy|terms-of-service|ninja)/index.html",
+      "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
+      "destination": "https://vortexathletics.com/:page",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:article(athletic-development-young-athletes|youth-sports-bowie)/index.html",
+      "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
+      "destination": "https://vortexathletics.com/blog/:article",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
       "destination": "https://vortexathletics.com/:path*",

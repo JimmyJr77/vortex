@@ -95,6 +95,7 @@ const normalizedUrl = (value) => {
 }
 
 const canonicalFor = (origin, path) => `${origin}${path === '/' ? '' : path}`
+const snapshotAliasFor = (path) => `${path === '/' ? '' : path}/index.html`
 
 const anchorUrls = (html) => tags(html, 'a')
   .map((tag) => attribute(tag, 'href'))
@@ -743,6 +744,12 @@ if (live) {
     await verifyTrackedRedirect(`${path}/`, path)
   }
 
+  await Promise.all(HUB_PRERENDER_PATHS.map((path) => verifyTrackedRedirect(snapshotAliasFor(path), path)))
+  for (const path of ['/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml']) {
+    const response = await fetch(new URL(path, HUB_ORIGIN), { redirect: 'manual' })
+    assert(response.status === 404, `${path}: expected HTTP 404 for an unknown snapshot file, received ${response.status}`)
+  }
+
   for (const [source, destination] of [
     [`${HUB_ORIGIN}/sitemap-gymnastics.xml`, `${HUB_ORIGIN}/sitemap.xml`],
     [`${GYMNASTICS_ORIGIN}/sitemap.xml`, `${HUB_ORIGIN}/sitemap.xml`],
@@ -836,6 +843,19 @@ const redirectFor = (host, source, destination) =>
       redirect.permanent === true &&
       redirect.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
   )
+const hubPages = HUB_PRERENDER_PATHS.filter((path) => /^\/[^/]+$/.test(path)).map((path) => path.slice(1))
+const hubArticles = HUB_PRERENDER_PATHS.filter((path) => path.startsWith('/blog/')).map((path) => path.slice('/blog/'.length))
+const snapshotRedirectRules = [
+  [snapshotAliasFor('/'), '/'],
+  [snapshotAliasFor(`/:page(${hubPages.join('|')})`), '/:page'],
+  [snapshotAliasFor(`/blog/:article(${hubArticles.join('|')})`), '/blog/:article'],
+]
+for (const [source, destination] of snapshotRedirectRules) {
+  for (const host of ['vortexathletics.com', 'www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex-gymnastics.com']) {
+    assert(redirectFor(host, source, `${HUB_ORIGIN}${destination}`),
+      `vercel.json: missing permanent snapshot redirect from ${host}${source} to ${destination}`)
+  }
+}
 const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
   header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
 )
