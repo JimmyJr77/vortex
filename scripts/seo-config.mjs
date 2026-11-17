@@ -15,6 +15,14 @@ export const HUB_GUIDE_INDEX_PATH = guideIndex.path
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
+export function getIndexNowVerificationKey() {
+  const key = process.env.INDEXNOW_KEY?.trim()
+  if (key && !/^[a-z0-9-]{8,128}$/i.test(key)) {
+    throw new Error('Invalid IndexNow verification key')
+  }
+  return key || undefined
+}
+
 const HUB_PROGRAM_ENTRIES = [
   { path: '/gymnastics', lastmod: '2026-11-17' },
   { path: '/fit-and-flip', lastmod: '2026-11-17' },

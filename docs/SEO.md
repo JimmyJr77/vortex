@@ -79,9 +79,12 @@ metadata change. Leave it out when the date is unknown. The build preserves
 each configured date across deployments.
 
 The production prerender publishes the IndexNow ownership text file from
-Vercel's production-only `INDEXNOW_KEY`. Keep the key out of the public
-repository. In OpenSEO, submit primary-domain URLs when their content or
-routing changes. IndexNow notifies participating search engines such as Bing.
+Vercel's production-only `INDEXNOW_KEY`. Keep the value out of the repository
+and deployment logs. After adding the variable, run a new production build and
+look for `Generated the IndexNow ownership file` in the log. With the key
+available in your environment, `npm run test:seo-live` checks the public file
+on the canonical domain. Submit changed canonical URLs in OpenSEO after that
+check passes. IndexNow notifies participating search engines such as Bing.
 
 ## Metadata, content, and structured data
 

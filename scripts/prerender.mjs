@@ -10,6 +10,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_OG_IMAGE,
+  getIndexNowVerificationKey,
   HUB_ARTICLE_PATHS,
   HUB_GUIDE_INDEX_PATH,
   HUB_PRERENDER_PATHS,
@@ -318,14 +319,21 @@ const main = async () => {
     process.exit(1)
   }
 
-  const indexNowKey = process.env.VERCEL_ENV === 'production' ? process.env.INDEXNOW_KEY : undefined
-  if (indexNowKey && !/^[a-z0-9-]{8,128}$/i.test(indexNowKey)) {
-    throw new Error('Invalid IndexNow verification key')
-  }
+  const production = process.env.VERCEL_ENV === 'production'
+  const indexNowKey = production ? getIndexNowVerificationKey() : undefined
 
   generateShellHtml()
   await prerenderAppRoutes()
-  if (indexNowKey) writeFileSync(join(distDir, `${indexNowKey}.txt`), indexNowKey, 'utf8')
+  if (indexNowKey) {
+    try {
+      writeFileSync(join(distDir, `${indexNowKey}.txt`), indexNowKey, 'utf8')
+    } catch {
+      throw new Error('Could not write the IndexNow ownership file')
+    }
+    console.info('[prerender] Generated the IndexNow ownership file')
+  } else if (production) {
+    console.warn('[prerender] Skipped the IndexNow ownership file because INDEXNOW_KEY is unset')
+  }
   console.log('[prerender] Done')
 }
 

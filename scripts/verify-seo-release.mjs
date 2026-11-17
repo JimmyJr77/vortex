@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { PUBLIC_EDITORIAL_PAGES } from '../backend/analytics/eventContract.js'
 import {
   BOWIE_YOUTH_SPORTS_GUIDE_PATH,
+  getIndexNowVerificationKey,
   GYMNASTICS_ORIGIN,
   GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
   HUB_ARTICLE_PATHS,
@@ -1220,6 +1221,30 @@ for (const rewrite of rewrites.filter((rewrite) => rewrite.destination === SPA_S
     rewrite === rootRewrite || SPA_ONLY_PATHS.includes(rewrite.source),
     `vercel.json: unexpected SPA rewrite ${rewrite.source}; only explicit client-only routes are allowed to prevent soft 404s`,
   )
+}
+
+const indexNowKey = live || process.env.VERCEL_ENV === 'production' ? getIndexNowVerificationKey() : undefined
+if (indexNowKey) {
+  const fileName = `${indexNowKey}.txt`
+  if (live) {
+    try {
+      const response = await fetch(new URL(fileName, HUB_ORIGIN), {
+        redirect: 'manual', signal: AbortSignal.timeout(10000),
+      })
+      const body = await response.text()
+      assert(response.status === 200 && /^text\/plain\b/i.test(response.headers.get('content-type') ?? '') && body === indexNowKey,
+        `IndexNow ownership file: expected HTTP 200, plain text, and an exact match on the canonical host (received HTTP ${response.status})`)
+    } catch {
+      assert(false, 'IndexNow ownership file: could not fetch the file from the canonical host')
+    }
+  } else {
+    try {
+      const body = readFileSync(join(root, 'dist', fileName), 'utf8')
+      assert(body === indexNowKey, 'IndexNow ownership file: the build output must contain the exact verification value')
+    } catch {
+      assert(false, 'IndexNow ownership file: could not read the file from the build output')
+    }
+  }
 }
 
 if (failures.length) {
