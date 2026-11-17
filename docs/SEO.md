@@ -173,9 +173,19 @@ These actions require access to Google and cannot be completed by a code build.
    - `https://vortexathletics.com/gymnastics`
    - `https://vortexathletics.com/fit-and-flip`
    - `https://vortexathletics.com/adult-gymnastics`
+   - `https://vortexathletics.com/blog/athletic-development-young-athletes`
    - `https://vortexathletics.com/`
 4. Confirm Google-selected canonical equals the declared canonical after the
    next crawl. Monitor Page Indexing, Core Web Vitals, and non-brand queries.
+
+#### Retired gymnastics domain
+
+After the destination pages go live, verify redirects from both
+`vortex-gymnastics.com` and `www.vortex-gymnastics.com`, including legacy
+discipline URLs. Check whether the cross-domain move was already filed. If a
+move still needs to be filed, use an account that owns the old and new
+properties, verify each source host variant, and run Google's validation before
+submitting. [Google’s Change of Address guide](https://support.google.com/webmasters/answer/9370220)
 
 ### Google Business Profile
 
