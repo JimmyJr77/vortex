@@ -84,7 +84,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/fit-and-flip': {
     name: 'Fit & Flip Youth Athletic Training',
     path: '/fit-and-flip',
-    title: 'Youth Sports Performance Training in Bowie, MD | Vortex',
+    title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
     description: 'Fit & Flip offers youth fitness and sports performance training in Bowie, MD. Beginners and young athletes build strength, power, and body control.',
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for kids and teens. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',

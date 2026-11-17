@@ -25,7 +25,7 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
         <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-gray-200 md:text-xl">
           Questions about{' '}
           <Link className="underline underline-offset-4" to="/gymnastics">youth gymnastics</Link>,{' '}
-          <Link className="underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip youth training</Link>, or{' '}
+          <Link className="underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip youth fitness classes</Link>, or{' '}
           <Link className="underline underline-offset-4" to="/adult-gymnastics">adult gymnastics</Link>?
           {' '}Our team can help with class placement, trials, and enrollment.
         </p>
