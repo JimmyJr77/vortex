@@ -161,6 +161,21 @@ Capture and preserve:
 
 Initial reporting uses GA4's standard acquisition dimensions alongside Vortex first-party attribution. Vortex should not claim causal lifetime attribution until offline conversion/value imports and identity rules have been validated.
 
+In **Analysis → Lead & purchase sources**, attribution comes from the evidence saved with the actual inquiry, free trial, or purchase. Website capture requires analytics consent. The report uses campaign tags and external referrers. A Google click marker can fill missing Google Ads tags when the rest of the tags are compatible. Raw click IDs are excluded from the business record. Use a separate source for each placement when a campaign runs across multiple platforms.
+
+| Link placement | Example tags |
+|---|---|
+| Google Ads | `utm_source=google&utm_medium=cpc&utm_campaign=fall_trials` |
+| Yelp business listing | `utm_source=yelp&utm_medium=referral` |
+| Facebook ad | `utm_source=facebook&utm_medium=paid_social&utm_campaign=fall_trials` |
+| Instagram ad | `utm_source=instagram&utm_medium=paid_social&utm_campaign=fall_trials` |
+| Instagram profile | `utm_source=instagram&utm_medium=organic_social` |
+| Vortex newsletter | `utm_source=vortex_newsletter&utm_medium=email&utm_campaign=fall_trials` |
+| Vortex text message | `utm_source=vortex_sms&utm_medium=sms&utm_campaign=fall_trials` |
+| Partner or printed QR code | `utm_source=partner_name&utm_medium=referral` or `utm_source=event_name&utm_medium=qr` |
+
+Staff can enter a source a customer reports for phone calls, walk-ins, and other inquiries created in the admin portal. Historical records can be classified from saved tags and eligible website visits. If a browser or app strips the referrer and the link has no tags, the platform may be unavailable. A Meta click marker on its own does not identify Facebook versus Instagram or indicate an ad.
+
 ## 9. Consent and privacy
 
 | State | First-party operational event | GA4 | GTM advertising tags |

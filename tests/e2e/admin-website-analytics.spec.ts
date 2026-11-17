@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
 
+const acquisitionCounts = { inquiries: 0, freeTrials: 0, paidDropIns: 0, paidClassCheckouts: 0, storePurchases: 0, revenueCents: null }
+const inquiryDefaults = {
+  created_at: '2026-11-01T12:00:00Z', contacted: false, visitor_id: null, phone: null,
+  landing_page: '/contact', lead_status: 'new', utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'Fit & Flip',
+}
+
 test('analytics admins can filter reports and check Google search visibility', async ({ page }) => {
   const reportRequests: URL[] = []
   let topicRequests = 0
@@ -36,6 +42,28 @@ test('analytics admins can filter reports and check Google search visibility', a
           channels: [{ channel: 'Email', sessions: 5, conversions: 2 }],
           sources: [{ channel: 'Email', source: 'newsletter', medium: 'email', campaign: 'Fall classes', sessions: 5, conversions: 2 }],
         }
+        break
+      case '/api/admin/analytics/acquisition':
+        data = {
+          canViewRevenue: false,
+          totals: { ...acquisitionCounts, inquiries: 6, freeTrials: 2 },
+          attributed: { ...acquisitionCounts, inquiries: 5, freeTrials: 2 },
+          rows: [
+            { ...acquisitionCounts, source: 'Google Ads', channel: 'Paid search', medium: 'cpc', campaign: 'Fit & Flip', inquiries: 2, freeTrials: 1 },
+            { ...acquisitionCounts, source: 'Google Ads', channel: 'Paid search', medium: 'cpc', campaign: 'Youth Classes', inquiries: 2 },
+            { ...acquisitionCounts, source: 'Instagram', channel: 'Organic social', medium: null, campaign: null, inquiries: 1, freeTrials: 1 },
+            { ...acquisitionCounts, source: 'Unknown', channel: 'Unknown', medium: null, campaign: null, inquiries: 1 },
+          ],
+        }
+        break
+      case '/api/admin/analytics/inquiries':
+        data = [
+          { ...inquiryDefaults, id: 1, first_name: 'Jordan', last_name: 'Rivera', email: 'jordan@example.test',
+            acquisition: { source: 'Google Ads', channel: 'Paid search', medium: 'cpc', campaign: 'Fit & Flip' } },
+          { ...inquiryDefaults, id: 2, first_name: 'Casey', last_name: 'Rivera', email: 'casey@example.test',
+            utm_source: null, utm_medium: null, utm_campaign: null,
+            acquisition: { source: 'Instagram', channel: 'Organic social', medium: null, campaign: null } },
+        ]
         break
       case '/api/admin/analytics/engagement':
         data = {
@@ -123,6 +151,28 @@ test('analytics admins can filter reports and check Google search visibility', a
   await page.getByRole('button', { name: 'Apply', exact: true }).click()
   await expect.poll(() => reportRequests.at(-1)?.searchParams.get('from')).toBe('2026-11-01')
   expect(reportRequests.at(-1)?.searchParams.get('hostname')).toBe('vortexathletics.com')
+  await page.getByRole('button', { name: 'View leads and purchases by source' }).click()
+  const leadSources = page.getByRole('table', { name: 'Lead sources', exact: true })
+  const sourceDetails = page.getByRole('table', { name: 'Outcomes by source and campaign' })
+  const googleAds = leadSources.getByRole('button', { name: 'Google Ads' })
+  await expect(leadSources.getByRole('row', { name: 'Google Ads 4 1' }).getByRole('cell')).toHaveText(['4', '1'])
+  await expect(leadSources.getByRole('row', { name: 'Unknown 1 0' })).toBeVisible()
+  await googleAds.click()
+  await expect(googleAds).toHaveAttribute('aria-pressed', 'true')
+  await expect(sourceDetails.getByRole('cell', { name: /Fit & Flip/ })).toBeVisible()
+  await expect(sourceDetails.getByRole('rowheader', { name: /Instagram/ })).toHaveCount(0)
+  await page.getByLabel('Source', { exact: true }).selectOption('Instagram')
+  await expect(sourceDetails.getByRole('rowheader', { name: /Instagram.*Organic social/ })).toBeVisible()
+  await expect(sourceDetails.getByRole('rowheader', { name: /Google Ads/ })).toHaveCount(0)
+  await page.getByRole('button', { name: 'View inquiries', exact: true }).click()
+  const inquiries = page.getByRole('table', { name: 'Inquiries by lead source' })
+  const leadSource = page.getByLabel('Lead source', { exact: true })
+  await expect(leadSource).toHaveValue('Instagram')
+  await expect(inquiries.getByRole('row', { name: /Casey Rivera.*Instagram.*Organic social/ })).toBeVisible()
+  await expect(inquiries.getByRole('row', { name: /Jordan Rivera/ })).toHaveCount(0)
+  await leadSource.selectOption('Google Ads')
+  await expect(inquiries.getByRole('row', { name: /Jordan Rivera.*Google Ads.*Paid search.*Fit & Flip.*cpc/ })).toBeVisible()
+  await expect(inquiries.getByRole('row', { name: /Casey Rivera/ })).toHaveCount(0)
   await page.getByRole('button', { name: 'Engagement & Speed' }).click()
   await expect(page.getByRole('heading', { name: 'Web Vitals by device' })).toBeVisible()
   await expect(page.getByRole('cell', { name: '2,300 ms' })).toBeVisible()

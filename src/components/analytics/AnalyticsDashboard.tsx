@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useId, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   BarChart,
@@ -141,6 +141,7 @@ export default function AnalyticsDashboard() {
   const [funnel, setFunnel] = useState<FunnelData | null>(null)
   const [programs, setPrograms] = useState<ProgramsData | null>(null)
   const [inquiries, setInquiries] = useState<InquiryRow[] | null>(null)
+  const [inquirySource, setInquirySource] = useState('')
   const [conversion, setConversion] = useState<ConversionData | null>(null)
   const [seo, setSeo] = useState<SeoData | null>(null)
   const [competitors, setCompetitors] = useState<CompetitorRow[] | null>(null)
@@ -410,8 +411,22 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {reportReady && tab === 'traffic' && traffic && <TrafficReport data={traffic} />}
-      {reportReady && tab === 'acquisition' && <AcquisitionReport data={acquisition} />}
+      {reportReady && tab === 'traffic' && traffic && (
+        <>
+          <div className="mb-4">
+            <button type="button" className="text-sm font-medium text-vortex-red underline underline-offset-2" onClick={() => setTab('acquisition')}>
+              View leads and purchases by source
+            </button>
+          </div>
+          <TrafficReport data={traffic} />
+        </>
+      )}
+      {reportReady && tab === 'acquisition' && (
+        <AcquisitionReport data={acquisition} onViewInquiries={source => {
+          setInquirySource(source)
+          setTab('inquiries')
+        }} />
+      )}
       {reportReady && tab === 'engagement' && engagement && <EngagementReport data={engagement} />}
       {reportReady && tab === 'funnel' && funnel && <FunnelReport data={funnel} />}
 
@@ -458,43 +473,7 @@ export default function AnalyticsDashboard() {
       )}
 
       {reportReady && tab === 'inquiries' && inquiries && (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-          <table className="w-full text-sm min-w-[800px]">
-            <thead>
-              <tr className="text-left text-gray-600 border-b bg-gray-50">
-                <th className="p-3">Date</th>
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">UTM source</th>
-                <th className="p-3">Campaign</th>
-                <th className="p-3">Landing</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inquiries.map((r) => (
-                <tr key={r.id} className="border-b border-gray-100">
-                  <td className="p-3 whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleDateString()}
-                  </td>
-                  <td className="p-3">
-                    {r.first_name} {r.last_name}
-                  </td>
-                  <td className="p-3">{r.email}</td>
-                  <td className="p-3">{r.lead_status}</td>
-                  <td className="p-3">{r.utm_source || '—'}</td>
-                  <td className="p-3">{r.utm_campaign || '—'}</td>
-                  <td className="p-3 max-w-[200px] truncate" title={r.landing_page || ''}>
-                    {r.landing_page || '—'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {inquiries.length === 0 && (
-            <p className="text-center text-gray-500 py-8">No inquiries in range</p>
-          )}
-        </div>
+        <InquiryAttribution inquiries={inquiries} source={inquirySource} onSourceChange={setInquirySource} />
       )}
 
       {reportReady && tab === 'conversion' && conversion && (
@@ -563,6 +542,77 @@ export default function AnalyticsDashboard() {
         />
       )}
     </motion.div>
+  )
+}
+
+function InquiryAttribution({
+  inquiries,
+  source,
+  onSourceChange,
+}: {
+  inquiries: InquiryRow[]
+  source: string
+  onSourceChange: (source: string) => void
+}) {
+  const sourceId = useId()
+  const rows = inquiries.map(inquiry => ({
+    ...inquiry,
+    source: inquiry.acquisition?.source ?? (inquiry.utm_source || 'Unknown'),
+    channel: inquiry.acquisition?.channel,
+    campaign: inquiry.acquisition ? inquiry.acquisition.campaign : inquiry.utm_campaign,
+    medium: inquiry.acquisition ? inquiry.acquisition.medium : inquiry.utm_medium,
+  }))
+  const sources = [...new Set(rows.map(row => row.source))].sort((a, b) => a.localeCompare(b))
+  const activeSource = sources.includes(source) ? source : ''
+  const visibleRows = activeSource ? rows.filter(row => row.source === activeSource) : rows
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white">
+      {sources.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 p-3 text-sm text-gray-700">
+          <label htmlFor={sourceId}>Lead source</label>
+          <select id={sourceId} value={activeSource} onChange={event => onSourceChange(event.target.value)} className="max-w-full rounded border border-gray-300 bg-white px-2 py-1">
+            <option value="">All sources</option>
+            {sources.map(option => <option key={option}>{option}</option>)}
+          </select>
+        </div>
+      )}
+      <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Inquiry details">
+        <table aria-label="Inquiries by lead source" className="w-full min-w-[800px] text-sm">
+          <thead>
+            <tr className="border-b bg-gray-50 text-left text-gray-600">
+              <th scope="col" className="p-3">Date</th>
+              <th scope="col" className="p-3">Name</th>
+              <th scope="col" className="p-3">Email</th>
+              <th scope="col" className="p-3">Status</th>
+              <th scope="col" className="p-3">Source / channel</th>
+              <th scope="col" className="p-3">Campaign / medium</th>
+              <th scope="col" className="p-3">Landing</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map(row => (
+              <tr key={row.id} className="border-b border-gray-100 last:border-0">
+                <td className="whitespace-nowrap p-3">{new Date(row.created_at).toLocaleDateString()}</td>
+                <td className="p-3">{row.first_name} {row.last_name}</td>
+                <td className="p-3">{row.email}</td>
+                <td className="p-3">{row.lead_status}</td>
+                <td className="break-words p-3 font-medium">
+                  {row.source}
+                  {row.channel && row.channel !== row.source && <span className="block text-xs font-normal text-gray-600">{row.channel}</span>}
+                </td>
+                <td className="break-words p-3">
+                  {row.campaign || '—'}
+                  {row.medium && <span className="block text-xs text-gray-600">{row.medium}</span>}
+                </td>
+                <td className="max-w-[200px] truncate p-3" title={row.landing_page || ''}>{row.landing_page || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {inquiries.length === 0 && <p className="py-8 text-center text-gray-500">No inquiries in range</p>}
+    </div>
   )
 }
 

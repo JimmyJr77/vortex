@@ -95,3 +95,38 @@ test('adding an athlete requires phone, birthday and gender but athlete names ar
   expect(submissions[0]).not.toHaveProperty('acquisition')
   expect(submissions[0]).toMatchObject({ phone: '202-555-0101', campers: [{ dateOfBirth: '2020-02-20', gender: 'female' }] })
 })
+
+test('keeps the latest tagged inquiry source separate from an earlier Google Ads visit', async ({ page }) => {
+  const pageViews: Record<string, unknown>[] = []
+  await page.route('**/api/**', async route => {
+    const request = route.request()
+    const { pathname } = new URL(request.url())
+    if (pathname === '/api/health') {
+      return route.fulfill({ json: { apiFeatures: { registrationInquiryOverhaul: true } } })
+    }
+    if (pathname === '/api/analytics/event' && request.method() === 'POST') {
+      pageViews.push(...request.postDataJSON().events.filter((event: { eventName: string }) => event.eventName === 'page_view'))
+    }
+    if (pathname === '/api/registrations') return route.fulfill({ json: { success: true, id: 44 } })
+    return route.fulfill({ json: { success: true, data: [] } })
+  })
+
+  await page.goto('/contact?wbraid=google-click-fixture&utm_medium=display&utm_campaign=fall_trials')
+  await page.getByRole('button', { name: 'Accept all', exact: true }).click()
+  await expect.poll(() => pageViews[0]?.utm).toEqual({ source: 'google', medium: 'display', campaign: 'fall_trials' })
+
+  await page.goto('/contact?utm_source=instagram&fbclid=meta-click-fixture')
+  await page.getByRole('button', { name: 'Send an Inquiry', exact: true }).click()
+  await page.getByRole('radio', { name: 'Other' }).check()
+  await page.getByPlaceholder('First Name', { exact: true }).fill('Test')
+  await page.getByPlaceholder('Last Name', { exact: true }).fill('Athlete')
+  await page.getByPlaceholder('Email Address').fill('athlete@example.test')
+  const saved = page.waitForRequest(request => new URL(request.url()).pathname === '/api/registrations')
+  await page.getByRole('button', { name: 'Submit', exact: true }).click()
+  const submission = (await saved).postDataJSON()
+  expect(submission.utmSource).toBe('instagram')
+  expect(submission.acquisition).toEqual({ source: 'instagram', landingPath: '/contact' })
+  expect(submission).not.toHaveProperty('utmMedium')
+  expect(submission).not.toHaveProperty('utmCampaign')
+  expect(JSON.stringify(submission)).not.toContain('click-fixture')
+})

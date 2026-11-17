@@ -107,12 +107,14 @@ export interface AcquisitionTotals {
   revenueCents: number | null
 }
 
-export interface AcquisitionRow extends AcquisitionTotals {
+export interface AcquisitionSource {
   channel: string
   source: string
   medium: string | null
   campaign: string | null
 }
+
+export interface AcquisitionRow extends AcquisitionSource, AcquisitionTotals {}
 
 export interface AcquisitionData {
   canViewRevenue: boolean
@@ -164,6 +166,7 @@ export interface InquiryRow {
   utm_source: string | null
   utm_medium: string | null
   utm_campaign: string | null
+  acquisition?: AcquisitionSource
   lead_status: string
 }
 

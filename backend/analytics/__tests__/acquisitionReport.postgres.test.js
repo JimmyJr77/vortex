@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { getBusinessAcquisitionReport } from '../acquisitionReport.js'
+import { createAdminAnalyticsHandlers } from '../adminHandlers.js'
+import { getAnalyticsInquiries } from '../inquiryAttribution.js'
 import { normalizeBusinessAcquisition, recordBusinessAcquisition } from '../businessAcquisition.js'
 import { initAnalyticsTables } from '../initTables.js'
 import { parseDateRange } from '../helpers.js'
@@ -33,7 +35,9 @@ test('source reporting counts real facility records without inventing attributio
   await pool.query(`SET search_path TO ${schema}, public`)
   await pool.query(`
     CREATE TABLE registrations (id integer PRIMARY KEY, facility_id bigint, created_at timestamptz,
-      inquiry_source text, archived boolean);
+      inquiry_source text, archived boolean, submitted_by_name text, submitted_by_user_id bigint,
+      first_name text, last_name text, email text, phone text, contacted boolean,
+      admin_notes text, interests_array text[], interests text);
     CREATE TABLE program (id bigint PRIMARY KEY, facility_id bigint);
     CREATE TABLE scheduling_form (id bigint PRIMARY KEY, program_id bigint);
     CREATE TABLE drop_in_registration (id bigint PRIMARY KEY, form_id bigint, benefit_type text,
@@ -62,11 +66,26 @@ test('source reporting counts real facility records without inventing attributio
       (4, 1, '${date}', '/contact', false, 'newsletter', null),
       (5, 2, '${date}', '/contact', false, 'other facility', null),
       (6, 1, '${date}', '/contact', true, 'archived form', null),
-      (7, 1, '${date}', '/contact', false, null, 'v_legacy_test');
+      (7, 1, '${date}', '/contact', false, null, 'v_legacy_test'),
+      (8, 1, '${date}', 'phone call', false, null, null),
+      (9, 1, '${date}', '/contact', false, null, 'v_legacy_ads'),
+      (10, 1, '${date}', '/contact', false, null, 'v_legacy_no_consent'),
+      (11, 1, '${date}', '/contact', false, 'google', null),
+      (12, 1, '${date}', '/contact', false, null, null),
+      (13, 1, '${date}', '/contact', false, null, null);
+    UPDATE registrations SET submitted_by_name = 'Staff' WHERE id = 8;
+    UPDATE registrations SET utm_medium = 'cpc', utm_campaign = 'Older campaign' WHERE id = 11;
+    UPDATE registrations SET email = 'different-location@example.com' WHERE id = 5;
     INSERT INTO visitor_sessions (visitor_id, session_id, started_at, referrer)
-      VALUES ('v_legacy_test', 's_legacy_test', '2026-11-17 14:50:00+00', 'https://www.yelp.com');
+      VALUES ('v_legacy_test', 's_legacy_test', '2026-11-17 14:50:00+00', 'https://www.yelp.com'),
+        ('v_legacy_ads', 's_legacy_ads', '2026-11-17 14:50:00+00', null),
+        ('v_legacy_no_consent', 's_legacy_no_consent', '2026-11-17 14:50:00+00', 'https://facebook.com');
+    UPDATE visitor_sessions SET utm_source = 'google', utm_medium = 'ppc', utm_campaign = 'Legacy'
+      WHERE session_id = 's_legacy_ads';
     INSERT INTO analytics_events (event_id, visitor_id, session_id, occurred_at, event_name, consent_analytics)
-      VALUES ('11111111-1111-4111-8111-111111111111', 'v_legacy_test', 's_legacy_test', '2026-11-17 14:50:00+00', 'page_view', true);
+      VALUES ('11111111-1111-4111-8111-111111111111', 'v_legacy_test', 's_legacy_test', '2026-11-17 14:50:00+00', 'page_view', true),
+        ('22222222-2222-4222-8222-222222222222', 'v_legacy_ads', 's_legacy_ads', '2026-11-17 14:50:00+00', 'page_view', true),
+        ('33333333-3333-4333-8333-333333333333', 'v_legacy_no_consent', 's_legacy_no_consent', '2026-11-17 14:50:00+00', 'page_view', false);
     INSERT INTO program VALUES (1,1), (2,2);
     INSERT INTO scheduling_form VALUES (1,1), (2,2);
     INSERT INTO drop_in_registration VALUES
@@ -101,18 +120,57 @@ test('source reporting counts real facility records without inventing attributio
   assert.equal(await save('inquiry', 1, campaign), true)
   assert.equal(await save('inquiry', 1, { source: 'facebook' }), false, 'retry preserves the original source')
   await save('inquiry', 3, { landingPath: '/contact' })
+  await save('inquiry', 8, { source: 'fb', medium: 'self_reported' })
+  await save('inquiry', 11, { source: 'ig' })
+  await save('inquiry', 13, { referrer: 'https://www.google.com' })
   await save('drop_in', 1, campaign)
   await save('drop_in', 2, { referrer: 'https://www.yelp.com/biz/demo' })
   await save('enrollment_checkout', 1, campaign)
   await save('store_order', 1, { source: 'newsletter', medium: 'email' })
   const range = parseDateRange({ from: '2026-11-17', to: '2026-11-17' })
   const report = await getBusinessAcquisitionReport(pool, range, 1, { canViewRevenue: true })
-  assert.deepEqual(report.totals, { inquiries: 5, freeTrials: 1, paidDropIns: 1, paidClassCheckouts: 1, storePurchases: 3, revenueCents: 17300 })
-  assert.deepEqual(report.attributed, { inquiries: 4, freeTrials: 1, paidDropIns: 1, paidClassCheckouts: 1, storePurchases: 1, revenueCents: 13700 })
-  assert.equal(report.rows.find(row => row.source === 'google').revenueCents, 10000)
-  assert.equal(report.rows.find(row => row.source === 'yelp.com').paidDropIns, 1)
-  assert.equal(report.rows.find(row => row.source === 'yelp.com').inquiries, 1)
+  assert.deepEqual(report.totals, { inquiries: 11, freeTrials: 1, paidDropIns: 1, paidClassCheckouts: 1, storePurchases: 3, revenueCents: 17300 })
+  assert.deepEqual(report.attributed, { inquiries: 7, freeTrials: 1, paidDropIns: 1, paidClassCheckouts: 1, storePurchases: 1, revenueCents: 13700 })
+  assert.equal(report.rows.find(row => row.source === 'Google Ads' && row.campaign === 'Fit and Flip').revenueCents, 10000)
+  assert.equal(report.rows.find(row => row.source === 'Yelp').paidDropIns, 1)
+  assert.equal(report.rows.find(row => row.source === 'Yelp').inquiries, 1)
   assert.equal(report.rows.find(row => row.channel === 'Unknown').storePurchases, 1)
+
+  const inquiries = await getAnalyticsInquiries(pool, range, 1)
+  const source = id => inquiries.find(row => row.id === id).acquisition
+  assert.equal(inquiries.length, report.totals.inquiries)
+  assert.ok(inquiries.every(row => row.id !== 5 && row.id !== 6), 'foreign and archived leads are excluded')
+  assert.equal(source(2).source, 'Internal')
+  assert.equal(source(3).source, 'Direct')
+  assert.equal(source(7).source, 'Yelp')
+  assert.deepEqual(source(8), { source: 'Facebook', channel: 'Self-reported', medium: 'self_reported', campaign: null })
+  assert.deepEqual(source(9), { source: 'Google Ads', channel: 'Paid search', medium: 'ppc', campaign: 'Legacy' })
+  assert.equal(source(10).source, 'Unknown', 'an event without analytics consent does not identify the lead')
+  assert.equal(source(11).source, 'Instagram')
+  assert.equal(source(11).medium, null, 'do not mix the snapshot with older registration tags')
+  assert.equal(source(11).campaign, null)
+  assert.equal(source(12).source, 'Unknown')
+  assert.equal(source(13).channel, 'Organic search')
+  for (const row of report.rows) {
+    assert.equal(row.inquiries, inquiries.filter(inquiry => (
+      ['source', 'channel', 'medium', 'campaign'].every(key => inquiry.acquisition[key] === row[key])
+    )).length)
+  }
+  const { exportReport } = createAdminAnalyticsHandlers(pool)
+  const exportRequest = {
+    canonicalAccess: { facilityId: 1 },
+    query: { from: '2026-11-17', to: '2026-11-17', reportType: 'inquiries' },
+  }
+  const output = []
+  await exportReport(exportRequest, {
+    setHeader() {},
+    write: chunk => output.push(chunk),
+    end() {},
+  })
+  assert.match(output[0], /acquisition_source,acquisition_channel,acquisition_medium,acquisition_campaign/)
+  assert.ok(output.some(line => line.endsWith(',Google Ads,Paid search,ppc,Legacy\n')))
+  assert.ok(output.every(line => !line.includes('different-location@example.com')))
+
   const restricted = await getBusinessAcquisitionReport(pool, range, 1, { canViewRevenue: false })
   assert.equal(restricted.totals.paidClassCheckouts, 1)
   assert.equal(restricted.totals.revenueCents, null)

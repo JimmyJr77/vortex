@@ -10,6 +10,7 @@ import { syncExternalAnalytics } from './syncExternal.js'
 import { getSearchConsoleProgramPages, getSearchConsoleTopics, isSearchConsoleConfigured } from './gscClient.js'
 import { getBusinessOutcomes } from './businessOutcomes.js'
 import { getBusinessAcquisitionReport } from './acquisitionReport.js'
+import { getAnalyticsInquiries } from './inquiryAttribution.js'
 import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
 import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
 import { canonicalAdminPermission } from '../platform/canonicalAdminAuth.js'
@@ -223,21 +224,13 @@ export function createAdminAnalyticsHandlers(pool) {
     try {
       const range = parseDateRange(req.query)
       if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
-      const { from, to } = range
-
-      const result = await pool.query(
-        `SELECT id, first_name, last_name, email, phone, created_at, contacted, admin_notes,
-          visitor_id, landing_page, utm_source, utm_medium, utm_campaign, lead_status,
-          interests_array, interests
-         FROM registrations
-         WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2
-         ORDER BY created_at DESC`,
-        [from, to],
-      )
+      const facilityId = req.canonicalAccess?.facilityId
+      if (!facilityId) return res.status(403).json({ success: false, message: 'Facility access required' })
+      const inquiries = await getAnalyticsInquiries(pool, range, facilityId)
 
       res.json({
         success: true,
-        data: result.rows.map((r) => ({
+        data: inquiries.map((r) => ({
           ...r,
           lead_status: normalizeLeadStatus(r),
         })),
@@ -298,6 +291,10 @@ export function createAdminAnalyticsHandlers(pool) {
       }
       const range = parseDateRange(req.query)
       if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
+      const facilityId = req.canonicalAccess?.facilityId
+      if (reportType === 'inquiries' && !facilityId) {
+        return res.status(403).json({ success: false, message: 'Facility access required' })
+      }
       const { from, to } = range
       const hostname = req.query.hostname === 'all' ? undefined : req.query.hostname
 
@@ -314,19 +311,11 @@ export function createAdminAnalyticsHandlers(pool) {
       )
 
       if (reportType === 'inquiries') {
-        const result = await pool.query(
-          `SELECT created_at, first_name, last_name, email, phone, contacted,
-            utm_source, utm_medium, utm_campaign, landing_page, visitor_id, lead_status,
-            interests_array
-           FROM registrations
-           WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2
-           ORDER BY created_at DESC`,
-          [from, to],
-        )
+        const inquiries = await getAnalyticsInquiries(pool, range, facilityId)
         const header =
-          'created_at,first_name,last_name,email,phone,contacted,utm_source,utm_medium,utm_campaign,landing_page,visitor_id,lead_status,interests\n'
+          'created_at,first_name,last_name,email,phone,contacted,utm_source,utm_medium,utm_campaign,landing_page,visitor_id,lead_status,interests,acquisition_source,acquisition_channel,acquisition_medium,acquisition_campaign\n'
         res.write(header)
-        for (const row of result.rows) {
+        for (const row of inquiries) {
           const interests = (row.interests_array || []).join('; ')
           const line = [
             row.created_at?.toISOString?.() || row.created_at,
@@ -342,6 +331,10 @@ export function createAdminAnalyticsHandlers(pool) {
             csvEscape(row.visitor_id),
             normalizeLeadStatus(row),
             csvEscape(interests),
+            csvEscape(row.acquisition.source),
+            csvEscape(row.acquisition.channel),
+            csvEscape(row.acquisition.medium),
+            csvEscape(row.acquisition.campaign),
           ].join(',')
           res.write(line + '\n')
         }

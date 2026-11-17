@@ -23,8 +23,29 @@ const outcomeColumns = [
 
 type Sort = (typeof sortOptions)[number]['id']
 
-export default function AcquisitionReport({ data }: { data: AcquisitionData | null }) {
+function summarizeLeadSources(rows: AcquisitionRow[]) {
+  const sources = new Map<string, Pick<AcquisitionTotals, 'inquiries' | 'freeTrials'>>()
+  for (const { source, inquiries, freeTrials } of rows) {
+    if (inquiries === 0 && freeTrials === 0) continue
+    const totals = sources.get(source) ?? { inquiries: 0, freeTrials: 0 }
+    totals.inquiries += inquiries
+    totals.freeTrials += freeTrials
+    sources.set(source, totals)
+  }
+  return [...sources].sort(([sourceA, a], [sourceB, b]) =>
+    b.inquiries - a.inquiries || b.freeTrials - a.freeTrials || sourceA.localeCompare(sourceB),
+  )
+}
+
+export default function AcquisitionReport({
+  data,
+  onViewInquiries,
+}: {
+  data: AcquisitionData | null
+  onViewInquiries: (source: string) => void
+}) {
   const headingId = useId()
+  const [source, setSource] = useState('')
   const [channel, setChannel] = useState('')
   const [sort, setSort] = useState<Sort>('inquiries')
 
@@ -33,11 +54,15 @@ export default function AcquisitionReport({ data }: { data: AcquisitionData | nu
   }
 
   const { rows, totals, attributed, canViewRevenue } = data
-  const channels = [...new Set(rows.map(row => row.channel))].sort((a, b) => a.localeCompare(b))
+  const leadSources = summarizeLeadSources(rows)
+  const sources = [...new Set(rows.map(row => row.source))].sort((a, b) => a.localeCompare(b))
+  const activeSource = sources.includes(source) ? source : ''
+  const sourceRows = activeSource ? rows.filter(row => row.source === activeSource) : rows
+  const channels = [...new Set(sourceRows.map(row => row.channel))].sort((a, b) => a.localeCompare(b))
   const activeChannel = channels.includes(channel) ? channel : ''
   const visibleSortOptions = sortOptions.filter(option => canViewRevenue || option.id !== 'revenue')
   const activeSort = visibleSortOptions.find(option => option.id === sort) ?? sortOptions[0]
-  const sortedRows = rows.filter(row => !activeChannel || row.channel === activeChannel).sort((a, b) => (
+  const sortedRows = sourceRows.filter(row => !activeChannel || row.channel === activeChannel).sort((a, b) => (
     activeSort.value(b) - activeSort.value(a) || a.source.localeCompare(b.source) || (a.campaign ?? '').localeCompare(b.campaign ?? '')
   ))
   const coverage = [
@@ -55,7 +80,7 @@ export default function AcquisitionReport({ data }: { data: AcquisitionData | nu
         <h3 id={headingId} className="text-lg font-bold text-gray-900">Lead &amp; purchase sources</h3>
         <p className="mt-1 text-sm text-gray-600">
           Includes inquiries, confirmed free trials, and paid class checkouts, drop-ins, and store orders for this location.
-          {canViewRevenue && ' Revenue is before refunds.'} Unknown and Staff entry are excluded from known-source counts.
+          {canViewRevenue && ' Revenue is before refunds.'} Known-source counts exclude Direct, Internal, and Unknown.
         </p>
       </div>
       <dl className="grid grid-cols-2 gap-3 xl:grid-cols-4">
@@ -67,9 +92,69 @@ export default function AcquisitionReport({ data }: { data: AcquisitionData | nu
           </div>
         ))}
       </dl>
+      {leadSources.length > 0 && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <h4 id={`${headingId}-lead-sources`} className="font-semibold text-gray-900">Lead sources</h4>
+          <div className="mt-2 overflow-x-auto">
+            <table aria-labelledby={`${headingId}-lead-sources`} className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b bg-gray-50 text-gray-700">
+                  <th scope="col" className="px-3 py-2">Source</th>
+                  <th scope="col" className="px-3 py-2 text-right">Inquiries</th>
+                  <th scope="col" className="px-3 py-2 text-right">Free trials</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leadSources.map(([name, counts]) => (
+                  <tr key={name} className="border-b border-gray-100 last:border-0">
+                    <th scope="row" className="px-3 py-2 font-medium">
+                      <button
+                        type="button"
+                        aria-pressed={activeSource === name}
+                        aria-controls={`${headingId}-campaigns`}
+                        onClick={() => {
+                          setSource(activeSource === name ? '' : name)
+                          setChannel('')
+                        }}
+                        className="break-words text-left text-vortex-red underline underline-offset-2 hover:no-underline aria-pressed:font-bold"
+                      >
+                        {name}
+                      </button>
+                    </th>
+                    <td className="px-3 py-2 text-right tabular-nums">{count.format(counts.inquiries)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{count.format(counts.freeTrials)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       {rows.length > 0 ? (
-        <div className="min-w-0 rounded-lg border border-gray-200 bg-white p-4">
+        <div id={`${headingId}-campaigns`} className="min-w-0 rounded-lg border border-gray-200 bg-white p-4">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h4 className="font-semibold text-gray-900">Source and campaign details</h4>
+            {sourceRows.some(row => row.inquiries > 0) && (
+              <button
+                type="button"
+                onClick={() => onViewInquiries(activeSource)}
+                className="text-sm font-medium text-vortex-red underline underline-offset-2"
+              >
+                View inquiries
+              </button>
+            )}
+          </div>
           <div className="flex flex-wrap gap-x-5 gap-y-3 pb-3">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
+              <label htmlFor={`${headingId}-source`}>Source</label>
+              <select id={`${headingId}-source`} value={activeSource} onChange={event => {
+                setSource(event.target.value)
+                setChannel('')
+              }} className="max-w-full rounded border border-gray-300 bg-white px-2 py-1">
+                <option value="">All sources</option>
+                {sources.map(option => <option key={option}>{option}</option>)}
+              </select>
+            </div>
             <div className="flex flex-wrap items-center gap-2 text-sm text-gray-700">
               <label htmlFor={`${headingId}-channel`}>Channel</label>
               <select id={`${headingId}-channel`} value={activeChannel} onChange={event => setChannel(event.target.value)} className="rounded border border-gray-300 bg-white px-2 py-1">
