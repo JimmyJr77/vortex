@@ -20,6 +20,16 @@ export interface QuarterSummary {
 interface CurrentBreakdowns {
   classes: Array<{id: string; name: string; count: number}>; genders: Breakdown[]; ages: Breakdown[]; teams: Breakdown[]
 }
+export interface ClassLoadTotals {
+  students: number
+  classEnrollments: number
+  averageClasses: number | null
+}
+export interface ClassLoadBreakdown {
+  overall: ClassLoadTotals
+  classTypes: Array<ClassLoadTotals & { id: string; label: string }>
+  cohorts: Array<ClassLoadTotals & { classTypeId: string | null; ageGroup: string; gender: string }>
+}
 export interface EnrollmentTrendData {
   quarters?: QuarterSummary[]; studentQuarters?: QuarterSummary[]
   studentMonths?: Array<Omit<EnrollmentMonth, 'totalFamilies' | 'openingFamilies' | 'newFamilies' | 'canceledFamilies' | 'lostFamilies'> & {totalStudents?: number | null; openingStudents: number | null; newStudents: number | null; canceledStudents: number | null; lostStudents: number | null}>; studentNotes?: string[]
@@ -29,6 +39,7 @@ export interface EnrollmentTrendData {
   studentSummary?: LossRateSummary
   current: CurrentBreakdowns & { families: number; students: number; studentsPerFamily: number | null
     familyBreakdowns?: CurrentBreakdowns
+    classLoad?: ClassLoadBreakdown
     membership: { monthlyRevenueCents: number; averageMembershipCents: number | null; averageFamilyMembershipCents?: number | null; pricedStudents: number } | null }
   acquisition: { rows: AcquisitionMonth[]; includedMonths: number; totalSpendCents: number; newFamilies: number; cacCents: number | null
     retentionMonths: number | null; familyLifetimeRevenueCents: number | null; revenuePerDollar: number | null } | null

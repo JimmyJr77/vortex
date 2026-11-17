@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { number, type EnrollmentTrendData, type Breakdown } from './enrollmentTypes'
+import { useState, type ReactNode } from 'react'
+import { number, type EnrollmentTrendData, type Breakdown, type ClassLoadBreakdown, type ClassLoadTotals } from './enrollmentTypes'
 
 export function MetricCard({ label, value, detail, color = 'text-slate-950' }: {label: string; value: ReactNode; detail: ReactNode; color?: string}) {
   return <article className="min-w-0 rounded-xl border border-slate-200 bg-white p-5" aria-label={label}>
@@ -25,11 +25,93 @@ export default function EnrollmentPopulation({ current, asOf, students }: Pick<E
       <MetricCard label="Current students" value={number(current.students)} detail="Unique enrolled students, including paused enrollments" />
       <MetricCard label="Average students per family" value={number(current.studentsPerFamily, 2)} detail="Current students ÷ current families" />
     </div>
+    {current.classLoad && <ClassesPerStudent data={current.classLoad} asOf={asOf} />}
     {breakdowns && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <BreakdownCard title="Enrollments by class" rows={breakdowns.classes.map(row => ({label:row.name, count:row.count}))} total={total} detail={students ? "Unique students in each class." : "Unique families with a student in each class."} />
       <BreakdownCard title="Boys & girls" rows={breakdowns.genders} total={total} detail={students ? "Counts and percentages of current students" : "Families with a student in each group"} />
       <BreakdownCard title="Ages" rows={breakdowns.ages} total={total} detail={students ? `Student ages as of ${asOf}` : "Families with a student in each age group"} />
       <BreakdownCard title="Team & non-team athletes" rows={breakdowns.teams} total={total} detail={students ? "Students enrolled in team and non-team programs" : "Families with a student in each group"} />
     </div>}
+  </div>
+}
+
+function ClassesPerStudent({ data, asOf }: { data: ClassLoadBreakdown; asOf: string }) {
+  const [selectedId, setSelectedId] = useState('')
+  const selectedType = data.classTypes.find(type => type.id === selectedId)
+  const cohorts = data.cohorts.filter(cohort => cohort.classTypeId === (selectedType?.id ?? null))
+  return <section aria-label="Classes per student" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h3 className="text-lg font-bold">Classes per student</h3>
+        <p className="mt-1 max-w-xl text-sm text-slate-600">
+          Current scheduled class signups divided by enrolled students in each group. Each scheduled section counts once per student, including paused enrollments. As of {asOf}.
+        </p>
+      </div>
+      <div className="rounded-xl bg-blue-50 px-4 py-3">
+        <p className="text-xs font-medium text-blue-900">Overall average</p>
+        <p className="text-2xl font-bold tabular-nums text-blue-800">{number(data.overall.averageClasses, 2)}</p>
+        <p className="text-xs text-blue-900">{number(data.overall.classEnrollments)} signups · {number(data.overall.students)} students</p>
+      </div>
+    </div>
+    {data.overall.students > 0 ? <div className="mt-5 grid gap-6 xl:grid-cols-2">
+      <div className="min-w-0">
+        <h4 className="font-semibold">By class type</h4>
+        <ClassLoadTable title="Classes per student by class type" rowHeading="Class type" rows={data.classTypes.map(type => ({
+          ...type, key: type.id,
+        }))} />
+      </div>
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h4 className="font-semibold">By age group and gender</h4>
+          <label className="flex max-w-full items-center gap-2 text-sm font-medium">
+            <span className="shrink-0">Class type</span>
+            <select value={selectedType?.id ?? ''} onChange={event => setSelectedId(event.target.value)}
+              className="min-w-0 rounded-lg border border-slate-300 bg-white px-2 py-1.5">
+              <option value="">All class types</option>
+              {data.classTypes.map(type => <option key={type.id} value={type.id}>{type.label}</option>)}
+            </select>
+          </label>
+        </div>
+        <ClassLoadTable title={`Classes per student by age group and gender · ${selectedType?.label ?? 'All class types'}`}
+          rowHeading="Age group and gender" rows={cohorts.map(cohort => ({
+            ...cohort,
+            key: JSON.stringify([cohort.ageGroup, cohort.gender]),
+            label: cohort.ageGroup,
+            detail: cohort.gender,
+          }))} />
+      </div>
+    </div> : <p className="mt-4 text-sm text-slate-600">No current class signups.</p>}
+  </section>
+}
+
+function ClassLoadTable({ title, rowHeading, rows }: {
+  title: string
+  rowHeading: string
+  rows: Array<ClassLoadTotals & { key: string; label: string; detail?: string }>
+}) {
+  if (!rows.length) return <p className="mt-3 text-sm text-slate-600">No current enrollments in this group.</p>
+  return <div className="mt-2 overflow-x-auto">
+    <table className="w-full text-left text-sm">
+      <caption className="sr-only">{title}</caption>
+      <thead className="border-b border-slate-200 text-xs text-slate-600">
+        <tr>
+          <th scope="col" className="py-2 pr-2 font-semibold">{rowHeading}</th>
+          <th scope="col" className="px-2 py-2 text-right font-semibold">Students</th>
+          <th scope="col" className="px-2 py-2 text-right font-semibold">Class signups</th>
+          <th scope="col" className="py-2 pl-2 text-right font-semibold">Avg per student</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-100">
+        {rows.map(row => <tr key={row.key}>
+          <th scope="row" className="break-words py-2.5 pr-2 font-semibold">
+            {row.label}
+            {row.detail && <span className="block text-xs font-normal text-slate-600">{row.detail}</span>}
+          </th>
+          <td className="px-2 py-2.5 text-right tabular-nums">{number(row.students)}</td>
+          <td className="px-2 py-2.5 text-right tabular-nums">{number(row.classEnrollments)}</td>
+          <td className="py-2.5 pl-2 text-right font-semibold tabular-nums text-blue-800">{number(row.averageClasses, 2)}</td>
+        </tr>)}
+      </tbody>
+    </table>
   </div>
 }

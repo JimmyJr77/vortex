@@ -159,6 +159,13 @@ as-of date. There is no authoritative team flag in the present model: a student 
 classified as team when a current class or program name contains the word “Team”
 (excluding the phrase “Non-team”). The card states this rule.
 
+Classes per student uses the same current enrollment snapshot. A student’s
+distinct scheduled sections are counted once each, even when two sections belong
+to one catalog class. Each type is a parent program, and its average divides by
+the unique students enrolled in that type. The overall average counts each
+student once across types. The age and gender breakdown uses the same rule for
+each cohort and retains unspecified values.
+
 Financial metrics require `billing.view`. Monthly membership cost means net active
 recurring enrollment tuition divided by all current students, not household dues.
 It excludes annual memberships and one-time purchases; paused subscriptions add no

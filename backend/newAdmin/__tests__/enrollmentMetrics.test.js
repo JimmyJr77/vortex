@@ -100,6 +100,33 @@ test('current counts deduplicate siblings and class repeats, exclude future/ende
   assert.deepEqual(result.current.teams.map(row=>row.count),[1,1,0])
   assert.deepEqual(result.current.ages,[{label:'Age 8',count:1},{label:'Age 9',count:1}])
 })
+test('class load counts distinct sections per enrolled student, by type and age/gender cohort', () => {
+  const athlete = { member_id: 1, class_id: 1, program_id: 10, program_name: 'Gymnastics', gender: ' F ', date_of_birth: '2018-11-10' }
+  const today = '2026-11-10', started = '2026-01-01'
+  const { current: { classLoad } } = buildEnrollmentTrend({ today, live: [
+    live(1, 1, started, { ...athlete, slot_group_id: 1 }),
+    live(2, 1, started, { ...athlete, slot_group_id: 1, time_slot_id: 9 }), // same group, even with a dated slot
+    live(3, 1, started, { ...athlete, slot_group_id: 2, status: 'paused' }),
+    live(4, 1, started, { ...athlete, class_id: 2, program_id: 11, program_name: 'Fitness', slot_group_id: 3 }),
+    live(5, 1, today, { ...athlete, member_id: 2, gender: 'girl', date_of_birth: '2016-11-11', slot_group_id: 1 }),
+    live(6, 2, started, { form_id: 7, gender: 'prefer-not-to-say', date_of_birth: '2027-01-01' }),
+    live(7, 3, '2026-11-11', { slot_group_id: 4 }),
+    live(8, 3, started, { slot_group_id: 4, status: 'cancelled', cancel_date: today }),
+    live(9, 3, started, { slot_group_id: 4, status: 'waitlisted' }),
+  ] })
+  assert.deepEqual(classLoad.overall, { students: 3, classEnrollments: 5, averageClasses: 5 / 3 })
+  assert.deepEqual(classLoad.classTypes, [
+    { id: '11', label: 'Fitness', students: 1, classEnrollments: 1, averageClasses: 1 },
+    { id: '10', label: 'Gymnastics', students: 2, classEnrollments: 3, averageClasses: 1.5 },
+    { id: 'unspecified', label: 'Unspecified class type', students: 1, classEnrollments: 1, averageClasses: 1 },
+  ])
+  assert.deepEqual(classLoad.cohorts.filter(row => row.classTypeId == null || row.classTypeId === '10'), [
+    { classTypeId: null, ageGroup: '8–11', gender: 'Female', students: 2, classEnrollments: 4, averageClasses: 2 },
+    { classTypeId: null, ageGroup: 'Unspecified', gender: 'Other / unspecified', students: 1, classEnrollments: 1, averageClasses: 1 },
+    { classTypeId: '10', ageGroup: '8–11', gender: 'Female', students: 2, classEnrollments: 3, averageClasses: 1.5 },
+  ])
+  assert.deepEqual(summarizeCurrent([], [], today).classLoad.overall, { students: 0, classEnrollments: 0, averageClasses: null })
+})
 test('membership uses net recurring amounts per student, sums classes, includes free students and avoids duplicate subscription rows', () => {
   const current = summarizeCurrent([live(1,1,'2026-01-01'),live(2,1,'2026-01-01',{member_id:1}),live(3,2,'2026-01-01')],[],'2026-11-10',[
     {id:1,member_id:1,family_id:1,source_id:'1',net_monthly_cents:10000,status:'active'},

@@ -37,8 +37,33 @@ export function summarizeQuarters(asOf, months) {
   ]
 }
 
+const AGE_BANDS = [[5, 'Under 5'], [8, '5–7'], [12, '8–11'], [16, '12–15'], [18, '16–17'], [Infinity, '18+']]
+const AGE_GROUPS = [...AGE_BANDS.map(([, label]) => label), 'Unspecified']
+const CLASS_GENDERS = ['Female', 'Male', 'Other / unspecified']
+const classAgeGroup = age => age == null ? 'Unspecified' : AGE_BANDS.find(([limit]) => age < limit)[1]
+const emptyClassLoad = () => ({ students: 0, classEnrollments: 0 })
+const withClassAverage = counts => ({ ...counts, averageClasses: counts.students ? counts.classEnrollments / counts.students : null })
+
+function addClassLoad(counts, classEnrollments) {
+  counts.students++
+  counts.classEnrollments += classEnrollments
+}
+
+function addClassCohort(cohorts, ageGroup, gender, classEnrollments) {
+  const key = `${ageGroup}:${gender}`
+  if (!cohorts.has(key)) cohorts.set(key, { ageGroup, gender, ...emptyClassLoad() })
+  addClassLoad(cohorts.get(key), classEnrollments)
+}
+
+function classCohorts(classTypeId, cohorts) {
+  return [...cohorts.values()]
+    .sort((a, b) => AGE_GROUPS.indexOf(a.ageGroup) - AGE_GROUPS.indexOf(b.ageGroup) || CLASS_GENDERS.indexOf(a.gender) - CLASS_GENDERS.indexOf(b.gender))
+    .map(cohort => ({ classTypeId, ...withClassAverage(cohort) }))
+}
+
 export function summarizeCurrent(enrollments, classes, today, subscriptions = null) {
   const students = new Map(), families = new Set(), classCounts = new Map()
+  const classTypeBySection = new Map(), classTypeLabels = new Map()
   for (const item of classes) classCounts.set(String(item.id), { id: String(item.id), name: item.name, students: new Set(), families: new Set() })
   for (const row of enrollments) {
     if (row.member_id == null) continue
@@ -51,15 +76,27 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
     classCounts.set(key, klass)
     const teamName = [row.class_name, row.program_name].filter(Boolean).join(' ')
     const isTeam = /\bteam\b/i.test(teamName.replace(/\bnon[ -]?team\b/gi, ''))
-    const student = students.get(memberId) ?? { ...row, team: false, classified: false }
+    const student = students.get(memberId) ?? { ...row, team: false, classified: false, sectionIds: new Set() }
     student.team ||= isTeam
     student.classified ||= Boolean(teamName)
+    // A student can sign up for multiple scheduled sections of the same class.
+    const sectionId = row.slot_group_id != null ? `group-${row.slot_group_id}` : row.time_slot_id != null ? `slot-${row.time_slot_id}`
+      : row.class_id != null || row.form_id != null ? key : null
+    if (sectionId != null) {
+      student.sectionIds.add(sectionId)
+      if (row.program_id != null) {
+        const typeId = String(row.program_id)
+        classTypeBySection.set(sectionId, typeId)
+        classTypeLabels.set(typeId, row.program_name?.trim() || 'Unnamed class type')
+      }
+    }
     students.set(memberId, student)
   }
   const gender = { Boys: 0, Girls: 0, 'Other / unspecified': 0 }
   const ageCounts = new Map()
   const teams = { Team: 0, 'Non-team': 0, Unspecified: 0 }
   const familyGroups = { genders: new Map(), ages: new Map(), teams: new Map() }
+  const overallClassLoad = emptyClassLoad(), overallCohorts = new Map(), classTypes = new Map()
   function countFamily(groups, label, familyId) {
     const matches = groups.get(label) ?? new Set()
     matches.add(String(familyId))
@@ -74,12 +111,36 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
     const validBirth = /^\d{4}-\d{2}-\d{2}$/.test(birth) && Number.isFinite(Date.parse(`${birth}T12:00:00Z`))
       && new Date(`${birth}T12:00:00Z`).toISOString().slice(0, 10) === birth && birth <= today
     const age = validBirth ? Number(today.slice(0, 4)) - Number(birth.slice(0, 4)) - (today.slice(5) < birth.slice(5) ? 1 : 0) : null
-    const label = age == null || age > 120 ? 'Unspecified' : String(age)
+    const currentAge = age == null || age > 120 ? null : age
+    const label = currentAge == null ? 'Unspecified' : String(currentAge)
     ageCounts.set(label, (ageCounts.get(label) ?? 0) + 1)
     const teamLabel = student.team ? 'Team' : student.classified ? 'Non-team' : 'Unspecified'
     teams[teamLabel]++
     countFamily(familyGroups.ages, label, student.family_id)
     countFamily(familyGroups.teams, teamLabel, student.family_id)
+    if (student.sectionIds.size) {
+      const ageGroup = classAgeGroup(currentAge)
+      const classGender = genderLabel === 'Boys' ? 'Male' : genderLabel === 'Girls' ? 'Female' : genderLabel
+      addClassLoad(overallClassLoad, student.sectionIds.size)
+      addClassCohort(overallCohorts, ageGroup, classGender, student.sectionIds.size)
+      const countsByType = new Map()
+      for (const sectionId of student.sectionIds) {
+        const typeId = classTypeBySection.get(sectionId) ?? 'unspecified'
+        countsByType.set(typeId, (countsByType.get(typeId) ?? 0) + 1)
+      }
+      for (const [id, count] of countsByType) {
+        if (!classTypes.has(id)) classTypes.set(id, { id, label: classTypeLabels.get(id) ?? 'Unspecified class type', counts: emptyClassLoad(), cohorts: new Map() })
+        const type = classTypes.get(id)
+        addClassLoad(type.counts, count)
+        addClassCohort(type.cohorts, ageGroup, classGender, count)
+      }
+    }
+  }
+  const sortedTypes = [...classTypes.values()].sort((a, b) => (a.id === 'unspecified') - (b.id === 'unspecified') || a.label.localeCompare(b.label) || a.id.localeCompare(b.id))
+  const classLoad = {
+    overall: withClassAverage(overallClassLoad),
+    classTypes: sortedTypes.map(({ id, label, counts }) => ({ id, label, ...withClassAverage(counts) })),
+    cohorts: [...classCohorts(null, overallCohorts), ...sortedTypes.flatMap(type => classCohorts(type.id, type.cohorts))],
   }
   const count = students.size
   let membership = null
@@ -116,7 +177,7 @@ export function summarizeCurrent(enrollments, classes, today, subscriptions = nu
       ages: ageBreakdown([...familyGroups.ages].map(([label, matches]) => [label, matches.size])),
       teams: familyBreakdown(familyGroups.teams, Object.keys(teams)),
     },
-    membership }
+    membership, classLoad }
 }
 
 export function acquisitionMetrics(months, spending, current, summary) {

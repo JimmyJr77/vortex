@@ -1,15 +1,16 @@
 import { expect, test, type Page } from '@playwright/test'
 import { buildBillingDashboard } from '../../backend/newAdmin/billingDashboardMetrics.js'
 import { summarizeMonths, summarizeQuarters, summarizeLossRates, acquisitionMetrics } from '../../backend/newAdmin/enrollmentMetrics.js'
+import type { ClassLoadBreakdown } from '../../src/components/newAdmin/enrollmentTypes'
 
 const trend = { year: 2026, asOf: '2026-11-09', coverageStart: '2026-01-19', notes: ['Siblings and transfers count once per family.'], months: Array.from({ length: 11 }, (_, i) => ({
   key: `2026-${String(i + 1).padStart(2, '0')}`, label: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov'][i],
   openingFamilies: i ? 20 : null, newFamilies: i ? 4 : 20, canceledFamilies: i ? 3 : 0,
   lostFamilies: i ? 2 : null, lossRate: i ? 10 : null, partial: i === 10, provisional: i >= 7,
 })) }
-async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false, studentHistory = true, legacyQuarterRates = false, legacyRevenue = false } = {}) {
+async function prepare(page: Page, { permission = true, failure = false, empty = false, financial = true, editable = true, saveFailure = false, legacy = false, studentHistory = true, legacyQuarterRates = false, legacyRevenue = false, classLoad = undefined as ClassLoadBreakdown | undefined } = {}) {
   const rollingMonths = [{...trend.months[0],key:'2025-11',label:'Nov',newFamilies:null}, {...trend.months[0],key:'2025-12',label:'Dec',newFamilies:null}, ...trend.months.slice(0,10)]
-  const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,averageFamilyMembershipCents:22500,pricedStudents:30} : null}
+  const current = {families:20,students:30,studentsPerFamily:1.5,classes:[{id:'1',name:'Tumbling',count:20},{id:'2',name:'Team',count:20}],genders:[{label:'Boys',count:12},{label:'Girls',count:18}],ages:[{label:'Age 8',count:30}],teams:[{label:'Team',count:20},{label:'Non-team',count:10}],classLoad,membership:financial ? {monthlyRevenueCents:450000,averageMembershipCents:15000,averageFamilyMembershipCents:22500,pricedStudents:30} : null}
   const summary = summarizeMonths(rollingMonths)
   const studentRate = (row: typeof trend.months[number]) => row.lossRate == null ? null : row.partial ? 50 : row.key === '2026-10' ? 30 : 20
   const studentSummary = studentHistory ? summarizeLossRates(rollingMonths.map(row => ({lossRate: studentRate(row)}))) : undefined
@@ -77,6 +78,45 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
   if (permission) await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Dashboard', exact: true }).click()
   return { requests, errors }
 }
+
+test('current class signups show all students and class-specific age and gender averages', async ({ page }) => {
+  const { requests, errors } = await prepare(page, {
+    financial: false,
+    classLoad: {
+      overall: { students: 30, classEnrollments: 40, averageClasses: 40 / 30 },
+      classTypes: [
+        { id: '10', label: 'Tumbling', students: 18, classEnrollments: 23, averageClasses: 23 / 18 },
+        { id: '20', label: 'Team', students: 17, classEnrollments: 17, averageClasses: 1 },
+      ],
+      cohorts: [
+        { classTypeId: null, ageGroup: '5–7', gender: 'Male', students: 12, classEnrollments: 19, averageClasses: 19 / 12 },
+        { classTypeId: null, ageGroup: '8–11', gender: 'Female', students: 18, classEnrollments: 21, averageClasses: 21 / 18 },
+        { classTypeId: '10', ageGroup: '5–7', gender: 'Male', students: 8, classEnrollments: 10, averageClasses: 1.25 },
+        { classTypeId: '10', ageGroup: '8–11', gender: 'Female', students: 10, classEnrollments: 13, averageClasses: 1.3 },
+        { classTypeId: '20', ageGroup: '5–7', gender: 'Male', students: 9, classEnrollments: 9, averageClasses: 1 },
+        { classTypeId: '20', ageGroup: '8–11', gender: 'Female', students: 8, classEnrollments: 8, averageClasses: 1 },
+      ],
+    },
+  })
+  const report = page.getByRole('region', { name: 'Classes per student', exact: true })
+  await expect(report.getByText('1.33', { exact: true })).toBeVisible()
+  await expect(report.getByText('40 signups · 30 students')).toBeVisible()
+  const classTypes = report.getByRole('table', { name: 'Classes per student by class type' })
+  await expect(classTypes.getByRole('row', { name: /Tumbling/ }).getByRole('cell')).toHaveText(['18', '23', '1.28'])
+
+  const classType = report.getByRole('combobox', { name: 'Class type' })
+  const cohorts = report.getByRole('table', { name: /Classes per student by age group and gender/ })
+  await expect(classType).toHaveValue('')
+  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['12', '19', '1.58'])
+  await classType.selectOption({ label: 'Tumbling' })
+  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['8', '10', '1.25'])
+  await classType.selectOption({ label: 'Team' })
+  await expect(cohorts.getByRole('row', { name: /8–11 Female/ }).getByRole('cell')).toHaveText(['8', '8', '1.00'])
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  expect(requests.filter(path => path.endsWith('/enrollment-trend'))).toHaveLength(1)
+  expect(errors).toEqual([])
+})
 
 test('Total shows monthly population, growth and current members while Delta remains the default', async ({ page }) => {
   const { requests, errors } = await prepare(page)
