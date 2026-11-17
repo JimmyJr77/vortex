@@ -154,17 +154,24 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
             <p>{section.description}</p>
             {section.topics && (
               <div className="np-program-topics">
-                {section.topics.map(topic => (
-                  <article key={topic.id} id={topic.id}>
-                    <h3>{topic.heading}</h3>
-                    <p>{topic.description}</p>
-                    {topic.link && (
-                      <Link to={topic.link.href} className="np-program-plain-link mt-3" data-analytics-cta={topic.link.analyticsKey} data-analytics-section={topic.id}>
-                        {topic.link.label} <ArrowUpRight size={16} aria-hidden="true" />
-                      </Link>
-                    )}
-                  </article>
-                ))}
+                {section.topics.map(topic => {
+                  const links = topic.links ?? (topic.link ? [topic.link] : [])
+                  return (
+                    <article key={topic.id} id={topic.id}>
+                      <h3>{topic.heading}</h3>
+                      <p>{topic.description}</p>
+                      {links.length > 0 && (
+                        <div className="mt-3 flex flex-col items-start gap-1">
+                          {links.map(({ href, label, analyticsKey }) => (
+                            <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={topic.id}>
+                              {label} <ArrowUpRight size={16} aria-hidden="true" />
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </article>
+                  )
+                })}
               </div>
             )}
             {(section.links || section.trialLabel) && (

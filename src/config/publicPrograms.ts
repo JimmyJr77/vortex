@@ -22,11 +22,19 @@ export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnas
 
 type ProgramAction = { href: string; label: string; analyticsKey: string }
 
+type ProgramTopic = {
+  id: string
+  heading: string
+  description: string
+  link?: ProgramAction
+  links?: readonly ProgramAction[]
+}
+
 type ProgramSection = {
   id: string
   heading: string
   description: string
-  topics?: readonly { id: string; heading: string; description: string; link?: ProgramAction }[]
+  topics?: readonly ProgramTopic[]
   links?: readonly ProgramAction[]
   trialLabel?: string
 }
@@ -213,22 +221,43 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'disciplines',
         heading: 'Gymnastics disciplines',
-        description: 'Developmental gymnastics builds foundations shared across disciplines. These are some of the skills athletes can encounter as they progress. Ask Vortex about the current class or team pathway for a particular discipline.',
+        description: 'Developmental gymnastics builds foundations shared across disciplines. Classes are listed by age and skill level. For a specific discipline or team evaluation, tell Vortex what your child wants to work on.',
         topics: [
           {
             id: 'artistic',
             heading: 'Artistic gymnastics',
-            description: 'Floor skills and apparatus work develop strength, balance, swings, and controlled landings.',
-            link: { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#boys-gymnastics`, label: 'Compare boys’ gymnastics and apparatus classes' },
+            description: 'Floor skills and apparatus work develop strength, balance, swings, and controlled landings. Beginners ages 6–17 can start in Tornadoes. Gymnasts with experience can try a developmental Trial Assessment to find their starting level.',
+            links: [
+              { href: '/gymnastics#choose-a-class', label: 'Find a starting gymnastics class', analyticsKey: 'read_gymnastics_placement' },
+              { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#boys-gymnastics`, label: 'Compare boys’ gymnastics and apparatus classes' },
+            ],
           },
-          { id: 'rhythmic', heading: 'Rhythmic gymnastics', description: 'Gymnasts combine movement, balance, and coordination with hand apparatus such as a hoop or ribbon.' },
-          { id: 'acro', heading: 'Acrobatic gymnastics', description: 'Partner and group work adds timing, communication, and shared balance to individual gymnastics skills.' },
-          { id: 'aerobic', heading: 'Aerobic gymnastics', description: 'Continuous sequences combine dynamic movement, rhythm, coordination, and endurance.' },
+          {
+            id: 'rhythmic',
+            heading: 'Rhythmic gymnastics',
+            description: 'Rhythmic routines combine dance and balance with hand apparatus such as a hoop or ribbon. Tell us which apparatus your child wants to use and what experience they have so we can check coaching and evaluation options.',
+            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about rhythmic gymnastics coaching', analyticsKey: 'inquire_rhythmic_gymnastics' },
+          },
+          {
+            id: 'acro',
+            heading: 'Acrobatic gymnastics',
+            description: 'Pairs and groups practice partner balances and dynamic skills. Tell us what gymnastics or partner work your child has done and which skills they can repeat so we can check coaching and evaluation options.',
+            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about partner and group acro', analyticsKey: 'inquire_acrobatic_gymnastics' },
+          },
+          {
+            id: 'aerobic',
+            heading: 'Aerobic gymnastics',
+            description: 'Aerobic routines combine continuous movement to music with jumps, balance, and strength. Tell us whether your child wants to learn a routine or compete so we can check which options are available.',
+            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about aerobic gymnastics routines', analyticsKey: 'inquire_aerobic_gymnastics' },
+          },
           {
             id: 'trampoline-tumbling',
             heading: 'Trampoline and tumbling',
-            description: 'Tumbling skills are part of developmental gymnastics. Fit & Flip also uses trampoline and track drills to teach body control alongside strength work. If your child wants a class focused on tumbling, compare nearby programs and their starting skills.',
-            link: { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
+            description: 'Tumbling skills are part of developmental gymnastics. Fit & Flip uses trampoline and tumble-track drills alongside strength work to teach body control for ages 8–15. For a class focused on tumbling, compare nearby programs and their starting skills.',
+            links: [
+              { href: '/fit-and-flip#body-control', label: 'See trampoline and tumbling in Fit & Flip', analyticsKey: 'read_fit_flip_body_control' },
+              { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
+            ],
           },
         ],
         links: [

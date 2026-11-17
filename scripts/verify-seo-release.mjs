@@ -959,7 +959,6 @@ const verifyHtml = (
     const teen = html.match(/<article\b[^>]*\sid=["']teen["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
-    const artistic = html.match(/<article\b[^>]*\sid=["']artistic["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const disciplines = html.match(/<section\b[^>]*\sid=["']disciplines["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const homeschool = html.match(/<section\b[^>]*\sid=["']homeschool["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -972,8 +971,20 @@ const verifyHtml = (
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
       `${label}: missing the placement link for experienced and returning gymnasts`)
-    assert(anchorUrls(artistic).some(url => url.href === `${tumblingGuideCanonical}#boys-gymnastics`),
-      `${label}: artistic gymnastics must link to the local boys’ apparatus comparison`)
+    const disciplineLinks = [
+      ['artistic', [`${canonical}#choose-a-class`, `${tumblingGuideCanonical}#boys-gymnastics`]],
+      ['rhythmic', [`${HUB_ORIGIN}/contact#inquiry`]],
+      ['acro', [`${HUB_ORIGIN}/contact#inquiry`]],
+      ['aerobic', [`${HUB_ORIGIN}/contact#inquiry`]],
+      ['trampoline-tumbling', [`${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`]],
+    ]
+    for (const [id, targets] of disciplineLinks) {
+      const topic = disciplines.match(new RegExp(`<article\\b[^>]*\\sid=["']${id}["'][^>]*>[\\s\\S]*?<\\/article>`, 'i'))?.[0] ?? ''
+      const links = anchorUrls(topic)
+      for (const target of targets) {
+        assert(links.some(url => url.href === target), `${label}: gymnastics #${id} must link to ${target}`)
+      }
+    }
     assert(anchorUrls(disciplines).some(url => url.href === `${HUB_ORIGIN}/contact#gymnastics-equipment`),
       `${label}: gymnastics disciplines must link to the equipment photos`)
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
@@ -1457,6 +1468,10 @@ if (live) {
     '/summer-athletic-training',
     '/artistic-gymnastics-6-12',
     '/campaigns/artistic-gymnastics-6-12',
+    '/artistic-gymnastics',
+    '/rhythmic-gymnastics',
+    '/acro-gymnastics',
+    '/aerobic-gymnastics',
     '/trampoline-tumbling',
   ]) {
     await verifyTrackedRedirect(path, legacyLandingRedirects[path])
