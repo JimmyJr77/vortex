@@ -23,6 +23,31 @@ test.describe('Client-critical smoke flows', () => {
     await expect(visit.getByRole('link', { name: 'See the class schedule' })).toHaveAttribute('href', '/read-board#schedule')
     await expect(page.getByRole('button', { name: 'Book a free trial', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board#schedule')
+    const startingClasses = page.getByRole('region', { name: 'Find a class by age and experience' })
+    await expect(startingClasses.getByRole('link', { name: /Ages 2–5.*preschool/i })).toHaveAttribute('href', '/gymnastics#preschool')
+    await expect(startingClasses.getByRole('link', { name: /Ages 6–17.*kids and teens/i })).toHaveAttribute('href', '/gymnastics#choose-a-class')
+    await expect(startingClasses.getByRole('link', { name: /Ages 8–15.*Fit & Flip/i })).toHaveAttribute('href', '/fit-and-flip#fit-flip-schedule')
+    await expect(startingClasses.getByRole('link', { name: /Ages 18 and up.*adult gymnastics/i })).toHaveAttribute('href', '/adult-gymnastics')
+  })
+
+  test('homepage previews and recommendations preserve the chosen enrollment program', async ({ page }) => {
+    await page.route('**/api/public/classes-offered', (route) => route.fulfill({ json: { success: true, data: { programs: [
+      { id: 4, displayName: 'Developmental Gymnastics', classes: [] },
+      { id: 9, displayName: 'Fit & Flip', classes: [] },
+    ] } } }))
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Explore Gymnastics', exact: true }).click()
+    await page.getByRole('dialog', { name: 'Gymnastics' }).getByRole('link', { name: 'Browse classes & enroll' }).click()
+    await expect(page).toHaveURL('/enroll?program=Developmental%20Gymnastics')
+    await expect(page.getByRole('combobox', { name: 'Program', exact: true })).toHaveValue('4')
+
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Find your fit', exact: true }).click()
+    await page.getByRole('button', { name: /Become a better all-around athlete/ }).click()
+    await page.getByRole('button', { name: 'Explore the program', exact: true }).click()
+    await page.getByRole('dialog', { name: 'Fit & Flip' }).getByRole('link', { name: 'Browse classes & enroll' }).click()
+    await expect(page).toHaveURL('/enroll?program=Fit%20%26%20Flip')
+    await expect(page.getByRole('combobox', { name: 'Program', exact: true })).toHaveValue('9')
   })
 
   test('class schedule links preserve the selected view across history and reload', async ({ page }) => {

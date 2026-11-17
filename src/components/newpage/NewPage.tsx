@@ -9,6 +9,7 @@ import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
+import { PUBLIC_PROGRAMS } from '../../config/publicPrograms'
 import { getHubSchema } from '../../utils/schema'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
 import { trackEvent } from '../../utils/analyticsClient'
@@ -30,7 +31,8 @@ const programs = {
     detail: 'A traditional gymnastics program with a complete approach to development. Athletes learn the foundations shared across gymnastics disciplines, with the strength, explosiveness, and body control to put those skills into practice.',
     points: ['Foundations across artistic, rhythmic, acrobatic, aerobic, and trampoline & tumbling gymnastics.', 'Progressive skill development supported by purposeful physical preparation.', 'Developmental and team pathways with the same commitment to growth. Only team athletes compete.'],
     audience: 'For athletes learning and progressing in gymnastics.',
-    tags: ['Foundational skills', 'Developmental & team'], page: '/gymnastics', linkText: 'Explore youth gymnastics', href: '/enroll?sportFilter=all',
+    tags: ['Foundational skills', 'Developmental & team'], page: '/gymnastics', linkText: 'Explore youth gymnastics',
+    href: PUBLIC_PROGRAMS['/gymnastics'].primaryAction.href,
   },
   'fit-flip': {
     name: 'Fit & Flip', eyebrow: 'ATHLETIC DEVELOPMENT. WITH AN EDGE.',
@@ -39,9 +41,41 @@ const programs = {
     detail: 'Athletic development built around the Triad of Athleticism: Strength, Explosiveness, and Body Control. Purposeful strength and power training meets gymnastics-inspired tumbling and movement for athletes across sports.',
     points: ['Strength and explosiveness to support more powerful movement and tumbling.', 'Gymnastics-inspired body control, coordination, aerial awareness, and landing mechanics.', 'For cheer, acro, dance, gymnasts seeking extra physical development, and athletes in every sport.'],
     audience: 'For cheer, acro, dance, gymnasts, and all-sport athletes.',
-    tags: ['Strength & explosiveness', 'Tumbling & body control'], page: '/fit-and-flip', linkText: 'Explore Fit & Flip youth training', href: '/enroll?sportFilter=all',
+    tags: ['Strength & explosiveness', 'Tumbling & body control'], page: '/fit-and-flip', linkText: 'Explore Fit & Flip youth training',
+    href: PUBLIC_PROGRAMS['/fit-and-flip'].primaryAction.href,
   },
 } as const
+
+const startingClasses = [
+  {
+    ages: 'Ages 2–5',
+    name: 'Toddler and preschool gymnastics',
+    detail: 'Ages 2–3 join a caregiver in Dirt Devils and must be potty trained for a trial. Ages 4–5 learn balance and basic gymnastics shapes in Twisters.',
+    href: '/gymnastics#preschool',
+    analyticsKey: 'explore_preschool_gymnastics',
+  },
+  {
+    ages: 'Ages 6–17',
+    name: 'Gymnastics for kids and teens',
+    detail: 'Beginners can try Tornadoes when a trial is available. Gymnasts with experience can start with a coach-led Trial Assessment.',
+    href: '/gymnastics#choose-a-class',
+    analyticsKey: 'explore_youth_gymnastics',
+  },
+  {
+    ages: 'Ages 8–15',
+    name: 'Fit & Flip youth fitness',
+    detail: 'Cyclones classes build strength, speed, and body control for sports and general fitness. See times for ages 8–11 and 12–15.',
+    href: '/fit-and-flip#fit-flip-schedule',
+    analyticsKey: 'explore_fit-flip',
+  },
+  {
+    ages: 'Ages 18 and up',
+    name: 'Adult gymnastics',
+    detail: 'Typhoons welcomes first-time and returning gymnasts for coached gymnastics and acrobatics.',
+    href: '/adult-gymnastics',
+    analyticsKey: 'explore_adult_gymnastics',
+  },
+] as const
 
 const triad = [
   { name: 'Strength', number: '01', line: 'Build the engine.', image: '/lifting-fundamentals-card.webp', alt: 'A young Vortex athlete practicing a barbell lift', text: 'Develop the physical capacity behind better movement. Build a strong foundation through progressive, coached strength work that meets athletes where they are.', application: 'From holding a handstand to holding your ground.', cues: ['Progressive resistance', 'Full-body strength', 'Strong foundations'] },
@@ -233,8 +267,23 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
             <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img src={program.image} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
             <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><Link className="np-program-link" to={program.page} data-analytics-cta={`explore_${id}`} data-analytics-section="program_cards">{program.linkText}<ArrowUpRight size={21} aria-hidden="true" /></Link></div>
           </article>)}</div>
-          <div className="np-path-help"><span>Not sure where to begin? Start with your athlete’s goals.</span><button className="np-text-button" data-analytics-cta="program_finder" data-analytics-section="programs" onClick={() => setOverlay('finder')}>Find your fit <ArrowRight size={18} /></button></div>
-          <div className="np-path-help"><span>Training for yourself? We offer coached classes for ages 18 and up.</span><Link className="np-text-button" to="/adult-gymnastics" data-analytics-cta="explore_adult_gymnastics" data-analytics-section="programs">Explore adult gymnastics <ArrowUpRight size={18} aria-hidden="true" /></Link></div>
+          <section className="np-class-paths" id="starting-classes" aria-labelledby="np-starting-classes-heading">
+            <h3 id="np-starting-classes-heading">Find a class by age and experience</h3>
+            <ul className="np-class-paths-list" role="list">
+              {startingClasses.map(({ ages, name, detail, href, analyticsKey }) => (
+                <li key={href}>
+                  <h4>
+                    <Link to={href} data-analytics-cta={analyticsKey} data-analytics-section="starting_classes">
+                      <span><small>{ages}</small>{name}</span>
+                      <ArrowUpRight size={18} aria-hidden="true" />
+                    </Link>
+                  </h4>
+                  <p>{detail}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+          <div className="np-path-help"><span>Compare programs based on what your athlete wants to learn.</span><button className="np-text-button" data-analytics-cta="program_finder" data-analytics-section="programs" onClick={() => setOverlay('finder')}>Find your fit <ArrowRight size={18} /></button></div>
         </section>
 
         <section className="np-container np-trial-section" id="free-trial" aria-labelledby="np-free-trial-heading">

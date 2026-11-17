@@ -376,6 +376,15 @@ const verifyHtml = (
       `${label}: the homepage heading must identify the programs and Bowie location`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
+    const startingClasses = html.match(/<section\b[^>]*\sid=["']starting-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const classLinks = anchorUrls(startingClasses)
+    for (const path of ['/gymnastics#preschool', '/gymnastics#choose-a-class', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics']) {
+      assert(classLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: the guide to starting classes must link directly to ${path}`)
+    }
+    for (const ages of ['2–5', '6–17', '8–15', '18 and up']) {
+      assert(startingClasses.includes(`Ages ${ages}`), `${label}: the guide to starting classes is missing ages ${ages}`)
+    }
     const visit = html.match(/<section\b[^>]*\sid=["']visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const visitLinks = anchorUrls(visit)
     assert(/<address\b[^>]*>4961 Tesla Dr Suite E/i.test(visit) && visit.includes('Mon-Fri: 4:00-8:30 PM') &&
