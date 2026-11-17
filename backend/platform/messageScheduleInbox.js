@@ -47,7 +47,7 @@ async function memberEnrolledFormIds(pool, memberId) {
   return new Set(r.rows.map((row) => Number(row.form_id)))
 }
 
-async function memberVisibleEventIds(pool, memberId, facilityId) {
+async function memberVisibleEventIds(pool, memberId) {
   const enrolledForms = await memberEnrolledFormIds(pool, memberId)
   const formList = [...enrolledForms]
 
@@ -58,10 +58,10 @@ async function memberVisibleEventIds(pool, memberId, facilityId) {
        AND (
          e.tag_type = 'all_classes_and_parents'
          OR e.tag_all_parents = TRUE
-         OR (e.scheduling_form_id IS NOT NULL AND e.scheduling_form_id = ANY($2::int[]))
-         OR (e.tag_class_ids IS NOT NULL AND e.tag_class_ids && $2::int[])
+         OR (e.scheduling_form_id IS NOT NULL AND e.scheduling_form_id = ANY($1::int[]))
+         OR (e.tag_class_ids IS NOT NULL AND e.tag_class_ids && $1::int[])
        )`,
-    [facilityId, formList.length > 0 ? formList : [0]],
+    [formList.length > 0 ? formList : [0]],
   )
   return new Set(r.rows.map((row) => Number(row.id)))
 }
@@ -74,7 +74,7 @@ export async function listScheduleInboxRows(pool, facilityId, { memberId = null,
 
   if (isMember) {
     enrolledForms = await memberEnrolledFormIds(pool, memberId)
-    visibleEvents = await memberVisibleEventIds(pool, memberId, facilityId)
+    visibleEvents = await memberVisibleEventIds(pool, memberId)
   }
 
   const eventsRes = await pool.query(
