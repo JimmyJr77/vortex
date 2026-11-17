@@ -114,7 +114,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             heading: 'Mommy & Me and preschool gymnastics',
             description:
               'In Dirt Devils, a parent or caregiver joins their child for coached movement and play. This Mommy & Me class is for ages 2–3, and children must be potty trained for a trial. ' +
-              'In Twisters, preschoolers ages 4–5 practice balance, coordination, and basic gymnastics shapes through play.',
+              'In Twisters, preschoolers ages 4–5 practice balance, coordination, and basic gymnastics shapes through play. ' +
+              'Use your child’s age on the day of the trial to choose a class.',
             link: {
               href: PRESCHOOL_GYMNASTICS_GUIDE.path,
               label: PRESCHOOL_GYMNASTICS_GUIDE.heading,

@@ -5,7 +5,7 @@ import {
   CONSENT_ID_QUERY_PARAM,
 } from '../src/config/analyticsPolicy.js'
 
-const publicPaths = new Set(['/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support'])
+const publicPaths = new Set(['/gymnastics', '/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support'])
 
 export default function legacyPublicConsent(request: IncomingMessage, response: ServerResponse) {
   if (request.method !== 'GET' && request.method !== 'HEAD') {

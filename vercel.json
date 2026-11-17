@@ -326,7 +326,7 @@
   ],
   "headers": [
     {
-      "source": "/:path((?!(?:fit-and-flip|read-board|drop-in|contact|support)$).*)",
+      "source": "/:path((?!(?:gymnastics|fit-and-flip|read-board|drop-in|contact|support)$).*)",
       "has": [
         { "type": "host", "value": "vortexathletics\\.com" },
         { "type": "query", "key": "vcid" }
@@ -421,7 +421,7 @@
   ],
   "routes": [
     {
-      "src": "^/(fit-and-flip|read-board|drop-in|contact|support)$",
+      "src": "^/(gymnastics|fit-and-flip|read-board|drop-in|contact|support)$",
       "methods": ["GET", "HEAD"],
       "has": [
         { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },

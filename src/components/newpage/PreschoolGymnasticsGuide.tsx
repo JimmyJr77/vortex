@@ -36,11 +36,23 @@ export default function PreschoolGymnasticsGuide() {
       <div className="athletic-guide-body">
         <nav className="athletic-guide-index" aria-label="In this guide">
           <ul>
+            <li><a href="#gymnastics-before-age-2">Gymnastics before age 2</a></li>
             <li><a href="#ages-2-3">Ages 2–3 with a caregiver</a></li>
             <li><a href="#ages-4-5">Ages 4–5 in a group</a></li>
             <li><a href="#progress">What progress can look like</a></li>
           </ul>
         </nav>
+
+        <section id="gymnastics-before-age-2">
+          <h2>Parent-and-child gymnastics before age 2</h2>
+          <p>
+            Dirt Devils at Vortex starts at age 2. For younger toddlers, Prince George’s County offers
+            One, Two &amp; You from 18 months at Fairland Sports Complex in Laurel. One adult participates
+            with each child. Check the current session’s age rules and dates before registering.{' '}
+            <a href="https://www.pgparks.com/your-guide">Find One, Two &amp; You in the county’s class guide</a> ·{' '}
+            <a href="https://www.pgparks.com/facilities/fairland-aquatic-center">See the Fairland location</a>
+          </p>
+        </section>
 
         <section id="ages-2-3">
           <h2>What toddlers practice in Dirt Devils, ages 2–3</h2>
@@ -89,8 +101,9 @@ export default function PreschoolGymnasticsGuide() {
         <aside className="athletic-guide-next" aria-labelledby="preschool-gymnastics-next">
           <h2 id="preschool-gymnastics-next">Plan your first class in Bowie</h2>
           <p>
-            Start with the <Link to="/gymnastics#preschool">class for your child’s age</Link>. Children must
-            be potty trained for a Dirt Devils trial. You can also see{' '}
+            Use your child’s age on the day they’ll attend the Vortex trial. If they’ll be 4 that day,
+            look for <Link to="/gymnastics#preschool">Twisters</Link>. Children must be potty trained for a
+            Dirt Devils trial. You can also see{' '}
             <Link to="/gymnastics#first-visit">what to wear and how to prepare for your first visit</Link>.
           </p>
           <div className="athletic-guide-actions">

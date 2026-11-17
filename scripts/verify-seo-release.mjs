@@ -57,7 +57,7 @@ const isBowieDirections = (url) => url.origin === 'https://www.google.com' && ur
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
-const normalizedConsentPaths = ['/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support']
+const normalizedConsentPaths = ['/gymnastics', '/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support']
 const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => !normalizedConsentPaths.includes(path)), '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
@@ -1057,6 +1057,12 @@ const verifyHtml = (
     }
     assert(['ages-2-3', 'ages-4-5', 'progress'].every((id) => pageIds.has(id)),
       `${label}: missing preschool curriculum or progress sections`)
+    const youngerToddlers = content.match(/<section\b[^>]*\sid=["']gymnastics-before-age-2["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const countyLinks = anchorUrls(youngerToddlers)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#gymnastics-before-age-2') &&
+      countyLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
+      countyLinks.some(url => url.href === 'https://www.pgparks.com/facilities/fairland-aquatic-center'),
+      `${label}: missing the under-two gymnastics option or the county's official links`)
   }
   if (shouldIndex && (pagePath === '/gymnastics' || pagePath === '/fit-and-flip')) {
     const tumblingTopicId = pagePath === '/gymnastics' ? 'trampoline-tumbling' : 'body-control'
@@ -1391,17 +1397,17 @@ for (const set of expectedSets) {
       consentDestination.searchParams.append('tag', 'one')
       consentDestination.searchParams.append('tag', 'two')
       const consentId = 'c_consent_release_check'
-      const consentSource = new URL(consentDestination)
-      consentSource.searchParams.set(consentQueryParam, consentId)
+      const consentSource = new URL(path, set.origin)
+      consentSource.searchParams.append('utm_source', 'seo_release_check')
+      consentSource.searchParams.append('tag', 'one')
+      consentSource.searchParams.append(consentQueryParam, consentId)
+      consentSource.searchParams.append('tag', 'two')
       const consentRedirect = await fetch(consentSource, { redirect: 'manual' })
       await consentRedirect.body?.cancel()
       const consentLocation = consentRedirect.headers.get('location')
       const consentTarget = consentLocation ? new URL(consentLocation, consentSource) : null
-      assert(consentRedirect.status === 308 && consentTarget?.origin === consentDestination.origin &&
-        consentTarget?.pathname === path && !consentTarget.hash && !consentTarget.searchParams.has(consentQueryParam) &&
-        consentTarget.searchParams.get('utm_source') === 'seo_release_check' &&
-        consentTarget.searchParams.getAll('tag').join(',') === 'one,two',
-        path + ': legacy consent redirect must remove vcid and preserve campaign and repeated parameters without adding a fragment')
+      assert(consentRedirect.status === 308 && consentTarget?.href === consentDestination.href,
+        path + ': legacy consent redirect must remove vcid and keep campaign and repeated parameters in order without adding a fragment')
       assert(/\bprivate\b/.test(consentRedirect.headers.get('cache-control') ?? '') && /\bno-store\b/.test(consentRedirect.headers.get('cache-control') ?? '') &&
         (consentRedirect.headers.get('set-cookie') ?? '').startsWith('_vortex_cid=' + consentId + ';') &&
         !/\bnoindex\b/i.test(consentRedirect.headers.get('x-robots-tag') ?? ''),
@@ -1438,10 +1444,14 @@ for (const set of expectedSets) {
         `${path}: booking and campaign URLs must remain available without a noindex header`)
     }
 
-    const previewWithConsent = await fetch(`${set.origin}/?sport=soccer&${consentQueryParam}=c_seo_release_check`, { redirect: 'manual' })
-    await previewWithConsent.body?.cancel()
-    assert(previewWithConsent.ok && /\bnofollow\b/i.test(previewWithConsent.headers.get('x-robots-tag') ?? ''),
-      `${set.origin}: a legacy consent ID must not weaken the sport preview's nofollow header`)
+    for (const path of ['/', '/gymnastics']) {
+      const previewUrl = `${set.origin}${path}?sport=soccer&${consentQueryParam}=c_seo_release_check`
+      const previewWithConsent = await fetch(previewUrl, { redirect: 'manual' })
+      await previewWithConsent.body?.cancel()
+      const robotsTag = previewWithConsent.headers.get('x-robots-tag') ?? ''
+      assert(previewWithConsent.ok && /\bnoindex\b/i.test(robotsTag) && /\bnofollow\b/i.test(robotsTag),
+        `${previewUrl}: a legacy consent ID must preserve the sport preview header and bypass normalization`)
+    }
 
     for (const path of ['/admin', '/?sport=soccer', ...SPA_ONLY_PATHS]) {
       const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
@@ -1563,6 +1573,10 @@ if (live) {
     await verifyTrackedRedirect(path, legacyLandingRedirects[path])
     await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
   }
+
+  await verifyTrackedRedirect('/trampoline-tumbling', legacyLandingRedirects['/trampoline-tumbling'], {
+    [consentQueryParam]: 'c_consent_release_check',
+  })
 
   const bookingQuery = { form: '42', offeringId: '3', slotGroupId: '5', timeSlotId: '6' }
   for (const path of ['/schedule', '/scheduling']) {
@@ -1734,7 +1748,8 @@ assert(headers.some(rule => rule.source === '/:path((?!(?:' + normalizedConsentS
 const consentHandler = 'api/legacy-public-consent.ts'
 const consentRewrite = vercelConfig.routes?.find(rule => rule.src === '^/(' + normalizedConsentSlugs + ')$' &&
   rule.dest === '/' + consentHandler && !rule.check &&
-  rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam))
+  rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam) &&
+  rule.missing?.some(condition => condition.type === 'query' && condition.key === 'sport'))
 assert(vercelConfig.builds?.some(build => build.src === consentHandler && build.use === '@vercel/node') &&
   consentRewrite,
   'vercel.json: normalized consent requests must reach the Node handler before the static pages')

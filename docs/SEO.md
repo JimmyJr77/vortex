@@ -160,9 +160,9 @@ npm run test:seo-live
 The release checks require clean links on indexable pages. Cross-domain consent
 links for returning visitors carry `vcid` in a browser-only fragment. On arrival,
 the app restores any section anchor and keeps the rest of the query string.
-Legacy query-based `vcid` links to Fit & Flip, Class Board, drop-ins, contact,
-and customer support redirect to the same page without that parameter. The
-response keeps existing booking and campaign parameters and
+Legacy query-based `vcid` links to youth gymnastics, Fit & Flip, Class Board,
+drop-ins, contact, and customer support redirect to the same page without that
+parameter. The response keeps existing booking and campaign parameters and
 lets the browser carry the section anchor. A valid ID goes into the same
 necessary consent cookie the browser already uses. Other legacy consent links
 still load with `X-Robots-Tag: noindex` so the browser can apply consent. The
