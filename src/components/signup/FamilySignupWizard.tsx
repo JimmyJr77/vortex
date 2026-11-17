@@ -17,7 +17,7 @@ import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
 import FamilySearchCombobox, { type FamilySearchOption } from './FamilySearchCombobox'
 import WaiverSigningBlock from './WaiverSigningBlock'
 import { validateWaiverSigning, type PublicWaiverTemplate } from './waiverSigningUtils'
-import { flushEvents, trackConfirmation, trackEvent } from '../../utils/analyticsClient'
+import { flushEvents, trackBookingConfirmation, trackEvent } from '../../utils/analyticsClient'
 import type { ProgramPricingOptionKey } from '../../utils/programPricingOptions'
 import {
   clearPublicEnrollmentCart,
@@ -1411,7 +1411,7 @@ export default function FamilySignupWizard({
           setSuccessDestination('/?login=1')
           return
         }
-        trackConfirmation('trial_confirmed', trialSourcePath, booking.id, { program_slug: freeTrial?.program })
+        trackBookingConfirmation('trial_confirmed', trialSourcePath, booking.id, { program_slug: freeTrial?.program })
         const login = await loginMemberWithCredentials(apiUrl, {
           emailOrUsername: primaryAdult.username, password: primaryAdult.password,
         }).catch(() => null)

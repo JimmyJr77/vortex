@@ -17,6 +17,8 @@ let consentGeneration = 0
 const MAX_BATCH = 8
 const MAX_QUEUE = 80
 const MAX_BEACON_BYTES = 8192
+const BOOKING_CONFIRMATIONS_KEY = 'vortex:booking-confirmations'
+const BOOKING_CONFIRMATION_TTL_MS = 90 * 24 * 60 * 60 * 1000
 
 function newEventId(): string {
   if (crypto.randomUUID) return crypto.randomUUID()
@@ -69,6 +71,35 @@ export function trackConfirmation(name: string, path: string, id: string | numbe
   } catch { /* storage can be unavailable */ }
   if (!trackEvent(name, path, { properties })) return
   try { sessionStorage.setItem(key, '1') } catch { /* storage can be unavailable */ }
+  return true
+}
+
+/** Free trials and drop-ins share a booking ID, including after a payment return. */
+export function trackBookingConfirmation(
+  name: 'trial_confirmed' | 'drop_in_confirmed',
+  path: string,
+  id: number,
+  properties?: Record<string, unknown>,
+) {
+  if (!Number.isSafeInteger(id) || id <= 0 || !getActiveConsent().analytics) return
+
+  const record = () => {
+    if (!getActiveConsent().analytics) return
+    const now = Date.now()
+    let confirmations: Record<string, number> = {}
+    try {
+      const saved = JSON.parse(localStorage.getItem(BOOKING_CONFIRMATIONS_KEY) ?? '{}')
+      confirmations = Object.fromEntries(Object.entries(saved).filter((entry): entry is [string, number] =>
+        typeof entry[1] === 'number' && entry[1] > now))
+    } catch { /* fall back to tab storage */ }
+    if (Object.hasOwn(confirmations, id) || !trackConfirmation(name, path, id, properties)) return
+    confirmations[id] = now + BOOKING_CONFIRMATION_TTL_MS
+    try { localStorage.setItem(BOOKING_CONFIRMATIONS_KEY, JSON.stringify(confirmations)) } catch { /* tab storage already recorded it */ }
+  }
+
+  // Serialize the read and write so simultaneous returns in different tabs cannot both count.
+  if (navigator.locks) void navigator.locks.request(BOOKING_CONFIRMATIONS_KEY, record).catch(() => record())
+  else record()
 }
 
 export function trackOutboundClickEvent(name: string, path: string, properties?: Record<string, unknown>) {
@@ -159,6 +190,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener(CONSENT_CHANGED, () => {
     if (!getActiveConsent().analytics) {
       clearAttribution()
+      try { localStorage.removeItem(BOOKING_CONFIRMATIONS_KEY) } catch { /* storage can be unavailable */ }
       void flushEvents()
     }
   })

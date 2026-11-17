@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { ANALYTICS_POLICY_VERSION, CONSENT_STORAGE_KEY } from '../../src/config/analyticsPolicy'
 
 const classDate = '2027-01-12'
 const signupUrl = `/drop-in?signupSlot=200&signupDate=${classDate}`
@@ -37,6 +38,14 @@ const fitFlipDropInClass = {
 }
 const fitFlipSession = {
   ...session, ...fitFlipDropInClass, slotGroupId: 202, startTime: '18:00', endTime: '19:30',
+}
+
+async function acceptAnalytics(page: Page) {
+  await page.addInitScript(({ consentKey, policyVersion }) => {
+    localStorage.setItem(consentKey, JSON.stringify({
+      necessary: true, analytics: true, marketing: false, policyVersion, updatedAt: new Date().toISOString(),
+    }))
+  }, { consentKey: CONSENT_STORAGE_KEY, policyVersion: ANALYTICS_POLICY_VERSION })
 }
 
 async function mockDropInApi(page: Page, options: {
@@ -151,7 +160,10 @@ async function mockDropInApi(page: Page, options: {
   })
   await page.route('**/mock-membership-card-payment', route => route.fulfill({ body: 'Membership card payment fixture' }))
   await page.route('**/mock-drop-in-card-payment', route => route.fulfill({ body: 'Drop-in card payment fixture' }))
-  return { submitted, catalogMemberIds }
+  const conversions = () => submitted.filter(({ path }) => path === '/api/analytics/event')
+    .flatMap(({ body }) => (body.events as { eventName: string }[]).map(({ eventName }) => eventName))
+    .filter(name => name === 'trial_confirmed' || name === 'drop_in_confirmed')
+  return { submitted, catalogMemberIds, conversions }
 }
 
 async function signedIn(page: Page) {
@@ -417,7 +429,8 @@ test('guest drop-in requires full account details and waivers before offering me
 })
 
 test('membership is paid and verified before an annual credit can confirm the selected drop-in', async ({ page }) => {
-  const { submitted, catalogMemberIds } = await mockDropInApi(page)
+  const { submitted, catalogMemberIds, conversions } = await mockDropInApi(page)
+  await acceptAnalytics(page)
   await page.goto(signupUrl)
   await completeAccountDetails(page)
   await finishAccount(page)
@@ -443,6 +456,7 @@ test('membership is paid and verified before an annual credit can confirm the se
   expect(submitted.filter(item => item.path === '/api/signup/family')).toHaveLength(1)
   expect(submitted.filter(item => item.path === '/api/members/billing/drop-in-checkout')).toHaveLength(0)
   expect(catalogMemberIds.length).toBeGreaterThanOrEqual(2)
+  await expect.poll(conversions).toEqual(['drop_in_confirmed'])
 })
 
 test('cancelled optional membership returns to review without confirming a drop-in', async ({ page }) => {
@@ -485,7 +499,8 @@ test('card checkout failure retains the account and pending booking for retry', 
 })
 
 test('an eligible one-time trial confirms at zero dollars without buying membership or opening card checkout', async ({ page }) => {
-  const { submitted } = await mockDropInApi(page)
+  const { submitted, conversions } = await mockDropInApi(page)
+  await acceptAnalytics(page)
   await page.goto(signupUrl)
   await completeAccountDetails(page)
   await finishAccount(page)
@@ -495,6 +510,7 @@ test('an eligible one-time trial confirms at zero dollars without buying members
   await expect(page.getByText('Your one-time free trial is confirmed. No payment is due.')).toBeVisible()
   expect(submitted.find(item => item.path === '/api/public/drop-ins/register')?.body).toMatchObject({ memberId: 102, useFreeTrial: true })
   expect(submitted.filter(item => /billing/.test(item.path))).toHaveLength(0)
+  await expect.poll(conversions).toEqual(['trial_confirmed'])
 })
 
 test('failed automatic login resumes the saved signup after sign-in without creating another account', async ({ page }) => {

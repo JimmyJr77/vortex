@@ -1,4 +1,4 @@
-import { trackConfirmation, trackEvent } from '../../utils/analyticsClient'
+import { trackBookingConfirmation, trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2 } from 'lucide-react'
@@ -7,7 +7,7 @@ import DropInAthletePicker from './DropInAthletePicker'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInSession } from '../../utils/dropInApi'
 import { confirmAnnualMembershipCheckoutSession, createAnnualMembershipCheckoutSession, fetchAnnualMembershipOffer, type AnnualMembershipOffer } from '../../utils/schedulingApi'
 import { getMemberSessionToken, persistMemberSession, PORTAL_SESSION_CHANGED, type PortalAccount } from '../../utils/portalSession'
-import { ADULT_BOOKING_PROGRAM, getScopedDropInProgram, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM, getPublicBookingProgramName, getScopedDropInProgram, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
 
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 const membershipSettled = (status?: string) => status === 'completed' || status === 'already_active'
@@ -157,7 +157,7 @@ function DropInCheckout({ memberId, token, session, onCancel, onChangeAthlete, a
     trackEvent('drop_in_checkout_start', '/drop-in')
     const checkout = await checkoutDropIn(registration.id)
     if (checkout.status === 'confirmed') {
-      trackConfirmation('drop_in_confirmed', '/drop-in', registration.id)
+      trackBookingConfirmation('drop_in_confirmed', '/drop-in', registration.id)
       setBooking({ ...registration, status: 'confirmed' })
     }
     else if (checkout.url) window.location.assign(checkout.url)
@@ -235,7 +235,15 @@ function DropInCheckout({ memberId, token, session, onCancel, onChangeAthlete, a
         useFreeTrial: trialSelected, promoCode: trialSelected ? undefined : promoCode.trim() || undefined })
       if (registration.accountRequired) throw new Error('Please sign in again before completing this drop-in.')
       setBooking(registration)
-      if (registration.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', registration.id)
+      if (registration.status === 'confirmed') {
+        const isFreeTrial = registration.benefitType === 'free_trial' && registration.totalCents === 0
+        const publicProgram = session.programName && getPublicBookingProgramName(session.programName)
+        const programSlug = publicProgram === FIT_AND_FLIP_BOOKING_PROGRAM ? 'fit-flip'
+          : isAdultBookingProgram(session.programName) ? 'adult-gymnastics'
+            : publicProgram ? 'gymnastics' : undefined
+        trackBookingConfirmation(isFreeTrial ? 'trial_confirmed' : 'drop_in_confirmed', '/drop-in', registration.id,
+          programSlug ? { program_slug: programSlug } : undefined)
+      }
       if (registration.status === 'payment_pending') {
         if (registration.totalCents > dueCents) {
           setError(`The updated drop-in total is ${money(registration.totalCents)}. Review it before paying.`)

@@ -1,4 +1,4 @@
-import { trackConfirmation, trackEvent } from '../../utils/analyticsClient'
+import { trackBookingConfirmation, trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Loader2, Plus } from 'lucide-react'
 import FamilySignupWizard, { type FreeTrialSignupSelection } from '../signup/FamilySignupWizard'
@@ -212,7 +212,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
       if (data.data?.status !== 'confirmed' || data.data?.benefitType !== 'free_trial' || data.data?.totalCents !== 0) {
         throw new Error('We could not verify this free trial. Please contact Vortex before attending.')
       }
-      trackConfirmation('trial_confirmed', sourcePath, data.data.id, { program_slug: selection.program })
+      trackBookingConfirmation('trial_confirmed', sourcePath, data.data.id, { program_slug: selection.program })
       complete()
     } catch (err) {
       trackEvent('trial_confirm_error', sourcePath, { properties: { program_slug: selection.program } })

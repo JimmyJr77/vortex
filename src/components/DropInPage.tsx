@@ -1,4 +1,4 @@
-import { trackConfirmation, trackEvent } from '../utils/analyticsClient'
+import { trackBookingConfirmation, trackEvent } from '../utils/analyticsClient'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, LayoutGrid, Loader2, Search, X } from 'lucide-react'
@@ -99,7 +99,7 @@ export default function DropInPage() {
     void checkoutDropIn(bookingId, checkoutSessionId).then((checkout) => {
       if (active) {
         setPaymentStatus(checkout.status)
-        if (checkout.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', bookingId)
+        if (checkout.status === 'confirmed') trackBookingConfirmation('drop_in_confirmed', '/drop-in', bookingId)
       }
     }).catch((error) => { if (active) setPaymentError(error.message) })
     return () => { active = false }
@@ -114,7 +114,7 @@ export default function DropInPage() {
       setPaymentStatus(checkout.status)
       if (checkout.url) window.location.assign(checkout.url)
       else if (checkout.status === 'confirmed') {
-        trackConfirmation('drop_in_confirmed', '/drop-in', id)
+        trackBookingConfirmation('drop_in_confirmed', '/drop-in', id)
       }
       else setPaymentError('Payment is still being confirmed. Check again in a moment.')
     } catch (error) {
