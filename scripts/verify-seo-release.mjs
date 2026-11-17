@@ -644,6 +644,14 @@ const verifyHtml = (
         `${label}: the program visit section must link to the Bowie gym photos and accessibility details`)
     }
     if (pagePath === '/gymnastics') {
+      const schoolAge = mainHtml.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      const schoolAgeDescription = schoolAge.match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)?.[1] ?? ''
+      const schoolAgeLinks = anchorUrls(schoolAge)
+      assert(/<h3\b[^>]*>Gymnastics classes for ages 6–12<\/h3>/i.test(schoolAge) &&
+        /\bTornadoes\b/.test(schoolAgeDescription) && /\bTrial Assessment\b/.test(schoolAgeDescription) &&
+        ['#youth-gymnastics-schedule', '#experienced-trial', '#competitive-gymnastics-team'].every(hash =>
+          schoolAgeLinks.some(url => url.href === canonical + hash)),
+        `${label}: the legacy school-age landing must explain starting options and link to class times, assessment, and team placement`)
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me.*preschool/.test(schedule),
         `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
@@ -1097,10 +1105,17 @@ const verifyHtml = (
       const question = pagePath === '/drop-in' ? 'Which drop-in dates accept a free trial?' : 'Can I try adult gymnastics for free?'
       const faq = parsed.find((item) => item?.['@type'] === 'FAQPage')
       const answer = faq?.mainEntity?.find((item) => item.name === question)?.acceptedAnswer?.text
-      const visibleFaq = [...html.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/gi)]
-        .find(([entry]) => entry.includes(question))?.[0] ?? ''
+      const visibleFaqs = [...html.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/gi)].map(([entry]) => entry)
+      const visibleFaq = visibleFaqs.find(entry => entry.includes(question)) ?? ''
       assert(answer && /Accepts free trials/.test(answer) && /unused one-time (free )?trial/i.test(answer) &&
         decodeHtml(visibleFaq).includes(answer), `${label}: the visible trial eligibility answer must match FAQ structured data`)
+      if (pagePath === '/adult-gymnastics') {
+        const ageQuestion = 'Is there an upper age limit for adult gymnastics?'
+        const ageAnswer = faq?.mainEntity?.find(item => item.name === ageQuestion)?.acceptedAnswer?.text
+        const visibleAgeFaq = visibleFaqs.find(entry => entry.includes(ageQuestion)) ?? ''
+        assert(ageAnswer && /\bno upper age limit\b/i.test(ageAnswer) && decodeHtml(visibleAgeFaq).includes(ageAnswer),
+          `${label}: the visible adult age limit answer must match FAQ structured data`)
+      }
     }
 
     if (HUB_ARTICLE_PATHS.includes(pagePath)) {

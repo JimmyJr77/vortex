@@ -124,9 +124,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { id: 'beginner', heading: 'Beginner gymnastics for ages 6–17', description: 'Kids and teens with no gymnastics experience start with a Tornadoes trial when available. Athletes learn body shapes and controlled landings as they work toward skills such as rolls, cartwheels, and handstands.' },
           {
             id: 'youth',
-            heading: 'Developmental and team pathways',
-            description: 'Athletes can build skills through developmental gymnastics or ask about an evaluation for the competitive team.',
-            link: { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare developmental and competitive gymnastics', analyticsKey: 'compare_gymnastics_pathways' },
+            heading: 'Gymnastics classes for ages 6–12',
+            description: 'Start with a Tornadoes beginner class if your child is new to gymnastics. If they’ve taken gymnastics before, start with a Trial Assessment so the coach can find the right class for the skills they can repeat.',
+            links: [
+              { href: '/gymnastics#youth-gymnastics-schedule', label: 'See weekly Tornadoes class times', analyticsKey: 'read_youth_gymnastics_schedule' },
+              { href: '/gymnastics#experienced-trial', label: 'Find a Trial Assessment for an experienced gymnast', analyticsKey: 'read_gymnastics_placement' },
+              { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare developmental and competitive gymnastics', analyticsKey: 'compare_gymnastics_pathways' },
+            ],
           },
           {
             id: 'teen',
@@ -468,7 +472,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       },
     ],
     faqs: [
-      { question: 'What age is the adult gymnastics class for?', answer: 'Typhoons is for adults ages 18 and up. Vortex has separate youth gymnastics pathways for kids and teens.' },
+      { question: 'Is there an upper age limit for adult gymnastics?', answer: 'Typhoons is open to adults ages 18 and up, with no upper age limit. If you’re starting later in adulthood, tell your coach you’re new so they can help you choose a movement to start with.' },
       { question: 'Can I join as a beginner?', answer: 'Yes. Typhoons welcomes adults without prior gymnastics experience. Contact Vortex if you would like help choosing your starting point.' },
       { question: 'Can I try one adult gymnastics class?', answer: 'Yes. Choose an available Typhoons drop-in date to reserve one coached class without a monthly enrollment. Availability depends on the date and remaining spots.' },
       { question: 'Can I try adult gymnastics for free?', answer: 'Look for “Accepts free trials” on Typhoons dates. You can apply an unused one-time free trial during registration and review your total before confirming. Annual membership is optional for a free trial.' },

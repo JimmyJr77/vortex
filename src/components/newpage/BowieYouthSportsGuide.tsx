@@ -103,8 +103,16 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.cityofbowie.org/485/Lessons-Camps">View skating lessons</a>
             </li>
             <li>
+              <strong>Learn to swim in Bowie and nearby.</strong> NotYetPro offers private, semi-private, and trio
+              swim lessons at Sport Fit Bowie. Prince George’s County offers youth lessons for ages 6–12, teen
+              lessons for ages 13–17, and adapted lessons for county residents with disabilities ages 4 and up.
+              Check your child’s age group and the pool location before registering.{' '}
+              <a href="https://www.notyetpro.org/swimschool/book/">Check NotYetPro lessons in Bowie</a> ·{' '}
+              <a href="https://www.pgparks.com/things-to-do/aquatics">Check county swim lessons</a>
+            </li>
+            <li>
               <strong>Prince George’s County Parks and Recreation.</strong> Compare leagues, skills classes, and camps
-              across sports such as soccer, swimming, and tennis. In PARKS DIRECT, choose Activity Search and filter by
+              across sports such as soccer and tennis. In PARKS DIRECT, choose Activity Search and filter by
               age and location. Try Bowie Community Center or South Bowie Community Center for nearby options.{' '}
               <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a> ·{' '}
               <a href="https://help.pgparksdirect.com/a/1416705-how-to-register-for-an-activity">Find and register for a county activity</a>
